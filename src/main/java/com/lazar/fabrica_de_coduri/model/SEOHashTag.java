@@ -16,10 +16,11 @@ public class SEOHashTag {
     public SEOHashTag() {
     }
 
-    public SEOHashTag(long id, String text, String redirectLink) {
+    public SEOHashTag(long id, String text, String redirectLink, PlatformInfo platformInfo) {
         this.id = id;
         this.text = text;
         this.redirectLink = redirectLink;
+        this.platformInfo = platformInfo;
     }
 
     public long getId() {
@@ -44,5 +45,13 @@ public class SEOHashTag {
 
     public void setRedirectLink(String redirectLink) {
         this.redirectLink = redirectLink;
+    }
+
+    public PlatformInfo getPlatformInfo() {
+        return platformInfo;
+    }
+
+    public void setPlatformInfo(PlatformInfo platformInfo) {
+        this.platformInfo = platformInfo;
     }
 }

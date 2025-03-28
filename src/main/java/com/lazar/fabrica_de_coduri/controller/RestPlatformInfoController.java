@@ -38,6 +38,11 @@ public class RestPlatformInfoController {
         return seoHashTagService.getAllHashTags(platformInfoService.getPlatformInfo().getId());
     }
 
+    @DeleteMapping("/hashtags/delete/{id}")
+    public void deleteHashTag(@PathVariable Long id) {
+        seoHashTagService.deleteHashTag(id);
+    }
+
     @PostMapping("/news")
     public News addNews(@RequestBody News news) {
         return newsService.addNews(news);
