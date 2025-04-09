@@ -78,4 +78,37 @@ public class LessonController {
         throw new RuntimeException("Lesson not found");
     }
 
+    @GetMapping("/topic/{topicId}")
+    public String redirectToFirstLesson(@PathVariable Long topicId) {
+        Topic topic = topicRepository.findById(topicId).orElseThrow(() -> new RuntimeException("Topic not found"));
+        List<Chapter> chapters = topic.getChapters();
+
+        if (chapters.isEmpty()) {
+            throw new RuntimeException("No chapters found for topic");
+        }
+
+        Chapter firstChapter = chapters.stream()
+                .sorted((c1, c2) -> c1.getId().compareTo(c2.getId()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("No chapters found"));
+
+        List<Lesson> lessons = firstChapter.getLessons();
+
+        if (lessons.isEmpty()) {
+            throw new RuntimeException("No lessons found in first chapter");
+        }
+
+        Lesson firstLesson = lessons.stream()
+                .sorted((l1, l2) -> l1.getId().compareTo(l2.getId()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("No lessons found"));
+
+        String topicSlug = SlugUtils.toSlug(topic.getName());
+        String chapterSlug = SlugUtils.toSlug(firstChapter.getTitle());
+        String lessonSlug = SlugUtils.toSlug(firstLesson.getTitle());
+
+        return "redirect:/lessons/" + topicSlug + "/" + chapterSlug + "/" + lessonSlug;
+    }
+
+
 }
