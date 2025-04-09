@@ -2,7 +2,6 @@ package com.lazar.fabrica_de_coduri.controller;
 
 import com.lazar.fabrica_de_coduri.model.Chapter;
 import com.lazar.fabrica_de_coduri.model.Lesson;
-import com.lazar.fabrica_de_coduri.model.PlatformInfo;
 import com.lazar.fabrica_de_coduri.model.Topic;
 import com.lazar.fabrica_de_coduri.repository.ChapterRepository;
 import com.lazar.fabrica_de_coduri.repository.LessonRepository;
@@ -34,22 +33,6 @@ public class LessonController {
     @Autowired
     private PlatformInfoRepository platformInfoRepository;
 
-    @GetMapping("/{lessonId}")
-    public String viewLesson(@PathVariable Long lessonId, Model model) {
-        Lesson lesson = lessonRepository.findById(lessonId).orElseThrow();
-
-        Topic topic = lesson.getChapter().getTopic();
-        List<Chapter> chapters = topic.getChapters();
-        model.addAttribute("topics", topicRepository.findAll());
-
-        PlatformInfo platformInfo = platformInfoRepository.findById(1L).orElse(null);
-        model.addAttribute("platformInfo", platformInfo);
-        model.addAttribute("lesson", lesson);
-        model.addAttribute("chapters", chapters);
-        model.addAttribute("topics", topicRepository.findAll());
-        return lesson.getHtmlPath();
-    }
-
     @GetMapping("/{topicSlug}/{chapterSlug}/{lessonSlug}")
     public String viewLessonFriendly(
             @PathVariable String topicSlug,
@@ -57,16 +40,17 @@ public class LessonController {
             @PathVariable String lessonSlug,
             Model model) {
 
-        // Normalizează slug-urile primite din URL
         String topicSlugNorm = SlugUtils.toSlug(topicSlug);
         String chapterSlugNorm = SlugUtils.toSlug(chapterSlug);
         String lessonSlugNorm = SlugUtils.toSlug(lessonSlug);
 
-        System.out.println("=== Incoming Slugs (NORMALIZED) ===");
-        System.out.println("Topic slug: " + topicSlugNorm);
-        System.out.println("Chapter slug: " + chapterSlugNorm);
-        System.out.println("Lesson slug: " + lessonSlugNorm);
-        System.out.println("===================================");
+        if (!topicSlug.equals(topicSlugNorm)
+                || !chapterSlug.equals(chapterSlugNorm)
+                || !lessonSlug.equals(lessonSlugNorm)) {
+
+            String cleanUrl = "/lessons/" + topicSlugNorm + "/" + chapterSlugNorm + "/" + lessonSlugNorm;
+            return "redirect:" + cleanUrl;
+        }
 
         List<Lesson> allLessons = lessonRepository.findAll();
 
@@ -75,16 +59,9 @@ public class LessonController {
             String chapterSlugGenerated = SlugUtils.toSlug(lesson.getChapter().getTitle());
             String topicSlugGenerated = SlugUtils.toSlug(lesson.getChapter().getTopic().getName());
 
-            System.out.println(">> Checking lesson:");
-            System.out.println("  Lesson title: " + lesson.getTitle() + " -> " + lessonSlugGenerated);
-            System.out.println("  Chapter title: " + lesson.getChapter().getTitle() + " -> " + chapterSlugGenerated);
-            System.out.println("  Topic name: " + lesson.getChapter().getTopic().getName() + " -> " + topicSlugGenerated);
-
             if (lessonSlugGenerated.equals(lessonSlugNorm)
                     && chapterSlugGenerated.equals(chapterSlugNorm)
                     && topicSlugGenerated.equals(topicSlugNorm)) {
-
-                System.out.println(">>> MATCH FOUND! Lesson ID: " + lesson.getId());
 
                 Topic topic = lesson.getChapter().getTopic();
                 List<Chapter> chapters = topic.getChapters();
@@ -98,10 +75,7 @@ public class LessonController {
             }
         }
 
-        System.out.println("!!! No matching lesson found for slugs.");
         throw new RuntimeException("Lesson not found");
     }
-
-
 
 }
