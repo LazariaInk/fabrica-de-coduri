@@ -22,34 +22,3 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
-
-function toggleTheme() {
-    const body = document.body;
-    const themeIcon = document.querySelector('.theme-icon');
-
-    body.classList.toggle('light-mode');
-    body.classList.toggle('dark-mode');
-
-    if (body.classList.contains('light-mode')) {
-        localStorage.setItem('theme', 'light');
-        themeIcon.textContent = '☀️';
-    } else {
-        localStorage.setItem('theme', 'dark');
-        themeIcon.textContent = '🌙';
-    }
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-    const theme = localStorage.getItem('theme');
-    const themeIcon = document.querySelector('.theme-icon');
-
-    if (theme === 'light') {
-        document.body.classList.add('light-mode');
-        document.body.classList.remove('dark-mode');
-        themeIcon.textContent = '☀️';
-    } else {
-        document.body.classList.add('dark-mode');
-        document.body.classList.remove('light-mode');
-        themeIcon.textContent = '🌙';
-    }
-});
