@@ -62,3 +62,27 @@ function toggleChapter(el) {
     const chapterItem = el.parentElement;
     chapterItem.classList.toggle("open");
 }
+
+function toggleLessons(element) {
+    console.log("hello");
+    const chapterItem = element.closest('.chapter-item');
+    chapterItem.classList.toggle('open');
+}
+
+function toggleMobileSidebar() {
+    const sidebar = document.getElementById('mobileSidebar');
+    sidebar.classList.toggle('active');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const links = document.querySelectorAll('#mobileSidebar a');
+    links.forEach(link => {
+        link.addEventListener('click', () => {
+            document.getElementById('mobileSidebar').classList.remove('active');
+        });
+    });
+});
+
+function toggleMobileSidebar() {
+    document.getElementById('mobileSidebar').classList.toggle('active');
+}
