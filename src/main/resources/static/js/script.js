@@ -86,10 +86,11 @@ document.addEventListener('DOMContentLoaded', () => {
 function toggleMobileSidebar() {
     document.getElementById('mobileSidebar').classList.toggle('active');
 }
-    function goToTopic(element) {
-        const url = element.getAttribute('data-topic-url');
-        if (url) {
-            window.location.href = url;
-        }
+
+function goToTopic(element) {
+    const url = element.getAttribute('data-topic-url');
+    if (url) {
+        window.location.href = url;
     }
+}
 
