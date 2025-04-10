@@ -3,9 +3,11 @@ package com.lazar.fabrica_de_coduri.controller;
 import com.lazar.fabrica_de_coduri.model.News;
 import com.lazar.fabrica_de_coduri.model.PlatformInfo;
 import com.lazar.fabrica_de_coduri.model.SEOHashTag;
+import com.lazar.fabrica_de_coduri.model.Sponsor;
 import com.lazar.fabrica_de_coduri.service.NewsService;
 import com.lazar.fabrica_de_coduri.service.PlatformInfoService;
 import com.lazar.fabrica_de_coduri.service.SEOHashTagService;
+import com.lazar.fabrica_de_coduri.service.SponsorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,16 +21,40 @@ public class PlatformInfoController {
     private SEOHashTagService seoHashTagService;
     @Autowired
     private NewsService newsService;
+    @Autowired
+    private SponsorService sponsorService;
+
 
     @GetMapping("/admin/platform-info")
     public String getPlatformInfo(Model model) {
-        model.addAttribute("platformInfo", platformInfoService.getPlatformInfo());
-        model.addAttribute("hashtags", seoHashTagService.getAllHashTags(platformInfoService.getPlatformInfo().getId()));
-        model.addAttribute("newsList", newsService.getLatestNews(platformInfoService.getPlatformInfo().getId()));
+        PlatformInfo platformInfo = platformInfoService.getPlatformInfo();
+        model.addAttribute("platformInfo", platformInfo);
+        model.addAttribute("hashtags", seoHashTagService.getAllHashTags(platformInfo.getId()));
+        model.addAttribute("newsList", newsService.getLatestNews(platformInfo.getId()));
         model.addAttribute("newHashtag", new SEOHashTag());
         model.addAttribute("news", new News());
+
+        // 👇 Aici adăugăm:
+        model.addAttribute("newSponsor", new Sponsor());
+        model.addAttribute("sponsorList", platformInfo.getSponsors());
+
         return "platformInfo";
     }
+
+    @PostMapping("/admin/sponsors")
+    public String addSponsor(@ModelAttribute Sponsor sponsor) {
+        PlatformInfo platformInfo = platformInfoService.getPlatformInfo();
+        sponsor.setPlatformInfo(platformInfo);
+        sponsorService.saveSponsor(sponsor);
+        return "redirect:/admin/platform-info";
+    }
+
+    @PostMapping("/admin/sponsors/delete/{id}")
+    public String deleteSponsor(@PathVariable Long id) {
+        sponsorService.deleteSponsor(id);
+        return "redirect:/admin/platform-info";
+    }
+
 
     @PostMapping("/admin/hashtags")
     public String addHashTag(@ModelAttribute SEOHashTag newTag) {

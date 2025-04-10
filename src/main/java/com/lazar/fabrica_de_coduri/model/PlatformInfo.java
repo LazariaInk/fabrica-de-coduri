@@ -11,6 +11,7 @@ public class PlatformInfo {
     private long id;
     private String bannerContent;
     private String donateMessage;
+    private String donateTitle;
     @OneToMany(mappedBy = "platformInfo", cascade = CascadeType.ALL)
     private List<SEOHashTag> seoHashTags;
     @OneToMany(mappedBy = "platformInfo", cascade = CascadeType.ALL)
@@ -20,10 +21,14 @@ public class PlatformInfo {
     private String youTubeLink;
     private String email;
 
+    @OneToMany(mappedBy = "platformInfo", cascade = CascadeType.ALL)
+    private List<Sponsor> sponsors;
+
+
     public PlatformInfo() {
     }
 
-    public PlatformInfo(long id, String bannerContent, String donateMessage, List<SEOHashTag> seoHashTags, List<News> news, String tiktokLink, String instagramLink, String youTubeLink, String email) {
+    public PlatformInfo(long id, String bannerContent, String donateMessage, List<SEOHashTag> seoHashTags, List<News> news, String tiktokLink, String instagramLink, String youTubeLink, String email, String donateTile) {
         this.id = id;
         this.bannerContent = bannerContent;
         this.donateMessage = donateMessage;
@@ -33,6 +38,15 @@ public class PlatformInfo {
         this.instagramLink = instagramLink;
         this.youTubeLink = youTubeLink;
         this.email = email;
+        this.donateTitle = donateTile;
+    }
+
+    public List<Sponsor> getSponsors() {
+        return sponsors;
+    }
+
+    public void setSponsors(List<Sponsor> sponsors) {
+        this.sponsors = sponsors;
     }
 
     public long getId() {
@@ -105,5 +119,13 @@ public class PlatformInfo {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getDonateTitle() {
+        return donateTitle;
+    }
+
+    public void setDonateTitle(String donateTitle) {
+        this.donateTitle = donateTitle;
     }
 }

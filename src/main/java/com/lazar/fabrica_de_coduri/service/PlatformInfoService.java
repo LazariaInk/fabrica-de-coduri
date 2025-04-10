@@ -26,6 +26,7 @@ public class PlatformInfoService {
             platformInfo.setInstagramLink(updatedInfo.getInstagramLink());
             platformInfo.setYouTubeLink(updatedInfo.getYouTubeLink());
             platformInfo.setEmail(updatedInfo.getEmail());
+            platformInfo.setDonateTitle(updatedInfo.getDonateTitle());
             return platformInfoRepository.save(platformInfo);
         }
         return null;
@@ -41,6 +42,7 @@ public class PlatformInfoService {
             defaultPlatform.setInstagramLink("https://instagram.com");
             defaultPlatform.setYouTubeLink("https://youtube.com");
             defaultPlatform.setEmail("contact@example.com");
+            defaultPlatform.setDonateTitle("Haida sa crestem impreuna");
 
             platformInfoRepository.save(defaultPlatform);
         }
