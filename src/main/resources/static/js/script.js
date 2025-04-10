@@ -94,3 +94,10 @@ function goToTopic(element) {
     }
 }
 
+ function openPopup() {
+        document.getElementById("donationOverlay").style.display = "flex";
+    }
+
+    function closePopup() {
+        document.getElementById("donationOverlay").style.display = "none";
+    }
