@@ -70,6 +70,25 @@ public class LessonController {
                 model.addAttribute("lesson", lesson);
                 model.addAttribute("chapters", chapters);
                 model.addAttribute("topics", topicRepository.findAll());
+                List<Lesson> chapterLessons = lesson.getChapter().getLessons()
+                        .stream()
+                        .sorted((l1, l2) -> l1.getId().compareTo(l2.getId()))
+                        .toList();
+
+                int currentIndex = -1;
+                for (int i = 0; i < chapterLessons.size(); i++) {
+                    if (chapterLessons.get(i).getId().equals(lesson.getId())) {
+                        currentIndex = i;
+                        break;
+                    }
+                }
+
+                Lesson previousLesson = (currentIndex > 0) ? chapterLessons.get(currentIndex - 1) : null;
+                Lesson nextLesson = (currentIndex < chapterLessons.size() - 1) ? chapterLessons.get(currentIndex + 1) : null;
+
+                model.addAttribute("previousLesson", previousLesson);
+                model.addAttribute("nextLesson", nextLesson);
+
 
                 return lesson.getHtmlPath();
             }
