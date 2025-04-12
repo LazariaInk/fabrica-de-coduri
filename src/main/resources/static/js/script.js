@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
+    // Navbar solid on scroll
     window.addEventListener('scroll', function () {
         const nav = document.querySelector('nav');
         if (window.scrollY > 50) {
@@ -8,10 +9,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // Hamburger menu toggle
     document.querySelector('.hamburger').onclick = function () {
         document.querySelector('.menu').classList.toggle('active');
     };
 
+    // Parallax effect
     document.addEventListener('mousemove', function (e) {
         document.querySelectorAll('.parallax-banner img').forEach(layer => {
             const speed = layer.getAttribute('data-speed');
@@ -21,8 +24,50 @@ document.addEventListener('DOMContentLoaded', function () {
             layer.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
         });
     });
+
+    // Mobile sidebar auto-close
+    const links = document.querySelectorAll('#mobileSidebar a');
+    links.forEach(link => {
+        link.addEventListener('click', () => {
+            document.getElementById('mobileSidebar').classList.remove('active');
+        });
+    });
+
+    // Show cookie banner if no decision made
+    const cookieBanner = document.getElementById("cookieConsentContainer");
+    if (!checkCookiesAccepted() && !checkCookiesDeclined() && cookieBanner) {
+        cookieBanner.style.display = "flex";
+    }
 });
 
+// Cookie consent logic
+function checkCookiesAccepted() {
+    return localStorage.getItem("cookiesConsent") === "accepted";
+}
+
+function checkCookiesDeclined() {
+    return localStorage.getItem("cookiesConsent") === "declined";
+}
+
+function acceptCookies() {
+    localStorage.setItem("cookiesConsent", "accepted");
+    document.getElementById("cookieConsentContainer").style.display = "none";
+
+    // Aici poți încărca scripturi precum AdSense
+    // loadAdSense();
+}
+
+function declineCookies() {
+    localStorage.setItem("cookiesConsent", "declined");
+    document.getElementById("cookieConsentContainer").style.display = "none";
+}
+
+function resetCookieConsent() {
+    localStorage.removeItem("cookiesConsent");
+    location.reload();
+}
+
+// Draggable top nav
 const nav = document.querySelector('.top-nav');
 let isDown = false;
 let startX;
@@ -53,40 +98,28 @@ nav.addEventListener('mousemove', (e) => {
     nav.scrollLeft = scrollLeft - walk;
 });
 
+// Sidebar toggles
 function toggleSidebar() {
     const sidebar = document.getElementById("mobileSidebar");
     sidebar.classList.toggle("active");
 }
 
+function toggleMobileSidebar() {
+    document.getElementById('mobileSidebar').classList.toggle('active');
+}
+
+// Chapters
 function toggleChapter(el) {
     const chapterItem = el.parentElement;
     chapterItem.classList.toggle("open");
 }
 
 function toggleLessons(element) {
-    console.log("hello");
     const chapterItem = element.closest('.chapter-item');
     chapterItem.classList.toggle('open');
 }
 
-function toggleMobileSidebar() {
-    const sidebar = document.getElementById('mobileSidebar');
-    sidebar.classList.toggle('active');
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    const links = document.querySelectorAll('#mobileSidebar a');
-    links.forEach(link => {
-        link.addEventListener('click', () => {
-            document.getElementById('mobileSidebar').classList.remove('active');
-        });
-    });
-});
-
-function toggleMobileSidebar() {
-    document.getElementById('mobileSidebar').classList.toggle('active');
-}
-
+// Navigation to topic
 function goToTopic(element) {
     const url = element.getAttribute('data-topic-url');
     if (url) {
@@ -94,10 +127,11 @@ function goToTopic(element) {
     }
 }
 
- function openPopup() {
-        document.getElementById("donationOverlay").style.display = "flex";
-    }
+// Donation popup
+function openPopup() {
+    document.getElementById("donationOverlay").style.display = "flex";
+}
 
-    function closePopup() {
-        document.getElementById("donationOverlay").style.display = "none";
-    }
+function closePopup() {
+    document.getElementById("donationOverlay").style.display = "none";
+}
