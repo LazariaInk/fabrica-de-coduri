@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Operațiile pe biți</h1>
+ <p class="paragraph">Operațiile pe biți sunt efectuate asupra fiecărui bit sau cifră individuală a numerelor. Aceste operații se aplică numai asupra numerelor întregi. Mai întâi să analizăm pe scurt ce reprezintă cifrele numerelor.</p>
+ <h2 class="subtitle">Reprezentarea binară a numerelor</h2>
+ <p class="paragraph">La nivelul computerului, toate datele sunt reprezentate în formă de set de biți. Fiecare bit poate avea două valori: 1 (există semnal) și 0 (nu există semnal). Și toate datele sunt efectiv reprezentate ca un set de zerouri și unu. 8 biți reprezintă 1 byte. Această sistemă este numită binară.</p>
+ <p class="paragraph">De exemplu, numărul 13 în sistemul binar va fi 1101. Cum am obținut acest rezultat:</p>
+ <p class="paragraph">Conversia numărului zecimal 13 în sistem binar arată astfel:</p>
+ <p class="paragraph">13 / 2 = 6 // rest 1 (13 - 6 * 2 = 1) 6 / 2 = 3 // rest 0 (6 - 3 * 2 = 0) 3 / 2 = 1 // rest 1 (3 - 1 * 2 = 1) 1 / 2 = 0 // rest 1 (1 - 0 * 2 = 1)</p>
+ <p class="paragraph">Algoritmul general constă în împărțirea secvențială a numărului și a rezultatelor împărțirii la 2, obținerea resturilor, până când se ajunge la 0. Apoi, resturile sunt aliniate în ordine inversă, formând astfel reprezentarea binară a numărului. În acest caz specific, pașii sunt următorii:</p>
+ <ul class="enumeration">
+  <li>Împărțim numărul 13 la 2. Rezultatul împărțirii este 6, iar restul este 1 (deoarece (13 - 6 * 2 = 1).</li>
+  <li>Apoi împărțim rezultatul operației anterioare, adică numărul 6, la 2. Rezultatul împărțirii este 3, iar restul este 0.</li>
+  <li>Împărțim rezultatul operației anterioare, adică numărul 3, la 2. Rezultatul împărțirii este 1, iar restul este 1.</li>
+  <li>Împărțim rezultatul operației anterioare, adică numărul 1, la 2. Rezultatul împărțirii este 0, iar restul este 1.</li>
+ </ul>
+ <p class="paragraph">Ultimul rezultat al împărțirii este 0, deci procesul este încheiat, iar resturile operațiilor de împărțire sunt aliniate, începând cu cel din urmă - 1101.</p>
+ <p class="paragraph">La conversia inversă din sistemul binar în cel zecimal, înmulțim valoarea fiecărui bit (1 sau 0) cu 2 la puterea corespunzătoare numărului bitului (numerotarea începe de la zero):</p>
+ <p class="paragraph">// traducerea numărului binar 1101 în sistemul zecimal 1 (bitul 3) 1 (bitul 2) 0 (bitul 1) 1 (bitul 0) 1 * 2^3 + 1 * 2^2 + 0 * 2^1 + 1 * 2^0 = 1 * 8 + 1 * 4 + 0 * 2 + 1 * 1 = 8 + 4 + 0 + 1 = 13</p>
+ <p class="paragraph">În JavaScript, pentru a defini numere în format binar, se aplică prefixul 0b:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;număr&nbsp;=&nbsp;0b1101;&nbsp;&nbsp;//&nbsp;13&nbsp;în&nbsp;sistemul&nbsp;zecimal<br>console.log(număr);&nbsp;&nbsp;&nbsp;//&nbsp;13</code></pre>
+ </div>
+ <h2 class="subtitle">Reprezentarea Numerelor Negative</h2>
+ <p class="paragraph">În JavaScript, se folosește complementul a doi pentru a reprezenta numerele semnate, unde cel mai semnificativ bit servește ca indicator de semn. Dacă valoarea sa este 0, atunci numărul este pozitiv, iar reprezentarea sa binară este identică cu cea a unui număr fără semn. De exemplu, 0000 0001 în sistemul zecimal este 1.</p>
+ <p class="paragraph">Dacă cel mai semnificativ bit este 1, atunci avem de-a face cu un număr negativ. De exemplu, 1111 1111 în sistemul zecimal reprezintă -1. Prin urmare, 1111 0011 reprezintă -13.</p>
+ <p class="paragraph">Pentru a converti un număr pozitiv într-unul negativ, este necesar să-l inversăm și să adăugăm unu.</p>
+ <div class="image-container">
+  <img src="images/image1.png" alt="" class="responsive-image">
+ </div>
+ <p class="paragraph">De exemplu, să obținem numărul -3. Pentru aceasta, vom lua mai întâi reprezentarea binară a numărului 3:</p>
+ <p class="paragraph">310 = 0000 00112</p>
+ <p class="paragraph">Inversăm biții:</p>
+ <p class="paragraph">~0000 0011 = 1111 1100</p>
+ <p class="paragraph">Și adăugăm 1:</p>
+ <p class="paragraph">1111 1100 + 1 = 1111 1101</p>
+ <p class="paragraph">Astfel, numărul 1111 1101 reprezintă forma binară a numărului -3.</p>
+ <p class="paragraph">Să vedem cum se face adunarea între un număr semnat și unul fără semn. De exemplu, să adunăm 12 și -8:</p>
+ <p class="paragraph">1210 = 000011002 + -810 = 111110002 (8 - 00001000, după inversare - 11110111, după +1 = 11111000) = 410 = 000001002</p>
+ <p class="paragraph">Vedem că în sistemul binar am obținut numărul 000001002, echivalent cu 410 în sistemul zecimal.</p>
+ <p class="paragraph">Putem observa acest lucru în practică:</p>
+ <div class="code-inline">
+  <pre><code>let&nbsp;num&nbsp;=&nbsp;0b1100;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;12&nbsp;in&nbsp;sistemul&nbsp;zecimal<br>num&nbsp;=&nbsp;~num;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;inversarea&nbsp;bitilor<br>num&nbsp;=&nbsp;num&nbsp;+&nbsp;1;<br>console.log(num);&nbsp;&nbsp;&nbsp;//&nbsp;-12</code></pre>
+ </div>
+ <h2 class="subtitle">Operații de deplasare</h2>
+ <p class="paragraph">Fiecare număr întreg în memorie este reprezentat sub formă de un anumit număr de biți. Și operațiile de deplasare permit deplasarea reprezentării în biți a unui număr cu un anumit număr de poziții, fie spre dreapta, fie spre stânga. Operațiile de deplasare se aplică doar operanzilor întregi. Există două operații:</p>
+ <ul class="enumeration">
+  <li>&lt;&lt; (deplasare la stânga)</li>
+ </ul>
+ <p class="paragraph">Deplasează reprezentarea în biți a numărului, reprezentată de primul operand, la stânga cu un anumit număr de poziții, specificat de al doilea operand.</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;res&nbsp;=&nbsp;2&nbsp;&lt;&lt;&nbsp;2;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;10&nbsp;deplasat&nbsp;la&nbsp;stânga&nbsp;cu&nbsp;două&nbsp;poziții&nbsp;=&nbsp;1000&nbsp;-&nbsp;8<br>console.log(res);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;8</code></pre>
+ </div>
+ <p class="paragraph">Numărul 2 în reprezentarea sa binară este 00102. Dacă sărim numărul 0010 cu două poziții la stânga, obținem 1000, care în sistemul zecimal este echivalent cu numărul 8.</p>
+ <ul class="enumeration">
+  <li>&gt;&gt; (deplasare aritmetică la dreapta)</li>
+ </ul>
+ <p class="paragraph">Deplasează reprezentarea în biți a unui număr spre dreapta cu un număr specificat de poziții.</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;res&nbsp;=&nbsp;16&nbsp;&gt;&gt;&nbsp;3;&nbsp;&nbsp;//&nbsp;10000&nbsp;deplasat&nbsp;la&nbsp;dreapta&nbsp;cu&nbsp;trei&nbsp;poziții&nbsp;=&nbsp;10&nbsp;sau&nbsp;2&nbsp;în&nbsp;sistemul&nbsp;zecimal<br>console.log(res);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;2</code></pre>
+ </div>
+ <p class="paragraph">Numărul 16 în reprezentarea sa binară este 100002. Dacă sărim numărul 10000 cu trei poziții la dreapta (ultimele trei poziții sunt eliminate), obținem 00010, care în sistemul zecimal reprezintă numărul 2.</p>
+ <p class="paragraph">Trebuie de menționat că aceasta este o așa-numita deplasare aritmetică, în care biții deplasați la stânga sunt umpluți cu bitul semnificativ - 0 pentru numere pozitive și 1 pentru numere negative. Astfel, la deplasarea numerelor negative nu există riscul ca acestea să devină pozitive. De exemplu:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;res&nbsp;=&nbsp;-16&nbsp;&gt;&gt;&nbsp;3;&nbsp;&nbsp;//&nbsp;11111110000&nbsp;deplasat&nbsp;la&nbsp;dreapta&nbsp;cu&nbsp;trei&nbsp;poziții&nbsp;=&nbsp;1111111111111110<br>console.log(res);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;-2</code></pre>
+ </div>
+ <p class="paragraph">La deplasarea în dreapta a numărului -16 cu 3 poziții obținem -2, ceea ce este destul de natural.</p>
+ <ul class="enumeration">
+  <li>&gt;&gt;&gt; (deplasare logică la dreapta)</li>
+ </ul>
+ <p class="paragraph">Deplasează reprezentarea în biți a unui număr spre dreapta cu un număr specificat de poziții, dar, spre deosebire de operația &gt;&gt;, umple biții deplasați la stânga cu zerouri, adică obținem o deplasare fără semn. Astfel, chiar dacă deplasăm un număr negativ, vom obține oricum un rezultat pozitiv:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;res&nbsp;=&nbsp;-16&nbsp;&gt;&gt;&gt;&nbsp;3;<br>console.log(res);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;536870910</code></pre>
+ </div>
+ <p class="paragraph">Se poate observa că deplasarea cu un bit la stânga este echivalentă cu înmulțirea cu 2, în timp ce deplasarea cu un bit la dreapta este echivalentă cu împărțirea la 2. Putem generaliza acest lucru: deplasarea la stânga cu n poziții este echivalentă cu înmulțirea numărului cu 2^n, în timp ce deplasarea la dreapta cu n poziții este echivalentă cu împărțirea numărului la 2^n. Aceasta poate fi folosită în locul înmulțirii/împărțirii cu puteri ale lui 2:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;res1&nbsp;=&nbsp;8&nbsp;&lt;&lt;&nbsp;2;&nbsp;&nbsp;//&nbsp;echivalent&nbsp;cu&nbsp;8&nbsp;*&nbsp;4<br>console.log(res1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;32<br><br>const&nbsp;res2&nbsp;=&nbsp;64&nbsp;&gt;&gt;&nbsp;4;&nbsp;&nbsp;//&nbsp;echivalent&nbsp;cu&nbsp;64&nbsp;/&nbsp;16<br>console.log(res2);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;4</code></pre>
+ </div>
+ <h2 class="subtitle">Operațiile</h2>
+ <p class="paragraph">Operațiile pe biți sunt efectuate numai asupra biților corespunzători ai numerelor:</p>
+ <ul class="enumeration">
+  <li>&amp;: conjuncție pe biți (operația ȘI sau înmulțirea pe biți). Returnează 1 dacă ambii biți corespunzători ai ambelor numere sunt egali cu 1.</li>
+  <li>|: disjuncție pe biți (operația SAU sau adunarea pe biți). Returnează 1 dacă cel puțin unul dintre biții corespunzători ai ambelor numere este egal cu 1.</li>
+  <li>^: XOR pe biți. Returnează 1 dacă doar unul dintre biții corespunzători ai ambelor numere este egal cu 1.</li>
+  <li>~: negarea pe biți sau inversarea. Inversează toți biții operandului. Dacă un bit este 1, devine 0, iar dacă este 0, devine 1.</li>
+ </ul>
+ <p class="paragraph">Utilizarea operațiilor:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;a&nbsp;=&nbsp;5&nbsp;|&nbsp;2;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;101&nbsp;|&nbsp;010&nbsp;=&nbsp;111&nbsp;&nbsp;-&nbsp;7<br>const&nbsp;b&nbsp;=&nbsp;6&nbsp;&amp;&nbsp;2;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;110&nbsp;&amp;&nbsp;010&nbsp;=&nbsp;10&nbsp;&nbsp;-&nbsp;2<br>const&nbsp;c&nbsp;=&nbsp;5&nbsp;^&nbsp;2;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;101&nbsp;^&nbsp;010&nbsp;=&nbsp;111&nbsp;-&nbsp;7<br>const&nbsp;d&nbsp;=&nbsp;~9;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;-10</code></pre>
+ </div>
+ <p class="paragraph">De exemplu, expresia 5 | 2 este egală cu 7. Numărul 5 în reprezentare binară este 101, iar numărul 2 este 10 sau 010. Adunăm biții corespunzători ai ambelor numere. La adunare, dacă cel puțin un bit este 1, suma ambelor biți este 1. Prin urmare, obținem:</p>
+ <p class="paragraph">1 0 1 0 1 0 ------- 1 1 1</p>
+ <p class="paragraph">În final, obținem numărul 111, care în reprezentarea zecimală reprezintă numărul 7.</p>
+ <p class="paragraph">Să luăm o altă expresie, 6 &amp; 2. Numărul 6 în reprezentare binară este 110, iar numărul 2 este 10 sau 010. Înmulțim biții corespunzători ai ambelor numere. Produsul celor doi biți este 1 dacă ambii biți sunt egali cu 1. În caz contrar, produsul este 0. Prin urmare, obținem:</p>
+ <p class="paragraph">1 1 0 0 1 0 ------- 0 1 0</p>
+ <p class="paragraph">Obținem numărul 010, care în sistemul zecimal este 2.</p>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

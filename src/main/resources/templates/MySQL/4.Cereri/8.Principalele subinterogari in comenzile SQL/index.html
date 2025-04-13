@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Principalele subinterogări în comenzile SQL</h1>
+ <h2 class="subtitle">Subinterogările în SELECT</h2>
+ <p class="paragraph">În expresia SELECT, putem introduce subinterogări în patru moduri:</p>
+ <ul class="enumeration">
+  <li>În condiția din clauza WHERE</li>
+  <li>În condiția din clauza HAVING</li>
+  <li>Ca tabel pentru selecție în clauza FROM</li>
+  <li>Ca specificație de coloană în clauza SELECT</li>
+ </ul>
+ <p class="paragraph">Să examinăm unele dintre aceste cazuri. De exemplu, să obținem toate produsele cu prețul mai mare decât media:</p>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Price&nbsp;&gt;&nbsp;(SELECT&nbsp;AVG(Price)&nbsp;FROM&nbsp;Products)</code></pre>
+ </div>
+ <p class="paragraph">Pentru a obține produsele necesare, trebuie să efectuăm inițial o subinterogare pentru a obține prețul mediu al produselor: `SELECT AVG(Price) FROM Products`.</p>
+ <h2 class="subtitle">Operatorul IN</h2>
+ <p class="paragraph">Adesea, subinterogările sunt utilizate împreună cu operatorul IN, care selectează dintr-un set de valori. Și subinterogarea poate furniza exact acest set de valori. De exemplu, să selectăm toate produsele din tabela Products pentru care există comenzi în tabela Orders:</p>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Id&nbsp;IN&nbsp;(SELECT&nbsp;ProductId&nbsp;FROM&nbsp;Orders)</code></pre>
+ </div>
+ <p class="paragraph">Adică, subinterogarea selectează toate identificatoarele produselor din Orders, apoi, folosind aceste identificatoare, se extrag produsele din Products.</p>
+ <p class="paragraph">Adăugând operatorul NOT, putem selecta produsele pentru care nu există comenzi în tabela Orders:</p>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Id&nbsp;NOT&nbsp;IN&nbsp;(SELECT&nbsp;ProductId&nbsp;FROM&nbsp;Orders)</code></pre>
+ </div>
+ <p class="paragraph">Merită de menționat că aceasta nu este cea mai eficientă modalitate de a extrage date legate de alte tabele, deoarece pentru consolidarea datelor din tabele diferite se poate utiliza operatorul JOIN, care este abordat în capitolul următor.</p>
+ <h2 class="subtitle">Obținerea unui set de valori</h2>
+ <p class="paragraph">Atunci când subinterogările sunt folosite în operații de comparație, ar trebui să returneze o singură valoare scalară. Cu toate acestea, uneori există nevoia de a obține un set de valori. Pentru a permite subinterogării să returneze un set de valori în operațiile de comparație, este necesar să se utilizeze unul dintre operatorii: ALL, SOME sau ANY.</p>
+ <p class="paragraph">Atunci când se utilizează cuvântul cheie ALL, condiția în operația de comparație trebuie să fie adevărată pentru toate valorile returnate de subinterogare. De exemplu, să găsim toate produsele al căror preț este mai mic decât cel al oricărui produs Apple:</p>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Price&nbsp;&lt;&nbsp;ALL(SELECT&nbsp;Price&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;Manufacturer='Apple')</code></pre>
+ </div>
+ <p class="paragraph">Dacă am omite cuvântul cheie ALL în acest caz, ne-am confrunta cu o eroare.</p>
+ <p class="paragraph">Să presupunem că subinterogarea dată returnează valorile val1, val2 și val3. Atunci condiția de filtrare ar fi echivalentă cu combinarea acestor valori prin operatorul AND:</p>
+ <div class="code-inline">
+  <pre><code>WHERE&nbsp;Price&nbsp;&lt;&nbsp;val1&nbsp;AND&nbsp;Price&nbsp;&lt;&nbsp;val2&nbsp;AND&nbsp;Price&nbsp;&lt;&nbsp;val3</code></pre>
+ </div>
+ <p class="paragraph">În același timp, o astfel de interogare poate fi rescrisă mult mai simplu în alt mod:</p>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Price&nbsp;&lt;&nbsp;(SELECT&nbsp;MIN(Price)&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;Manufacturer='Apple')</code></pre>
+ </div>
+ <p class="paragraph">Cum funcționează operatorul ALL:</p>
+ <ul class="enumeration">
+  <li>x &gt; ALL (1, 2) este echivalent cu x &gt; 2</li>
+  <li>x &lt; ALL (1, 2) este echivalent cu x &lt; 1</li>
+  <li>x = ALL (1, 2) este echivalent cu (x = 1) AND (x = 2)</li>
+  <li>x &lt;&gt; ALL (1, 2) este echivalent cu x NOT IN (1, 2)</li>
+ </ul>
+ <p class="paragraph">Operatorii ANY și SOME necesită ca condiția din operația de comparație să fie adevărată pentru cel puțin una dintre valorile returnate de subinterogare. Acești doi operatori au aceeași funcționalitate, astfel încât puteți utiliza oricare dintre ei.</p>
+ <p class="paragraph">De exemplu, în următorul caz vom obține produsele care costă mai puțin decât cel mai scump produs al companiei Apple:</p>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Price&nbsp;&lt;&nbsp;ANY(SELECT&nbsp;Price&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;Manufacturer='Apple')</code></pre>
+ </div>
+ <p class="paragraph">Și merită să menționăm că această interogare poate fi simplificată, rescriind-o astfel:</p>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Price&nbsp;&lt;&nbsp;(SELECT&nbsp;MAX(Price)&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;Manufacturer='Apple')</code></pre>
+ </div>
+ <p class="paragraph">Cum funcționează operatorul ANY (și de asemenea SOME):</p>
+ <ul class="enumeration">
+  <li>x &gt; ANY (1, 2) este echivalent cu x &gt; 1</li>
+  <li>x &lt; ANY (1, 2) este echivalent cu x &lt; 2</li>
+  <li>x = ANY (1, 2) este echivalent cu x IN (1, 2)</li>
+  <li>x &lt;&gt; ANY (1, 2) este echivalent cu (x &lt;&gt; 1) OR (x &lt;&gt; 2)</li>
+ </ul>
+ <h2 class="subtitle">Subinterogarea ca specificație de coloană</h2>
+ <p class="paragraph">Rezultatul unei subinterogări poate reprezenta o coloană separată în selecție. De exemplu, să selectăm toate comenzile și să adăugăm informații despre numele produsului:</p>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;*,<br>(SELECT&nbsp;ProductName&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;Id=Orders.ProductId)&nbsp;AS&nbsp;Product<br>FROM&nbsp;Orders</code></pre>
+ </div>
+ <div class="image-container">
+  <img src="images/image1.png" alt="" class="responsive-image">
+ </div>
+ <p class="paragraph">Subinterogările în comanda INSERT pot fi utilizate pentru a determina valoarea care este introdusă într-una dintre coloane:</p>
+ <div class="code-inline">
+  <pre><code>INSERT&nbsp;INTO&nbsp;Orders&nbsp;(ProductId,&nbsp;CreatedAt,&nbsp;ProductCount,&nbsp;Price)<br>VALUES<br>(<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Id&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;ProductName='Galaxy&nbsp;S8'),<br>&nbsp;&nbsp;&nbsp;'2018-05-23',&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;2,<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Price&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;ProductName='Galaxy&nbsp;S8')<br>)</code></pre>
+ </div>
+ <p class="paragraph">Subinterogările în comanda UPDATE pot fi utilizate:</p>
+ <ul class="enumeration">
+  <li>Ca valoare de actualizat după operatorul SET</li>
+  <li>Ca parte a condiției în clauza WHERE</li>
+ </ul>
+ <p class="paragraph">Astfel, vom mări în tabela Orders cantitatea de produse cumpărate de la compania Apple cu 2:</p>
+ <div class="code-inline">
+  <pre><code>UPDATE&nbsp;Orders<br>SET&nbsp;ProductCount&nbsp;=&nbsp;ProductCount&nbsp;+&nbsp;2<br>WHERE&nbsp;ProductId&nbsp;IN&nbsp;(SELECT&nbsp;Id&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;Manufacturer='Apple');</code></pre>
+ </div>
+ <p class="paragraph">Sau vom seta prețul produsului pentru comanda primită ca rezultat al unei subinterogări:</p>
+ <div class="code-inline">
+  <pre><code>UPDATE&nbsp;Orders<br>SET&nbsp;Price&nbsp;=&nbsp;(SELECT&nbsp;Price&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;Id=Orders.ProductId)&nbsp;+&nbsp;3000<br>WHERE&nbsp;Id=1;</code></pre>
+ </div>
+ <h2 class="subtitle">Subinterogările în comanda DELETE</h2>
+ <p class="paragraph">Subinterogările în comanda DELETE sunt utilizate și ele ca parte a condiției. Astfel, vom șterge toate comenzile pentru Galaxy S8.</p>
+ <div class="code-inline">
+  <pre><code>DELETE&nbsp;FROM&nbsp;Orders<br>WHERE&nbsp;ProductId=(SELECT&nbsp;Id&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;ProductName='Galaxy&nbsp;S8');</code></pre>
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

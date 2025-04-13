@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Operațiile de reducere</h1>
+ <p class="paragraph">Operațiile de reducere reprezintă operații terminale care returnează o valoare rezultată din procesarea fluxului de date. În Stream API există o serie de operații de reducere.</p>
+ <h2 class="subtitle">Metoda count()</h2>
+ <p class="paragraph">Metoda count() returnează numărul de elemente din fluxul de date:</p>
+ <div class="code-inline">
+  <pre><code>import&nbsp;java.util.stream.Stream;<br>import&nbsp;java.util.Optional;<br>import&nbsp;java.util.*;<br>public&nbsp;class&nbsp;Program&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ArrayList&lt;String&gt;&nbsp;names&nbsp;=&nbsp;new&nbsp;ArrayList&lt;String&gt;();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;names.addAll(Arrays.asList(new&nbsp;String[]{"Tom",&nbsp;"Sam",&nbsp;"Bob",&nbsp;"Alice"}));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(names.stream().count());&nbsp;&nbsp;//&nbsp;4<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;numărul&nbsp;de&nbsp;elemente&nbsp;cu&nbsp;lungime&nbsp;de&nbsp;cel&nbsp;mult&nbsp;3&nbsp;caractere<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(names.stream().filter(n&nbsp;-&gt;&nbsp;n.length()&nbsp;&lt;=&nbsp;3).count());&nbsp;&nbsp;//&nbsp;3<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <h2 class="subtitle">Metoda findFirst și findAny</h2>
+ <p class="paragraph">Metoda findFirst() extrage primul element din flux, iar findAny() extrage un obiect aleator din flux (adesea tot primul):</p>
+ <div class="code-inline">
+  <pre><code>ArrayList&lt;String&gt;&nbsp;names&nbsp;=&nbsp;new&nbsp;ArrayList&lt;String&gt;();<br>names.addAll(Arrays.asList(new&nbsp;String[]{"Tom",&nbsp;"Sam",&nbsp;"Bob",&nbsp;"Alice"}));<br><br>Optional&lt;String&gt;&nbsp;first&nbsp;=&nbsp;names.stream().findFirst();<br>System.out.println(first.get());&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Tom<br><br>Optional&lt;String&gt;&nbsp;any&nbsp;=&nbsp;names.stream().findAny();<br>System.out.println(any.get());&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Tom</code></pre>
+ </div>
+ <h2 class="subtitle">Metodele allMatch, anyMatch și noneMatch</h2>
+ <p class="paragraph">Aceste metode returnează o valoare booleană (true sau false) și verifică dacă toate, unele sau niciunul dintre elementele fluxului respectă o anumită condiție:</p>
+ <ul class="enumeration">
+  <li>boolean allMatch(Predicate&lt;? super T&gt; predicate) - returnează true dacă toate elementele fluxului îndeplinesc condiția</li>
+  <li>boolean anyMatch(Predicate&lt;? super T&gt; predicate) - returnează true dacă cel puțin un element îndeplinește condiția</li>
+  <li>boolean noneMatch(Predicate&lt;? super T&gt; predicate) - returnează true dacă niciun element nu îndeplinește condiția</li>
+ </ul>
+ <p class="paragraph">Exemplu de utilizare:</p>
+ <div class="code-inline">
+  <pre><code>import&nbsp;java.util.stream.Stream;<br>import&nbsp;java.util.Optional;<br>import&nbsp;java.util.ArrayList;<br>import&nbsp;java.util.Arrays;<br>public&nbsp;class&nbsp;Program&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ArrayList&lt;String&gt;&nbsp;names&nbsp;=&nbsp;new&nbsp;ArrayList&lt;String&gt;();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;names.addAll(Arrays.asList(new&nbsp;String[]{"Tom",&nbsp;"Sam",&nbsp;"Bob",&nbsp;"Alice"}));<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;există&nbsp;un&nbsp;șir&nbsp;cu&nbsp;lungime&nbsp;mai&nbsp;mare&nbsp;de&nbsp;3&nbsp;caractere?<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;boolean&nbsp;any&nbsp;=&nbsp;names.stream().anyMatch(s&nbsp;-&gt;&nbsp;s.length()&nbsp;&gt;&nbsp;3);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(any);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;true<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;toate&nbsp;șirurile&nbsp;au&nbsp;lungimea&nbsp;de&nbsp;3&nbsp;caractere?<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;boolean&nbsp;all&nbsp;=&nbsp;names.stream().allMatch(s&nbsp;-&gt;&nbsp;s.length()&nbsp;==&nbsp;3);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(all);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;false<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;nu&nbsp;există&nbsp;șirul&nbsp;"Bill"&nbsp;în&nbsp;flux?<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;boolean&nbsp;none&nbsp;=&nbsp;names.stream().noneMatch(s&nbsp;-&gt;&nbsp;s.equals("Bill"));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(none);&nbsp;&nbsp;&nbsp;//&nbsp;true<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <h2 class="subtitle">Metodele min() și max()</h2>
+ <p class="paragraph">Metodele min() și max() returnează valoarea minimă sau maximă din flux. Deoarece datele din flux pot reprezenta diferite tipuri (inclusiv clase complexe), metodele primesc un obiect Comparator care definește modul de comparare a obiectelor:</p>
+ <div class="code-inline">
+  <pre><code>Optional&lt;T&gt;&nbsp;min(Comparator&lt;?&nbsp;super&nbsp;T&gt;&nbsp;comparator)<br>Optional&lt;T&gt;&nbsp;max(Comparator&lt;?&nbsp;super&nbsp;T&gt;&nbsp;comparator)</code></pre>
+ </div>
+ <p class="paragraph">Ambele metode returnează un element din flux, ambalat într-un obiect Optional.</p>
+ <p class="paragraph">De exemplu, să găsim numărul minim și maxim într-un flux numeric:</p>
+ <div class="code-inline">
+  <pre><code>import&nbsp;java.util.stream.Stream;<br>import&nbsp;java.util.Optional;<br>import&nbsp;java.util.ArrayList;<br>import&nbsp;java.util.Arrays;<br>public&nbsp;class&nbsp;Program&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ArrayList&lt;Integer&gt;&nbsp;numbers&nbsp;=&nbsp;new&nbsp;ArrayList&lt;Integer&gt;();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;numbers.addAll(Arrays.asList(new&nbsp;Integer[]{1,2,3,4,5,6,7,8,9}));<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Optional&lt;Integer&gt;&nbsp;min&nbsp;=&nbsp;numbers.stream().min(Integer::compare);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Optional&lt;Integer&gt;&nbsp;max&nbsp;=&nbsp;numbers.stream().max(Integer::compare);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(min.get());&nbsp;&nbsp;//&nbsp;1<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(max.get());&nbsp;&nbsp;//&nbsp;9<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">Interfața Comparator este o interfață funcțională care definește o metodă compare, ce primește doi parametri de tipul obiectelor de comparat și returnează un număr. Putem folosi expresii lambda sau metode predefinite, precum Integer.compare().</p>
+ <p class="paragraph">Metodele min și max returnează un obiect Optional, iar pentru a obține rezultatul operației este necesar să apelăm metoda get().</p>
+ <p class="paragraph">Un exemplu mai complex, unde comparăm obiecte de tip Phone:</p>
+ <div class="code-inline">
+  <pre><code>import&nbsp;java.util.stream.Stream;<br>import&nbsp;java.util.Optional;<br>import&nbsp;java.util.ArrayList;<br>import&nbsp;java.util.Arrays;<br>public&nbsp;class&nbsp;Program&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ArrayList&lt;Phone&gt;&nbsp;phones&nbsp;=&nbsp;new&nbsp;ArrayList&lt;Phone&gt;();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;phones.addAll(Arrays.asList(new&nbsp;Phone[]{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;Phone("iPhone&nbsp;8",&nbsp;52000),<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;Phone("Nokia&nbsp;9",&nbsp;35000),<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;Phone("Samsung&nbsp;Galaxy&nbsp;S9",&nbsp;48000),<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;Phone("HTC&nbsp;U12",&nbsp;36000)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}));<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Phone&nbsp;min&nbsp;=&nbsp;phones.stream().min(Phone::compare).get();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Phone&nbsp;max&nbsp;=&nbsp;phones.stream().max(Phone::compare).get();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("MIN&nbsp;Nume:&nbsp;%s&nbsp;Preț:&nbsp;%d&nbsp;\n",&nbsp;min.getName(),&nbsp;min.getPrice());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("MAX&nbsp;Nume:&nbsp;%s&nbsp;Preț:&nbsp;%d&nbsp;\n",&nbsp;max.getName(),&nbsp;max.getPrice());<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;Phone&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;name;<br>&nbsp;&nbsp;&nbsp;private&nbsp;int&nbsp;price;<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;Phone(String&nbsp;name,&nbsp;int&nbsp;price){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.price&nbsp;=&nbsp;price;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;int&nbsp;compare(Phone&nbsp;p1,&nbsp;Phone&nbsp;p2){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;Integer.compare(p1.getPrice(),&nbsp;p2.getPrice());<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;String&nbsp;getName()&nbsp;{&nbsp;return&nbsp;name;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;getPrice()&nbsp;{&nbsp;return&nbsp;price;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">În acest caz, găsim obiectul Phone cu prețul minim și maxim. Metoda de comparare este definită în clasa Phone, iar metoda compare este utilizată în min și max pentru compararea obiectelor.</p>
+ <p class="paragraph">Rezultatul în consolă:</p>
+ <div class="code-inline">
+  <pre><code>MIN&nbsp;Nume:&nbsp;Nokia&nbsp;9&nbsp;Preț:&nbsp;35000<br>MAX&nbsp;Nume:&nbsp;iPhone&nbsp;8&nbsp;Preț:&nbsp;52000</code></pre>
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

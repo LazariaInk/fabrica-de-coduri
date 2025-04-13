@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Definirea Evenimentelor Personalizate</h1>
+ <p class="paragraph">Capacitatea de a genera evenimente programatic ne deschide calea către crearea de evenimente personalizate - putem defini și declanșa evenimente arbitrare.</p>
+ <p class="paragraph">De exemplu, avem o funcție constructor Account, care acceptă o sumă de bani și creează un cont monetar condițional:</p>
+ <div class="code-inline">
+  <pre><code>function&nbsp;Account(money)&nbsp;{<br>&nbsp;&nbsp;&nbsp;_money&nbsp;=&nbsp;money;<br>&nbsp;&nbsp;&nbsp;this.pay&nbsp;=&nbsp;function(sum)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(_money&nbsp;&gt;=&nbsp;sum)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_money&nbsp;-=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(_money);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">În variabila _money este stocată suma curentă de bani din cont. Cu funcția pay cheltuim condiționat o anumită sumă, dacă balanța permite. Dar, să presupunem că trebuie să notificăm sistemul când are loc o retragere de fonduri. Pe de o parte, am putea face acest lucru direct în metoda pay - să apelăm console.log() în metodă și să afișăm un text pe consolă.</p>
+ <p class="paragraph">Dar în momentul scrierii acestui cod, s-ar putea să nu fim siguri ce text exact trebuie afișat pe consolă. Sau poate fi nevoie să nu afișăm pe consolă, ci în fereastra browserului. Sau să trimitem notificarea la o resursă de rețea anumită. Sau poate funcția noastră constructor va fi folosită în Node.js, unde poate fi necesară o altă prelucrare.</p>
+ <p class="paragraph">Și poate că alți dezvoltatori vor folosi funcția noastră constructor, care ar putea avea propriul lor înțeles despre ce trebuie făcut la retragerea fondurilor. În orice caz, ne confruntăm cu multivarianță, dar în toate aceste situații, principalul lucru pe care trebuie să-l facem este să notificăm sistemul că a avut loc o retragere de fonduri.</p>
+ <p class="paragraph">Și pentru a acoperi toate aceste situații, ne va ajuta definirea propriilor evenimente.</p>
+ <p class="paragraph">Pentru definirea evenimentelor personalizate, putem utiliza constructorul Event, în care se transmite numele evenimentului. Deci, să luăm în considerare următorul program:</p>
+ <div class="code-inline">
+  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;button&nbsp;id="btn"&gt;Pay&lt;/button&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;const&nbsp;button&nbsp;=&nbsp;document.getElementById("btn");<br>&nbsp;&nbsp;&nbsp;const&nbsp;myAcc&nbsp;=&nbsp;new&nbsp;Account(100);&nbsp;//&nbsp;contul&nbsp;monetar&nbsp;condițional<br>&nbsp;&nbsp;&nbsp;//&nbsp;stabilim&nbsp;handler-ul&nbsp;pentru&nbsp;evenimentul&nbsp;payment&nbsp;pentru&nbsp;întregul&nbsp;document<br>&nbsp;&nbsp;&nbsp;document.addEventListener("payment",&nbsp;()&nbsp;=&gt;&nbsp;console.log("Payment&nbsp;succeeded!"));<br><br>&nbsp;&nbsp;&nbsp;//&nbsp;la&nbsp;apăsarea&nbsp;butonului,&nbsp;executăm&nbsp;metoda&nbsp;pay<br>&nbsp;&nbsp;&nbsp;button.addEventListener("click",&nbsp;()&nbsp;=&gt;&nbsp;myAcc.pay(50));<br>&nbsp;&nbsp;&nbsp;//&nbsp;constructorul&nbsp;obiectului&nbsp;cont<br>&nbsp;&nbsp;&nbsp;function&nbsp;Account(money)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_money&nbsp;=&nbsp;money;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.pay&nbsp;=&nbsp;function(sum)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(_money&nbsp;&gt;=&nbsp;sum)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_money&nbsp;-=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(_money);<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;event&nbsp;=&nbsp;new&nbsp;Event("payment");&nbsp;//&nbsp;definim&nbsp;obiectul&nbsp;evenimentului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;document.dispatchEvent(event);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;generăm&nbsp;evenimentul&nbsp;pentru&nbsp;întregul&nbsp;document<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+ </div>
+ <p class="paragraph">Aspecte principale. În metoda pay, creăm un obiect Event care va reprezenta evenimentul "payment" (nu contează că un astfel de eveniment nu există inițial, noi îl creăm). Apoi generăm acest eveniment:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;event&nbsp;=&nbsp;new&nbsp;Event("payment");&nbsp;//&nbsp;definim&nbsp;obiectul&nbsp;evenimentului<br>document.dispatchEvent(event);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;generăm&nbsp;evenimentul&nbsp;pentru&nbsp;întregul&nbsp;document</code></pre>
+ </div>
+ <p class="paragraph">De menționat că evenimentul este generat pentru întregul document: document.dispatchEvent(event), dar acesta poate fi orice element specific al paginii web.</p>
+ <p class="paragraph">Pentru a procesa acest eveniment, ne abonăm la el:</p>
+ <div class="code-inline">
+  <pre><code>document.addEventListener("payment",&nbsp;()&nbsp;=&gt;&nbsp;console.log("Payment&nbsp;succeeded!"));</code></pre>
+ </div>
+ <p class="paragraph">Din nou, abonarea la eveniment se face pentru întregul document. Handler-ul evenimentului doar afișează un șir pe consolă.</p>
+ <p class="paragraph">La apăsarea butonului, apelăm metoda pay a obiectului myAcc și astfel generăm evenimentul "payment" (dacă pe cont sunt suficiente fonduri).</p>
+ <p class="paragraph">Pentru a testa, apăsați pe buton.</p>
+ <div class="image-container">
+  <img src="images/image1.png" alt="" class="responsive-image">
+ </div>
+ <p class="paragraph">De asemenea, la fel ca în cazul general, putem obține obiectul evenimentului în handler:</p>
+ <div class="code-inline">
+  <pre><code>//&nbsp;obținem&nbsp;obiectul&nbsp;evenimentului&nbsp;prin&nbsp;parametrul&nbsp;e<br>document.addEventListener("payment",&nbsp;(e)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(e.type);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;&nbsp;payment<br>&nbsp;&nbsp;&nbsp;console.log("Payment&nbsp;succeeded!");<br>});</code></pre>
+ </div>
+ <h2 class="subtitle">CustomEvent</h2>
+ <p class="paragraph">Cu toate că tipul Event poate fi utilizat, acesta nu este foarte potrivit pentru definirea evenimentelor personalizate. De exemplu, ce se întâmplă dacă dorim să transmitem în handler-ul evenimentului informații suplimentare - suma retrasă, soldul curent sau altceva? Pentru astfel de cazuri, este mai bine să utilizăm tipul CustomEvent. Să modificăm codul JavaScript în modul următor:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;button&nbsp;=&nbsp;document.getElementById("btn");<br>document.addEventListener("payment",&nbsp;(e)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Payment&nbsp;succeeded!");<br>&nbsp;&nbsp;&nbsp;console.log("Payment&nbsp;Sum:",&nbsp;e.detail.paymentSum);&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;datele&nbsp;evenimentului<br>&nbsp;&nbsp;&nbsp;console.log("Current&nbsp;balance:",&nbsp;e.detail.balance);<br>});<br><br>const&nbsp;myAcc&nbsp;=&nbsp;new&nbsp;Account(100);<br>//&nbsp;la&nbsp;apăsarea&nbsp;butonului,&nbsp;executăm&nbsp;metoda&nbsp;pay<br>button.addEventListener("click",&nbsp;()&nbsp;=&gt;&nbsp;myAcc.pay(50));<br><br>function&nbsp;Account(money)&nbsp;{<br>&nbsp;&nbsp;&nbsp;_money&nbsp;=&nbsp;money;<br>&nbsp;&nbsp;&nbsp;this.pay&nbsp;=&nbsp;function(sum)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(_money&nbsp;&gt;=&nbsp;sum)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_money&nbsp;-=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;definim&nbsp;obiectul&nbsp;evenimentului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;event&nbsp;=&nbsp;new&nbsp;CustomEvent("payment",&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;detail:&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;&nbsp;transmitem&nbsp;date&nbsp;despre&nbsp;eveniment&nbsp;în&nbsp;CustomEvent<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;paymentSum:&nbsp;sum,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;balance:&nbsp;_money<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;});<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;document.dispatchEvent(event);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;generăm&nbsp;evenimentul&nbsp;pentru&nbsp;întregul&nbsp;document<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">În CustomEvent, ca al doilea parametru, se transmite un obiect de configurare, care are proprietatea detail. Această proprietate, la rândul său, reprezintă un obiect cu un set arbitrar de proprietăți. În acest caz definim în el proprietățile paymentSum și balance și le transmitem valorile care ne interesează:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;event&nbsp;=&nbsp;new&nbsp;CustomEvent("payment",&nbsp;{<br>&nbsp;&nbsp;&nbsp;detail:&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;paymentSum:&nbsp;sum,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;balance:&nbsp;_money<br>&nbsp;&nbsp;&nbsp;}<br>});</code></pre>
+ </div>
+ <p class="paragraph">Apoi transmitem obiectul CustomEvent (la fel ca și Event) în dispatchEvent și astfel generăm evenimentul:</p>
+ <div class="code-inline">
+  <pre><code>document.dispatchEvent(event);</code></pre>
+ </div>
+ <p class="paragraph">La procesarea evenimentului, putem obține datele transmise prin proprietatea detail:</p>
+ <div class="code-inline">
+  <pre><code>document.addEventListener("payment",&nbsp;(e)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Payment&nbsp;succeeded!");<br>&nbsp;&nbsp;&nbsp;console.log("Payment&nbsp;Sum:",&nbsp;e.detail.paymentSum);&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;datele&nbsp;evenimentului<br>&nbsp;&nbsp;&nbsp;console.log("Current&nbsp;balance:",&nbsp;e.detail.balance);<br>});</code></pre>
+ </div>
+ <p class="paragraph">Exemplu de afișare în consolă la prima apăsare a butonului:</p>
+ <div class="code-inline">
+  <pre><code>Payment&nbsp;succeeded!<br>Payment&nbsp;Sum:&nbsp;50<br>Current&nbsp;balance:&nbsp;50</code></pre>
+ </div>
+ <p class="paragraph">În mod similar, putem defini și alte evenimente. De exemplu, să definim un alt eveniment pentru cazul în care nu sunt suficiente fonduri pentru efectuarea plății:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;button&nbsp;=&nbsp;document.getElementById("btn");<br>document.addEventListener("payment_success",&nbsp;(e)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Payment&nbsp;succeeded!");<br>&nbsp;&nbsp;&nbsp;console.log("Payment&nbsp;Sum:",&nbsp;e.detail.paymentSum);<br>&nbsp;&nbsp;&nbsp;console.log("Current&nbsp;balance:",&nbsp;e.detail.balance);<br>});<br>document.addEventListener("payment_fail",&nbsp;(e)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.error("Payment&nbsp;failed");<br>&nbsp;&nbsp;&nbsp;console.error("Current&nbsp;balance:",&nbsp;e.detail.balance,&nbsp;"Requested&nbsp;Sum:&nbsp;",&nbsp;e.detail.paymentSum);<br>});<br>const&nbsp;myAcc&nbsp;=&nbsp;new&nbsp;Account(100);<br>button.addEventListener("click",&nbsp;()&nbsp;=&gt;&nbsp;myAcc.pay(50));<br><br>function&nbsp;Account(money)&nbsp;{<br>&nbsp;&nbsp;&nbsp;_money&nbsp;=&nbsp;money;<br>&nbsp;&nbsp;&nbsp;this.pay&nbsp;=&nbsp;function(sum)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;data&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;paymentSum:&nbsp;sum,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;balance:&nbsp;_money<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(_money&nbsp;&gt;=&nbsp;sum)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_money&nbsp;-=&nbsp;sum;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;event&nbsp;=&nbsp;new&nbsp;CustomEvent("payment_success",&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;detail:&nbsp;data<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;});<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;document.dispatchEvent(event);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;else&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;event&nbsp;=&nbsp;new&nbsp;CustomEvent("payment_fail",&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;detail:&nbsp;data<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;});<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;document.dispatchEvent(event);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">Acum, dacă sunt suficiente fonduri în cont, se generează evenimentul "payment_success", iar dacă nu, se generează "payment_fail". Pentru fiecare dintre aceste evenimente definim propriul nostru handler.</p>
+ <p class="paragraph">Afișarea în consolă a programului (la trei apăsări ale butonului):</p>
+ <div class="code-inline">
+  <pre><code>Payment&nbsp;succeeded!<br>Payment&nbsp;Sum:&nbsp;50<br>Current&nbsp;balance:&nbsp;100<br>Payment&nbsp;succeeded!<br>Payment&nbsp;Sum:&nbsp;50<br>Current&nbsp;balance:&nbsp;50<br>Payment&nbsp;failed<br>Current&nbsp;balance:&nbsp;0&nbsp;Requested&nbsp;Sum:&nbsp;50</code></pre>
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

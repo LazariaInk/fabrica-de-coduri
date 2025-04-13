@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Restricții ale șabloanelor sau guard-uri</h1>
+ <p class="paragraph">Guard-urile sau restricțiile șabloanelor permit stabilirea unor condiții suplimentare pe care expresia trebuie să le îndeplinească. Restricția este stabilită imediat după șablon, folosind cuvântul cheie if, urmat de condiția de restricție:</p>
+ <div class="code-inline">
+  <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name,&nbsp;age):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.name&nbsp;=&nbsp;name<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.age&nbsp;=&nbsp;age<br><br><br>def&nbsp;enter(person):<br>&nbsp;&nbsp;&nbsp;match&nbsp;person:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Person(name=name,&nbsp;age=age)&nbsp;if&nbsp;age&nbsp;&lt;&nbsp;18:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"{name},&nbsp;acces&nbsp;interzis")<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Person(name=name):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"{name},&nbsp;bine&nbsp;ai&nbsp;venit!")<br><br><br>enter(Person("Tom",&nbsp;37))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Tom,&nbsp;bine&nbsp;ai&nbsp;venit!<br>enter(Person("Sam",&nbsp;12))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Sam,&nbsp;acces&nbsp;interzis</code></pre>
+ </div>
+ <p class="paragraph">Aici, primul șablon:</p>
+ <div class="code-inline">
+  <pre><code>case&nbsp;Person(name=name,&nbsp;age=age)&nbsp;if&nbsp;age&nbsp;&lt;&nbsp;18:<br>&nbsp;&nbsp;&nbsp;print(f"{name},&nbsp;acces&nbsp;interzis")</code></pre>
+ </div>
+ <p class="paragraph">Corespunde oricărui obiect Person al cărui atribut age este mai mic de 18 ani. De fapt, partea if age &lt; 18 reprezintă restricția. Astfel, dacă utilizatorul are o vârstă mai mică de 18 ani, se va afișa un mesaj, iar dacă are peste 18 ani, se va afișa un alt mesaj.</p>
+ <p class="paragraph">În mod similar, se pot introduce restricții suplimentare:</p>
+ <div class="code-inline">
+  <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name,&nbsp;age):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.name&nbsp;=&nbsp;name<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.age&nbsp;=&nbsp;age<br><br><br>def&nbsp;enter(person):<br>&nbsp;&nbsp;&nbsp;match&nbsp;person:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Person(name=name,&nbsp;age=age)&nbsp;if&nbsp;age&nbsp;&lt;&nbsp;18:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"{name},&nbsp;acces&nbsp;interzis")<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Person(name=name,&nbsp;age=age)&nbsp;if&nbsp;age&nbsp;&lt;&nbsp;22:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"{name},&nbsp;acces&nbsp;limitat")<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Person(name=name):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"{name},&nbsp;ai&nbsp;acces&nbsp;complet!")<br><br><br>enter(Person("Tom",&nbsp;37))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Tom,&nbsp;ai&nbsp;acces&nbsp;complet!<br>enter(Person("Bob",&nbsp;20))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Bob,&nbsp;acces&nbsp;limitat<br>enter(Person("Sam",&nbsp;12))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Sam,&nbsp;acces&nbsp;interzis</code></pre>
+ </div>
+ <p class="paragraph">Condițiile de restricție pot fi mai complexe și structurate:</p>
+ <div class="code-inline">
+  <pre><code>def&nbsp;check_data(data):<br>&nbsp;&nbsp;&nbsp;match&nbsp;data:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;name,&nbsp;age&nbsp;if&nbsp;name&nbsp;==&nbsp;"admin"&nbsp;or&nbsp;age&nbsp;not&nbsp;in&nbsp;range(1,&nbsp;101):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print("Valori&nbsp;incorecte")<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;name,&nbsp;age:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"Date&nbsp;verificate.&nbsp;Nume:&nbsp;{name}&nbsp;&nbsp;Vârstă:&nbsp;{age}")<br><br><br>check_data(("admin",&nbsp;-45))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Valori&nbsp;incorecte<br>check_data(("Tom",&nbsp;37))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Date&nbsp;verificate.&nbsp;Nume:&nbsp;Tom&nbsp;&nbsp;Vârstă:&nbsp;37</code></pre>
+ </div>
+ <p class="paragraph">În acest caz, funcția primește un tuplu data. Ambele șabloane din construcția match corespund unui tuplu cu două elemente. Dar primul șablon aplică, de asemenea, restricția name == "admin" or age not in range(1, 101), conform căreia primul element al tuplului trebuie să aibă valoarea "admin", iar al doilea trebuie să fie în afara intervalului 1-101.</p>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

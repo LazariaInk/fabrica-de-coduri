@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Interfețele în mecanismul de callback</h1>
+ <p class="paragraph">Unul dintre modurile comune de utilizare a interfețelor în Java este crearea unui mecanism de callback. Esența unui callback constă în faptul că creăm acțiuni care sunt declanșate de alte acțiuni. Cu alte cuvinte, unele acțiuni sunt inițiate de altele. Un exemplu standard este apăsarea unui buton.</p>
+ <p class="paragraph">Când apăsăm pe un buton, executăm o acțiune, dar, ca răspuns la această apăsare, sunt declanșate alte acțiuni. De exemplu, apăsarea pictogramei de imprimantă declanșează imprimarea unui document pe imprimantă și așa mai departe.</p>
+ <p class="paragraph">Să analizăm următorul exemplu:</p>
+ <div class="code-inline">
+  <pre><code>public&nbsp;class&nbsp;EventsApp&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Button&nbsp;button&nbsp;=&nbsp;new&nbsp;Button(new&nbsp;ButtonClickHandler());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;button.click();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;button.click();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;button.click();<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;ButtonClickHandler&nbsp;implements&nbsp;EventHandler&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;execute()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Butonul&nbsp;a&nbsp;fost&nbsp;apăsat!");<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>interface&nbsp;EventHandler&nbsp;{<br>&nbsp;&nbsp;&nbsp;void&nbsp;execute();<br>}<br><br>class&nbsp;Button&nbsp;{<br>&nbsp;&nbsp;&nbsp;EventHandler&nbsp;handler;<br>&nbsp;&nbsp;&nbsp;Button(EventHandler&nbsp;action)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.handler&nbsp;=&nbsp;action;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;click()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;handler.execute();<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">Aici avem definită clasa Button, care, în constructor, primește un obiect al interfeței EventHandler și în metoda click (simulând apăsarea) apelează metoda execute a acelui obiect.</p>
+ <p class="paragraph">Apoi se definește implementarea interfeței EventHandler sub forma clasei ButtonClickHandler. În programul principal, un obiect al acestei clase este transmis constructorului clasei Button. Astfel, prin constructor, stabilim un handler pentru apăsarea butonului. La fiecare apel al metodei button.click(), acest handler va fi executat.</p>
+ <p class="paragraph">Rezultatul afișat în consolă va fi următorul:</p>
+ <div class="code-inline">
+  <pre><code>Butonul&nbsp;a&nbsp;fost&nbsp;apăsat!<br>Butonul&nbsp;a&nbsp;fost&nbsp;apăsat!<br>Butonul&nbsp;a&nbsp;fost&nbsp;apăsat!</code></pre>
+ </div>
+ <p class="paragraph">S-ar putea să ne întrebăm de ce mutăm toate acțiunile în interfață și le implementăm, în loc să scriem direct în clasa Button, ca în exemplul următor:</p>
+ <div class="code-inline">
+  <pre><code>class&nbsp;Button&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;click()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Butonul&nbsp;a&nbsp;fost&nbsp;apăsat!");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">Motivul este că, în momentul definirii clasei, nu știm întotdeauna exact ce acțiuni trebuie să se execute. Acest lucru este valabil mai ales dacă clasa Button și clasa principală se află în pachete sau biblioteci diferite și sunt proiectate de dezvoltatori diferiți. De asemenea, pot exista mai multe butoane - obiecte ale clasei Button, și pentru fiecare obiect trebuie să definim o acțiune specifică. De exemplu, să modificăm clasa principală a programului:</p>
+ <div class="code-inline">
+  <pre><code>public&nbsp;class&nbsp;EventsApp&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Button&nbsp;tvButton&nbsp;=&nbsp;new&nbsp;Button(new&nbsp;EventHandler()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;boolean&nbsp;on&nbsp;=&nbsp;false;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;execute()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(on)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Televizorul&nbsp;este&nbsp;oprit.");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;on&nbsp;=&nbsp;false;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;else&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Televizorul&nbsp;este&nbsp;pornit!");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;on&nbsp;=&nbsp;true;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;});<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Button&nbsp;printButton&nbsp;=&nbsp;new&nbsp;Button(new&nbsp;EventHandler()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;execute()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Imprimarea&nbsp;a&nbsp;început...");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;});<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tvButton.click();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printButton.click();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tvButton.click();<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">Aici avem două butoane - unul pentru pornirea/oprirerea televizorului și altul pentru imprimarea la imprimantă. În loc să creăm clase separate care să implementeze interfața EventHandler, handler-ele sunt definite sub formă de obiecte anonime care implementează interfața EventHandler.</p>
+ <p class="paragraph">În plus, handler-ul butonului pentru televizor stochează o stare suplimentară sub forma unei variabile booleene on.</p>
+ <p class="paragraph">Rezultatul afișat în consolă va fi:</p>
+ <div class="code-inline">
+  <pre><code>Televizorul&nbsp;este&nbsp;pornit!<br>Imprimarea&nbsp;a&nbsp;început...<br>Televizorul&nbsp;este&nbsp;oprit.</code></pre>
+ </div>
+ <p class="paragraph">În concluzie, trebuie menționat că interfețele sunt utilizate pe scară largă în diferite API-uri grafice - AWT, Swing, JavaFX, unde gestionarea evenimentelor pentru elementele interfeței grafice este deosebit de relevantă.</p>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

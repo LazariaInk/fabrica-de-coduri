@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Modificatori de acces și încapsulare</h1>
+ <p class="paragraph">Toți membrii unei clase în limbajul Java - câmpurile și metodele - au modificatori de acces. În temele anterioare, ne-am întâlnit deja cu modificatorul public. Modificatorii de acces permit stabilirea domeniului de vizibilitate pentru membrii clasei, adică contextul în care o variabilă sau o metodă poate fi utilizată.</p>
+ <p class="paragraph">În Java sunt folosiți următorii modificatori de acces:</p>
+ <ul class="enumeration">
+  <li>public: clasă publică sau membru al unei clase accesibilă tuturor. Câmpurile și metodele declarate cu modificatorul public sunt vizibile altor clase din pachetul curent și din pachetele externe</li>
+  <li>private: clasă privată sau membru al unei clase, opusul modificatorului public. O clasă privată sau un membru al unei clase este accesibil doar din codul din aceeași clasă</li>
+  <li>protected: acest tip de clasă sau membru al unei clase este accesibil din orice loc din clasa curentă sau din pachet, precum și din clasele derivate, chiar dacă acestea sunt în alte pachete</li>
+  <li>Modificator implicit: Lipsa unui modificator la un câmp sau metodă a unei clase implică aplicarea modificatorului implicit. Aceste câmpuri sau metode sunt vizibile tuturor claselor din pachetul curent</li>
+ </ul>
+ <p class="paragraph">Să analizăm modificatorii de acces în exemplul următor:</p>
+ <div class="code-inline">
+  <pre><code>public&nbsp;class&nbsp;Program{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;kate&nbsp;=&nbsp;new&nbsp;Person("Kate",&nbsp;32,&nbsp;"Baker&nbsp;Street",&nbsp;"+12334567");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;kate.displayName();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;normal,&nbsp;metodă&nbsp;publică<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;kate.displayAge();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;normal,&nbsp;metodă&nbsp;cu&nbsp;modificator&nbsp;implicit<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;kate.displayPhone();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;normal,&nbsp;metodă&nbsp;protected<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//kate.displayAddress();&nbsp;&nbsp;//&nbsp;!&nbsp;Eroare,&nbsp;metodă&nbsp;private<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(kate.name);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;normal,&nbsp;modificator&nbsp;implicit<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(kate.address);&nbsp;&nbsp;&nbsp;//&nbsp;normal,&nbsp;modificator&nbsp;public<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(kate.age);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;normal,&nbsp;modificator&nbsp;protected<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//System.out.println(kate.phone);&nbsp;&nbsp;&nbsp;//&nbsp;!&nbsp;Eroare,&nbsp;modificator&nbsp;private<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;String&nbsp;name;<br>&nbsp;&nbsp;&nbsp;protected&nbsp;int&nbsp;age;<br>&nbsp;&nbsp;&nbsp;public&nbsp;String&nbsp;address;<br>&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;phone;<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(String&nbsp;name,&nbsp;int&nbsp;age,&nbsp;String&nbsp;address,&nbsp;String&nbsp;phone){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.address&nbsp;=&nbsp;address;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.phone&nbsp;=&nbsp;phone;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;displayName(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("Name:&nbsp;%s&nbsp;\n",&nbsp;name);<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;void&nbsp;displayAge(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("Age:&nbsp;%d&nbsp;\n",&nbsp;age);<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;private&nbsp;void&nbsp;displayAddress(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("Address:&nbsp;%s&nbsp;\n",&nbsp;address);<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;protected&nbsp;void&nbsp;displayPhone(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("Phone:&nbsp;%s&nbsp;\n",&nbsp;phone);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">În acest caz, ambele clase sunt localizate în același pachet - pachetul implicit, astfel încât în clasa Program putem folosi toate metodele și variabilele clasei Person, care au modificator implicit, public și protected. Câmpurile și metodele cu modificator private nu vor fi accesibile în clasa Program.</p>
+ <p class="paragraph">Dacă clasa Program ar fi fost localizată într-un alt pachet, ar fi avut acces doar la câmpurile și metodele cu modificator public.</p>
+ <p class="paragraph">Modificatorul de acces trebuie să precede restul definiției unei variabile sau metode.</p>
+ <h2 class="subtitle">Încapsulare în Java</h2>
+ <p class="paragraph">Te-ai putea întreba de ce să nu declarăm toate variabilele și metodele cu modificatorul public, astfel încât să fie accesibile din orice punct al programului, indiferent de pachet sau clasă. De exemplu, câmpul age, care reprezintă vârsta. Dacă o altă clasă are acces direct la acest câmp, există șansa ca în timpul execuției programului să primească o valoare incorectă, cum ar fi un număr negativ.</p>
+ <p class="paragraph">Astfel de modificări ale datelor nu sunt dorite. Sau poate dorim ca unele date să fie disponibile direct, pentru a le afișa în consolă sau pur și simplu pentru a le cunoaște valoarea. În acest sens, este recomandat să restricționăm cât mai mult accesul la date, pentru a le proteja de accesul nedorit din exterior (atât pentru obținerea valorii, cât și pentru modificarea acesteia).</p>
+ <p class="paragraph">Utilizarea diferiților modificatori garantează că datele nu vor fi distorsionate sau modificate în mod inadecvat. Această ascundere a datelor într-o anumită zonă de vizibilitate se numește încapsulare.</p>
+ <p class="paragraph">De obicei, în loc să lucrăm direct cu câmpuri, folosim metode de acces. De exemplu:</p>
+ <div class="code-inline">
+  <pre><code>public&nbsp;class&nbsp;Program{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;kate&nbsp;=&nbsp;new&nbsp;Person("Kate",&nbsp;30);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(kate.getAge());&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;30<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;kate.setAge(33);&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(kate.getAge());&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;33<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;kate.setAge(123450);&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(kate.getAge());&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;33<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;name;<br>&nbsp;&nbsp;&nbsp;private&nbsp;int&nbsp;age&nbsp;=&nbsp;1;<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(String&nbsp;name,&nbsp;int&nbsp;age){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setName(name);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setAge(age);<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;String&nbsp;getName(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;this.name;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;setName(String&nbsp;name){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;getAge(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;this.age;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;setAge(int&nbsp;age){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(age&nbsp;&gt;&nbsp;0&nbsp;&amp;&amp;&nbsp;age&nbsp;&lt;&nbsp;110)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">În loc să lucrăm direct cu câmpurile name și age din clasa Person, vom lucra cu metodele care setează și returnează valorile acestor câmpuri. Metodele setName, setAge și altele similare se numesc mutatoare (mutator), deoarece ele modifică valorile câmpurilor. Iar metodele getName, getAge și altele similare se numesc accesorii (accessor), deoarece ele ne permit să obținem valorile câmpurilor.</p>
+ <p class="paragraph">De asemenea, putem adăuga logică suplimentară în aceste metode. De exemplu, în acest caz, la modificarea vârstei, se efectuează o verificare pentru a se asigura că noua valoare se încadrează în intervalul acceptabil.</p>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

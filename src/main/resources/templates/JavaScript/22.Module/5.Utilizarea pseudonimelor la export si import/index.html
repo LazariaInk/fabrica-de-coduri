@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Utilizarea pseudonimelor la export și import</h1>
+ <p class="paragraph">Cu ajutorul operatorului as, componentelor exportate/importate ale unui modul li se poate atribui un pseudonim. Apoi, pentru utilizarea acestor componente se folosește nu numele lor direct, ci pseudonimul lor.</p>
+ <h2 class="subtitle">Pseudonime la export</h2>
+ <p class="paragraph">Definim următorul modul message.js:</p>
+ <div class="code-inline">
+  <pre><code>let&nbsp;welcome&nbsp;=&nbsp;"Welcome";<br>const&nbsp;hello&nbsp;=&nbsp;"Hello";<br><br>function&nbsp;sayHello()&nbsp;{<br>&nbsp;console.log("Hello&nbsp;FDC.COM");<br>}<br><br>class&nbsp;Messenger&nbsp;{<br>&nbsp;&nbsp;&nbsp;send(text){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Sending&nbsp;message:",&nbsp;text);<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>export&nbsp;{welcome&nbsp;as&nbsp;simpleMessage,&nbsp;hello,&nbsp;sayHello&nbsp;as&nbsp;printMessage,&nbsp;Messenger}</code></pre>
+ </div>
+ <p class="paragraph">Aici toate componentele modulului sunt exportate sub forma unei liste, în care pentru componente se poate defini un pseudonim în forma:</p>
+ <div class="code-inline">
+  <pre><code>componentă&nbsp;as&nbsp;pseudonim</code></pre>
+ </div>
+ <p class="paragraph">Astfel, pentru constanta welcome este definit pseudonimul simpleMessage, iar pentru funcția sayHello este definit pseudonimul printMessage.</p>
+ <p class="paragraph">În acest caz, la importul modulului message.js, aceste componente vor fi accesibile prin pseudonimele lor:</p>
+ <div class="code-inline">
+  <pre><code>import&nbsp;{simpleMessage,&nbsp;printMessage,&nbsp;Messenger}&nbsp;from&nbsp;"./message.js";<br><br>printMessage();<br><br>const&nbsp;telegram&nbsp;=&nbsp;new&nbsp;Messenger();<br>telegram.send(simpleMessage);</code></pre>
+ </div>
+ <h2 class="subtitle">Pseudonime la import</h2>
+ <p class="paragraph">Într-un mod similar, se pot specifica pseudonime și la import. Acest lucru poate fi relevant dacă numele componentei importate este destul de lung și dorim să stabilim pentru ea un pseudonim mai scurt. O a doua cauză este că în modul există deja componente cu același nume, și pentru a evita ambiguitatea, pentru componente identice din modulul conectat se stabilesc pseudonime. A treia cauză este că dorim să dăm componentelor nume mai descriptive și expresive.</p>
+ <p class="paragraph">Să luăm în considerare un exemplu mic:</p>
+ <div class="code-inline">
+  <pre><code>import&nbsp;{simpleMessage&nbsp;as&nbsp;messageText,&nbsp;printMessage&nbsp;as&nbsp;printHello,&nbsp;Messenger}&nbsp;from&nbsp;"./message.js";<br><br>const&nbsp;printMessage&nbsp;=&nbsp;()=&gt;console.log("Hello&nbsp;from&nbsp;main&nbsp;module");<br><br>printHello();<br>printMessage();<br><br>const&nbsp;telegram&nbsp;=&nbsp;new&nbsp;Messenger();<br>telegram.send(messageText);</code></pre>
+ </div>
+ <p class="paragraph">Aici, constantei importate simpleMessage i se atribuie pseudonimul messageText: simpleMessage as messageText.</p>
+ <p class="paragraph">În plus, aici este definită funcția printMessage(). Totuși, din modul este importată și o componentă cu același nume. Și pentru a evita ambiguitatea, componentei importate i se atribuie pseudonimul printHello: printMessage as printHello.</p>
+ <p class="paragraph">Ulterior, pentru accesul la componentele importate cu pseudonime se folosesc pseudonimele lor.</p>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

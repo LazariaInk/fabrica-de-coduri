@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Adăugarea obiectelor în depozit</h1>
+ <p class="paragraph">Pentru a adăuga obiecte în depozitul bazei de date IndexDB, se folosește metoda add() a obiectului IDBObjectStore:</p>
+ <div class="code-inline">
+  <pre><code>add(value):&nbsp;valoarea&nbsp;care&nbsp;trebuie&nbsp;adăugată&nbsp;este&nbsp;primul&nbsp;parametru.<br><br>add(value,&nbsp;key):&nbsp;al&nbsp;doilea&nbsp;parametru,&nbsp;opțional,&nbsp;indică&nbsp;cheia&nbsp;obiectului.&nbsp;Dacă&nbsp;nu&nbsp;este&nbsp;specificat,&nbsp;cheia&nbsp;este&nbsp;considerată&nbsp;null&nbsp;implicit.</code></pre>
+ </div>
+ <p class="paragraph">Alegerea de a specifica o cheie și tipul acesteia depinde de setările de configurare ale depozitului stabilite la crearea acestuia:</p>
+ <ul class="enumeration">
+  <li>keyPath: definește numele proprietății care va servi ca cheie pentru obiecte</li>
+  <li>autoIncrement: atunci când este setat pe true, cheile sunt generate automat. Implicit, acesta este setat pe false, indicând că cheile nu sunt generate automat</li>
+ </ul>
+ <p class="paragraph">Modul în care este utilizată cheia este determinat de combinațiile specifice ale parametrilor keyPath și autoIncrement.</p>
+ <div class="image-container">
+  <img src="images/image1.png" alt="" class="responsive-image">
+ </div>
+ <p class="paragraph">Rezultatul metodei add() este un obiect IDBRequest. În cazul unei adăugări de succes, la acest obiect se declanșează evenimentul success, iar proprietatea sa result conține cheia obiectului adăugat. În caz de eroare, se generează evenimentul error împreună cu o excepție de tip DOMException. Pentru a gestiona aceste evenimente, se pot folosi proprietățile onsuccess și onerror, respectiv.</p>
+ <p class="paragraph">De exemplu, să adăugăm un singur obiect:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;request&nbsp;=&nbsp;indexedDB.open("test",&nbsp;5);&nbsp;//&nbsp;ne&nbsp;conectăm&nbsp;la&nbsp;baza&nbsp;de&nbsp;date&nbsp;test<br><br>//&nbsp;la&nbsp;crearea&nbsp;sau&nbsp;actualizarea&nbsp;versiunii&nbsp;bazei&nbsp;de&nbsp;date,&nbsp;creăm&nbsp;în&nbsp;ea&nbsp;un&nbsp;depozit&nbsp;users<br>request.onupgradeneeded&nbsp;=&nbsp;(event)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;db&nbsp;=&nbsp;event.target.result;&nbsp;&nbsp;//&nbsp;obținem&nbsp;baza&nbsp;de&nbsp;date<br>&nbsp;&nbsp;&nbsp;//&nbsp;cheia&nbsp;este&nbsp;proprietatea&nbsp;id,&nbsp;și&nbsp;este&nbsp;autoincrementată<br>&nbsp;&nbsp;&nbsp;db.createObjectStore("users",&nbsp;{&nbsp;keyPath:&nbsp;"id",&nbsp;autoIncrement:&nbsp;true&nbsp;});<br>};<br>//&nbsp;la&nbsp;deschiderea&nbsp;bazei&nbsp;de&nbsp;date&nbsp;adăugăm&nbsp;în&nbsp;depozitul&nbsp;users&nbsp;1&nbsp;obiect<br>request.onsuccess&nbsp;=&nbsp;(event)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;db&nbsp;=&nbsp;event.target.result;&nbsp;&nbsp;//&nbsp;obținem&nbsp;baza&nbsp;de&nbsp;date<br>&nbsp;&nbsp;&nbsp;const&nbsp;transaction&nbsp;=&nbsp;db.transaction(["users"],&nbsp;"readwrite");&nbsp;//&nbsp;creăm&nbsp;o&nbsp;tranzacție<br>&nbsp;&nbsp;&nbsp;const&nbsp;userStore&nbsp;=&nbsp;transaction.objectStore("users");&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;depozitul&nbsp;users<br><br>&nbsp;&nbsp;&nbsp;const&nbsp;tom&nbsp;=&nbsp;{name:&nbsp;"Tom",&nbsp;age:&nbsp;39};<br>&nbsp;&nbsp;&nbsp;const&nbsp;addRequest&nbsp;=&nbsp;userStore.add(tom);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;adăugăm&nbsp;obiectul&nbsp;tom&nbsp;în&nbsp;depozitul&nbsp;userStore<br>&nbsp;&nbsp;&nbsp;addRequest.onsuccess&nbsp;=&nbsp;(event)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Datele&nbsp;au&nbsp;fost&nbsp;adăugate&nbsp;cu&nbsp;succes");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("id-ul&nbsp;înregistrării&nbsp;adăugate:",&nbsp;addRequest.result);&nbsp;//&nbsp;id-ul&nbsp;înregistrării&nbsp;adăugate:&nbsp;1<br>&nbsp;&nbsp;&nbsp;};<br>};</code></pre>
+ </div>
+ <p class="paragraph">Aici, în baza de date test este creat depozitul "users", în care ca cheie servește proprietatea id, și această proprietate este autoincrementată la adăugarea fiecărui obiect nou. Adică, obiectul adăugat poate să nu conțină o asemenea proprietate.</p>
+ <p class="paragraph">P.S. Pentru celor ce nu le-a fost clar unde trebuie rulat codul, creăm un fișier de tip html, spre exemplu, runserverjs.html, în folderul care l-ați folosit în temele anteriare ( în cazul meu C:\ app). Acolo adăugați codul ( să nu uitați de structura html, codul trebuie să fie adăugat între &lt;script&gt; și &lt;/script&gt;), iar după asta faceți click pe el. După ce aparea fereastra, apăsați F12.</p>
+ <p class="paragraph">În acest caz, adăugăm un singur obiect cu două proprietăți, name și age:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;tom&nbsp;=&nbsp;{name:&nbsp;"Tom",&nbsp;age:&nbsp;39};<br>const&nbsp;addRequest&nbsp;=&nbsp;userStore.add(tom);</code></pre>
+ </div>
+ <p class="paragraph">La adăugarea cu succes, addRequest.result conține cheia - valoarea proprietății id a obiectului adăugat:</p>
+ <div class="code-inline">
+  <pre><code><br>addRequest.onsuccess&nbsp;=&nbsp;(event)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Datele&nbsp;au&nbsp;fost&nbsp;adăugate&nbsp;cu&nbsp;succes");<br>&nbsp;&nbsp;&nbsp;console.log("id-ul&nbsp;înregistrării&nbsp;adăugate:",&nbsp;addRequest.result);&nbsp;//&nbsp;id-ul&nbsp;înregistrării&nbsp;adăugate:&nbsp;1<br>};</code></pre>
+ </div>
+ <p class="paragraph">Aceeași valoare poate fi obținută prin parametrul handlerului și proprietatea sa event.target.result</p>
+ <div class="code-inline">
+  <pre><code>console.log("id-ul&nbsp;înregistrării&nbsp;adăugate:",&nbsp;event.target.result);</code></pre>
+ </div>
+ <p class="paragraph">Este important de menționat că adăugarea datelor nu se întâmplă imediat după apelul metodei add(), ci se finalizează după un anumit timp. Prin urmare, pentru a urmări operațiunea se utilizează handlerul onsuccess.</p>
+ <p class="paragraph">Să adăugăm încă câteva obiecte:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;bob&nbsp;=&nbsp;{name:&nbsp;"Bob",&nbsp;age:&nbsp;43};<br>const&nbsp;sam&nbsp;=&nbsp;{name:&nbsp;"Sam",&nbsp;age:&nbsp;28};<br>userStore.add(bob);<br>userStore.add(sam);</code></pre>
+ </div>
+ <h2 class="subtitle">Vizualizarea conținutului în browser</h2>
+ <p class="paragraph">Este de remarcat că browserele moderne ne permit să vizualizăm conținutul IndexDB prin instrumentele de dezvoltare. Astfel, în Google Chrome, această funcționalitate este disponibilă pe tabul Application la selectarea din meniul din stânga a opțiunii Storage/IndexDB.</p>
+ <div class="image-container">
+  <img src="images/image2.png" alt="" class="responsive-image">
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

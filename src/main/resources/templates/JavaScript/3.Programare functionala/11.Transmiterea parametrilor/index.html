@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Transmiterea parametrilor prin valoare și prin referință</h1>
+ <h2 class="subtitle">Transmiterea parametrilor prin valoare</h2>
+ <p class="paragraph">Șirurile, numerele, valorile logice sunt transmise către funcție prin valoare. Cu alte cuvinte, la transmiterea unei valori către o funcție, acea funcție primește o copie a acelei valori. Să vedem ce înseamnă asta în practică:</p>
+ <div class="code-inline">
+  <pre><code>function&nbsp;change(x){<br>&nbsp;&nbsp;&nbsp;x&nbsp;=&nbsp;2&nbsp;*&nbsp;x;<br>&nbsp;&nbsp;&nbsp;console.log("x&nbsp;in&nbsp;change:",&nbsp;x);<br>}<br><br>let&nbsp;n&nbsp;=&nbsp;10;<br>console.log("n&nbsp;before&nbsp;change:",&nbsp;n);&nbsp;//&nbsp;n&nbsp;before&nbsp;change:&nbsp;10<br>change(n);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;x&nbsp;in&nbsp;change:&nbsp;20<br>console.log("n&nbsp;after&nbsp;change:",&nbsp;n);&nbsp;&nbsp;//&nbsp;n&nbsp;after&nbsp;change:&nbsp;10</code></pre>
+ </div>
+ <p class="paragraph">Funcția change primește un număr și îl dublează. La apelul funcției change, acesteia i se transmite un număr n. Cu toate acestea, după apelul funcției, observăm că numărul n nu s-a modificat, deși în interiorul funcției a avut loc dublarea valorii parametrului.</p>
+ <p class="paragraph">Aceasta se întâmplă deoarece la apelul funcției change, aceasta primește o copie a valorii variabilei n. Orice modificări asupra acelei copii nu afectează în mod direct variabila n în sine. În final, obținem următorul rezultat în consola browserului:</p>
+ <div class="code-inline">
+  <pre><code><br>n&nbsp;before&nbsp;change:&nbsp;10<br>x&nbsp;in&nbsp;change:&nbsp;20<br>n&nbsp;after&nbsp;change:&nbsp;10</code></pre>
+ </div>
+ <h2 class="subtitle">Transmitere prin referință</h2>
+ <p class="paragraph">Obiectele și array-urile sunt tipuri de date referențiale. Cu alte cuvinte, o variabilă sau o constantă care reprezintă un obiect sau un array, stochează efectiv o referință sau, în alte cuvinte, un pointer care indică adresa din memorie unde este stocat obiectul. De exemplu:</p>
+ <div class="code-inline">
+  <pre><code>let&nbsp;bob&nbsp;={<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"Bob"<br>};</code></pre>
+ </div>
+ <p class="paragraph">Variabila bob stochează formal un obiect în care este definit un singur câmp numit name. În realitate, însă, variabila bob stochează o referință către obiectul care este localizat undeva în memorie.</p>
+ <p class="paragraph">Și tipurile referențiale - obiectele și array-urile - sunt transmise către o funcție prin referință. Cu alte cuvinte, funcția primește o copie a referinței către obiect, nu o copie a obiectului însuși.</p>
+ <div class="code-inline">
+  <pre><code>function&nbsp;change(user){<br>&nbsp;&nbsp;&nbsp;user.name&nbsp;=&nbsp;"Tom";<br>}<br><br>let&nbsp;bob&nbsp;={<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"Bob"<br>};<br>console.log("before&nbsp;change:",&nbsp;bob.name);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Bob<br>change(bob);<br>console.log("after&nbsp;change:",&nbsp;bob.name);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Tom</code></pre>
+ </div>
+ <p class="paragraph">În acest caz, funcția change primește un anumit obiect și modifică proprietatea name a acestuia. La apelul funcției, acesteia i se transmite valoarea variabilei bob:</p>
+ <div class="code-inline">
+  <pre><code>change(bob);</code></pre>
+ </div>
+ <p class="paragraph">Fiindcă variabila bob reprezintă un obiect și stochează o referință către un anumit obiect în memorie, funcția change primește o copie a acelei referințe, care indică către același obiect în memorie ca și variabila bob.</p>
+ <p class="paragraph">În final, vom observa că, după apelul funcției, obiectul original bob, care a fost transmis funcției, a fost modificat.</p>
+ <p class="paragraph">before change: Bob after change: Tom</p>
+ <p class="paragraph">Cu toate acestea, dacă încercăm să reasignăm complet un obiect sau un array, valoarea originală nu va fi modificată.</p>
+ <div class="code-inline">
+  <pre><code>function&nbsp;change(user){<br>&nbsp;&nbsp;&nbsp;//reasignarea&nbsp;completă&nbsp;a&nbsp;obiectului<br>&nbsp;&nbsp;&nbsp;user=&nbsp;{&nbsp;name:"Tom"&nbsp;};<br>}<br><br>let&nbsp;bob&nbsp;={<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"Bob"<br>};<br>console.log("before&nbsp;change:",&nbsp;bob.name);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Bob<br>change(bob);<br>console.log("after&nbsp;change:",&nbsp;bob.name);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Bob</code></pre>
+ </div>
+ <p class="paragraph">De ce datele nu se modifică aici? Deoarece, așa cum s-a menționat mai sus, funcția primește o copie a referinței. Adică, atunci când variabila bob este transmisă ca argument la funcție:</p>
+ <div class="code-inline">
+  <pre><code>change(bob);</code></pre>
+ </div>
+ <p class="paragraph">Variabila bob și parametrul user reprezintă două referințe diferite, dar care indică către același obiect.</p>
+ <p class="paragraph">La asignarea unui alt obiect parametrului în funcție:</p>
+ <div class="code-inline">
+  <pre><code>user=&nbsp;{&nbsp;name:"Tom"&nbsp;};</code></pre>
+ </div>
+ <p class="paragraph">Referința user începe să indice către un alt obiect în memorie. Astfel, după aceasta, bob și user devin două referințe diferite, care indică către două obiecte diferite în memorie.</p>
+ <p class="paragraph">Același lucru se aplică și la array-uri:</p>
+ <div class="code-inline">
+  <pre><code>function&nbsp;change(array){<br>&nbsp;&nbsp;&nbsp;array[0]&nbsp;=&nbsp;8;<br>}<br>function&nbsp;changeFull(array){<br>&nbsp;&nbsp;&nbsp;array&nbsp;=&nbsp;[9,&nbsp;8,&nbsp;7];<br>}<br><br>let&nbsp;numbers&nbsp;=&nbsp;[1,&nbsp;2,&nbsp;3];<br><br>console.log("before&nbsp;change:",&nbsp;numbers);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[1,&nbsp;2,&nbsp;3]<br>change(numbers);<br>console.log("after&nbsp;change:",&nbsp;numbers);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[8,&nbsp;2,&nbsp;3]<br>changeFull(numbers);<br>console.log("after&nbsp;changeFull:",&nbsp;numbers);&nbsp;&nbsp;//&nbsp;[8,&nbsp;2,&nbsp;3]</code></pre>
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

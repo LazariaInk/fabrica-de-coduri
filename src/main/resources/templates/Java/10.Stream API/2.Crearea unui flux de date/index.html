@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Crearea unui flux de date</h1>
+ <p class="paragraph">Pentru crearea unui flux de date pot fi utilizate diverse metode. Ca sursă a fluxului, putem folosi colecții. În special, în JDK 8, interfața Collection, care este implementată de toate clasele de colecții, a fost extinsă cu două metode pentru lucrul cu fluxurile:</p>
+ <ul class="enumeration">
+  <li>default Stream&lt;E&gt; stream: returnează un flux de date din colecție</li>
+  <li>default Stream&lt;E&gt; parallelStream: returnează un flux paralel de date din colecție</li>
+ </ul>
+ <p class="paragraph">Să analizăm un exemplu cu ArrayList:</p>
+ <div class="code-inline">
+  <pre><code>import&nbsp;java.util.stream.Stream;<br>import&nbsp;java.util.*;<br>public&nbsp;class&nbsp;Program&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ArrayList&lt;String&gt;&nbsp;cities&nbsp;=&nbsp;new&nbsp;ArrayList&lt;String&gt;();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Collections.addAll(cities,&nbsp;"Paris",&nbsp;"Londra",&nbsp;"Madrid");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cities.stream()&nbsp;//&nbsp;obținem&nbsp;fluxul<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.filter(s-&gt;s.length()==6)&nbsp;//&nbsp;aplicăm&nbsp;filtrarea&nbsp;după&nbsp;lungimea&nbsp;șirului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.forEach(s-&gt;System.out.println(s));&nbsp;//&nbsp;afișăm&nbsp;șirurile&nbsp;filtrate&nbsp;la&nbsp;consolă<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">Aici, prin apelul cities.stream() obținem un flux care utilizează datele din lista cities. Prin fiecare operațiune intermediară aplicată fluxului, putem obține un flux modificat. De exemplu, putem modifica exemplul anterior astfel:</p>
+ <div class="code-inline">
+  <pre><code>ArrayList&lt;String&gt;&nbsp;cities&nbsp;=&nbsp;new&nbsp;ArrayList&lt;String&gt;();<br>Collections.addAll(cities,&nbsp;"Paris",&nbsp;"Londra",&nbsp;"Madrid");<br><br>Stream&lt;String&gt;&nbsp;citiesStream&nbsp;=&nbsp;cities.stream();&nbsp;//&nbsp;obținem&nbsp;fluxul<br>citiesStream&nbsp;=&nbsp;citiesStream.filter(s-&gt;s.length()==6);&nbsp;//&nbsp;aplicăm&nbsp;filtrarea&nbsp;după&nbsp;lungimea&nbsp;șirului<br>citiesStream.forEach(s-&gt;System.out.println(s));&nbsp;//&nbsp;afișăm&nbsp;șirurile&nbsp;filtrate&nbsp;la&nbsp;consolă</code></pre>
+ </div>
+ <p class="paragraph">Este important de menționat că, după utilizarea operațiunilor terminale, nu mai pot fi aplicate alte operațiuni terminale sau intermediare asupra aceluiași flux, deoarece fluxul a fost deja consumat. De exemplu, în cazul următor, vom obține o eroare:</p>
+ <div class="code-inline">
+  <pre><code>citiesStream.forEach(s-&gt;System.out.println(s));&nbsp;//&nbsp;operațiunea&nbsp;terminală&nbsp;consumă&nbsp;fluxul<br>long&nbsp;number&nbsp;=&nbsp;citiesStream.count();&nbsp;//&nbsp;aici&nbsp;va&nbsp;apărea&nbsp;eroarea,&nbsp;deoarece&nbsp;fluxul&nbsp;a&nbsp;fost&nbsp;consumat<br>System.out.println(number);<br>citiesStream&nbsp;=&nbsp;citiesStream.filter(s-&gt;s.length()&gt;5);&nbsp;//&nbsp;de&nbsp;asemenea&nbsp;nu&nbsp;este&nbsp;permis,&nbsp;deoarece&nbsp;fluxul&nbsp;a&nbsp;fost&nbsp;consumat</code></pre>
+ </div>
+ <p class="paragraph">De fapt, ciclul de viață al unui flux parcurge următoarele trei etape:</p>
+ <ul class="enumeration">
+  <li>Crearea fluxului</li>
+  <li>Aplicarea unei serii de operațiuni intermediare asupra fluxului</li>
+  <li>Aplicarea unei operațiuni terminale și obținerea rezultatului</li>
+ </ul>
+ <p class="paragraph">Pe lângă metodele discutate mai sus, mai există și alte modalități de creare a unui flux de date. Una dintre aceste modalități este metoda Arrays.stream(T[] array), care creează un flux de date dintr-un array:</p>
+ <div class="code-inline">
+  <pre><code>Stream&lt;String&gt;&nbsp;citiesStream&nbsp;=&nbsp;Arrays.stream(new&nbsp;String[]{"Paris",&nbsp;"Londra",&nbsp;"Madrid"});<br>citiesStream.forEach(s-&gt;System.out.println(s));&nbsp;//&nbsp;afișăm&nbsp;toate&nbsp;elementele&nbsp;array-ului</code></pre>
+ </div>
+ <p class="paragraph">Pentru crearea fluxurilor IntStream, DoubleStream, LongStream, pot fi utilizate versiunile supraîncărcate ale acestei metode:</p>
+ <div class="code-inline">
+  <pre><code>IntStream&nbsp;intStream&nbsp;=&nbsp;Arrays.stream(new&nbsp;int[]{1,2,4,5,7});<br>intStream.forEach(i-&gt;System.out.println(i));<br><br>LongStream&nbsp;longStream&nbsp;=&nbsp;Arrays.stream(new&nbsp;long[]{100,250,400,5843787,237});<br>longStream.forEach(l-&gt;System.out.println(l));<br><br>DoubleStream&nbsp;doubleStream&nbsp;=&nbsp;Arrays.stream(new&nbsp;double[]&nbsp;{3.4,&nbsp;6.7,&nbsp;9.5,&nbsp;8.2345,&nbsp;121});<br>doubleStream.forEach(d-&gt;System.out.println(d));</code></pre>
+ </div>
+ <p class="paragraph">O altă modalitate de creare a unui flux este metoda statică of(T..values) din clasa Stream:</p>
+ <div class="code-inline">
+  <pre><code>Stream&lt;String&gt;&nbsp;citiesStream&nbsp;=&nbsp;Stream.of("Paris",&nbsp;"Londra",&nbsp;"Madrid");<br>citiesStream.forEach(s-&gt;System.out.println(s));<br><br>//&nbsp;putem&nbsp;transmite&nbsp;un&nbsp;array<br>String[]&nbsp;cities&nbsp;=&nbsp;{"Paris",&nbsp;"Londra",&nbsp;"Madrid"};<br>Stream&lt;String&gt;&nbsp;citiesStream2&nbsp;=&nbsp;Stream.of(cities);<br><br>IntStream&nbsp;intStream&nbsp;=&nbsp;IntStream.of(1,2,4,5,7);<br>intStream.forEach(i-&gt;System.out.println(i));<br><br>LongStream&nbsp;longStream&nbsp;=&nbsp;LongStream.of(100,250,400,5843787,237);<br>longStream.forEach(l-&gt;System.out.println(l));<br><br>DoubleStream&nbsp;doubleStream&nbsp;=&nbsp;DoubleStream.of(3.4,&nbsp;6.7,&nbsp;9.5,&nbsp;8.2345,&nbsp;121);<br>doubleStream.forEach(d-&gt;System.out.println(d));</code></pre>
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

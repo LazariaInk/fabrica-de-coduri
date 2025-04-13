@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Clasa Phaser</h1>
+ <p class="paragraph">Clasa Phaser permite sincronizarea thread-urilor care reprezintă faze sau etape distincte ale unei acțiuni comune. Phaser definește un obiect de sincronizare care așteaptă finalizarea unei anumite faze de către toate thread-urile participante. După aceea, Phaser trece la faza următoare și așteaptă din nou finalizarea acesteia.</p>
+ <p class="paragraph">Pentru a crea un obiect Phaser, putem folosi unul dintre următoarele constructoare:</p>
+ <div class="code-inline">
+  <pre><code>Phaser()<br>Phaser(int&nbsp;parties)<br>Phaser(Phaser&nbsp;parent)<br>Phaser(Phaser&nbsp;parent,&nbsp;int&nbsp;parties)</code></pre>
+ </div>
+ <p class="paragraph">Parametrul parties specifică numărul de participanți (în esență, thread-uri) care vor executa toate fazele acțiunii. Primul constructor creează un obiect Phaser fără participanți. Al doilea constructor înregistrează numărul de participanți transmis ca parametru. Al treilea și al patrulea constructor stabilesc și un obiect Phaser părinte.</p>
+ <p class="paragraph">Metodele principale ale clasei Phaser:</p>
+ <ul class="enumeration">
+  <li>int register(): înregistrează un participant care execută fazele și returnează numărul fazei curente (în mod normal, faza 0)</li>
+  <li>int arrive(): informează că participantul a terminat faza și returnează numărul fazei curente</li>
+  <li>int arriveAndAwaitAdvance(): similar metodei arrive(), dar așteaptă ca toți participanții să termine faza curentă înainte de a continua</li>
+  <li>int arriveAndDeregister(): informează că participantul a terminat toate fazele și se deregistrează. Returnează numărul fazei curente sau un număr negativ dacă Phaser și-a încheiat activitatea</li>
+  <li>int getPhase(): returnează numărul fazei curente</li>
+ </ul>
+ <p class="paragraph">Exemplu de utilizare a clasei Phaser:</p>
+ <p class="paragraph">Mai jos este un exemplu de sincronizare a mai multor thread-uri care trec prin mai multe faze:</p>
+ <div class="code-inline">
+  <pre><code>import&nbsp;java.util.concurrent.Phaser;<br><br>public&nbsp;class&nbsp;Program&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Phaser&nbsp;phaser&nbsp;=&nbsp;new&nbsp;Phaser(1);&nbsp;//&nbsp;Înregistrăm&nbsp;thread-ul&nbsp;principal<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;Thread(new&nbsp;PhaseThread(phaser,&nbsp;"PhaseThread&nbsp;1")).start();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;Thread(new&nbsp;PhaseThread(phaser,&nbsp;"PhaseThread&nbsp;2")).start();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Așteptăm&nbsp;finalizarea&nbsp;fazei&nbsp;0<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;phase&nbsp;=&nbsp;phaser.getPhase();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;phaser.arriveAndAwaitAdvance();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Faza&nbsp;"&nbsp;+&nbsp;phase&nbsp;+&nbsp;"&nbsp;s-a&nbsp;încheiat");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Așteptăm&nbsp;finalizarea&nbsp;fazei&nbsp;1<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;phase&nbsp;=&nbsp;phaser.getPhase();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;phaser.arriveAndAwaitAdvance();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Faza&nbsp;"&nbsp;+&nbsp;phase&nbsp;+&nbsp;"&nbsp;s-a&nbsp;încheiat");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Așteptăm&nbsp;finalizarea&nbsp;fazei&nbsp;2<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;phase&nbsp;=&nbsp;phaser.getPhase();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;phaser.arriveAndAwaitAdvance();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Faza&nbsp;"&nbsp;+&nbsp;phase&nbsp;+&nbsp;"&nbsp;s-a&nbsp;încheiat");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;phaser.arriveAndDeregister();&nbsp;//&nbsp;Deregistrăm&nbsp;thread-ul&nbsp;principal<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;PhaseThread&nbsp;implements&nbsp;Runnable&nbsp;{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Phaser&nbsp;phaser;<br>&nbsp;&nbsp;&nbsp;String&nbsp;name;<br><br>&nbsp;&nbsp;&nbsp;PhaseThread(Phaser&nbsp;p,&nbsp;String&nbsp;n)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.phaser&nbsp;=&nbsp;p;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;n;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;phaser.register();&nbsp;//&nbsp;Înregistrăm&nbsp;thread-ul<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;run()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(name&nbsp;+&nbsp;"&nbsp;execută&nbsp;faza&nbsp;"&nbsp;+&nbsp;phaser.getPhase());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;phaser.arriveAndAwaitAdvance();&nbsp;//&nbsp;Finalizăm&nbsp;prima&nbsp;fază<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(name&nbsp;+&nbsp;"&nbsp;execută&nbsp;faza&nbsp;"&nbsp;+&nbsp;phaser.getPhase());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;phaser.arriveAndAwaitAdvance();&nbsp;//&nbsp;Finalizăm&nbsp;a&nbsp;doua&nbsp;fază<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(name&nbsp;+&nbsp;"&nbsp;execută&nbsp;faza&nbsp;"&nbsp;+&nbsp;phaser.getPhase());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;phaser.arriveAndDeregister();&nbsp;//&nbsp;Finalizăm&nbsp;toate&nbsp;fazele&nbsp;și&nbsp;deregistrăm&nbsp;thread-ul<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">În acest exemplu, avem trei participanți care execută fazele: thread-ul principal și două thread-uri de tip PhaseThread. De aceea, atunci când se creează obiectul Phaser, îi este transmis numărul 1, care corespunde thread-ului principal. În constructorul clasei PhaseThread, se apelează metoda register() pentru a înregistra cele două thread-uri suplimentare.</p>
+ <p class="paragraph">Am fi putut omite apelul metodei register() și, în schimb, am fi putut inițializa Phaser cu 3 participanți direct, adică folosind Phaser phaser = new Phaser(3), deoarece avem trei participanți în total.</p>
+ <p class="paragraph">Fiecare fază pentru un participant reprezintă un set minimal de acțiuni. În cazul thread-urilor PhaseThread, acestea constau doar în afișarea unui mesaj, iar pentru thread-ul principal, acțiunea implică numărarea fazei curente folosind metoda getPhase(). Numerotarea fazelor începe de la zero.</p>
+ <p class="paragraph">Fiecare participant finalizează execuția unei faze apelând metoda phaser.arriveAndAwaitAdvance(). Această metodă blochează thread-ul până când toți participanții finalizează faza curentă.</p>
+ <p class="paragraph">Astfel, dacă un thread ajunge la finalul fazei și apelează această metodă, va trebui să aștepte ca și celelalte thread-uri să finalizeze înainte de a putea continua cu următoarea fază.</p>
+ <p class="paragraph">După ce toate fazele au fost finalizate, thread-urile se deregistrează folosind metoda arriveAndDeregister(). Aceasta semnalează că thread-ul și-a terminat participarea în toate fazele și nu mai trebuie sincronizat în continuare.</p>
+ <p class="paragraph">În final, rularea programului va oferi următorul rezultat:</p>
+ <div class="code-inline">
+  <pre><code>PhaseThread&nbsp;1&nbsp;execută&nbsp;faza&nbsp;0<br>PhaseThread&nbsp;2&nbsp;execută&nbsp;faza&nbsp;0<br>PhaseThread&nbsp;1&nbsp;execută&nbsp;faza&nbsp;1<br>PhaseThread&nbsp;2&nbsp;execută&nbsp;faza&nbsp;1<br>Faza&nbsp;0&nbsp;a&nbsp;fost&nbsp;finalizată<br>Faza&nbsp;1&nbsp;a&nbsp;fost&nbsp;finalizată<br>PhaseThread&nbsp;1&nbsp;execută&nbsp;faza&nbsp;2<br>PhaseThread&nbsp;2&nbsp;execută&nbsp;faza&nbsp;2<br>Faza&nbsp;2&nbsp;a&nbsp;fost&nbsp;finalizată</code></pre>
+ </div>
+ <p class="paragraph">În acest caz, se obține o ieșire puțin confuză. Astfel, mesajele despre execuția fazei 1 sunt afișate după mesajul despre încheierea fazei 0. Acest lucru este legat de multi-threading – fazele s-au încheiat, dar într-un fir de execuție încă nu a fost afișat mesajul despre finalizare, în timp ce alte fire au început deja execuția fazei următoare. Oricum, toate acestea se întâmplă după încheierea fazei.</p>
+ <p class="paragraph">Dar, pentru a fi mai clar, putem folosi sleep în firele de execuție:</p>
+ <div class="code-inline">
+  <pre><code>public&nbsp;void&nbsp;run(){<br><br>&nbsp;&nbsp;&nbsp;System.out.println(name&nbsp;+&nbsp;"&nbsp;execută&nbsp;faza&nbsp;"&nbsp;+&nbsp;phaser.getPhase());<br>&nbsp;&nbsp;&nbsp;phaser.arriveAndAwaitAdvance();&nbsp;//&nbsp;raportăm&nbsp;că&nbsp;prima&nbsp;fază&nbsp;a&nbsp;fost&nbsp;atinsă<br>&nbsp;&nbsp;&nbsp;try{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread.sleep(200);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;catch(InterruptedException&nbsp;ex){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(ex.getMessage());<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;System.out.println(name&nbsp;+&nbsp;"&nbsp;execută&nbsp;faza&nbsp;"&nbsp;+&nbsp;phaser.getPhase());<br>&nbsp;&nbsp;&nbsp;phaser.arriveAndAwaitAdvance();&nbsp;//&nbsp;raportăm&nbsp;că&nbsp;a&nbsp;doua&nbsp;fază&nbsp;a&nbsp;fost&nbsp;atinsă<br>&nbsp;&nbsp;&nbsp;try{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread.sleep(200);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;catch(InterruptedException&nbsp;ex){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(ex.getMessage());<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;System.out.println(name&nbsp;+&nbsp;"&nbsp;execută&nbsp;faza&nbsp;"&nbsp;+&nbsp;phaser.getPhase());<br>&nbsp;&nbsp;&nbsp;phaser.arriveAndDeregister();&nbsp;//&nbsp;raportăm&nbsp;încheierea&nbsp;fazelor&nbsp;și&nbsp;deregistrăm&nbsp;obiectele<br>}</code></pre>
+ </div>
+ <p class="paragraph">Și în acest caz ieșirea va fi mai obișnuită, deși nu va afecta modul de lucru al fazelor.</p>
+ <div class="code-inline">
+  <pre><code>PhaseThread&nbsp;1&nbsp;execută&nbsp;faza&nbsp;0<br>PhaseThread&nbsp;2&nbsp;execută&nbsp;faza&nbsp;0<br>Faza&nbsp;0&nbsp;a&nbsp;fost&nbsp;finalizată<br>PhaseThread&nbsp;2&nbsp;execută&nbsp;faza&nbsp;1<br>PhaseThread&nbsp;1&nbsp;execută&nbsp;faza&nbsp;1<br>Faza&nbsp;1&nbsp;a&nbsp;fost&nbsp;finalizată<br>PhaseThread&nbsp;2&nbsp;execută&nbsp;faza&nbsp;2<br>PhaseThread&nbsp;1&nbsp;execută&nbsp;faza&nbsp;2<br>Faza&nbsp;2&nbsp;a&nbsp;fost&nbsp;finalizată</code></pre>
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

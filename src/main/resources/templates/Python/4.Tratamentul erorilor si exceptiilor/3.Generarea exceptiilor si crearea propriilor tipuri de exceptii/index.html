@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Generarea excepțiilor și crearea propriilor tipuri de excepții</h1>
+ <h2 class="subtitle">Generarea excepțiilor și operatorul raise</h2>
+ <p class="paragraph">Uneori, apare necesitatea de a genera manual o anumită excepție. Pentru aceasta se utilizează operatorul raise. De exemplu, să generăm o excepție:</p>
+ <div class="code-inline">
+  <pre><code>try:<br>&nbsp;&nbsp;&nbsp;age&nbsp;=&nbsp;int(input("Introduceți&nbsp;vârsta:&nbsp;"))<br>&nbsp;&nbsp;&nbsp;if&nbsp;age&nbsp;&gt;&nbsp;110&nbsp;or&nbsp;age&nbsp;&lt;&nbsp;1:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;raise&nbsp;Exception("Vârstă&nbsp;incorectă")<br>&nbsp;&nbsp;&nbsp;print("Vârsta&nbsp;dvs.:",&nbsp;age)<br>except&nbsp;ValueError:<br>&nbsp;&nbsp;&nbsp;print("Date&nbsp;introduse&nbsp;incorect")<br>except&nbsp;Exception&nbsp;as&nbsp;e:<br>&nbsp;&nbsp;&nbsp;print(e)<br>print("Finalizarea&nbsp;programului")</code></pre>
+ </div>
+ <p class="paragraph">Operatorului raise i se transmite un obiect de tip BaseException, în acest caz, un obiect de tip Exception. În constructorul acestui tip se poate transmite un mesaj, care apoi poate fi afișat utilizatorului. Astfel, dacă age va fi mai mare de 110 sau mai mic de 1, operatorul raise va genera o excepție. În consecință, controlul programului va trece la blocul except, care gestionează excepțiile de tip Exception:</p>
+ <div class="code-inline">
+  <pre><code>Introduceți&nbsp;vârsta:&nbsp;100500<br>Vârstă&nbsp;incorectă<br>Finalizarea&nbsp;programului</code></pre>
+ </div>
+ <h2 class="subtitle">Crearea propriilor tipuri de excepții</h2>
+ <p class="paragraph">În Python, nu suntem limitați doar la tipurile de excepții încorporate și putem, prin utilizarea moștenirii, să creăm propriile noastre tipuri de excepții atunci când este necesar. De exemplu, să considerăm următoarea clasă Person:</p>
+ <div class="code-inline">
+  <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name,&nbsp;age):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.__name&nbsp;=&nbsp;name&nbsp;&nbsp;#&nbsp;setăm&nbsp;numele<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.__age&nbsp;=&nbsp;age&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;setăm&nbsp;vârsta<br><br>&nbsp;&nbsp;&nbsp;def&nbsp;display_info(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"Nume:&nbsp;{self.__name}&nbsp;&nbsp;Vârstă:&nbsp;{self.__age}")</code></pre>
+ </div>
+ <p class="paragraph">În această clasă Person, constructorul primește valorile pentru nume și vârstă și le atribuie variabilelor private name și age. Cu toate acestea, la crearea unui obiect Person, putem transmite constructorului o valoare incorectă din punct de vedere logic - de exemplu, un număr negativ. O soluție pentru această situație este generarea unei excepții atunci când se transmit valori incorecte.</p>
+ <p class="paragraph">Să definim următorul cod al programului:</p>
+ <div class="code-inline">
+  <pre><code>class&nbsp;PersonAgeException(Exception):<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;age,&nbsp;minage,&nbsp;maxage):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.age&nbsp;=&nbsp;age<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.minage&nbsp;=&nbsp;minage<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.maxage&nbsp;=&nbsp;maxage<br><br>&nbsp;&nbsp;&nbsp;def&nbsp;__str__(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;f"Valoare&nbsp;nepermisă:&nbsp;{self.age}.&nbsp;"&nbsp;\<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f"Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;în&nbsp;intervalul&nbsp;de&nbsp;la&nbsp;{self.minage}&nbsp;până&nbsp;la&nbsp;{self.maxage}"<br><br>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name,&nbsp;age):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.__name&nbsp;=&nbsp;name&nbsp;&nbsp;#&nbsp;setăm&nbsp;numele<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minage,&nbsp;maxage&nbsp;=&nbsp;1,&nbsp;110<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;minage&nbsp;&lt;&nbsp;age&nbsp;&lt;&nbsp;maxage:&nbsp;&nbsp;#&nbsp;setăm&nbsp;vârsta&nbsp;dacă&nbsp;valoarea&nbsp;este&nbsp;corectă<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.__age&nbsp;=&nbsp;age<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else:&nbsp;&nbsp;#&nbsp;în&nbsp;caz&nbsp;contrar,&nbsp;generăm&nbsp;o&nbsp;excepție<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;raise&nbsp;PersonAgeException(age,&nbsp;minage,&nbsp;maxage)<br><br>&nbsp;&nbsp;&nbsp;def&nbsp;display_info(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"Nume:&nbsp;{self.__name}&nbsp;&nbsp;Vârstă:&nbsp;{self.__age}")<br><br>try:<br>&nbsp;&nbsp;&nbsp;tom&nbsp;=&nbsp;Person("Tom",&nbsp;37)<br>&nbsp;&nbsp;&nbsp;tom.display_info()&nbsp;&nbsp;#&nbsp;Nume:&nbsp;Tom&nbsp;&nbsp;Vârstă:&nbsp;37<br><br>&nbsp;&nbsp;&nbsp;bob&nbsp;=&nbsp;Person("Bob",&nbsp;-23)<br>&nbsp;&nbsp;&nbsp;bob.display_info()<br>except&nbsp;PersonAgeException&nbsp;as&nbsp;e:<br>&nbsp;&nbsp;&nbsp;print(e)&nbsp;&nbsp;#&nbsp;Valoare&nbsp;nepermisă:&nbsp;-23.&nbsp;Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;în&nbsp;intervalul&nbsp;de&nbsp;la&nbsp;1&nbsp;până&nbsp;la&nbsp;110</code></pre>
+ </div>
+ <p class="paragraph">În acest exemplu, mai întâi este definită clasa PersonAgeException, care este derivată din clasa Exception. De regulă, propriile clase de excepții sunt derivate din clasa Exception. Clasa PersonAgeException este destinată excepțiilor legate de vârsta utilizatorului.</p>
+ <p class="paragraph">În constructorul PersonAgeException, se primesc trei valori: valoarea incorectă care a cauzat excepția, precum și valorile minimă și maximă ale vârstei.</p>
+ <div class="code-inline">
+  <pre><code>class&nbsp;PersonAgeException(Exception):<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;age,&nbsp;minage,&nbsp;maxage):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.age&nbsp;=&nbsp;age<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.minage&nbsp;=&nbsp;minage<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.maxage&nbsp;=&nbsp;maxage<br><br>&nbsp;&nbsp;&nbsp;def&nbsp;__str__(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;f"Valoare&nbsp;nepermisă:&nbsp;{self.age}.&nbsp;"&nbsp;\<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f"Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;în&nbsp;intervalul&nbsp;de&nbsp;la&nbsp;{self.minage}&nbsp;până&nbsp;la&nbsp;{self.maxage}"</code></pre>
+ </div>
+ <p class="paragraph">În funcția __str__, definim reprezentarea textuală a clasei - practic un mesaj de eroare.</p>
+ <p class="paragraph">În constructorul clasei Person, verificăm valoarea transmisă pentru vârsta utilizatorului. Dacă această valoare nu se încadrează în intervalul definit, generăm o excepție de tip PersonAgeException:</p>
+ <div class="code-inline">
+  <pre><code>raise&nbsp;PersonAgeException(age,&nbsp;minage,&nbsp;maxage)</code></pre>
+ </div>
+ <p class="paragraph">La utilizarea clasei Person, trebuie să avem în vedere că constructorul clasei poate genera o excepție atunci când se transmite o valoare incorectă. Prin urmare, crearea obiectelor Person este încadrată într-o construcție try..except:</p>
+ <div class="code-inline">
+  <pre><code>try:<br>&nbsp;&nbsp;&nbsp;tom&nbsp;=&nbsp;Person("Tom",&nbsp;37)<br>&nbsp;&nbsp;&nbsp;tom.display_info()&nbsp;&nbsp;#&nbsp;Nume:&nbsp;Tom&nbsp;&nbsp;Vârstă:&nbsp;37<br><br>&nbsp;&nbsp;&nbsp;bob&nbsp;=&nbsp;Person("Bob",&nbsp;-23)&nbsp;&nbsp;#&nbsp;se&nbsp;generează&nbsp;o&nbsp;excepție&nbsp;de&nbsp;tip&nbsp;PersonAgeException<br>&nbsp;&nbsp;&nbsp;bob.display_info()<br>except&nbsp;PersonAgeException&nbsp;as&nbsp;e:<br>&nbsp;&nbsp;&nbsp;print(e)&nbsp;&nbsp;#&nbsp;Valoare&nbsp;nepermisă:&nbsp;-23.&nbsp;Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;în&nbsp;intervalul&nbsp;de&nbsp;la&nbsp;1&nbsp;până&nbsp;la&nbsp;110</code></pre>
+ </div>
+ <p class="paragraph">Dacă la apelarea constructorului Person se va genera o excepție de tip PersonAgeException, controlul programului va trece la blocul except, care gestionează excepțiile de tip PersonAgeException, afișând informațiile despre excepție pe consolă.</p>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

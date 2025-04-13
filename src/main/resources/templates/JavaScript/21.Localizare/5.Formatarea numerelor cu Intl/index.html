@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Formatarea numerelor cu Intl - NumberFormat</h1>
+ <p class="paragraph">În diferite culturi, se folosesc diferite metode de afișare a numerelor. De exemplu, în unele culturi (cum ar fi în SUA sau Marea Britanie) se utilizează punctul ca separator între partea întreagă și cea fracționară, în timp ce în alte culturi se folosește virgula. Similar, separatorul pentru grupuri de cifre poate fi fie un punct, fie o virgulă. Și obiectul Intl.NumberFormat ne permite să localizăm numerele pentru o cultură specifică.</p>
+ <p class="paragraph">Constructorul Intl.NumberFormat poate accepta doi parametri:</p>
+ <div class="code-inline">
+  <pre><code>Intl.NumberFormat([locales[,&nbsp;options]])</code></pre>
+ </div>
+ <p class="paragraph">Parametrul locales reprezintă codul limbii în formatul BCP 47 sau un set de coduri de limbi.</p>
+ <p class="paragraph">Parametrul options reprezintă un set suplimentar de opțiuni:</p>
+ <ul class="enumeration">
+  <li>localeMatcher: algoritmul de potrivire. Poate fi "lookup" sau "best fit". Implicit este "best fit"</li>
+  <li>compactDisplay: se aplică dacă parametrul notation este "compact". Valorile posibile sunt: "long" și "short" (implicit)</li>
+  <li>currency: specifică moneda care se folosește pentru formatare. Acceptă codul monedei în format ISO 4217, de exemplu, "USD" pentru dolarul american, "EUR" pentru euro, etc. Acest parametru trebuie specificat obligatoriu dacă parametrul style este "currency"</li>
+  <li>currencyDisplay: specifică modul în care se afișează moneda. Valorile posibile:</li>
+ </ul>
+ <p class="paragraph">1) "symbol": utilizează simbolul monedei (de exemplu, € pentru euro). Implicit 2) "narrowSymbol": utilizează o formă scurtă pentru simbolul monedei (de exemplu, "$100" în loc de "US$100") 3) "code": utilizează codul monedei 4) "name": utilizează numele localizat al monedei (de exemplu, "dolar")</p>
+ <ul class="enumeration">
+  <li>currencySign: semnul înaintea numărului care reprezintă moneda. Valorile posibile sunt "standard" (implicit) și "accounting"</li>
+  <li>notation: tipul de formatare. Valorile posibile:</li>
+ </ul>
+ <p class="paragraph">1) "standard": pentru formatarea numerelor obișnuite. Implicit 2) "scientific": returnează ordinul de mărime pentru numărul formatat 3) "engineering": returnează valoarea în notație științifică 4) "compact": pentru reprezentarea în notație compactă</p>
+ <ul class="enumeration">
+  <li>numberingSystem: sistemul numeric. Valorile posibile: "arab", "arabext", "bali", "beng", "deva", "fullwide", "gujr", "guru", "hanidec", "khmr", "knda", "laoo", "latn", "limb", "mlym", "mong", "mymr", "orya", "tamldec", "telu", "thai", "tibt"</li>
+  <li>signDisplay: specifică dacă semnul trebuie afișat înaintea numărului. Valorile posibile:</li>
+ </ul>
+ <p class="paragraph">1) "auto": semnul este afișat doar pentru numere negative. Implicit 2) "never": semnul nu este niciodată afișat 3) "always": semnul este afișat întotdeauna 4) "exceptZero": semnul este afișat pentru toate numerele, în afară de zero</p>
+ <ul class="enumeration">
+  <li>style: tipul de formatare. Valorile posibile:</li>
+ </ul>
+ <p class="paragraph">1) "decimal": pentru formatarea numerelor obișnuite. Implicit 2) "currency": pentru formatarea monedelor 3) "percent": pentru formatarea procentelor 4) "unit": pentru formatarea unităților de măsură</p>
+ <ul class="enumeration">
+  <li>unit: stabilește unitatea de măsură. Unitățile de măsură disponibile pot fi găsite în documentația corespunzătoare</li>
+  <li>unitDisplay: tipul de afișare a unității de măsură. Valorile posibile:</li>
+ </ul>
+ <p class="paragraph">1) "long": forma completă (de exemplu, 16 litri) 2) "short": forma scurtă (de exemplu, 16 l). Implicit 3) "narrow": forma compactă (de exemplu, 16l)</p>
+ <ul class="enumeration">
+  <li>useGrouping: specifică dacă se utilizează separatorul de grupuri de cifre. Valorile posibile sunt true (utilizează separatori - implicit) și false (nu utilizează separatori)</li>
+  <li>minimumIntegerDigits: numărul minim de cifre în partea întreagă a numărului. Valorile posibile: de la 1 (implicit) la 21</li>
+  <li>minimumFractionDigits: numărul minim de cifre în partea fracționară a numărului. Valorile posibile: de la 0 (implicit) la 20</li>
+  <li>maximumFractionDigits: numărul maxim de cifre în partea fracționară a numărului. Valorile posibile: de la 0 la 20</li>
+  <li>minimumSignificantDigits: numărul minim de cifre semnificative. Valorile posibile: de la 1 (implicit) la 21</li>
+  <li>maximumSignificantDigits: numărul maxim de cifre semnificative. Valorile posibile: de la 1 (implicit) la 21</li>
+ </ul>
+ <p class="paragraph">Pentru formatarea unui număr, obiectul Intl.NumberFormat oferă metoda format(), în care se transmite numărul ce trebuie formatat și care returnează numărul formatat sub formă de șir de caractere.</p>
+ <p class="paragraph">Să localizăm numărul 5500,67 în diferite limbi:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;amount&nbsp;=&nbsp;5500.67;<br><br>const&nbsp;en&nbsp;=&nbsp;new&nbsp;Intl.NumberFormat("en").format(amount);<br>const&nbsp;ro&nbsp;=&nbsp;new&nbsp;Intl.NumberFormat("ro").format(amount);<br>const&nbsp;de&nbsp;=&nbsp;new&nbsp;Intl.NumberFormat("de").format(amount);<br><br>console.log(en);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;5,500.67<br>console.log(ro);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;5.500,67<br>console.log(de);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;5.500,67</code></pre>
+ </div>
+ <p class="paragraph">Implicit, pentru formatarea numerelor se aplică parametrul {style: "decimal"}. De asemenea, am putea să-l aplicăm în mod explicit:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;amount&nbsp;=&nbsp;5500.67;<br><br>const&nbsp;ro&nbsp;=&nbsp;new&nbsp;Intl.NumberFormat("ro",&nbsp;{style:&nbsp;"decimal"}).format(amount);<br>//&nbsp;la&nbsp;fel&nbsp;ca&nbsp;și<br>//&nbsp;const&nbsp;ro&nbsp;=&nbsp;new&nbsp;Intl.NumberFormat("ro").format(amount);<br><br>console.log(ro);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;5.500,67</code></pre>
+ </div>
+ <h2 class="subtitle">Formatarea procentelor</h2>
+ <p class="paragraph">În diferite culturi, forma de scriere a procentelor poate varia. Pentru localizarea procentelor se utilizează valoarea {style: "percent"}:</p>
+ <p class="paragraph">const value = 0.851;</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;en&nbsp;=&nbsp;new&nbsp;Intl.NumberFormat("en",&nbsp;{style:&nbsp;"percent"}).format(value);<br>const&nbsp;ro&nbsp;=&nbsp;new&nbsp;Intl.NumberFormat("ro",&nbsp;{style:&nbsp;"percent"}).format(value);<br>const&nbsp;tr&nbsp;=&nbsp;new&nbsp;Intl.NumberFormat("tr",&nbsp;{style:&nbsp;"percent"}).format(value);<br><br>console.log(en);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;85%<br>console.log(ro);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;85%<br>console.log(tr);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;%85</code></pre>
+ </div>
+ <h2 class="subtitle">Afișarea părții fracționare</h2>
+ <p class="paragraph">În exemplul anterior, observăm că partea fracționară se pierde. Pentru a corecta această situație, putem folosi parametrul minimumFractionDigits, care stabilește numărul de cifre din partea fracționară:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;value&nbsp;=&nbsp;0.851;<br><br>const&nbsp;en&nbsp;=&nbsp;new&nbsp;Intl.NumberFormat("en",&nbsp;{style:&nbsp;"percent",&nbsp;minimumFractionDigits:&nbsp;2}).format(value);<br>const&nbsp;ro&nbsp;=&nbsp;new&nbsp;Intl.NumberFormat("ro",&nbsp;{style:&nbsp;"percent",&nbsp;minimumFractionDigits:&nbsp;2}).format(value);<br><br>console.log(en);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;85.10%<br>console.log(ro);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;85,10%</code></pre>
+ </div>
+ <h2 class="subtitle">Formatarea monedei</h2>
+ <p class="paragraph">Pentru formatarea monedei se utilizează parametrul {style: "currency"}, iar trebuie specificat și parametrul currency, căruia îi transmitem codul monedei:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;value&nbsp;=&nbsp;85.1;<br><br>const&nbsp;en&nbsp;=&nbsp;new&nbsp;Intl.NumberFormat("en",&nbsp;{style:&nbsp;"currency",&nbsp;currency:&nbsp;"USD"}).format(value);<br>const&nbsp;ro&nbsp;=&nbsp;new&nbsp;Intl.NumberFormat("ro",&nbsp;{style:&nbsp;"currency",&nbsp;currency:&nbsp;"USD"}).format(value);<br>const&nbsp;tr&nbsp;=&nbsp;new&nbsp;Intl.NumberFormat("tr",&nbsp;{style:&nbsp;"currency",&nbsp;currency:&nbsp;"USD"}).format(value);<br><br>console.log(en);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;$85.10<br>console.log(ro);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;85,10&nbsp;USD<br>console.log(tr);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;$85,10</code></pre>
+ </div>
+ <p class="paragraph">Afișarea mai multor monede:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;value&nbsp;=&nbsp;85.1;<br><br>const&nbsp;usd&nbsp;=&nbsp;new&nbsp;Intl.NumberFormat("ro",&nbsp;{style:&nbsp;"currency",&nbsp;currency:&nbsp;"USD"}).format(value);<br>const&nbsp;euro&nbsp;=&nbsp;new&nbsp;Intl.NumberFormat("ro",&nbsp;{style:&nbsp;"currency",&nbsp;currency:&nbsp;"EUR"}).format(value);<br>const&nbsp;ron&nbsp;=&nbsp;new&nbsp;Intl.NumberFormat("ro",&nbsp;{style:&nbsp;"currency",&nbsp;currency:&nbsp;"RON"}).format(value);<br><br>console.log(usd);&nbsp;&nbsp;&nbsp;//&nbsp;85,10&nbsp;USD<br>console.log(euro);&nbsp;&nbsp;//&nbsp;85,10&nbsp;EUR<br>console.log(ron);&nbsp;&nbsp;&nbsp;//&nbsp;85,10&nbsp;RON</code></pre>
+ </div>
+ <p class="paragraph">Implicit se afișează simbolul monedei, dar valoarea {currencyDisplay: "name"} permite afișarea numelui localizat al monedei:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;value&nbsp;=&nbsp;85;<br><br>const&nbsp;usd&nbsp;=&nbsp;new&nbsp;Intl.NumberFormat("ro",&nbsp;{style:&nbsp;"currency",&nbsp;currency:&nbsp;"USD",&nbsp;currencyDisplay:&nbsp;"name",&nbsp;minimumFractionDigits:&nbsp;0}).format(value);<br>const&nbsp;euro&nbsp;=&nbsp;new&nbsp;Intl.NumberFormat("ro",&nbsp;{style:&nbsp;"currency",&nbsp;currency:&nbsp;"EUR",&nbsp;currencyDisplay:&nbsp;"name"}).format(value);<br>const&nbsp;ron=&nbsp;new&nbsp;Intl.NumberFormat("ro",&nbsp;{style:&nbsp;"currency",&nbsp;currency:&nbsp;"RON",&nbsp;currencyDisplay:&nbsp;"name"}).format(value);<br><br>console.log(usd);&nbsp;&nbsp;&nbsp;//&nbsp;85&nbsp;dolari&nbsp;americani<br>console.log(euro);&nbsp;&nbsp;//&nbsp;85,00&nbsp;euro<br>console.log(ron);&nbsp;&nbsp;&nbsp;//&nbsp;85,00&nbsp;lei&nbsp;românești</code></pre>
+ </div>
+ <h2 class="subtitle">Formatarea unităților de măsură</h2>
+ <p class="paragraph">Pentru formatarea unităților de măsură se utilizează valoarea {style: "unit"}. Trebuie să specificăm și numele unității de măsură folosind parametrul unit:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;value&nbsp;=&nbsp;85;<br><br>const&nbsp;en&nbsp;=&nbsp;new&nbsp;Intl.NumberFormat("en",&nbsp;{style:&nbsp;"unit",&nbsp;unit:&nbsp;"liter"}).format(value);<br>const&nbsp;ro&nbsp;=&nbsp;new&nbsp;Intl.NumberFormat("ro",&nbsp;{style:&nbsp;"unit",&nbsp;unit:&nbsp;"liter"}).format(value);<br>const&nbsp;zh&nbsp;=&nbsp;new&nbsp;Intl.NumberFormat("zh",&nbsp;{style:&nbsp;"unit",&nbsp;unit:&nbsp;"liter"}).format(value);<br><br>console.log(en);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;85&nbsp;L<br>console.log(ro);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;85&nbsp;l<br>console.log(zh);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;85升</code></pre>
+ </div>
+ <p class="paragraph">Implicit se utilizează forma scurtă a numelui unității de măsură. Cu valoarea {unitDisplay: "long"}, putem specifica afișarea numelui complet al unității de măsură:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;value&nbsp;=&nbsp;85;<br><br>const&nbsp;longLiter&nbsp;=&nbsp;new&nbsp;Intl.NumberFormat("ro",&nbsp;{style:&nbsp;"unit",&nbsp;unit:&nbsp;"liter",&nbsp;unitDisplay:&nbsp;"long"}).format(value);<br>const&nbsp;shortLiter&nbsp;=&nbsp;new&nbsp;Intl.NumberFormat("ro",&nbsp;{style:&nbsp;"unit",&nbsp;unit:&nbsp;"liter",&nbsp;unitDisplay:&nbsp;"short"}).format(value);<br><br>console.log(longLiter);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;85&nbsp;litri<br>console.log(shortLiter);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;85&nbsp;l</code></pre>
+ </div>
+ <p class="paragraph">Mai multe exemple cu formatarea diferitelor unități de măsură:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;value&nbsp;=&nbsp;85;<br><br>const&nbsp;kilobyte&nbsp;=&nbsp;new&nbsp;Intl.NumberFormat("ro",&nbsp;{style:&nbsp;"unit",&nbsp;unit:&nbsp;"kilobyte",&nbsp;unitDisplay:&nbsp;"long"}).format(value);<br>const&nbsp;meter&nbsp;=&nbsp;new&nbsp;Intl.NumberFormat("ro",&nbsp;{style:&nbsp;"unit",&nbsp;unit:&nbsp;"meter",&nbsp;unitDisplay:&nbsp;"long"}).format(value);<br>const&nbsp;gram&nbsp;=&nbsp;new&nbsp;Intl.NumberFormat("ro",&nbsp;{style:&nbsp;"unit",&nbsp;unit:&nbsp;"gram",&nbsp;unitDisplay:&nbsp;"long"}).format(value);<br><br>console.log(kilobyte);&nbsp;&nbsp;//&nbsp;85&nbsp;kilobiți<br>console.log(meter);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;85&nbsp;metri<br>console.log(gram);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;85&nbsp;grame</code></pre>
+ </div>
+ <h2 class="subtitle">Metoda toLocaleString a tipului Number</h2>
+ <p class="paragraph">Este demn de menționat că tipul Number are metoda toLocaleString(), care acceptă o localizare și localizează numărul în acea localizare:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;num&nbsp;=&nbsp;1007.56;<br>console.log(num.toLocaleString("en"));&nbsp;&nbsp;//&nbsp;1,007.56<br>console.log(num.toLocaleString("de"));&nbsp;&nbsp;//&nbsp;1.007,56<br>console.log(num.toLocaleString("ro"));&nbsp;&nbsp;//&nbsp;1.007,56</code></pre>
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

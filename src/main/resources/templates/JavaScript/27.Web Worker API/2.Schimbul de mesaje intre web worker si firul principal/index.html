@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Schimbul de mesaje între web worker și firul principal</h1>
+ <p class="paragraph">Firul principal și web workerii lansați în acesta pot interacționa prin intermediul mesajelor. Pentru a trimite un mesaj web workerului, se apelează metoda postMessage() a obiectului Worker:</p>
+ <div class="code-inline">
+  <pre><code>postMessage(message)<br>postMessage(message,&nbsp;options)<br>postMessage(message,&nbsp;transfer)</code></pre>
+ </div>
+ <p class="paragraph">Ca prim și obligatoriu parametru message se transmite mesajul care urmează să fie trimis. Ca mesaj poate servi orice valoare, de exemplu, un șir de caractere sau un obiect. La transmitere, web workerul primește o copie a acestor date.</p>
+ <p class="paragraph">Parametrul suplimentar, opțional, options reprezintă un obiect de configurare care, prin proprietatea transfer, stabilește datele suplimentar transmise. Aceleași date sunt transmise în a treia versiune a funcției prin parametrul transfer. La transmitere, posesiunea acestor date trece la web worker, iar codul principal nu mai poate utiliza aceste date.</p>
+ <p class="paragraph">Pentru a primi mesajul pe partea de web worker, este necesar să se înregistreze o funcție-handler pentru evenimentul de primire a mesajului - evenimentul message. De exemplu, acest lucru se poate face prin proprietatea onmessage a web workerului.</p>
+ <div class="code-inline">
+  <pre><code>//&nbsp;stabilirea&nbsp;handlerului&nbsp;de&nbsp;eveniment&nbsp;prin&nbsp;addEventListener<br>worker.addEventListener("message",&nbsp;(event)&nbsp;=&gt;&nbsp;{&nbsp;console.log(event.data);});<br><br>//&nbsp;stabilirea&nbsp;handlerului&nbsp;de&nbsp;eveniment&nbsp;prin&nbsp;proprietatea&nbsp;onmessage<br>worker.onmessage&nbsp;=&nbsp;(event)&nbsp;=&gt;&nbsp;{console.log(event.data);};</code></pre>
+ </div>
+ <p class="paragraph">În handlerul evenimentului este transmis un obiect MouseEvent, de la care prin proprietatea data se pot obține datele transmise.</p>
+ <p class="paragraph">Similar, pentru a trimite din web worker un mesaj în firul principal, se apelează metoda postMessage() a web workerului. În interiorul firului principal, se poate accesa mesajul în handlerul evenimentului message:</p>
+ <p class="paragraph">Să definim următorul script worker.js:</p>
+ <div class="code-inline">
+  <pre><code>//&nbsp;ascultăm&nbsp;evenimentul&nbsp;message<br>self.addEventListener("message",&nbsp;(event)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;//&nbsp;afișăm&nbsp;datele&nbsp;primite&nbsp;din&nbsp;firul&nbsp;principal<br>&nbsp;&nbsp;&nbsp;console.log(`[Worker]&nbsp;Message&nbsp;received:&nbsp;${event.data}`);<br>&nbsp;&nbsp;&nbsp;//&nbsp;trimitem&nbsp;înapoi&nbsp;firului&nbsp;principal&nbsp;un&nbsp;anumit&nbsp;mesaj<br>&nbsp;&nbsp;&nbsp;self.postMessage("Hello&nbsp;main&nbsp;thread");<br>});</code></pre>
+ </div>
+ <p class="paragraph">Cu ajutorul cuvântului self obținem acces la obiectul web workerului și stabilim pentru el un handler pentru evenimentul "message". În acest handler primim datele transmise din firul principal și cu ajutorul apelului self.postMessage trimitem firului principal un anumit răspuns.</p>
+ <p class="paragraph">În procesul de lucru al web workerului poate să apară o eroare, în acest caz putem să procesăm evenimentul error al obiectului Worker.</p>
+ <p class="paragraph">Și să definim următoarea pagină web:</p>
+ <div class="code-inline">
+  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;script&gt;<br>const&nbsp;worker&nbsp;=&nbsp;new&nbsp;Worker("worker.js");<br><br>const&nbsp;message&nbsp;=&nbsp;"Hello&nbsp;web&nbsp;worker";<br>console.log(`[Main&nbsp;thread]&nbsp;Send&nbsp;message:&nbsp;${message}`);<br>//&nbsp;trimitem&nbsp;web&nbsp;workerului&nbsp;un&nbsp;mesaj<br>worker.postMessage(message);<br>//&nbsp;primim&nbsp;mesaje&nbsp;de&nbsp;la&nbsp;web&nbsp;worker<br>worker.addEventListener("message",&nbsp;(e)&nbsp;=&gt;&nbsp;console.log(`[Main&nbsp;thread]&nbsp;Response&nbsp;from&nbsp;worker:&nbsp;${e.data}`));<br>//&nbsp;în&nbsp;cazul&nbsp;unei&nbsp;erori<br>worker.addEventListener("error",&nbsp;(e)&nbsp;=&gt;&nbsp;console.log("Error&nbsp;occurred"));<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+ </div>
+ <p class="paragraph">Aici, în mod similar, cu ajutorul apelului worker.postMessage() trimitem web workerului un mesaj și, de asemenea, cu ajutorul handlerului evenimentului "message" primim răspunsul.</p>
+ <p class="paragraph">Rezultatul lucrării:</p>
+ <div class="image-container">
+  <img src="images/image1.png" alt="" class="responsive-image">
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

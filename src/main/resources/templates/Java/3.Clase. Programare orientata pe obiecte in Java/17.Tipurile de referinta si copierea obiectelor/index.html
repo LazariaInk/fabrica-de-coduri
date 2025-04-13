@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Tipurile de referință și copierea obiectelor</h1>
+ <p class="paragraph">În Java, trebuie să fim conștienți că toate obiectele claselor reprezintă tipuri de referință, ceea ce înseamnă că indică un obiect situat în memorie. Pentru a înțelege posibilele dificultăți, să analizăm următorul exemplu:</p>
+ <div class="code-inline">
+  <pre><code>public&nbsp;class&nbsp;Program{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;23);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tom.display();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Person&nbsp;Tom<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;bob&nbsp;=&nbsp;tom;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bob.setName("Bob");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tom.display();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Person&nbsp;Bob<br>&nbsp;&nbsp;&nbsp;}<br>}<br>class&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;name;<br>&nbsp;&nbsp;&nbsp;private&nbsp;int&nbsp;age;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Person(String&nbsp;name,&nbsp;int&nbsp;age){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;void&nbsp;setName(String&nbsp;name){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;void&nbsp;setAge(int&nbsp;age){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;void&nbsp;display(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("Person&nbsp;Name:&nbsp;%s&nbsp;\n",&nbsp;name);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">Aici creăm două obiecte Person, dar le atribuim unul celuilalt. Deși schimbăm doar obiectul bob, și tom se modifică. Aceasta se întâmplă deoarece, după atribuirea bob = tom, ambele variabile indică aceeași zonă de memorie, unde sunt stocate datele obiectului Person.</p>
+ <div class="image-container">
+  <img src="images/image1.png" alt="" class="responsive-image">
+ </div>
+ <p class="paragraph">Pentru a evita această problemă, trebuie să creăm un obiect separat pentru variabila bob, de exemplu, folosind metoda clone:</p>
+ <div class="code-inline">
+  <pre><code>class&nbsp;Person&nbsp;implements&nbsp;Cloneable&nbsp;{<br>&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;name;<br>&nbsp;&nbsp;&nbsp;private&nbsp;int&nbsp;age;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Person(String&nbsp;name,&nbsp;int&nbsp;age){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;void&nbsp;setName(String&nbsp;name){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;void&nbsp;setAge(int&nbsp;age){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;void&nbsp;display(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("Person&nbsp;%s&nbsp;\n",&nbsp;name);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person&nbsp;clone()&nbsp;throws&nbsp;CloneNotSupportedException&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;(Person)&nbsp;super.clone();<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">Pentru a implementa clonarea, clasa Person trebuie să implementeze interfața Cloneable, care definește metoda clone. Implementarea acestei metode returnează apelul metodei clone din clasa părinte, Object, cu conversia la tipul Person.</p>
+ <p class="paragraph">De asemenea, pentru cazul în care clasa nu acceptă clonarea, metoda ar trebui să arunce o excepție CloneNotSupportedException, folosind operatorul throws.</p>
+ <p class="paragraph">Apoi, putem copia obiectul utilizând această metodă:</p>
+ <div class="code-inline">
+  <pre><code>try&nbsp;{<br>&nbsp;&nbsp;&nbsp;Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;23);<br>&nbsp;&nbsp;&nbsp;Person&nbsp;bob&nbsp;=&nbsp;tom.clone();<br>&nbsp;&nbsp;&nbsp;bob.setName("Bob");<br>&nbsp;&nbsp;&nbsp;tom.display();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Person&nbsp;Tom<br>}&nbsp;catch&nbsp;(CloneNotSupportedException&nbsp;ex)&nbsp;{<br>&nbsp;&nbsp;&nbsp;System.out.println("Cloneable&nbsp;not&nbsp;implemented");<br>}</code></pre>
+ </div>
+ <p class="paragraph">Cu toate acestea, această metodă realizează o copiere superficială și este adecvată dacă obiectul clonat nu conține obiecte complexe. De exemplu, dacă avem clasa Book definită astfel:</p>
+ <div class="code-inline">
+  <pre><code>class&nbsp;Book&nbsp;implements&nbsp;Cloneable&nbsp;{<br>&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;name;<br>&nbsp;&nbsp;&nbsp;private&nbsp;Author&nbsp;author;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;setName(String&nbsp;n){&nbsp;name&nbsp;=&nbsp;n;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;String&nbsp;getName(){&nbsp;return&nbsp;name;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;setAuthor(String&nbsp;n){&nbsp;author.setName(n);&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;String&nbsp;getAuthor(){&nbsp;return&nbsp;author.getName();&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;Book(String&nbsp;name,&nbsp;String&nbsp;author)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.author&nbsp;=&nbsp;new&nbsp;Author(author);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;String&nbsp;toString()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;"Cartea&nbsp;'"&nbsp;+&nbsp;name&nbsp;+&nbsp;"'&nbsp;(autor&nbsp;"&nbsp;+&nbsp;&nbsp;author&nbsp;+&nbsp;")";<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;Book&nbsp;clone()&nbsp;throws&nbsp;CloneNotSupportedException&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;(Book)&nbsp;super.clone();<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;Author&nbsp;{<br>&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;name;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;setName(String&nbsp;n){&nbsp;name&nbsp;=&nbsp;n;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;String&nbsp;getName(){&nbsp;return&nbsp;name;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;Author(String&nbsp;name)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">Dacă încercăm să schimbăm autorul cărții, ne vom confrunta cu o problemă:</p>
+ <div class="code-inline">
+  <pre><code>try&nbsp;{<br>&nbsp;&nbsp;&nbsp;Book&nbsp;book&nbsp;=&nbsp;new&nbsp;Book("War&nbsp;and&nbsp;Peace",&nbsp;"Leo&nbsp;Tolstoy");<br>&nbsp;&nbsp;&nbsp;Book&nbsp;book2&nbsp;=&nbsp;book.clone();<br>&nbsp;&nbsp;&nbsp;book2.setAuthor("Ivan&nbsp;Turgenev");<br>&nbsp;&nbsp;&nbsp;System.out.println(book.getAuthor());<br>}&nbsp;catch&nbsp;(CloneNotSupportedException&nbsp;ex)&nbsp;{<br>&nbsp;&nbsp;&nbsp;System.out.println("Cloneable&nbsp;not&nbsp;implemented");<br>}</code></pre>
+ </div>
+ <p class="paragraph">În acest caz, deși variabilele book și book2 vor indica obiecte diferite în memorie, aceste obiecte vor indica același obiect Author.</p>
+ <div class="image-container">
+  <img src="images/image2.png" alt="" class="responsive-image">
+ </div>
+ <p class="paragraph">În acest caz, trebuie să realizăm o copiere completă (deep copy). Pentru aceasta, trebuie să definim metoda clone în clasa Author:</p>
+ <div class="code-inline">
+  <pre><code>class&nbsp;Author&nbsp;implements&nbsp;Cloneable&nbsp;{<br>&nbsp;&nbsp;&nbsp;//&nbsp;restul&nbsp;codului&nbsp;clasei<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;Author&nbsp;clone()&nbsp;throws&nbsp;CloneNotSupportedException&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;(Author)&nbsp;super.clone();<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">Apoi, vom modifica metoda clone în clasa Book astfel:</p>
+ <div class="code-inline">
+  <pre><code>public&nbsp;Book&nbsp;clone()&nbsp;throws&nbsp;CloneNotSupportedException&nbsp;{<br>&nbsp;&nbsp;&nbsp;Book&nbsp;newBook&nbsp;=&nbsp;(Book)&nbsp;super.clone();<br>&nbsp;&nbsp;&nbsp;newBook.author&nbsp;=&nbsp;(Author)&nbsp;author.clone();<br>&nbsp;&nbsp;&nbsp;return&nbsp;newBook;<br>}</code></pre>
+ </div>
+ <p class="paragraph">Acum, metoda clone din clasa Book creează o copie completă, asigurându-se că și obiectul Author este copiat în mod corespunzător.</p>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

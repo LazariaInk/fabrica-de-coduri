@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Apel programat al Evenimentelor</h1>
+ <p class="paragraph">Evenimentele pot apărea nu doar ca urmare a acțiunilor utilizatorului pe o pagină web. Evenimentele pot fi de asemenea generate programat.</p>
+ <p class="paragraph">„Pentru a declanșa un eveniment programat, la un element pe o pagină web se poate apela metoda dispatchEvent(), în care se transmite o instanță a obiectului Event (sau a tipurilor sale derivate, cum ar fi MouseEvent sau KeyboardEvent).</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;event&nbsp;=&nbsp;new&nbsp;Event(nume_eveniment,&nbsp;config);&nbsp;&nbsp;&nbsp;//&nbsp;definim&nbsp;obiectul&nbsp;eveniment<br>element.dispatchEvent(event);&nbsp;&nbsp;&nbsp;//&nbsp;declanșăm&nbsp;evenimentul&nbsp;pentru&nbsp;elementul&nbsp;element</code></pre>
+ </div>
+ <p class="paragraph">Primul argument transmis constructorului Event este un șir de caractere - tipul evenimentului. Opțional, ca al doilea parametru, se poate transmite un obiect de configurare. În special, cu ajutorul obiectului de configurare se pot defini următoarele proprietăți:</p>
+ <ul class="enumeration">
+  <li>cancelable: dacă evenimentul poate fi anulat (dacă este true, evenimentul este anulabil, false - neanulabil)</li>
+  <li>bubbles: dacă evenimentul trebuie să fie ascendent (dacă este true, evenimentul este ascendent)</li>
+ </ul>
+ <p class="paragraph">De exemplu, să declanșăm programat un clic pe un link:</p>
+ <div class="code-inline">
+  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;a&nbsp;id="link"&nbsp;href="https://fdc.com"&gt;fdc.com&lt;/a&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;const&nbsp;link&nbsp;=&nbsp;document.getElementById("link");&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;link-ul<br>&nbsp;&nbsp;&nbsp;const&nbsp;event&nbsp;=&nbsp;new&nbsp;MouseEvent("click");<br>&nbsp;&nbsp;&nbsp;link.dispatchEvent(event);<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+ </div>
+ <p class="paragraph">Apăsarea pe link reprezintă un eveniment mouse "click", deci definim obiectul eveniment de tip MouseEvent:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;event&nbsp;=&nbsp;new&nbsp;MouseEvent("click");</code></pre>
+ </div>
+ <p class="paragraph">Apoi declanșăm evenimentul pentru elementul link:</p>
+ <div class="code-inline">
+  <pre><code>link.dispatchEvent(event);</code></pre>
+ </div>
+ <p class="paragraph">În final, va avea loc navigarea către link imediat la încărcarea paginii.</p>
+ <p class="paragraph">Și ca în cazul general, acest eveniment poate fi de asemenea procesat:</p>
+ <div class="code-inline">
+  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;a&nbsp;id="link"&nbsp;href="https://fdc.com"&gt;fdc.com&lt;/a&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;const&nbsp;link&nbsp;=&nbsp;document.getElementById("link");<br><br>&nbsp;&nbsp;&nbsp;link.addEventListener("click",&nbsp;(e)=&gt;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Link&nbsp;has&nbsp;been&nbsp;clicked");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;e.preventDefault();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;prevenim&nbsp;navigarea<br>&nbsp;&nbsp;&nbsp;});<br><br>&nbsp;&nbsp;&nbsp;const&nbsp;event&nbsp;=&nbsp;new&nbsp;MouseEvent("click",&nbsp;{cancelable:&nbsp;true});<br>&nbsp;&nbsp;&nbsp;link.dispatchEvent(event);<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+ </div>
+ <p class="paragraph">Pentru ca execuția evenimentului să poată fi oprită, în constructorul MouseEvent, ca al doilea parametru, transmitem un obiect de configurare cu o singură proprietate: cancelable: true indică faptul că procesarea evenimentului poate fi oprită.</p>
+ <p class="paragraph">Datorită aceasta, în handler-ul evenimentului "click" putem apela metoda e.preventDefault() pentru a preveni acțiunea implicită (în acest caz, navigarea către link).</p>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Desenarea cu mouse-ul</h1>
+ <p class="paragraph">Până acum am discutat în principal despre grafica statică pe canvas. Dar putem, de asemenea, să creăm figuri dinamic, pur și simplu desenând cu cursorul mouse-ului.</p>
+ <p class="paragraph">Pentru aceasta, vom defini următoarea pagină:</p>
+ <div class="code-inline">
+  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;canvas&nbsp;id="canvas"&nbsp;width="400"&nbsp;height="250"<br>&nbsp;&nbsp;&nbsp;style="background-color:#eee;&nbsp;border:&nbsp;1px&nbsp;solid&nbsp;#ccc;&nbsp;margin:10px;"&gt;&lt;/canvas&gt;<br>&lt;script&gt;<br>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>const&nbsp;w&nbsp;=&nbsp;canvas.width;<br>const&nbsp;h&nbsp;=&nbsp;canvas.height;<br><br>const&nbsp;mouse&nbsp;=&nbsp;{&nbsp;x:0,&nbsp;y:0&nbsp;};&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;coordonatele&nbsp;mouse-ului<br>let&nbsp;draw&nbsp;=&nbsp;false;<br><br>//&nbsp;apăsarea&nbsp;mouse-ului<br>canvas.addEventListener("mousedown",&nbsp;function(e){<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;mouse.x&nbsp;=&nbsp;e.pageX&nbsp;-&nbsp;this.offsetLeft;<br>&nbsp;&nbsp;&nbsp;mouse.y&nbsp;=&nbsp;e.pageY&nbsp;-&nbsp;this.offsetTop;<br>&nbsp;&nbsp;&nbsp;draw&nbsp;=&nbsp;true;<br>&nbsp;&nbsp;&nbsp;context.beginPath();<br>&nbsp;&nbsp;&nbsp;context.moveTo(mouse.x,&nbsp;mouse.y);<br>});<br><br>//&nbsp;mișcarea&nbsp;mouse-ului<br>canvas.addEventListener("mousemove",&nbsp;function(e){<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;if(draw&nbsp;==&nbsp;true){<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mouse.x&nbsp;=&nbsp;e.pageX&nbsp;-&nbsp;this.offsetLeft;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mouse.y&nbsp;=&nbsp;e.pageY&nbsp;-&nbsp;this.offsetTop;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;context.lineTo(mouse.x,&nbsp;mouse.y);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;context.stroke();<br>&nbsp;&nbsp;&nbsp;}<br>});<br><br>//&nbsp;eliberarea&nbsp;mouse-ului<br>canvas.addEventListener("mouseup",&nbsp;function(e){<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;mouse.x&nbsp;=&nbsp;e.pageX&nbsp;-&nbsp;this.offsetLeft;<br>&nbsp;&nbsp;&nbsp;mouse.y&nbsp;=&nbsp;e.pageY&nbsp;-&nbsp;this.offsetTop;<br>&nbsp;&nbsp;&nbsp;context.lineTo(mouse.x,&nbsp;mouse.y);<br>&nbsp;&nbsp;&nbsp;context.stroke();<br>&nbsp;&nbsp;&nbsp;context.closePath();<br>&nbsp;&nbsp;&nbsp;draw&nbsp;=&nbsp;false;<br>});<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+ </div>
+ <p class="paragraph">Pentru a gestiona mișcarea mouse-ului pentru elementul canvas sunt definite trei manipulatoare - pentru apăsarea mouse-ului, pentru mișcarea acestuia și pentru eliberarea butonului mouse-ului. La apăsarea mouse-ului, setăm variabila draw ca fiind true. Adică începe desenul. De asemenea, la apăsare fixăm punctul de unde va începe desenul.</p>
+ <p class="paragraph">La mișcarea mouse-ului, obținem punctul în care s-a mutat cursorul și desenăm o linie. La eliberarea butonului mouse-ului, închidem calea grafică folosind metoda context.closePath() și resetăm variabila draw la false.</p>
+ <div class="image-container">
+  <img src="images/image1.png" alt="" class="responsive-image">
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

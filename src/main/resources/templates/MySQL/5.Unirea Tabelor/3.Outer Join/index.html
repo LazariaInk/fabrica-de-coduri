@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Outer Join</h1>
+ <p class="paragraph">În subiectul anterior, am discutat despre Inner Join sau unirea internă a tabelelor. În MySQL, putem utiliza și ceea ce se numește unire externă sau Outer Join. Spre deosebire de Inner Join, unirea externă returnează toate rândurile uneia sau a ambelor tabele implicate în unire.</p>
+ <p class="paragraph">Outer Join are următorul sintaxă formală:</p>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;coloane<br>FROM&nbsp;tabelul1<br>&nbsp;&nbsp;&nbsp;{LEFT|RIGHT}&nbsp;[OUTER]&nbsp;JOIN&nbsp;tabelul2&nbsp;ON&nbsp;conditie1<br>&nbsp;&nbsp;&nbsp;[{LEFT|RIGHT}&nbsp;[OUTER]&nbsp;JOIN&nbsp;tabelul3&nbsp;ON&nbsp;conditie2]...</code></pre>
+ </div>
+ <p class="paragraph">Înaintea operatorului JOIN se specifică una dintre cuvintele cheie LEFT sau RIGHT, care definesc tipul de unire:</p>
+ <ul class="enumeration">
+  <li>LEFT: selecția va include toate rândurile din prima sau stânga tabelă</li>
+  <li>RIGHT: selecția va include toate rândurile din a doua sau dreapta tabelă</li>
+ </ul>
+ <p class="paragraph">De asemenea, înaintea operatorului JOIN poate să apară cuvântul cheie OUTER, dar utilizarea sa nu este obligatorie. Apoi, după JOIN, este specificat tabelul care urmează să fie alăturat, iar apoi urmează condiția de unire.</p>
+ <p class="paragraph">De exemplu, să unim tabelele Orders și Customers:</p>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;FirstName,&nbsp;CreatedAt,&nbsp;ProductCount,&nbsp;Price,&nbsp;ProductId<br>FROM&nbsp;Orders&nbsp;LEFT&nbsp;JOIN&nbsp;Customers<br>ON&nbsp;Orders.CustomerId&nbsp;=&nbsp;Customers.Id</code></pre>
+ </div>
+ <p class="paragraph">Tabela Orders este prima sau stânga tabelă, iar tabela Customers este a doua sau dreapta tabelă. Prin urmare, deoarece se utilizează o selecție pe baza primei tabele, inițial toate rândurile vor fi selectate din Orders, iar apoi, conform condiției Orders.CustomerId = Customers.Id, vor fi adăugate rândurile asociate din Customers.</p>
+ <div class="image-container">
+  <img src="images/image1.png" alt="" class="responsive-image">
+ </div>
+ <p class="paragraph">Dupa rezultatul prezentat mai sus, poate părea ca o îmbinare la stânga este similară cu INNER JOIN, dar nu este așa. Inner Join unește rândurile din ambele tabele atunci când condiția este îndeplinită.</p>
+ <p class="paragraph">Dacă una dintre tabele conține rânduri care nu îndeplinesc această condiție, aceste rânduri nu sunt incluse în rezultatul final.</p>
+ <p class="paragraph">Left Join selectează toate rândurile din prima tabelă și apoi le adaugă pe cele din a doua tabelă. De exemplu, luăm tabela Customers și adăugăm informații despre comenzile lor:</p>
+ <div class="code-inline">
+  <pre><code>#INNER&nbsp;JOIN<br>SELECT&nbsp;FirstName,&nbsp;CreatedAt,&nbsp;ProductCount,&nbsp;Price<br>FROM&nbsp;Customers&nbsp;JOIN&nbsp;Orders<br>ON&nbsp;Orders.CustomerId&nbsp;=&nbsp;Customers.Id;<br><br>#LEFT&nbsp;JOIN<br>SELECT&nbsp;FirstName,&nbsp;CreatedAt,&nbsp;ProductCount,&nbsp;Price<br>FROM&nbsp;Customers&nbsp;LEFT&nbsp;JOIN&nbsp;Orders<br>ON&nbsp;Orders.CustomerId&nbsp;=&nbsp;Customers.Id;</code></pre>
+ </div>
+ <div class="image-container">
+  <img src="images/image2.png" alt="" class="responsive-image">
+ </div>
+ <p class="paragraph">În cazul unui LEFT JOIN în MySQL, se selectează inițial toți clienții din tabela Customers, apoi li se asociază comenzile din tabela Orders prin condiția Orders.CustomerId = Customers.Id.</p>
+ <p class="paragraph">Cu toate acestea, nu toți clienții au comenzi. În acest caz, pentru clienții care nu au comenzi, valorile corespunzătoare coloanelor vor fi setate la NULL.</p>
+ <p class="paragraph">Schimbăm tipul de îmbinare în exemplul de mai sus de la LEFT JOIN la RIGHT JOIN:</p>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;FirstName,&nbsp;CreatedAt,&nbsp;ProductCount,&nbsp;Price<br>FROM&nbsp;Customers&nbsp;RIGHT&nbsp;JOIN&nbsp;Orders<br>ON&nbsp;Orders.CustomerId&nbsp;=&nbsp;Customers.Id;</code></pre>
+ </div>
+ <p class="paragraph">În cazul unui RIGHT JOIN, MySQL selectează inițial toate comenzile din tabela Orders (tabela din dreapta) și apoi le asociază clienților din tabela Customers prin condiția Orders.CustomerId = Customers.Id.</p>
+ <p class="paragraph">În cazul în care unei comenzi nu i se potrivește niciun client, vor fi setate valori NULL pentru coloanele corespunzătoare clientului.</p>
+ <div class="image-container">
+  <img src="images/image3.png" alt="" class="responsive-image">
+ </div>
+ <p class="paragraph">Utilizăm un LEFT JOIN pentru a adăuga informații despre utilizatori și produse la comenzile:</p>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;Customers.FirstName,&nbsp;Orders.CreatedAt,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Products.ProductName,&nbsp;Products.Manufacturer<br>FROM&nbsp;Orders<br>LEFT&nbsp;JOIN&nbsp;Customers&nbsp;ON&nbsp;Orders.CustomerId&nbsp;=&nbsp;Customers.Id<br>LEFT&nbsp;JOIN&nbsp;Products&nbsp;ON&nbsp;Orders.ProductId&nbsp;=&nbsp;Products.Id;</code></pre>
+ </div>
+ <div class="image-container">
+  <img src="images/image4.png" alt="" class="responsive-image">
+ </div>
+ <p class="paragraph">Și de asemenea, puteți aplica condiții mai complexe cu filtrare și sortare. De exemplu, selectăm toate comenzile cu informații despre clienți și produse pentru acele produse cu prețul mai mare de 45000 și le sortăm după data comenzii:</p>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;Customers.FirstName,&nbsp;Orders.CreatedAt,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Products.ProductName,&nbsp;Products.Manufacturer<br>FROM&nbsp;Orders<br>LEFT&nbsp;JOIN&nbsp;Customers&nbsp;ON&nbsp;Orders.CustomerId&nbsp;=&nbsp;Customers.Id<br>LEFT&nbsp;JOIN&nbsp;Products&nbsp;ON&nbsp;Orders.ProductId&nbsp;=&nbsp;Products.Id<br>WHERE&nbsp;Products.Price&nbsp;&gt;&nbsp;45000<br>ORDER&nbsp;BY&nbsp;Orders.CreatedAt;</code></pre>
+ </div>
+ <p class="paragraph">Sau vom selecta toți utilizatorii din Customers care nu au comenzi în tabelul Orders:</p>
+ <div class="code-inline">
+  <pre><code><br>SELECT&nbsp;FirstName&nbsp;FROM&nbsp;Customers<br>LEFT&nbsp;JOIN&nbsp;Orders&nbsp;ON&nbsp;Customers.Id&nbsp;=&nbsp;Orders.CustomerId<br>WHERE&nbsp;Orders.CustomerId&nbsp;IS&nbsp;NULL;</code></pre>
+ </div>
+ <p class="paragraph">Se poate combina și Inner Join și Outer Join:</p>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;Customers.FirstName,&nbsp;Orders.CreatedAt,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Products.ProductName,&nbsp;Products.Manufacturer<br>FROM&nbsp;Orders<br>JOIN&nbsp;Products&nbsp;ON&nbsp;Orders.ProductId&nbsp;=&nbsp;Products.Id&nbsp;AND&nbsp;Products.Price&nbsp;&gt;&nbsp;45000<br>LEFT&nbsp;JOIN&nbsp;Customers&nbsp;ON&nbsp;Orders.CustomerId&nbsp;=&nbsp;Customers.Id<br>ORDER&nbsp;BY&nbsp;Orders.CreatedAt;</code></pre>
+ </div>
+ <p class="paragraph">La început, în baza condiției tabelului Orders, se atașează informații conexe din tabelul Products printr-un Inner Join, apoi, printr-un Outer Join, se adaugă informații din tabelul Customers.</p>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Sintaxa expresiilor regulate</h1>
+ <h2 class="subtitle">Definirea claselor de caractere</h2>
+ <p class="paragraph">Pentru a defini expresii regulate, putem utiliza clase de caractere. Pentru a defini o clasă de caractere, se folosesc paranteze pătrate:</p>
+ <ul class="enumeration">
+  <li>[xyz] (potrivire alternativă): se potrivește cu unul dintre caracterele: x, y sau z (analog x|y|z)</li>
+  <li>[^xyz] (negare): se potrivește cu textul care conține orice caracter, CU EXCEPȚIA lui x, y sau z</li>
+  <li>[a-zA-Z] (interval): se potrivește cu orice caracter din intervalul a-z sau A-Z</li>
+ </ul>
+ <p class="paragraph">De exemplu, să verificăm dacă în text există caracterele "a", "b" sau "c":</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;exp&nbsp;=&nbsp;/[abc]/;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;corespunde&nbsp;ori&nbsp;"a",&nbsp;ori"b",&nbsp;ori"c"<br><br>const&nbsp;str1&nbsp;=&nbsp;"JavaScript";<br>const&nbsp;str2&nbsp;=&nbsp;"Pascal";<br>const&nbsp;str3&nbsp;=&nbsp;"Python";<br>console.log(exp.test(str1));&nbsp;&nbsp;&nbsp;//&nbsp;true<br>console.log(exp.test(str2));&nbsp;&nbsp;&nbsp;//&nbsp;true<br>console.log(exp.test(str3));&nbsp;&nbsp;&nbsp;//&nbsp;false</code></pre>
+ </div>
+ <p class="paragraph">Expresia [abc] indică faptul că șirul trebuie să conțină una dintre cele trei litere. Expresia "[abc]" este echivalentă cu expresia "a|b|c".</p>
+ <p class="paragraph">Să luăm un exemplu mai practic. Presupunem că avem coduri PIN de 4 cifre și dorim să verificăm dacă codul PIN conține doar cifre:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;exp&nbsp;=&nbsp;/[0-9][0-9][0-9][0-9]/;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;se&nbsp;potrivește&nbsp;cu&nbsp;patru&nbsp;cifre&nbsp;consecutive<br><br>const&nbsp;code1&nbsp;=&nbsp;"1234";<br>const&nbsp;code2&nbsp;=&nbsp;"jav5";<br>const&nbsp;code3&nbsp;=&nbsp;"3452";<br>console.log(exp.test(code1));&nbsp;&nbsp;&nbsp;//&nbsp;true<br>console.log(exp.test(code2));&nbsp;&nbsp;&nbsp;//&nbsp;false<br>console.log(exp.test(code3));&nbsp;&nbsp;&nbsp;//&nbsp;true</code></pre>
+ </div>
+ <p class="paragraph">Expresia [0-9][0-9][0-9][0-9] se potrivește cu orice secvență de 4 cifre consecutive. De exemplu, șirul "3452" se potrivește acestui șablon, dar NU se potrivește șirul "jav5" (aici există doar o cifră). Șirul "jav5" ar corespunde șablonului "[a-z][a-z][a-z][0-9]" (primele trei caractere alfabetice mici, urmate de o cifră).</p>
+ <p class="paragraph">Este important de menționat că expresia [0-9][0-9][0-9][0-9] nu este optimă și vom explora cum o putem simplifica mai jos.</p>
+ <p class="paragraph">Un alt exemplu aplică negarea:</p>
+ <div class="code-inline">
+  <pre><code><br>const&nbsp;exp&nbsp;=&nbsp;/[^a-z]/;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;se&nbsp;potrivește&nbsp;cu&nbsp;orice&nbsp;caractere,&nbsp;în&nbsp;afară&nbsp;de&nbsp;caracterele&nbsp;din&nbsp;intervalul&nbsp;a-z<br><br>const&nbsp;code1&nbsp;=&nbsp;"zorro";<br>const&nbsp;code2&nbsp;=&nbsp;"zorro5";<br>const&nbsp;code3&nbsp;=&nbsp;"34521";<br>console.log(exp.test(code1));&nbsp;&nbsp;&nbsp;//&nbsp;false<br>console.log(exp.test(code2));&nbsp;&nbsp;&nbsp;//&nbsp;true<br>console.log(exp.test(code3));&nbsp;&nbsp;&nbsp;//&nbsp;true</code></pre>
+ </div>
+ <p class="paragraph">Aici, șirurile sunt verificate în funcție de expresia "[^a-z]", care se potrivește cu orice caractere, în afara intervalului "a-z". De exemplu, șirul "zorro" NU se potrivește acestei expresii. Cu toate acestea, șirul "zorro5" se potrivește, deoarece conține un caracter care nu aparține intervalului "a-z".</p>
+ <p class="paragraph">Dacă este necesar, putem combina expresii:</p>
+ <div class="code-inline">
+  <pre><code><br>const&nbsp;exp&nbsp;=&nbsp;/[bs]un/;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;se&nbsp;potrivește&nbsp;cu&nbsp;șirurile&nbsp;"bun"&nbsp;și&nbsp;"sun"<br><br>const&nbsp;str1&nbsp;=&nbsp;"bunătate";<br>const&nbsp;str2&nbsp;=&nbsp;"lumină";<br>const&nbsp;str3&nbsp;=&nbsp;"sunt";<br>console.log(exp.test(str1));&nbsp;&nbsp;&nbsp;//&nbsp;true<br>console.log(exp.test(str2));&nbsp;&nbsp;&nbsp;//&nbsp;false<br>console.log(exp.test(str3));&nbsp;&nbsp;&nbsp;//&nbsp;true</code></pre>
+ </div>
+ <p class="paragraph">Expresia [bs]un indică șirurile care pot conține subșirurile "bun" și "sun".</p>
+ <h2 class="subtitle">Metacaractere</h2>
+ <p class="paragraph">În loc să definim clasele noastre de caractere, putem utiliza cele încorporate, numite și metacaractere - caractere care au un sens specific:</p>
+ <ul class="enumeration">
+  <li>\d: se potrivește oricărei cifre de la 0 la 9. Echivalent cu expresia [0-9]</li>
+  <li>\D: se potrivește oricărui caracter care nu este o cifră. Echivalent cu expresia [^0-9]</li>
+  <li>\w: se potrivește oricărei litere, cifre sau caracterului de underscore (în intervalul A–Z, a–z, 0–9). Echivalent cu expresia [a-zA-Z_0-9]</li>
+  <li>\W: se potrivește oricărui caracter care nu este o literă, cifră sau caracterul de underscore (adică nu se găsește în intervalele A–Z, a–z, 0–9). Echivalent cu expresia [^\w]</li>
+  <li>\s: se potrivește cu un spațiu. Echivalent cu expresia [\t\n\x0B\f\r]</li>
+  <li>\S: se potrivește oricărui caracter care nu este un spațiu. Echivalent cu expresia [^\s]</li>
+  <li>.: se potrivește oricărui caracter</li>
+ </ul>
+ <p class="paragraph">Este important de menționat că metacaracterul \w se aplică doar literelor din alfabetul latin; literele chirilice nu se potrivesc.</p>
+ <p class="paragraph">Astfel, pentru a verifica că un cod are doar 4 cifre, am folosit expresia /[0-9][0-9][0-9][0-9]/. O putem simplifica folosind metacaracterul "\d":</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;exp&nbsp;=&nbsp;/\d\d\d\d/;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;se&nbsp;potrivește&nbsp;cu&nbsp;patru&nbsp;cifre&nbsp;consecutive<br><br>const&nbsp;cod1&nbsp;=&nbsp;"1234";<br>const&nbsp;cod2&nbsp;=&nbsp;"jav5";<br>const&nbsp;cod3&nbsp;=&nbsp;"3452";<br>console.log(exp.test(cod1));&nbsp;&nbsp;&nbsp;//&nbsp;true<br>console.log(exp.test(cod2));&nbsp;&nbsp;&nbsp;//&nbsp;false<br>console.log(exp.test(cod3));&nbsp;&nbsp;&nbsp;//&nbsp;true</code></pre>
+ </div>
+ <p class="paragraph">Un alt exemplu. Să presupunem că vrem să găsim șirurile în care este prezent un număr de telefon. Numărul de telefon trebuie să fie în formatul +х-ххх-ххх-хххх:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;exp&nbsp;=&nbsp;/\+\d-\d\d\d-\d\d\d-\d\d\d\d/;<br>const&nbsp;contact1&nbsp;=&nbsp;"Email:&nbsp;mycomp@gmail.com";<br>const&nbsp;contact2&nbsp;=&nbsp;"Phone:&nbsp;+1-234-567-8901";<br>console.log(exp.test(contact1));&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;false<br>console.log(exp.test(contact2));&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;true</code></pre>
+ </div>
+ <p class="paragraph">/\+\d-\d\d\d-\d\d\d-\d\d\d\d/ corespunde numărului de telefon +1-234-567-8901.</p>
+ <div class="image-container">
+  <img src="images/image1.png" alt="" class="responsive-image">
+ </div>
+ <p class="paragraph">/\+\d-\d\d\d-\d\d\d-\d\d\d\d/ corespunde numărului de telefon +1-234-567-8901.</p>
+ <p class="paragraph">Observă bara oblică inversată (\) înainte de semnul plus (+). Deoarece semnul plus (+) are o semnificație specială, pentru a specifica că ne referim la plus ca la un caracter obișnuit al șirului, înaintea lui se adaugă o bară oblică inversată.</p>
+ <p class="paragraph">Ca rezultat, în șirul "Phone: +1-234-567-8901", metoda exp.test(contact2) va face potrivire cu subșirul "+1-234-567-8901" în raport cu expresia regulată.</p>
+ <h2 class="subtitle">Limitarea aplicării expresiilor regulate</h2>
+ <p class="paragraph">O serie de caractere speciale permit limitarea domeniului de aplicare al expresiilor regulate:</p>
+ <ul class="enumeration">
+  <li>^: se potrivește începutului șirului. De exemplu, ^h se potrivește șirului "home", dar nu și "ohma", deoarece h trebuie să reprezinte începutul șirului</li>
+  <li>$: se potrivește sfârșitului șirului. De exemplu, m$ se potrivește șirului "home", deoarece șirul trebuie să se termine cu litera м.</li>
+  <li>\b: se potrivește începutului sau sfârșitului unui cuvânt.</li>
+  <li>\B: nu ia în considerare limitele unui cuvânt.</li>
+ </ul>
+ <p class="paragraph">De exemplu, să presupunem că vrem să găsim șirurile cu numere de telefon:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;exp&nbsp;=&nbsp;/\d\d\d\d\d\d\d\d\d\d/;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;se&nbsp;potrivește&nbsp;cu&nbsp;10&nbsp;cifre&nbsp;consecutive<br><br>const&nbsp;telefon1&nbsp;=&nbsp;"+12345678901";<br>const&nbsp;telefon2&nbsp;=&nbsp;"42345678901";<br>console.log(exp.test(telefon1));&nbsp;&nbsp;&nbsp;//&nbsp;true<br>console.log(exp.test(telefon2));&nbsp;&nbsp;&nbsp;//&nbsp;true</code></pre>
+ </div>
+ <p class="paragraph">Șablonului /\d\d\d\d\d\d\d\d\d\d/ i se potrivește atât șirul "+12345678901", cât și șirul "42345678901". Dar să presupunem că vrem să găsim numere de telefon care nu încep cu plusul (+). În acest caz, putem folosi expresia regulată /^\d\d\d\d\d\d\d\d\d\d/. Astfel, șirul se va potrivi șablonului doar dacă începe cu caractere numerice:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;exp&nbsp;=&nbsp;/^\d\d\d\d\d\d\d\d\d\d/;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;se&nbsp;potrivește&nbsp;cu&nbsp;10&nbsp;cifre&nbsp;consecutive<br><br>const&nbsp;telefon1&nbsp;=&nbsp;"+12345678901";<br>const&nbsp;telefon2&nbsp;=&nbsp;"42345678901";<br>console.log(exp.test(telefon1));&nbsp;&nbsp;&nbsp;//&nbsp;false<br>console.log(exp.test(telefon2));&nbsp;&nbsp;&nbsp;//&nbsp;true</code></pre>
+ </div>
+ <p class="paragraph">Un alt exemplu. Să presupunem că dorim să verificăm dacă într-un șir există menționarea limbajului "Java". Abordarea naivă ar fi să folosim expresia regulată /Java/:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;exp&nbsp;=&nbsp;/Java/;&nbsp;&nbsp;<br><br>const&nbsp;str1&nbsp;=&nbsp;"Java&nbsp;is&nbsp;a&nbsp;high-level,&nbsp;object-oriented&nbsp;programming&nbsp;language";<br>const&nbsp;str2&nbsp;=&nbsp;"JavaScript&nbsp;is&nbsp;a&nbsp;programming&nbsp;language&nbsp;of&nbsp;the&nbsp;World&nbsp;Wide&nbsp;Web";<br>console.log(exp.test(str1));&nbsp;&nbsp;&nbsp;//&nbsp;true<br>console.log(exp.test(str2));&nbsp;&nbsp;&nbsp;//&nbsp;true</code></pre>
+ </div>
+ <p class="paragraph">Cu toate acestea, în realitate, șablonul "/Java/" se potrivește oricărui șir care conține subșirul "Java", inclusiv șirul "JavaScript". Totuși, dorim să găsim doar acele șiruri în care se vorbește despre Java și nu despre JavaScript. În acest caz, putem limita căutarea cu ajutorul marginilor cuvântului folosind "\b":</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;exp&nbsp;=&nbsp;/Java\b/;&nbsp;&nbsp;&nbsp;&nbsp;//<br><br>const&nbsp;str1&nbsp;=&nbsp;"Java&nbsp;is&nbsp;a&nbsp;high-level,&nbsp;object-oriented&nbsp;programming&nbsp;language";<br>const&nbsp;str2&nbsp;=&nbsp;"JavaScript&nbsp;is&nbsp;a&nbsp;programming&nbsp;language&nbsp;of&nbsp;the&nbsp;World&nbsp;Wide&nbsp;Web";<br>console.log(exp.test(str1));&nbsp;&nbsp;&nbsp;//&nbsp;true<br>console.log(exp.test(str2));&nbsp;&nbsp;&nbsp;//&nbsp;false</code></pre>
+ </div>
+ <p class="paragraph">Flagul "\B", dimpotrivă, indică faptul că șablonul trebuie să se potrivească cu subșiruri care nu sunt cuvinte:</p>
+ <div class="code-inline">
+  <pre><code><br>const&nbsp;exp&nbsp;=&nbsp;/Java\B/;&nbsp;&nbsp;&nbsp;&nbsp;//<br><br>const&nbsp;str1&nbsp;=&nbsp;"Java&nbsp;is&nbsp;a&nbsp;high-level,&nbsp;object-oriented&nbsp;programming&nbsp;language";<br>const&nbsp;str2&nbsp;=&nbsp;"JavaScript&nbsp;is&nbsp;a&nbsp;programming&nbsp;language&nbsp;of&nbsp;the&nbsp;World&nbsp;Wide&nbsp;Web";<br>console.log(exp.test(str1));&nbsp;&nbsp;&nbsp;//&nbsp;false<br>console.log(exp.test(str2));&nbsp;&nbsp;&nbsp;//&nbsp;true</code></pre>
+ </div>
+ <h2 class="subtitle">Flagurile expresiilor regulate</h2>
+ <p class="paragraph">Flagurile permit ajustarea comportamentului expresiilor regulate. Fiecare flag reprezintă un caracter distinct și se adaugă la sfârșitul expresiei regulate. În JavaScript sunt folosite următoarele flaguri:</p>
+ <ul class="enumeration">
+  <li>Flagul global (g) permite găsirea tuturor subșirurilor care se potrivesc expresiei regulate. În mod implicit, la căutarea subșirurilor, expresia regulată selectează primul subșir din șir care se potrivește cu expresia. Cu toate acestea, în șir pot exista mai multe subșiruri care se potrivesc cu expresia. Acest flag (`g`) remediază această situație.</li>
+  <li>Flagul ignoreCase (i) permite găsirea subșirurilor care se potrivesc expresiei regulate, ignorând cazul literelor din șir. Acesta poate fi utilizat pentru a face ca expresia regulată să fie nereceptor la diferențele de majuscule și minuscule.</li>
+  <li>Flagul multiline (m) permite găsirea subșirurilor care se potrivesc expresiei regulate într-un text cu mai multe linii. Acesta poate fi util atunci când căutăm corespondențe care se întind pe mai multe linii.</li>
+  <li>Flagul dotAll (s) permite potrivirea punctului în expresia regulată cu orice caracter din text, inclusiv cu separatorul de linie. Acesta schimbă comportamentul implicit al punctului, care nu se potrivește cu separatorul de linie.</li>
+ </ul>
+ <p class="paragraph">De exemplu, flagul `i` se referă la ignorarea diferențelor de caz ale literelor în expresiile regulate.</p>
+ <p class="paragraph">Să luăm în considerare următorul exemplu:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;str&nbsp;=&nbsp;"Hello&nbsp;World";<br>const&nbsp;exp&nbsp;=&nbsp;/world/;<br>console.log(exp.test(str));&nbsp;//&nbsp;false</code></pre>
+ </div>
+ <p class="paragraph">Aici nu există o potrivire a șirului cu expresia regulată, deoarece "World" diferă de "world" în ceea ce privește sensibilitatea la majuscule și minuscule. În acest caz, trebuie să modificăm expresia regulată adăugând flag-ul `i`:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;str&nbsp;=&nbsp;"Hello&nbsp;World";<br>const&nbsp;exp&nbsp;=&nbsp;/world/i;<br>console.log(exp.test(str));&nbsp;//&nbsp;true</code></pre>
+ </div>
+ <p class="paragraph">Observă unde este specificat flag-ul în expresia regulată: /world/i - la sfârșitul expresiei regulate.</p>
+ <h2 class="subtitle">Flag-ul s</h2>
+ <p class="paragraph">Flag-ul `s` permite potrivirea caracterului . (punct) cu orice caracter, inclusiv cu separatorul de linie. De exemplu, luăm următorul exemplu:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;str&nbsp;=&nbsp;"hello\nworld";<br>const&nbsp;exp&nbsp;=&nbsp;/hello&nbsp;world/;<br>console.log(exp.test(str));&nbsp;//&nbsp;false</code></pre>
+ </div>
+ <p class="paragraph">Aici, în șirul "hello\nworld", cuvintele "hello" și "world" sunt separate prin caractere de nouă linie (de exemplu, avem de-a face cu un text pe mai multe linii). Cu toate acestea, să presupunem că dorim ca JavaScript să nu ia în considerare caracterul de nouă linie și să facă ca acest text să se potrivească expresiei regulate /hello world/. În acest caz, putem aplica flag-ul `s`:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;str&nbsp;=&nbsp;"hello\nworld";<br>const&nbsp;exp&nbsp;=&nbsp;/hello.world/s;<br>console.log(exp.test(str));&nbsp;//&nbsp;true</code></pre>
+ </div>
+ <p class="paragraph">În expresia regulată /hello.world/s, punctul reprezintă orice caracter. Cu toate acestea, fără flag-ul `s`, această expresie nu ar corespunde textului pe mai multe linii.</p>
+ <h2 class="subtitle">Combinarea de flag-uri</h2>
+ <p class="paragraph">De asemenea, putem folosi mai multe flag-uri simultan:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;str&nbsp;=&nbsp;"hello\nWorld";<br>const&nbsp;exp&nbsp;=&nbsp;/hello.world/si;<br>console.log(exp.test(str));&nbsp;//&nbsp;true</code></pre>
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

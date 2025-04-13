@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Fluxuri formatabile de intrare și ieșire: PrintStream și PrintWriter</h1>
+ <h2 class="subtitle">Clasa PrintStream</h2>
+ <p class="paragraph">Clasa PrintStream este cea utilizată pentru a realiza ieșirea pe consolă. Când afișăm informații pe consolă folosind System.out.println(), de fapt folosim PrintStream, deoarece variabila out din clasa System reprezintă un obiect de tip PrintStream, iar metoda println() este o metodă a clasei PrintStream.</p>
+ <p class="paragraph">Totuși, PrintStream nu este util doar pentru ieșirea pe consolă. Putem utiliza această clasă și pentru a scrie informații în fluxuri de ieșire. Pentru aceasta, PrintStream definește o serie de constructori:</p>
+ <div class="code-inline">
+  <pre><code>PrintStream(OutputStream&nbsp;outputStream)&nbsp;&nbsp;<br>PrintStream(OutputStream&nbsp;outputStream,&nbsp;boolean&nbsp;autoFlushingOn)&nbsp;&nbsp;<br>PrintStream(OutputStream&nbsp;outputStream,&nbsp;boolean&nbsp;autoFlushingOn,&nbsp;String&nbsp;charSet)&nbsp;throws&nbsp;UnsupportedEncodingException&nbsp;&nbsp;<br>PrintStream(File&nbsp;outputFile)&nbsp;throws&nbsp;FileNotFoundException&nbsp;&nbsp;<br>PrintStream(File&nbsp;outputFile,&nbsp;String&nbsp;charSet)&nbsp;throws&nbsp;FileNotFoundException,&nbsp;UnsupportedEncodingException&nbsp;&nbsp;<br>PrintStream(String&nbsp;outputFileName)&nbsp;throws&nbsp;FileNotFoundException&nbsp;&nbsp;<br>PrintStream(String&nbsp;outputFileName,&nbsp;String&nbsp;charSet)&nbsp;throws&nbsp;FileNotFoundException,&nbsp;UnsupportedEncodingException&nbsp;</code></pre>
+ </div>
+ <p class="paragraph">Parametrul outputStream este un obiect de tip OutputStream în care se va face scrierea. Parametrul autoFlushingOn cu valoarea true permite golirea automată a datelor în fluxul de ieșire. În mod implicit, acest parametru este setat la false. Parametrul charSet permite specificarea codării caracterelor.</p>
+ <p class="paragraph">Ca sursă pentru scrierea datelor, în loc de OutputStream, putem folosi un obiect File sau o cale de fișier sub formă de șir de caractere.</p>
+ <p class="paragraph">Pentru ieșirea informațiilor într-un flux de ieșire, PrintStream utilizează următoarele metode:</p>
+ <ul class="enumeration">
+  <li>println(): ieșirea unei informații cu trecerea la o linie nouă</li>
+  <li>print(): ieșirea unei informații fără trecerea la o linie nouă</li>
+  <li>printf(): ieșire formatată</li>
+ </ul>
+ <p class="paragraph">De exemplu, să scriem informații într-un fișier:</p>
+ <div class="code-inline">
+  <pre><code>import&nbsp;java.io.*;<br><br>public&nbsp;class&nbsp;Program&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;text&nbsp;=&nbsp;"Hello&nbsp;World!";&nbsp;//&nbsp;șir&nbsp;pentru&nbsp;scriere<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try&nbsp;(FileOutputStream&nbsp;fos&nbsp;=&nbsp;new&nbsp;FileOutputStream("C://SomeDir//notes3.txt");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PrintStream&nbsp;printStream&nbsp;=&nbsp;new&nbsp;PrintStream(fos))&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printStream.println(text);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Scrierea&nbsp;în&nbsp;fișier&nbsp;a&nbsp;fost&nbsp;realizată");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;catch&nbsp;(IOException&nbsp;ex)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(ex.getMessage());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">În acest caz, folosim forma constructorului PrintStream care primește ca parametru un flux de ieșire: PrintStream(OutputStream out). De asemenea, am putea folosi și alte forme ale constructorului, specificând, de exemplu, un nume de fișier pentru scriere: PrintStream(String filename).</p>
+ <p class="paragraph">Ca flux de ieșire, se utilizează un obiect FileOutputStream. Metoda println() scrie informațiile în fluxul de ieșire, adică în obiectul FileOutputStream. (În cazul ieșirii pe consolă cu System.out.println(), fluxul de ieșire este consola).</p>
+ <p class="paragraph">De asemenea, ca orice flux de ieșire și moștenitor al clasei OutputStream, PrintStream are metoda write:</p>
+ <div class="code-inline">
+  <pre><code>import&nbsp;java.io.*;<br><br>public&nbsp;class&nbsp;Program&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try&nbsp;(PrintStream&nbsp;printStream&nbsp;=&nbsp;new&nbsp;PrintStream("notes3.txt"))&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printStream.print("Hello&nbsp;World!");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printStream.println("Welcome&nbsp;to&nbsp;Java!");<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printStream.printf("Name:&nbsp;%s&nbsp;Age:&nbsp;%d&nbsp;\n",&nbsp;"Tom",&nbsp;34);<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;message&nbsp;=&nbsp;"PrintStream";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;byte[]&nbsp;messageToBytes&nbsp;=&nbsp;message.getBytes();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printStream.write(messageToBytes);<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Fișierul&nbsp;a&nbsp;fost&nbsp;scris");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;catch&nbsp;(IOException&nbsp;ex)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(ex.getMessage());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">După executarea acestui program, fișierul va conține următorul text:</p>
+ <div class="code-inline">
+  <pre><code>Hello&nbsp;World!Welcome&nbsp;to&nbsp;Java!<br>Name:&nbsp;Tom&nbsp;Age:&nbsp;34&nbsp;<br>PrintStream</code></pre>
+ </div>
+ <h2 class="subtitle">Clasa PrintWriter</h2>
+ <p class="paragraph">Similar cu PrintStream, există și clasa PrintWriter. Aceasta poate fi folosită atât pentru a afișa informații pe consolă, cât și pentru a scrie în fișiere sau alte fluxuri de ieșire. Clasa PrintWriter are mai mulți constructori:</p>
+ <ul class="enumeration">
+  <li>PrintWriter(File file): adaugă automat informațiile în fișierul specificat</li>
+  <li>PrintWriter(File file, String csn): adaugă automat informațiile în fișierul specificat, utilizând codarea csn</li>
+  <li>PrintWriter(OutputStream out): utilizează un obiect OutputStream existent pentru a scrie informațiile, cu golirea automată a datelor</li>
+  <li>PrintWriter(OutputStream out, boolean autoFlush): utilizează un obiect OutputStream, al doilea parametru specifică dacă se golește automat fluxul</li>
+  <li>PrintWriter(String fileName): adaugă automat informațiile în fișierul specificat prin nume</li>
+  <li>PrintWriter(String fileName, String csn): adaugă automat informațiile în fișier utilizând codarea csn</li>
+  <li>PrintWriter(Writer out): utilizează un obiect Writer existent pentru a scrie informațiile</li>
+  <li>PrintWriter(Writer out, boolean autoFlush): al doilea parametru specifică dacă se golește automat fluxul Writer</li>
+ </ul>
+ <p class="paragraph">PrintWriter implementează interfețele Appendable, Closeable și Flushable, așa că fluxul reprezentat de el trebuie închis după utilizare.</p>
+ <p class="paragraph">Pentru a scrie date în flux, se utilizează metodele printf() și println().</p>
+ <p class="paragraph">De exemplu, să folosim această clasă pentru ieșirea pe consolă:</p>
+ <div class="code-inline">
+  <pre><code>try&nbsp;(PrintWriter&nbsp;pw&nbsp;=&nbsp;new&nbsp;PrintWriter(System.out))&nbsp;{<br>&nbsp;&nbsp;&nbsp;pw.println("Hello&nbsp;world!");<br>}</code></pre>
+ </div>
+ <p class="paragraph">try (PrintWriter pw = new PrintWriter(System.out)) { pw.println("Hello world!"); }</p>
+ <p class="paragraph">Aici fluxul de ieșire este System.out, iar pe consolă va fi afișat șirul "Hello world!"</p>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

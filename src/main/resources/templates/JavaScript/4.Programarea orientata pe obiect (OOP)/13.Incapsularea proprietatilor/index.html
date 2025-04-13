@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Încapsularea proprietăților - Get-teri și Set-teri</h1>
+ <p class="paragraph">Încapsularea este unul dintre conceptele cheie ale programării orientate pe obiect și reprezintă ascunderea stării unui obiect pentru a menține integritatea datelor prin evitarea accesului direct din exterior. În mod implicit, toate proprietățile obiectelor sunt publice și accesibile, iar noi putem să le accesăm din orice parte a programului.</p>
+ <div class="code-inline">
+  <pre><code>function&nbsp;User(uName,&nbsp;uAge)&nbsp;{<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;uName;<br>&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;uAge;<br>&nbsp;&nbsp;&nbsp;this.print&nbsp;=&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;};<br>}<br><br>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;User("Tom",&nbsp;39);<br>tom.age&nbsp;=&nbsp;11500;<br>tom.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;Age:&nbsp;11500</code></pre>
+ </div>
+ <p class="paragraph">Cu toate acestea, un astfel de mod de acces poate fi nedorit. De exemplu, în exemplul de mai sus, proprietății age, care reprezintă vârsta, i-am putea atribui diferite valori, inclusiv cele inadmisibile.</p>
+ <p class="paragraph">Cu toate acestea, putem să le ascundem de accesul din exterior. Pentru aceasta, proprietatea este definită ca o variabilă locală/constantă:</p>
+ <div class="code-inline">
+  <pre><code>function&nbsp;User(uName,&nbsp;uAge)&nbsp;{<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;uName;<br>&nbsp;&nbsp;&nbsp;let&nbsp;_age&nbsp;=&nbsp;uAge;<br>&nbsp;&nbsp;&nbsp;this.print&nbsp;=&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${_age}`);<br>&nbsp;&nbsp;&nbsp;};<br>}<br><br>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;User("Tom",&nbsp;39);<br>tom._age&nbsp;=&nbsp;11500;<br>tom.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;Age:&nbsp;39</code></pre>
+ </div>
+ <p class="paragraph">În constructorul User, este declarată o variabilă locală _age în locul proprietății age:</p>
+ <div class="code-inline">
+  <pre><code>let&nbsp;_age&nbsp;=&nbsp;uAge;</code></pre>
+ </div>
+ <p class="paragraph">De obicei, numele variabilelor locale în constructori încep cu un caracter de subliniere. Această variabilă poate să primească date din parametrii constructorului și poate fi utilizată în funcțiile din interiorul constructorului. Cu toate acestea, nu se poate accesa din exterior:</p>
+ <div class="code-inline">
+  <pre><code>tom._age&nbsp;=&nbsp;11500;</code></pre>
+ </div>
+ <p class="paragraph">Aici, pentru obiectul tom, se definește o nouă proprietate care se numește la fel ca și variabila _age. Cu toate acestea, această proprietate _age nu va avea niciun efect asupra variabilei locale _age, așa cum putem vedea din afișarea consolei în metoda print.</p>
+ <h2 class="subtitle">Get-teri și Set-teri</h2>
+ <p class="paragraph">Mai sus, am ascuns valoarea vârstei în variabila locală _age, însă uneori este necesară totuși o anumită formă de acces, de exemplu, pentru a afișa în consolă sau pentru a modifica. În acest caz, putem defini metode speciale de acces - get-ter (pentru a obține valoarea) și set-ter (pentru a modifica valoarea).</p>
+ <div class="code-inline">
+  <pre><code>function&nbsp;User(userName,&nbsp;userAge)&nbsp;{<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;userName;<br>&nbsp;&nbsp;&nbsp;let&nbsp;_age&nbsp;=&nbsp;userAge;<br>&nbsp;&nbsp;&nbsp;//&nbsp;getter&nbsp;-&nbsp;return&nbsp;the&nbsp;value&nbsp;of&nbsp;the&nbsp;variable<br>&nbsp;&nbsp;&nbsp;this.getAge&nbsp;=&nbsp;function()&nbsp;{&nbsp;return&nbsp;_age;&nbsp;}<br>&nbsp;&nbsp;&nbsp;//&nbsp;setter&nbsp;-&nbsp;set&nbsp;the&nbsp;value&nbsp;of&nbsp;the&nbsp;variable<br>&nbsp;&nbsp;&nbsp;this.setAge&nbsp;=&nbsp;function(age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(age&nbsp;&gt;&nbsp;0&nbsp;&amp;&amp;&nbsp;age&nbsp;&lt;&nbsp;110){&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//dacă&nbsp;varsta&nbsp;este&nbsp;mai&nbsp;mare&nbsp;ca&nbsp;0&nbsp;și&nbsp;mai&nbsp;mică&nbsp;ca&nbsp;110<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;else&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Invalid&nbsp;value");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;this.print&nbsp;=&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${_age}`);<br>&nbsp;&nbsp;&nbsp;};<br>}<br><br>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;User("Tom",&nbsp;39);<br>//obține&nbsp;valoarea<br>console.log(tom.getAge())&nbsp;&nbsp;&nbsp;//&nbsp;39<br>//&nbsp;setează&nbsp;o&nbsp;valoare&nbsp;nouă<br>tom.setAge(22);<br>console.log(tom.getAge())&nbsp;&nbsp;&nbsp;//&nbsp;22<br>tom.setAge(11500);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Invalid&nbsp;value<br>console.log(tom.getAge())&nbsp;&nbsp;&nbsp;//&nbsp;22</code></pre>
+ </div>
+ <p class="paragraph">Pentru a lucra cu vârsta utilizatorului din exterior, sunt definite două metode. Metoda getAge() este destinată obținerii valorii variabilei _age. Această metodă mai este cunoscută și sub denumirea de getter. A doua metodă - setAge, care mai este numită și setter, este destinată setării valorii variabilei _age.</p>
+ <p class="paragraph">Avantajul acestui abordaj constă în faptul că avem un control mai mare asupra accesului la valoarea _age. De exemplu, putem verifica anumite condiții asociate, așa cum este cazul verificării tipului de valoare (aceasta trebuie să reprezinte un număr), valoarea în sine (vârsta nu poate fi mai mică de 0).</p>
+ <p class="paragraph">Trebuie de menționat că JavaScript oferă, de asemenea, construcții speciale pentru crearea getterelor și setterelor - get și set, respectiv. Cu toate acestea, în contextul funcțiilor constructor, ele nu au un sens mare, așa că vor fi discutate mai detaliat.</p>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

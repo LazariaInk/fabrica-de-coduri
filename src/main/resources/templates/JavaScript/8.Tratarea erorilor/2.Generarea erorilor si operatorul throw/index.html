@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Generarea erorilor și operatorul throw</h1>
+ <p class="paragraph">Interpretorul JavaScript generează erori pentru diverse situații, cum ar fi apelul unei funcții inexistente, reatribuirea unei constante etc. Cu toate acestea, în caz de necesitate, putem genera manual erori și să definim condițiile în care va apărea o eroare.</p>
+ <p class="paragraph">De exemplu, să examinăm următoarea situație:</p>
+ <div class="code-inline">
+  <pre><code>class&nbsp;Person{<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;constructor(name,&nbsp;age){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;print(){&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);}<br>}<br>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;-123);<br>tom.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;Age:&nbsp;-123</code></pre>
+ </div>
+ <p class="paragraph">Clasa Person descrie o persoană. În constructorul clasei, se primesc valori pentru proprietățile name (nume) și age (vârstă).</p>
+ <p class="paragraph">Din punct de vedere logic, înțelegem că vârsta nu poate fi negativă. Cu toate acestea, până în acest moment, din perspectiva logică a clasei, nu există nimic care să împiedice transmiterea unei valori negative pentru vârstă la crearea unui obiect Person.</p>
+ <p class="paragraph">Din perspectiva interpretorului JavaScript, nu există nicio eroare, dar din perspectivă logică și de bun simț, aceasta este o eroare. Cum se poate remedia această situație? Există diverse modalități, iar una dintre ele constă în generarea unei excepții.</p>
+ <p class="paragraph">Pentru a genera o excepție, se folosește operatorul throw, după care se specifică informațiile despre eroare:</p>
+ <div class="code-inline">
+  <pre><code>throw&nbsp;informatie_despre_eroare;</code></pre>
+ </div>
+ <p class="paragraph">Informațiile despre eroare pot fi reprezentate de orice obiect.</p>
+ <p class="paragraph">Astfel, vom genera o excepție atunci când se furnizează o valoare negativă pentru proprietatea age în constructorul clasei Person:</p>
+ <div class="code-inline">
+  <pre><code>class&nbsp;Person&nbsp;{<br>&nbsp;&nbsp;&nbsp;constructor(name,&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(age&nbsp;&lt;&nbsp;0)&nbsp;throw&nbsp;"Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;pozitivă";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;print()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>try&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;-123);&nbsp;&nbsp;//&nbsp;Uncaught&nbsp;Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;pozitivă<br>&nbsp;&nbsp;&nbsp;tom.print();<br>}&nbsp;catch&nbsp;(eroare)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.error(eroare);<br>}</code></pre>
+ </div>
+ <p class="paragraph">În final, la apelul constructorului Person va fi generată o excepție și programul se va încheia cu o eroare. Pe consola browser-ului vom vedea informații despre eroare, care sunt specificate după operatorul throw:</p>
+ <div class="code-inline">
+  <pre><code>Uncaught&nbsp;Vârstă&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;pozitivă</code></pre>
+ </div>
+ <p class="paragraph">Ca și în cazul general, putem trata această eroare folosind blocul try...catch.</p>
+ <div class="code-inline">
+  <pre><code>class&nbsp;Person&nbsp;{<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;constructor(name,&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(age&nbsp;&lt;&nbsp;0)&nbsp;throw&nbsp;"Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;pozitivă";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;print()&nbsp;{&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);&nbsp;}<br>}<br><br>try&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;-123);&nbsp;&nbsp;//&nbsp;Uncaught&nbsp;Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;pozitivă<br>&nbsp;&nbsp;&nbsp;tom.print();<br>}&nbsp;catch&nbsp;(eroare)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("A&nbsp;apărut&nbsp;o&nbsp;eroare");<br>&nbsp;&nbsp;&nbsp;console.log(eroare);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;pozitivă<br>}</code></pre>
+ </div>
+ <h2 class="subtitle">throw în try...catch...finally</h2>
+ <p class="paragraph">Operatorul throw poate fi apelat în diferite contexte, de exemplu, în același bloc try:</p>
+ <div class="code-inline">
+  <pre><code>try&nbsp;{<br>&nbsp;&nbsp;&nbsp;throw&nbsp;"Eroare&nbsp;neașteptată!";<br>}&nbsp;catch&nbsp;(eroare)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(eroare);&nbsp;//&nbsp;Eroare&nbsp;neașteptată!<br>}</code></pre>
+ </div>
+ <p class="paragraph">Aceasta poate fi utilă din mai multe motive. În primul rând, putem gestiona eroarea imediat aici. În al doilea rând, putem defini cu ajutorul blocului finally unele acțiuni finale, care vor fi efectuate chiar dacă apare o eroare. De exemplu:</p>
+ <div class="code-inline">
+  <pre><code>//&nbsp;Clasa&nbsp;bazei&nbsp;de&nbsp;date&nbsp;condiționale<br>class&nbsp;Database{<br>&nbsp;&nbsp;&nbsp;constructor(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.data&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"];<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;//&nbsp;Obținerea&nbsp;datelor<br>&nbsp;&nbsp;&nbsp;getItem(index){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.open();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(index&nbsp;&gt;&nbsp;0&nbsp;&amp;&amp;&nbsp;index&nbsp;&lt;&nbsp;this.data.length)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;this.data[index];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;"Index&nbsp;incorect";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.close();&nbsp;&nbsp;&nbsp;//&nbsp;Această&nbsp;linie&nbsp;nu&nbsp;va&nbsp;fi&nbsp;executată&nbsp;în&nbsp;cazul&nbsp;generării&nbsp;unei&nbsp;excepții<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;//&nbsp;Deschiderea&nbsp;bazei&nbsp;de&nbsp;date<br>&nbsp;&nbsp;&nbsp;open(){&nbsp;console.log("Conexiunea&nbsp;la&nbsp;baza&nbsp;de&nbsp;date&nbsp;a&nbsp;fost&nbsp;stabilită");&nbsp;}<br>&nbsp;&nbsp;&nbsp;//&nbsp;Închiderea&nbsp;bazei&nbsp;de&nbsp;date<br>&nbsp;&nbsp;&nbsp;close(){&nbsp;console.log("Conexiunea&nbsp;la&nbsp;baza&nbsp;de&nbsp;date&nbsp;a&nbsp;fost&nbsp;închisă");&nbsp;}<br>}<br><br>const&nbsp;db&nbsp;=&nbsp;new&nbsp;Database();<br>try&nbsp;{<br>&nbsp;&nbsp;&nbsp;db.getItem(5);&nbsp;&nbsp;&nbsp;//&nbsp;Returnăm&nbsp;elementul&nbsp;obținut<br>}&nbsp;catch(err)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.error(err);&nbsp;//&nbsp;În&nbsp;cazul&nbsp;unei&nbsp;erori,&nbsp;o&nbsp;gestionăm<br>}</code></pre>
+ </div>
+ <p class="paragraph">Aici este definită clasa Database - o clasă pentru o bază de date condiționată. Toate datele sunt stocate într-un array numit data. Pentru interacțiunea cu baza de date sunt definite trei metode.</p>
+ <p class="paragraph">Metodele open și close deschid și, respectiv, închid conexiunea cu baza de date. Metoda getItem primește un element din array-ul data pe baza unui index. În cazul în care indexul este incorect, se generează o eroare.</p>
+ <p class="paragraph">În acest context, înainte de a obține elementul prin index, metoda getItem ar trebui să deschidă conexiunea cu open și să o închidă după obținere cu close. Cu toate acestea, în exemplul de mai sus, în cazul generării unei erori, închiderea conexiunii nu va avea loc:</p>
+ <div class="code-inline">
+  <pre><code>else<br>&nbsp;&nbsp;&nbsp;throw&nbsp;"Index&nbsp;incorect";<br>this.close();&nbsp;&nbsp;&nbsp;//&nbsp;în&nbsp;cazul&nbsp;generării&nbsp;unei&nbsp;excepții,&nbsp;această&nbsp;linie&nbsp;nu&nbsp;va&nbsp;fi&nbsp;executată</code></pre>
+ </div>
+ <p class="paragraph">În consecință, atunci când se furnizează un index incorect la metoda getItem, output-ul consolei programului va fi următorul:</p>
+ <h2 class="subtitle">Conexiunea la baza de date a fost stabilită</h2>
+ <h2 class="subtitle">Index incorect</h2>
+ <p class="paragraph">Cu toate acestea, ce să facem dacă totuși dorim să apelăm metoda close? Putem plasa apelul în blocul finally:</p>
+ <div class="code-inline">
+  <pre><code>class&nbsp;Database&nbsp;{<br>&nbsp;&nbsp;&nbsp;constructor()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.data&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"];<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;//&nbsp;Obținerea&nbsp;datelor<br>&nbsp;&nbsp;&nbsp;getItem(index)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.open();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(index&nbsp;&gt;&nbsp;0&nbsp;&amp;&amp;&nbsp;index&nbsp;&lt;&nbsp;this.data.length)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;this.data[index];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;"Index&nbsp;incorect";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;finally&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;chiar&nbsp;și&nbsp;dacă&nbsp;apare&nbsp;o&nbsp;eroare,&nbsp;acest&nbsp;bloc&nbsp;se&nbsp;va&nbsp;executa<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.close();&nbsp;&nbsp;&nbsp;//&nbsp;în&nbsp;cazul&nbsp;generării&nbsp;unei&nbsp;excepții,&nbsp;această&nbsp;linie&nbsp;totuși&nbsp;va&nbsp;fi&nbsp;executată<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;//&nbsp;Deschiderea&nbsp;bazei&nbsp;de&nbsp;date<br>&nbsp;&nbsp;&nbsp;open()&nbsp;{&nbsp;console.log("Conexiunea&nbsp;la&nbsp;baza&nbsp;de&nbsp;date&nbsp;a&nbsp;fost&nbsp;stabilită");&nbsp;}<br>&nbsp;&nbsp;&nbsp;//&nbsp;Închiderea&nbsp;bazei&nbsp;de&nbsp;date<br>&nbsp;&nbsp;&nbsp;close()&nbsp;{&nbsp;console.log("Conexiunea&nbsp;la&nbsp;baza&nbsp;de&nbsp;date&nbsp;a&nbsp;fost&nbsp;închisă");&nbsp;}<br>}<br><br>const&nbsp;db&nbsp;=&nbsp;new&nbsp;Database();<br>try&nbsp;{<br>&nbsp;&nbsp;&nbsp;db.getItem(5);&nbsp;&nbsp;&nbsp;//&nbsp;Returnăm&nbsp;elementul&nbsp;obținut<br>}&nbsp;catch&nbsp;(err)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.error(err);&nbsp;//&nbsp;În&nbsp;cazul&nbsp;unei&nbsp;erori,&nbsp;o&nbsp;gestionăm<br>}</code></pre>
+ </div>
+ <p class="paragraph">Acum, în cazul unei erori sau fără erori, blocul finally se va executa întotdeauna, asigurându-se că conexiunea la baza de date este închisă. Astfel, output-ul consolei va fi:</p>
+ <div class="code-inline">
+  <pre><code>Conexiunea&nbsp;la&nbsp;baza&nbsp;de&nbsp;date&nbsp;a&nbsp;fost&nbsp;stabilită<br>Conexiunea&nbsp;la&nbsp;baza&nbsp;de&nbsp;date&nbsp;a&nbsp;fost&nbsp;închisă<br>Index&nbsp;incorect</code></pre>
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

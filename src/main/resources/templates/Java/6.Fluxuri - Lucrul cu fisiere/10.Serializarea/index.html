@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Serializarea</h1>
+ <p class="paragraph">Serializarea reprezintă procesul de scriere a stării unui obiect într-un flux. Procesul de extragere sau restaurare a stării obiectului din flux se numește deserializare. Serializarea este foarte utilă atunci când lucrăm cu obiecte complexe.</p>
+ <h2 class="subtitle">Interfața Serializable.</h2>
+ <p class="paragraph">Numai obiectele care implementează interfața Serializable pot fi serializate. Această interfață nu definește metode, ci doar semnalează sistemului că obiectele care o implementează pot fi serializate.</p>
+ <h2 class="subtitle">Serializarea - Clasa ObjectOutputStream</h2>
+ <p class="paragraph">Clasa ObjectOutputStream este utilizată pentru a serializa obiectele într-un flux. Ea scrie datele în fluxul de ieșire.</p>
+ <p class="paragraph">Constructor pentru ObjectOutputStream:</p>
+ <div class="code-inline">
+  <pre><code>ObjectOutputStream(OutputStream&nbsp;out)</code></pre>
+ </div>
+ <p class="paragraph">Pentru înregistrarea datelor, ObjectOutputStream utilizează o serie de metode, printre care se pot distinge următoarele:</p>
+ <ul class="enumeration">
+  <li>void close(): închide fluxul</li>
+  <li>void flush(): golește buffer-ul și transferă conținutul său în fluxul de ieșire</li>
+  <li>void write(byte[] buf): scrie în flux un array de bytes</li>
+  <li>void write(int val): scrie în flux un byte inferior din val</li>
+  <li>void writeBoolean(boolean val): scrie în flux valoarea boolean</li>
+  <li>void writeByte(int val): scrie în flux un byte inferior din val</li>
+  <li>void writeChar(int val): scrie în flux valoarea de tip char, reprezentată printr-o valoare întreagă</li>
+  <li>void writeDouble(double val): scrie în flux valoarea de tip double</li>
+  <li>void writeFloat(float val): scrie în flux valoarea de tip float</li>
+  <li>void writeInt(int val): scrie valoarea întreagă int</li>
+  <li>void writeLong(long val): scrie valoarea de tip long</li>
+  <li>void writeShort(int val): scrie valoarea de tip short</li>
+  <li>void writeUTF(String str): scrie în flux un string în codarea UTF-8</li>
+  <li>void writeObject(Object obj): scrie în flux un obiect separat</li>
+ </ul>
+ <p class="paragraph">Aceste metode acoperă întreaga gamă de date care pot fi serializate.</p>
+ <p class="paragraph">De exemplu, salvăm într-un fișier un obiect al clasei Person:</p>
+ <div class="code-inline">
+  <pre><code>import&nbsp;java.io.*;<br><br>public&nbsp;class&nbsp;Program&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try(ObjectOutputStream&nbsp;oos&nbsp;=&nbsp;new&nbsp;ObjectOutputStream(new&nbsp;FileOutputStream("person.dat")))<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;p&nbsp;=&nbsp;new&nbsp;Person("Sam",&nbsp;33,&nbsp;178,&nbsp;true);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;oos.writeObject(p);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;catch(Exception&nbsp;ex){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(ex.getMessage());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;Person&nbsp;implements&nbsp;Serializable{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;name;<br>&nbsp;&nbsp;&nbsp;private&nbsp;int&nbsp;age;<br>&nbsp;&nbsp;&nbsp;private&nbsp;double&nbsp;height;<br>&nbsp;&nbsp;&nbsp;private&nbsp;boolean&nbsp;married;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Person(String&nbsp;n,&nbsp;int&nbsp;a,&nbsp;double&nbsp;h,&nbsp;boolean&nbsp;m){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name=n;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;age=a;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height=h;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;married=m;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;String&nbsp;getName()&nbsp;{return&nbsp;name;}<br>&nbsp;&nbsp;&nbsp;int&nbsp;getAge(){&nbsp;return&nbsp;age;}<br>&nbsp;&nbsp;&nbsp;double&nbsp;getHeight(){return&nbsp;height;}<br>&nbsp;&nbsp;&nbsp;boolean&nbsp;getMarried(){return&nbsp;married;}<br>}</code></pre>
+ </div>
+ <h2 class="subtitle">Deserializare - Clasa ObjectInputStream</h2>
+ <p class="paragraph">Clasa ObjectInputStream este responsabilă pentru procesul invers - citirea datelor serializate anterior din flux. În constructor, primește o referință la fluxul de intrare:</p>
+ <div class="code-inline">
+  <pre><code>ObjectInputStream(InputStream&nbsp;in)</code></pre>
+ </div>
+ <p class="paragraph">Funcționalitatea ObjectInputStream este concentrată în metode destinate citirii diferitelor tipuri de date. Iată principalele metode ale acestei clase:</p>
+ <ul class="enumeration">
+  <li>void close(): închide fluxul</li>
+  <li>int skipBytes(int len): sare peste un număr de bytes la citire, egal cu len</li>
+  <li>int available(): returnează numărul de bytes disponibili pentru citire</li>
+  <li>int read(): citește din flux un byte și returnează reprezentarea sa întreagă</li>
+  <li>boolean readBoolean(): citește din flux o valoare boolean</li>
+  <li>byte readByte(): citește din flux un byte</li>
+  <li>char readChar(): citește din flux un caracter char</li>
+  <li>double readDouble(): citește valoarea de tip double</li>
+  <li>float readFloat(): citește din flux valoarea de tip float</li>
+  <li>int readInt(): citește valoarea întreagă int</li>
+  <li>long readLong(): citește valoarea de tip long</li>
+  <li>short readShort(): citește valoarea de tip short</li>
+  <li>String readUTF(): citește un string în codarea UTF-8</li>
+  <li>Object readObject(): citește din flux un obiect</li>
+ </ul>
+ <p class="paragraph">De exemplu, extragem obiectul Person salvat mai devreme din fișier:</p>
+ <div class="code-inline">
+  <pre><code>import&nbsp;java.io.*;<br><br>public&nbsp;class&nbsp;Program&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try(ObjectInputStream&nbsp;ois&nbsp;=&nbsp;new&nbsp;ObjectInputStream(new&nbsp;FileInputStream("person.dat")))<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;p=(Person)ois.readObject();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("Name:&nbsp;%s&nbsp;\t&nbsp;Age:&nbsp;%d&nbsp;\n",&nbsp;p.getName(),&nbsp;p.getAge());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;catch(Exception&nbsp;ex){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(ex.getMessage());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">Acum combinăm salvarea și restaurarea din fișier pe un exemplu de listă de obiecte:</p>
+ <div class="code-inline">
+  <pre><code>import&nbsp;java.io.*;<br>import&nbsp;java.util.ArrayList;<br>&nbsp;<br>public&nbsp;class&nbsp;Program&nbsp;{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;//@SuppressWarnings("unchecked")<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;filename&nbsp;=&nbsp;"people.dat";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;creăm&nbsp;o&nbsp;listă&nbsp;de&nbsp;obiecte&nbsp;pe&nbsp;care&nbsp;o&nbsp;vom&nbsp;scrie<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ArrayList&lt;Person&gt;&nbsp;people&nbsp;=&nbsp;new&nbsp;ArrayList&lt;Person&gt;();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;people.add(new&nbsp;Person("Tom",&nbsp;30,&nbsp;175,&nbsp;false));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;people.add(new&nbsp;Person("Sam",&nbsp;33,&nbsp;178,&nbsp;true));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try(ObjectOutputStream&nbsp;oos&nbsp;=&nbsp;new&nbsp;ObjectOutputStream(new&nbsp;FileOutputStream(filename)))<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;oos.writeObject(people);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("File&nbsp;has&nbsp;been&nbsp;written");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;catch(Exception&nbsp;ex){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(ex.getMessage());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;deserializare&nbsp;într-o&nbsp;nouă&nbsp;listă<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ArrayList&lt;Person&gt;&nbsp;newPeople=&nbsp;new&nbsp;ArrayList&lt;Person&gt;();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try(ObjectInputStream&nbsp;ois&nbsp;=&nbsp;new&nbsp;ObjectInputStream(new&nbsp;FileInputStream(filename)))<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;newPeople=((ArrayList&lt;Person&gt;)ois.readObject());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;catch(Exception&nbsp;ex){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(ex.getMessage());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(Person&nbsp;p&nbsp;:&nbsp;newPeople)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("Name:&nbsp;%s&nbsp;\t&nbsp;Age:&nbsp;%d&nbsp;\n",&nbsp;p.getName(),&nbsp;p.getAge());<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;Person&nbsp;implements&nbsp;Serializable{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;name;<br>&nbsp;&nbsp;&nbsp;private&nbsp;int&nbsp;age;<br>&nbsp;&nbsp;&nbsp;private&nbsp;double&nbsp;height;<br>&nbsp;&nbsp;&nbsp;private&nbsp;boolean&nbsp;married;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Person(String&nbsp;n,&nbsp;int&nbsp;a,&nbsp;double&nbsp;h,&nbsp;boolean&nbsp;m){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name=n;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;age=a;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height=h;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;married=m;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;String&nbsp;getName()&nbsp;{return&nbsp;name;}<br>&nbsp;&nbsp;&nbsp;int&nbsp;getAge(){&nbsp;return&nbsp;age;}<br>&nbsp;&nbsp;&nbsp;double&nbsp;getHeight(){return&nbsp;height;}<br>&nbsp;&nbsp;&nbsp;boolean&nbsp;getMarried(){return&nbsp;married;}<br>}</code></pre>
+ </div>
+ <h2 class="subtitle">Excluderea datelor din serializare</h2>
+ <p class="paragraph">Implicit, toate variabilele obiectului sunt serializate. Cu toate acestea, este posibil să dorim să excludem unele câmpuri din serializare. Pentru aceasta, ele trebuie declarate cu modificatorul transient. De exemplu, excludem din serializarea obiectului Person variabilele height și married:</p>
+ <div class="code-inline">
+  <pre><code>class&nbsp;Person&nbsp;implements&nbsp;Serializable{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;name;<br>&nbsp;&nbsp;&nbsp;private&nbsp;int&nbsp;age;<br>&nbsp;&nbsp;&nbsp;private&nbsp;transient&nbsp;double&nbsp;height;<br>&nbsp;&nbsp;&nbsp;private&nbsp;transient&nbsp;boolean&nbsp;married;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Person(String&nbsp;n,&nbsp;int&nbsp;a,&nbsp;double&nbsp;h,&nbsp;boolean&nbsp;m){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name=n;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;age=a;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height=h;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;married=m;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;String&nbsp;getName()&nbsp;{return&nbsp;name;}<br>&nbsp;&nbsp;&nbsp;int&nbsp;getAge(){&nbsp;return&nbsp;age;}<br>&nbsp;&nbsp;&nbsp;double&nbsp;getHeight(){return&nbsp;height;}<br>&nbsp;&nbsp;&nbsp;boolean&nbsp;getMarried(){return&nbsp;married;}<br>}</code></pre>
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

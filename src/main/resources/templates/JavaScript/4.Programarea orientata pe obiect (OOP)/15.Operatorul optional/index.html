@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Operatorul ?</h1>
+ <p class="paragraph">Operatorul ?., sau operatorul optional chaining, permite verificarea unui obiect și a proprietăților sau metodelor sale pentru null și undefined. Dacă obiectul sau proprietățile/metodele sale sunt definite, atunci se poate accesa proprietățile sau metodele acestuia:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;tom&nbsp;=&nbsp;null;<br>const&nbsp;bob&nbsp;=&nbsp;{name:&nbsp;"Bob"};<br><br>function&nbsp;printName(person){<br>&nbsp;&nbsp;&nbsp;console.log(person.name);<br>}<br>printName(tom);&nbsp;//&nbsp;Uncaught&nbsp;TypeError:&nbsp;Cannot&nbsp;read&nbsp;properties&nbsp;of&nbsp;null&nbsp;(reading&nbsp;"name")<br>printName(bob);</code></pre>
+ </div>
+ <p class="paragraph">În acest caz, variabila tom este null, prin urmare, nu are proprietatea name. Prin urmare, atunci când acest obiect este transmis în funcția printName, vom primi o eroare. În astfel de situații, putem verifica obiectul pentru null și undefined înainte de a accesa proprietățile sale:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;tom&nbsp;=&nbsp;null;<br>const&nbsp;bob&nbsp;=&nbsp;{name:&nbsp;"Bob"};<br><br>function&nbsp;printName(person){<br>&nbsp;&nbsp;&nbsp;if(person&nbsp;!==null&nbsp;&amp;&amp;&nbsp;person&nbsp;!==undefined)&nbsp;console.log(person.name);<br>}<br>printName(tom);<br>printName(bob);&nbsp;//&nbsp;Bob</code></pre>
+ </div>
+ <p class="paragraph">De asemenea, putem simplifica verificarea:</p>
+ <div class="code-inline">
+  <pre><code>function&nbsp;printName(person){<br>&nbsp;&nbsp;&nbsp;if(person)&nbsp;console.log(person.name);<br>}</code></pre>
+ </div>
+ <p class="paragraph">Dacă variabila person este null sau undefined, atunci instrucțiunea if(person) va returna false. Cu toate acestea, operatorul ?. oferă o modalitate mai elegantă de rezolvare:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;tom&nbsp;=&nbsp;null;<br>const&nbsp;bob&nbsp;=&nbsp;{name:&nbsp;"Bob"};<br><br>function&nbsp;printName(person){<br>&nbsp;&nbsp;&nbsp;console.log(person?.name);<br>}<br>printName(tom);&nbsp;//&nbsp;undefined<br>printName(bob);&nbsp;//&nbsp;Bob</code></pre>
+ </div>
+ <p class="paragraph">După numele obiectului, se specifică operatorul ?. - dacă valoarea nu este null sau undefined, atunci se face referire la proprietatea/metoda indicată după punct. Dacă valoarea este null/undefined, atunci nu se face referire la proprietatea/metoda, iar pe consolă vom vedea undefined.</p>
+ <p class="paragraph">Acest operator poate fi utilizat atât înaintea referirii la proprietăți, cât și înaintea apelurilor de metode ale obiectului:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;tom&nbsp;=&nbsp;undefined;<br>const&nbsp;bob&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"Bob",<br>&nbsp;&nbsp;&nbsp;sayHi(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Salut!&nbsp;Sunt&nbsp;${this.name}`);<br>&nbsp;&nbsp;&nbsp;}<br>};<br><br>console.log(tom?.name);&nbsp;//&nbsp;undefined<br>console.log(bob?.name);&nbsp;//&nbsp;Bob<br>tom?.sayHi();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;nu&nbsp;se&nbsp;execută<br>bob?.sayHi();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Salut!&nbsp;Sunt&nbsp;Bob</code></pre>
+ </div>
+ <p class="paragraph">În acest caz, referirea la proprietatea name și apelul metodei sayHi() se fac doar în cazul în care obiectele tom și bob nu sunt egale cu null/undefined.</p>
+ <p class="paragraph">Mai mult, poți verifica în continuare lanțul de apeluri pentru prezența proprietății sau metodei în obiect:</p>
+ <div class="code-inline">
+  <pre><code>obj.val?.prop&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;verificarea&nbsp;proprietății<br>obj.arr?.[index]&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;verificarea&nbsp;array-ului<br>obj.func?.(args)&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;verificarea&nbsp;funcției</code></pre>
+ </div>
+ <h2 class="subtitle">Verificarea proprietății</h2>
+ <p class="paragraph">Un obiect poate fi definit, dar să nu aibă o anumită proprietate:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;tom&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom"};<br>const&nbsp;bob&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"Bob",<br>&nbsp;&nbsp;&nbsp;company:&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;title:&nbsp;"Microsoft"<br>&nbsp;&nbsp;&nbsp;}<br>};<br><br>console.log(tom.company?.title);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;undefined<br>console.log(bob.company?.title);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Microsoft</code></pre>
+ </div>
+ <p class="paragraph">Similar, putem accesa proprietățile unui obiect folosind sintaxa de array:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;tom&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom"};<br>const&nbsp;bob&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"Bob",<br>&nbsp;&nbsp;&nbsp;company:&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;title:&nbsp;"Microsoft"<br>&nbsp;&nbsp;&nbsp;}<br>};<br><br>console.log(tom.company?.["title"]);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;undefined<br>console.log(bob.company?.["title"]);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Microsoft</code></pre>
+ </div>
+ <h2 class="subtitle">Verificarea proprietății-array</h2>
+ <p class="paragraph">Similar, putem verifica existența unei proprietăți-array înainte de a accesa elementele sale:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;tom&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom"};<br>const&nbsp;bob&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"Bob",<br>&nbsp;&nbsp;&nbsp;languages:&nbsp;["javascript",&nbsp;"typescript"]<br>};<br><br>console.log(tom.languages?.[0]);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;undefined<br>console.log(bob.languages?.[0]);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;javascript</code></pre>
+ </div>
+ <h2 class="subtitle">Verificarea metodei</h2>
+ <p class="paragraph">Un obiect poate să nu aibă o metodă pe care o putem apela. Dacă metoda nu este definită, atunci când încercăm să apelăm o metodă nedefinită, vom întâmpina o eroare. În acest caz, de asemenea, putem verifica existența metodei:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;tom&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom"};<br>const&nbsp;bob&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"Bob",<br>&nbsp;&nbsp;&nbsp;say(words){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(words);<br>&nbsp;&nbsp;&nbsp;}<br>};<br><br>console.log(tom.say?.("my&nbsp;name&nbsp;is&nbsp;Tom"));&nbsp;&nbsp;&nbsp;//&nbsp;undefined<br>console.log(bob.say?.("my&nbsp;name&nbsp;is&nbsp;Bob"));&nbsp;&nbsp;&nbsp;//&nbsp;my&nbsp;name&nbsp;is&nbsp;Bob</code></pre>
+ </div>
+ <h2 class="subtitle">Lanț de verificări</h2>
+ <p class="paragraph">Cu ajutorul operatorului ?. poți crea lanțuri de verificări, verificând în mod secvențial dacă valoarea este null/undefined:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;sam&nbsp;=&nbsp;{name:&nbsp;"Sam"};<br>const&nbsp;tom&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;company:&nbsp;{&nbsp;title:&nbsp;"Google"}<br>};<br>const&nbsp;bob&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"Bob",<br>&nbsp;&nbsp;&nbsp;company:&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;title:&nbsp;"Microsoft",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Compania&nbsp;${this.title}`)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>};<br><br>sam?.company?.print?.();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;nu&nbsp;este&nbsp;apelat&nbsp;-&nbsp;nu&nbsp;există&nbsp;proprietatea&nbsp;company<br>tom?.company?.print?.();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;nu&nbsp;este&nbsp;apelat&nbsp;-&nbsp;nu&nbsp;există&nbsp;metoda&nbsp;print<br>bob?.company?.print?.();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Compania&nbsp;Microsoft</code></pre>
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

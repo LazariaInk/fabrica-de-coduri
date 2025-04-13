@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Funcții încorporate</h1>
+ <h2 class="subtitle">Funcții pentru manipularea șirurilor de caractere</h2>
+ <p class="paragraph">Pentru lucrul cu șiruri în MySQL, sunt definite anumite funcții încorporate:</p>
+ <ul class="enumeration">
+  <li>CONCAT: concatenează șirurile. Primește ca parametru cel puțin două șiruri pe care trebuie să le conecteze:</li>
+ </ul>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;CONCAT('Tom',&nbsp;'&nbsp;',&nbsp;'Smith')&nbsp;&nbsp;--&nbsp;Tom&nbsp;Smith</code></pre>
+ </div>
+ <p class="paragraph">În același timp, în funcție se pot transmite nu numai șiruri directe, ci și numere, date - acestea vor fi convertite în șiruri și, de asemenea, concatenate.</p>
+ <ul class="enumeration">
+  <li>CONCAT_WS: de asemenea, concatenează șirurile, dar primul parametru este un separator care va conecta șirurile:</li>
+ </ul>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;CONCAT_WS('&nbsp;',&nbsp;'Tom',&nbsp;'Smith',&nbsp;'Age:',&nbsp;34)&nbsp;&nbsp;--&nbsp;Tom&nbsp;Smith&nbsp;Age:&nbsp;34</code></pre>
+ </div>
+ <ul class="enumeration">
+  <li>LENGTH: returnează numărul de caractere dintr-un șir. Ca parametru, funcția primește șirul pentru care trebuie să găsească lungimea:</li>
+ </ul>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;LENGTH('Tom&nbsp;Smith')&nbsp;&nbsp;--&nbsp;9</code></pre>
+ </div>
+ <ul class="enumeration">
+  <li>LTRIM: elimină spațiile albe inițiale dintr-un șir. Ca parametru, primește un șir:</li>
+ </ul>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;LTRIM('&nbsp;&nbsp;Apple')</code></pre>
+ </div>
+ <ul class="enumeration">
+  <li>RTRIM: elimină spațiile albe finale dintr-un șir. Ca parametru, primește un șir:</li>
+ </ul>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;RTRIM('&nbsp;Apple&nbsp;&nbsp;&nbsp;&nbsp;')</code></pre>
+ </div>
+ <ul class="enumeration">
+  <li>TRIM: elimină spațiile albe inițiale și finale dintr-un șir. Ca parametru, primește un șir:</li>
+ </ul>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;TRIM('&nbsp;&nbsp;Tom&nbsp;Smith&nbsp;&nbsp;&nbsp;')</code></pre>
+ </div>
+ <p class="paragraph">Cu ajutorul unui operator suplimentar, puteți specifica unde exact să eliminați spațiile albe: BOTH (în ambele capete), TRAILING (doar la sfârșit), LEADING (doar la început):</p>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;TRIM(BOTH&nbsp;FROM&nbsp;'&nbsp;&nbsp;Tom&nbsp;Smith&nbsp;&nbsp;&nbsp;')</code></pre>
+ </div>
+ <ul class="enumeration">
+  <li>LOCATE(find, search [, start]): returnează poziția primei apariții a subșirului find în șirul search. Parametrul suplimentar start permite să se seteze poziția în șirul search de la care să înceapă căutarea subșirului find. Dacă subșirul find nu este găsit, se returnează 0:</li>
+ </ul>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;LOCATE('om',&nbsp;'Tom&nbsp;Smith');&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&nbsp;2<br>SELECT&nbsp;LOCATE('m',&nbsp;'Tom&nbsp;Smith');&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&nbsp;3<br>SELECT&nbsp;LOCATE('m',&nbsp;'Tom&nbsp;Smith',&nbsp;4);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&nbsp;6<br>SELECT&nbsp;LOCATE('mig',&nbsp;'Tom&nbsp;Smith');&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&nbsp;0</code></pre>
+ </div>
+ <ul class="enumeration">
+  <li>LEFT: taie de la începutul șirului un număr specificat de caractere. Primul parametru al funcției este șirul, iar al doilea parametru este numărul de caractere care trebuie tăiate de la începutul șirului:</li>
+ </ul>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;LEFT('Apple',&nbsp;3);&nbsp;--&nbsp;App</code></pre>
+ </div>
+ <p class="paragraph">RIGHT: taie de la sfârșitul șirului un număr specificat de caractere. Primul parametru al funcției este șirul, iar al doilea parametru este numărul de caractere care trebuie tăiate de la sfârșitul șirului:</p>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;RIGHT('Apple',&nbsp;3);&nbsp;&nbsp;&nbsp;&nbsp;--&nbsp;ple</code></pre>
+ </div>
+ <ul class="enumeration">
+  <li>SUBSTRING(str, start [, length]): taie din șirul str un subșir începând de la poziția start. Al treilea parametru opțional transmite numărul de caractere tăiate:</li>
+ </ul>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;SUBSTRING('Galaxy&nbsp;S8&nbsp;Plus',&nbsp;8);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&nbsp;S8&nbsp;Plus<br>SELECT&nbsp;SUBSTRING('Galaxy&nbsp;S8&nbsp;Plus',&nbsp;8,&nbsp;2);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&nbsp;S8</code></pre>
+ </div>
+ <ul class="enumeration">
+  <li>SUBSTRING_INDEX(str, delimiter, count): taie din șirul str un subșir. Parametrul delimiter determină separatorul în interiorul șirului. Parametrul count determină până la care apariție a separatorului trebuie tăiat subșirul. Dacă count este pozitiv, subșirul este tăiat de la început, iar dacă count este negativ, este tăiat de la sfârșitul șirului str:</li>
+ </ul>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;SUBSTRING_INDEX('Galaxy&nbsp;S8&nbsp;Plus',&nbsp;'&nbsp;',&nbsp;1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&nbsp;Galaxy<br>SELECT&nbsp;SUBSTRING_INDEX('Galaxy&nbsp;S8&nbsp;Plus',&nbsp;'&nbsp;',&nbsp;2);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&nbsp;Galaxy&nbsp;S8<br>SELECT&nbsp;SUBSTRING_INDEX('Galaxy&nbsp;S8&nbsp;Plus',&nbsp;'&nbsp;',&nbsp;-2);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&nbsp;S8&nbsp;Plus</code></pre>
+ </div>
+ <ul class="enumeration">
+  <li>REPLACE(search, find, replace): înlocuiește în șirul search subșirul find cu subșirul replace. Primul parametru al funcției este șirul, al doilea parametru este subșirul care trebuie înlocuit, iar al treilea parametru este subșirul cu care trebuie înlocuit:</li>
+ </ul>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;REPLACE('Galaxy&nbsp;S8&nbsp;Plus',&nbsp;'S8&nbsp;Plus',&nbsp;'Note&nbsp;8');&nbsp;&nbsp;&nbsp;--&nbsp;Galaxy&nbsp;Note&nbsp;8</code></pre>
+ </div>
+ <ul class="enumeration">
+  <li>INSERT(str, start, length, insert): inserează în șirul str, înlocuind length caractere de la poziția start, subșirul insert. Primul parametru al funcției este șirul, al doilea parametru este poziția de la care să înceapă înlocuirea, al treilea parametru este câte caractere de la poziția start trebuie înlocuite cu subșirul insert, iar al patrulea parametru este subșirul de inserat:</li>
+ </ul>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;INSERT('Galaxy&nbsp;S9',&nbsp;8,&nbsp;3,&nbsp;'Note&nbsp;9');&nbsp;&nbsp;&nbsp;--&nbsp;Galaxy&nbsp;Note&nbsp;9</code></pre>
+ </div>
+ <ul class="enumeration">
+  <li>REVERSE: inversează șirul:</li>
+ </ul>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;REVERSE('123456789');&nbsp;--&nbsp;987654321</code></pre>
+ </div>
+ <ul class="enumeration">
+  <li>LOWER: convertește șirul la litere mici:</li>
+ </ul>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;LOWER('Apple');&nbsp;&nbsp;&nbsp;--&nbsp;apple</code></pre>
+ </div>
+ <ul class="enumeration">
+  <li>UPPER: convertește șirul la litere mari:</li>
+ </ul>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;UPPER('Apple');&nbsp;&nbsp;&nbsp;--&nbsp;APPLE</code></pre>
+ </div>
+ <ul class="enumeration">
+  <li>SPACE: returnează un șir care conține un număr specificat de spații:</li>
+ </ul>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;SPACE(5);&nbsp;--&nbsp;"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"</code></pre>
+ </div>
+ <ul class="enumeration">
+  <li>REPEAT(str, count): returnează un șir care conține un număr specificat de repetări ale subșirului str. Numărul de repetări este specificat prin parametrul count:</li>
+ </ul>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;REPEAT('ab',&nbsp;5);&nbsp;&nbsp;&nbsp;--&nbsp;ababababab</code></pre>
+ </div>
+ <ul class="enumeration">
+  <li>LPAD(str, length, pad): adaugă la stânga șirului str un număr specificat de caractere specificate în parametrul pad. Numărul de caractere adăugate este calculat conform formulei length - LENGTH(str). Dacă parametrul length este mai mic decât lungimea șirului str, atunci acest șir este tăiat la length caractere:</li>
+ </ul>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;LPAD('Tom&nbsp;Smith',&nbsp;13,&nbsp;'*');&nbsp;&nbsp;&nbsp;--&nbsp;****Tom&nbsp;Smith</code></pre>
+ </div>
+ <ul class="enumeration">
+  <li>RPAD(str, length, pad): adaugă la dreapta șirului str un număr specificat de caractere specificate în parametrul pad. Numărul de caractere adăugate este calculat conform formulei length - LENGTH(str). Dacă parametrul length este mai mic decât lungimea șirului str, atunci acest șir este tăiat la length caractere:</li>
+ </ul>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;RPAD('Tom&nbsp;Smith',&nbsp;13,&nbsp;'*');&nbsp;&nbsp;&nbsp;--&nbsp;Tom&nbsp;Smith****</code></pre>
+ </div>
+ <p class="paragraph">De exemplu, să luăm o tabelă:</p>
+ <div class="code-inline">
+  <pre><code>CREATE&nbsp;TABLE&nbsp;Products<br>(<br>&nbsp;&nbsp;&nbsp;Id&nbsp;INT&nbsp;AUTO_INCREMENT&nbsp;PRIMARY&nbsp;KEY,<br>&nbsp;&nbsp;&nbsp;ProductName&nbsp;VARCHAR(30)&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;Manufacturer&nbsp;VARCHAR(20)&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;ProductCount&nbsp;INT&nbsp;DEFAULT&nbsp;0,<br>&nbsp;&nbsp;&nbsp;Price&nbsp;DECIMAL&nbsp;NOT&nbsp;NULL<br>);</code></pre>
+ </div>
+ <p class="paragraph">Și la extragerea datelor, să aplicăm funcțiile pentru șiruri de caractere:</p>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;UPPER(LEFT(Manufacturer,2))&nbsp;AS&nbsp;Abbreviation,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCAT(ProductName,&nbsp;'&nbsp;-&nbsp;',&nbsp;&nbsp;Manufacturer)&nbsp;AS&nbsp;FullProdName<br>FROM&nbsp;Products<br>ORDER&nbsp;BY&nbsp;Abbreviation</code></pre>
+ </div>
+ <div class="image-container">
+  <img src="images/image1.png" alt="" class="responsive-image">
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

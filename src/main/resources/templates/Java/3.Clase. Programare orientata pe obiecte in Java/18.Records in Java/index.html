@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Records în Java</h1>
+ <p class="paragraph">Începând cu versiunea Java 16, a fost introdusă o nouă funcționalitate numită Records (în română, deseori numite "înregistrări"). Records reprezintă clase destinate să creeze containere de date imutabile și, de asemenea, simplifică dezvoltarea prin reducerea cantității de cod necesar.</p>
+ <p class="paragraph">Pentru a defini o clasă de tip record, se folosește cuvântul cheie record, urmat de numele clasei și lista de câmpuri între paranteze:</p>
+ <div class="code-inline">
+  <pre><code>record&nbsp;NumeRecord&nbsp;(camp1,&nbsp;camp2,&nbsp;...campN){<br>&nbsp;&nbsp;&nbsp;//&nbsp;corpul&nbsp;record-ului<br>}</code></pre>
+ </div>
+ <p class="paragraph">Exemplu:</p>
+ <div class="code-inline">
+  <pre><code>import&nbsp;java.util.Objects;<br><br>public&nbsp;class&nbsp;Program{<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main&nbsp;(String[]&nbsp;args){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;36);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(tom.toString());<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;Person&nbsp;{<br>&nbsp;&nbsp;&nbsp;private&nbsp;final&nbsp;String&nbsp;name;<br>&nbsp;&nbsp;&nbsp;private&nbsp;final&nbsp;int&nbsp;age;<br><br>&nbsp;&nbsp;&nbsp;Person(String&nbsp;name,&nbsp;int&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;String&nbsp;name()&nbsp;{&nbsp;return&nbsp;name;&nbsp;}<br>&nbsp;&nbsp;&nbsp;int&nbsp;age()&nbsp;{&nbsp;return&nbsp;age;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;boolean&nbsp;equals(Object&nbsp;o)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(!(o&nbsp;instanceof&nbsp;Person))&nbsp;return&nbsp;false;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;other&nbsp;=&nbsp;(Person)&nbsp;o;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;other.name.equals(name)&nbsp;&amp;&amp;&nbsp;other.age&nbsp;==&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;hashCode()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;Objects.hash(name,&nbsp;age);<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;String&nbsp;toString()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;String.format("Person[name=%s,&nbsp;age=%d]",&nbsp;name,&nbsp;age);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">În acest exemplu, clasa Person definește două constante imutabile: name și age.</p>
+ <div class="code-inline">
+  <pre><code>private&nbsp;final&nbsp;String&nbsp;name;<br>private&nbsp;final&nbsp;int&nbsp;age;</code></pre>
+ </div>
+ <p class="paragraph">După ce este creat obiectul Person, valorile acestor câmpuri nu mai pot fi modificate. Sunt disponibile metode pentru a accesa aceste valori, precum name() și age().</p>
+ <div class="code-inline">
+  <pre><code>String&nbsp;name()&nbsp;{&nbsp;return&nbsp;name;&nbsp;}<br>int&nbsp;age()&nbsp;{&nbsp;return&nbsp;age;&nbsp;}</code></pre>
+ </div>
+ <p class="paragraph">Metodele equals(), hashCode() și toString() au fost, de asemenea, suprascrise.</p>
+ <p class="paragraph">În metoda main, creăm un obiect al clasei Person și afișăm în consolă reprezentarea textuală a acestuia:</p>
+ <div class="code-inline">
+  <pre><code>Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;36);<br>System.out.println(tom.toString());</code></pre>
+ </div>
+ <p class="paragraph">În final, consola va afișa:</p>
+ <div class="code-inline">
+  <pre><code>Person[name=Tom,&nbsp;age=36]</code></pre>
+ </div>
+ <p class="paragraph">Acum să vedem ce ne oferă Records - vom defini un record, care va fi complet echivalent cu clasa definită mai sus:</p>
+ <div class="code-inline">
+  <pre><code>public&nbsp;class&nbsp;Program&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;36);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(tom.toString());<br>&nbsp;&nbsp;&nbsp;}<br>}<br>record&nbsp;Person(String&nbsp;name,&nbsp;int&nbsp;age)&nbsp;{&nbsp;}</code></pre>
+ </div>
+ <p class="paragraph">Records sunt definite folosind cuvântul cheie record, urmat de numele înregistrării. Urmează lista de câmpuri ale înregistrării. În acest caz, sunt definite două câmpuri - name și age. În mod implicit, toate vor fi private și vor avea modificatorul final.</p>
+ <p class="paragraph">De asemenea, va fi creat un constructor cu doi parametri name și age. Pentru fiecare câmp, va fi creat automat o metodă publică cu același nume pentru a obține valoarea acestui câmp. De exemplu, pentru câmpul name, este creată metoda name(), care returnează valoarea câmpului name.</p>
+ <p class="paragraph">Vor fi create automat și metodele equals, hashCode și toString. În general, acest record va fi complet echivalent cu clasa definită mai sus, dar conține mult mai puțin cod.</p>
+ <p class="paragraph">La nevoie, putem apela toate metodele disponibile:</p>
+ <div class="code-inline">
+  <pre><code>public&nbsp;class&nbsp;Program&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;36);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(tom.name());&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Tom<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(tom.age());&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;36<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(tom.hashCode());<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person("Bob",&nbsp;21);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;tomas&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;36);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(tom.equals(bob));&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;false<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(tom.equals(tomas));&nbsp;&nbsp;//&nbsp;true<br>&nbsp;&nbsp;&nbsp;}<br>}<br>record&nbsp;Person(String&nbsp;name,&nbsp;int&nbsp;age)&nbsp;{&nbsp;}</code></pre>
+ </div>
+ <h2 class="subtitle">Constructorul unui record</h2>
+ <p class="paragraph">În exemplul de mai sus, am folosit forma de record:</p>
+ <div class="code-inline">
+  <pre><code>record&nbsp;Person(String&nbsp;name,&nbsp;int&nbsp;age)&nbsp;{&nbsp;}</code></pre>
+ </div>
+ <p class="paragraph">care de fapt creează constructorul:</p>
+ <div class="code-inline">
+  <pre><code>Person(String&nbsp;name,&nbsp;int&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>}</code></pre>
+ </div>
+ <p class="paragraph">Acest constructor este numit "canonic". El primește parametri, care au aceleași nume ca și câmpurile recordului, și atribuie câmpurilor valorile parametrilor corespunzători.</p>
+ <p class="paragraph">Totuși, la nevoie, putem modifica logica constructorului. De exemplu, ce facem dacă este transmisă o vârstă nevalidă? Putem anticipa această situație prin suprascrierea logicii constructorului:</p>
+ <div class="code-inline">
+  <pre><code>public&nbsp;class&nbsp;Program&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;-116);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(tom.toString());<br>&nbsp;&nbsp;&nbsp;}<br>}<br>record&nbsp;Person(String&nbsp;name,&nbsp;int&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;Person&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(age&nbsp;&lt;&nbsp;1&nbsp;||&nbsp;age&nbsp;&gt;&nbsp;110)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;age&nbsp;=&nbsp;18;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">În acest caz, dacă este transmisă o valoare nevalidă, vom folosi o valoare implicită (numărul 18). În final, vom avea un constructor cu următoarea logică:</p>
+ <div class="code-inline">
+  <pre><code>Person(String&nbsp;name,&nbsp;int&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;if&nbsp;(age&nbsp;&lt;&nbsp;1&nbsp;||&nbsp;age&nbsp;&gt;&nbsp;110)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;age&nbsp;=&nbsp;18;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>}</code></pre>
+ </div>
+ <p class="paragraph">Programul va afișa în consolă următorul rezultat:</p>
+ <div class="code-inline">
+  <pre><code>Person[name=Tom,&nbsp;age=18]</code></pre>
+ </div>
+ <p class="paragraph">Putem suprascrie complet constructorul canonic:</p>
+ <div class="code-inline">
+  <pre><code>public&nbsp;class&nbsp;Program&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;36);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(tom.toString());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(tom.name());<br>&nbsp;&nbsp;&nbsp;}<br>}<br>record&nbsp;Person(String&nbsp;name,&nbsp;int&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;Person(String&nbsp;name,&nbsp;int&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(age&nbsp;&lt;&nbsp;0&nbsp;||&nbsp;age&nbsp;&gt;&nbsp;120)&nbsp;age&nbsp;=&nbsp;18;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">De asemenea, putem defini și alți constructori, dar toți trebuie să apeleze constructorul canonic:</p>
+ <div class="code-inline">
+  <pre><code>public&nbsp;class&nbsp;Program&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;"Smith",&nbsp;36);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(tom.toString());<br>&nbsp;&nbsp;&nbsp;}<br>}<br>record&nbsp;Person(String&nbsp;name,&nbsp;int&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;Person(String&nbsp;firstName,&nbsp;String&nbsp;lastName,&nbsp;int&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this(firstName&nbsp;+&nbsp;"&nbsp;"&nbsp;+&nbsp;lastName,&nbsp;age);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">Aici este definit un constructor care primește, convențional, prenumele, numele de familie și vârsta utilizatorului. Acest constructor apelează constructorul canonic, transmițându-i valori pentru câmpurile name și age: this(firstName + " " + lastName, age).</p>
+ <p class="paragraph">Consola va afișa:</p>
+ <div class="code-inline">
+  <pre><code>Person[name=Tom&nbsp;Smith,&nbsp;age=36]</code></pre>
+ </div>
+ <h2 class="subtitle">Suprascrierea metodelor</h2>
+ <p class="paragraph">Putem, de asemenea, să suprascriem metodele pe care le are un record în mod implicit. Acestea sunt metodele equals(), hashCode() și toString(), precum și metodele care au același nume ca și câmpurile înregistrării și returnează valorile corespunzătoare ale câmpurilor.</p>
+ <p class="paragraph">De exemplu, suprascriem pentru înregistrarea Person metodele toString() și name():</p>
+ <div class="code-inline">
+  <pre><code>public&nbsp;class&nbsp;Program&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;36);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(tom.toString());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(tom.name());<br>&nbsp;&nbsp;&nbsp;}<br>}<br>record&nbsp;Person(String&nbsp;name,&nbsp;int&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;String&nbsp;name()&nbsp;{&nbsp;return&nbsp;"Mister&nbsp;"&nbsp;+&nbsp;name;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;String&nbsp;toString()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;String.format("Person&nbsp;%s,&nbsp;Age:&nbsp;%d",&nbsp;name,&nbsp;age);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">Consola va afișa:</p>
+ <div class="code-inline">
+  <pre><code>Person&nbsp;Tom,&nbsp;Age:&nbsp;36<br>Mister&nbsp;Tom</code></pre>
+ </div>
+ <h2 class="subtitle">Limitări ale records</h2>
+ <p class="paragraph">Trebuie să reținem că nu putem moșteni o înregistrare record din alte clase. De asemenea, nu putem moșteni alte clase din records. Totuși, clasele record pot implementa interfețe. În plus, clasele record nu pot fi abstracte.</p>
+ <p class="paragraph">În record nu putem defini explicit câmpuri nestatice și inițializatori. Însă putem defini variabile statice și inițializatori, la fel ca metode statice și nestatice:</p>
+ <div class="code-inline">
+  <pre><code>record&nbsp;Person(String&nbsp;name,&nbsp;int&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;static&nbsp;int&nbsp;minAge;<br>&nbsp;&nbsp;&nbsp;static&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minAge&nbsp;=&nbsp;18;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Static&nbsp;initializer");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

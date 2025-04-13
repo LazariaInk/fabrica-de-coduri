@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Cereri AJAX și XMLHttpRequest</h1>
+ <h2 class="subtitle">Obiectul XMLHttpRequest</h2>
+ <p class="paragraph">Codul JavaScript poate interacționa cu o resursă de pe internet, de exemplu, cu un site web sau un serviciu web, adică cu un server. Pentru interacțiunea codului JavaScript cu serverul, se utilizează adesea o tehnologie precum Ajax. Ajax reprezintă tehnologia pentru trimiterea de cereri către server din codul client JavaScript fără a reîncărca pagina.</p>
+ <p class="paragraph">Termenul în sine este un acronim pentru Asynchronous JavaScript And XML. Astfel, inițial, AJAX presupunea o interacțiune asincronă între client și server prin intermediul datelor în format XML. Deși acum, formatul JSON a înlocuit în mare parte formatul XML.</p>
+ <p class="paragraph">Una dintre metodele de trimitere a cererilor ajax este utilizarea obiectului XMLHttpRequest. Acest obiect este creat folosind funcția-constructor cu același nume:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;xhr&nbsp;=&nbsp;new&nbsp;XMLHttpRequest();</code></pre>
+ </div>
+ <p class="paragraph">Pentru configurarea și trimiterea cererilor ajax, obiectul XMLHttpRequest oferă o serie de metode:</p>
+ <ul class="enumeration">
+  <li>abort(): întrerupe cererea</li>
+  <li>getAllResponseHeaders(): returnează toate anteturile răspunsului HTTP sub formă de șir</li>
+  <li>getResponseHeader(header): returnează valoarea antetului header</li>
+  <li>open(method, url[, async[, user[, password]]]): inițializează cererea ajax</li>
+ </ul>
+ <p class="paragraph">Această funcție acceptă cinci parametri, dintre care primii doi sunt obligatorii:</p>
+ <ul class="enumeration">
+  <li>method: tipul cererii ("GET", "POST", "PUT", "DELETE" etc.)</li>
+  <li>url: adresa resursei către care se trimite cererea</li>
+  <li>async: o valoare booleană care indică dacă cererea va fi asincronă. Dacă valoarea este true (valoarea implicită), atunci cererea este asincronă</li>
+ </ul>
+ <p class="paragraph">Modul sincron și asincron diferă prin faptul că, în modul sincron, restul codului JavaScript nu poate fi executat până când cererea nu este finalizată. Dacă cererea este trimisă în mod asincron, atunci codul JavaScript poate fi executat în paralel cu cererea. Și, în majoritatea cazurilor, se utilizează modul asincron.</p>
+ <ul class="enumeration">
+  <li>user: numele utilizatorului, utilizat pentru autentificarea acestuia pe server (adică pentru a determina care utilizator a făcut cererea), implicit este null</li>
+  <li>password: parola utilizatorului, utilizată pentru autentificarea acestuia pe server, implicit este null</li>
+  <li>overrideMimeType(mime): suprascrie tipul MIME returnat de server</li>
+  <li>send(data): trimite cererea. Folosind parametrul opțional data, se pot transmite date care vor fi trimise pe server. Dacă acestui parametru nu i se atribuie nicio valoare, atunci valoarea sa implicită este null</li>
+  <li>setRequestHeader(header, value): stabilește valoarea value pentru antetul header, care va fi trimis în cerere</li>
+ </ul>
+ <h2 class="subtitle">Proprietăți ale XMLHttpRequest</h2>
+ <p class="paragraph">În plus față de metode, obiectul XMLHttpRequest oferă o serie de proprietăți care permit configurarea trimiterea cererii sau extragerea datelor primite de la server:</p>
+ <ul class="enumeration">
+  <li>response: returnează răspunsul serverului. Răspunsul poate reprezenta obiecte ArrayBuffer, Blob, Document, obiect JSON, un șir sau null (dacă cererea încă nu a fost finalizată sau a eșuat)</li>
+  <li>responseType: returnează tipul răspunsului. Există următoarele tipuri: ": un șir gol ; arraybuffer: răspunsul reprezintă un obiect ArrayBuffer, care conține date binare ; blob: răspunsul reprezintă un obiect Blob, care conține date binare ; document: răspunsul reprezintă un obiect Document (document HTML/XML) ; json: răspunsul reprezintă date în format json ; text: răspunsul reprezintă text</li>
+  <li>responseText: returnează răspunsul serverului sub formă de șir sau valoarea null (dacă cererea încă nu a fost finalizată sau a eșuat)</li>
+  <li>responseXML: returnează un obiect Document (document HTML/XML), dacă răspunsul de la server este în format XML/HTML</li>
+  <li>readyState: stochează stările cererii, care reprezintă un număr:</li>
+ </ul>
+ <p class="paragraph">0: obiectul XMLHttpRequest a fost creat, dar metoda open() încă nu a fost apelată pentru inițializarea obiectului</p>
+ <p class="paragraph">1: metoda open() a fost apelată, dar cererea încă nu a fost trimisă prin metoda send()</p>
+ <p class="paragraph">2: cererea a fost trimisă, anteturile și starea răspunsului au fost primite și sunt gata de utilizare</p>
+ <p class="paragraph">3: răspunsul a fost primit de la server</p>
+ <p class="paragraph">4: executarea cererii a fost complet finalizată (chiar dacă s-a primit un cod de eroare, de exemplu, 404)</p>
+ <p class="paragraph">Prin verificarea acestei proprietăți, putem înțelege la ce etapă se află cererea.</p>
+ <ul class="enumeration">
+  <li>status: conține codul de stare al răspunsului HTTP, care a venit de la server. Prin intermediul codului de stare, putem judeca succesul cererii sau erorile care ar putea să apară în timpul execuției acesteia. De exemplu, codul de stare 200 indică faptul că cererea a fost finalizată cu succes. Codul 403 indică necesitatea autorizării pentru executarea cererii, iar codul 404 informează că resursa nu a fost găsită etc.</li>
+  <li>statusText: returnează textul stării răspunsului, de exemplu, "200 OK"</li>
+  <li>timeout: stabilește timeout-ul - timpul în milisecunde în care cererea poate fi executată. Dacă acest timp expiră, iar cererea încă nu a fost finalizată, atunci cererea este întreruptă</li>
+  <li>withCredentials: determină dacă în cerere trebuie incluse credențialele, de exemplu, fișierele cookie</li>
+ </ul>
+ <h2 class="subtitle">Evenimente și gestionari de evenimente XMLHttpRequest</h2>
+ <p class="paragraph">Pentru a urmări starea cererii, se pot utiliza evenimentele XMLHttpRequest:</p>
+ <ul class="enumeration">
+  <li>abort: se declanșează după întreruperea cererii. Pentru setarea gestionarului se utilizează proprietatea onabort</li>
+  <li>progress: se declanșează în timpul executării cererii. Pentru setarea gestionarului se utilizează proprietatea onprogress</li>
+  <li>load: se declanșează după finalizarea cererii. Pentru setarea gestionarului se utilizează proprietatea onload</li>
+  <li>loadend: se declanșează după finalizarea cu succes a cererii. Pentru setarea gestionarului se utilizează proprietatea onloadend</li>
+  <li>error: se declanșează în cazul apariției unei erori. Pentru setarea gestionarului se utilizează proprietatea onerror</li>
+  <li>loadstart: se declanșează după lansarea cererii. Pentru setarea gestionarului se utilizează proprietatea onloadstart</li>
+  <li>timeout: se declanșează dacă cererea este întreruptă din cauza timeout-ului. Pentru setarea gestionarului se utilizează proprietatea ontimeout</li>
+  <li>readystatechange: apare de fiecare dată când se modifică valoarea proprietățiireadyState. Pentru setarea gestionarului se utilizează proprietatea onreadystatechange</li>
+ </ul>
+ <p class="paragraph">Pentru setarea gestionarilor de evenimente se poate utiliza una dintre următoarele proprietăți ale XMLHttpRequest:</p>
+ <ul class="enumeration">
+  <li>onabort: este apelat când cererea a fost întreruptă prin metoda abort()</li>
+  <li>onerror: este apelat în cazul apariției unei erori</li>
+  <li>onload: este apelat când cererea a fost finalizată cu succes și răspunsul este disponibil</li>
+  <li>onloadend: este apelat după finalizarea cu succes a cererii</li>
+  <li>onloadstart: este apelat după lansarea cererii</li>
+  <li>onprogress: este apelat în timpul executării cererii</li>
+  <li>onreadystatechange: este apelat la modificarea stării cererii</li>
+  <li>ontimeout: este apelat dacă cererea este întreruptă din cauza timpului de așteptare</li>
+  <li>upload: poate fi utilizat pentru a urmări starea la încărcarea datelor</li>
+ </ul>
+ <h2 class="subtitle">Procesul de executare a cererii ajax</h2>
+ <p class="paragraph">În general, procesul de executare a unei cereri ajax cu ajutorul XMLHttpRequest arată astfel:</p>
+ <p class="paragraph">1. Se creează un obiect XMLHttpRequest</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;request&nbsp;=&nbsp;new&nbsp;XMLHttpRequest();</code></pre>
+ </div>
+ <p class="paragraph">2. Se stabilește gestionarul de evenimente de încărcare (de exemplu, prin proprietatea onload), care va fi apelat după finalizarea cererii HTTP</p>
+ <div class="code-inline">
+  <pre><code>request.onload&nbsp;=&nbsp;(event)&nbsp;=&gt;&nbsp;{&nbsp;console.log("request&nbsp;finished");};</code></pre>
+ </div>
+ <p class="paragraph">3. Se lansează cererea HTTP cu ajutorul metodei open(). Metodei i se transmit metoda HTTP care va fi utilizată pentru cerere (de exemplu, GET sau POST), adresa URL la care trebuie trimisă cererea și, dacă este necesar, alți parametri opționali</p>
+ <div class="code-inline">
+  <pre><code>request.open("GET",&nbsp;"http://localhost/hello");</code></pre>
+ </div>
+ <p class="paragraph">4.Dacă este necesar, se efectuează configurarea suplimentară a cererii HTTP. De exemplu, cu ajutorul metodei setRequestHeader() se pot defini anteturile care vor fi trimise împreună cu cererea. Totuși, este important să efectuați această configurare după pasul anterior, adică după apelarea metodei open(), dar înainte de pasul următor, adică înainte de apelarea metodei send()</p>
+ <div class="code-inline">
+  <pre><code>request.setRequestHeader("Accept",&nbsp;"text/plain");&nbsp;//&nbsp;setarea&nbsp;antetului&nbsp;pentru&nbsp;acceptarea&nbsp;datelor</code></pre>
+ </div>
+ <p class="paragraph">5. Se trimite efectiv cererea HTTP prin apelarea metodei send(). La dorință, în această metodă se pot transmite date care vor fi trimise pe server</p>
+ <div class="code-inline">
+  <pre><code>request.send()</code></pre>
+ </div>
+ <h2 class="subtitle">Definirea resursei pe server</h2>
+ <p class="paragraph">Deoarece Ajax presupune interacțiunea dintre client și server, pentru lucrul cu Ajax ne va fi necesară o anumită resursă de rețea la care ne vom adresa. Pentru emularea resursei de rețea, vom utiliza un server web local. Serverul web poate fi oricare. În acest caz, vom folosi cea mai simplă variantă - Node.js, deoarece această tehnologie este destul de simplă, disponibilă pentru toate sistemele de operare principale și, de asemenea, permite utilizarea JavaScript pentru crearea aplicațiilor.</p>
+ <p class="paragraph">Dar, desigur, înainte de a crea aplicația, este necesar să instalați Node.js. În acest caz, nu va fi necesară nicio cunoștință de Node.js, tot codul utilizat este descris în detaliu. Dar, din nou, în loc de Node.js, acesta ar putea fi orice altă tehnologie de server - PHP, ASP.NET, Python etc. sau un anumit server web, cum ar fi Apache sau IIS.</p>
+ <p class="paragraph">Așadar, vom crea pe discul dur o directorie pentru fișierele serverului web. De exemplu, în cazul meu, aceasta este directoria C:\app. Apoi, în această directorie, vom defini fișierul serverului. Să presupunem că se numește server.js și are următorul cod:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");<br>&nbsp;&nbsp;&nbsp;<br>http.createServer(function(request,&nbsp;response){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;if(request.url&nbsp;==&nbsp;"/hello"){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.end("Hello&nbsp;FDC.COM");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fs.readFile("index.html",&nbsp;(error,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>&nbsp;&nbsp;&nbsp;}<br>}).listen(3000,&nbsp;()=&gt;console.log("Serverul&nbsp;a&nbsp;fost&nbsp;lansat&nbsp;la&nbsp;adresa&nbsp;http://localhost:3000"));</code></pre>
+ </div>
+ <p class="paragraph">Acesta este cel mai primitiv server, suficient pentru scopul nostru. Să trecem pe scurt prin cod. La început, se conectează pachetele cu funcționalitatea pe care intenționăm să o utilizăm:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");&nbsp;&nbsp;&nbsp;//&nbsp;pentru&nbsp;prelucrarea&nbsp;cererilor&nbsp;primite<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;pentru&nbsp;citirea&nbsp;fișierului&nbsp;index.html&nbsp;de&nbsp;pe&nbsp;discul&nbsp;dur</code></pre>
+ </div>
+ <p class="paragraph">Pentru crearea serverului, se utilizează funcția http.createServer(). Acestei funcții i se transmite un gestionar-funcție, care este apelat de fiecare dată când serverul primește o cerere. Această funcție are doi parametri: request (conține datele cererii) și response (gestionează trimiterea răspunsului).</p>
+ <p class="paragraph">În gestionar-funcție, cu ajutorul proprietății request.url, putem afla la ce resursă pe server a fost adresată cererea. Astfel, în acest caz, dacă a venit o cerere pe calea "/hello" (condițional la resursa "/hello"), atunci trimitem ca răspuns cu ajutorul metodei response.end() textul "Hello FDC.COM":</p>
+ <div class="code-inline">
+  <pre><code>if(request.url&nbsp;==&nbsp;"/hello"){<br>&nbsp;&nbsp;&nbsp;response.end("Hello&nbsp;FDC.COM");<br>}</code></pre>
+ </div>
+ <p class="paragraph">Dacă cererea a fost adresată la o altă resursă, atunci trimitem fișierul index.html, pe care îl vom defini mai târziu:</p>
+ <div class="code-inline">
+  <pre><code>else{<br>&nbsp;&nbsp;&nbsp;fs.readFile("index.html",&nbsp;(error,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>}</code></pre>
+ </div>
+ <p class="paragraph">Pentru citirea fișierelor, se utilizează funcția integrată fs.readFile(). Primul parametru al funcției - adresa fișierului (în acest caz, se presupune că fișierul index.html se află în aceeași directorie cu fișierul serverului server.js). Al doilea parametru - o funcție care este apelată după citirea fișierului și primește conținutul său prin al doilea parametru data. Apoi, conținutul citit poate fi trimis de asemenea cu ajutorul funcției response.end(data).</p>
+ <p class="paragraph">La sfârșit, cu ajutorul funcției listen(), lansăm serverul web pe portul 3000. Adică, serverul va fi lansat la adresa http://localhost:3000/</p>
+ <h2 class="subtitle">Executarea cererii ajax</h2>
+ <p class="paragraph">Acum, în directoria serverului, vom defini un fișier simplu index.html</p>
+ <div class="image-container">
+  <img src="images/image1.png" alt="" class="responsive-image">
+ </div>
+ <p class="paragraph">Vom defini în acest fișier următorul conținut:</p>
+ <div class="code-inline">
+  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;script&gt;<br>const&nbsp;xhr&nbsp;=&nbsp;new&nbsp;XMLHttpRequest();<br>//&nbsp;Cererea&nbsp;GET&nbsp;către&nbsp;resursa&nbsp;/hello<br>xhr.open("GET",&nbsp;"/hello");<br><br>//&nbsp;gestionar&nbsp;pentru&nbsp;primirea&nbsp;răspunsului&nbsp;de&nbsp;la&nbsp;server<br>xhr.onload&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;if&nbsp;(xhr.status&nbsp;==&nbsp;200)&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;codul&nbsp;de&nbsp;răspuns&nbsp;este&nbsp;200<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(xhr.responseText);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;afișăm&nbsp;răspunsul&nbsp;primit&nbsp;în&nbsp;consola&nbsp;browserului<br>&nbsp;&nbsp;&nbsp;}&nbsp;else&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;altfel,&nbsp;afișăm&nbsp;textul&nbsp;stării<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Răspuns&nbsp;server:&nbsp;",&nbsp;xhr.statusText);<br>&nbsp;&nbsp;&nbsp;}<br>};<br>xhr.send();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;executăm&nbsp;cererea<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+ </div>
+ <p class="paragraph">Aici, în metoda xhr.open(), ca tip de cerere se transmite tipul "GET", iar ca adresă a resursei - "/hello".</p>
+ <div class="code-inline">
+  <pre><code>xhr.open("GET",&nbsp;"/hello");</code></pre>
+ </div>
+ <p class="paragraph">Pentru a urmări finalizarea cererii, stabilim un gestionar pentru evenimentul load cu ajutorul proprietății xhr.onload:</p>
+ <div class="code-inline">
+  <pre><code>xhr.onload&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;if&nbsp;(xhr.status&nbsp;==&nbsp;200)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;codul&nbsp;de&nbsp;răspuns&nbsp;este&nbsp;200<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(xhr.responseText);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;afișăm&nbsp;răspunsul&nbsp;primit&nbsp;în&nbsp;consola&nbsp;browserului<br>&nbsp;&nbsp;&nbsp;}&nbsp;else&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;altfel,&nbsp;afișăm&nbsp;textul&nbsp;stării<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Răspuns&nbsp;server:&nbsp;",&nbsp;xhr.statusText);<br>&nbsp;&nbsp;&nbsp;}<br>};</code></pre>
+ </div>
+ <p class="paragraph">În acest caz, ca gestionar al evenimentului acționează o expresie lambda. Și când cererea se finalizează, acest gestionar este activat. Dacă cererea a fost procesată cu succes, atunci, implicit, serverul trimite codul de stare 200. Cum ne amintim din codul serverului, la adresarea pe calea "/hello", serverul trimite clientului un șir.</p>
+ <p class="paragraph">Și pentru a obține acest șir, ne adresăm proprietății xhr.responseText. Dacă însă în procesul de adresare la server a apărut o eroare sau codul de stare nu este 200, atunci cu ajutorul proprietății xhr.statusText se afișează textul stării răspunsului.</p>
+ <p class="paragraph">Și, în final, de fapt, executăm cererea:</p>
+ <div class="code-inline">
+  <pre><code>xhr.send();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;executăm&nbsp;cererea</code></pre>
+ </div>
+ <p class="paragraph">Astfel, la încărcarea acestei pagini web, va fi executată cererea ajax către server.</p>
+ <p class="paragraph">Acum, în consolă, vom trece la directoria serverului cu ajutorul comenzii cd și vom lansa serverul cu ajutorul comenzii node server.js</p>
+ <div class="image-container">
+  <img src="images/image2.png" alt="" class="responsive-image">
+ </div>
+ <p class="paragraph">După lansarea serverului, putem trece în browser la adresa http://localhost:3000, unde ne va fi afișată pagina, în codul JavaScript al căreia va avea loc adresarea la resursa "/hello":</p>
+ <div class="image-container">
+  <img src="images/image3.png" alt="" class="responsive-image">
+ </div>
+ <p class="paragraph">În urma adresării la resursa "/hello", serverul va trimite șirul "Hello FDC.COM", pe care îl vom putea obține pe pagina web.</p>
+ <p class="paragraph">În exemplul de mai sus a fost utilizată calea relativă, dar de asemenea am fi putut folosi o cale absolută cu indicarea protocolului, adresei serverului și portului:</p>
+ <div class="code-inline">
+  <pre><code>xhr.open("GET",&nbsp;"http://localhost:3000/hello");</code></pre>
+ </div>
+ <p class="paragraph">În locul evenimentului load, am fi putut de asemenea să procesăm evenimentul readystatechange al obiectului XMLHttpRequest, care apare de fiecare dată când se modifică valoarea proprietății readyState:</p>
+ <div class="code-inline">
+  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;script&gt;<br>const&nbsp;xhr&nbsp;=&nbsp;new&nbsp;XMLHttpRequest();<br>//&nbsp;Cererea&nbsp;GET&nbsp;către&nbsp;resursa&nbsp;/hello<br>xhr.open("GET",&nbsp;"/hello");<br><br>//&nbsp;gestionar&nbsp;pentru&nbsp;primirea&nbsp;răspunsului&nbsp;de&nbsp;la&nbsp;server<br>xhr.onreadystatechange&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;if&nbsp;(xhr.readyState&nbsp;==&nbsp;4)&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;cererea&nbsp;este&nbsp;finalizată<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(xhr.status&nbsp;==&nbsp;200)&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;codul&nbsp;de&nbsp;răspuns&nbsp;este&nbsp;200<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(xhr.responseText);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;afișăm&nbsp;răspunsul&nbsp;primit&nbsp;în&nbsp;consola&nbsp;browserului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;else&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;altfel,&nbsp;afișăm&nbsp;textul&nbsp;stării<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Răspuns&nbsp;server:&nbsp;",&nbsp;xhr.statusText);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>};<br>xhr.send();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;executăm&nbsp;cererea<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+ </div>
+ <p class="paragraph">Aici, în gestionarul evenimentului, se verifică mai întâi starea cererii - dacă codul stării este 4, atunci se procesează răspunsul de la server. Restul logicii este aceeași ca și în cazul anterior.</p>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

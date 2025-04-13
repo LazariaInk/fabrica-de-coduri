@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Handlers de evenimente</h1>
+ <p class="paragraph">Dacă în codul JavaScript apare un eveniment, acesta este gestionat de un manipulator de eveniment asociat acestuia. Să vedem cum să identificăm manipulatorii de evenimente.</p>
+ <h2 class="subtitle">Manipulatori încorporați</h2>
+ <p class="paragraph">Cel mai simplu mod de a identifica manipulatorii de evenimente este să-i instalați în codul HTML. Aceștia sunt cunoscuți sub numele de manipulatori încorporați sau manipulatori inline și sunt definiți în codul elementului folosind atribute.</p>
+ <p class="paragraph">Astfel de atribute încep cu prefixul "on". De exemplu, multe elemente HTML au atributul "onclick", care definește manipulatorul pentru evenimentul de clic pe element. Să ne uităm la un exemplu cu un buton:</p>
+ <div class="code-inline">
+  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;button&nbsp;onclick="console.log('Apăsat!')"&gt;Apasă-mă&lt;/button&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+ </div>
+ <p class="paragraph">Prin atributul "onclick" cu valoarea "console.log('Apăsat!')", se atașează un manipulator pentru evenimentul de clic al butonului. Acest manipulator constă într-o singură instrucțiune JavaScript - "console.log('Apăsat!')", care afișează un mesaj în consolă.</p>
+ <p class="paragraph">Astfel, când se apasă butonul, evenimentul de clic va fi declanșat și se va executa manipulatorul din atributul "onclick".</p>
+ <div class="image-container">
+  <img src="images/image1.png" alt="" class="responsive-image">
+ </div>
+ <p class="paragraph">Se poate defini mai multe instrucțiuni într-un mod similar:</p>
+ <div class="code-inline">
+  <pre><code>&lt;button&nbsp;onclick="console.log('Salut');console.log('Apăsat!')"&gt;Apasă-mă&lt;/button&gt;</code></pre>
+ </div>
+ <p class="paragraph">Dar, evident, aceasta nu este cea mai comodă metodă. Însă, de asemenea, poți muta toate instrucțiunile într-o funcție JavaScript separată și să transmiți apelul acestei funcții atributului onclick:</p>
+ <div class="code-inline">
+  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;button&nbsp;onclick="btn_click()"&gt;Click&nbsp;Me&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;let&nbsp;clicks&nbsp;=&nbsp;0;&nbsp;//&nbsp;contor&nbsp;de&nbsp;apăsări<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;function&nbsp;btn_click(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Clicked",&nbsp;++clicks);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+ </div>
+ <p class="paragraph">Acum, la apăsarea butonului, va fi apelată funcția btn_click, care este definită în codul JavaScript.</p>
+ <p class="paragraph">Cu toate că această abordare funcționează bine, ea are câteva dezavantaje:</p>
+ <ul class="enumeration">
+  <li>Codul HTML se amestecă cu codul JavaScript, ceea ce face mai dificilă dezvoltarea, depanarea și întreținerea aplicației</li>
+  <li>Handler-ii de evenimente pot fi atribuiți doar elementelor deja create pe pagina web. Elementele create dinamic pierd capacitatea de a fi gestionate pentru evenimente</li>
+  <li>Unui element poate fi atașat doar un singur handler de eveniment</li>
+  <li>Nu se poate elimina handler-ul de eveniment fără a modifica codul</li>
+ </ul>
+ <h2 class="subtitle">Proprietățile handler-ilor de evenimente</h2>
+ <p class="paragraph">Problemele întâmpinate la utilizarea handler-ilor încorporați au fost concepute pentru a fi soluționate de proprietățile handler-ilor. La fel ca și pentru elementele HTML care au atribute pentru handler-i, în codul JavaScript pentru elementele DOM, putem accesa proprietățile handler-ilor, care corespund atributelor:</p>
+ <div class="code-inline">
+  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;button&nbsp;id="btn"&gt;Click&nbsp;Me&lt;/button&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;let&nbsp;clicks&nbsp;=&nbsp;0;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;contor&nbsp;de&nbsp;apăsări<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;function&nbsp;btn_click()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Apăsat",&nbsp;++clicks);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;stabilim&nbsp;un&nbsp;ascultător&nbsp;de&nbsp;evenimente&nbsp;pentru&nbsp;elementul&nbsp;cu&nbsp;id="btn"<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;document.getElementById("btn").addEventListener("click",&nbsp;btn_click);<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+ </div>
+ <p class="paragraph">În final, este suficient să luăm proprietatea onclick și să îi atribuim o funcție utilizată ca handler. Astfel, codul HTML se separă de codul JavaScript.</p>
+ <h2 class="subtitle">Ascultători de evenimente</h2>
+ <p class="paragraph">Cu toate că proprietățile handler-ilor rezolvă unele probleme legate de utilizarea atributelor, în același timp, acesta nu este un abordaj optim. Un alt mod de a stabili handler-i de evenimente este utilizarea ascultătorilor.</p>
+ <p class="paragraph">Pentru a lucra cu ascultătorii de evenimente în JavaScript, există obiectul EventTarget, care definește metodele addEventListener() (pentru adăugarea unui ascultător) și removeEventListener() pentru eliminarea unui ascultător. Și deoarece elementele DOM sunt și ele obiecte EventTarget, ele au și aceste metode. Practic, ascultătorii reprezintă aceleași funcții ca și handler-ii.</p>
+ <p class="paragraph">Metoda addEventListener() primește doi parametri: numele evenimentului fără prefixul "on" și funcția handler-ului pentru acel eveniment. De exemplu:</p>
+ <div class="code-inline">
+  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;button&nbsp;id="btn"&gt;Click&nbsp;Me&lt;/button&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;let&nbsp;clicks&nbsp;=&nbsp;0;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;contor&nbsp;de&nbsp;apăsări<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;function&nbsp;btn_click()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Apăsat",&nbsp;++clicks);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;btn&nbsp;=&nbsp;document.getElementById("btn");<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;atașăm&nbsp;ascultătorul&nbsp;de&nbsp;eveniment&nbsp;"click"<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;btn.addEventListener("click",&nbsp;btn_click);<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;eliminăm&nbsp;ascultătorul&nbsp;de&nbsp;eveniment&nbsp;"click"<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;btn.removeEventListener("click",&nbsp;btn_click);<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+ </div>
+ <p class="paragraph">Deci, în acest caz, din nou, se tratează evenimentul "click". Eliminarea unui ascultător este similară cu adăugarea:</p>
+ <div class="code-inline">
+  <pre><code>btn.removeEventListener("click",&nbsp;btn_click);</code></pre>
+ </div>
+ <p class="paragraph">Un avantaj al utilizării ascultătorilor este că putem seta mai multe funcții pentru un singur eveniment:</p>
+ <div class="code-inline">
+  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;button&nbsp;id="btn"&gt;Click&nbsp;Me&lt;/button&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;let&nbsp;clicks&nbsp;=&nbsp;0;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;contor&nbsp;de&nbsp;apăsări<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;function&nbsp;btn_click()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Apăsat",&nbsp;++clicks);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;btn&nbsp;=&nbsp;document.getElementById("btn");<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;atașăm&nbsp;primul&nbsp;ascultător&nbsp;de&nbsp;eveniment&nbsp;"click"&nbsp;sub&nbsp;formă&nbsp;de&nbsp;funcție&nbsp;btn_click<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;btn.addEventListener("click",&nbsp;btn_click);<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;atașăm&nbsp;al&nbsp;doilea&nbsp;ascultător&nbsp;de&nbsp;eveniment&nbsp;"click"&nbsp;sub&nbsp;formă&nbsp;de&nbsp;funcție&nbsp;anonimă<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;btn.addEventListener("click",&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Buton&nbsp;apăsat!");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;});<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;atașăm&nbsp;al&nbsp;treilea&nbsp;ascultător&nbsp;de&nbsp;eveniment&nbsp;"click"&nbsp;sub&nbsp;formă&nbsp;de&nbsp;funcție&nbsp;săgeată<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;btn.addEventListener("click",&nbsp;()=&gt;console.log("Element&nbsp;apăsat!"));<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

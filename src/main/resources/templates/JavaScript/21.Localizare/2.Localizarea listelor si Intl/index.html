@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Localizarea listelor și Intl.ListFormat</h1>
+ <p class="paragraph">Obiectul Intl.ListFormat permite formatarea listelor în conformitate cu anumite setări de localizare. Constructorul său poate accepta doi parametri:</p>
+ <div class="code-inline">
+  <pre><code>Intl.ListFormat([locales[,&nbsp;options]])</code></pre>
+ </div>
+ <p class="paragraph">Parametrul locales reprezintă codul limbii în format BCP 47 sau un set de coduri lingvistice.</p>
+ <p class="paragraph">Parametrul options reprezintă un set suplimentar de opțiuni:</p>
+ <ul class="enumeration">
+  <li>localeMatcher: algoritmul de potrivire. Poate fi "lookup" sau "best fit". Implicit este "best fit"</li>
+  <li>style: lungimea șirului formatat. Poate fi "long" (de exemplu, A, B și C), "short" sau "narrow" (de exemplu, A, B, C). Implicit este "long"</li>
+  <li>type: tipul șirului de ieșire. Poate fi "conjunction" (penultimul și ultimul element din listă sunt unite cu conjuncția "și" - A, B și C), "disjunction" (penultimul și ultimul element din listă sunt unite cu conjuncția "sau" - A, B sau C), "unit" (utilizat pentru liste cu valori numerice la care se adaugă unități de măsură). Implicit este "conjunction"</li>
+ </ul>
+ <p class="paragraph">Pentru formatarea listei, acest obiect oferă metoda format(), în care se transmite lista de formatat. Metoda returnează lista formatată și localizată sub formă de șir.</p>
+ <p class="paragraph">Să examinăm câteva exemple. Adăugăm conjuncția "și":</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Sam"];<br>const&nbsp;andList&nbsp;=&nbsp;new&nbsp;Intl.ListFormat("ro").format(people);<br>console.log(andList);&nbsp;&nbsp;&nbsp;//&nbsp;Tom,&nbsp;Bob&nbsp;și&nbsp;Sam</code></pre>
+ </div>
+ <p class="paragraph">În acest caz, se utilizează localizarea pentru cultura română și pentru aceasta ca parametru locales în constructorul Intl.ListFormat se transmite codul limbii ru. Rezultatul este șirul Tom, Bob și Sam. În acest caz, pentru al doilea parametru - options s-au folosit setările implicite. Cu toate acestea, le putem specifica în mod explicit:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Sam"];<br>const&nbsp;andList&nbsp;=&nbsp;new&nbsp;Intl.ListFormat("ru"&nbsp;,&nbsp;{&nbsp;style:"long",&nbsp;type:&nbsp;"conjunction"&nbsp;}).format(people);<br>console.log(andList);&nbsp;&nbsp;&nbsp;//&nbsp;Tom,&nbsp;Bob&nbsp;și&nbsp;Sam</code></pre>
+ </div>
+ <p class="paragraph">În acest caz, vom obține același rezultat, deoarece opțiunea type: "conjunction" presupune utilizarea conjuncției "și".</p>
+ <p class="paragraph">Acum folosim conjuncția "sau":</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Sam"];<br>const&nbsp;orList&nbsp;=&nbsp;new&nbsp;Intl.ListFormat("ru",&nbsp;{&nbsp;style:"short",&nbsp;type:&nbsp;"disjunction"&nbsp;}).format(people);<br>console.log(orList);&nbsp;//&nbsp;Tom,&nbsp;Bob&nbsp;sau&nbsp;Sam</code></pre>
+ </div>
+ <p class="paragraph">Nu suntem limitați la o singură cultură lingvistică. Astfel, localizăm lista în mai multe limbi:</p>
+ <p class="paragraph">const people = ["Tom", "Bob", "Sam"];</p>
+ <div class="code-inline">
+  <pre><code>//&nbsp;limba&nbsp;engleză<br>const&nbsp;enList&nbsp;=&nbsp;new&nbsp;Intl.ListFormat("en"&nbsp;,&nbsp;{&nbsp;style:"long",&nbsp;type:&nbsp;"conjunction"&nbsp;}).format(people);<br>console.log(enList);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Tom,&nbsp;Bob,&nbsp;and&nbsp;Sam<br><br>//&nbsp;limba&nbsp;germană<br>const&nbsp;deList&nbsp;=&nbsp;new&nbsp;Intl.ListFormat("de"&nbsp;,&nbsp;{&nbsp;style:"long",&nbsp;type:&nbsp;"conjunction"&nbsp;}).format(people);<br>console.log(deList);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Tom,&nbsp;Bob&nbsp;und&nbsp;Sam<br><br>//&nbsp;limba&nbsp;franceză<br>const&nbsp;frList&nbsp;=&nbsp;new&nbsp;Intl.ListFormat("fr"&nbsp;,&nbsp;{&nbsp;style:"long",&nbsp;type:&nbsp;"conjunction"&nbsp;}).format(people);<br>console.log(frList);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Tom,&nbsp;Bob&nbsp;et&nbsp;Sam<br><br>//&nbsp;limba&nbsp;chineză<br>const&nbsp;zhList&nbsp;=&nbsp;new&nbsp;Intl.ListFormat("zh"&nbsp;,&nbsp;{&nbsp;style:"long",&nbsp;type:&nbsp;"conjunction"&nbsp;}).format(people);<br>console.log(zhList);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Tom、Bob和Sam</code></pre>
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

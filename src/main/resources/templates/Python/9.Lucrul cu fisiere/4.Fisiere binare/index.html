@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Fișiere binare</h1>
+ <p class="paragraph">Fișierele binare, spre deosebire de cele text, stochează informația sub formă de seturi de octeți. Când deschidem un fișier binar pentru citire sau scriere, trebuie să ținem cont că este necesar să aplicăm modul "b" în combinație cu modul de scriere ("w") sau de citire ("r").</p>
+ <p class="paragraph">La citire, obținem fișierul sub formă de seturi de octeți, iar invers, la scriere, în metoda write() se transmite un set de octeți. De exemplu, să copiem un fișier:</p>
+ <div class="code-inline">
+  <pre><code>FILENAME&nbsp;=&nbsp;"forest.png"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;fișier&nbsp;pentru&nbsp;citire<br>NEWFILENAME&nbsp;=&nbsp;"forest_new.png"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;fișier&nbsp;pentru&nbsp;scriere<br><br>image_data&nbsp;=&nbsp;[]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;listă&nbsp;pentru&nbsp;stocarea&nbsp;datelor&nbsp;citite<br>&nbsp;<br>#&nbsp;citim&nbsp;fișierul&nbsp;în&nbsp;lista&nbsp;image_data<br>with&nbsp;open(FILENAME,&nbsp;"rb")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;image_data&nbsp;=&nbsp;file.read()<br>&nbsp;&nbsp;&nbsp;<br>#&nbsp;scriem&nbsp;octeții&nbsp;citiți&nbsp;anterior&nbsp;într-un&nbsp;fișier&nbsp;nou<br>with&nbsp;open(NEWFILENAME,&nbsp;"wb")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;file.write(image_data)<br>&nbsp;&nbsp;&nbsp;<br>print(f"Fișierul&nbsp;{FILENAME}&nbsp;a&nbsp;fost&nbsp;copiat&nbsp;în&nbsp;{NEWFILENAME}")</code></pre>
+ </div>
+ <p class="paragraph">Scriptul citește fișierul al cărui cale este stocată în variabila FILENAME. În acest caz, este vorba despre un fișier imagine "forest.png". Octeții citiți sunt plasați în lista image_data. Apoi, această listă este scrisă într-un fișier cu numele NEWFILENAME. Astfel, copiem conținutul unui fișier în altul.</p>
+ <h2 class="subtitle">Modulul pickle</h2>
+ <p class="paragraph">Pentru lucrul cu fișiere binare, Python oferă și un modul încorporat special numit pickle, care simplifică lucrul cu fișierele binare. Acest modul oferă două metode principale:</p>
+ <ul class="enumeration">
+  <li>dump(obj, file): scrie obiectul obj într-un fișier binar file</li>
+  <li>load(file): citește datele dintr-un fișier binar și le încarcă într-un obiect</li>
+ </ul>
+ <p class="paragraph">Să presupunem că trebuie să salvăm valorile a două variabile:</p>
+ <div class="code-inline">
+  <pre><code>import&nbsp;pickle<br><br>FILENAME&nbsp;=&nbsp;"user.dat"<br><br>name&nbsp;=&nbsp;"Tom"<br>age&nbsp;=&nbsp;19<br><br>with&nbsp;open(FILENAME,&nbsp;"wb")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;pickle.dump(name,&nbsp;file)<br>&nbsp;&nbsp;&nbsp;pickle.dump(age,&nbsp;file)<br><br>with&nbsp;open(FILENAME,&nbsp;"rb")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;name&nbsp;=&nbsp;pickle.load(file)<br>&nbsp;&nbsp;&nbsp;age&nbsp;=&nbsp;pickle.load(file)<br>&nbsp;&nbsp;&nbsp;print("Nume:",&nbsp;name,&nbsp;"\tVârstă:",&nbsp;age)</code></pre>
+ </div>
+ <p class="paragraph">Cu ajutorul funcției dump, se scriu secvențial două obiecte. Prin urmare, la citirea fișierului, putem citi aceste obiecte în aceeași ordine cu ajutorul funcției load. Ieșirea pe consolă a programului:</p>
+ <div class="code-inline">
+  <pre><code>plaintext<br>Nume:&nbsp;Tom&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vârstă:&nbsp;19</code></pre>
+ </div>
+ <p class="paragraph">În mod similar, putem salva și extrage din fișier seturi de obiecte:</p>
+ <div class="code-inline">
+  <pre><code>import&nbsp;pickle<br><br>FILENAME&nbsp;=&nbsp;"users.dat"<br><br>users&nbsp;=&nbsp;[<br>&nbsp;&nbsp;&nbsp;["Tom",&nbsp;28,&nbsp;True],<br>&nbsp;&nbsp;&nbsp;["Alice",&nbsp;23,&nbsp;False],<br>&nbsp;&nbsp;&nbsp;["Bob",&nbsp;34,&nbsp;False]<br>]<br><br>with&nbsp;open(FILENAME,&nbsp;"wb")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;pickle.dump(users,&nbsp;file)<br><br>with&nbsp;open(FILENAME,&nbsp;"rb")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;users_from_file&nbsp;=&nbsp;pickle.load(file)<br>&nbsp;&nbsp;&nbsp;for&nbsp;user&nbsp;in&nbsp;users_from_file:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print("Nume:",&nbsp;user[0],&nbsp;"\tVârstă:",&nbsp;user[1],&nbsp;"\tCăsătorit/Căsătorită:",&nbsp;user[2])</code></pre>
+ </div>
+ <p class="paragraph">În funcție de obiectul pe care l-am scris cu funcția dump, același obiect va fi returnat de funcția load la citirea fișierului.</p>
+ <p class="paragraph">Ieșirea pe consolă:</p>
+ <div class="code-inline">
+  <pre><code>Nume:&nbsp;Tom&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vârstă:&nbsp;28&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Căsătorit/Căsătorită:&nbsp;True<br>Nume:&nbsp;Alice&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vârstă:&nbsp;23&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Căsătorit/Căsătorită:&nbsp;False<br>Nume:&nbsp;Bob&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vârstă:&nbsp;34&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Căsătorit/Căsătorită:&nbsp;False</code></pre>
+ </div>
+ <p class="paragraph">Acest mod de lucru cu fișiere binare și modulul pickle simplifică foarte mult manipularea datelor complexe în Python, permițând stocarea și recuperarea acestora într-un mod eficient și ușor de utilizat.</p>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

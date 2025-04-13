@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">API-ul Web Speech pentru Recunoașterea Vorbirii</h1>
+ <p class="paragraph">Recunoașterea vorbirii este gestionată de obiectul SpeechRecognition. Pentru a-l obține, se utilizează proprietatea webkitSpeechRecognition a obiectului global window, prin care putem verifica suportul pentru recunoașterea vorbirii de către browserul curent:</p>
+ <div class="code-inline">
+  <pre><code>if(window.webkitSpeechRecognition)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Recunoașterea&nbsp;vorbirii&nbsp;este&nbsp;suportată");<br>}&nbsp;else&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Recunoașterea&nbsp;vorbirii&nbsp;NU&nbsp;este&nbsp;suportată");<br>}<br>//&nbsp;O&nbsp;metodă&nbsp;alternativă&nbsp;de&nbsp;verificare<br>if("webkitSpeechRecognition"&nbsp;in&nbsp;window)&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;console.log("Recunoașterea&nbsp;vorbirii&nbsp;este&nbsp;suportată");<br>}&nbsp;else&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Recunoașterea&nbsp;vorbirii&nbsp;NU&nbsp;este&nbsp;suportată");<br>}</code></pre>
+ </div>
+ <p class="paragraph">Prefixul webkit în numele proprietății sugerează că această proprietate este suportată doar în browserele pe baza motorului WebKit. Astfel, în realitate, în browserele pe baza WebKit, recunoașterea va fi efectuată cu ajutorul obiectului webkitSpeechRecognition, nu SpeechRecognition.</p>
+ <p class="paragraph">Interfața SpeechRecognition oferă o serie de proprietăți pentru configurarea recunoașterii:</p>
+ <ul class="enumeration">
+  <li>grammars: returnează și setează o colecție de obiecte SpeechGrammar, care reprezintă gramaticile utilizate</li>
+  <li>lang: returnează și setează limba de recunoaștere. Dacă nu este specificată, se utilizează valoarea implicită a atributului lang al elementului rădăcină `&lt;html&gt;`</li>
+  <li>continuous: determină dacă rezultatele sunt returnate continuu pentru fiecare recunoaștere (true) sau doar un singur rezultat (false). Implicit, este returnat doar un singur rezultat</li>
+  <li>interimResults: determină dacă trebuie returnate rezultate interimare (true) sau nu (false). Rezultatele interimare sunt rezultate care încă nu sunt finale (de exemplu, proprietatea SpeechRecognitionResult.isFinal are valoarea false)</li>
+  <li>maxAlternatives: setează numărul maxim de alternative de recunoaștere furnizate pentru fiecare rezultat. Valoarea implicită este 1</li>
+ </ul>
+ <p class="paragraph">Pentru controlul recunoașterii, pentru SpeechRecognition sunt definite trei metode:</p>
+ <ul class="enumeration">
+  <li>abort(): întrerupe recunoașterea, nu permite serviciului de recunoaștere să asculte sunetul de intrare și nu încearcă să returneze SpeechRecognitionResult</li>
+  <li>start(): inițiază recunoașterea</li>
+  <li>stop(): oprește recunoașterea, nu permite serviciului de recunoaștere să asculte sunetul de intrare și încearcă să returneze SpeechRecognitionResult folosind sunetul înregistrat până în acel moment</li>
+ </ul>
+ <p class="paragraph">După inițierea recunoașterii vorbirii cu metoda start(), în timpul recunoașterii pot apărea diferite evenimente:</p>
+ <ul class="enumeration">
+  <li>audiostart: se activează când începe captarea sunetului. Disponibil prin proprietatea onaudiostart</li>
+  <li>audioend: se activează când se încheie captarea sunetului. Disponibil prin proprietatea onaudioend</li>
+  <li>end: se activează după deconectarea serviciului de recunoaștere. Disponibil prin proprietatea onend</li>
+  <li>error: se activează la apariția unei erori. Disponibil prin proprietatea onerror</li>
+  <li>nomatch: se activează când serviciul de recunoaștere returnează un rezultat final în caz de recunoaștere nereușită (gradul de recunoaștere nu corespunde pragului stabilit). Disponibil prin proprietatea onnomatch</li>
+  <li>result: se activează când serviciul de recunoaștere returnează un rezultat - un cuvânt sau o frază. Disponibil prin proprietatea onresult</li>
+  <li>soundstart: se activează când este detectat sunetul (indiferent dacă este vorbire sau zgomot aleator). Disponibil prin proprietatea onsoundstart</li>
+  <li>soundend: se activează după terminarea detectării sunetului. Disponibil prin proprietatea onsoundend</li>
+  <li>speechstart: se activează când serviciul de recunoaștere a detectat vorbirea și a început recunoașterea sunetului. Disponibil prin proprietatea onspeechstart</li>
+  <li>speechend: se activează când serviciul de recunoaștere a terminat de detectat vorbirea. Disponibil prin proprietatea onspeechend</li>
+  <li>start: se activează când serviciul de recunoaștere a început să asculte sunetul. Disponibil prin proprietatea onstart</li>
+ </ul>
+ <p class="paragraph">Pentru a accesa rezultatul recunoașterii vorbirii, se înregistrează un handler pentru evenimentul result.</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;recognition&nbsp;=&nbsp;new&nbsp;webkitSpeechRecognition();<br>recognition.onresult&nbsp;=&nbsp;function(event){<br>&nbsp;&nbsp;&nbsp;const&nbsp;results&nbsp;=&nbsp;event.results;&nbsp;//&nbsp;obținem&nbsp;rezultatul&nbsp;recunoașterii<br>&nbsp;&nbsp;&nbsp;console.log(results);&nbsp;&nbsp;&nbsp;//&nbsp;lista&nbsp;SpeechRecognitionResultList<br>}</code></pre>
+ </div>
+ <p class="paragraph">Parametrul funcției-handler reprezintă tipul SpeechRecognitionEvent, de unde, prin proprietatea results, se pot obține rezultatele recunoașterii sub forma unei liste SpeechRecognitionResultList. Fiecare înregistrare din această listă reprezintă un obiect SpeechRecognitionResult și conține una sau mai multe variante de recunoaștere a vorbirii (obiecte SpeechRecognitionAlternative) în cazul în care recunoașterea vorbirii a fost ambiguă.</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;recognition&nbsp;=&nbsp;new&nbsp;webkitSpeechRecognition();<br>recognition.onresult&nbsp;=&nbsp;function(event){<br>&nbsp;&nbsp;&nbsp;const&nbsp;results&nbsp;=&nbsp;event.results;&nbsp;&nbsp;//&nbsp;obținem&nbsp;lista&nbsp;de&nbsp;rezultate<br>&nbsp;&nbsp;&nbsp;const&nbsp;firstResult&nbsp;=&nbsp;results[0];&nbsp;//&nbsp;obținem&nbsp;primul&nbsp;rezultat&nbsp;recunoscut<br>&nbsp;&nbsp;&nbsp;const&nbsp;firstAlternative&nbsp;=&nbsp;firstResult[0];&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;prima&nbsp;variantă&nbsp;de&nbsp;recunoaștere<br>}</code></pre>
+ </div>
+ <p class="paragraph">Fiecare alternativă (obiect SpeechRecognitionAlternative), la rândul său, are două proprietăți: transcript (conține textul recunoscut) și confidence (nivelul de încredere, în intervalul de la 0 la 1). Prima alternativă reprezintă rezultatul cu cea mai mare probabilitate.</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;recognition&nbsp;=&nbsp;new&nbsp;webkitSpeechRecognition();<br>recognition.onresult&nbsp;=&nbsp;function(event){<br>&nbsp;&nbsp;&nbsp;const&nbsp;results&nbsp;=&nbsp;event.results;&nbsp;&nbsp;//&nbsp;obținem&nbsp;lista&nbsp;de&nbsp;rezultate<br>&nbsp;&nbsp;&nbsp;const&nbsp;firstResult&nbsp;=&nbsp;results[0];&nbsp;//&nbsp;obținem&nbsp;primul&nbsp;rezultat&nbsp;recunoscut<br>&nbsp;&nbsp;&nbsp;const&nbsp;firstAlternative&nbsp;=&nbsp;firstResult[0];&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;prima&nbsp;alternativă&nbsp;de&nbsp;recunoaștere<br>&nbsp;&nbsp;&nbsp;const&nbsp;transcript&nbsp;=&nbsp;firstAlternative.transcript;&nbsp;&nbsp;//&nbsp;textul&nbsp;recunoscut<br>&nbsp;&nbsp;&nbsp;const&nbsp;confidence&nbsp;=&nbsp;firstAlternative.confidence;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;nivelul&nbsp;de&nbsp;încredere<br>&nbsp;&nbsp;&nbsp;console.log(transcript);&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;console.log(confidence);<br>}</code></pre>
+ </div>
+ <p class="paragraph">Pentru demonstrație, definim următoarea pagină web:</p>
+ <div class="code-inline">
+  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;button&nbsp;id="startBtn"&gt;Start&lt;/button&gt;<br>&lt;button&nbsp;id="stopBtn"&gt;Stop&lt;/button&gt;<br>&lt;script&gt;<br>const&nbsp;recognition&nbsp;=&nbsp;new&nbsp;webkitSpeechRecognition();<br>let&nbsp;index&nbsp;=&nbsp;0;<br>recognition.onresult&nbsp;=&nbsp;function(event){<br>&nbsp;&nbsp;&nbsp;const&nbsp;results&nbsp;=&nbsp;event.results;&nbsp;&nbsp;//&nbsp;obținem&nbsp;lista&nbsp;de&nbsp;rezultate<br>&nbsp;&nbsp;&nbsp;const&nbsp;firstResult&nbsp;=&nbsp;results[index++];&nbsp;//&nbsp;obținem&nbsp;rezultatul&nbsp;recunoscut<br>&nbsp;&nbsp;&nbsp;const&nbsp;firstAlternative&nbsp;=&nbsp;firstResult[0];&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;prima&nbsp;alternativă&nbsp;de&nbsp;recunoaștere<br>&nbsp;&nbsp;&nbsp;const&nbsp;transcript&nbsp;=&nbsp;firstAlternative.transcript;&nbsp;&nbsp;//&nbsp;textul&nbsp;recunoscut<br>&nbsp;&nbsp;&nbsp;const&nbsp;confidence&nbsp;=&nbsp;firstAlternative.confidence;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;nivelul&nbsp;de&nbsp;încredere<br>&nbsp;&nbsp;&nbsp;console.log(transcript);&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;console.log(confidence);<br>}<br>//&nbsp;la&nbsp;apăsarea&nbsp;butonului&nbsp;Start,&nbsp;inițiem&nbsp;recunoașterea<br>document.getElementById("startBtn").addEventListener("click",&nbsp;()=&gt;{<br>&nbsp;&nbsp;&nbsp;if(window.webkitSpeechRecognition)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;recognition.continuous&nbsp;=&nbsp;true;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;recognition.lang&nbsp;=&nbsp;"ru";&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;recunoașterea&nbsp;vorbirii&nbsp;în&nbsp;limba&nbsp;rusă<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;recognition.start();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;începem&nbsp;recunoașterea<br>&nbsp;&nbsp;&nbsp;}&nbsp;else&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Recunoașterea&nbsp;vorbirii&nbsp;NU&nbsp;este&nbsp;suportată");<br>&nbsp;&nbsp;&nbsp;}<br>});<br>//&nbsp;la&nbsp;apăsarea&nbsp;butonului&nbsp;Stop,&nbsp;oprim&nbsp;recunoașterea<br>document.getElementById("stopBtn").addEventListener("click",&nbsp;()=&gt;recognition.stop())<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+ </div>
+ <p class="paragraph">În acest caz, prin apăsarea butonului Start, inițiem recunoașterea vorbirii în limba rusă. Rezultatele recunoașterii sunt afișate în consolă. Prin apăsarea butonului Stop, oprim recunoașterea.</p>
+ <p class="paragraph">Pentru a obține rezultatul, definim variabila index. La fiecare declanșare a evenimentului result, în lista de recunoașteri va fi adăugat un nou rezultat de recunoaștere. Incrementând variabila index, vom putea obține rezultatul recunoscut la declanșarea ulterioară a evenimentului result după acest index.</p>
+ <p class="paragraph">Este important de menționat că, la inițierea recunoașterii, browserul va solicita utilizatorului permisiunea de a folosi microfonul.</p>
+ <div class="image-container">
+  <img src="images/image1.png" alt="" class="responsive-image">
+ </div>
+ <p class="paragraph">Prin urmare, dacă utilizatorul dorește să folosească recunoașterea vocală, trebuie să permită browserului accesul la microfon.</p>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

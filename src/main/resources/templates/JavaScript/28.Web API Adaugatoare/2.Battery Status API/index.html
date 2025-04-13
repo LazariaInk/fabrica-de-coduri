@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Battery Status API</h1>
+ <p class="paragraph">Prin intermediul Battery Status API se poate accesa informația despre bateria dispozitivului. Această informație poate fi folosită, de exemplu, pentru adaptarea paginii web în funcție de starea bateriei. Pentru a obține informații despre bateria, acest API definește interfața BatteryManager, care poate fi utilizată. Pentru a obține un obiect de tip BatteryManager, se apelează metoda getBattery() a proprietății window.navigator:</p>
+ <div class="code-inline">
+  <pre><code>navigator.getBattery()<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.then((batteryManager)=&gt;console.log(batteryManager));&nbsp;//&nbsp;BatteryManager&nbsp;{&nbsp;......}</code></pre>
+ </div>
+ <p class="paragraph">navigator.getBattery() returnează un promise. Funcția care este pasată lui then(), primește ca parametru obiectul BatteryManager.</p>
+ <p class="paragraph">Interfața BatteryManager oferă o serie de proprietăți cu informații despre bateria:</p>
+ <ul class="enumeration">
+  <li>charging: valoare booleană, care indică dacă acumulatorul se încarcă în acest moment</li>
+  <li>chargingTime: numărul care indică timpul rămas în secunde până la încărcarea completă a acumulatorului, sau 0, dacă acumulatorul este deja complet încărcat. Dacă bateria nu se încarcă în momentul actual, atunci are valoarea Infinity</li>
+  <li>dischargingTime: numărul care indică timpul rămas în secunde până la descărcarea completă a acumulatorului și suspendarea activității sistemului. Dacă bateria se încarcă în momentul actual, atunci are valoarea Infinity</li>
+  <li>level: numărul care indică nivelul de încărcare a bateriei sistemului, scalat la o valoare între 0,0 și 1,0</li>
+ </ul>
+ <p class="paragraph">De exemplu, să obținem informația despre starea bateriei:</p>
+ <div class="code-inline">
+  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;script&gt;<br>async&nbsp;function&nbsp;displayBatteryStatus(){<br>&nbsp;&nbsp;&nbsp;const&nbsp;batteryManager&nbsp;=&nbsp;await&nbsp;navigator.getBattery();<br>&nbsp;&nbsp;&nbsp;console.log("is&nbsp;charging:&nbsp;",&nbsp;batteryManager.charging);<br>&nbsp;&nbsp;&nbsp;console.log("charging&nbsp;time&nbsp;(sec):&nbsp;",&nbsp;batteryManager.chargingTime);<br>&nbsp;&nbsp;&nbsp;console.log("discharging&nbsp;time&nbsp;(sec):&nbsp;",&nbsp;batteryManager.dischargingTime);<br>&nbsp;&nbsp;&nbsp;console.log("charge&nbsp;level:&nbsp;",&nbsp;batteryManager.level);<br>}<br>displayBatteryStatus();<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+ </div>
+ <h2 class="subtitle">Evenimente ale bateriei</h2>
+ <p class="paragraph">BatteryManager oferă o serie de evenimente, cu ajutorul cărora se poate urmări schimbarea stării bateriei:</p>
+ <ul class="enumeration">
+  <li>chargingchange: se declanșează când se schimbă starea de încărcare a bateriei (proprietatea charging)</li>
+  <li>chargingtimechange: se declanșează când se schimbă timpul până la încărcarea completă a bateriei (proprietatea chargingTime)</li>
+  <li>dischargingtimechange: se declanșează când se schimbă timpul până la descărcarea completă a bateriei (proprietatea dischargingTime)</li>
+  <li>levelchange: se declanșează când se schimbă nivelul de încărcare al bateriei (proprietatea level)</li>
+ </ul>
+ <p class="paragraph">De exemplu, să procesăm evenimentele pentru a urmări starea bateriei:</p>
+ <div class="code-inline">
+  <pre><code>function&nbsp;displayBatteryStatus(battery){<br>&nbsp;&nbsp;&nbsp;console.log("is&nbsp;charging:&nbsp;",&nbsp;battery.charging);<br>&nbsp;&nbsp;&nbsp;console.log("charging&nbsp;time&nbsp;(sec):&nbsp;",&nbsp;battery.chargingTime);<br>&nbsp;&nbsp;&nbsp;console.log("discharging&nbsp;time&nbsp;(sec):&nbsp;",&nbsp;battery.dischargingTime);<br>&nbsp;&nbsp;&nbsp;console.log("charge&nbsp;level:&nbsp;",&nbsp;battery.level);<br>}<br>navigator.getBattery().then((battery)=&gt;{<br>&nbsp;&nbsp;&nbsp;displayBatteryStatus(battery);<br>&nbsp;&nbsp;&nbsp;battery.addEventListener("chargingchange",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(e)=&gt;console.log("is&nbsp;charging:&nbsp;",&nbsp;e.target.charging));<br>&nbsp;&nbsp;&nbsp;battery.addEventListener("chargingtimechange",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(e)=&gt;console.log("charging&nbsp;time&nbsp;(sec):&nbsp;",&nbsp;e.target.chargingTime));<br>&nbsp;&nbsp;&nbsp;battery.addEventListener("dischargingtimechange",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(e)=&gt;console.log("discharging&nbsp;time&nbsp;(sec):&nbsp;",&nbsp;e.target.dischargingTime));&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;battery.addEventListener("levelchange",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(e)=&gt;console.log("charge&nbsp;level:&nbsp;",&nbsp;e.target.level));<br>});</code></pre>
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

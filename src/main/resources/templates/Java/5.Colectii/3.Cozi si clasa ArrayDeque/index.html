@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Cozi și clasa ArrayDeque</h1>
+ <p class="paragraph">Coziile reprezintă o structură de date care funcționează după principiul FIFO (first in - first out). Adică, cu cât un element a fost adăugat mai devreme în colecție, cu atât va fi eliminat mai devreme. Acesta este modelul standard al unei cozi unidirecționale. Totuși, există și cozi bidirecționale – adică acelea în care putem adăuga un element nu doar la început, ci și la sfârșit. Și, corespunzător, putem elimina un element nu doar din coadă, ci și din început.</p>
+ <p class="paragraph">Caracteristica claselor cozi este că implementează interfețele speciale Queue sau Deque.</p>
+ <h2 class="subtitle">Interfața Queue</h2>
+ <p class="paragraph">Interfața generalizată Queue&lt;E&gt; extinde interfața de bază Collection și definește comportamentul clasei ca o coadă unidirecțională. Funcționalitatea sa este oferită prin următoarele metode:</p>
+ <ul class="enumeration">
+  <li>E element(): returnează, dar nu elimină, elementul din capul cozii. Dacă coada este goală, generează excepția NoSuchElementException</li>
+  <li>boolean offer(E obj): adaugă elementul obj la sfârșitul cozii. Dacă elementul a fost adăugat cu succes, returnează true, altfel - false</li>
+  <li>E peek(): returnează fără a elimina elementul din capul cozii. Dacă coada este goală, returnează valoarea null</li>
+  <li>E poll(): returnează cu eliminare elementul din capul cozii. Dacă coada este goală, returnează valoarea null</li>
+  <li>E remove(): returnează cu eliminare elementul din capul cozii. Dacă coada este goală, generează excepția NoSuchElementException</li>
+ </ul>
+ <p class="paragraph">Astfel, toate clasele care implementează această interfață vor avea metoda offer pentru adăugarea în coadă, metoda poll pentru extragerea unui element din capul cozii și metodele peek și element pentru a obține pur și simplu elementul din capul cozii.</p>
+ <h2 class="subtitle">Interfața Deque</h2>
+ <p class="paragraph">Interfața Deque extinde interfața Queue descrisă mai sus și definește comportamentul unei cozi bidirecționale, care funcționează fie ca o coadă unidirecțională obișnuită, fie ca un stack care funcționează pe principiul LIFO (ultimul intrat - primul ieșit).</p>
+ <p class="paragraph">Interfața Deque definește următoarele metode:</p>
+ <ul class="enumeration">
+  <li>void addFirst(E obj): adaugă un element la începutul cozii</li>
+  <li>void addLast(E obj): adaugă elementul obj la sfârșitul cozii</li>
+  <li>E getFirst(): returnează fără a elimina elementul din capul cozii. Dacă coada este goală, generează excepția NoSuchElementException</li>
+  <li>E getLast(): returnează fără a elimina ultimul element al cozii. Dacă coada este goală, generează excepția NoSuchElementException</li>
+  <li>boolean offerFirst(E obj): adaugă elementul obj la începutul cozii. Dacă elementul a fost adăugat cu succes, returnează true, altfel - false</li>
+  <li>boolean offerLast(E obj): adaugă elementul obj la sfârșitul cozii. Dacă elementul a fost adăugat cu succes, returnează true, altfel - false</li>
+  <li>E peekFirst(): returnează fără a elimina elementul din capul cozii. Dacă coada este goală, returnează valoarea null</li>
+  <li>E peekLast(): returnează fără a elimina ultimul element al cozii. Dacă coada este goală, returnează valoarea null</li>
+  <li>E pollFirst(): returnează cu eliminare elementul din capul cozii. Dacă coada este goală, returnează valoarea null</li>
+  <li>E pollLast(): returnează cu eliminare ultimul element al cozii. Dacă coada este goală, returnează valoarea null</li>
+  <li>E pop(): returnează cu eliminare elementul din capul cozii. Dacă coada este goală, generează excepția NoSuchElementException</li>
+  <li>void push(E element): adaugă un element la începutul cozii</li>
+  <li>E removeFirst(): returnează cu eliminare elementul din capul cozii. Dacă coada este goală, generează excepția NoSuchElementException</li>
+  <li>E removeLast(): returnează cu eliminare elementul din capătul cozii. Dacă coada este goală, generează excepția NoSuchElementException</li>
+  <li>boolean removeFirstOccurrence(Object obj): elimină primul element întâlnit obj din coadă. Dacă eliminarea a avut loc, returnează true, altfel returnează false</li>
+  <li>boolean removeLastOccurrence(Object obj): elimină ultimul element întâlnit obj din coadă. Dacă eliminarea a avut loc, returnează true, altfel returnează false</li>
+ </ul>
+ <p class="paragraph">Astfel, existența metodelor pop și push permite claselor care implementează acest element să funcționeze ca un stack. În același timp, funcționalitatea existentă permite și crearea cozilor bidirecționale, ceea ce face ca clasele care aplică această interfață să fie destul de flexibile.</p>
+ <h2 class="subtitle">Clasa ArrayDeque</h2>
+ <p class="paragraph">În Java, cozile sunt reprezentate de o serie de clase. Una dintre acestea este clasa ArrayDeque&lt;E&gt;. Această clasă reprezintă o coadă bidirecțională generalizată, moștenind funcționalitatea de la clasa AbstractCollection și aplicând interfața Deque.</p>
+ <p class="paragraph">În clasa ArrayDeque sunt definiți următorii constructori:</p>
+ <ul class="enumeration">
+  <li>ArrayDeque(): creează o coadă goală</li>
+  <li>ArrayDeque(Collection&lt;? extends E&gt; col): creează o coadă plină cu elemente din colecția col</li>
+  <li>ArrayDeque(int capacity): creează o coadă cu capacitatea inițială capacity. Dacă nu specificăm explicit capacitatea inițială, capacitatea implicită va fi 16</li>
+ </ul>
+ <p class="paragraph">Exemplu de utilizare a clasei:</p>
+ <div class="code-inline">
+  <pre><code>import&nbsp;java.util.ArrayDeque;<br><br>public&nbsp;class&nbsp;Program{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ArrayDeque&lt;String&gt;&nbsp;states&nbsp;=&nbsp;new&nbsp;ArrayDeque&lt;String&gt;();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;adăugare&nbsp;standard&nbsp;de&nbsp;elemente<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;states.add("Germany");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;states.addFirst("France");&nbsp;//&nbsp;adăugăm&nbsp;un&nbsp;element&nbsp;la&nbsp;început<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;states.push("Great&nbsp;Britain");&nbsp;//&nbsp;adăugăm&nbsp;un&nbsp;element&nbsp;la&nbsp;început<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;states.addLast("Spain");&nbsp;//&nbsp;adăugăm&nbsp;un&nbsp;element&nbsp;la&nbsp;sfârșitul&nbsp;colecției<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;states.add("Italy");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;primul&nbsp;element&nbsp;fără&nbsp;a-l&nbsp;elimina<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;sFirst&nbsp;=&nbsp;states.getFirst();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(sFirst);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Great&nbsp;Britain<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;ultimul&nbsp;element&nbsp;fără&nbsp;a-l&nbsp;elimina<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;sLast&nbsp;=&nbsp;states.getLast();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(sLast);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Italy<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("Dimensiunea&nbsp;cozii:&nbsp;%d&nbsp;\n",&nbsp;states.size());&nbsp;&nbsp;//&nbsp;5<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;parcurgerea&nbsp;colecției&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(states.peek()!=null){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;extragere&nbsp;de&nbsp;la&nbsp;început<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(states.pop());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;coadă&nbsp;de&nbsp;obiecte&nbsp;Person<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ArrayDeque&lt;Person&gt;&nbsp;people&nbsp;=&nbsp;new&nbsp;ArrayDeque&lt;Person&gt;();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;people.addFirst(new&nbsp;Person("Tom"));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;people.addLast(new&nbsp;Person("Nick"));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;parcurgere&nbsp;fără&nbsp;extragere<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(Person&nbsp;p&nbsp;:&nbsp;people){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(p.getName());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}<br>class&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;name;<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(String&nbsp;value){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name=value;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;String&nbsp;getName(){return&nbsp;name;}<br>}</code></pre>
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

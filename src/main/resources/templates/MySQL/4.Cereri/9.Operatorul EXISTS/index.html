@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Operatorul EXISTS</h1>
+ <p class="paragraph">Operatorul EXISTS verifică dacă o subinterogare returnează vreun rezultat. De obicei, acest operator este folosit pentru a indica faptul că cel puțin o înregistrare într-o tabelă satisface o anumită condiție. Deoarece nu se returnează un set de rânduri, subinterogările cu un astfel de operator sunt, în general, executate rapid.</p>
+ <p class="paragraph">Aplicarea operatorului are următoarea sintaxă formală:</p>
+ <div class="code-inline">
+  <pre><code>WHERE&nbsp;[NOT]&nbsp;EXISTS&nbsp;(subinterogare)</code></pre>
+ </div>
+ <p class="paragraph">De exemplu, să găsim toate produsele din tabela Products pentru care există comenzi în tabela Orders:</p>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;EXISTS&nbsp;<br>(SELECT&nbsp;*&nbsp;FROM&nbsp;Orders&nbsp;WHERE&nbsp;Orders.ProductId&nbsp;=&nbsp;Products.Id)</code></pre>
+ </div>
+ <div class="image-container">
+  <img src="images/image1.png" alt="" class="responsive-image">
+ </div>
+ <p class="paragraph">Dacă dorim să aflăm, dimpotrivă, dacă există rânduri în tabel care NU satisfac condiția, putem utiliza operatorii NOT EXISTS. De exemplu, să găsim toate produsele din tabela Products pentru care nu există comenzi în tabela Orders:</p>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;NOT&nbsp;EXISTS&nbsp;(SELECT&nbsp;*&nbsp;FROM&nbsp;Orders&nbsp;WHERE&nbsp;Products.Id&nbsp;=&nbsp;Orders.ProductId)</code></pre>
+ </div>
+ <p class="paragraph">Merită de menționat că pentru obținerea unui rezultat similar s-ar putea folosi și operatorul IN:</p>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;*<br>FROM&nbsp;Products<br>WHERE&nbsp;Id&nbsp;NOT&nbsp;IN&nbsp;(SELECT&nbsp;ProductId&nbsp;FROM&nbsp;Orders)</code></pre>
+ </div>
+ <p class="paragraph">Dar deoarece la utilizarea EXISTS nu se realizează o selecție de rânduri, utilizarea sa este mai optimă și eficientă decât utilizarea operatorului IN.</p>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

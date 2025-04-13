@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Obiecte încorporate și Array-uri în Obiecte</h1>
+ <p class="paragraph">Obiectele pot conține alte obiecte ca proprietăți. De exemplu, avem un obiect care reprezintă o țară, cu diverse proprietăți. Una dintre aceste proprietăți poate reprezenta capitala. Totuși, pentru capitală, putem defini și alte proprietăți, cum ar fi numele, populația și anul înființării:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;country&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"Germania",<br>&nbsp;&nbsp;&nbsp;language:&nbsp;"germană",<br>&nbsp;&nbsp;&nbsp;capital:{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name:&nbsp;"Berlin",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;population:&nbsp;3375000,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;year:&nbsp;1237<br>&nbsp;&nbsp;&nbsp;}<br>};<br>console.log("Capitala:",&nbsp;country.capital.name);&nbsp;//&nbsp;Berlin<br>console.log("Populație:",&nbsp;country["capital"]["population"]);&nbsp;//&nbsp;3375000<br>console.log("Anul&nbsp;înființării:",&nbsp;country.capital["year"]);&nbsp;//&nbsp;1237</code></pre>
+ </div>
+ <p class="paragraph">Rezultatul în consolă:</p>
+ <p class="paragraph">Capitala: Berlin Populație: 3375000 Anul înființării: 1237</p>
+ <p class="paragraph">Pentru a accesa proprietățile acestor obiecte înglobate, putem utiliza atât notația punctată, cât și referirea la elemente asemănătoare cu array-ul:</p>
+ <div class="code-inline">
+  <pre><code>country.capital.name</code></pre>
+ </div>
+ <p class="paragraph">sau</p>
+ <div class="code-inline">
+  <pre><code>country["capital"]["population"]</code></pre>
+ </div>
+ <p class="paragraph">De asemenea, este permisă utilizarea unei combinații de ambele:</p>
+ <div class="code-inline">
+  <pre><code>country.capital["year"]</code></pre>
+ </div>
+ <p class="paragraph">Proprietățile pot fi și array-uri, inclusiv array-uri de alte obiecte:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;country&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"Elveția",<br>&nbsp;&nbsp;&nbsp;languages:&nbsp;["germană",&nbsp;"franceză",&nbsp;"italiană"],<br>&nbsp;&nbsp;&nbsp;capital:{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name:&nbsp;"Bern",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;population:&nbsp;126598<br>&nbsp;&nbsp;&nbsp;},<br>&nbsp;&nbsp;&nbsp;cities:&nbsp;[<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;name:&nbsp;"Zürich",&nbsp;population:&nbsp;378884},<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;name:&nbsp;"Geneva",&nbsp;population:&nbsp;188634},<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;name:&nbsp;"Basel",&nbsp;population:&nbsp;164937}<br>&nbsp;&nbsp;&nbsp;]<br>};<br><br>//&nbsp;Afișează&nbsp;toate&nbsp;elementele&nbsp;din&nbsp;country.languages<br>console.log("Limbi&nbsp;oficiale&nbsp;ale&nbsp;Elveției");<br>for(const&nbsp;lang&nbsp;of&nbsp;country.languages){<br>&nbsp;console.log(lang);<br>}<br>console.log("\n");&nbsp;&nbsp;//&nbsp;pentru&nbsp;separarea&nbsp;limbilor&nbsp;de&nbsp;orașe<br><br>//&nbsp;Afișează&nbsp;toate&nbsp;elementele&nbsp;din&nbsp;country.cities<br>console.log("Orașe&nbsp;din&nbsp;Elveția");<br>for(const&nbsp;city&nbsp;of&nbsp;country.cities){<br>&nbsp;console.log(city.name);<br>}</code></pre>
+ </div>
+ <p class="paragraph">În obiectul country, avem o proprietate numită languages, care conține un array de string-uri, precum și o proprietate numită cities, care stochează un array de obiecte similare.</p>
+ <p class="paragraph">Cu aceste array-uri, putem lucra asemănător ca cu oricare altele, de exemplu, le putem parcurge cu ajutorul unui ciclu for. În timpul parcurgerii array-ului de obiecte, fiecare element curent va reprezenta un obiect separat, astfel încât putem accesa proprietățile și metodele sale:</p>
+ <div class="code-inline">
+  <pre><code>for(const&nbsp;city&nbsp;of&nbsp;country.cities){<br>&nbsp;console.log(city.name);<br>}</code></pre>
+ </div>
+ <p class="paragraph">Sau, pentru al parcurge, am putea utiliza un alt tip de buclă for și, de asemenea, să trecem prin toate elementele array-ului:</p>
+ <div class="code-inline">
+  <pre><code>for(let&nbsp;i=0;&nbsp;i&nbsp;&lt;&nbsp;country.cities.length;&nbsp;i++){<br>&nbsp;&nbsp;&nbsp;console.log(country.cities[i].name);<br>}</code></pre>
+ </div>
+ <p class="paragraph">În final, browser-ul va afișa conținutul acestor array-uri:</p>
+ <p class="paragraph">Limbi oficiale ale Elveției germană franceză italiană Orașe din Elveția Zürich Geneva Basel</p>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

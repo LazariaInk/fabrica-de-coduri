@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Urmărirea procesului de Încărcarea a fișierului</h1>
+ <p class="paragraph">Când încărcați fișiere mari prin File API, poate fi util să informați utilizatorii despre progresul operațiunii de citire. În acest scop, tipul FileReader permite tratarea evenimentului progress. La handler-ul acestui eveniment se transmite un obiect care are tipul ProgressEvent și care oferă următoarele proprietăți:</p>
+ <ul class="enumeration">
+  <li>lengthComputable: o proprietate booleană care indică dacă progresul (cantitatea de octeți citiți) poate fi calculat sau nu</li>
+  <li>loaded: un număr întreg de 64 de biți fără semn, care indică volumul de date deja încărcat</li>
+  <li>total: un număr întreg de 64 de biți fără semn, care stochează cantitatea totală de date care urmează să fie încărcate</li>
+ </ul>
+ <p class="paragraph">De exemplu, luați în considerare următoarea pagină:</p>
+ <div class="code-inline">
+  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;#progress&nbsp;{width:0;&nbsp;height:100%;&nbsp;background-color:#ccc;}<br>&nbsp;&nbsp;&nbsp;#progress-bar&nbsp;{width:100px;&nbsp;height:20px;&nbsp;border:1px&nbsp;solid&nbsp;#888;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;input&nbsp;type="file"&nbsp;id="files"&nbsp;multiple&nbsp;/&gt;&lt;br&gt;&lt;br&gt;<br>&lt;div&nbsp;id="progress-bar"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;id="progress"&gt;&lt;/div&gt;<br>&lt;/div&gt;<br>&lt;script&gt;<br>const&nbsp;progressbar&nbsp;=&nbsp;document.getElementById("progress-bar");<br>const&nbsp;progress&nbsp;=&nbsp;document.getElementById("progress");<br>//&nbsp;urmărim&nbsp;progresul&nbsp;încărcării<br>function&nbsp;updateProgress(e)&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;if&nbsp;(e.lengthComputable)&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;percentLoaded&nbsp;=&nbsp;Math.round((e.loaded&nbsp;/&nbsp;e.total)&nbsp;*&nbsp;100);&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(percentLoaded&nbsp;&lt;&nbsp;100)&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;progress.style.width&nbsp;=&nbsp;percentLoaded&nbsp;+&nbsp;"%";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;progress.textContent&nbsp;=&nbsp;percentLoaded&nbsp;+&nbsp;"%";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}<br>//&nbsp;gestionăm&nbsp;selectarea&nbsp;fișierelor<br>function&nbsp;handleFileSelected(event)&nbsp;{<br>&nbsp;&nbsp;&nbsp;progress.style.width&nbsp;=&nbsp;"0%";&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;progress.textContent&nbsp;=&nbsp;"0%";&nbsp;&nbsp;<br><br>&nbsp;&nbsp;&nbsp;const&nbsp;reader&nbsp;=&nbsp;new&nbsp;FileReader();<br>&nbsp;&nbsp;&nbsp;reader.onprogress&nbsp;=&nbsp;updateProgress;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;reader.onerror&nbsp;=&nbsp;(e)&nbsp;=&gt;&nbsp;console.error(e.target.error);&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;reader.onload&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;progress.style.width&nbsp;=&nbsp;"100%";&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;progress.textContent&nbsp;=&nbsp;"100%";<br>&nbsp;&nbsp;&nbsp;};<br>&nbsp;&nbsp;&nbsp;if(event.target.files.length&gt;0)&nbsp;reader.readAsBinaryString(event.target.files[0]);<br>}<br>document.getElementById("files").addEventListener("change",&nbsp;handleFileSelected);<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+ </div>
+ <p class="paragraph">Pe pagina este definit elementul input pentru alegerea fisierului. Pentru a indica incarcarea fisierului, pe pagina este definit elementul div id="progress-bar" cu un element imbricat div id="percent".</p>
+ <p class="paragraph">Ca handler pentru evenimentul change al acestui element input este utilizata functia handleFileSelected. In aceasta, setam valorile initiale pentru indicatorul de incarcare:</p>
+ <div class="code-inline">
+  <pre><code>progress.style.width&nbsp;=&nbsp;"0%";<br>progress.textContent&nbsp;=&nbsp;"0%";</code></pre>
+ </div>
+ <p class="paragraph">Apoi, cream un obiect FileReader si pentru evenimentul sau progress ca handler aplicam functia updateProgress. In aceasta functie, calculam starea curenta a incarcarii si actualizam corespunzator latimea si textul elementului progress.</p>
+ <div class="code-inline">
+  <pre><code>function&nbsp;updateProgress(e)&nbsp;{<br>&nbsp;&nbsp;&nbsp;if&nbsp;(e.lengthComputable)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;percentLoaded&nbsp;=&nbsp;Math.round((e.loaded&nbsp;/&nbsp;e.total)&nbsp;*&nbsp;100);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(percentLoaded&nbsp;&lt;&nbsp;100)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;progress.style.width&nbsp;=&nbsp;percentLoaded&nbsp;+&nbsp;"%";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;progress.textContent&nbsp;=&nbsp;percentLoaded&nbsp;+&nbsp;"%";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">Deoarece pentru elementul progress se utilizeaza o culoare de fundal gri, cresterea latimii va duce la marirea zonei colorate, ceea ce va fi un indicator al incarcarii. Mai mult, prin textul elementului vom putea vedea procentul de date al fisierului incarcat.</p>
+ <p class="paragraph">Cand incarcarea este completa, la obiectul FileReader se declanseaza evenimentul load, unde setam valorile finale pentru elementul progress.</p>
+ <div class="code-inline">
+  <pre><code>reader.onload&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;progress.style.width&nbsp;=&nbsp;"100%";<br>&nbsp;&nbsp;&nbsp;progress.textContent&nbsp;=&nbsp;"100%";<br>};</code></pre>
+ </div>
+ <p class="paragraph">La sfarsitul handler-ului de selectie a fisierului, incepem incarcarea acestuia ca un set de octeti:</p>
+ <div class="code-inline">
+  <pre><code>if(event.target.files.length&gt;0)&nbsp;reader.readAsBinaryString(event.target.files[0]);</code></pre>
+ </div>
+ <p class="paragraph">Pentru a demonstra procesarea progresului incarcarii aici nu sunt utilizate datele incarcate, dar, desigur, putem obtine aceste date, asa cum a fost descris in articolul anterior, si le putem folosi in vreun fel.</p>
+ <p class="paragraph">Astfel, la alegerea unui fisier, va incepe incarcarea, iar elementul progress va afisa indicatia de incarcare.</p>
+ <div class="image-container">
+  <img src="images/image1.png" alt="" class="responsive-image">
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

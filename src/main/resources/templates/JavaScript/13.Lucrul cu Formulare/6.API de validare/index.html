@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">API de validare - Validarea elementelor formularului</h1>
+ <h2 class="subtitle">Validare HTML5</h2>
+ <p class="paragraph">HTML5 suportă validarea nativă a formularelor și a elementelor acestora. Pentru aceasta, câmpurile de intrare folosesc diverse atribute care configurează validarea. În special, putem folosi următoarele atribute:</p>
+ <ul class="enumeration">
+  <li>required cere ca un câmp de intrare să conțină neapărat o valoare</li>
+  <li>max stabilește valoarea numerică maximă (pentru intrarea de date numerice)</li>
+  <li>min stabilește valoarea numerică minimă (pentru intrarea de date numerice)</li>
+  <li>maxlength stabilește lungimea maximă a unui șir de caractere</li>
+  <li>minlength stabilește lungimea minimă a unui șir de caractere</li>
+ </ul>
+ <p class="paragraph">De exemplu, să luăm următoarea pagină:</p>
+ <div class="code-inline">
+  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;input&nbsp;{width:&nbsp;150px;}<br>&nbsp;&nbsp;&nbsp;input:invalid&nbsp;{border-color:&nbsp;red;&nbsp;}<br>&nbsp;&nbsp;&nbsp;input:valid&nbsp;{&nbsp;border-color:&nbsp;green;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;form&nbsp;id="registerForm"&nbsp;name="registerForm"&nbsp;method="post"&nbsp;action="register"&gt;<br>&lt;p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;label&nbsp;for="username"&gt;Username:&lt;/label&gt;&lt;br&gt;<br>&nbsp;&nbsp;&nbsp;&lt;input&nbsp;id="username"&nbsp;name="username"&nbsp;maxlength="20"&nbsp;minlength="3"&nbsp;required&gt;<br>&lt;/p&gt;<br>&lt;p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;label&nbsp;for="email"&gt;Email:&lt;/label&gt;&lt;br&gt;<br>&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="email"&nbsp;id="email"&nbsp;name="email"&nbsp;required&gt;<br>&lt;/p&gt;<br>&lt;p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;label&nbsp;for="age"&gt;Age:&lt;/label&gt;&lt;br&gt;<br>&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="number"&nbsp;id="age"&nbsp;name="age"&nbsp;min="1"&nbsp;max="110"&nbsp;value="18"&gt;<br>&lt;/p&gt;<br>&lt;button&nbsp;type="submit"&nbsp;id="submit"&nbsp;name="submit"&gt;Register&lt;/button&gt;<br>&lt;/form&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+ </div>
+ <p class="paragraph">Aici, pe formular este definit un câmp username pentru introducerea unui nume de utilizator condiționat. Acest nume trebuie să aibă cel puțin 3 și cel mult 20 de caractere. Câmpurile pentru introducerea numelui și emailului sunt obligatorii (au atributul required). De asemenea, pentru câmpul age, care este destinat pentru introducerea vârstei condiționate, sunt stabilite valorile minime și maxime admisibile - 1 și 110, respectiv.</p>
+ <p class="paragraph">De asemenea, merită menționat că prin selectorul input:invalid se poate defini stilul pentru câmpurile nevalide, în timp ce selectorul input:valid stabilește stilul pentru câmpurile care au trecut validarea.</p>
+ <p class="paragraph">Și dacă introducem în câmp o valoare care nu corespunde atributelor de validare sau nu introducem nicio valoare în câmpurile care necesită introducerea, atunci la încercarea de a trimite formularul, browserul ne va afișa o eroare de validare pentru câmpul respectiv:</p>
+ <div class="image-container">
+  <img src="images/image1.png" alt="" class="responsive-image">
+ </div>
+ <p class="paragraph">Mesajul specific de validare depinde de browserul web. Exemplul de mai sus este pentru Google Chrome. Cu toate acestea, în acest caz, ne interesează cum putem interacționa cu validarea nativă HTML5 în codul JavaScript. În alte browsere, aspectul poate fi diferit.</p>
+ <h2 class="subtitle">Obținerea informațiilor despre validare în JavaScript</h2>
+ <p class="paragraph">Browserele moderne permit interacțiunea în codul JavaScript cu mecanismul de validare nativ HTML5. Pentru aceasta este destinat un API special - Constraint Validation API. Acest API definește o serie de proprietăți care pot fi aplicate formularelor sau elementelor formularului și care permit obținerea stării de validare a elementelor:</p>
+ <ul class="enumeration">
+  <li>willValidate: returnează o valoare booleană care indică dacă validarea este disponibilă pentru elementul formularului. Dacă validarea este disponibilă, atunci se returnează true, în caz contrar se returnează false. De exemplu, dacă pentru un element al formularului este setat atributul disabled, care face acel element inaccesibil pentru interacțiune, atunci validarea pentru el este de asemenea indisponibilă. Pentru alte elemente (care nu sunt elemente ale formularului) se returnează valoarea undefined</li>
+  <li>validity: returnează un obiect de tipul ValidityState, care, la rândul său, conține informații despre validarea acestui element al formularului.</li>
+ </ul>
+ <h2 class="subtitle">Proprietățile ValidityState</h2>
+ <ul class="enumeration">
+  <li>valid: returnează o valoare booleană care indică dacă elementul formularului trece validarea (true) sau nu (false)</li>
+  <li>valueMissing: returnează true dacă în elementul formularului, care necesită introducere obligatorie, lipsește valoarea</li>
+  <li>typeMismatch: returnează true dacă valoarea introdusă nu corespunde tipului elementului formularului (de exemplu, în elementul &lt;input type="email"&gt; este introdus un text care nu este o adresă de email)</li>
+  <li>patternMismatch: returnează true dacă valoarea introdusă nu corespunde modelului specificat</li>
+  <li>tooLong: returnează true dacă valoarea introdusă depășește limita maximă admisibilă</li>
+  <li>tooShort: returnează true dacă valoarea introdusă este mai mică decât valoarea minimă admisibilă</li>
+  <li>rangeUnderflow: returnează true dacă valoarea introdusă este mai mică decât intervalul de valori admisibile</li>
+  <li>rangeOverflow: returnează true dacă valoarea introdusă depășește intervalul de valori admisibile</li>
+  <li>stepMismatch: returnează true dacă valoarea introdusă nu corespunde valorii atributului step</li>
+  <li>badInput: returnează true dacă valoarea introdusă este incorectă</li>
+  <li>customError: returnează true dacă la introducere a fost generată o eroare personalizată</li>
+ </ul>
+ <h2 class="subtitle">validationMessage</h2>
+ <p class="paragraph">validationMessage: conține mesajul de eroare de validare pentru elementul curent al formularului. Mesajul specific depinde de browserul web utilizat.</p>
+ <p class="paragraph">Să aplicăm unele dintre aceste proprietăți pentru a verifica introducerea într-un element al formularului:</p>
+ <div class="code-inline">
+  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;input&nbsp;{width:&nbsp;150px;}<br>&nbsp;&nbsp;&nbsp;input:invalid&nbsp;{border-color:&nbsp;red;&nbsp;}<br>&nbsp;&nbsp;&nbsp;input:valid&nbsp;{&nbsp;border-color:&nbsp;green;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;form&nbsp;id="registerForm"&nbsp;name="registerForm"&nbsp;method="post"&nbsp;action="register"&gt;<br>&lt;p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;label&nbsp;for="email"&gt;E-mail:&lt;/label&gt;&lt;br&gt;<br>&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="email"&nbsp;id="email"&nbsp;name="email"&nbsp;required&gt;<br>&lt;/p&gt;<br>&lt;button&nbsp;type="submit"&nbsp;id="submit"&nbsp;name="submit"&gt;Register&lt;/button&gt;<br>&lt;/form&gt;<br>&lt;script&gt;<br>const&nbsp;emailField&nbsp;=&nbsp;document.getElementById("email");&nbsp;&nbsp;<br>emailField.addEventListener("change",&nbsp;validateEmail);<br><br>function&nbsp;validateEmail()&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Poate&nbsp;fi&nbsp;validat:",&nbsp;emailField.willValidate);<br>&nbsp;&nbsp;&nbsp;console.log("Valoarea&nbsp;lipsește:",&nbsp;emailField.validity.valueMissing);<br>&nbsp;&nbsp;&nbsp;console.log("Valoarea&nbsp;este&nbsp;validă:",&nbsp;emailField.validity.valid);<br>&nbsp;&nbsp;&nbsp;console.log("Valoarea&nbsp;corespunde&nbsp;tipului",&nbsp;emailField.validity.typeMismatch);<br>&nbsp;&nbsp;&nbsp;console.log(emailField.validationMessage);<br>}<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+ </div>
+ <p class="paragraph">Exemplu de funcționare:</p>
+ <div class="image-container">
+  <img src="images/image2.png" alt="" class="responsive-image">
+ </div>
+ <p class="paragraph">Grație acestui lucru putem efectua un proces suplimentar de informații despre validare, de exemplu, putem afișa erorile de validare pe pagină:</p>
+ <div class="code-inline">
+  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;input&nbsp;{width:&nbsp;150px;}<br>&nbsp;&nbsp;&nbsp;input:invalid&nbsp;{border-color:&nbsp;red;&nbsp;}<br>&nbsp;&nbsp;&nbsp;input:valid&nbsp;{&nbsp;border-color:&nbsp;green;}<br>&nbsp;&nbsp;&nbsp;#emailErrors&nbsp;{padding:5px;background-color:&nbsp;#ffcccc;&nbsp;color:#b33939;&nbsp;display:none;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;form&nbsp;id="registerForm"&nbsp;name="registerForm"&nbsp;method="post"&nbsp;action="register"&gt;<br>&lt;p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;label&nbsp;for="email"&gt;E-mail:&lt;/label&gt;&lt;br&gt;<br>&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="email"&nbsp;id="email"&nbsp;name="email"&nbsp;required&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;id="emailErrors"&gt;&lt;/div&gt;<br>&lt;/p&gt;<br>&lt;button&nbsp;type="submit"&nbsp;id="submit"&nbsp;name="submit"&gt;Register&lt;/button&gt;<br>&lt;/form&gt;<br>&lt;script&gt;<br>const&nbsp;emailField&nbsp;=&nbsp;document.getElementById("email");<br>const&nbsp;emailErrors&nbsp;=&nbsp;document.getElementById("emailErrors");<br>emailField.addEventListener("change",&nbsp;validateEmail);<br><br>function&nbsp;validateEmail()&nbsp;{<br>&nbsp;&nbsp;&nbsp;if(!emailField.validity.valid){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;emailErrors.textContent&nbsp;=&nbsp;emailField.validationMessage;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;emailErrors.style.display&nbsp;=&nbsp;"block";<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;emailErrors.textContent&nbsp;=&nbsp;"";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;emailErrors.style.display&nbsp;=&nbsp;"none";<br>&nbsp;&nbsp;&nbsp;}<br>}<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+ </div>
+ <p class="paragraph">Aici, în cazul existenței unei erori de validare, în blocul emailErrors plasăm mesajul respectiv:</p>
+ <div class="image-container">
+  <img src="images/image3.png" alt="" class="responsive-image">
+ </div>
+ <p class="paragraph">Se observă că browserul determină singur mesajul de eroare. Cu toate acestea, putem verifica validarea conform unor parametri specifici și putem stabili propriile noastre mesaje de eroare:</p>
+ <div class="code-inline">
+  <pre><code>function&nbsp;validateEmail()&nbsp;{<br>&nbsp;&nbsp;&nbsp;if(!emailField.validity.valueMissing){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;emailErrors.textContent&nbsp;=&nbsp;"Lipsește&nbsp;email-ul!";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;emailErrors.style.display&nbsp;=&nbsp;"block";<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;emailErrors.textContent&nbsp;=&nbsp;"";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;emailErrors.style.display&nbsp;=&nbsp;"none";<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

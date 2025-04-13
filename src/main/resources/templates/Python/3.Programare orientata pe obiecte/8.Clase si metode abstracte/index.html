@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Clase și metode abstracte</h1>
+ <p class="paragraph">De obicei, clasele reflectă anumite obiecte din realitatea înconjurătoare. Însă uneori lucrăm cu entități care nu au o întruchipare concretă. De exemplu, entitatea „animal”. Există animale concrete - pisică, câine și așa mai departe, dar animalul ca atare nu are o întruchipare concretă. Sau entitatea „figură geometrică”. Există dreptunghi, pătrat, cerc, triunghi, dar figura geometrică în sine nu are o întruchipare concretă. De obicei, pentru a descrie astfel de entități se folosesc clase abstracte.</p>
+ <p class="paragraph">În limbajul Python, toate instrumentele pentru crearea claselor abstracte sunt definite într-un modul special numit abc, care trebuie să fie inclus suplimentar în aplicație.</p>
+ <div class="code-inline">
+  <pre><code>import&nbsp;abc</code></pre>
+ </div>
+ <p class="paragraph">Componenta cheie a acestui modul este clasa ABC și adnotarea @abstractmethod. Clasa ABC simplifică crearea unei clase abstracte, iar toate clasele abstracte definite sunt derivate din această clasă. Adnotarea @abstractmethod este destinată creării unei metode abstracte.</p>
+ <p class="paragraph">Clasele abstracte sunt definite ca și clasele obișnuite, cu excepția faptului că acestea sunt derivate din clasa ABC din modulul abc. De exemplu, să definim o clasă abstractă pentru o figură geometrică:</p>
+ <div class="code-inline">
+  <pre><code>import&nbsp;abc<br><br>class&nbsp;Shape(abc.ABC):<br>&nbsp;&nbsp;&nbsp;pass</code></pre>
+ </div>
+ <p class="paragraph">De obicei, clasele abstracte declară un anumit funcțional comun pentru clasele derivate. În plus, unele funcționalități pot să nu aibă nicio implementare - implementarea acestora trebuie să fie definită de clasele derivate. Acest tip de funcționalitate este reprezentat în cadrul clasei prin metode abstracte.</p>
+ <p class="paragraph">De exemplu, clasa figurii geometrice poate avea metode pentru calcularea perimetrului, a ariei etc. Nu putem defini o formulă generală pentru calcularea ariei tuturor figurilor - pentru fiecare figură concretă, principiul de calcul al ariei poate fi diferit. Prin urmare, în clasa figurii putem defini metoda de calcul al ariei ca abstractă. Pentru aceasta se folosește adnotarea @abstractmethod din modulul abc:</p>
+ <div class="code-inline">
+  <pre><code>import&nbsp;abc<br><br>class&nbsp;Shape(abc.ABC):<br>&nbsp;&nbsp;&nbsp;&nbsp;@abc.abstractmethod<br>&nbsp;&nbsp;&nbsp;def&nbsp;area(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pass&nbsp;&nbsp;#&nbsp;aria&nbsp;figurii</code></pre>
+ </div>
+ <p class="paragraph">În acest caz, metoda area() este definită ca abstractă. Deoarece nu are nevoie de o funcționalitate concretă, în interiorul ei este folosit operatorul pass.</p>
+ <p class="paragraph">Este important de menționat că nu putem crea direct un obiect al unei clase abstracte cu metode abstracte, folosind constructorul său:</p>
+ <div class="code-inline">
+  <pre><code>import&nbsp;abc<br><br>class&nbsp;Shape(abc.ABC):<br>&nbsp;&nbsp;&nbsp;&nbsp;@abc.abstractmethod<br>&nbsp;&nbsp;&nbsp;def&nbsp;area(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pass&nbsp;&nbsp;#&nbsp;aria&nbsp;figurii<br><br>shape&nbsp;=&nbsp;Shape()&nbsp;&nbsp;#&nbsp;!&nbsp;Eroare&nbsp;-&nbsp;acest&nbsp;lucru&nbsp;nu&nbsp;este&nbsp;permis<br>print(shape)</code></pre>
+ </div>
+ <p class="paragraph">Clasele derivate trebuie să implementeze toate metodele abstracte ale clasei abstracte. De exemplu, să definim clasa pentru un dreptunghi:</p>
+ <div class="code-inline">
+  <pre><code>import&nbsp;abc<br><br>class&nbsp;Shape(abc.ABC):<br>&nbsp;&nbsp;&nbsp;&nbsp;@abc.abstractmethod<br>&nbsp;&nbsp;&nbsp;def&nbsp;area(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pass&nbsp;&nbsp;#&nbsp;aria&nbsp;figurii<br><br>#&nbsp;clasa&nbsp;dreptunghiului<br>class&nbsp;Rectangle(Shape):<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;width,&nbsp;height):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.width&nbsp;=&nbsp;width<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.height&nbsp;=&nbsp;height<br><br>&nbsp;&nbsp;&nbsp;def&nbsp;area(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;self.width&nbsp;*&nbsp;self.height<br><br>rect&nbsp;=&nbsp;Rectangle(30,&nbsp;50)<br>print("Rectangle&nbsp;area:",&nbsp;rect.area())&nbsp;&nbsp;#&nbsp;Rectangle&nbsp;area:&nbsp;1500</code></pre>
+ </div>
+ <p class="paragraph">Aici, clasa dreptunghiului Rectangle primește prin constructor lățimea și înălțimea și le folosește pentru a calcula aria în metoda area().</p>
+ <p class="paragraph">În mod similar, putem defini și alte tipuri de figuri. De exemplu, să adăugăm clasa pentru un cerc:</p>
+ <div class="code-inline">
+  <pre><code>import&nbsp;abc<br><br>class&nbsp;Shape(abc.ABC):<br>&nbsp;&nbsp;&nbsp;&nbsp;@abc.abstractmethod<br>&nbsp;&nbsp;&nbsp;def&nbsp;area(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pass&nbsp;&nbsp;#&nbsp;aria&nbsp;figurii<br><br>#&nbsp;clasa&nbsp;dreptunghiului<br>class&nbsp;Rectangle(Shape):<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;width,&nbsp;height):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.width&nbsp;=&nbsp;width<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.height&nbsp;=&nbsp;height<br><br>&nbsp;&nbsp;&nbsp;def&nbsp;area(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;self.width&nbsp;*&nbsp;self.height<br><br>#&nbsp;clasa&nbsp;cercului<br>class&nbsp;Circle(Shape):<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;radius):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.radius&nbsp;=&nbsp;radius<br><br>&nbsp;&nbsp;&nbsp;def&nbsp;area(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;self.radius&nbsp;*&nbsp;self.radius&nbsp;*&nbsp;3.14<br><br>def&nbsp;print_area(shape):<br>&nbsp;&nbsp;&nbsp;print("Area:",&nbsp;shape.area())<br><br>rect&nbsp;=&nbsp;Rectangle(30,&nbsp;50)<br>circle&nbsp;=&nbsp;Circle(30)<br>print_area(rect)&nbsp;&nbsp;#&nbsp;Area:&nbsp;1500<br>print_area(circle)&nbsp;&nbsp;#&nbsp;Area:&nbsp;2826.0</code></pre>
+ </div>
+ <p class="paragraph">În acest caz, pentru a afișa aria figurii, a fost definită funcția print_area, care acceptă orice figură.</p>
+ <p class="paragraph">În același timp, clasele abstracte pot defini și constructori, atribute, metode neabstracte, care pot fi folosite și în clasele derivate:</p>
+ <div class="code-inline">
+  <pre><code>import&nbsp;abc<br><br>class&nbsp;Shape(abc.ABC):<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;x,&nbsp;y):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.x&nbsp;=&nbsp;x<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.y&nbsp;=&nbsp;y<br><br>&nbsp;&nbsp;&nbsp;&nbsp;@abc.abstractmethod<br>&nbsp;&nbsp;&nbsp;def&nbsp;area(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pass&nbsp;&nbsp;#&nbsp;metodă&nbsp;abstractă<br><br>&nbsp;&nbsp;&nbsp;def&nbsp;print_point(self):&nbsp;&nbsp;#&nbsp;metodă&nbsp;neabstractă<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print("X:",&nbsp;self.x,&nbsp;"\tY:",&nbsp;self.y)<br><br>#&nbsp;clasa&nbsp;dreptunghiului<br>class&nbsp;Rectangle(Shape):<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;x,&nbsp;y,&nbsp;width,&nbsp;height):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super().__init__(x,&nbsp;y)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.width&nbsp;=&nbsp;width<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.height&nbsp;=&nbsp;height<br><br>&nbsp;&nbsp;&nbsp;def&nbsp;area(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;self.width&nbsp;*&nbsp;self.height<br><br>rect&nbsp;=&nbsp;Rectangle(10,&nbsp;20,&nbsp;100,&nbsp;100)<br>rect.print_point()&nbsp;&nbsp;#&nbsp;X:&nbsp;10&nbsp;&nbsp;&nbsp;Y:&nbsp;20</code></pre>
+ </div>
+ <p class="paragraph">Aici, clasa abstractă Shape primește prin constructor coordonatele X și Y pentru un punct, în raport cu care este creată figura (de exemplu, pentru un dreptunghi, acestea pot fi coordonatele colțului din stânga sus, pentru un cerc - centrul). De asemenea, este definită o metodă neabstractă print_point, care afișează coordonatele punctului pe consolă.</p>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

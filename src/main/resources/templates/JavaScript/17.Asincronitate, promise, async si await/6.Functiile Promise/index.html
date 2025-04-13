@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Funcțiile Promise.all, Promise.allSettled, Promise.any și Promise.race</h1>
+ <p class="paragraph">Funcțiile Promise.all(), Promise.allSettled() și Promise.race() permit gruparea executării mai multor promise-uri.</p>
+ <h2 class="subtitle">Funcția Promise.all</h2>
+ <p class="paragraph">Funcția Promise.all() returnează un singur obiect Promise care încorporează un set de promise-uri.</p>
+ <p class="paragraph">Considerăm codul următor:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;promise1&nbsp;=&nbsp;new&nbsp;Promise((resolve,&nbsp;reject)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;setTimeout(resolve,&nbsp;1000,&nbsp;"Hello");<br>});<br>const&nbsp;promise2&nbsp;=&nbsp;new&nbsp;Promise((resolve,&nbsp;reject)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;setTimeout(resolve,&nbsp;500,&nbsp;"World");<br>});<br>promise1.then(value&nbsp;=&gt;&nbsp;console.log(value));&nbsp;&nbsp;//&nbsp;Hello<br>promise2.then(value&nbsp;=&gt;&nbsp;console.log(value));&nbsp;&nbsp;//&nbsp;World</code></pre>
+ </div>
+ <p class="paragraph">Aici sunt definite două promise-uri. Operațiunea asincronă a primului promise este executată după 1000 de milisecunde, iar a două după 500 de milisecunde. Ambele promise-uri sunt executate independent una de cealaltă. Ieșirea în consolă:</p>
+ <div class="code-inline">
+  <pre><code>World<br>Hello</code></pre>
+ </div>
+ <p class="paragraph">Funcția Promise.all() permite combinarea mai multor promise-uri și executarea lor în paralel, ca un întreg. Ca parametru, funcția acceptă un set de promise-uri:</p>
+ <div class="code-inline">
+  <pre><code>Promise.all([promise1,&nbsp;promise2,&nbsp;...&nbsp;promiseN]);</code></pre>
+ </div>
+ <p class="paragraph">Rezultatul returnat de funcție este un nou obiect Promise.</p>
+ <p class="paragraph">Acum să modificăm exemplul anterior, utilizând funcția Promise.all():</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;promise1&nbsp;=&nbsp;new&nbsp;Promise((resolve,&nbsp;reject)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;setTimeout(resolve,&nbsp;1000,&nbsp;"Hello");<br>});<br>const&nbsp;promise2&nbsp;=&nbsp;new&nbsp;Promise((resolve,&nbsp;reject)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;setTimeout(resolve,&nbsp;500,&nbsp;"World");<br>});<br>Promise.all([promise1,&nbsp;promise2])<br>&nbsp;&nbsp;&nbsp;.then(values&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;[promise1data,&nbsp;promise2data]&nbsp;=&nbsp;values;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(promise1data,&nbsp;promise2data);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Hello&nbsp;World<br>});</code></pre>
+ </div>
+ <p class="paragraph">Acum datele ambelor promise-uri sunt returnate împreună și sunt accesibile în metoda then() sub forma unui array values. Ieșirea în consolă:</p>
+ <div class="code-inline">
+  <pre><code>Hello&nbsp;World</code></pre>
+ </div>
+ <p class="paragraph">Valorile tuturor promise-urilor sunt returnate doar dacă toate s-au încheiat cu succes. Dar dacă în operațiunea asincronă a oricărui promise apare o eroare din cauza logicii interne sau a apelării funcției reject(), atunci toate promise-urile trec în starea rejected, respectiv:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;promise1&nbsp;=&nbsp;new&nbsp;Promise((resolve,&nbsp;reject)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;reject("Eroare&nbsp;neașteptată");<br>&nbsp;&nbsp;&nbsp;setTimeout(resolve,&nbsp;500,&nbsp;"Hello");<br>});<br>const&nbsp;promise2&nbsp;=&nbsp;new&nbsp;Promise((resolve,&nbsp;reject)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;setTimeout(resolve,&nbsp;1000,&nbsp;"World");<br>});<br><br>Promise.all([promise1,&nbsp;promise2])<br>&nbsp;&nbsp;&nbsp;.then(values&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;[promise1data,&nbsp;promise2data]&nbsp;=&nbsp;values;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(promise1data,&nbsp;promise2data);<br>})<br>.catch(error&nbsp;=&gt;&nbsp;console.log(error));&nbsp;//&nbsp;Eroare&nbsp;neașteptată</code></pre>
+ </div>
+ <p class="paragraph">În acest caz, primul promise este explicit trecut în starea rejected, deci toate promise-urile transmise în funcția Promise.all() sunt trecute în aceeași stare. Și ulterior, prin metoda catch(), ca și în cazul general, putem trata eroarea apărută.</p>
+ <h2 class="subtitle">Promise.allSettled</h2>
+ <p class="paragraph">O altă funcție - Promise.allSettled() - la fel ca Promise.all() acceptă un set de promise-uri și le execută ca un întreg, dar returnează un obiect cu statutul și rezultatul fiecărui promise:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;promise1&nbsp;=&nbsp;new&nbsp;Promise((resolve,&nbsp;reject)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;reject("Eroare&nbsp;neașteptată");<br>&nbsp;&nbsp;&nbsp;setTimeout(resolve,&nbsp;500,&nbsp;"Hello");<br>});<br>const&nbsp;promise2&nbsp;=&nbsp;new&nbsp;Promise((resolve,&nbsp;reject)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;setTimeout(resolve,&nbsp;1000,&nbsp;"World");<br>});<br>&nbsp;<br>Promise.allSettled([promise1,&nbsp;promise2])<br>&nbsp;&nbsp;&nbsp;.then(values&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;[promise1data,&nbsp;promise2data]&nbsp;=&nbsp;values;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(promise1data);&nbsp;&nbsp;//&nbsp;{status:&nbsp;"rejected",&nbsp;reason:&nbsp;"Eroare&nbsp;neașteptată"}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(promise2data);&nbsp;&nbsp;//&nbsp;{status:&nbsp;"fulfilled",&nbsp;value:&nbsp;"World"}<br>});</code></pre>
+ </div>
+ <p class="paragraph">În acest caz, chiar și în prezența unei erori în unul din promise-uri (ca în cazul primului promise de mai sus), funcția transmite rezultatele metodei then(), care urmează în lanț. Fiecare rezultat reprezintă un obiect. Prima proprietate a acestui obiect - status - descrie statutul sau starea promise-ului.</p>
+ <p class="paragraph">Dacă a apărut o eroare, statutul este rejected, iar a doua proprietate reprezintă obiectul erorii. Dacă promise-ul a fost executat cu succes, atunci statusul este fulfilled, iar a doua proprietate - value - conține rezultatul promise-ului.</p>
+ <h2 class="subtitle">Promise.race</h2>
+ <p class="paragraph">Funcția Promise.race() acceptă, de asemenea, mai multe promise-uri, dar returnează primul promise care se finalizează (indiferent dacă se finalizează cu succes sau cu o eroare):</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;promise1&nbsp;=&nbsp;new&nbsp;Promise((resolve)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;setTimeout(resolve,&nbsp;500,&nbsp;"Hello");<br>});<br>const&nbsp;promise2&nbsp;=&nbsp;new&nbsp;Promise((resolve)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;setTimeout(resolve,&nbsp;1000,&nbsp;"World");<br>});<br>Promise.race([promise1,&nbsp;promise2])<br>&nbsp;&nbsp;&nbsp;.then(value&nbsp;=&gt;&nbsp;console.log(value))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Hello<br>&nbsp;&nbsp;&nbsp;.catch(error&nbsp;=&gt;&nbsp;console.log(error));</code></pre>
+ </div>
+ <p class="paragraph">În acest caz, primul promise finalizat va fi promise1. Astfel, în metoda then(value =&gt; console.log(value)), value va fi șirul "Hello".</p>
+ <h2 class="subtitle">Promise.any</h2>
+ <p class="paragraph">Funcția Promise.any() acceptă mai multe promise-uri și returnează primul promise care se finalizează cu succes:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;promise1&nbsp;=&nbsp;new&nbsp;Promise((resolve,&nbsp;reject)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;reject("error&nbsp;in&nbsp;promise1");<br>&nbsp;&nbsp;&nbsp;setTimeout(resolve,&nbsp;500,&nbsp;"Hello");<br>});<br>const&nbsp;promise2&nbsp;=&nbsp;new&nbsp;Promise((resolve)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;setTimeout(resolve,&nbsp;1000,&nbsp;"World");<br>});<br>Promise.any([promise1,&nbsp;promise2])<br>&nbsp;&nbsp;&nbsp;.then(value&nbsp;=&gt;&nbsp;console.log(value))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;World<br>&nbsp;&nbsp;&nbsp;.catch(error&nbsp;=&gt;&nbsp;console.log(error));</code></pre>
+ </div>
+ <p class="paragraph">În acest caz, primul promise finalizat va fi promise1, dar se finalizează cu o eroare. Prin urmare, în metoda then(value =&gt; console.log(value)), value va fi șirul "World" - rezultatul promise-ului promise2, care se finalizează cu succes.</p>
+ <p class="paragraph">Se poate părea că Promise.any face același lucru ca și Promise.race, dar aceste funcții diferă în ceea ce privește modul în care gestionează promise-urile care se finalizează cu o eroare. Promise.race returnează primul promise finalizat, indiferent dacă se finalizează cu o eroare sau nu.</p>
+ <p class="paragraph">În schimb, Promise.any returnează primul promise finalizat cu succes (dacă există). Dacă toate promise-urile se finalizează cu o eroare, atunci se generează o excepție de tipul AggregateError:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;promise1&nbsp;=&nbsp;new&nbsp;Promise((resolve,&nbsp;reject)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;reject("error&nbsp;in&nbsp;promise1");<br>&nbsp;&nbsp;&nbsp;setTimeout(resolve,&nbsp;500,&nbsp;"Hello");<br>});<br>const&nbsp;promise2&nbsp;=&nbsp;new&nbsp;Promise((resolve,&nbsp;reject)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;reject("error&nbsp;in&nbsp;promise2");<br>&nbsp;&nbsp;&nbsp;setTimeout(resolve,&nbsp;1000,&nbsp;"World");<br>});<br>Promise.any([promise1,&nbsp;promise2])<br>&nbsp;&nbsp;&nbsp;.then(value&nbsp;=&gt;&nbsp;console.log(value))<br>&nbsp;&nbsp;&nbsp;.catch(error&nbsp;=&gt;&nbsp;console.log(error));&nbsp;//&nbsp;AggregateError:&nbsp;All&nbsp;promises&nbsp;were&nbsp;rejected</code></pre>
+ </div>
+ <p class="paragraph">Prin intermediul proprietății errors a tipului AggregateError se pot obține sub forma unui array toate erorile care au apărut în promise-uri:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;promise1&nbsp;=&nbsp;new&nbsp;Promise((resolve,&nbsp;reject)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;reject("error&nbsp;in&nbsp;promise1");<br>&nbsp;&nbsp;&nbsp;setTimeout(resolve,&nbsp;500,&nbsp;"Hello");<br>});<br>const&nbsp;promise2&nbsp;=&nbsp;new&nbsp;Promise((resolve,&nbsp;reject)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;reject("error&nbsp;in&nbsp;promise2");<br>&nbsp;&nbsp;&nbsp;setTimeout(resolve,&nbsp;1000,&nbsp;"World");<br>});<br>Promise.any([promise1,&nbsp;promise2])<br>&nbsp;&nbsp;&nbsp;.then(value&nbsp;=&gt;&nbsp;console.log(value))<br>&nbsp;&nbsp;&nbsp;.catch(e&nbsp;=&gt;&nbsp;console.log(e.errors));&nbsp;&nbsp;//&nbsp;["error&nbsp;in&nbsp;promise1",&nbsp;"error&nbsp;in&nbsp;promise2"]</code></pre>
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

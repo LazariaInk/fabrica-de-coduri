@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Coleții și iteratori</h1>
+ <h2 class="subtitle">Iteratori</h2>
+ <p class="paragraph">Iteratorii reprezintă o abstractizare pentru parcurgerea seturilor de date și sunt utilizați pentru a organiza accesul secvențial la elementele seturilor de date - cum ar fi matricele, obiectele Set, Map, șirurile etc. Astfel, datorită iteratorilor, putem parcurge un set de date (de exemplu, o matrice) folosind o buclă for-of:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Sam"];<br>for(const&nbsp;person&nbsp;of&nbsp;people){<br>&nbsp;&nbsp;&nbsp;console.log(person);<br>}</code></pre>
+ </div>
+ <p class="paragraph">În bucla for-of, în partea dreaptă a operatorului "of", se specifică setul de date sau obiectul iterabil (cunoscut sub numele de Iterable) din care putem obține elemente individuale în buclă. Cu toate acestea, posibilitatea de a parcurge un anumit obiect, cum ar fi o matrice în exemplul de mai sus, este implementată datorită faptului că aceste obiecte utilizează iteratori. Să analizăm mai detaliat ce reprezintă iteratorii și cum putem crea propriul iterator.</p>
+ <h2 class="subtitle">Obținerea unui iterator</h2>
+ <p class="paragraph">Orice obiect iterabil (cum ar fi o matrice, Map, Set etc.) conține în proprietatea Symbol.iterator o funcție care returnează iteratorul asociat obiectului:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Sam"];<br>//&nbsp;Primim&nbsp;iteratorul&nbsp;unei&nbsp;matrice<br>const&nbsp;iterator&nbsp;=&nbsp;people[Symbol.iterator]();<br>console.log(iterator);&nbsp;&nbsp;//&nbsp;Array&nbsp;Iterator&nbsp;{}</code></pre>
+ </div>
+ <p class="paragraph">Aici obținem iteratorul unei matrice, așa că în consolă va fi afișat ceva similar cu Array Iterator {}</p>
+ <p class="paragraph">Un alt exemplu - șirul reprezintă, de asemenea, un obiect iterabil, pe care îl putem parcurge caracter cu caracter:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;username&nbsp;=&nbsp;"Tom";<br>for(char&nbsp;of&nbsp;username){<br>&nbsp;&nbsp;&nbsp;console.log(char);<br>}</code></pre>
+ </div>
+ <p class="paragraph">Corespunzător, pentru șir, de asemenea, putem obține un iterator:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;username&nbsp;=&nbsp;"Tom";<br>//Primim&nbsp;iteratorul&nbsp;unui&nbsp;șir<br>const&nbsp;iterator&nbsp;=&nbsp;username[Symbol.iterator]();<br>console.log(iterator);&nbsp;&nbsp;//&nbsp;StringIterator&nbsp;{}</code></pre>
+ </div>
+ <p class="paragraph">Iteratorul pentru șir reprezintă tipul StringIterator. Similar, putem obține iteratori și pentru alte tipuri de obiecte iterabile.</p>
+ <p class="paragraph">Este important să menționăm că diverse tipuri pot avea metode suplimentare diferite pentru obținerea iteratorului. De exemplu, pentru matrice există metoda entries(), care, de asemenea, returnează iteratorul matricei:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Sam"];<br>console.log(people.entries());&nbsp;//&nbsp;Array&nbsp;Iterator&nbsp;{}</code></pre>
+ </div>
+ <h2 class="subtitle">Metoda next() a iteratorilor</h2>
+ <p class="paragraph">Iteratorii furnizează metoda next(), care returnează un obiect cu două proprietăți: value și done.</p>
+ <div class="code-inline">
+  <pre><code>{value,&nbsp;done}</code></pre>
+ </div>
+ <p class="paragraph">Proprietatea value conține valoarea efectivă a elementului curent care este iterat. Proprietatea done indică dacă mai există sau nu obiecte disponibile pentru iterare în colecție. Dacă în colecție mai există elemente, atunci proprietatea done este falsă. În caz contrar, dacă nu mai există elemente disponibile pentru iterare, proprietatea done este adevărată, iar metoda next() returnează un obiect.</p>
+ <div class="code-inline">
+  <pre><code>{done:&nbsp;true}</code></pre>
+ </div>
+ <p class="paragraph">De exemplu:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Sam"];<br>const&nbsp;iter&nbsp;=&nbsp;people[Symbol.iterator]();<br>const&nbsp;result&nbsp;=&nbsp;iter.next();<br>console.log(result);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;{value:&nbsp;"Tom",&nbsp;done:&nbsp;false}</code></pre>
+ </div>
+ <p class="paragraph">În acest caz, apelăm metoda next() și obținem primul rezultat din iterator:</p>
+ <div class="code-inline">
+  <pre><code>{value:&nbsp;"Tom",&nbsp;done:&nbsp;false}</code></pre>
+ </div>
+ <p class="paragraph">Aici vedem că obiectul curent reprezintă șirul "Tom", iar valoarea done: false indică faptul că în matrice mai există elemente pentru a fi parcurse.</p>
+ <p class="paragraph">Putem apela în mod consecutiv de mai multe ori metoda next() pentru a obține alte elemente ale matricei:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Sam"];<br>const&nbsp;iter&nbsp;=&nbsp;people[Symbol.iterator]();<br>console.log(iter.next());&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;{value:&nbsp;"Tom",&nbsp;done:&nbsp;false}<br>console.log(iter.next());&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;{value:&nbsp;"Bob",&nbsp;done:&nbsp;false}<br>console.log(iter.next());&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;{value:&nbsp;"Sam",&nbsp;done:&nbsp;false}<br>console.log(iter.next());&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;{value:&nbsp;undefined,&nbsp;done:&nbsp;true}</code></pre>
+ </div>
+ <p class="paragraph">Afișajul la consolă :</p>
+ <div class="code-inline">
+  <pre><code>{&nbsp;value:&nbsp;'Tom',&nbsp;done:&nbsp;false&nbsp;}<br>{&nbsp;value:&nbsp;'Jerry',&nbsp;done:&nbsp;false&nbsp;}<br>{&nbsp;value:&nbsp;'Spike',&nbsp;done:&nbsp;false&nbsp;}<br>{&nbsp;value:&nbsp;undefined,&nbsp;done:&nbsp;true&nbsp;}</code></pre>
+ </div>
+ <p class="paragraph">Aici vedem că la fiecare apelare a metodei next() obținem următorul obiect din matrice. Atunci când nu mai există obiecte pentru a fi parcurse, proprietatea done devine true.</p>
+ <p class="paragraph">Prin utilizarea metodei next(), putem parcurge singuri toate obiectele din matrice:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Sam"];<br>const&nbsp;iter&nbsp;=&nbsp;people[Symbol.iterator]();<br>while(!(item&nbsp;=&nbsp;iter.next()).done){<br>&nbsp;&nbsp;&nbsp;console.log(item.value);<br>}</code></pre>
+ </div>
+ <p class="paragraph">Aici, într-un ciclu while, obținem obiectul curent din metoda next() a iteratorului și îl stocăm în variabila item: `item = items.next()`</p>
+ <p class="paragraph">Apoi verificăm proprietatea sa done - dacă este egală cu false (adică mai există elemente în set), continuăm ciclul:</p>
+ <div class="code-inline">
+  <pre><code>while&nbsp;(!(item&nbsp;=&nbsp;iter.next()).done)&nbsp;{</code></pre>
+ </div>
+ <p class="paragraph">În cadrul ciclului, ne referim la proprietatea value a obiectului obținut:</p>
+ <div class="code-inline">
+  <pre><code>console.log(item.value);</code></pre>
+ </div>
+ <p class="paragraph">Output în consolă:</p>
+ <div class="code-inline">
+  <pre><code>Tom<br>Bob<br>Sam</code></pre>
+ </div>
+ <p class="paragraph">Dar acest lucru nu are sens, deoarece toate colecțiile care returnează iteratori susțin parcurgerea cu ajutorul buclei for...of, care utilizează în mod implicit iteratorul pentru a obține elementele.</p>
+ <h2 class="subtitle">Crearea propriului iterator</h2>
+ <p class="paragraph">Pentru exemplificare, să implementăm un iterator care parcurge o matrice de la sfârșit:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Sam"];<br><br>function&nbsp;reverseArrayIterator(array)&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;let&nbsp;count&nbsp;=&nbsp;array.length;<br>&nbsp;&nbsp;&nbsp;return&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;next:&nbsp;function(){&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(count&nbsp;&gt;&nbsp;0)&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value:&nbsp;array[--count],&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;done:&nbsp;false&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value:&nbsp;undefined,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;done:&nbsp;true&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;}<br>};<br>const&nbsp;iter&nbsp;=&nbsp;reverseArrayIterator(people);<br>while(!(item&nbsp;=&nbsp;iter.next()).done){<br>&nbsp;&nbsp;&nbsp;console.log(item.value);<br>}</code></pre>
+ </div>
+ <p class="paragraph">Aici, mai întâi este inițializată variabila "count", care reprezintă numărul de elemente parcurse dintr-un array. Inițial, variabila are valoarea egală cu lungimea array-ului.</p>
+ <p class="paragraph">Apoi, funcția returnează un obiect iterator. Metoda sa next() implementează comportamentul iterației: dacă contorul "count" este mai mare de 0 (adică mai există elemente de parcurs), atunci next() returnează un obiect, a cărui proprietate "done" are valoarea false (deoarece iteratorul nu a ajuns încă la sfârșitul sau, mai precis, la începutul array-ului), iar proprietatea "value" conține elementul corespunzător din array, indicat de variabila "count" după decrementare.</p>
+ <p class="paragraph">Când variabila "count" devine 0 (adică iteratorul a ajuns la sfârșit), next() returnează un obiect cu proprietatea "done" având valoarea true, iar proprietatea "value" având valoarea undefined.</p>
+ <p class="paragraph">Astfel, obținem un iterator care parcurge obiectele array-ului de la sfârșit. Afișajul în consolă:</p>
+ <div class="code-inline">
+  <pre><code>Sam<br>Bob<br>Tom</code></pre>
+ </div>
+ <p class="paragraph">Cu toate acestea, în timpul executării buclei for..of, elementele array-ului continuă să fie parcurse de la început. Aplicăm iteratorul nostru global pentru a fi folosit și în bucla for..of:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Sam"];<br><br>function&nbsp;reverseArrayIterator()&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;array&nbsp;=&nbsp;this;<br>&nbsp;&nbsp;&nbsp;let&nbsp;count&nbsp;=&nbsp;array.length;<br>&nbsp;&nbsp;&nbsp;return&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;next:&nbsp;function(){&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(count&nbsp;&gt;&nbsp;0)&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value:&nbsp;array[--count],&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;done:&nbsp;false&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value:&nbsp;undefined,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;done:&nbsp;true&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;}<br>};<br>//&nbsp;Schimbăm&nbsp;iteratorul&nbsp;pentru&nbsp;array-ul&nbsp;"people"<br>people[Symbol.iterator]=reverseArrayIterator;<br>for(person&nbsp;of&nbsp;people){<br>&nbsp;&nbsp;&nbsp;console.log(person);<br>}</code></pre>
+ </div>
+ <p class="paragraph">Aici sunt făcute două schimbări cheie. În primul rând, trebuie să obținem obiectul curent în interiorul iteratorului prin intermediul lui "this":</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;array&nbsp;=&nbsp;this;</code></pre>
+ </div>
+ <p class="paragraph">Funcția de iterator creată trebuie asignată proprietății Symbol.iterator:</p>
+ <div class="code-inline">
+  <pre><code>people[Symbol.iterator]=reverseArrayIterator;</code></pre>
+ </div>
+ <h2 class="subtitle">Crearea de obiecte iterabile</h2>
+ <p class="paragraph">Diverse obiecte pot avea propria lor implementare a iteratorului. Și, dacă este necesar, putem defini un obiect cu propriul său iterator. Utilizarea iteratorilor ne oferă posibilitatea de a crea un obiect care se va comporta ca o colecție de elemente.</p>
+ <p class="paragraph">Pentru a crea un obiect iterabil, trebuie să definim în obiect o metodă Symbol.iterator(). Această metodă va reprezenta efectiv iteratorul:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;iterable&nbsp;=&nbsp;{<br>&nbsp;[Symbol.iterator]()&nbsp;{<br>&nbsp;&nbsp;&nbsp;return&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;next()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;mai&nbsp;există&nbsp;elemente<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;{&nbsp;value:&nbsp;...,&nbsp;done:&nbsp;false&nbsp;};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;nu&nbsp;mai&nbsp;există&nbsp;elemente<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;{&nbsp;value:&nbsp;undefined,&nbsp;done:&nbsp;true&nbsp;};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;};<br>&nbsp;}<br>};</code></pre>
+ </div>
+ <p class="paragraph">Metoda [Symbol.iterator]() returnează un obiect care are metoda next(). Această metodă returnează un obiect cu două proprietăți: value și done.</p>
+ <p class="paragraph">Dacă în obiectul nostru există elemente, proprietatea value conține valoarea efectivă a elementului, iar proprietatea done este setată la false.</p>
+ <p class="paragraph">Dacă nu mai există elemente disponibile, proprietatea done este setată la true.</p>
+ <p class="paragraph">De exemplu, vom implementa un obiect simplu cu un iterator care returnează un set de numere:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;iterable&nbsp;=&nbsp;{<br>&nbsp;[Symbol.iterator]()&nbsp;{<br>&nbsp;&nbsp;&nbsp;return&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;current:&nbsp;1,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;end:&nbsp;3,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;next()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(this.current&nbsp;&lt;=&nbsp;this.end)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;{&nbsp;value:&nbsp;this.current++,&nbsp;done:&nbsp;false&nbsp;};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;{&nbsp;done:&nbsp;true&nbsp;};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;};<br>&nbsp;}<br>};</code></pre>
+ </div>
+ <p class="paragraph">Aici, iteratorul efectiv returnează numere de la 1 la 3. Pentru a urmări elementul curent în obiectul returnat de metoda [Symbol.iterator](), sunt definite două proprietăți:</p>
+ <div class="code-inline">
+  <pre><code>current:&nbsp;1,<br>end:&nbsp;3,</code></pre>
+ </div>
+ <p class="paragraph">Proprietatea current păstrează valoarea efectivă a elementului curent. Proprietatea end stabilește limita. Astfel, în acest caz, iteratorul returnează numere de la 1 la 3.</p>
+ <p class="paragraph">În metoda next(), dacă valoarea curentă este mai mică sau egală cu valoarea limită, returnăm un obiect:</p>
+ <div class="code-inline">
+  <pre><code>return&nbsp;{&nbsp;value:&nbsp;this.current++,&nbsp;done:&nbsp;false&nbsp;};</code></pre>
+ </div>
+ <p class="paragraph">Incrementarea this.current++ va face ca la următorul apel al metodei next, valoarea current să fie cu o unitate mai mare.</p>
+ <p class="paragraph">Dacă limita este atinsă, returnăm un obiect:</p>
+ <div class="code-inline">
+  <pre><code>return&nbsp;{&nbsp;done:&nbsp;true&nbsp;};</code></pre>
+ </div>
+ <p class="paragraph">Acest lucru indică faptul că nu mai există obiecte.</p>
+ <p class="paragraph">Vom obține elementele returnate de iterator:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;myIterator&nbsp;=&nbsp;iterable[Symbol.iterator]();&nbsp;//&nbsp;primim&nbsp;iteratorul<br>console.log(myIterator.next());&nbsp;//&nbsp;{value:&nbsp;1,&nbsp;done:&nbsp;false}<br>console.log(myIterator.next());&nbsp;//&nbsp;{value:&nbsp;2,&nbsp;done:&nbsp;false}<br>console.log(myIterator.next());&nbsp;//&nbsp;{value:&nbsp;3,&nbsp;done:&nbsp;false}<br>console.log(myIterator.next());&nbsp;//&nbsp;{done:&nbsp;true}</code></pre>
+ </div>
+ <p class="paragraph">Aici, mai întâi obținem iteratorul în constanta `myIterator`. Apoi, prin apelarea metodei sale `next()`, obținem în mod consecutiv toate elementele. La al patrulea apel al metodei `next()`, parcurgerea condițională a elementelor în iterator se încheie, iar metoda returnează obiectul {done: true}.</p>
+ <p class="paragraph">Cu toate acestea, dacă dorim să parcurgem obiectul nostru și să obținem elementele sale, nu este nevoie să apelăm metoda `next()`. Deoarece obiectul `iterable` implementează iteratorul, îl putem parcurge folosind bucla for-of:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;iterable&nbsp;=&nbsp;{<br>&nbsp;[Symbol.iterator]()&nbsp;{<br>&nbsp;&nbsp;&nbsp;return&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;current:&nbsp;1,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;end:&nbsp;3,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;next()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(this.current&nbsp;&lt;=&nbsp;this.end)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;{&nbsp;value:&nbsp;this.current++,&nbsp;done:&nbsp;false&nbsp;};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;{&nbsp;done:&nbsp;true&nbsp;};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;};<br>&nbsp;}<br>};<br>for&nbsp;(const&nbsp;value&nbsp;of&nbsp;iterable)&nbsp;{<br>&nbsp;console.log(value);<br>}</code></pre>
+ </div>
+ <p class="paragraph">Outputul în consolă:</p>
+ <div class="code-inline">
+  <pre><code>1<br>2<br>3</code></pre>
+ </div>
+ <p class="paragraph">Buclele for-of apelează automat metoda next() și extrag valoarea.</p>
+ <p class="paragraph">Să luăm încă un exemplu:</p>
+ <div class="code-inline">
+  <pre><code>//&nbsp;Companie<br>const&nbsp;company&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;//&nbsp;Vector&nbsp;de&nbsp;angajați<br>&nbsp;&nbsp;&nbsp;employees:&nbsp;[<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{name:&nbsp;"Tom",&nbsp;age:&nbsp;39,&nbsp;position:&nbsp;"Senior&nbsp;Developer"},<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{name:&nbsp;"Bob",&nbsp;age:&nbsp;43,&nbsp;position:&nbsp;"Middle&nbsp;Developer"},<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{name:&nbsp;"Sam",&nbsp;age:&nbsp;28,&nbsp;position:&nbsp;"Junior&nbsp;Developer"},<br>&nbsp;&nbsp;&nbsp;]<br>};<br>//&nbsp;Setăm&nbsp;iteratorul<br>company[Symbol.iterator]&nbsp;=&nbsp;function()&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;array&nbsp;=&nbsp;this.employees;&nbsp;//&nbsp;Obținem&nbsp;vectorul&nbsp;de&nbsp;angajați<br>&nbsp;&nbsp;&nbsp;let&nbsp;current&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;return&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;next()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(current&nbsp;&lt;&nbsp;array.length)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;{&nbsp;value:&nbsp;array[current++].name,&nbsp;done:&nbsp;false&nbsp;};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;{&nbsp;value:&nbsp;undefined,&nbsp;done:&nbsp;true&nbsp;};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;};<br>};<br><br>//&nbsp;Pentru&nbsp;fiecare&nbsp;angajat&nbsp;din&nbsp;companie<br>for&nbsp;(const&nbsp;employee&nbsp;of&nbsp;company)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(employee);<br>}</code></pre>
+ </div>
+ <p class="paragraph">Aici, obiectul company reprezintă o companie ipotetică, în care există un array de angajați - array-ul employees. Să presupunem că, cu ajutorul unui iterator, dorim să obținem numele fiecărui angajat. Pentru aceasta, pentru obiectul company, stabilim o funcție iterator care parcurge toate elementele din array-ul employees. Afișajul în consolă al programului:</p>
+ <div class="code-inline">
+  <pre><code>Tom<br>Bob<br>Sam</code></pre>
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

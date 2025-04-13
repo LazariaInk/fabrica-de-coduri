@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Transmiterea informațiilor către server</h1>
+ <h2 class="subtitle">Obținerea datelor din șirul de cerere</h2>
+ <p class="paragraph">Cel mai simplu mod de a trimite date pe serverul unei aplicații PHP din exterior este prin transmiterea datelor prin șirul de cerere.</p>
+ <p class="paragraph">Șirul de cerere reprezintă un set de parametri care sunt plasați în adresă după semnul întrebării. Fiecare parametru definește un nume și o valoare. De exemplu, în adresa:</p>
+ <div class="code-inline">
+  <pre><code>http://localhost/user.php?name=Tom&amp;age=36</code></pre>
+ </div>
+ <p class="paragraph">Partea ?name=Tom&amp;age=36 reprezintă șirul de cerere, în care există doi parametri: name și age. Pentru fiecare parametru este definit un nume și o valoare, care sunt separate prin semnul egal.</p>
+ <p class="paragraph">Parametrul name are valoarea "Tom", iar parametrul age - valoarea 36. Parametrii sunt separați între ei prin semnul ampersand.</p>
+ <p class="paragraph">De exemplu, definim următorul script user.php cu următorul conținut:</p>
+ <div class="code-inline">
+  <pre><code>&lt;?php<br>$name&nbsp;=&nbsp;"ne&nbsp;definit";<br>$age&nbsp;=&nbsp;"ne&nbsp;definit";<br>if(isset($_GET["name"])){<br>&nbsp;&nbsp;&nbsp;$name&nbsp;=&nbsp;$_GET["name"];<br>}<br>if(isset($_GET["age"])){<br>&nbsp;&nbsp;&nbsp;$age&nbsp;=&nbsp;$_GET["age"];<br>}<br>echo&nbsp;"Nume:&nbsp;$name&nbsp;&lt;br&gt;&nbsp;Vârstă:&nbsp;$age";<br>?&gt;</code></pre>
+ </div>
+ <p class="paragraph">Când introducem în bara de adrese a browserului o anumită adresă și apăsăm pe trimitere, pe server se trimite o cerere de tip GET. În PHP, în mod implicit, este definit un array asociativ global $_GET, care stochează toate valorile transmise în cererea GET.</p>
+ <p class="paragraph">Folosind cheile datelor transmise, putem obține valorile transmise din array-ul $_GET.</p>
+ <p class="paragraph">La trimiterea șirului de cerere, cheile în acest array vor fi numele parametrilor, iar valorile - valorile parametrilor.</p>
+ <p class="paragraph">De exemplu, în șirul de cerere se transmite parametrul name=Tom. Astfel, pentru a obține valoarea parametrului name din cerere, ne adresăm după cheia corespunzătoare:</p>
+ <div class="code-inline">
+  <pre><code>$name&nbsp;=&nbsp;$_GET["name"];&nbsp;&nbsp;//&nbsp;Tom</code></pre>
+ </div>
+ <p class="paragraph">Totuși, trebuie să ținem cont că în bara de adrese nu este obligatoriu să se folosească șirul de cerere sau acest parametru specific. Prin urmare, înainte de a obține valoarea parametrului, verificăm mai întâi dacă acest parametru a fost transmis:</p>
+ <div class="code-inline">
+  <pre><code>if(isset($_GET["name"])){</code></pre>
+ </div>
+ <p class="paragraph">Acum, accesăm acest script, de exemplu, astfel: http://localhost/user.php?name=Tom&amp;age=36:</p>
+ <div class="image-container">
+  <img src="images/image1.png" alt="" class="responsive-image">
+ </div>
+ <p class="paragraph">Dacă nu transmitem valorile vreunui parametru, variabila corespunzătoare va folosi valoarea implicită:</p>
+ <div class="image-container">
+  <img src="images/image2.png" alt="" class="responsive-image">
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

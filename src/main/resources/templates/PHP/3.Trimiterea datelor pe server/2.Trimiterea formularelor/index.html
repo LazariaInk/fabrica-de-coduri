@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Trimiterea formularelor</h1>
+ <p class="paragraph">Unul dintre principalele moduri de a trimite date unui site web este procesarea formularelor. Formularele reprezintă elemente speciale de marcare HTML, care conțin diverse elemente de intrare - câmpuri de text, butoane, etc.</p>
+ <p class="paragraph">Și cu ajutorul acestor formulare putem introduce unele date și le putem trimite pe server. Iar serverul va procesa aceste date.</p>
+ <p class="paragraph">Crearea formularelor constă din următoarele aspecte:</p>
+ <ul class="enumeration">
+  <li>Crearea elementului &lt;form&gt;&lt;form&gt; în marcare HTML</li>
+  <li>Adăugarea în acest element a unui sau mai multor câmpuri de intrare</li>
+  <li>Stabilirea metodei de trimitere a datelor. Cel mai des se utilizează metodele GET sau POST</li>
+  <li>Stabilirea adresei la care vor fi trimise datele introduse</li>
+ </ul>
+ <h2 class="subtitle">Cereri POST</h2>
+ <p class="paragraph">Așadar, vom crea un formular nou. Pentru aceasta, definim un nou fișier form.php, în care vom plasa următorul conținut:</p>
+ <div class="code-inline">
+  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;h3&gt;Formular&nbsp;de&nbsp;introducere&nbsp;a&nbsp;datelor&lt;/h3&gt;<br>&lt;form&nbsp;action="user.php"&nbsp;method="POST"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Nume:&nbsp;&lt;input&nbsp;type="text"&nbsp;name="name"&nbsp;/&gt;&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Vârstă:&nbsp;&lt;input&nbsp;type="number"&nbsp;name="age"&nbsp;/&gt;&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="submit"&nbsp;value="Trimite"&gt;<br>&lt;/form&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+ </div>
+ <p class="paragraph">Atributul action="user.php" al elementului form indică faptul că datele formularului vor fi procesate de scriptul user.php, care se va afla în același director cu fișierul form.php. Iar atributul method="POST" indică faptul că metoda de trimitere a datelor va fi metoda POST.</p>
+ <p class="paragraph">Acum vom defini fișierul user.php, care va avea următorul conținut:</p>
+ <div class="code-inline">
+  <pre><code>&lt;?php<br>$name&nbsp;=&nbsp;"ne&nbsp;definit";<br>$age&nbsp;=&nbsp;"ne&nbsp;definit";<br>if(isset($_POST["name"])){<br>&nbsp;&nbsp;&nbsp;$name&nbsp;=&nbsp;$_POST["name"];<br>}<br>if(isset($_POST["age"])){<br>&nbsp;&nbsp;&nbsp;$age&nbsp;=&nbsp;$_POST["age"];<br>}<br>echo&nbsp;"Nume:&nbsp;$name&nbsp;&lt;br&gt;&nbsp;Vârstă:&nbsp;$age";<br>?&gt;</code></pre>
+ </div>
+ <p class="paragraph">Pentru procesarea cererilor de tip POST în PHP se folosește variabila globală integrată $_POST. Aceasta reprezintă un array asociativ de date transmise prin metoda POST.</p>
+ <p class="paragraph">Folosind cheile, putem obține valorile trimise. Cheile în acest array sunt valorile atributelor name ale câmpurilor de intrare ale formularului.</p>
+ <p class="paragraph">De exemplu, deoarece atributul name al câmpului de intrare pentru vârstă are valoarea age (&lt;input type="number" name="age" /&gt;), în array-ul $_POST valoarea acestui câmp va fi reprezentată de cheia "age": $_POST["age"]</p>
+ <p class="paragraph">Și deoarece sunt posibile situații în care câmpul de intrare nu va fi completat, este recomandat să verificăm existența datelor înainte de a le procesa folosind funcția isset(). Dacă variabila este setată, funcția isset() va returna valoarea true.</p>
+ <p class="paragraph">Acum putem accesa scriptul form.php și introduce în formular unele date:</p>
+ <div class="image-container">
+  <img src="images/image1.png" alt="" class="responsive-image">
+ </div>
+ <p class="paragraph">Iar la apăsarea butonului datele introduse vor fi trimise prin metoda POST scriptului user.php:</p>
+ <div class="image-container">
+  <img src="images/image2.png" alt="" class="responsive-image">
+ </div>
+ <p class="paragraph">Nu este obligatoriu să trimitem datele formularului unui alt script, putem procesa datele formularului în același fișier al formularului. Pentru aceasta, vom modifica fișierul form.php astfel:</p>
+ <div class="code-inline">
+  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;?php<br>$name&nbsp;=&nbsp;"ne&nbsp;definit";<br>$age&nbsp;=&nbsp;"ne&nbsp;definit";<br>if(isset($_POST["name"])){<br>&nbsp;&nbsp;&nbsp;$name&nbsp;=&nbsp;$_POST["name"];<br>}<br>if(isset($_POST["age"])){<br>&nbsp;&nbsp;&nbsp;$age&nbsp;=&nbsp;$_POST["age"];<br>}<br>echo&nbsp;"Nume:&nbsp;$name&nbsp;&lt;br&gt;&nbsp;Vârstă:&nbsp;$age";<br>?&gt;<br>&lt;h3&gt;Formular&nbsp;de&nbsp;introducere&nbsp;a&nbsp;datelor&lt;/h3&gt;<br>&lt;form&nbsp;method="POST"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Nume:&nbsp;&lt;input&nbsp;type="text"&nbsp;name="name"&nbsp;/&gt;&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Vârstă:&nbsp;&lt;input&nbsp;type="number"&nbsp;name="age"&nbsp;/&gt;&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="submit"&nbsp;value="Trimite"&gt;<br>&lt;/form&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+ </div>
+ <p class="paragraph">Deoarece în acest caz trimitem datele aceluiași script - adică la aceeași adresă, atributul action al elementului form nu este necesar.</p>
+ <div class="image-container">
+  <img src="images/image3.png" alt="" class="responsive-image">
+ </div>
+ <p class="paragraph">Trebuie menționat că în principiu putem trimite formularele și prin cereri GET, în acest caz pentru obținerea acelorași valori ale formularului se folosește array-ul $_GET, care a fost discutat în tema anterioară:</p>
+ <div class="code-inline">
+  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;?php<br>$name&nbsp;=&nbsp;"ne&nbsp;definit";<br>$age&nbsp;=&nbsp;"ne&nbsp;definit";<br>if(isset($_GET["name"])){<br>&nbsp;&nbsp;&nbsp;$name&nbsp;=&nbsp;$_GET["name"];<br>}<br>if(isset($_GET["age"])){<br>&nbsp;&nbsp;&nbsp;$age&nbsp;=&nbsp;$_GET["age"];<br>}<br>echo&nbsp;"Nume:&nbsp;$name&nbsp;&lt;br&gt;&nbsp;Vârstă:&nbsp;$age";<br>?&gt;<br>&lt;h3&gt;Formular&nbsp;de&nbsp;introducere&nbsp;a&nbsp;datelor&lt;/h3&gt;<br>&lt;form&nbsp;method="GET"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Nume:&nbsp;&lt;input&nbsp;type="text"&nbsp;name="name"&nbsp;/&gt;&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Vârstă:&nbsp;&lt;input&nbsp;type="number"&nbsp;name="age"&nbsp;/&gt;&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="submit"&nbsp;value="Trimite"&gt;<br>&lt;/form&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

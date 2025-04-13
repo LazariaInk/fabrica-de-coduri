@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Lucrul cu cookie-uri</h1>
+ <p class="paragraph">Cookie-urile reprezintă mici seturi de date (nu mai mari de 4 kB), prin care un site web poate salva pe computerul utilizatorului orice informație.</p>
+ <p class="paragraph">Cu ajutorul cookie-urilor se poate urmări activitatea utilizatorului pe site: dacă este autentificat pe site sau nu, urmărirea istoricului vizitelor sale etc.</p>
+ <h2 class="subtitle">Salvarea cookie-urilor</h2>
+ <p class="paragraph">Pentru a seta un cookie pe computerul utilizatorului se folosește funcția setcookie(). Aceasta trebuie apelată înainte de a trimite răspunsul către utilizator. Această funcție are următoarea definiție:</p>
+ <div class="code-inline">
+  <pre><code>bool&nbsp;setcookie(string&nbsp;$name,&nbsp;string&nbsp;$value,&nbsp;int&nbsp;$expire,<br>&nbsp;&nbsp;&nbsp;string&nbsp;$path,&nbsp;string&nbsp;$domain,&nbsp;bool&nbsp;$secure,&nbsp;bool&nbsp;$httponly);</code></pre>
+ </div>
+ <p class="paragraph">Funcția setcookie() poate primi următorii parametri:</p>
+ <ul class="enumeration">
+  <li>name: numele cookie-ului, care va fi folosit pentru accesarea valorii sale</li>
+  <li>value: valoarea sau conținutul cookie-ului - orice text alfanumeric nu mai mare de 4 kB</li>
+  <li>expire (parametru opțional): perioada de valabilitate în secunde, după care cookie-ul este distrus. Dacă acest parametru nu este setat sau este egal cu 0, atunci distrugerea cookie-ului are loc după închiderea browserului. De obicei se setează relativ la timpul curent, care poate fi obținut cu ajutorul funcției time()</li>
+  <li>path (parametru opțional): calea către directorul de pe server pentru care cookie-ul va fi disponibil. Dacă se setează "/", cookie-ul va fi disponibil pentru întregul site. Dacă se setează, de exemplu, "/mydir/", cookie-ul va fi disponibil doar din directorul /mydir/ și toate subdirectoarele sale. Implicit, valoarea este directorul curent în care este setat cookie-ul</li>
+  <li>domain (parametru opțional): specifică domeniul pentru care cookie-ul va fi disponibil. Dacă acesta este un domeniu de nivelul doi, de exemplu, localhost.com, atunci cookie-ul va fi disponibil pentru întregul site localhost.com, inclusiv pentru subdomeniile sale de tipul blog.localhost.com. Dacă este specificat subdomeniul blog.localhost.com, cookie-ul va fi disponibil doar în interiorul acestui subdomeniu</li>
+  <li>secure (parametru opțional): indică faptul că valoarea cookie-ului trebuie transmisă prin protocolul HTTPS. Dacă este setat true, cookie-ul de la client va fi transmis către server doar dacă este stabilită o conexiune securizată. Implicit este false</li>
+  <li>httponly (parametru opțional): dacă este true, cookie-urile vor fi disponibile doar prin protocolul HTTP. Adică, cookie-urile în acest caz nu vor fi disponibile limbajelor de scripting, de exemplu, JavaScript. Implicit, parametrul este false</li>
+ </ul>
+ <p class="paragraph">Salvăm cookie:</p>
+ <div class="code-inline">
+  <pre><code>&lt;?php<br>$name&nbsp;=&nbsp;"Tom";<br>$age&nbsp;=&nbsp;36;<br>setcookie("name",&nbsp;$name);<br>setcookie("age",&nbsp;$age,&nbsp;time()&nbsp;+&nbsp;3600);&nbsp;&nbsp;//&nbsp;perioada&nbsp;de&nbsp;valabilitate&nbsp;-&nbsp;1&nbsp;oră&nbsp;(3600&nbsp;secunde)<br>echo&nbsp;"Cookie-urile&nbsp;au&nbsp;fost&nbsp;setate";<br>?&gt;</code></pre>
+ </div>
+ <p class="paragraph">Aici sunt setate două cookie-uri: "name" și "age". Primul cookie este distrus după închiderea browserului, iar al doilea - după 3600 de secunde, adică după o oră.</p>
+ <p class="paragraph">Dacă este necesar, putem vedea cookie-urile salvate în browser cu ajutorul instrumentelor de dezvoltare. De exemplu, aspectul cookie-urilor în Google Chrome:</p>
+ <div class="image-container">
+  <img src="images/image1.png" alt="" class="responsive-image">
+ </div>
+ <p class="paragraph">În cookie-uri se poate salva orice informație, dar nu este recomandat să se salveze date importante din punct de vedere al securității, de exemplu, parole. Iar dacă se salvează informații importante, acestea ar trebui stocate într-un format criptat.</p>
+ <h2 class="subtitle">Obținerea cookie-urilor</h2>
+ <p class="paragraph">Pentru a obține cookie-uri, se poate folosi array-ul asociativ global $_COOKIE, de exemplu, $_COOKIE["name"]. Astfel, obținem cookie-urile salvate anterior:</p>
+ <div class="code-inline">
+  <pre><code>&lt;?php<br>if&nbsp;(isset($_COOKIE["name"]))&nbsp;echo&nbsp;"Name:&nbsp;"&nbsp;.&nbsp;$_COOKIE["name"]&nbsp;.&nbsp;"&lt;br&gt;";<br>if&nbsp;(isset($_COOKIE["age"]))&nbsp;echo&nbsp;"Age:&nbsp;"&nbsp;.&nbsp;$_COOKIE["age"]&nbsp;.&nbsp;"&lt;br&gt;";<br>?&gt;</code></pre>
+ </div>
+ <h2 class="subtitle">Salvarea array-urilor în cookie</h2>
+ <p class="paragraph">Salvarea array-urilor în cookie are câteva particularități. De exemplu, salvăm următorul array:</p>
+ <div class="code-inline">
+  <pre><code>setcookie("lang[1]",&nbsp;"PHP");<br>setcookie("lang[2]",&nbsp;"C#");<br>setcookie("lang[3]",&nbsp;"Java");</code></pre>
+ </div>
+ <p class="paragraph">Acum îl obținem și îl afișăm pe pagină:</p>
+ <div class="code-inline">
+  <pre><code>if&nbsp;(isset($_COOKIE["lang"]))&nbsp;{<br>&nbsp;&nbsp;&nbsp;foreach&nbsp;($_COOKIE["lang"]&nbsp;as&nbsp;$name&nbsp;=&gt;&nbsp;$value)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$name&nbsp;=&nbsp;htmlspecialchars($name);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$value&nbsp;=&nbsp;htmlspecialchars($value);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;"$name.&nbsp;$value&nbsp;&lt;br&nbsp;/&gt;";<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <h2 class="subtitle">Ștergerea cookie-urilor</h2>
+ <p class="paragraph">Pentru a șterge cookie-urile, este suficient să setăm perioada de valabilitate la un timp din trecut:</p>
+ <div class="code-inline">
+  <pre><code>setcookie("name",&nbsp;"",&nbsp;time()&nbsp;-&nbsp;3600);</code></pre>
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

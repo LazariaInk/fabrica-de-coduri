@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Condiții în blocări</h1>
+ <p class="paragraph">Utilizarea condițiilor în blocări permite controlul asupra gestionării accesului la fire de execuție. O condiție de blocare reprezintă un obiect al interfeței Condition din pachetul java.util.concurrent.locks.</p>
+ <p class="paragraph">Utilizarea obiectelor Condition este similară cu folosirea metodelor wait/notify/notifyAll din clasa Object, discutate anterior. În particular, putem folosi următoarele metode ale interfeței Condition:</p>
+ <ul class="enumeration">
+  <li>await: firul de execuție așteaptă până când se îndeplinește o anumită condiție și până când alt fir de execuție apelează metodele signal/signalAll. Este similară cu metoda wait din clasa Object</li>
+  <li>signal: semnalizează că firul de execuție care a apelat anterior metoda await() poate continua lucrul. Utilizarea este similară cu metoda notify din clasa Object</li>
+  <li>signalAll: semnalizează tuturor firelor care au apelat metoda await() că pot continua lucrul. Este similară cu metoda notifyAll() din clasa Object</li>
+ </ul>
+ <p class="paragraph">Aceste metode sunt apelate în blocul de cod care intră sub acțiunea blocării ReentrantLock. Mai întâi, folosind această blocare, trebuie să obținem obiectul Condition:</p>
+ <div class="code-inline">
+  <pre><code>ReentrantLock&nbsp;locker&nbsp;=&nbsp;new&nbsp;ReentrantLock();<br>Condition&nbsp;condition&nbsp;=&nbsp;locker.newCondition();</code></pre>
+ </div>
+ <p class="paragraph">De obicei, se verifică întâi condiția de acces. Dacă se respectă condiția, firul de execuție așteaptă până când aceasta se schimbă:</p>
+ <div class="code-inline">
+  <pre><code>while&nbsp;(condiție)<br>&nbsp;&nbsp;&nbsp;condition.await();</code></pre>
+ </div>
+ <p class="paragraph">După finalizarea tuturor acțiunilor, celorlalte fire li se semnalizează schimbarea condiției:</p>
+ <div class="code-inline">
+  <pre><code>condition.signalAll();</code></pre>
+ </div>
+ <p class="paragraph">Este important să apelăm metoda signal/signalAll la final, pentru a evita posibilitatea blocării reciproce a firelor de execuție.</p>
+ <p class="paragraph">Pentru exemplu, vom modifica sarcina din tema despre metodele wait/notify, utilizând obiectul Condition.</p>
+ <p class="paragraph">Avem un depozit în care pot fi plasate simultan maximum 3 produse. Producătorul trebuie să producă 5 produse, iar cumpărătorul trebuie să le achiziționeze. Totodată, cumpărătorul nu poate cumpăra un produs dacă nu există produse în depozit:</p>
+ <div class="code-inline">
+  <pre><code>import&nbsp;java.util.concurrent.locks.ReentrantLock;<br>import&nbsp;java.util.concurrent.locks.Condition;<br><br>public&nbsp;class&nbsp;Program&nbsp;{<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Store&nbsp;store&nbsp;=&nbsp;new&nbsp;Store();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Producer&nbsp;producer&nbsp;=&nbsp;new&nbsp;Producer(store);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Consumer&nbsp;consumer&nbsp;=&nbsp;new&nbsp;Consumer(store);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;Thread(producer).start();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;Thread(consumer).start();<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>//&nbsp;Clasa&nbsp;Magazin,&nbsp;care&nbsp;stochează&nbsp;produsele&nbsp;produse<br>class&nbsp;Store&nbsp;{<br>&nbsp;&nbsp;private&nbsp;int&nbsp;product&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;ReentrantLock&nbsp;locker;<br>&nbsp;&nbsp;Condition&nbsp;condition;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;Store()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;locker&nbsp;=&nbsp;new&nbsp;ReentrantLock();&nbsp;//&nbsp;creăm&nbsp;blocarea<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;condition&nbsp;=&nbsp;locker.newCondition();&nbsp;//&nbsp;obținem&nbsp;condiția&nbsp;asociată&nbsp;cu&nbsp;blocarea<br>&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;public&nbsp;void&nbsp;get()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;locker.lock();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;cât&nbsp;timp&nbsp;nu&nbsp;sunt&nbsp;produse&nbsp;disponibile,&nbsp;așteptăm<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while&nbsp;(product&nbsp;&lt;&nbsp;1)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;condition.await();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;product--;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Cumpărătorul&nbsp;a&nbsp;cumpărat&nbsp;1&nbsp;produs");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Produse&nbsp;în&nbsp;depozit:&nbsp;"&nbsp;+&nbsp;product);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;semnalizăm<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;condition.signalAll();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;catch&nbsp;(InterruptedException&nbsp;e)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(e.getMessage());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;finally&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;locker.unlock();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;public&nbsp;void&nbsp;put()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;locker.lock();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;cât&nbsp;timp&nbsp;sunt&nbsp;3&nbsp;produse&nbsp;în&nbsp;depozit,&nbsp;așteptăm&nbsp;eliberarea&nbsp;spațiului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while&nbsp;(product&nbsp;&gt;=&nbsp;3)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;condition.await();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;product++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Producătorul&nbsp;a&nbsp;adăugat&nbsp;1&nbsp;produs");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Produse&nbsp;în&nbsp;depozit:&nbsp;"&nbsp;+&nbsp;product);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;semnalizăm<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;condition.signalAll();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;catch&nbsp;(InterruptedException&nbsp;e)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(e.getMessage());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;finally&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;locker.unlock();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;}<br>}<br><br>//&nbsp;Clasa&nbsp;Producător<br>class&nbsp;Producer&nbsp;implements&nbsp;Runnable&nbsp;{<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;Store&nbsp;store;<br>&nbsp;&nbsp;&nbsp;Producer(Store&nbsp;store)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.store&nbsp;=&nbsp;store;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;run()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;&nbsp;6;&nbsp;i++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;store.put();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>//&nbsp;Clasa&nbsp;Consumator<br>class&nbsp;Consumer&nbsp;implements&nbsp;Runnable&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Store&nbsp;store;<br>&nbsp;&nbsp;&nbsp;Consumer(Store&nbsp;store)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.store&nbsp;=&nbsp;store;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;run()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;&nbsp;6;&nbsp;i++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;store.get();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">În final, vom obține o ieșire asemănătoare cu aceasta:</p>
+ <div class="code-inline">
+  <pre><code>Producătorul&nbsp;a&nbsp;adăugat&nbsp;1&nbsp;produs<br>Produse&nbsp;în&nbsp;depozit:&nbsp;1<br>Producătorul&nbsp;a&nbsp;adăugat&nbsp;1&nbsp;produs<br>Produse&nbsp;în&nbsp;depozit:&nbsp;2<br>Producătorul&nbsp;a&nbsp;adăugat&nbsp;1&nbsp;produs<br>Produse&nbsp;în&nbsp;depozit:&nbsp;3<br>Cumpărătorul&nbsp;a&nbsp;cumpărat&nbsp;1&nbsp;produs<br>Produse&nbsp;în&nbsp;depozit:&nbsp;2<br>Cumpărătorul&nbsp;a&nbsp;cumpărat&nbsp;1&nbsp;produs<br>Produse&nbsp;în&nbsp;depozit:&nbsp;1<br>Cumpărătorul&nbsp;a&nbsp;cumpărat&nbsp;1&nbsp;produs<br>Produse&nbsp;în&nbsp;depozit:&nbsp;0<br>Producătorul&nbsp;a&nbsp;adăugat&nbsp;1&nbsp;produs<br>Produse&nbsp;în&nbsp;depozit:&nbsp;1<br>Producătorul&nbsp;a&nbsp;adăugat&nbsp;1&nbsp;produs<br>Produse&nbsp;în&nbsp;depozit:&nbsp;2<br>Cumpărătorul&nbsp;a&nbsp;cumpărat&nbsp;1&nbsp;produs<br>Produse&nbsp;în&nbsp;depozit:&nbsp;1<br>Cumpărătorul&nbsp;a&nbsp;cumpărat&nbsp;1&nbsp;produs<br>Produse&nbsp;în&nbsp;depozit:&nbsp;0</code></pre>
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

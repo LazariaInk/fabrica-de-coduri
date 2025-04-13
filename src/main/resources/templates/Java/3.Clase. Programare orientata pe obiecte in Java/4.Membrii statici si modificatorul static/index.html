@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Membrii statici și modificatorul static</h1>
+ <p class="paragraph">În afară de metodele și câmpurile obișnuite, o clasă poate avea câmpuri statice, metode, constante și inițializatori. De exemplu, clasa principală a programului are metoda main, care este statică:</p>
+ <div class="code-inline">
+  <pre><code>public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;<br>}</code></pre>
+ </div>
+ <p class="paragraph">Pentru a declara variabile, constante, metode și inițializatori statici, se utilizează cuvântul cheie static înainte de declarație.</p>
+ <h2 class="subtitle">Câmpuri statice</h2>
+ <p class="paragraph">La crearea obiectelor unei clase, pentru fiecare obiect se creează o copie a câmpurilor non-statice. În schimb, câmpurile statice sunt comune pentru întreaga clasă și pot fi utilizate fără a crea obiecte ale clasei.</p>
+ <p class="paragraph">De exemplu, să creăm o variabilă statică:</p>
+ <div class="code-inline">
+  <pre><code>public&nbsp;class&nbsp;Program&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tom.displayId();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Id&nbsp;=&nbsp;1<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bob.displayId();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Id&nbsp;=&nbsp;2<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(Person.counter);&nbsp;//&nbsp;3<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;modificăm&nbsp;Person.counter<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person.counter&nbsp;=&nbsp;8;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;sam&nbsp;=&nbsp;new&nbsp;Person();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sam.displayId();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Id&nbsp;=&nbsp;8<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;Person&nbsp;{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;private&nbsp;int&nbsp;id;<br>&nbsp;&nbsp;&nbsp;static&nbsp;int&nbsp;counter&nbsp;=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Person()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id&nbsp;=&nbsp;counter++;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;displayId()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("Id:&nbsp;%d&nbsp;\n",&nbsp;id);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">Clasa Person conține variabila statică counter, care crește în constructor și a cărei valoare este atribuită variabilei id. Astfel, la crearea fiecărui nou obiect Person, această variabilă va crește, ceea ce face ca fiecare nou obiect Person să aibă un câmp id mai mare cu 1 decât cel precedent.</p>
+ <p class="paragraph">Deoarece variabila counter este statică, putem accesa aceasta prin numele clasei:</p>
+ <div class="code-inline">
+  <pre><code>System.out.println(Person.counter);&nbsp;//&nbsp;obținem&nbsp;valoarea<br>Person.counter&nbsp;=&nbsp;8;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;modificăm&nbsp;valoarea</code></pre>
+ </div>
+ <p class="paragraph">Ieșirea în consolă a programului:</p>
+ <div class="code-inline">
+  <pre><code>Id&nbsp;=&nbsp;1<br>Id&nbsp;=&nbsp;2<br>3<br>Id&nbsp;=&nbsp;8</code></pre>
+ </div>
+ <h2 class="subtitle">Constante statice</h2>
+ <p class="paragraph">De asemenea, pot exista constante statice, care sunt comune pentru întreaga clasă.</p>
+ <div class="code-inline">
+  <pre><code>public&nbsp;class&nbsp;Program&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;double&nbsp;radius&nbsp;=&nbsp;60;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("Radius:&nbsp;%f&nbsp;\n",&nbsp;radius);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;60<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("Area:&nbsp;%f&nbsp;\n",&nbsp;Math.PI&nbsp;*&nbsp;radius);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;188,4<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;Math&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;final&nbsp;double&nbsp;PI&nbsp;=&nbsp;3.14;<br>}</code></pre>
+ </div>
+ <p class="paragraph">Este de remarcat că pe parcursul temelor anterioare au fost deja utilizate constant statice, cum ar fi out din expresia:</p>
+ <div class="code-inline">
+  <pre><code>System.out.println("hello");</code></pre>
+ </div>
+ <p class="paragraph">out reprezintă o constantă statică a clasei System, motiv pentru care este accesibilă fără a crea un obiect al clasei System.</p>
+ <h2 class="subtitle">Inițializatori statici</h2>
+ <p class="paragraph">Inițializatorii statici sunt folosiți pentru a inițializa variabilele statice sau pentru a executa anumite acțiuni la crearea primului obiect al clasei. De exemplu:</p>
+ <div class="code-inline">
+  <pre><code>public&nbsp;class&nbsp;Program&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tom.displayId();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Id&nbsp;=&nbsp;105<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bob.displayId();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Id&nbsp;=&nbsp;106<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;Person&nbsp;{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;private&nbsp;int&nbsp;id;<br>&nbsp;&nbsp;&nbsp;static&nbsp;int&nbsp;counter;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;static&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;counter&nbsp;=&nbsp;105;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Static&nbsp;initializer");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Person()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id&nbsp;=&nbsp;counter++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Constructor");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;displayId()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("Id:&nbsp;%d&nbsp;\n",&nbsp;id);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">Inițializatorul static este definit la fel ca unul obișnuit, doar că este precedat de cuvântul cheie static. În acest caz, inițializatorul static setează valoarea inițială a câmpului static counter și afișează un mesaj în consolă.</p>
+ <p class="paragraph">În program, se creează două obiecte ale clasei Person. Ieșirea în consolă va arăta astfel:</p>
+ <div class="code-inline">
+  <pre><code>Static&nbsp;initializer<br>Constructor<br>Constructor<br>Id:&nbsp;105<br>Id:&nbsp;106<br><br></code></pre>
+ </div>
+ <p class="paragraph">Este important de reținut că apelul inițializatorului static se face după încărcarea clasei și, practic, înainte de crearea primului obiect al clasei.</p>
+ <h2 class="subtitle">Metode statice</h2>
+ <p class="paragraph">Metodele statice sunt asociate întregii clase. De exemplu, în codul anterior, variabila statică counter era accesibilă din afara clasei și am putut să îi modificăm valoarea. Să facem această variabilă inaccesibilă pentru modificare din afară, dar disponibilă pentru citire printr-o metodă statică:</p>
+ <div class="code-inline">
+  <pre><code>public&nbsp;class&nbsp;Program&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person.displayCounter();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Counter:&nbsp;1<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person.displayCounter();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Counter:&nbsp;3<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;Person&nbsp;{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;private&nbsp;int&nbsp;id;<br>&nbsp;&nbsp;&nbsp;private&nbsp;static&nbsp;int&nbsp;counter&nbsp;=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Person()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id&nbsp;=&nbsp;counter++;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;//&nbsp;metodă&nbsp;statică<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;displayCounter()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("Counter:&nbsp;%d&nbsp;\n",&nbsp;counter);<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;displayId()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("Id:&nbsp;%d&nbsp;\n",&nbsp;id);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">Acum variabila statică nu mai este accesibilă din afara clasei, fiind privată. Valoarea ei este afișată prin metoda statică displayCounter. Pentru a apela metoda statică, folosim numele clasei: Person.displayCounter().</p>
+ <p class="paragraph">Atunci când folosim metode statice, trebuie să ținem cont de limitări: în metodele statice putem apela doar alte metode statice și putem folosi doar variabile statice.</p>
+ <p class="paragraph">Metodele sunt definite ca statice atunci când nu afectează starea obiectului, adică câmpurile și constantele non-statice, și nu este necesar să creăm o instanță a clasei pentru a le apela. De exemplu:</p>
+ <div class="code-inline">
+  <pre><code>public&nbsp;class&nbsp;Program&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(Operation.sum(45,&nbsp;23));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;68<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(Operation.subtract(45,&nbsp;23));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;22<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(Operation.multiply(4,&nbsp;23));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;92<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;Operation&nbsp;{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;static&nbsp;int&nbsp;sum(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;x&nbsp;+&nbsp;y;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;static&nbsp;int&nbsp;subtract(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;x&nbsp;-&nbsp;y;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;static&nbsp;int&nbsp;multiply(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;x&nbsp;*&nbsp;y;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">În acest caz, pentru metodele sum, subtract, multiply nu contează ce instanță a clasei Operation este folosită. Aceste metode lucrează doar cu parametrii lor și nu afectează starea clasei. De aceea, ele pot fi definite ca statice.</p>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

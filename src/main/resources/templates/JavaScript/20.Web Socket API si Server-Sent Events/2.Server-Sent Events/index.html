@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Server-Sent Events</h1>
+ <p class="paragraph">Server-Sent Events sau pe scurt SSE reprezintă o altă tehnologie de interacțiune între client și server, care permite serverului să trimită mesaje clientului. Este de remarcat faptul că, spre deosebire de WebSockets, comunicația prin Server-Sent Events este unidirecțională: mesajele sunt livrate într-o singură direcție - de la server la client (de exemplu, către browserul web al utilizatorului).</p>
+ <p class="paragraph">Acest lucru le face o opțiune excelentă când nu este necesar să se trimită date de la client la server. De exemplu, Server-Sent Events pot fi utilizate pentru gestionarea unor lucruri precum actualizarea statusului în rețelele sociale, fluxurile de știri sau trimiterea de date pentru stocare pe partea de client.</p>
+ <p class="paragraph">Pe o pagină web, în codul JavaScript pentru interacțiunea cu serverul se utilizează interfața EventSource. Obiectul EventSource reprezintă, în esență, un server care generează evenimente sau trimite mesaje. Pentru crearea unui obiect EventSource se folosește constructorul:</p>
+ <div class="code-inline">
+  <pre><code>new&nbsp;EventSource(url,&nbsp;options)</code></pre>
+ </div>
+ <p class="paragraph">Ca prim parametru obligatoriu în constructorul EventSource se transmite adresa URL a resursei pe server:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;evtSource&nbsp;=&nbsp;new&nbsp;EventSource("/events");</code></pre>
+ </div>
+ <p class="paragraph">Opțional, se poate transmite un parametru neobligatoriu care configurează obiectul EventSource. Acest parametru reprezintă un obiect cu o singură proprietate withCredentials. Această proprietate indică dacă trebuie incluse antetele CORS pentru interacțiunea cross-domain. Implicit, este false.</p>
+ <h2 class="subtitle">Evenimente EventSource</h2>
+ <p class="paragraph">Pentru gestionarea stării conexiunii în EventSource sunt definite o serie de evenimente:</p>
+ <ul class="enumeration">
+  <li>open: generat la stabilirea conexiunii. Pentru setarea handler-ului de evenimente se poate folosi proprietatea onopen</li>
+  <li>error: generat la apariția unei erori în timpul stabilirii conexiunii. Pentru setarea handler-ului de evenimente se poate folosi proprietatea onerror</li>
+  <li>message: generat la primirea datelor de la server. Pentru setarea handler-ului de evenimente se poate folosi proprietatea onmessage</li>
+ </ul>
+ <p class="paragraph">Handler-ii acestor evenimente primesc ca parametru un obiect standard Event. Exemplu de setare a handler-ilor de evenimente:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;evtSource&nbsp;=&nbsp;new&nbsp;EventSource("/events");<br><br>//&nbsp;folosind&nbsp;addEventListener<br>evtSource.addEventListener("open",&nbsp;()&nbsp;=&gt;&nbsp;{<br>&nbsp;console.log("conexiune&nbsp;deschisă");<br>});<br>evtSource.addEventListener("error",&nbsp;()&nbsp;=&gt;&nbsp;{<br>&nbsp;console.log("Eroare");<br>});<br><br>//&nbsp;folosind&nbsp;proprietăți<br>evtSource.onopen&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;{<br>&nbsp;console.log("conexiune&nbsp;deschisă");<br>};<br>evtSource.onerror&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;{<br>&nbsp;console.log("Eroare");<br>};</code></pre>
+ </div>
+ <h2 class="subtitle">Recepția datelor</h2>
+ <p class="paragraph">Când vin date de la server, la obiectul WebSocket se declanșează evenimentul message, pentru setarea handler-ului căruia se poate folosi proprietatea onmessage sau metoda addEventListener().</p>
+ <p class="paragraph">În handler-ul evenimentului message se transmite un obiect de tip MessageEvent. Acest obiect oferă o serie de proprietăți care permit extragerea datelor răspunsului serverului:</p>
+ <ul class="enumeration">
+  <li>data: returnează datele primite</li>
+  <li>origin: stochează adresa expeditorului</li>
+  <li>lastEventId: stochează identificatorul unic al ultimului eveniment sub formă de string</li>
+  <li>source: returnează un obiect MessageEventSource, care poate fi un obiect WindowProxy, MessagePort sau ServiceWorker și care reprezintă expeditorul datelor primite</li>
+  <li>ports: returnează un array de obiecte MessagePort, care stochează porturile folosite pentru trimitere</li>
+ </ul>
+ <p class="paragraph">Exemplu de recepție a datelor:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;evtSource&nbsp;=&nbsp;new&nbsp;EventSource("/events");<br>evtSource.onmessage&nbsp;=&nbsp;(event)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(event.data);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;afișăm&nbsp;datele&nbsp;trimise&nbsp;pe&nbsp;consolă<br>};</code></pre>
+ </div>
+ <h2 class="subtitle">Închiderea conexiunii</h2>
+ <p class="paragraph">Pentru închiderea conexiunii se folosește metoda close():</p>
+ <div class="code-inline">
+  <pre><code>evtSource.close();</code></pre>
+ </div>
+ <h2 class="subtitle">Exemplu de interacțiune între client și server cu Server-Sent Events</h2>
+ <p class="paragraph">Să examinăm un exemplu mic de interacțiune între client și server folosind Server-Sent Events. Ca client va acționa codul JavaScript pe o pagină web. Iar ca server vom folosi Node.js.</p>
+ <p class="paragraph">Mai întâi, definim codul pe server. Pentru aceasta, creăm fișierul server.js cu următorul cod:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");<br><br>//&nbsp;date&nbsp;pentru&nbsp;trimitere&nbsp;la&nbsp;client<br>const&nbsp;messages&nbsp;=&nbsp;["Salut",&nbsp;"Ce&nbsp;faci?",&nbsp;"Ce&nbsp;faci?",&nbsp;"Dormi?",&nbsp;"Pa"];<br>http.createServer(function(request,&nbsp;response){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;if(request.url&nbsp;==&nbsp;"/events"){&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;este&nbsp;o&nbsp;cerere&nbsp;SSE<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(request.headers.accept&nbsp;&amp;&amp;&nbsp;request.headers.accept&nbsp;===&nbsp;"text/event-stream")&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sendEvent(response);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.writeHead(400);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.end("Cerere&nbsp;greșită");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else{&nbsp;&nbsp;&nbsp;//&nbsp;în&nbsp;alte&nbsp;cazuri&nbsp;trimitem&nbsp;pagina&nbsp;index.html<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fs.readFile("index.html",&nbsp;(_,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>&nbsp;&nbsp;&nbsp;}<br>}).listen(3000,&nbsp;()=&gt;console.log("Serverul&nbsp;a&nbsp;fost&nbsp;lansat&nbsp;pe&nbsp;adresa&nbsp;http://localhost:3000"));<br><br>//&nbsp;trimitem&nbsp;mesaj&nbsp;clientului<br>function&nbsp;sendEvent(response)&nbsp;{<br>&nbsp;&nbsp;&nbsp;//&nbsp;formăm&nbsp;antetele<br>&nbsp;&nbsp;&nbsp;response.writeHead(200,&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Content-Type":&nbsp;"text/event-stream",&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Cache-Control":&nbsp;"no-cache",&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Connection":&nbsp;"keep-alive"&nbsp;<br>&nbsp;&nbsp;&nbsp;});<br>&nbsp;&nbsp;&nbsp;const&nbsp;id&nbsp;=&nbsp;(new&nbsp;Date()).toLocaleTimeString();&nbsp;&nbsp;//&nbsp;definim&nbsp;identificatorul&nbsp;ultimului&nbsp;eveniment<br>&nbsp;&nbsp;&nbsp;//&nbsp;la&nbsp;fiecare&nbsp;5&nbsp;secunde&nbsp;trimitem&nbsp;un&nbsp;mesaj<br>&nbsp;&nbsp;&nbsp;setInterval(()&nbsp;=&gt;&nbsp;{&nbsp;createServerSendEvent(response,&nbsp;id);&nbsp;},&nbsp;5000);<br>}<br>//&nbsp;trimitem&nbsp;date&nbsp;clientului<br>function&nbsp;createServerSendEvent(response,&nbsp;id)&nbsp;{<br>&nbsp;&nbsp;&nbsp;//&nbsp;generăm&nbsp;un&nbsp;număr&nbsp;aleatoriu&nbsp;-&nbsp;index&nbsp;pentru&nbsp;array-ul&nbsp;messages<br>&nbsp;&nbsp;&nbsp;const&nbsp;index&nbsp;=&nbsp;Math.floor(Math.random()&nbsp;*&nbsp;messages.length);<br>&nbsp;&nbsp;&nbsp;const&nbsp;message&nbsp;=&nbsp;messages[index];<br>&nbsp;&nbsp;&nbsp;response.write("id:&nbsp;"&nbsp;+&nbsp;id&nbsp;+&nbsp;"\n");&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;response.write("data:&nbsp;"&nbsp;+&nbsp;message&nbsp;+&nbsp;"\n\n");<br>}</code></pre>
+ </div>
+ <p class="paragraph">Să trecem pe scurt prin cod. În primul rând, se conectează pachetele cu funcționalitatea pe care intenționăm să o utilizăm:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");&nbsp;&nbsp;&nbsp;//&nbsp;pentru&nbsp;procesarea&nbsp;cererilor&nbsp;primite<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;pentru&nbsp;citirea&nbsp;fișierului&nbsp;index.html&nbsp;de&nbsp;pe&nbsp;disc</code></pre>
+ </div>
+ <p class="paragraph">Apoi, definim setul de date care vor fi trimise clientului - un set de șiruri cu mesaje importante pentru client:</p>
+ <div class="code-inline">
+  <pre><code>const&nbsp;messages&nbsp;=&nbsp;["Salut",&nbsp;"Ce&nbsp;faci?",&nbsp;"Ce&nbsp;faci?",&nbsp;"Dormi?",&nbsp;"Pa"];</code></pre>
+ </div>
+ <p class="paragraph">Pentru crearea serverului se utilizează funcția http.createServer(). Acestei funcții i se transmite un handler, care este apelat de fiecare dată când serverul primește o cerere. Acest handler are doi parametri: request (conține datele cererii) și response (gestionează trimiterea răspunsului).</p>
+ <p class="paragraph">În handler, folosind proprietatea request.url, putem determina la ce resursă de pe server s-a făcut cererea. Astfel, în acest caz, dacă cererea a venit pe calea "/events", atunci vom interacționa cu clientul folosind Server-Sent Events:</p>
+ <div class="code-inline">
+  <pre><code>if(request.url&nbsp;==&nbsp;"/events"){&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;cererea&nbsp;este&nbsp;SSE<br>&nbsp;&nbsp;&nbsp;if&nbsp;(request.headers.accept&nbsp;&amp;&amp;&nbsp;request.headers.accept&nbsp;===&nbsp;"text/event-stream")&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sendEvent(response);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.writeHead(400);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.end("Cerere&nbsp;greșită");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">Este important ca în cerere să fie setat antetul "Accept": acesta trebuie să aibă valoarea "text/event-stream". Dacă este așa, atunci pentru trimiterea datelor clientului executăm funcția sendEvent(), în care transmitem obiectul răspuns response. Dacă anteturile nu sunt setate, atunci trimitem un răspuns cu eroarea 400.</p>
+ <p class="paragraph">În funcția sendEvent formăm anteturile răspunsului, obținem ora curentă, care va servi ca identificator al evenimentului, și pornim un timer pentru trimiterea datelor clientului la fiecare 5 secunde.</p>
+ <div class="code-inline">
+  <pre><code>function&nbsp;sendEvent(response)&nbsp;{<br>&nbsp;&nbsp;&nbsp;//&nbsp;formăm&nbsp;anteturile<br>&nbsp;&nbsp;&nbsp;response.writeHead(200,&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Content-Type":&nbsp;"text/event-stream",&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Cache-Control":&nbsp;"no-cache",&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Connection":&nbsp;"keep-alive"&nbsp;<br>&nbsp;&nbsp;&nbsp;});<br>&nbsp;&nbsp;&nbsp;const&nbsp;id&nbsp;=&nbsp;(new&nbsp;Date()).toLocaleTimeString();&nbsp;&nbsp;//&nbsp;definim&nbsp;identificatorul&nbsp;ultimului&nbsp;eveniment<br>&nbsp;&nbsp;&nbsp;//&nbsp;la&nbsp;fiecare&nbsp;5&nbsp;secunde&nbsp;trimitem&nbsp;un&nbsp;mesaj<br>&nbsp;&nbsp;&nbsp;setInterval(()&nbsp;=&gt;&nbsp;{&nbsp;createServerSendEvent(response,&nbsp;id);&nbsp;},&nbsp;5000);<br>}</code></pre>
+ </div>
+ <p class="paragraph">Trimiterea datelor se face în funcția createServerSendEvent:</p>
+ <div class="code-inline">
+  <pre><code>function&nbsp;createServerSendEvent(response,&nbsp;id)&nbsp;{<br>&nbsp;&nbsp;&nbsp;//&nbsp;generăm&nbsp;un&nbsp;număr&nbsp;aleatoriu&nbsp;-&nbsp;index&nbsp;pentru&nbsp;array-ul&nbsp;messages<br>&nbsp;&nbsp;&nbsp;const&nbsp;index&nbsp;=&nbsp;Math.floor(Math.random()&nbsp;*&nbsp;messages.length);<br>&nbsp;&nbsp;&nbsp;const&nbsp;message&nbsp;=&nbsp;messages[index];<br>&nbsp;&nbsp;&nbsp;response.write("id:&nbsp;"&nbsp;+&nbsp;id&nbsp;+&nbsp;"\n");&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;response.write("data:&nbsp;"&nbsp;+&nbsp;message&nbsp;+&nbsp;"\n\n");<br>}</code></pre>
+ </div>
+ <p class="paragraph">Aici, obținem un număr aleatoriu, care se află în intervalul de la 0 la messages.length și care va servi ca index, și pe baza acestui index selectăm un anumit mesaj. Apoi formăm răspunsul.</p>
+ <p class="paragraph">Setăm identificatorul evenimentului:</p>
+ <div class="code-inline">
+  <pre><code>response.write("id:&nbsp;"&nbsp;+&nbsp;id&nbsp;+&nbsp;"\n");</code></pre>
+ </div>
+ <p class="paragraph">Și stabilim propriu-zis datele:</p>
+ <div class="code-inline">
+  <pre><code>response.write("data:&nbsp;"&nbsp;+&nbsp;message&nbsp;+&nbsp;"\n\n");</code></pre>
+ </div>
+ <p class="paragraph">Dacă cererea a venit pe server pe o altă cale, atunci trimitem fișierul index.html, pe care îl vom defini în continuare.</p>
+ <div class="code-inline">
+  <pre><code>else{<br>&nbsp;&nbsp;&nbsp;fs.readFile("index.html",&nbsp;(_,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>}</code></pre>
+ </div>
+ <p class="paragraph">Pentru citirea fișierelor se folosește funcția încorporată fs.readFile(). Primul parametru al funcției este adresa fișierului (în acest caz, se presupune că fișierul index.html se află în același folder cu fișierul serverului server.js). Al doilea parametru este funcția care este apelată după citirea fișierului și primește conținutul său prin al doilea parametru data. Apoi, conținutul citit poate fi trimis folosind funcția response.end(data).</p>
+ <p class="paragraph">La final, cu ajutorul funcției listen() lansăm serverul web pe portul 3000. Adică, serverul va fi accesibil la adresa http://localhost:3000/</p>
+ <p class="paragraph">Acum, în folderul serverului, definim un fișier index.html simplu cu următorul cod:</p>
+ <div class="code-inline">
+  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;ul&nbsp;id="list"&gt;&lt;/ul&gt;<br>&lt;script&gt;<br>const&nbsp;source&nbsp;=&nbsp;new&nbsp;EventSource("/events");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>const&nbsp;list&nbsp;=&nbsp;document.getElementById("list")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>source.addEventListener("message",&nbsp;(e)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;listItem&nbsp;=&nbsp;document.createElement("li");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;listItem.textContent&nbsp;+=&nbsp;e.data;<br>&nbsp;&nbsp;&nbsp;list.appendChild(listItem);<br>});<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+ </div>
+ <p class="paragraph">Aici, la primirea datelor de la server, le adăugăm în lista de pe pagina web.</p>
+ <p class="paragraph">Acum, în consolă, ne deplasăm la folderul serverului folosind comanda cd și lansăm serverul folosind comanda node server.js.</p>
+ <div class="image-container">
+  <img src="images/image1.png" alt="" class="responsive-image">
+ </div>
+ <p class="paragraph">După lansarea serverului, putem naviga în browser la adresa http://localhost:3000, unde ni se va afișa pagina, iar în codul JavaScript al acesteia se va realiza primirea datelor de la server și afișarea lor pe pagina web.</p>
+ <div class="image-container">
+  <img src="images/image2.png" alt="" class="responsive-image">
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Inner Join</h1>
+ <p class="paragraph">În subiectul anterior am examinat unirea implicită a tabelelor prin simpla selecție și consolidare a datelor. Cu toate acestea, abordarea mai comună pentru unirea datelor din tabele diferite implică utilizarea operatorului JOIN. Sintaxa formală generală a aplicării operatorului INNER JOIN este:</p>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;coloane<br>FROM&nbsp;tabelul1<br>&nbsp;&nbsp;&nbsp;[INNER]&nbsp;JOIN&nbsp;tabelul2<br>&nbsp;&nbsp;&nbsp;ON&nbsp;conditie1<br>&nbsp;&nbsp;&nbsp;[[INNER]&nbsp;JOIN&nbsp;tabelul3<br>&nbsp;&nbsp;&nbsp;ON&nbsp;conditie2]</code></pre>
+ </div>
+ <p class="paragraph">După operatorul JOIN, urmează numele celei de-a doua tabele, din care trebuie să adăugăm date în selecție. Înainte de JOIN, se poate folosi cuvântul cheie opțional INNER. Prezența sau absența acestuia nu are niciun efect.</p>
+ <p class="paragraph">Apoi, după cuvântul cheie ON, se specifică condiția de unire. Această condiție stabilește modul în care cele două tabele vor fi comparate. În cea mai mare parte a cazurilor, pentru unire, se utilizează cheia primară a tabelului principal și cheia externă a tabelului dependent.</p>
+ <p class="paragraph">Vom lua tabelele cu datele din subiectul anterior:</p>
+ <div class="code-inline">
+  <pre><code>CREATE&nbsp;TABLE&nbsp;Products<br>(<br>&nbsp;&nbsp;&nbsp;Id&nbsp;INT&nbsp;AUTO_INCREMENT&nbsp;PRIMARY&nbsp;KEY,<br>&nbsp;&nbsp;&nbsp;ProductName&nbsp;VARCHAR(30)&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;Manufacturer&nbsp;VARCHAR(20)&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;ProductCount&nbsp;INT&nbsp;DEFAULT&nbsp;0,<br>&nbsp;&nbsp;&nbsp;Price&nbsp;DECIMAL&nbsp;NOT&nbsp;NULL<br>);<br>CREATE&nbsp;TABLE&nbsp;Customers<br>(<br>&nbsp;&nbsp;&nbsp;Id&nbsp;INT&nbsp;AUTO_INCREMENT&nbsp;PRIMARY&nbsp;KEY,<br>&nbsp;&nbsp;&nbsp;FirstName&nbsp;VARCHAR(30)&nbsp;NOT&nbsp;NULL<br>);<br>CREATE&nbsp;TABLE&nbsp;Orders<br>(<br>&nbsp;&nbsp;&nbsp;Id&nbsp;INT&nbsp;AUTO_INCREMENT&nbsp;PRIMARY&nbsp;KEY,<br>&nbsp;&nbsp;&nbsp;ProductId&nbsp;INT&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;CustomerId&nbsp;INT&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;CreatedAt&nbsp;DATE&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;ProductCount&nbsp;INT&nbsp;DEFAULT&nbsp;1,<br>&nbsp;&nbsp;&nbsp;Price&nbsp;DECIMAL&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;FOREIGN&nbsp;KEY&nbsp;(ProductId)&nbsp;REFERENCES&nbsp;Products(Id)&nbsp;ON&nbsp;DELETE&nbsp;CASCADE,<br>&nbsp;&nbsp;&nbsp;FOREIGN&nbsp;KEY&nbsp;(CustomerId)&nbsp;REFERENCES&nbsp;Customers(Id)&nbsp;ON&nbsp;DELETE&nbsp;CASCADE<br>);</code></pre>
+ </div>
+ <p class="paragraph">Prin utilizarea JOIN, vom selecta toate comenzile și vom adăuga informații despre produse:</p>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;Orders.CreatedAt,&nbsp;Orders.ProductCount,&nbsp;Products.ProductName<br>FROM&nbsp;Orders<br>JOIN&nbsp;Products&nbsp;ON&nbsp;Products.Id&nbsp;=&nbsp;Orders.ProductId;</code></pre>
+ </div>
+ <p class="paragraph">Deoarece tabelele pot conține coloane cu același nume, atunci când se specifică coloanele pentru selecție, se indică numele complet al acestora, împreună cu numele tabelului, de exemplu, "Orders.ProductCount".</p>
+ <div class="image-container">
+  <img src="images/image1.png" alt="" class="responsive-image">
+ </div>
+ <p class="paragraph">Prin utilizarea de pseudonime pentru tabele, putem reduce codul:</p>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;O.CreatedAt,&nbsp;O.ProductCount,&nbsp;P.ProductName<br>FROM&nbsp;Orders&nbsp;AS&nbsp;O<br>JOIN&nbsp;Products&nbsp;AS&nbsp;P<br>ON&nbsp;P.Id&nbsp;=&nbsp;O.ProductId;</code></pre>
+ </div>
+ <p class="paragraph">De asemenea, putem atașa date direct din mai multe tabele. De exemplu, vom adăuga informații despre client la comandă din tabela Customers:</p>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;Orders.CreatedAt,&nbsp;Customers.FirstName,&nbsp;Products.ProductName<br>FROM&nbsp;Orders<br>JOIN&nbsp;Products&nbsp;ON&nbsp;Products.Id&nbsp;=&nbsp;Orders.ProductId<br>JOIN&nbsp;Customers&nbsp;ON&nbsp;Customers.Id=Orders.CustomerId;</code></pre>
+ </div>
+ <div class="image-container">
+  <img src="images/image2.png" alt="" class="responsive-image">
+ </div>
+ <p class="paragraph">Datorită unirii tabelelor, putem utiliza coloanele acestora pentru filtrarea sau sortarea selecției:</p>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;Orders.CreatedAt,&nbsp;Customers.FirstName,&nbsp;Products.ProductName<br>FROM&nbsp;Orders<br>JOIN&nbsp;Products&nbsp;ON&nbsp;Products.Id&nbsp;=&nbsp;Orders.ProductId<br>JOIN&nbsp;Customers&nbsp;ON&nbsp;Customers.Id=Orders.CustomerId<br>WHERE&nbsp;Products.Price&nbsp;&gt;&nbsp;45000<br>ORDER&nbsp;BY&nbsp;Customers.FirstName;</code></pre>
+ </div>
+ <p class="paragraph">Condițiile după cuvântul cheie ON pot fi mai complexe în compoziție:</p>
+ <div class="code-inline">
+  <pre><code>SELECT&nbsp;Orders.CreatedAt,&nbsp;Customers.FirstName,&nbsp;Products.ProductName<br>FROM&nbsp;Orders<br>JOIN&nbsp;Products&nbsp;ON&nbsp;Products.Id&nbsp;=&nbsp;Orders.ProductId&nbsp;AND&nbsp;Products.Manufacturer='Apple'<br>JOIN&nbsp;Customers&nbsp;ON&nbsp;Customers.Id=Orders.CustomerId<br>ORDER&nbsp;BY&nbsp;Customers.FirstName;</code></pre>
+ </div>
+ <p class="paragraph">În acest caz, selectăm toate comenzile pentru produsele ale căror branduri sunt Apple.</p>
+ <p class="paragraph">Când utilizați operatorul JOIN, trebuie să țineți cont că procesul de unire a tabelelor poate să consume resurse, prin urmare, este indicat să uniți doar acele tabele al căror date sunt cu adevărat necesare. Cu cât sunt unite mai multe tabele, cu atât scade performanța.</p>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>body { background: #ffffff; }</style>
+</head>
+<body>
+<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+<nav class="nav">
+  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
+  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
+  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
+    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+  </div>
+</nav>
+<div class="top-nav">
+  <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+  </th:block>
+</div>
+<div class="layout">
+  <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-title" onclick="toggleChapter(this)">
+            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
+          </div>
+          <ul class="lesson-list">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li>
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}"></a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+  <aside class="sidebar">
+    <ul class="sidebar-list">
+      <th:block th:each="chapter : ${chapters}">
+        <li class="chapter-item">
+          <div class="chapter-toggle" onclick="toggleLessons(this)">
+            <span th:text="${chapter.title}">Chapter</span>
+          </div>
+          <ul class="lesson-list hidden">
+            <th:block th:each="lesson : ${chapter.lessons}">
+              <li class="lesson-item">
+                <a th:href="@{'/lessons/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
+                   th:text="${lesson.title}">Lesson</a>
+              </li>
+            </th:block>
+          </ul>
+        </li>
+      </th:block>
+    </ul>
+  </aside>
+  <main class="content">
+    <div class="document-container">
+ <h1 class="main-title">Citirea fișierelor cu FileReader</h1>
+ <p class="paragraph">Pentru citirea fișierelor selectate în File API se utilizează obiectul FileReader. Acest tip oferă diferite metode de citire a fișierelor:</p>
+ <ul class="enumeration">
+  <li>readAsBinaryString(): citește datele într-un șir de octeți</li>
+  <li>readAsText(): citește datele ca text</li>
+  <li>readAsDataURL(): citește datele ca adrese URL de date. Adresele URL de date sunt o schemă specială de adrese URL pentru încorporarea datelor în codul HTML. Adresele URL de date încep cu șirul data:, urmat de tipul MIME și informația despre codare, precum și datele codificate corespunzătoare - de exemplu, data:image/png;base64,jfdsfrRdF pentru o imagine PNG cu codare Base64. Astfel, cu ajutorul adreselor URL de date, de exemplu, datele imaginii sub formă de șir pot fi utilizate direct în codul HTML, ceea ce, la rândul său, reduce numărul de cereri HTTP la pagina web, deoarece browserului nu îi trebuie să facă o a doua cerere pentru obținerea imaginii</li>
+  <li>readAsArrayBuffer(): citește datele într-un obiect ArrayBuffer</li>
+  <li>abort(): întrerupe procesul de citire a datelor</li>
+ </ul>
+ <p class="paragraph">De asemenea, în procesul de lucru cu FileReader pot apărea o serie de evenimente:</p>
+ <ul class="enumeration">
+  <li>abort: generat la întreruperea citirii prin metoda abort</li>
+  <li>error: generat la apariția unei erori</li>
+  <li>load: generat la finalizarea cu succes a citirii datelor</li>
+  <li>loadstart: generat la începutul procesului de citire a datelor</li>
+  <li>loadend: generat după finalizarea citirii datelor</li>
+  <li>progress: generat în timpul citirii, notificând despre progresul citirii</li>
+ </ul>
+ <p class="paragraph">Astfel, la finalizarea cu succes a citirii, se declanșează evenimentul load, în handler-ul căruia se pot obține datele citite fie prin proprietatea result a obiectului FileReader, fie prin proprietatea target.result a parametrului handler-ului evenimentului, anterior fiind definit un handler de evenimente sau înregistrat un ascultător de evenimente.</p>
+ <p class="paragraph">Dacă evenimentul de încărcare a fost declanșat, conținutul fișierului este de asemenea disponibil prin proprietatea result.</p>
+ <p class="paragraph">De exemplu, citim fișierele care sunt selectate prin elementul &lt;input type="file"&gt;. Să presupunem că am următorul fișier "hello.txt":</p>
+ <div class="code-inline">
+  <pre><code>Hello&nbsp;FDC.COM<br>Hello&nbsp;World</code></pre>
+ </div>
+ <p class="paragraph">Pentru citirea acestuia (și pentru citirea oricăror alte fișiere text) definim următoarea pagină web:</p>
+ <div class="code-inline">
+  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;input&nbsp;type="file"&nbsp;id="files"&nbsp;accept="text/*"&nbsp;multiple&nbsp;/&gt;<br>&lt;script&gt;<br>function&nbsp;printFiles(e)&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;files&nbsp;=&nbsp;e.target.files;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;toate&nbsp;fișierele&nbsp;selectate<br>&nbsp;&nbsp;&nbsp;for&nbsp;(file&nbsp;of&nbsp;files)&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Parcurgem&nbsp;toate&nbsp;fișierele&nbsp;selectate<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;creăm&nbsp;un&nbsp;obiect&nbsp;FileReader&nbsp;pentru&nbsp;citirea&nbsp;fișierului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;reader&nbsp;=&nbsp;new&nbsp;FileReader();&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;la&nbsp;citirea&nbsp;cu&nbsp;succes&nbsp;a&nbsp;fișierului&nbsp;afișăm&nbsp;conținutul&nbsp;său&nbsp;pe&nbsp;pagina&nbsp;web<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reader.onload&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;afișăm&nbsp;conținutul<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(reader.result);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;pentru&nbsp;separare,&nbsp;dacă&nbsp;sunt&nbsp;selectate&nbsp;mai&nbsp;multe&nbsp;fișiere<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("==============================");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;citim&nbsp;fișierul<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reader.readAsText(file);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;}<br>}<br>document.getElementById("files").addEventListener("change",&nbsp;printFiles);<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+ </div>
+ <p class="paragraph">Aici pe pagină este definit elementul de intrare input, pentru care cu ajutorul atributului accept="text/*" este stabilit un filtru pentru acceptarea doar a fișierelor de tip text.</p>
+ <div class="code-inline">
+  <pre><code>&lt;input&nbsp;type="file"&nbsp;id="files"&nbsp;accept="text/*"&nbsp;multiple&nbsp;/&gt;</code></pre>
+ </div>
+ <p class="paragraph">În codul JavaScript pentru elementul input, ca handler pentru evenimentul "change", stabilim funcția printFiles:</p>
+ <div class="code-inline">
+  <pre><code>document.getElementById("files").addEventListener("change",&nbsp;printFiles);</code></pre>
+ </div>
+ <p class="paragraph">În această funcție parcurgem toate fișierele selectate, pe care le obținem din obiectul evenimentului prin proprietatea e.target.files, și creăm un obiect FileReader pentru citirea fiecărui fișier:</p>
+ <div class="code-inline">
+  <pre><code>function&nbsp;printFiles(e)&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;files&nbsp;=&nbsp;e.target.files;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;toate&nbsp;fișierele&nbsp;selectate<br>&nbsp;&nbsp;&nbsp;for&nbsp;(file&nbsp;of&nbsp;files)&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Parcurgem&nbsp;toate&nbsp;fișierele&nbsp;selectate<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;creăm&nbsp;un&nbsp;obiect&nbsp;FileReader&nbsp;pentru&nbsp;citirea&nbsp;fișierului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;reader&nbsp;=&nbsp;new&nbsp;FileReader();&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;la&nbsp;citirea&nbsp;cu&nbsp;succes&nbsp;a&nbsp;fișierului&nbsp;afișăm&nbsp;conținutul&nbsp;său&nbsp;pe&nbsp;pagina&nbsp;web</code></pre>
+ </div>
+ <p class="paragraph">Definim handler-ul pentru evenimentul load:</p>
+ <div class="code-inline">
+  <pre><code>reader.onload&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(reader.result);&nbsp;//&nbsp;afișăm&nbsp;conținutul<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;pentru&nbsp;separare,&nbsp;dacă&nbsp;sunt&nbsp;selectate&nbsp;mai&nbsp;multe&nbsp;fișiere<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("==============================");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};</code></pre>
+ </div>
+ <p class="paragraph">În handler, prin proprietatea reader.result obținem datele citite și le afișăm în consolă. De asemenea, dacă sunt selectate mai multe fișiere, afișăm în consolă un separator condiționat.</p>
+ <p class="paragraph">La final, citim de fapt fișierul cu ajutorul funcției readAsText()</p>
+ <div class="code-inline">
+  <pre><code>reader.readAsText(file);</code></pre>
+ </div>
+ <p class="paragraph">Rezultatul lucrării:</p>
+ <div class="image-container">
+  <img src="images/image1.png" alt="" class="responsive-image">
+ </div>
+ <h2 class="subtitle">Afișarea metadatelor fișierului</h2>
+ <p class="paragraph">Am văzut cum să obținem și să afișăm în consolă textul unui fișier. În principiu, totul este destul de simplu. Dar când parcurgem fișierele prin proprietățile obiectului File, ne sunt accesibile diferite metadate ale fișierului - numele, mărimea, tipul, data modificării. Ce se întâmplă dacă vrem, de exemplu, să afișăm și numele fișierului când afișăm textul acestuia? Abordarea naivă ar arăta astfel:</p>
+ <div class="code-inline">
+  <pre><code>for&nbsp;(file&nbsp;of&nbsp;files)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Numele&nbsp;fișierului:",&nbsp;file.name);&nbsp;&nbsp;&nbsp;//&nbsp;afișăm&nbsp;numele&nbsp;fișierului<br>&nbsp;&nbsp;&nbsp;const&nbsp;reader&nbsp;=&nbsp;new&nbsp;FileReader();<br>&nbsp;&nbsp;&nbsp;reader.onload&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Numele&nbsp;fișierului:",&nbsp;file.name);&nbsp;&nbsp;&nbsp;//&nbsp;încercăm&nbsp;să&nbsp;afișăm&nbsp;aici<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(reader.result);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("==============================");<br>&nbsp;&nbsp;&nbsp;};&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;reader.readAsText(file);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>}</code></pre>
+ </div>
+ <p class="paragraph">Problema este că handler-ul reader.onload are o natură asincronă - citirea fișierului anterior poate să se finalizeze când începe (sau chiar s-a finalizat deja) citirea următorului fișier. În consecință, o astfel de abordare poate duce la coliziuni. Una dintre soluțiile posibile constă în capturarea datelor necesare din exterior prin intermediul unui closure:</p>
+ <div class="code-inline">
+  <pre><code>function&nbsp;printFiles(e)&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;files&nbsp;=&nbsp;e.target.files;<br>&nbsp;&nbsp;&nbsp;for&nbsp;(file&nbsp;of&nbsp;files)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;reader&nbsp;=&nbsp;new&nbsp;FileReader();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reader.onload&nbsp;=&nbsp;(function(fileData)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;function(e){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Numele&nbsp;fișierului:",&nbsp;fileData.name);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(e.target.result);&nbsp;//&nbsp;același&nbsp;lucru&nbsp;ca&nbsp;și&nbsp;reader.result<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("==============================");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;})(file);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reader.readAsText(file);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+ </div>
+ <p class="paragraph">În acest caz, handler-ului onload i se atribuie rezultatul unei funcții auto-executabile, care formează un closure. Prin parametrul său fileData în funcție este transmis obiectul File curent.</p>
+ <h2 class="subtitle">Citirea imaginilor</h2>
+ <p class="paragraph">Într-un mod similar, putem citi și alte tipuri de fișiere. De exemplu, să citim și să afișăm pe pagina web imaginile:</p>
+ <div class="code-inline">
+  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;div.item&nbsp;{width:&nbsp;250px;&nbsp;margin:0&nbsp;10px;}<br>&nbsp;&nbsp;&nbsp;.image&nbsp;{width:&nbsp;250px;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;input&nbsp;type="file"&nbsp;id="files"&nbsp;accept="image/*"&nbsp;multiple&nbsp;/&gt;<br>&lt;div&nbsp;id="fileList"&gt;&lt;/div&gt;<br>&lt;script&gt;<br>function&nbsp;printFiles(e)&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;files&nbsp;=&nbsp;e.target.files;<br>&nbsp;&nbsp;&nbsp;for&nbsp;(file&nbsp;of&nbsp;files)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;reader&nbsp;=&nbsp;new&nbsp;FileReader();&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reader.onload&nbsp;=&nbsp;(function(fileData)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;creăm&nbsp;un&nbsp;element&nbsp;div<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;fileItem&nbsp;=&nbsp;document.createElement("div");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fileItem.className&nbsp;=&nbsp;"fileItem";<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;creăm&nbsp;un&nbsp;titlu&nbsp;pentru&nbsp;fișierul&nbsp;adăugat<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;fileHeader&nbsp;=&nbsp;document.createElement("h3");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fileHeader.textContent&nbsp;=&nbsp;fileData.name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fileItem.appendChild(fileHeader);<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;creăm&nbsp;un&nbsp;element&nbsp;img&nbsp;pentru&nbsp;afișarea&nbsp;fișierului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;img&nbsp;=&nbsp;document.createElement("img");&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;img.src&nbsp;=&nbsp;reader.result;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;img.className&nbsp;=&nbsp;"image";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fileItem.appendChild(img);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;document.getElementById("fileList").appendChild(fileItem);&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;})(file);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reader.readAsDataURL(file);<br>&nbsp;&nbsp;&nbsp;}<br>}<br>document.getElementById("files").addEventListener("change",&nbsp;printFiles);<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+ </div>
+ <p class="paragraph">Acum, pentru elementul de intrare este setat filtrul accept="image/*", iar toate imaginile încărcate sunt afișate în elementul &lt;div id="fileList"&gt;. Pentru aceasta, în handler-ul onload, creăm un element div, în care adăugăm un titlu h3 cu numele fișierului și un element img cu conținutul fișierului. Conținutul fișierului este citit folosind metoda reader.readAsDataURL().</p>
+ <p class="paragraph">Exemplu de funcționare:</p>
+ <div class="image-container">
+  <img src="images/image2.png" alt="" class="responsive-image">
+ </div>
+ <h2 class="subtitle">Combinarea diferitelor tipuri de fișiere</h2>
+ <p class="paragraph">De asemenea, putem combina deschiderea fișierelor de diferite tipuri:</p>
+ <div class="code-inline">
+  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;div.item&nbsp;{width:&nbsp;250px;&nbsp;margin:0&nbsp;10px;}<br>&nbsp;&nbsp;&nbsp;.text{min-height:&nbsp;80px;&nbsp;width:&nbsp;250px;&nbsp;border:1px&nbsp;solid&nbsp;#ccc;padding:10px;}<br>&nbsp;&nbsp;&nbsp;.image&nbsp;{width:&nbsp;250px;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;input&nbsp;type="file"&nbsp;id="files"&nbsp;multiple&nbsp;/&gt;<br>&lt;div&nbsp;id="fileList"&gt;&lt;/div&gt;<br>&lt;script&gt;<br>const&nbsp;fileList&nbsp;=&nbsp;document.getElementById("fileList");<br>//&nbsp;creăm&nbsp;un&nbsp;element&nbsp;care&nbsp;reprezintă&nbsp;un&nbsp;fișier&nbsp;separat&nbsp;pe&nbsp;pagină<br>function&nbsp;createFileItem(file){<br>&nbsp;&nbsp;&nbsp;const&nbsp;fileItem&nbsp;=&nbsp;document.createElement("div");<br>&nbsp;&nbsp;&nbsp;fileItem.className&nbsp;=&nbsp;"fileItem";<br><br>&nbsp;&nbsp;&nbsp;//&nbsp;creăm&nbsp;un&nbsp;titlu&nbsp;pentru&nbsp;fișierul&nbsp;adăugat<br>&nbsp;&nbsp;&nbsp;const&nbsp;fileHeader&nbsp;=&nbsp;document.createElement("h3");<br>&nbsp;&nbsp;&nbsp;fileHeader.textContent&nbsp;=&nbsp;file.name;<br>&nbsp;&nbsp;&nbsp;fileItem.appendChild(fileHeader);<br>&nbsp;&nbsp;&nbsp;return&nbsp;fileItem;<br>}<br>function&nbsp;readTextFile(file){<br>&nbsp;&nbsp;&nbsp;return&nbsp;function(e){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;fileItem&nbsp;=&nbsp;createFileItem(file);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;creăm&nbsp;un&nbsp;element&nbsp;div&nbsp;pentru&nbsp;afișarea&nbsp;textului&nbsp;fișierului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;div&nbsp;=&nbsp;document.createElement("div");&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;înlocuim&nbsp;sfârșiturile&nbsp;de&nbsp;linie&nbsp;cu&nbsp;text&nbsp;corespunzător<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div.textContent&nbsp;=&nbsp;e.target.result.replace("\n",&nbsp;"\n");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div.className&nbsp;=&nbsp;"text";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fileItem.appendChild(div);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fileList.appendChild(fileItem);&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;};<br>}<br>function&nbsp;readImageFile(file){<br>&nbsp;&nbsp;&nbsp;return&nbsp;function(e){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;fileItem&nbsp;=&nbsp;createFileItem(file);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;creăm&nbsp;un&nbsp;element&nbsp;img&nbsp;pentru&nbsp;afișarea&nbsp;fișierului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;img&nbsp;=&nbsp;document.createElement("img");&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;img.src&nbsp;=&nbsp;e.target.result;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;img.className&nbsp;=&nbsp;"image";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fileItem.appendChild(img);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fileList.appendChild(fileItem);&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;};<br>}<br>function&nbsp;printFiles(e)&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;files&nbsp;=&nbsp;e.target.files;<br>&nbsp;&nbsp;&nbsp;for&nbsp;(file&nbsp;of&nbsp;files)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;citim&nbsp;fișierul<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;reader&nbsp;=&nbsp;new&nbsp;FileReader();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(file.type.match("text.*"))&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reader.onload&nbsp;=&nbsp;readTextFile(file);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reader.readAsText(file);&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;if(file.type.match("image.*"))&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reader.onload&nbsp;=&nbsp;readImageFile(file);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reader.readAsDataURL(file);&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}<br>document.getElementById("files").addEventListener("change",&nbsp;printFiles);<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+ </div>
+ <p class="paragraph">Aici, în funcție de tipul fișierului, creăm un element specific (&lt;div&gt; pentru afișarea fișierelor text și &lt;img&gt; pentru afișarea imaginilor). De exemplu, să selectăm fișiere de diferite tipuri:</p>
+ <div class="image-container">
+  <img src="images/image3.png" alt="" class="responsive-image">
+ </div>
+</div>
+  </main>
+  <aside class="ad-section">
+    <div class="ad-box"><p>Google Ad Here</p></div>
+    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-separator"></div>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Linkuri rapide</h3>
+      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+    </div>
+    <div class="footer-section">
+      <h3>Topicuri</h3>
+      <ul>
+        <li th:each="topic : ${topics}">
+          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
+        </li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Rețele Sociale</h3>
+      <ul>
+        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
+        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
+        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-section contact">
+      <h3>Contact</h3>
+      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  </div>
+</footer>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>
