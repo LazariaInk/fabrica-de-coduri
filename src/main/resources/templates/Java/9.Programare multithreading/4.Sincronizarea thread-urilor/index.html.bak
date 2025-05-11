@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Java', activeChapter='9.Programare multithreading', activeLesson='4.Sincronizarea thread-urilor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Sincronizarea thread-urilor - Operatorul synchronized</h1>
+     <p class="paragraph">În activitatea thread-urilor, acestea apelează deseori la anumite resurse comune, care sunt definite în afara thread-ului, de exemplu, accesarea unui fișier. Dacă mai multe thread-uri accesează simultan o resursă comună, rezultatele execuției programului pot fi neașteptate și chiar imprevizibile. De exemplu, să definim următorul cod:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;class&nbsp;Program&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CommonResource&nbsp;commonResource&nbsp;=&nbsp;new&nbsp;CommonResource();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;&nbsp;6;&nbsp;i++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread&nbsp;t&nbsp;=&nbsp;new&nbsp;Thread(new&nbsp;CountThread(commonResource));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t.setName("Thread&nbsp;"&nbsp;+&nbsp;i);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t.start();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;CommonResource&nbsp;{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;int&nbsp;x&nbsp;=&nbsp;0;<br>}<br><br>class&nbsp;CountThread&nbsp;implements&nbsp;Runnable&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;CommonResource&nbsp;res;<br>&nbsp;&nbsp;&nbsp;CountThread(CommonResource&nbsp;res)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.res&nbsp;=&nbsp;res;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;run()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res.x&nbsp;=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;&nbsp;5;&nbsp;i++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("%s&nbsp;%d&nbsp;\n",&nbsp;Thread.currentThread().getName(),&nbsp;res.x);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res.x++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread.sleep(100);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;catch&nbsp;(InterruptedException&nbsp;e)&nbsp;{}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici este definită clasa CommonResource, care reprezintă o resursă comună și în care este definit un câmp întreg x.</p>
+     <p class="paragraph">Această resursă este utilizată de clasa thread-ului CountThread. Clasa crește pur și simplu în ciclu valoarea x cu 1. La intrarea în thread, valoarea x este setată la 1:</p>
+     <div class="code-inline">
+      <pre><code>res.x&nbsp;=&nbsp;1;</code></pre>
+     </div>
+     <p class="paragraph">Prin urmare, ne așteptăm ca, după executarea ciclului, res.x să fie egal cu 4.</p>
+     <p class="paragraph">În clasa principală a programului, se lansează cinci thread-uri. Ne așteptăm ca fiecare thread să crească valoarea lui res.x de la 1 la 4, și asta de cinci ori. Cu toate acestea, rezultatul execuției programului va fi diferit:</p>
+     <div class="code-inline">
+      <pre><code>Thread&nbsp;1&nbsp;1&nbsp;<br>Thread&nbsp;2&nbsp;1&nbsp;<br>Thread&nbsp;3&nbsp;1&nbsp;<br>Thread&nbsp;5&nbsp;1&nbsp;<br>Thread&nbsp;4&nbsp;1&nbsp;<br>Thread&nbsp;5&nbsp;6&nbsp;<br>Thread&nbsp;2&nbsp;6&nbsp;<br>Thread&nbsp;1&nbsp;6&nbsp;<br>Thread&nbsp;3&nbsp;6&nbsp;<br>Thread&nbsp;4&nbsp;6&nbsp;<br>Thread&nbsp;4&nbsp;11&nbsp;<br>Thread&nbsp;2&nbsp;11&nbsp;<br>Thread&nbsp;5&nbsp;11&nbsp;<br>Thread&nbsp;3&nbsp;11&nbsp;<br>Thread&nbsp;1&nbsp;11&nbsp;<br>Thread&nbsp;4&nbsp;16&nbsp;<br>Thread&nbsp;1&nbsp;16&nbsp;<br>Thread&nbsp;3&nbsp;16&nbsp;<br>Thread&nbsp;5&nbsp;16&nbsp;<br>Thread&nbsp;2&nbsp;16</code></pre>
+     </div>
+     <p class="paragraph">Observăm că, înainte ca un thread să termine de lucrat cu câmpul res.x, un alt thread începe să lucreze cu el.</p>
+     <p class="paragraph">Pentru a evita această situație, trebuie să sincronizăm thread-urile. Una dintre metodele de sincronizare este utilizarea cuvântului cheie synchronized. Acest operator precede blocul de cod sau metoda care trebuie sincronizată. Pentru aplicare, vom modifica clasa CountThread:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;CountThread&nbsp;implements&nbsp;Runnable&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;CommonResource&nbsp;res;<br>&nbsp;&nbsp;&nbsp;CountThread(CommonResource&nbsp;res)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.res&nbsp;=&nbsp;res;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;run()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;synchronized&nbsp;(res)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res.x&nbsp;=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;&nbsp;5;&nbsp;i++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("%s&nbsp;%d&nbsp;\n",&nbsp;Thread.currentThread().getName(),&nbsp;res.x);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res.x++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread.sleep(100);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;catch&nbsp;(InterruptedException&nbsp;e)&nbsp;{}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Atunci când creăm un bloc de cod sincronizat, după operatorul synchronized urmează un obiect: synchronized(res). Acest obiect poate fi doar un obiect de clasă, nu un tip primitiv.</p>
+     <p class="paragraph">Fiecare obiect în Java are asociat un monitor. Monitorul reprezintă un fel de instrument pentru gestionarea accesului la obiect. Când execuția codului ajunge la operatorul synchronized, monitorul obiectului res este blocat, iar pe durata blocării sale, accesul la blocul de cod este monopolizat de un singur thread, cel care a realizat blocarea.</p>
+     <p class="paragraph">După finalizarea blocului de cod, monitorul obiectului res este eliberat și devine disponibil pentru alte thread-uri.</p>
+     <p class="paragraph">După eliberarea monitorului, un alt thread îl poate prelua, iar restul thread-urilor continuă să aștepte eliberarea lui.</p>
+     <p class="paragraph">Rezultatul în consolă va fi acum diferit:</p>
+     <div class="code-inline">
+      <pre><code>Thread&nbsp;1&nbsp;1&nbsp;<br>Thread&nbsp;1&nbsp;2<br>Thread&nbsp;1&nbsp;3<br>Thread&nbsp;1&nbsp;4<br>Thread&nbsp;3&nbsp;1&nbsp;<br>Thread&nbsp;3&nbsp;2<br>Thread&nbsp;3&nbsp;3<br>Thread&nbsp;3&nbsp;4<br>Thread&nbsp;5&nbsp;1&nbsp;<br>Thread&nbsp;5&nbsp;2<br>Thread&nbsp;5&nbsp;3<br>Thread&nbsp;5&nbsp;4<br>Thread&nbsp;4&nbsp;1&nbsp;<br>Thread&nbsp;4&nbsp;2<br>Thread&nbsp;4&nbsp;3<br>Thread&nbsp;4&nbsp;4<br>Thread&nbsp;2&nbsp;1&nbsp;<br>Thread&nbsp;2&nbsp;2<br>Thread&nbsp;2&nbsp;3<br>Thread&nbsp;2&nbsp;4</code></pre>
+     </div>
+     <p class="paragraph">Când se aplică operatorul synchronized la o metodă, până când metoda nu își finalizează execuția, accesul este monopolizat doar de un singur thread – primul care a început să o execute. Pentru aplicarea synchronized la o metodă, modificăm clasele din program:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;class&nbsp;Program&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CommonResource&nbsp;commonResource&nbsp;=&nbsp;new&nbsp;CommonResource();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;&nbsp;6;&nbsp;i++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread&nbsp;t&nbsp;=&nbsp;new&nbsp;Thread(new&nbsp;CountThread(commonResource));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t.setName("Thread&nbsp;"&nbsp;+&nbsp;i);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t.start();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;CommonResource&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;int&nbsp;x;<br>&nbsp;&nbsp;&nbsp;synchronized&nbsp;void&nbsp;increment()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x&nbsp;=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;&nbsp;5;&nbsp;i++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("%s&nbsp;%d&nbsp;\n",&nbsp;Thread.currentThread().getName(),&nbsp;x);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread.sleep(100);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;catch&nbsp;(InterruptedException&nbsp;e)&nbsp;{}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;CountThread&nbsp;implements&nbsp;Runnable&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;CommonResource&nbsp;res;<br>&nbsp;&nbsp;&nbsp;CountThread(CommonResource&nbsp;res)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.res&nbsp;=&nbsp;res;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;run()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res.increment();<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Rezultatul în acest caz va fi similar cu cel din exemplul anterior, cu blocul synchronized. Din nou, monitorul obiectului CommonResource intră în joc – acesta este obiectul comun pentru toate thread-urile.</p>
+     <p class="paragraph">De aceea, nu metoda run() din clasa CountThread este sincronizată, ci metoda increment din clasa CommonResource. Când primul thread începe să execute metoda increment, el capturează monitorul obiectului CommonResource. Iar restul thread-urilor continuă să aștepte eliberarea acestuia.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

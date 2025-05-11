@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='10.Colectii', activeLesson='7.Interfetele IEnumerable si IEnumerator'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Interfețele IEnumerable și IEnumerator</h1>
+     <p class="paragraph">Așa cum am văzut, baza pentru majoritatea colecțiilor este implementarea interfețelor IEnumerable și IEnumerator. Datorită acestei implementări, putem parcurge obiectele într-un ciclu foreach:</p>
+     <div class="code-inline">
+      <pre><code>foreach(var&nbsp;item&nbsp;in&nbsp;enumerabil_object)<br>{<br>&nbsp;&nbsp;&nbsp;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Colecția care poate fi parcursă trebuie să implementeze interfața IEnumerable.</p>
+     <p class="paragraph">Interfața IEnumerable are o metodă care returnează o referință la o altă interfață - enumeratorul:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;interface&nbsp;IEnumerable<br>{<br>&nbsp;&nbsp;&nbsp;IEnumerator&nbsp;GetEnumerator();<br>}</code></pre>
+     </div>
+     <p class="paragraph">Interfața IEnumerator definește funcționalitatea pentru parcurgerea obiectelor interne din container:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;interface&nbsp;IEnumerator<br>{<br>&nbsp;&nbsp;&nbsp;bool&nbsp;MoveNext();&nbsp;//&nbsp;mută&nbsp;la&nbsp;următoarea&nbsp;poziție&nbsp;în&nbsp;containerul&nbsp;de&nbsp;elemente<br>&nbsp;&nbsp;&nbsp;object&nbsp;Current&nbsp;{get;}&nbsp;&nbsp;//&nbsp;elementul&nbsp;curent&nbsp;din&nbsp;container<br>&nbsp;&nbsp;&nbsp;void&nbsp;Reset();&nbsp;//&nbsp;resetează&nbsp;la&nbsp;începutul&nbsp;containerului<br>}</code></pre>
+     </div>
+     <p class="paragraph">Metoda MoveNext() mută cursorul către elementul curent la următoarea poziție din secvență. Dacă secvența nu s-a terminat, returnează true. Dacă secvența s-a terminat, returnează false.</p>
+     <p class="paragraph">Proprietatea Current returnează obiectul din secvență către care este mutat cursorul.</p>
+     <p class="paragraph">Metoda Reset() resetează cursorul poziției la poziția inițială.</p>
+     <p class="paragraph">Modul exact în care se mută cursorul și cum se obțin elementele depinde de implementarea interfeței. În diverse implementări, logica poate fi construită diferit.</p>
+     <p class="paragraph">De exemplu, fără a folosi ciclul foreach, putem parcurge un array folosind interfața IEnumerator:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Collections;<br><br>string[]&nbsp;people&nbsp;=&nbsp;{"Tom",&nbsp;"Sam",&nbsp;"Bob"};<br><br>IEnumerator&nbsp;peopleEnumerator&nbsp;=&nbsp;people.GetEnumerator();&nbsp;//&nbsp;obținem&nbsp;IEnumerator<br>while&nbsp;(peopleEnumerator.MoveNext())&nbsp;&nbsp;&nbsp;//&nbsp;până&nbsp;când&nbsp;returnează&nbsp;false<br>{<br>&nbsp;&nbsp;&nbsp;string&nbsp;item&nbsp;=&nbsp;(string)peopleEnumerator.Current;&nbsp;//&nbsp;obținem&nbsp;elementul&nbsp;la&nbsp;poziția&nbsp;curentă<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(item);<br>}<br>peopleEnumerator.Reset();&nbsp;//&nbsp;resetăm&nbsp;cursorul&nbsp;la&nbsp;începutul&nbsp;array-ului</code></pre>
+     </div>
+     <h2 class="subtitle">Implementarea IEnumerable și IEnumerator</h2>
+     <p class="paragraph">Să vedem o implementare simplă a IEnumerable printr-un exemplu:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Collections;<br><br>Week&nbsp;week&nbsp;=&nbsp;new&nbsp;Week();<br>foreach&nbsp;(var&nbsp;day&nbsp;in&nbsp;week)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(day);<br>}<br><br>class&nbsp;Week&nbsp;:&nbsp;IEnumerable<br>{<br>&nbsp;&nbsp;&nbsp;string[]&nbsp;days&nbsp;=&nbsp;{&nbsp;"Monday",&nbsp;"Tuesday",&nbsp;"Wednesday",&nbsp;"Thursday",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Friday",&nbsp;"Saturday",&nbsp;"Sunday"&nbsp;};<br>&nbsp;&nbsp;&nbsp;public&nbsp;IEnumerator&nbsp;GetEnumerator()&nbsp;=&gt;&nbsp;days.GetEnumerator();<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, clasa Week, care reprezintă săptămâna și stochează toate zilele săptămânii, implementează interfața IEnumerable. Cu toate acestea, aici am procedat foarte simplu - în loc de a implementa IEnumerator, returnăm pur și simplu în metoda GetEnumerator un obiect IEnumerator pentru array.</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;IEnumerator&nbsp;GetEnumerator()&nbsp;=&gt;&nbsp;days.GetEnumerator();</code></pre>
+     </div>
+     <p class="paragraph">Datorită acestui lucru, putem parcurge toate zilele săptămânii într-un ciclu foreach.</p>
+     <p class="paragraph">Totodată, merită menționat că pentru a parcurge colecția prin foreach, în principiu nu este obligatoriu să implementăm interfața IEnumerable. Este suficient să definim în clasă o metodă publică GetEnumerator care să returneze un obiect IEnumerator. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Week<br>{<br>&nbsp;&nbsp;&nbsp;string[]&nbsp;days&nbsp;=&nbsp;{&nbsp;"Monday",&nbsp;"Tuesday",&nbsp;"Wednesday",&nbsp;"Thursday",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Friday",&nbsp;"Saturday",&nbsp;"Sunday"&nbsp;};<br>&nbsp;&nbsp;&nbsp;public&nbsp;IEnumerator&nbsp;GetEnumerator()&nbsp;=&gt;&nbsp;days.GetEnumerator();<br>}</code></pre>
+     </div>
+     <p class="paragraph">Cu toate acestea, aceasta a fost destul de simplu - folosim pur și simplu enumeratorul array-ului deja existent. Cu toate acestea, este posibil să fie necesar să definim propria noastră logică de parcurgere a obiectelor. Pentru aceasta, implementăm interfața IEnumerator:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Collections;<br><br>class&nbsp;WeekEnumerator&nbsp;:&nbsp;IEnumerator<br>{<br>&nbsp;&nbsp;&nbsp;string[]&nbsp;days;<br>&nbsp;&nbsp;&nbsp;int&nbsp;position&nbsp;=&nbsp;-1;<br>&nbsp;&nbsp;&nbsp;public&nbsp;WeekEnumerator(string[]&nbsp;days)&nbsp;=&gt;&nbsp;this.days&nbsp;=&nbsp;days;<br>&nbsp;&nbsp;&nbsp;public&nbsp;object&nbsp;Current<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(position&nbsp;==&nbsp;-1&nbsp;||&nbsp;position&nbsp;&gt;=&nbsp;days.Length)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentException();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;days[position];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;bool&nbsp;MoveNext()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(position&nbsp;&lt;&nbsp;days.Length&nbsp;-&nbsp;1)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;position++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;true;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;false;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Reset()&nbsp;=&gt;&nbsp;position&nbsp;=&nbsp;-1;<br>}<br><br>class&nbsp;Week<br>{<br>&nbsp;&nbsp;&nbsp;string[]&nbsp;days&nbsp;=&nbsp;{&nbsp;"Monday",&nbsp;"Tuesday",&nbsp;"Wednesday",&nbsp;"Thursday",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Friday",&nbsp;"Saturday",&nbsp;"Sunday"&nbsp;};<br>&nbsp;&nbsp;&nbsp;public&nbsp;IEnumerator&nbsp;GetEnumerator()&nbsp;=&gt;&nbsp;new&nbsp;WeekEnumerator(days);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Acum clasa Week folosește enumeratorul propriu, WeekEnumerator, care implementează IEnumerator.</p>
+     <p class="paragraph">Punctul cheie în implementarea enumeratorului este mutarea cursorului pe element. În clasa WeekEnumerator, pentru stocarea poziției curente este definită variabila position. Trebuie să avem în vedere că la început (în starea inițială) cursorul trebuie să indice la poziția condiționată înaintea primului element.</p>
+     <p class="paragraph">Când se va executa ciclul foreach, acest ciclu va apela mai întâi metoda MoveNext și va muta de fapt cursorul cu o poziție înainte și doar apoi va apela proprietatea Current pentru a obține elementul la poziția curentă.</p>
+     <p class="paragraph">Apoi în program putem parcurge în mod similar obiectul Week folosind ciclul foreach:</p>
+     <div class="code-inline">
+      <pre><code>Week&nbsp;week&nbsp;=&nbsp;new&nbsp;Week();<br>foreach(var&nbsp;day&nbsp;in&nbsp;week)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(day);<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Versiunea generică a IEnumerator</h2>
+     <p class="paragraph">În exemplele de mai sus s-au folosit versiunile non-generic ale interfețelor, dar putem folosi și echivalentele lor generice:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Collections;<br><br>class&nbsp;WeekEnumerator&nbsp;:&nbsp;IEnumerator&lt;string&gt;<br>{<br>&nbsp;&nbsp;&nbsp;string[]&nbsp;days;<br>&nbsp;&nbsp;&nbsp;int&nbsp;position&nbsp;=&nbsp;-1;<br>&nbsp;&nbsp;&nbsp;public&nbsp;WeekEnumerator(string[]&nbsp;days)&nbsp;=&gt;&nbsp;this.days&nbsp;=&nbsp;days;<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Current<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(position&nbsp;==&nbsp;-1&nbsp;||&nbsp;position&nbsp;&gt;=&nbsp;days.Length)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentException();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;days[position];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;object&nbsp;IEnumerator.Current&nbsp;=&gt;&nbsp;Current;<br>&nbsp;&nbsp;&nbsp;public&nbsp;bool&nbsp;MoveNext()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(position&nbsp;&lt;&nbsp;days.Length&nbsp;-&nbsp;1)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;position++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;true;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;false;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Reset()&nbsp;=&gt;&nbsp;position&nbsp;=&nbsp;-1;<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Dispose()&nbsp;{&nbsp;}<br>}<br><br>class&nbsp;Week<br>{<br>&nbsp;&nbsp;&nbsp;string[]&nbsp;days&nbsp;=&nbsp;{&nbsp;"Monday",&nbsp;"Tuesday",&nbsp;"Wednesday",&nbsp;"Thursday",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Friday",&nbsp;"Saturday",&nbsp;"Sunday"&nbsp;};<br>&nbsp;&nbsp;&nbsp;public&nbsp;IEnumerator&lt;string&gt;&nbsp;GetEnumerator()&nbsp;=&gt;&nbsp;new&nbsp;WeekEnumerator(days);<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, implementăm interfața IEnumerator&lt;string&gt;, astfel încât în proprietatea Current trebuie să returnăm un obiect string. În acest caz, la parcurgerea în ciclul foreach, obiectele parcurse vor fi automat de tip string:</p>
+     <div class="code-inline">
+      <pre><code>Week&nbsp;week&nbsp;=&nbsp;new&nbsp;Week();<br>foreach&nbsp;(string&nbsp;day&nbsp;in&nbsp;week)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(day);<br>}</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

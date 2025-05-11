@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='13.Clase si structuri suplimentare in dot NET', activeLesson='1.Initializare intarziata si tipul Lazy'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Inițializare întârziată și tipul Lazy</h1>
+     <p class="paragraph">O aplicație poate folosi numeroase clase și obiecte. Totuși, există posibilitatea ca nu toate obiectele create să fie utilizate, mai ales în cazul aplicațiilor mari. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Reader<br>{<br>&nbsp;&nbsp;&nbsp;Library&nbsp;library&nbsp;=&nbsp;new&nbsp;Library();<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;ReadBook()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;library.GetBook();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Citim&nbsp;o&nbsp;carte&nbsp;tipărită");<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;ReadEbook()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Citim&nbsp;o&nbsp;carte&nbsp;pe&nbsp;computer");<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;Library<br>{<br>&nbsp;&nbsp;&nbsp;private&nbsp;string[]&nbsp;books&nbsp;=&nbsp;new&nbsp;string[99];<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;GetBook()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Dăm&nbsp;o&nbsp;carte&nbsp;cititorului");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Există o clasă Library, care reprezintă o bibliotecă și stochează un anumit set de cărți sub formă de matrice. Există și o clasă Reader, care stochează o referință la un obiect de tip bibliotecă, în care este înregistrat.</p>
+     <p class="paragraph">Cititorul are definite două metode: una pentru citirea unei cărți electronice și alta pentru citirea unei cărți obișnuite. Pentru a citi o carte obișnuită, este necesar să apelăm metoda clasei Library pentru a obține acea carte.</p>
+     <p class="paragraph">Dar ce se întâmplă dacă cititorul nu va trebui să citească deloc o carte obișnuită, ci doar cărți electronice, de exemplu, în următorul caz:</p>
+     <div class="code-inline">
+      <pre><code>Reader&nbsp;reader&nbsp;=&nbsp;new&nbsp;Reader();<br>reader.ReadEbook();</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, obiectul library din clasa cititor nu va fi folosit deloc și va ocupa doar spațiu în memorie, deși nu este necesar.</p>
+     <p class="paragraph">Pentru astfel de cazuri în .NET este definită clasa specială Lazy&lt;T&gt;. Să modificăm clasa cititor astfel:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Reader<br>{<br>&nbsp;&nbsp;&nbsp;Lazy&lt;Library&gt;&nbsp;library&nbsp;=&nbsp;new&nbsp;Lazy&lt;Library&gt;();<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;ReadBook()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;library.Value.GetBook();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Citim&nbsp;o&nbsp;carte&nbsp;tipărită");<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;ReadEbook()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Citim&nbsp;o&nbsp;carte&nbsp;pe&nbsp;computer");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Clasa Library rămâne neschimbată. Dar acum clasa Reader conține o referință la bibliotecă sub forma unui obiect Lazy&lt;Library&gt;. Iar pentru a accesa biblioteca și metodele acesteia, trebuie să folosim expresia library.Value - aceasta este obiectul Library.</p>
+     <p class="paragraph">Ce schimbă în comportamentul clasei Reader această modificare? Să analizăm utilizarea ei:</p>
+     <div class="code-inline">
+      <pre><code>Reader&nbsp;reader&nbsp;=&nbsp;new&nbsp;Reader();<br>reader.ReadEbook();<br>reader.ReadBook();</code></pre>
+     </div>
+     <p class="paragraph">Obiectul Library este folosit direct doar la a treia linie, în metoda reader.ReadBook(), care la rândul său apelează metoda library.Value.GetBook(). Prin urmare, până la a treia linie, obiectul Library utilizat de cititor nu va fi creat.</p>
+     <p class="paragraph">Dacă nu vom folosi metoda reader.ReadBook() în program, atunci obiectul bibliotecii nu va fi creat deloc, evitând astfel costurile suplimentare de memorie. Astfel, Lazy&lt;T&gt; ne garantează că obiectul va fi creat doar atunci când este necesar.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

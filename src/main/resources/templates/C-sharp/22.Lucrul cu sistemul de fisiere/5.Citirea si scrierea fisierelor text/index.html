@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='22.Lucrul cu sistemul de fisiere', activeLesson='5.Citirea si scrierea fisierelor text'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Citirea și scrierea fișierelor text. StreamReader și StreamWriter</h1>
+     <p class="paragraph">Pentru lucrul direct cu fișierele text, în spațiul de nume System.IO sunt definite clase speciale: StreamReader și StreamWriter.</p>
+     <h2 class="subtitle">Scrierea în fișier cu StreamWriter</h2>
+     <p class="paragraph">Pentru scrierea în fișiere text se utilizează clasa StreamWriter. Câțiva dintre constructorii acestei clase, care pot fi folosiți pentru crearea unui obiect StreamWriter, sunt:</p>
+     <ul class="enumeration">
+      <li>StreamWriter(string path): parametrul path specifică calea către fișierul care va fi asociat cu fluxul</li>
+      <li>StreamWriter(string path, bool append): parametrul append indică dacă datele trebuie adăugate la sfârșitul fișierului sau dacă fișierul trebuie rescris. Dacă valoarea este true, noile date sunt adăugate la sfârșitul fișierului. Dacă valoarea este false, fișierul este rescris de la început</li>
+      <li>StreamWriter(string path, bool append, System.Text.Encoding encoding): parametrul encoding specifică codificarea care va fi utilizată la scriere</li>
+     </ul>
+     <p class="paragraph">Funcționalitatea clasei StreamWriter este implementată prin următoarele metode:</p>
+     <ul class="enumeration">
+      <li>int Close(): închide fișierul în care s-a scris și eliberează toate resursele</li>
+      <li>void Flush(): scrie în fișier datele rămase în buffer și golește bufferul</li>
+      <li>Task FlushAsync(): versiunea asincronă a metodei Flush</li>
+      <li>void Write(string value): scrie în fișier datele de tipuri simple, cum ar fi int, double, char, string etc. Are mai multe versiuni supraîncărcate pentru scrierea datelor de tipuri elementare, de exemplu, Write(char value), Write(int value), Write(double value) etc</li>
+      <li>Task WriteAsync(string value): versiunea asincronă a metodei Write. Rețineți că versiunile asincrone nu sunt disponibile pentru toate supraîncărcările metodei Write</li>
+      <li>void WriteLine(string value): scrie, de asemenea, datele, dar adaugă la finalul scrierii un simbol de terminare a liniei</li>
+      <li>Task WriteLineAsync(string value): versiunea asincronă a metodei WriteLine</li>
+     </ul>
+     <p class="paragraph">Să vedem un exemplu de scriere într-un fișier:</p>
+     <div class="code-inline">
+      <pre><code>string&nbsp;path&nbsp;=&nbsp;"note1.txt";<br>string&nbsp;text&nbsp;=&nbsp;"Hello&nbsp;World\nHello&nbsp;FDC.COM";<br><br>//&nbsp;rescrierea&nbsp;completă&nbsp;a&nbsp;fișierului<br>using&nbsp;(StreamWriter&nbsp;writer&nbsp;=&nbsp;new&nbsp;StreamWriter(path,&nbsp;false))<br>{<br>&nbsp;&nbsp;&nbsp;await&nbsp;writer.WriteLineAsync(text);<br>}<br>//&nbsp;adăugarea&nbsp;în&nbsp;fișier<br>using&nbsp;(StreamWriter&nbsp;writer&nbsp;=&nbsp;new&nbsp;StreamWriter(path,&nbsp;true))<br>{<br>&nbsp;&nbsp;&nbsp;await&nbsp;writer.WriteLineAsync("Addition");<br>&nbsp;&nbsp;&nbsp;await&nbsp;writer.WriteAsync("4,5");<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest exemplu, creăm de două ori obiectul StreamWriter. În primul caz, dacă fișierul există, acesta va fi rescris. Dacă nu există, va fi creat. Și în el va fi scris textul din variabila text. În al doilea caz, fișierul este deschis pentru adăugare, iar în el vor fi scrise date atomice - un șir de caractere și un număr.</p>
+     <p class="paragraph">După finalizare, în folderul programului vom găsi fișierul note.txt, care va conține următoarele linii:</p>
+     <div class="code-inline">
+      <pre><code>Hello&nbsp;World<br>Hello&nbsp;FDC.COM<br>Addition<br>4,5</code></pre>
+     </div>
+     <p class="paragraph">În exemplul de mai sus, se va folosi codificarea implicită, dar aceasta poate fi setată explicit:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;(StreamWriter&nbsp;writer&nbsp;=&nbsp;new&nbsp;StreamWriter(path,&nbsp;true,&nbsp;System.Text.Encoding.Default))<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;operațiuni&nbsp;cu&nbsp;writer<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Citirea din fișier cu StreamReader</h2>
+     <p class="paragraph">Clasa StreamReader ne permite să citim cu ușurință tot textul sau linii individuale dintr-un fișier text.</p>
+     <p class="paragraph">Câteva dintre constructorii clasei StreamReader sunt:</p>
+     <ul class="enumeration">
+      <li>StreamReader(string path): parametrul path specifică calea către fișierul care va fi citit</li>
+      <li>StreamReader(string path, System.Text.Encoding encoding): parametrul encoding specifică codificarea pentru citirea fișierului</li>
+     </ul>
+     <p class="paragraph">Dintre metodele clasei StreamReader se remarcă următoarele:</p>
+     <ul class="enumeration">
+      <li>void Close(): închide fișierul citit și eliberează toate resursele</li>
+      <li>int Peek(): returnează următorul caracter disponibil; dacă nu mai sunt caractere, returnează -1</li>
+      <li>int Read(): citește și returnează următorul caracter în reprezentare numerică. Are o versiune supraîncărcată: Read(char[] array, int index, int count), unde array este array-ul în care sunt citite caracterele, index este indexul în array-ul array de la care sunt plasate caracterele citite, iar count este numărul maxim de caractere citite</li>
+      <li>Task&lt;int&gt; ReadAsync(): versiunea asincronă a metodei Read</li>
+      <li>string ReadLine(): citește o linie din fișier</li>
+      <li>string ReadLineAsync(): versiunea asincronă a metodei ReadLine</li>
+      <li>string ReadToEnd(): citește întregul text din fișier</li>
+      <li>string ReadToEndAsync(): versiunea asincronă a metodei ReadToEnd</li>
+     </ul>
+     <p class="paragraph">Mai întâi, să citim complet textul din fișierul scris anterior:</p>
+     <div class="code-inline">
+      <pre><code>string&nbsp;path&nbsp;=&nbsp;"note1.txt";<br>//&nbsp;citire&nbsp;asincronă<br>using&nbsp;(StreamReader&nbsp;reader&nbsp;=&nbsp;new&nbsp;StreamReader(path))<br>{<br>&nbsp;&nbsp;&nbsp;string&nbsp;text&nbsp;=&nbsp;await&nbsp;reader.ReadToEndAsync();<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(text);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Să citim textul din fișier linie cu linie:</p>
+     <div class="code-inline">
+      <pre><code>string&nbsp;path&nbsp;=&nbsp;"note1.txt";<br><br>//&nbsp;citire&nbsp;asincronă<br>using&nbsp;(StreamReader&nbsp;reader&nbsp;=&nbsp;new&nbsp;StreamReader(path))<br>{<br>&nbsp;&nbsp;&nbsp;string?&nbsp;line;<br>&nbsp;&nbsp;&nbsp;while&nbsp;((line&nbsp;=&nbsp;await&nbsp;reader.ReadLineAsync())&nbsp;!=&nbsp;null)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(line);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, citim linie cu linie prin intermediul unui ciclu while: while ((line = await reader.ReadLineAsync()) != null) - mai întâi, atribuim variabilei line rezultatul funcției reader.ReadLineAsync(), iar apoi verificăm dacă nu este null. Când obiectul reader ajunge la sfârșitul fișierului și nu mai sunt linii rămase, metoda reader.ReadLineAsync() va returna null.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

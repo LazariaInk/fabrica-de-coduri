@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='8.Functionalitati suplimentare ale OOP in C-sharp', activeLesson='1.Definirea operatorilor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Definirea operatorilor</h1>
+     <p class="paragraph">Alături de metodele din clase și structuri, putem defini și operatori. De exemplu, să presupunem că avem următoarea clasă Counter:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Counter<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Value&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Această clasă reprezintă un contor, a cărui valoare este stocată în proprietatea Value.</p>
+     <p class="paragraph">Și să presupunem că avem două obiecte ale clasei Counter - două contoare pe care vrem să le comparăm sau să le adunăm pe baza proprietății lor Value, folosind operațiile standard de comparare și adunare:</p>
+     <div class="code-inline">
+      <pre><code>Counter&nbsp;counter1&nbsp;=&nbsp;new&nbsp;Counter&nbsp;{&nbsp;Value&nbsp;=&nbsp;23&nbsp;};<br>Counter&nbsp;counter2&nbsp;=&nbsp;new&nbsp;Counter&nbsp;{&nbsp;Value&nbsp;=&nbsp;45&nbsp;};<br><br>bool&nbsp;result&nbsp;=&nbsp;counter1&nbsp;&gt;&nbsp;counter2;<br>Counter&nbsp;c3&nbsp;=&nbsp;counter1&nbsp;+&nbsp;counter2;</code></pre>
+     </div>
+     <p class="paragraph">Dar în acest moment nici operația de comparare, nici cea de adunare pentru obiectele Counter nu sunt disponibile. Aceste operații pot fi folosite pentru o serie de tipuri primitive.</p>
+     <p class="paragraph">De exemplu, în mod implicit putem aduna valori numerice, dar cum să adunăm obiecte de tip complex - clase și structuri, compilatorul nu știe. Și pentru asta trebuie să facem supraîncărcarea operatorilor de care avem nevoie.</p>
+     <p class="paragraph">Definirea operatorilor constă în definirea în clasă, pentru obiectele căreia vrem să definim operatorul, a unei metode speciale:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;static&nbsp;return_type&nbsp;operator&nbsp;operator(parameters)<br>{&nbsp;}</code></pre>
+     </div>
+     <p class="paragraph">Această metodă trebuie să aibă modificatorii public static, deoarece operatorul supraîncărcat va fi folosit pentru toate obiectele clasei respective. Apoi urmează tipul returnat. Tipul returnat reprezintă tipul obiectelor pe care dorim să le obținem.</p>
+     <p class="paragraph">De exemplu, în urma adunării a două obiecte Counter, așteptăm să obținem un nou obiect Counter. Iar în urma comparării a două obiecte dorim să obținem un obiect de tip bool, care indică dacă expresia condițională este adevărată sau falsă. Dar, în funcție de sarcină, tipurile returnate pot fi oricare.</p>
+     <p class="paragraph">Apoi, în locul numelui metodei, apare cuvântul cheie operator și propriul operator. Și mai departe în paranteze sunt enumerați parametrii. Operatorii binari acceptă doi parametri, iar cei unari - un parametru. Și în orice caz, unul dintre parametri trebuie să reprezinte tipul - clasa sau structura în care este definit operatorul.</p>
+     <p class="paragraph">De exemplu, să supraîncărcăm o serie de operatori pentru clasa Counter:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Counter<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Value&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;Counter&nbsp;operator&nbsp;+(Counter&nbsp;counter1,&nbsp;Counter&nbsp;counter2)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;Counter&nbsp;{&nbsp;Value&nbsp;=&nbsp;counter1.Value&nbsp;+&nbsp;counter2.Value&nbsp;};<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;bool&nbsp;operator&nbsp;&gt;(Counter&nbsp;counter1,&nbsp;Counter&nbsp;counter2)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;counter1.Value&nbsp;&gt;&nbsp;counter2.Value;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;bool&nbsp;operator&nbsp;&lt;(Counter&nbsp;counter1,&nbsp;Counter&nbsp;counter2)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;counter1.Value&nbsp;&lt;&nbsp;counter2.Value;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Deoarece toți operatorii definiți sunt binari - adică se efectuează asupra a două obiecte, pentru fiecare supraîncărcare sunt prevăzuți doi parametri.</p>
+     <p class="paragraph">Pentru că în cazul operației de adunare vrem să adunăm două obiecte ale clasei Counter, operatorul acceptă două obiecte ale acestei clase. Și pentru că vrem ca în urma adunării să obținem un nou obiect Counter, această clasă este folosită și ca tip returnat.</p>
+     <p class="paragraph">Toate acțiunile acestui operator se reduc la crearea unui nou obiect, a cărui proprietate Value combină valorile proprietății Value ale ambilor parametri:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;static&nbsp;Counter&nbsp;operator&nbsp;+(Counter&nbsp;counter1,&nbsp;Counter&nbsp;counter2)<br>{<br>&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;Counter&nbsp;{&nbsp;Value&nbsp;=&nbsp;counter1.Value&nbsp;+&nbsp;counter2.Value&nbsp;};<br>}</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, sunt definite două operații de comparare. Dacă definim una dintre aceste operații de comparare, trebuie să o definim și pe a doua. Operatorii de comparare compară valorile proprietăților Value și, în funcție de rezultatul comparației, returnează fie true, fie false.</p>
+     <p class="paragraph">Acum folosim operatorii supraîncărcați în program:</p>
+     <div class="code-inline">
+      <pre><code>Counter&nbsp;counter1&nbsp;=&nbsp;new&nbsp;Counter&nbsp;{&nbsp;Value&nbsp;=&nbsp;23&nbsp;};<br>Counter&nbsp;counter2&nbsp;=&nbsp;new&nbsp;Counter&nbsp;{&nbsp;Value&nbsp;=&nbsp;45&nbsp;};<br>bool&nbsp;result&nbsp;=&nbsp;counter1&nbsp;&gt;&nbsp;counter2;<br>Console.WriteLine(result);&nbsp;//&nbsp;false<br><br>Counter&nbsp;counter3&nbsp;=&nbsp;counter1&nbsp;+&nbsp;counter2;<br>Console.WriteLine(counter3.Value);&nbsp;&nbsp;//&nbsp;23&nbsp;+&nbsp;45&nbsp;=&nbsp;68</code></pre>
+     </div>
+     <p class="paragraph">Este de remarcat faptul că, deoarece definirea operatorului reprezintă de fapt o metodă, putem supraîncărca această metodă, adică să creăm o altă versiune pentru ea. De exemplu, adăugăm în clasa Counter un alt operator:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;static&nbsp;int&nbsp;operator&nbsp;+(Counter&nbsp;counter1,&nbsp;int&nbsp;val)<br>{<br>&nbsp;&nbsp;&nbsp;return&nbsp;counter1.Value&nbsp;+&nbsp;val;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Această metodă adună valoarea proprietății Value și un anumit număr, returnând suma lor. Și de asemenea putem aplica acest operator:</p>
+     <div class="code-inline">
+      <pre><code>Counter&nbsp;counter1&nbsp;=&nbsp;new&nbsp;Counter&nbsp;{&nbsp;Value&nbsp;=&nbsp;23&nbsp;};<br>int&nbsp;result&nbsp;=&nbsp;counter1&nbsp;+&nbsp;27;&nbsp;//&nbsp;50<br>Console.WriteLine(result);</code></pre>
+     </div>
+     <p class="paragraph">Trebuie de avut în vedere că nu toți operatorii pot fi definiți. În special, putem defini logica pentru următorii operatori:</p>
+     <ul class="enumeration">
+      <li>operatori unari: +x, -x, !x, ~x, ++, --, true, false</li>
+      <li>operatori binari: +, -, *, /, %</li>
+      <li>operații de comparare: ==, !=, &lt;, &gt;, &lt;=, &gt;=</li>
+      <li>operatori pe biți: &amp;, |, ^, &lt;&lt;, &gt;&gt;</li>
+      <li>operatori logici: &amp;&amp;, ||</li>
+     </ul>
+     <p class="paragraph">În plus, există câțiva operatori care trebuie definiți în perechi:</p>
+     <ul class="enumeration">
+      <li>== și !=</li>
+      <li>&lt; și &gt;</li>
+      <li>&lt;= și &gt;=</li>
+     </ul>
+     <p class="paragraph">Și există o serie de operatori care nu pot fi supraîncărcați, de exemplu, operația de egalitate = sau operatorul ternar ?:, precum și alții. Lista completă a operatorilor supraîncărcabili poate fi găsită în documentația MSDN.</p>
+     <h2 class="subtitle">Definirea incrementului și decrementului</h2>
+     <p class="paragraph">Trebuie de avut în vedere că în codul operatorului nu trebuie să se modifice obiectele care sunt transmise în operator prin parametri. De exemplu, putem defini pentru clasa Counter operatorul de incrementare:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;static&nbsp;Counter&nbsp;operator&nbsp;++(Counter&nbsp;counter1)<br>{<br>&nbsp;&nbsp;&nbsp;counter1.Value&nbsp;+=&nbsp;10;<br>&nbsp;&nbsp;&nbsp;return&nbsp;counter1;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Deoarece operatorul este unar, acceptă un singur parametru - obiectul clasei în care este definit operatorul. Dar aceasta este o definiție incorectă a incrementării, deoarece operatorul nu trebuie să modifice valorile parametrilor săi.</p>
+     <p class="paragraph">O definiție mai corectă a operatorului de incrementare ar arăta astfel:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;static&nbsp;Counter&nbsp;operator&nbsp;++(Counter&nbsp;counter1)<br>{<br>&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;Counter&nbsp;{&nbsp;Value&nbsp;=&nbsp;counter1.Value&nbsp;+&nbsp;10&nbsp;};<br>}</code></pre>
+     </div>
+     <p class="paragraph">Adică se returnează un nou obiect, care conține în proprietatea Value valoarea incrementată. Nu trebuie să definim separat operatorii pentru incrementarea prefixată și postfixată (și nici pentru decrementare), deoarece o singură implementare va funcționa în ambele cazuri.</p>
+     <div class="code-inline">
+      <pre><code>Counter&nbsp;counter1&nbsp;=&nbsp;new&nbsp;Counter()&nbsp;{&nbsp;Value&nbsp;=&nbsp;10&nbsp;};<br>Counter&nbsp;counter2&nbsp;=&nbsp;counter1++;<br>Console.WriteLine(counter1.Value);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;20<br>Console.WriteLine(counter2.Value);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;10<br><br>Counter&nbsp;counter3&nbsp;=&nbsp;++counter1;<br>Console.WriteLine(counter1.Value);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;30<br>Console.WriteLine(counter3.Value);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;30</code></pre>
+     </div>
+     <p class="paragraph">În cazul operației de incrementare postfixată (counter1++), compilatorul creează mai întâi o variabilă temporară în care salvează obiectul curent. Apoi, obiectul curent este înlocuit cu valoarea obținută din funcția operatorului.</p>
+     <p class="paragraph">Ca rezultat al operației, se returnează valoarea variabilei temporare. În cazul incrementării prefixate (++counter1), compilatorul returnează noua valoare obținută din funcția operatorului.</p>
+     <h2 class="subtitle">Definirea operațiilor true și false</h2>
+     <p class="paragraph">Separat, merită menționată definirea operatorilor true și false. Acești operatori sunt definiți atunci când dorim să folosim un obiect de tip ca și condiție. De exemplu, să definim acești operatori în clasa Counter:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Counter<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Value&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;bool&nbsp;operator&nbsp;true(Counter&nbsp;counter1)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;counter1.Value&nbsp;!=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;bool&nbsp;operator&nbsp;false(Counter&nbsp;counter1)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;counter1.Value&nbsp;==&nbsp;0;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>Counter&nbsp;counter&nbsp;=&nbsp;new&nbsp;Counter()&nbsp;{&nbsp;Value&nbsp;=&nbsp;0&nbsp;};<br>if&nbsp;(counter)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(true);<br>else<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(false);</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, este de remarcat faptul că dacă dorim să folosim operația de negație, tipul if (!counter), trebuie să definim și operația ! pentru tipul respectiv:</p>
+     <div class="code-inline">
+      <pre><code>Counter&nbsp;counter&nbsp;=&nbsp;new&nbsp;Counter()&nbsp;{&nbsp;Value&nbsp;=&nbsp;2&nbsp;};<br>if&nbsp;(!counter)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(true);<br>else<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(false);<br><br>class&nbsp;Counter<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Value&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;bool&nbsp;operator&nbsp;!(Counter&nbsp;counter1)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;counter1.Value&nbsp;==&nbsp;0;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;bool&nbsp;operator&nbsp;true(Counter&nbsp;counter1)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;counter1.Value&nbsp;!=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;bool&nbsp;operator&nbsp;false(Counter&nbsp;counter1)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;counter1.Value&nbsp;==&nbsp;0;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Operația de negație este de fapt sinonimă cu operația false, de aceea conține o condiție similară.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

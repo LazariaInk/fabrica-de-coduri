@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='1.Introducere in Javascript', activeLesson='4.Conectarea unui fisier extern JavaScript'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Conectarea unui fișier extern JavaScript</h1>
+     <p class="paragraph">În articolul anterior, codul JavaScript era definit direct pe pagina web. Există însă o altă modalitate de conectare a codului JavaScript, care presupune plasarea codului în fișiere externe și conectarea lor folosind tagul &lt;script&gt;.</p>
+     <p class="paragraph">Deci, în tema anterioară, am creat o pagină HTML numită index.html, situată în directorul "app". Acum, vom crea în același director un nou subdirector. Îl vom numi "js". Acesta va fi destinat stocării fișierelor cu cod JavaScript. În acest subdirector, vom crea un nou fișier text, pe care îl vom numi main.js. Fișierele cu cod JavaScript au extensia .js. Astfel, vom avea următoarea structură de proiect în directorul "app":</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/1.introducere%20in%20Javascript/4.Conectarea%20unui%20fisier%20extern%20JavaScript/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Deschideți fișierul main.js într-un editor de text și identificați în el următorul cod:</p>
+     <div class="code-inline">
+      <pre><code>document.write("&lt;h2&gt;Primul&nbsp;program&nbsp;în&nbsp;JavaScript&lt;/h2&gt;");&nbsp;//&nbsp;afișăm&nbsp;un&nbsp;titlu<br>document.write("Salut,&nbsp;lume!");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;afișăm&nbsp;text&nbsp;obișnuit</code></pre>
+     </div>
+     <p class="paragraph">Aici, pentru a adăuga conținut pe pagina web, se folosește metoda document.write. Primul apel al metodei document.write afișează un titlu &lt;h2&gt;, iar al doilea apel afișează text obișnuit.</p>
+     <p class="paragraph">Pentru a asigura compatibilitatea cu codificarea paginii index.html pentru fișierul cu cod JavaScript, este de asemenea recomandat să se seteze codificarea utf-8. Când lucrați în Visual Studio Code, acest editor setează automat codificarea UTF-8.</p>
+     <p class="paragraph">Acum vom conecta acest fișier la pagina web index.html:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&nbsp;src="js/main.js"&gt;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Pentru a conecta un fișier JavaScript la o pagină web, se utilizează de asemenea tagul &lt;script&gt;, la care se adaugă atributul src. Acest atribut indică calea către fișierul script. În cazul nostru, se utilizează o cale relativă. Deoarece pagina web este în aceeași mapă cu directorul js, putem folosi calea js/main.js.</p>
+     <p class="paragraph">De asemenea, este important să reținem că după tagul de deschidere &lt;script&gt; trebuie să urmeze neapărat tagul de închidere &lt;/script&gt;.</p>
+     <p class="paragraph">După deschiderea fișierului index.html într-un browser, va apărea mesajul:</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/1.introducere%20in%20Javascript/4.Conectarea%20unui%20fisier%20extern%20JavaScript/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">În opoziție față de definirea codului JavaScript direct în pagina HTML, plasarea acestuia în fișiere externe are mai multe avantaje:</p>
+     <ul class="enumeration">
+      <li>Putem reutiliza același cod pe mai multe pagini web.</li>
+      <li>ișierele JavaScript externe pot fi păstrate în cache de către browser, ceea ce reduce încărcarea serverului la accesarea ulterioară a paginii și necesită încărcarea unei cantități mai mici de informații către browser.</li>
+      <li>Codul paginii web devine mai "curat". Conține doar marcajele HTML, în timp ce codul comportamental este stocat în fișiere externe. În final, este posibil să separăm procesul de creare a codului HTML de scrierea codului JavaScript.</li>
+     </ul>
+     <p class="paragraph">De aceea, de obicei, este preferabil să se utilizeze codul JavaScript în fișiere externe, în loc de a-l insera direct în pagină cu ajutorul elementului script.</p>
+     <h2 class="subtitle">Încărcarea asincronă și execuția amânată</h2>
+     <p class="paragraph">Adesea, paginile web au o structură complexă, iar anumite blocuri pe pagină HTML, în care se încarcă fișierele JavaScript, sunt create dinamic, ceea ce poate complica gestionarea fișierelor JavaScript. Pentru a controla încărcarea fișierului cu cod JavaScript, browser-ul oferă două atribute: async și defer.</p>
+     <p class="paragraph">Atributul async garantează că procesarea codului HTML nu va fi suspendată atunci când browser-ul întâlnește elementul &lt;script&gt;. Fișierul JavaScript este descărcat în mod asincron (de aici și numele atributului - async). În acest caz, codul HTML continuă să fie procesat până când fișierul JavaScript corespunzător este descărcat. Când fișierul JavaScript este descărcat, procesarea HTML se oprește și începe execuția fișierului JS descărcat. După finalizarea execuției codului JavaScript, procesarea HTML continuă.</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/1.introducere%20in%20Javascript/4.Conectarea%20unui%20fisier%20extern%20JavaScript/images/image3.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Exemplu de utilizare a atributului async:</p>
+     <div class="code-inline">
+      <pre><code>&lt;script&nbsp;async&nbsp;src="js/main.js"&gt;&lt;/script&gt;</code></pre>
+     </div>
+     <p class="paragraph">Atributul defer asigură, de asemenea, că procesarea codului HTML nu va fi suspendată. Pe de altă parte, codul sursă JavaScript este executat doar după ce întregul cod HTML a fost procesat complet. Astfel, execuția codului JavaScript este amânată (de aici și denumirea - defer, în traducere în engleză).</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/1.introducere%20in%20Javascript/4.Conectarea%20unui%20fisier%20extern%20JavaScript/images/image4.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Exemplu de utilizare a atributului defer:</p>
+     <div class="code-inline">
+      <pre><code>&lt;script&nbsp;defer&nbsp;src="js/main.js"&gt;&lt;/script&gt;</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

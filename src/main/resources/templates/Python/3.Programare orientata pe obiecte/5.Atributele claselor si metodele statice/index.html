@@ -1,157 +1,147 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Python', activeChapter='3.Programare orientata pe obiecte', activeLesson='5.Atributele claselor si metodele statice'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Atributele claselor și metodele statice</h1>
- <h2 class="subtitle">Atributele claselor</h2>
- <p class="paragraph">Pe lângă atributele obiectelor, în clase se pot defini și atribute ale claselor. Astfel de atribute sunt definite ca variabile la nivel de clasă. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;type&nbsp;=&nbsp;"Person"<br>&nbsp;&nbsp;&nbsp;description&nbsp;=&nbsp;"Describes&nbsp;a&nbsp;person"<br><br>print(Person.type)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Person<br>print(Person.description)&nbsp;&nbsp;&nbsp;#&nbsp;Describes&nbsp;a&nbsp;person<br><br>Person.type&nbsp;=&nbsp;"Class&nbsp;Person"<br>print(Person.type)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Class&nbsp;Person</code></pre>
- </div>
- <p class="paragraph">Aici, în clasa Person, sunt definite două atribute: type, care stochează numele clasei, și description, care stochează descrierea clasei.</p>
- <p class="paragraph">Pentru a accesa atributele clasei, putem folosi numele clasei, de exemplu: Person.type, și, la fel ca atributele obiectului, putem obține și modifica valorile acestora.</p>
- <p class="paragraph">Astfel de atribute sunt comune pentru toate obiectele clasei:</p>
- <div class="code-inline">
-  <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;type&nbsp;=&nbsp;"Person"<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.name&nbsp;=&nbsp;name<br><br>tom&nbsp;=&nbsp;Person("Tom")<br>bob&nbsp;=&nbsp;Person("Bob")<br>print(tom.type)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Person<br>print(bob.type)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Person<br><br>#&nbsp;schimbăm&nbsp;atributul&nbsp;clasei<br>Person.type&nbsp;=&nbsp;"Class&nbsp;Person"<br>print(tom.type)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Class&nbsp;Person<br>print(bob.type)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Class&nbsp;Person</code></pre>
- </div>
- <p class="paragraph">Atributele clasei pot fi utilizate în situațiile în care trebuie să definim anumite date comune pentru toate obiectele. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;default_name&nbsp;=&nbsp;"Undefined"<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;name:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.name&nbsp;=&nbsp;name<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.name&nbsp;=&nbsp;Person.default_name<br><br>tom&nbsp;=&nbsp;Person("Tom")<br>bob&nbsp;=&nbsp;Person("")<br>print(tom.name)&nbsp;&nbsp;#&nbsp;Tom<br>print(bob.name)&nbsp;&nbsp;#&nbsp;Undefined</code></pre>
- </div>
- <p class="paragraph">În acest caz, atributul default_name stochează numele implicit. Și dacă în constructor este transmis un șir de caractere gol pentru nume, atunci atributul name va primi valoarea atributului clasei default_name. Pentru a accesa atributul clasei în interiorul metodelor, putem folosi numele clasei:</p>
- <div class="code-inline">
-  <pre><code>self.name&nbsp;=&nbsp;Person.default_name</code></pre>
- </div>
- <h2 class="subtitle">Atributul clasei și atributul obiectului</h2>
- <p class="paragraph">Este posibilă situația în care atributul clasei și atributul obiectului au același nume. Dacă în cod nu este setată o valoare pentru atributul obiectului, atunci pentru acesta poate fi folosită valoarea atributului clasei:</p>
- <div class="code-inline">
-  <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;name&nbsp;=&nbsp;"Undefined"<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;def&nbsp;print_name(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(self.name)<br><br>tom&nbsp;=&nbsp;Person()<br>bob&nbsp;=&nbsp;Person()<br>tom.print_name()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Undefined<br>bob.print_name()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Undefined<br><br>bob.name&nbsp;=&nbsp;"Bob"<br>bob.print_name()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Bob<br>tom.print_n</code></pre>
- </div>
- <p class="paragraph">Aici metoda print_name folosește atributul obiectului name, însă nicăieri în cod acest atribut nu este setat. Însă la nivelul clasei este definit atributul name. Prin urmare, la prima apelare a metodei print_name, în ea va fi folosită valoarea atributului clasei:</p>
- <div class="code-inline">
-  <pre><code>tom&nbsp;=&nbsp;Person()<br>bob&nbsp;=&nbsp;Person()<br>tom.print_name()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Undefined<br>bob.print_name()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Undefined<br><br><br></code></pre>
- </div>
- <p class="paragraph">Ulterior, putem seta atributul obiectului:</p>
- <div class="code-inline">
-  <pre><code>bob.name&nbsp;=&nbsp;"Bob"<br>bob.print_name()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Bob<br>tom.print_name()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Undefined</code></pre>
- </div>
- <p class="paragraph">În plus, al doilea obiect - tom va continua să folosească atributul clasei. Și dacă schimbăm atributul clasei, corespunzător valoarea tom.name se va schimba:</p>
- <div class="code-inline">
-  <pre><code>tom&nbsp;=&nbsp;Person()<br>bob&nbsp;=&nbsp;Person()<br>tom.print_name()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Undefined<br>bob.print_name()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Undefined<br><br>Person.name&nbsp;=&nbsp;"Some&nbsp;Person"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;schimbăm&nbsp;valoarea&nbsp;atributului&nbsp;clasei<br>bob.name&nbsp;=&nbsp;"Bob"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;setăm&nbsp;atributul&nbsp;obiectului<br>bob.print_name()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Bob<br>tom.print_name()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Some&nbsp;Person</code></pre>
- </div>
- <h2 class="subtitle">Metode statice</h2>
- <p class="paragraph">Pe lângă metodele obișnuite, o clasă poate defini și metode statice. Aceste metode sunt precedate de anotarea @staticmethod și se referă în general la clasă. Metodele statice definesc de obicei un comportament care nu depinde de un anumit obiect:</p>
- <div class="code-inline">
-  <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;__type&nbsp;=&nbsp;"Person"<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;@staticmethod<br>&nbsp;&nbsp;&nbsp;def&nbsp;print_type():<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(Person.__type)<br><br>Person.print_type()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Person&nbsp;-&nbsp;apelul&nbsp;metodei&nbsp;statice&nbsp;prin&nbsp;numele&nbsp;clasei<br><br>tom&nbsp;=&nbsp;Person()<br>tom.print_type()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Person&nbsp;-&nbsp;apelul&nbsp;metodei&nbsp;statice&nbsp;prin&nbsp;numele&nbsp;obiectului</code></pre>
- </div>
- <p class="paragraph">În acest caz, în clasa Person este definit atributul clasei __type, care stochează o valoare comună pentru întreaga clasă - numele clasei. Deoarece numele atributului este precedat de două liniuțe de subliniere, acest atribut va fi privat, ceea ce îl protejează de modificările neautorizate.</p>
- <p class="paragraph">De asemenea, în clasa Person este definită metoda statică print_type, care afișează în consolă valoarea atributului __type. Acțiunea acestei metode nu depinde de un anumit obiect și se referă în general la întreaga clasă - indiferent de obiect, pe consolă va fi afișată aceeași valoare a atributului __type. De aceea, o astfel de metodă poate fi făcută statică.</p>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Atributele claselor și metodele statice</h1>
+     <h2 class="subtitle">Atributele claselor</h2>
+     <p class="paragraph">Pe lângă atributele obiectelor, în clase se pot defini și atribute ale claselor. Astfel de atribute sunt definite ca variabile la nivel de clasă. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;type&nbsp;=&nbsp;"Person"<br>&nbsp;&nbsp;&nbsp;description&nbsp;=&nbsp;"Describes&nbsp;a&nbsp;person"<br><br>print(Person.type)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Person<br>print(Person.description)&nbsp;&nbsp;&nbsp;#&nbsp;Describes&nbsp;a&nbsp;person<br><br>Person.type&nbsp;=&nbsp;"Class&nbsp;Person"<br>print(Person.type)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Class&nbsp;Person</code></pre>
+     </div>
+     <p class="paragraph">Aici, în clasa Person, sunt definite două atribute: type, care stochează numele clasei, și description, care stochează descrierea clasei.</p>
+     <p class="paragraph">Pentru a accesa atributele clasei, putem folosi numele clasei, de exemplu: Person.type, și, la fel ca atributele obiectului, putem obține și modifica valorile acestora.</p>
+     <p class="paragraph">Astfel de atribute sunt comune pentru toate obiectele clasei:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;type&nbsp;=&nbsp;"Person"<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.name&nbsp;=&nbsp;name<br><br>tom&nbsp;=&nbsp;Person("Tom")<br>bob&nbsp;=&nbsp;Person("Bob")<br>print(tom.type)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Person<br>print(bob.type)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Person<br><br>#&nbsp;schimbăm&nbsp;atributul&nbsp;clasei<br>Person.type&nbsp;=&nbsp;"Class&nbsp;Person"<br>print(tom.type)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Class&nbsp;Person<br>print(bob.type)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Class&nbsp;Person</code></pre>
+     </div>
+     <p class="paragraph">Atributele clasei pot fi utilizate în situațiile în care trebuie să definim anumite date comune pentru toate obiectele. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;default_name&nbsp;=&nbsp;"Undefined"<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;name:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.name&nbsp;=&nbsp;name<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.name&nbsp;=&nbsp;Person.default_name<br><br>tom&nbsp;=&nbsp;Person("Tom")<br>bob&nbsp;=&nbsp;Person("")<br>print(tom.name)&nbsp;&nbsp;#&nbsp;Tom<br>print(bob.name)&nbsp;&nbsp;#&nbsp;Undefined</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, atributul default_name stochează numele implicit. Și dacă în constructor este transmis un șir de caractere gol pentru nume, atunci atributul name va primi valoarea atributului clasei default_name. Pentru a accesa atributul clasei în interiorul metodelor, putem folosi numele clasei:</p>
+     <div class="code-inline">
+      <pre><code>self.name&nbsp;=&nbsp;Person.default_name</code></pre>
+     </div>
+     <h2 class="subtitle">Atributul clasei și atributul obiectului</h2>
+     <p class="paragraph">Este posibilă situația în care atributul clasei și atributul obiectului au același nume. Dacă în cod nu este setată o valoare pentru atributul obiectului, atunci pentru acesta poate fi folosită valoarea atributului clasei:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;name&nbsp;=&nbsp;"Undefined"<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;def&nbsp;print_name(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(self.name)<br><br>tom&nbsp;=&nbsp;Person()<br>bob&nbsp;=&nbsp;Person()<br>tom.print_name()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Undefined<br>bob.print_name()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Undefined<br><br>bob.name&nbsp;=&nbsp;"Bob"<br>bob.print_name()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Bob<br>tom.print_n</code></pre>
+     </div>
+     <p class="paragraph">Aici metoda print_name folosește atributul obiectului name, însă nicăieri în cod acest atribut nu este setat. Însă la nivelul clasei este definit atributul name. Prin urmare, la prima apelare a metodei print_name, în ea va fi folosită valoarea atributului clasei:</p>
+     <div class="code-inline">
+      <pre><code>tom&nbsp;=&nbsp;Person()<br>bob&nbsp;=&nbsp;Person()<br>tom.print_name()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Undefined<br>bob.print_name()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Undefined<br><br><br></code></pre>
+     </div>
+     <p class="paragraph">Ulterior, putem seta atributul obiectului:</p>
+     <div class="code-inline">
+      <pre><code>bob.name&nbsp;=&nbsp;"Bob"<br>bob.print_name()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Bob<br>tom.print_name()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Undefined</code></pre>
+     </div>
+     <p class="paragraph">În plus, al doilea obiect - tom va continua să folosească atributul clasei. Și dacă schimbăm atributul clasei, corespunzător valoarea tom.name se va schimba:</p>
+     <div class="code-inline">
+      <pre><code>tom&nbsp;=&nbsp;Person()<br>bob&nbsp;=&nbsp;Person()<br>tom.print_name()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Undefined<br>bob.print_name()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Undefined<br><br>Person.name&nbsp;=&nbsp;"Some&nbsp;Person"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;schimbăm&nbsp;valoarea&nbsp;atributului&nbsp;clasei<br>bob.name&nbsp;=&nbsp;"Bob"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;setăm&nbsp;atributul&nbsp;obiectului<br>bob.print_name()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Bob<br>tom.print_name()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Some&nbsp;Person</code></pre>
+     </div>
+     <h2 class="subtitle">Metode statice</h2>
+     <p class="paragraph">Pe lângă metodele obișnuite, o clasă poate defini și metode statice. Aceste metode sunt precedate de anotarea @staticmethod și se referă în general la clasă. Metodele statice definesc de obicei un comportament care nu depinde de un anumit obiect:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;__type&nbsp;=&nbsp;"Person"<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;@staticmethod<br>&nbsp;&nbsp;&nbsp;def&nbsp;print_type():<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(Person.__type)<br><br>Person.print_type()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Person&nbsp;-&nbsp;apelul&nbsp;metodei&nbsp;statice&nbsp;prin&nbsp;numele&nbsp;clasei<br><br>tom&nbsp;=&nbsp;Person()<br>tom.print_type()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Person&nbsp;-&nbsp;apelul&nbsp;metodei&nbsp;statice&nbsp;prin&nbsp;numele&nbsp;obiectului</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, în clasa Person este definit atributul clasei __type, care stochează o valoare comună pentru întreaga clasă - numele clasei. Deoarece numele atributului este precedat de două liniuțe de subliniere, acest atribut va fi privat, ceea ce îl protejează de modificările neautorizate.</p>
+     <p class="paragraph">De asemenea, în clasa Person este definită metoda statică print_type, care afișează în consolă valoarea atributului __type. Acțiunea acestei metode nu depinde de un anumit obiect și se referă în general la întreaga clasă - indiferent de obiect, pe consolă va fi afișată aceeași valoare a atributului __type. De aceea, o astfel de metodă poate fi făcută statică.</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

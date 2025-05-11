@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='12.Evenimente', activeLesson='3.Transmiterea datelor in gestionarul de evenimente'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Transmiterea datelor în gestionarul de evenimente - Obiectul Event</h1>
+     <p class="paragraph">Uneori este necesar să se transmită anumite date către gestionarul de evenimente. Dacă gestionarii de evenimente sunt setați folosind atributele elementelor, atunci acest lucru este destul de simplu. De exemplu, să transmitem în gestionarul apăsării unui buton un text care va fi utilizat în gestionar:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;button&nbsp;id="btn"&nbsp;onclick="btn_click('Button&nbsp;Clicked')"&gt;Click&nbsp;Me&lt;/button&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;//&nbsp;în&nbsp;gestionar&nbsp;este&nbsp;transmis&nbsp;textul<br>&nbsp;&nbsp;&nbsp;function&nbsp;btn_click(text){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(text);&nbsp;&nbsp;//&nbsp;afișăm&nbsp;acest&nbsp;text<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Astfel, în gestionarul butonului este transmis un anumit text:</p>
+     <div class="code-inline">
+      <pre><code>&lt;button&nbsp;id="btn"&nbsp;onclick="btn_click('Button&nbsp;Clicked')"&gt;</code></pre>
+     </div>
+     <p class="paragraph">În funcția gestionarului, obținem acest text și îl folosim într-un anumit mod, de exemplu, îl afișăm pe consolă:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;btn_click(text){<br>&nbsp;&nbsp;&nbsp;console.log(text);&nbsp;&nbsp;//&nbsp;afișăm&nbsp;acest&nbsp;text<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, în funcția gestionarului a fost transmis un șir de caractere, dar în realitate, acesta poate fi orice obiect. De exemplu, prin valoarea this se poate transmite obiectul curent pe care are loc evenimentul:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;button&nbsp;id="btn"&nbsp;onclick="btn_click(this)"&gt;Click&nbsp;Me&lt;/button&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;let&nbsp;clicks&nbsp;=&nbsp;0;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;contor&nbsp;de&nbsp;apăsări<br>&nbsp;&nbsp;&nbsp;//&nbsp;în&nbsp;gestionar&nbsp;este&nbsp;transmisă&nbsp;referința&nbsp;la&nbsp;elementul&nbsp;buton<br>&nbsp;&nbsp;&nbsp;function&nbsp;btn_click(btn){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;schimbăm&nbsp;textul&nbsp;butonului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;btn.textContent&nbsp;=&nbsp;Clicked&nbsp;${++clicks};<br>&nbsp;<br><br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Cuvântul cheie this indică obiectul curent pe care se face clic. Și în codul gestionarului putem obține acest obiect și ne putem referi la proprietățile sale, de exemplu, la proprietatea textContent și astfel să schimbăm textul butonului.</p>
+     <p class="paragraph">Este de menționat că, în unele cazuri, poate fi necesar să returnăm din gestionar valoarea false. De exemplu, să luăm în considerare următorul program:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;a&nbsp;id="link"&nbsp;href="https://fdc.com"&nbsp;onclick="return&nbsp;a_click(this)"&gt;fdc.com&lt;/a&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;//&nbsp;în&nbsp;gestionar&nbsp;este&nbsp;transmisă&nbsp;referința<br>&nbsp;&nbsp;&nbsp;function&nbsp;a_click(anchor){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;adresa&nbsp;linkului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(anchor.href);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;false;&nbsp;&nbsp;&nbsp;//&nbsp;interzicem&nbsp;redirecționarea<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici, în atributul onclick al linkului - elementul &lt;a&gt; nu este doar apelat gestionarul de evenimente, ci este returnat rezultatul său:</p>
+     <div class="code-inline">
+      <pre><code>&lt;a&nbsp;id="link"&nbsp;href="https://fdc.com"&nbsp;onclick="return&nbsp;a_click(this)"&gt;</code></pre>
+     </div>
+     <p class="paragraph">Iar funcția gestionarului returnează false:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;a_click(anchor){<br>&nbsp;&nbsp;&nbsp;console.log(anchor.href);<br>&nbsp;&nbsp;&nbsp;return&nbsp;false;&nbsp;&nbsp;&nbsp;//&nbsp;interzicem&nbsp;redirecționarea<br>}</code></pre>
+     </div>
+     <p class="paragraph">Chestia este că, pentru unele gestionare de evenimente, putem confirma sau opri procesarea evenimentului. De exemplu, clicul pe un link ar trebui să conducă la redirecționare.</p>
+     <p class="paragraph">Dar returnând din gestionar false, putem opri calea standard de procesare a evenimentului, și astfel nu va avea loc redirecționarea. Dacă returnăm valoarea true, atunci evenimentul este procesat în mod standard.</p>
+     <p class="paragraph">Dacă eliminăm complet returnarea rezultatului, atunci evenimentul va fi procesat ca și cum ar returna valoarea true:</p>
+     <div class="code-inline">
+      <pre><code>&lt;a&nbsp;id="link"&nbsp;href="https://fdc.com"&nbsp;onclick="a_click(this)"&gt;FDC.com&lt;/a&gt;<br>&lt;script&gt;<br>function&nbsp;a_click(anchor){<br>&nbsp;&nbsp;&nbsp;console.log(anchor.href);<br>}<br>&lt;/script&gt;</code></pre>
+     </div>
+     <h2 class="subtitle">Obiectul Event</h2>
+     <p class="paragraph">La procesarea evenimentului, browserul transmite automat în funcția gestionarului ca parametru obiectul Event, care încapsulează toate informațiile despre eveniment. Și cu ajutorul proprietăților sale putem obține aceste informații:</p>
+     <ul class="enumeration">
+      <li>bubbles: returnează true dacă evenimentul este propagabil. (De exemplu, dacă evenimentul a apărut pe un element încorporat, atunci el poate fi procesat pe elementul părinte.)</li>
+      <li>ancelable: returnează true dacă se poate anula procesarea standard a evenimentului</li>
+      <li>currentTarget: definește elementul la care este atașat gestionarul de evenimente</li>
+      <li>defaultPrevented: returnează true dacă a fost apelată metoda preventDefault() pe obiectul Event</li>
+      <li>eventPhase: stochează un număr care reprezintă etapa de procesare a evenimentului : (0 (Event.NONE), 1 (Event.CAPTURING_PHASE), 2 (Event.AT_TARGET), 3 (Event.BUBBLING_PHASE)</li>
+      <li>target: indică elementul pe care a fost apelat evenimentul</li>
+      <li>timeStamp: stochează timpul apariției evenimentului</li>
+      <li>type: indică numele evenimentului</li>
+      <li>isTrusted: indică dacă evenimentul a fost generat de elementele paginii web sau de codul JavaScript</li>
+     </ul>
+     <p class="paragraph">De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;button&nbsp;onclick="btn_click(event)"&gt;Click&nbsp;Me&lt;/button&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;function&nbsp;btn_click(e){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(e);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">La apelarea funcției handler, informațiile despre eveniment sunt disponibile prin obiectul event. Acest obiect nu este definit de dezvoltator, este doar un argument al funcției handler care păstrează toate informațiile despre eveniment:</p>
+     <div class="code-inline">
+      <pre><code>&lt;button&nbsp;onclick="btn_click(event)"&gt;</code></pre>
+     </div>
+     <p class="paragraph">În codul JavaScript, acest obiect poate fi obținut printr-un parametru al funcției:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;btn_click(e){<br>&nbsp;&nbsp;&nbsp;console.log(e);<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, pur și simplu afișăm obiectul pe consolă. Dar, desigur, am putea obține și informații specifice despre eveniment:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;btn_click(e){<br>&nbsp;&nbsp;&nbsp;console.log("Type:",&nbsp;e.type);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Type:&nbsp;click<br>&nbsp;&nbsp;&nbsp;console.log("Target:",&nbsp;e.target);&nbsp;&nbsp;&nbsp;//&nbsp;Target:&nbsp;&lt;button&nbsp;onclick="btn_click(event)"&gt;Click&nbsp;Me&lt;/button&gt;<br>&nbsp;&nbsp;&nbsp;console.log("Timestamp:",&nbsp;e.timeStamp);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Putem obține obiectul evenimentului dacă handlerul evenimentului este atașat prin proprietățile elementelor sau prin metoda addEventListener(). De exemplu, atașarea unui handler printr-o proprietate a elementului:</p>
+     <div class="code-inline">
+      <pre><code>&lt;button&nbsp;id="btn"&gt;Click&nbsp;Me&lt;/button&gt;<br>&lt;script&gt;<br>function&nbsp;btn_click(e){<br>&nbsp;&nbsp;&nbsp;console.log("Type:",&nbsp;e.type);<br>&nbsp;&nbsp;&nbsp;console.log("Target:",&nbsp;e.target);<br>&nbsp;&nbsp;&nbsp;console.log("Timestamp:",&nbsp;e.timeStamp);<br>}<br>//&nbsp;Stabilim&nbsp;un&nbsp;handler&nbsp;de&nbsp;click&nbsp;pentru&nbsp;elementul&nbsp;cu&nbsp;id="btn"<br>document.getElementById("btn").onclick&nbsp;=&nbsp;btn_click;<br>&lt;/script&gt;</code></pre>
+     </div>
+     <p class="paragraph">Sau atașarea unui handler cu metoda addEventListener:</p>
+     <div class="code-inline">
+      <pre><code>&lt;button&nbsp;id="btn"&gt;Click&nbsp;Me&lt;/button&gt;<br>&lt;script&gt;<br>function&nbsp;btn_click(e){<br>&nbsp;&nbsp;&nbsp;console.log("Type:",&nbsp;e.type);<br>&nbsp;&nbsp;&nbsp;console.log("Target:",&nbsp;e.target);<br>&nbsp;&nbsp;&nbsp;console.log("Timestamp:",&nbsp;e.timeStamp);<br>}<br>const&nbsp;btn&nbsp;=&nbsp;document.getElementById("btn");<br>btn.addEventListener("click",&nbsp;btn_click);<br>&lt;/script&gt;</code></pre>
+     </div>
+     <h2 class="subtitle">Oprirea executării evenimentului</h2>
+     <p class="paragraph">Cu ajutorul metodei preventDefault() a obiectului Event putem opri executarea ulterioară a evenimentului. În unele cazuri, această metodă nu joacă un rol major. Totuși, în anumite situații poate fi utilă. De exemplu, la apăsarea pe un link, putem decide prin procesare suplimentară dacă să executăm sau să interzicem trecerea la link.</p>
+     <p class="paragraph">Sau un alt exemplu: un utilizator trimite datele unui formular, dar în timpul procesării în handlerul evenimentului descoperim că datele formularului sunt completate incorect, și în acest caz putem interzice de asemenea trimiterea.</p>
+     <p class="paragraph">De exemplu, să oprim trecerea la un link:</p>
+     <div class="code-inline">
+      <pre><code>&lt;a&nbsp;id="link"&nbsp;href="https://fdc.com"&gt;fdc.com&lt;/a&gt;<br>&lt;script&gt;<br>function&nbsp;linkHandler(e){<br>&nbsp;&nbsp;&nbsp;console.log("Link&nbsp;has&nbsp;been&nbsp;clicked");<br>&nbsp;&nbsp;&nbsp;e.preventDefault();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;oprim&nbsp;trecerea&nbsp;la&nbsp;link<br>}<br>const&nbsp;link&nbsp;=&nbsp;document.getElementById("link");<br>link.addEventListener("click",&nbsp;linkHandler);<br>&lt;/script&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici, la apăsarea pe link, va fi activată metoda linkHandler. Și, deoarece în această metodă prevenim trecerea la link prin apelul e.preventDefault(), trecerea nu va avea loc. Acest abordare este adesea folosită în cererile ajax, unde este necesar să procesăm apăsarea pe un link, dar fără a efectua trecerea la un alt resurs, ci făcând o solicitare la acesta din codul JavaScript fără a reîncărca pagina.</p>
+     <h2 class="subtitle">Obținerea obiectului curent</h2>
+     <p class="paragraph">Pentru a obține obiectul curent pentru care se procesează evenimentul, în interiorul handlerului evenimentului putem folosi cuvântul cheie this:</p>
+     <div class="code-inline">
+      <pre><code>&lt;button&nbsp;id="btn"&gt;Click&nbsp;Me&lt;/button&gt;<br>&lt;script&gt;<br>const&nbsp;btn&nbsp;=&nbsp;document.getElementById("btn");<br>function&nbsp;btn_click(){<br>&nbsp;&nbsp;&nbsp;console.log(this);&nbsp;&nbsp;//&nbsp;&lt;button&nbsp;id="btn"&gt;Click&nbsp;Me&lt;/button&gt;<br>}<br>btn.addEventListener("click",&nbsp;btn_click);<br>&lt;/script&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici, la procesarea evenimentului click pe buton, obiectul this în funcția btn_click va reprezenta acest buton. De fapt, în acest caz, valorile this și e.target ar fi echivalente:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;btn_click(e){<br>&nbsp;&nbsp;&nbsp;console.log(this&nbsp;===&nbsp;e.target);&nbsp;//&nbsp;true<br>}</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

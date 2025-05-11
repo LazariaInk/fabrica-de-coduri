@@ -1,125 +1,115 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Java', activeChapter='4.Prelucrarea exceptiilor', activeLesson='3.Crearea propriilor clase de exceptii'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Crearea propriilor clase de excepții</h1>
- <p class="paragraph">Deși clasele de excepții din biblioteca standard Java acoperă majoritatea situațiilor excepționale care pot apărea în timpul execuției unui program, uneori este necesar să creăm propriile clase de excepții cu logica noastră specifică.</p>
- <p class="paragraph">Pentru a crea o clasă proprie de excepții, trebuie să o moștenim de la clasa Exception. De exemplu, avem o clasă care calculează factorialul, și trebuie să aruncăm o excepție specială dacă numărul transmis metodei este mai mic de 1:</p>
- <div class="code-inline">
-  <pre><code>class&nbsp;Factorial&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;int&nbsp;getFactorial(int&nbsp;num)&nbsp;throws&nbsp;FactorialException&nbsp;{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;result&nbsp;=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(num&nbsp;&lt;&nbsp;1)&nbsp;throw&nbsp;new&nbsp;FactorialException("Numărul&nbsp;este&nbsp;mai&nbsp;mic&nbsp;de&nbsp;1",&nbsp;num);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;=&nbsp;num;&nbsp;i++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;*=&nbsp;i;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;result;<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;FactorialException&nbsp;extends&nbsp;Exception&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;private&nbsp;int&nbsp;number;<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;getNumber()&nbsp;{&nbsp;return&nbsp;number;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;FactorialException(String&nbsp;message,&nbsp;int&nbsp;num)&nbsp;{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super(message);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number&nbsp;=&nbsp;num;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
- </div>
- <p class="paragraph">În acest exemplu, pentru a defini o eroare legată de calculul factorialului, a fost creată clasa FactorialException, care extinde Exception și conține toate informațiile necesare despre calcul. În constructorul FactorialException, mesajul de eroare este transmis constructorului clasei de bază Exception: super(message). În plus, un câmp separat este folosit pentru a stoca numărul pentru care se calculează factorialul.</p>
- <p class="paragraph">Pentru a genera excepția în metoda de calcul al factorialului, se folosește operatorul throw: throw new FactorialException("Numărul nu poate fi mai mic de 1", num). Deoarece excepția nu este gestionată cu try..catch, o delegăm metodei apelante folosind operatorul throws: public static int getFactorial(int num) throws FactorialException.</p>
- <p class="paragraph">Acum putem folosi această clasă în metoda main:</p>
- <div class="code-inline">
-  <pre><code>public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;try&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;result&nbsp;=&nbsp;Factorial.getFactorial(6);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(result);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;catch&nbsp;(FactorialException&nbsp;ex)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(ex.getMessage());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(ex.getNumber());<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Crearea propriilor clase de excepții</h1>
+     <p class="paragraph">Deși clasele de excepții din biblioteca standard Java acoperă majoritatea situațiilor excepționale care pot apărea în timpul execuției unui program, uneori este necesar să creăm propriile clase de excepții cu logica noastră specifică.</p>
+     <p class="paragraph">Pentru a crea o clasă proprie de excepții, trebuie să o moștenim de la clasa Exception. De exemplu, avem o clasă care calculează factorialul, și trebuie să aruncăm o excepție specială dacă numărul transmis metodei este mai mic de 1:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Factorial&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;int&nbsp;getFactorial(int&nbsp;num)&nbsp;throws&nbsp;FactorialException&nbsp;{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;result&nbsp;=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(num&nbsp;&lt;&nbsp;1)&nbsp;throw&nbsp;new&nbsp;FactorialException("Numărul&nbsp;este&nbsp;mai&nbsp;mic&nbsp;de&nbsp;1",&nbsp;num);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;=&nbsp;num;&nbsp;i++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;*=&nbsp;i;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;result;<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;FactorialException&nbsp;extends&nbsp;Exception&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;private&nbsp;int&nbsp;number;<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;getNumber()&nbsp;{&nbsp;return&nbsp;number;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;FactorialException(String&nbsp;message,&nbsp;int&nbsp;num)&nbsp;{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super(message);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number&nbsp;=&nbsp;num;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest exemplu, pentru a defini o eroare legată de calculul factorialului, a fost creată clasa FactorialException, care extinde Exception și conține toate informațiile necesare despre calcul. În constructorul FactorialException, mesajul de eroare este transmis constructorului clasei de bază Exception: super(message). În plus, un câmp separat este folosit pentru a stoca numărul pentru care se calculează factorialul.</p>
+     <p class="paragraph">Pentru a genera excepția în metoda de calcul al factorialului, se folosește operatorul throw: throw new FactorialException("Numărul nu poate fi mai mic de 1", num). Deoarece excepția nu este gestionată cu try..catch, o delegăm metodei apelante folosind operatorul throws: public static int getFactorial(int num) throws FactorialException.</p>
+     <p class="paragraph">Acum putem folosi această clasă în metoda main:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;try&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;result&nbsp;=&nbsp;Factorial.getFactorial(6);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(result);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;catch&nbsp;(FactorialException&nbsp;ex)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(ex.getMessage());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(ex.getNumber());<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

@@ -1,206 +1,196 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='HTML', activeChapter='8.Transformari, tranzitii si animatii', activeLesson='3.Animatie'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Animație</h1>
- <p class="paragraph">Animația oferă posibilități ample pentru modificarea stilului unui element. La tranziții avem un set de proprietăți cu valori inițiale, care sunt cele pe care le are elementul înainte de începutul tranziției, și valori finale, care sunt setate după finalizarea tranziției. Pe de altă parte, la animație, putem avea nu doar două seturi de valori - inițiale și finale, ci și multiple seturi intermediare de valori.</p>
- <p class="paragraph">Animația se bazează pe schimbarea secvențială a cadrelor cheie (keyframes). Fiecare cadru cheie definește un set de valori pentru proprietățile animate. Schimbarea secvențială a acestor cadre cheie reprezintă efectiv animația.</p>
- <p class="paragraph">Practic, tranzițiile utilizează același model - definesc implicit două cadre cheie - inițial și final, iar tranziția în sine reprezintă trecerea de la cadru cheie inițial la cel final. Singura diferență în cazul animației este că pentru animație se pot defini multiple cadre cheie intermediare.</p>
- <p class="paragraph">Declararea unui cadru cheie în CSS3 are următoarea formă:</p>
- <div class="code-inline">
-  <pre><code>@keyframes&nbsp;nume_animatie&nbsp;{<br>&nbsp;&nbsp;&nbsp;from&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;valorile&nbsp;inițiale&nbsp;ale&nbsp;proprietăților&nbsp;CSS&nbsp;*/<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;to&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;valorile&nbsp;finale&nbsp;ale&nbsp;proprietăților&nbsp;CSS&nbsp;*/<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
- </div>
- <p class="paragraph">După cuvântul cheie @keyframes urmează numele animației. Apoi, în acolade, sunt definite cel puțin două cadre cheie. Blocul după cuvântul cheie from declară cadru cheie inițial, iar după cuvântul to în bloc se definește cadru cheie final. În interiorul fiecărui cadru cheie se definește una sau mai multe proprietăți CSS, similar cu crearea unui stil obișnuit.</p>
- <p class="paragraph">De exemplu, să definim o animație pentru culoarea de fundal a unui element:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&nbsp;&nbsp;&nbsp;&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;Animație&nbsp;în&nbsp;CSS3&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@keyframes&nbsp;backgroundColorAnimation&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;from&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;red;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;blue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:&nbsp;100px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;100px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;margin:&nbsp;40px&nbsp;30px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;solid&nbsp;#333;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;#ccc;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;animation-name:&nbsp;backgroundColorAnimation;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;animation-duration:&nbsp;2s;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&gt;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">În acest caz, animația se numește backgroundColorAnimation. Numele animației poate fi oricare.</p>
- <p class="paragraph">Această animație oferă o tranziție de la culoarea roșie la albastră a fundalului. După finalizarea animației, culoarea care va fi setată este cea definită la elementul div.</p>
- <p class="paragraph">Pentru a atașa animația la un element, în stilul acestuia se utilizează proprietatea animation-name. Valoarea acestei proprietăți este numele animației aplicate.</p>
- <p class="paragraph">De asemenea, cu ajutorul proprietății animation-duration se stabilește timpul animației în secunde sau milisecunde. În acest caz, timpul animației este de 2 secunde.</p>
- <p class="paragraph">Dacă este definit așa, animația va începe imediat după încărcarea paginii. Totuși, animația poate fi de asemenea declanșată de o acțiune a utilizatorului. De exemplu, prin definirea stilului pentru pseudoclasele :hover, se poate seta declanșarea animației când cursorul mouse-ului este deasupra elementului:</p>
- <div class="code-inline">
-  <pre><code>@keyframes&nbsp;backgroundColorAnimation&nbsp;{<br>&nbsp;&nbsp;&nbsp;from&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;red;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;to&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;blue;<br><br>}<br>}<br>div{<br>&nbsp;&nbsp;&nbsp;width:&nbsp;100px;<br>&nbsp;&nbsp;&nbsp;height:&nbsp;100px;<br>&nbsp;&nbsp;&nbsp;margin:&nbsp;40px&nbsp;30px;<br>&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;solid&nbsp;#333;<br>&nbsp;&nbsp;&nbsp;background-color:&nbsp;#ccc;<br>}<br>div:hover{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;animation-name:&nbsp;backgroundColorAnimation;<br>&nbsp;&nbsp;&nbsp;animation-duration:&nbsp;2s;<br>}</code></pre>
- </div>
- <h2 class="subtitle">Multiple cadre cheie</h2>
- <p class="paragraph">Așa cum am menționat, animația poate include mai multe cadre cheie intermediare. Pentru a defini un cadru intermediar, se folosește un procentaj al duratei animației în care acest cadru ar trebui să fie aplicat:</p>
- <div class="code-inline">
-  <pre><code>@keyframes&nbsp;backgroundColorAnimation&nbsp;{<br>&nbsp;&nbsp;&nbsp;from&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;red;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;25%{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;yellow;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;50%{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;green;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;75%{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;blue;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;to&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;violet;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
- </div>
- <p class="paragraph">În acest caz, animația începe cu roșu, schimbându-se la galben la 25% din timp, la verde la 50% și așa mai departe.</p>
- <p class="paragraph">De asemenea, se poate anima simultan mai multe proprietăți într-un singur cadru cheie:</p>
- <div class="code-inline">
-  <pre><code>@keyframes&nbsp;backgroundColorAnimation&nbsp;{<br>&nbsp;&nbsp;&nbsp;from&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;red;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.2;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;to&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;blue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.9;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
- </div>
- <p class="paragraph">Se pot defini și mai multe animații separate, dar să fie aplicate împreună:</p>
- <div class="code-inline">
-  <pre><code>@keyframes&nbsp;backgroundColorAnimation&nbsp;{<br>&nbsp;&nbsp;&nbsp;from&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;red;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;to&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;blue;<br>&nbsp;&nbsp;&nbsp;}<br>}<br>@keyframes&nbsp;opacityAnimation&nbsp;{<br>&nbsp;&nbsp;&nbsp;from&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.2;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;to&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.9;<br>&nbsp;&nbsp;&nbsp;}<br>}<br>div{<br>&nbsp;&nbsp;&nbsp;width:&nbsp;100px;<br>&nbsp;&nbsp;&nbsp;height:&nbsp;100px;<br>&nbsp;&nbsp;&nbsp;margin:&nbsp;40px&nbsp;30px;<br>&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;solid&nbsp;#333;<br>&nbsp;&nbsp;&nbsp;background-color:&nbsp;#ccc;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;animation-name:&nbsp;backgroundColorAnimation,&nbsp;opacityAnimation;<br>&nbsp;&nbsp;&nbsp;animation-duration:&nbsp;2s,&nbsp;3s;<br>}</code></pre>
- </div>
- <p class="paragraph">Valorile proprietăților animation-name și animation-duration sunt enumerate prin virgulă, iar numele animației și durata ei sunt asociate prin poziție, de exemplu, opacityAnimation va dura 3 secunde.</p>
- <h2 class="subtitle">Finalizarea animației</h2>
- <p class="paragraph">În general, după finalizarea perioadei de timp specificate la animation-duration, se finalizează și execuția animației. Cu toate acestea, cu ajutorul unor proprietăți suplimentare, acest comportament poate fi modificat.</p>
- <p class="paragraph">Astfel, proprietatea animation-iteration-count definește de câte ori se va repeta animația. De exemplu, 3 repetări ale animației la rând:</p>
- <div class="code-inline">
-  <pre><code>animation-iteration-count:&nbsp;3;</code></pre>
- </div>
- <p class="paragraph">Dacă este necesar ca animația să fie repetată de un număr infinit de ori, acestei proprietăți i se atribuie valoarea infinite:</p>
- <div class="code-inline">
-  <pre><code>animation-iteration-count:&nbsp;infinite;</code></pre>
- </div>
- <p class="paragraph">La repetare, animația va începe din nou de la cadru cheie inițial. Dar, cu ajutorul proprietății animation-direction: alternate;, direcția opusă a animației poate fi setată la repetare. Astfel, aceasta va începe de la cadru cheie final și va merge invers spre cel inițial:</p>
- <div class="code-inline">
-  <pre><code>animation-name:&nbsp;backgroundColorAnimation,&nbsp;opacityAnimation;<br>animation-duration:&nbsp;2s,&nbsp;2s;<br>animation-iteration-count:&nbsp;3;<br>animation-direction:&nbsp;alternate;</code></pre>
- </div>
- <p class="paragraph">La terminarea animației, browserul setează stilul elementului animat la cel care era înainte de aplicarea animației. Totuși, proprietatea animation-fill-mode: forwards; permite ca valoarea finală a proprietății animate să fie exact cea din ultimul cadru:</p>
- <div class="code-inline">
-  <pre><code>animation-name:&nbsp;backgroundColorAnimation;<br>animation-duration:&nbsp;2s;<br>animation-iteration-count:&nbsp;3;<br>animation-direction:&nbsp;alternate;<br>animation-fill-mode:&nbsp;forwards;</code></pre>
- </div>
- <h2 class="subtitle">Întârziere animație</h2>
- <p class="paragraph">Cu ajutorul proprietății animation-delay se poate defini timpul de întârziere pentru începutul unei animații:</p>
- <div class="code-inline">
-  <pre><code>animation-name:&nbsp;backgroundColorAnimation;<br>animation-duration:&nbsp;5s;<br>animation-delay:&nbsp;1s;&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;întârziere&nbsp;de&nbsp;1&nbsp;secundă&nbsp;*/</code></pre>
- </div>
- <h2 class="subtitle">Funcția de suavitate a animației</h2>
- <p class="paragraph">La fel ca la tranziții, la animații se pot aplica aceleași funcții de suavitate:</p>
- <ul class="enumeration">
-  <li>linear: funcția liniară de suavitate, schimbarea proprietății se face uniform pe parcursul timpului</li>
-  <li>ease: funcția de suavitate la care animația accelerează spre mijloc și încetinește spre sfârșit, oferind o schimbare mai naturală</li>
-  <li>ease-in: funcția de suavitate la care are loc doar accelerarea la început</li>
-  <li>ease-out: funcția de suavitate la care are loc doar accelerarea la sfârșit</li>
-  <li>ease-in-out: funcția de suavitate la care animația accelerează spre mijloc și încetinește spre sfârșit, oferind o schimbare mai naturală</li>
-  <li>cubic-bezier: se aplică o funcție cubică Bezier pentru animație</li>
- </ul>
- <p class="paragraph">Pentru setarea funcției de suavitate se folosește proprietatea animation-timing-function:</p>
- <div class="code-inline">
-  <pre><code>@keyframes&nbsp;backgroundColorAnimation&nbsp;{<br>&nbsp;&nbsp;&nbsp;from&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;red;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;to&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;blue;<br>&nbsp;&nbsp;&nbsp;}<br>}<br>div&nbsp;{<br>&nbsp;&nbsp;&nbsp;width:&nbsp;100px;<br>&nbsp;&nbsp;&nbsp;height:&nbsp;100px;<br>&nbsp;&nbsp;&nbsp;margin:&nbsp;40px&nbsp;30px;<br>&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;solid&nbsp;#333;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;animation-name:&nbsp;backgroundColorAnimation;<br>&nbsp;&nbsp;&nbsp;animation-duration:&nbsp;3s;<br>&nbsp;&nbsp;&nbsp;animation-timing-function:&nbsp;ease-in-out;<br>}</code></pre>
- </div>
- <h2 class="subtitle">Proprietatea animation</h2>
- <p class="paragraph">Proprietatea animation este o metodă scurtă de a defini proprietățile discutate anterior:</p>
- <div class="code-inline">
-  <pre><code>animation:&nbsp;animation-name&nbsp;animation-duration&nbsp;animation-timing-function&nbsp;animation-iteration-count&nbsp;animation-direction&nbsp;animation-delay&nbsp;animation-fill-mode;</code></pre>
- </div>
- <p class="paragraph">Primii doi parametri, care oferă numele și durata animației, sunt obligatorii. Celelalte valori sunt opționale.</p>
- <p class="paragraph">Iată un set de proprietăți echivalente:</p>
- <div class="code-inline">
-  <pre><code>animation-name:&nbsp;backgroundColorAnimation;<br>animation-duration:&nbsp;5s;<br>animation-timing-function:&nbsp;ease-in-out;<br>animation-iteration-count:&nbsp;3;<br>animation-direction:&nbsp;alternate;<br>animation-delay:&nbsp;1s;<br>animation-fill-mode:&nbsp;forwards;</code></pre>
- </div>
- <p class="paragraph">Acest set este echivalent cu următoarea definiție de animație:</p>
- <div class="code-inline">
-  <pre><code>animation:&nbsp;backgroundColorAnimation&nbsp;5s&nbsp;ease-in-out&nbsp;3&nbsp;alternate&nbsp;1s&nbsp;forwards;</code></pre>
- </div>
- <h2 class="subtitle">Crearea unui banner animat</h2>
- <p class="paragraph">Ca exemplu de animație, vom crea un banner animat simplu:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;HTML-banner&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&nbsp;type="text/css"&gt;<br>&nbsp;&nbsp;&nbsp;@keyframes&nbsp;text1<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10%&nbsp;{&nbsp;opacity:&nbsp;1;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;40%&nbsp;{&nbsp;opacity:&nbsp;0;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;@keyframes&nbsp;text2<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;30%&nbsp;{&nbsp;opacity:&nbsp;0;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;60%&nbsp;{&nbsp;opacity:&nbsp;1;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;@keyframes&nbsp;banner<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10%&nbsp;{&nbsp;background-color:&nbsp;#008978;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;40%&nbsp;{&nbsp;background-color:&nbsp;#34495e;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;80%&nbsp;{&nbsp;background-color:&nbsp;green;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;.banner<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:&nbsp;600px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;120px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;#777;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;margin:&nbsp;0&nbsp;auto;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;position:&nbsp;relative;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;.text1,&nbsp;.text2<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;position:&nbsp;absolute;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:&nbsp;100%;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;100%;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;line-height:&nbsp;120px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text-align:&nbsp;center;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;font-size:&nbsp;40px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;color:&nbsp;#fff;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;opacity:&nbsp;0;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;.text1<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;animation:&nbsp;text1&nbsp;6s&nbsp;infinite;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;.text2<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;animation:&nbsp;text2&nbsp;6s&nbsp;infinite;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;.animated<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.8;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;position:&nbsp;absolute;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:&nbsp;100%;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;100%;&nbsp;&nbsp;<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;#34495e;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;animation:&nbsp;banner&nbsp;6s&nbsp;infinite;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="banner"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="animated"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="text1"&gt;Только&nbsp;в&nbsp;этом&nbsp;месяце&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="text2"&gt;Скидки&nbsp;до&nbsp;20%&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">Aici, trei animații sunt active simultan. Animația "banner" schimbă culoarea de fundal a bannerului, iar animațiile text1 și text2 alternează vizibilitatea textelor prin ajustarea opacității. Când primul text este vizibil, al doilea este invizibil și invers, creând astfel o animație de text în banner.</p>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Animație</h1>
+     <p class="paragraph">Animația oferă posibilități ample pentru modificarea stilului unui element. La tranziții avem un set de proprietăți cu valori inițiale, care sunt cele pe care le are elementul înainte de începutul tranziției, și valori finale, care sunt setate după finalizarea tranziției. Pe de altă parte, la animație, putem avea nu doar două seturi de valori - inițiale și finale, ci și multiple seturi intermediare de valori.</p>
+     <p class="paragraph">Animația se bazează pe schimbarea secvențială a cadrelor cheie (keyframes). Fiecare cadru cheie definește un set de valori pentru proprietățile animate. Schimbarea secvențială a acestor cadre cheie reprezintă efectiv animația.</p>
+     <p class="paragraph">Practic, tranzițiile utilizează același model - definesc implicit două cadre cheie - inițial și final, iar tranziția în sine reprezintă trecerea de la cadru cheie inițial la cel final. Singura diferență în cazul animației este că pentru animație se pot defini multiple cadre cheie intermediare.</p>
+     <p class="paragraph">Declararea unui cadru cheie în CSS3 are următoarea formă:</p>
+     <div class="code-inline">
+      <pre><code>@keyframes&nbsp;nume_animatie&nbsp;{<br>&nbsp;&nbsp;&nbsp;from&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;valorile&nbsp;inițiale&nbsp;ale&nbsp;proprietăților&nbsp;CSS&nbsp;*/<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;to&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;valorile&nbsp;finale&nbsp;ale&nbsp;proprietăților&nbsp;CSS&nbsp;*/<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">După cuvântul cheie @keyframes urmează numele animației. Apoi, în acolade, sunt definite cel puțin două cadre cheie. Blocul după cuvântul cheie from declară cadru cheie inițial, iar după cuvântul to în bloc se definește cadru cheie final. În interiorul fiecărui cadru cheie se definește una sau mai multe proprietăți CSS, similar cu crearea unui stil obișnuit.</p>
+     <p class="paragraph">De exemplu, să definim o animație pentru culoarea de fundal a unui element:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&nbsp;&nbsp;&nbsp;&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;Animație&nbsp;în&nbsp;CSS3&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@keyframes&nbsp;backgroundColorAnimation&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;from&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;red;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;blue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:&nbsp;100px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;100px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;margin:&nbsp;40px&nbsp;30px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;solid&nbsp;#333;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;#ccc;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;animation-name:&nbsp;backgroundColorAnimation;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;animation-duration:&nbsp;2s;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&gt;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, animația se numește backgroundColorAnimation. Numele animației poate fi oricare.</p>
+     <p class="paragraph">Această animație oferă o tranziție de la culoarea roșie la albastră a fundalului. După finalizarea animației, culoarea care va fi setată este cea definită la elementul div.</p>
+     <p class="paragraph">Pentru a atașa animația la un element, în stilul acestuia se utilizează proprietatea animation-name. Valoarea acestei proprietăți este numele animației aplicate.</p>
+     <p class="paragraph">De asemenea, cu ajutorul proprietății animation-duration se stabilește timpul animației în secunde sau milisecunde. În acest caz, timpul animației este de 2 secunde.</p>
+     <p class="paragraph">Dacă este definit așa, animația va începe imediat după încărcarea paginii. Totuși, animația poate fi de asemenea declanșată de o acțiune a utilizatorului. De exemplu, prin definirea stilului pentru pseudoclasele :hover, se poate seta declanșarea animației când cursorul mouse-ului este deasupra elementului:</p>
+     <div class="code-inline">
+      <pre><code>@keyframes&nbsp;backgroundColorAnimation&nbsp;{<br>&nbsp;&nbsp;&nbsp;from&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;red;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;to&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;blue;<br><br>}<br>}<br>div{<br>&nbsp;&nbsp;&nbsp;width:&nbsp;100px;<br>&nbsp;&nbsp;&nbsp;height:&nbsp;100px;<br>&nbsp;&nbsp;&nbsp;margin:&nbsp;40px&nbsp;30px;<br>&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;solid&nbsp;#333;<br>&nbsp;&nbsp;&nbsp;background-color:&nbsp;#ccc;<br>}<br>div:hover{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;animation-name:&nbsp;backgroundColorAnimation;<br>&nbsp;&nbsp;&nbsp;animation-duration:&nbsp;2s;<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Multiple cadre cheie</h2>
+     <p class="paragraph">Așa cum am menționat, animația poate include mai multe cadre cheie intermediare. Pentru a defini un cadru intermediar, se folosește un procentaj al duratei animației în care acest cadru ar trebui să fie aplicat:</p>
+     <div class="code-inline">
+      <pre><code>@keyframes&nbsp;backgroundColorAnimation&nbsp;{<br>&nbsp;&nbsp;&nbsp;from&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;red;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;25%{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;yellow;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;50%{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;green;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;75%{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;blue;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;to&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;violet;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, animația începe cu roșu, schimbându-se la galben la 25% din timp, la verde la 50% și așa mai departe.</p>
+     <p class="paragraph">De asemenea, se poate anima simultan mai multe proprietăți într-un singur cadru cheie:</p>
+     <div class="code-inline">
+      <pre><code>@keyframes&nbsp;backgroundColorAnimation&nbsp;{<br>&nbsp;&nbsp;&nbsp;from&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;red;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.2;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;to&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;blue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.9;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Se pot defini și mai multe animații separate, dar să fie aplicate împreună:</p>
+     <div class="code-inline">
+      <pre><code>@keyframes&nbsp;backgroundColorAnimation&nbsp;{<br>&nbsp;&nbsp;&nbsp;from&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;red;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;to&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;blue;<br>&nbsp;&nbsp;&nbsp;}<br>}<br>@keyframes&nbsp;opacityAnimation&nbsp;{<br>&nbsp;&nbsp;&nbsp;from&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.2;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;to&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.9;<br>&nbsp;&nbsp;&nbsp;}<br>}<br>div{<br>&nbsp;&nbsp;&nbsp;width:&nbsp;100px;<br>&nbsp;&nbsp;&nbsp;height:&nbsp;100px;<br>&nbsp;&nbsp;&nbsp;margin:&nbsp;40px&nbsp;30px;<br>&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;solid&nbsp;#333;<br>&nbsp;&nbsp;&nbsp;background-color:&nbsp;#ccc;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;animation-name:&nbsp;backgroundColorAnimation,&nbsp;opacityAnimation;<br>&nbsp;&nbsp;&nbsp;animation-duration:&nbsp;2s,&nbsp;3s;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Valorile proprietăților animation-name și animation-duration sunt enumerate prin virgulă, iar numele animației și durata ei sunt asociate prin poziție, de exemplu, opacityAnimation va dura 3 secunde.</p>
+     <h2 class="subtitle">Finalizarea animației</h2>
+     <p class="paragraph">În general, după finalizarea perioadei de timp specificate la animation-duration, se finalizează și execuția animației. Cu toate acestea, cu ajutorul unor proprietăți suplimentare, acest comportament poate fi modificat.</p>
+     <p class="paragraph">Astfel, proprietatea animation-iteration-count definește de câte ori se va repeta animația. De exemplu, 3 repetări ale animației la rând:</p>
+     <div class="code-inline">
+      <pre><code>animation-iteration-count:&nbsp;3;</code></pre>
+     </div>
+     <p class="paragraph">Dacă este necesar ca animația să fie repetată de un număr infinit de ori, acestei proprietăți i se atribuie valoarea infinite:</p>
+     <div class="code-inline">
+      <pre><code>animation-iteration-count:&nbsp;infinite;</code></pre>
+     </div>
+     <p class="paragraph">La repetare, animația va începe din nou de la cadru cheie inițial. Dar, cu ajutorul proprietății animation-direction: alternate;, direcția opusă a animației poate fi setată la repetare. Astfel, aceasta va începe de la cadru cheie final și va merge invers spre cel inițial:</p>
+     <div class="code-inline">
+      <pre><code>animation-name:&nbsp;backgroundColorAnimation,&nbsp;opacityAnimation;<br>animation-duration:&nbsp;2s,&nbsp;2s;<br>animation-iteration-count:&nbsp;3;<br>animation-direction:&nbsp;alternate;</code></pre>
+     </div>
+     <p class="paragraph">La terminarea animației, browserul setează stilul elementului animat la cel care era înainte de aplicarea animației. Totuși, proprietatea animation-fill-mode: forwards; permite ca valoarea finală a proprietății animate să fie exact cea din ultimul cadru:</p>
+     <div class="code-inline">
+      <pre><code>animation-name:&nbsp;backgroundColorAnimation;<br>animation-duration:&nbsp;2s;<br>animation-iteration-count:&nbsp;3;<br>animation-direction:&nbsp;alternate;<br>animation-fill-mode:&nbsp;forwards;</code></pre>
+     </div>
+     <h2 class="subtitle">Întârziere animație</h2>
+     <p class="paragraph">Cu ajutorul proprietății animation-delay se poate defini timpul de întârziere pentru începutul unei animații:</p>
+     <div class="code-inline">
+      <pre><code>animation-name:&nbsp;backgroundColorAnimation;<br>animation-duration:&nbsp;5s;<br>animation-delay:&nbsp;1s;&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;întârziere&nbsp;de&nbsp;1&nbsp;secundă&nbsp;*/</code></pre>
+     </div>
+     <h2 class="subtitle">Funcția de suavitate a animației</h2>
+     <p class="paragraph">La fel ca la tranziții, la animații se pot aplica aceleași funcții de suavitate:</p>
+     <ul class="enumeration">
+      <li>linear: funcția liniară de suavitate, schimbarea proprietății se face uniform pe parcursul timpului</li>
+      <li>ease: funcția de suavitate la care animația accelerează spre mijloc și încetinește spre sfârșit, oferind o schimbare mai naturală</li>
+      <li>ease-in: funcția de suavitate la care are loc doar accelerarea la început</li>
+      <li>ease-out: funcția de suavitate la care are loc doar accelerarea la sfârșit</li>
+      <li>ease-in-out: funcția de suavitate la care animația accelerează spre mijloc și încetinește spre sfârșit, oferind o schimbare mai naturală</li>
+      <li>cubic-bezier: se aplică o funcție cubică Bezier pentru animație</li>
+     </ul>
+     <p class="paragraph">Pentru setarea funcției de suavitate se folosește proprietatea animation-timing-function:</p>
+     <div class="code-inline">
+      <pre><code>@keyframes&nbsp;backgroundColorAnimation&nbsp;{<br>&nbsp;&nbsp;&nbsp;from&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;red;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;to&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;blue;<br>&nbsp;&nbsp;&nbsp;}<br>}<br>div&nbsp;{<br>&nbsp;&nbsp;&nbsp;width:&nbsp;100px;<br>&nbsp;&nbsp;&nbsp;height:&nbsp;100px;<br>&nbsp;&nbsp;&nbsp;margin:&nbsp;40px&nbsp;30px;<br>&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;solid&nbsp;#333;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;animation-name:&nbsp;backgroundColorAnimation;<br>&nbsp;&nbsp;&nbsp;animation-duration:&nbsp;3s;<br>&nbsp;&nbsp;&nbsp;animation-timing-function:&nbsp;ease-in-out;<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Proprietatea animation</h2>
+     <p class="paragraph">Proprietatea animation este o metodă scurtă de a defini proprietățile discutate anterior:</p>
+     <div class="code-inline">
+      <pre><code>animation:&nbsp;animation-name&nbsp;animation-duration&nbsp;animation-timing-function&nbsp;animation-iteration-count&nbsp;animation-direction&nbsp;animation-delay&nbsp;animation-fill-mode;</code></pre>
+     </div>
+     <p class="paragraph">Primii doi parametri, care oferă numele și durata animației, sunt obligatorii. Celelalte valori sunt opționale.</p>
+     <p class="paragraph">Iată un set de proprietăți echivalente:</p>
+     <div class="code-inline">
+      <pre><code>animation-name:&nbsp;backgroundColorAnimation;<br>animation-duration:&nbsp;5s;<br>animation-timing-function:&nbsp;ease-in-out;<br>animation-iteration-count:&nbsp;3;<br>animation-direction:&nbsp;alternate;<br>animation-delay:&nbsp;1s;<br>animation-fill-mode:&nbsp;forwards;</code></pre>
+     </div>
+     <p class="paragraph">Acest set este echivalent cu următoarea definiție de animație:</p>
+     <div class="code-inline">
+      <pre><code>animation:&nbsp;backgroundColorAnimation&nbsp;5s&nbsp;ease-in-out&nbsp;3&nbsp;alternate&nbsp;1s&nbsp;forwards;</code></pre>
+     </div>
+     <h2 class="subtitle">Crearea unui banner animat</h2>
+     <p class="paragraph">Ca exemplu de animație, vom crea un banner animat simplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;HTML-banner&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&nbsp;type="text/css"&gt;<br>&nbsp;&nbsp;&nbsp;@keyframes&nbsp;text1<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10%&nbsp;{&nbsp;opacity:&nbsp;1;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;40%&nbsp;{&nbsp;opacity:&nbsp;0;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;@keyframes&nbsp;text2<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;30%&nbsp;{&nbsp;opacity:&nbsp;0;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;60%&nbsp;{&nbsp;opacity:&nbsp;1;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;@keyframes&nbsp;banner<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10%&nbsp;{&nbsp;background-color:&nbsp;#008978;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;40%&nbsp;{&nbsp;background-color:&nbsp;#34495e;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;80%&nbsp;{&nbsp;background-color:&nbsp;green;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;.banner<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:&nbsp;600px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;120px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;#777;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;margin:&nbsp;0&nbsp;auto;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;position:&nbsp;relative;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;.text1,&nbsp;.text2<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;position:&nbsp;absolute;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:&nbsp;100%;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;100%;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;line-height:&nbsp;120px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text-align:&nbsp;center;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;font-size:&nbsp;40px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;color:&nbsp;#fff;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;opacity:&nbsp;0;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;.text1<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;animation:&nbsp;text1&nbsp;6s&nbsp;infinite;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;.text2<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;animation:&nbsp;text2&nbsp;6s&nbsp;infinite;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;.animated<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.8;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;position:&nbsp;absolute;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:&nbsp;100%;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;100%;&nbsp;&nbsp;<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;#34495e;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;animation:&nbsp;banner&nbsp;6s&nbsp;infinite;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="banner"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="animated"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="text1"&gt;Только&nbsp;в&nbsp;этом&nbsp;месяце&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="text2"&gt;Скидки&nbsp;до&nbsp;20%&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici, trei animații sunt active simultan. Animația "banner" schimbă culoarea de fundal a bannerului, iar animațiile text1 și text2 alternează vizibilitatea textelor prin ajustarea opacității. Când primul text este vizibil, al doilea este invizibil și invers, creând astfel o animație de text în banner.</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

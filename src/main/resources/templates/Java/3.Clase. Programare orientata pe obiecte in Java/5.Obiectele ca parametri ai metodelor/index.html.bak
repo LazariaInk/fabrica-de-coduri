@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Java', activeChapter='3.Clase. Programare orientata pe obiecte in Java', activeLesson='5.Obiectele ca parametri ai metodelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Obiectele ca parametri ai metodelor</h1>
+     <p class="paragraph">Obiectele claselor, la fel ca și datele de tipuri primitive, pot fi transmise ca parametri în metode. Cu toate acestea, în acest caz există o particularitate - atunci când se transmit obiecte, se transmite o copie a referinței către zona de memorie unde este localizat obiectul. Să analizăm un exemplu simplu. Să presupunem că avem următoarea clasă Person:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;class&nbsp;Program{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;kate&nbsp;=&nbsp;new&nbsp;Person("Kate");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(kate.getName());&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Kate<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;changeName(kate);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(kate.getName());&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Alice<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;static&nbsp;void&nbsp;changeName(Person&nbsp;p){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p.setName("Alice");<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;name;<br><br>&nbsp;&nbsp;&nbsp;Person(String&nbsp;name){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;setName(String&nbsp;name){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;String&nbsp;getName(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;this.name;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici, în metoda changeName, se transmite un obiect Person, al cărui nume este modificat. Deoarece în metodă se transmite o copie a referinței către zona de memorie în care se află obiectul Person, variabila kate și parametrul p din metoda changeName vor indica același obiect în memorie. Prin urmare, după executarea metodei, obiectului kate, transmis în metodă, i se va schimba numele din "Kate" în "Alice".</p>
+     <p class="paragraph">Acest caz trebuie diferențiat de următorul:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;class&nbsp;Program{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;kate&nbsp;=&nbsp;new&nbsp;Person("Kate");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(kate.getName());&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Kate<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;changePerson(kate);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(kate.getName());&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Kate&nbsp;-&nbsp;nicio&nbsp;modificare<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;kate&nbsp;păstrează&nbsp;referința&nbsp;la&nbsp;obiectul&nbsp;vechi<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;static&nbsp;void&nbsp;changePerson(Person&nbsp;p){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p&nbsp;=&nbsp;new&nbsp;Person("Alice");&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;p&nbsp;indică&nbsp;către&nbsp;un&nbsp;nou&nbsp;obiect<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p.setName("Ann");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;static&nbsp;void&nbsp;changeName(Person&nbsp;p){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p.setName("Alice");<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;name;<br><br>&nbsp;&nbsp;&nbsp;Person(String&nbsp;name){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;setName(String&nbsp;name){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;String&nbsp;getName(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;this.name;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În metoda changePerson se transmite, de asemenea, o copie a referinței la obiectul Person. Cu toate acestea, în cadrul metodei, nu modificăm valorile individuale ale obiectului, ci recreăm un obiect nou folosind constructorul și operatorul new. Ca urmare, în memorie va fi alocat un nou spațiu pentru noul obiect Person, iar referința către acest obiect va fi atribuită parametrului p:</p>
+     <div class="code-inline">
+      <pre><code>static&nbsp;void&nbsp;changePerson(Person&nbsp;p){<br>&nbsp;&nbsp;&nbsp;p&nbsp;=&nbsp;new&nbsp;Person("Alice");&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;p&nbsp;indică&nbsp;către&nbsp;un&nbsp;nou&nbsp;obiect<br>&nbsp;&nbsp;&nbsp;p.setName("Ann");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;se&nbsp;modifică&nbsp;noul&nbsp;obiect<br>}</code></pre>
+     </div>
+     <p class="paragraph">Astfel, după crearea noului obiect Person, parametrul p și variabila kate din metoda main vor păstra referințe la obiecte diferite. Variabila kate, transmisă în metodă, va continua să păstreze referința la obiectul vechi din memorie. Prin urmare, valoarea sa nu se schimbă.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

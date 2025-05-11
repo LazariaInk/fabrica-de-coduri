@@ -1,166 +1,156 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Python', activeChapter='6.Module', activeLesson='7.Modulul dataclass'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Modulul dataclass. Clasele de date</h1>
- <p class="paragraph">Modulul dataclasses oferă decoratorul @dataclass, care permite crearea claselor de date (data classes), reducând astfel semnificativ codul boilerplate al claselor. De regulă, aceste clase sunt destinate stocării unor stări sau date și nu necesită comportamente complexe sub forma funcțiilor.</p>
- <p class="paragraph">Exemplu simplu:</p>
- <div class="code-inline">
-  <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name,&nbsp;age):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.name&nbsp;=&nbsp;name<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.age&nbsp;=&nbsp;age<br><br>tom&nbsp;=&nbsp;Person("Tom",&nbsp;38)<br>print(f"Name:&nbsp;{tom.name}&nbsp;&nbsp;Age:&nbsp;{tom.age}")&nbsp;&nbsp;#&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;Age:&nbsp;38</code></pre>
- </div>
- <p class="paragraph">Aici am definit clasa Person, care are două atribute în constructor: name și age. Apoi am creat un obiect al acestei clase și am afișat valorile atributelor sale.</p>
- <p class="paragraph">Acum să modificăm această programă, transformând clasa Person într-o clasă de date:</p>
- <div class="code-inline">
-  <pre><code>from&nbsp;dataclasses&nbsp;import&nbsp;dataclass<br><br>@dataclass<br>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;name:&nbsp;str<br>&nbsp;&nbsp;&nbsp;age:&nbsp;int<br><br>tom&nbsp;=&nbsp;Person("Tom",&nbsp;38)<br>print(f"Name:&nbsp;{tom.name}&nbsp;&nbsp;Age:&nbsp;{tom.age}")&nbsp;&nbsp;#&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;Age:&nbsp;38</code></pre>
- </div>
- <p class="paragraph">Pentru a crea o clasă de date, importăm decoratorul @dataclass din modulul dataclasses și îl aplicăm clasei Person. În acest caz, nu mai trebuie să specificăm explicit constructorul __init__. Doar indicăm atributele, iar Python va genera automat constructorul, permițându-ne să transmitem valori pentru atributele obiectului.</p>
- <p class="paragraph">Astfel, am simplificat definirea clasei. Dar funcționalitatea decoratorului @dataclass nu se limitează la generarea metodei __init__. În realitate, clasa de date:</p>
- <div class="code-inline">
-  <pre><code>@dataclass<br>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;name:&nbsp;str<br>&nbsp;&nbsp;&nbsp;age:&nbsp;int</code></pre>
- </div>
- <p class="paragraph">este echivalentă cu următoarea:</p>
- <div class="code-inline">
-  <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name,&nbsp;age):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.name&nbsp;=&nbsp;name<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.age&nbsp;=&nbsp;age<br><br>&nbsp;&nbsp;&nbsp;def&nbsp;__repr__(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;f"Person(name={self.name!r},&nbsp;age={self.age!r})"<br><br>&nbsp;&nbsp;&nbsp;def&nbsp;__eq__(self,&nbsp;other):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;other.__class__&nbsp;is&nbsp;self.__class__:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;(self.name,&nbsp;self.age)&nbsp;==&nbsp;(other.name,&nbsp;other.age)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;NotImplemented</code></pre>
- </div>
- <p class="paragraph">Pe lângă funcția __init__, sunt generate automat și funcțiile __repr__() pentru a oferi o reprezentare textuală și __eq__() pentru a compara două obiecte. Exemplu de utilizare a acestor funcții:</p>
- <div class="code-inline">
-  <pre><code>from&nbsp;dataclasses&nbsp;import&nbsp;dataclass<br><br>@dataclass<br>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;name:&nbsp;str<br>&nbsp;&nbsp;&nbsp;age:&nbsp;int<br><br>tom&nbsp;=&nbsp;Person("Tom",&nbsp;38)<br>bob&nbsp;=&nbsp;Person("Bob",&nbsp;42)<br>tomas&nbsp;=&nbsp;Person("Tom",&nbsp;38)<br><br>print(tom&nbsp;==&nbsp;tomas)&nbsp;&nbsp;#&nbsp;True<br>print(tom&nbsp;==&nbsp;bob)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;False<br>print(tom)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Person(name="Tom",&nbsp;age=38)</code></pre>
- </div>
- <h2 class="subtitle">Parametrii decoratorului @dataclass</h2>
- <p class="paragraph">Cu ajutorul parametrilor, decoratorul @dataclass poate genera cod suplimentar și permite personalizarea generării codului:</p>
- <div class="code-inline">
-  <pre><code>def&nbsp;dataclass(cls=None,&nbsp;/,&nbsp;*,&nbsp;init=True,&nbsp;repr=True,&nbsp;eq=True,&nbsp;order=False,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unsafe_hash=False,&nbsp;frozen=False,&nbsp;match_args=True,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;kw_only=False,&nbsp;slots=False)</code></pre>
- </div>
- <p class="paragraph">Parametrii principali:</p>
- <ul class="enumeration">
-  <li>init: dacă este True, se generează funcția __init__(). Implicit este True</li>
-  <li>repr: dacă este True, se generează funcția __repr__(), care returnează o reprezentare textuală a obiectului. Implicit este True</li>
-  <li>eq: dacă este True, se generează funcția __eq__(), care compară două obiecte. Implicit este True</li>
-  <li>order: dacă este True, se generează funcțiile __lt__ (operația &lt;), __le__ (&lt;=), __gt__ (&gt;), __ge__ (&gt;=), care sunt utilizate pentru ordonarea obiectelor. Implicit este False</li>
-  <li>unsafe_hash: dacă este True, se generează funcția __hash__(), care returnează hash-ul obiectului. Implicit este False</li>
- </ul>
- <p class="paragraph">Funcțiile generate implicit pot fi suprascrise.</p>
- <p class="paragraph">Exemplu de utilizare a parametrilor:</p>
- <div class="code-inline">
-  <pre><code>from&nbsp;dataclasses&nbsp;import&nbsp;dataclass<br><br>@dataclass(unsafe_hash=True,&nbsp;order=True)<br>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;name:&nbsp;str<br>&nbsp;&nbsp;&nbsp;age:&nbsp;int<br><br>&nbsp;&nbsp;&nbsp;def&nbsp;__repr__(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;f"Person.&nbsp;Name:&nbsp;{self.name}&nbsp;&nbsp;Age:&nbsp;{self.age}"<br><br>tom&nbsp;=&nbsp;Person("Tom",&nbsp;38)<br>print(tom.__hash__())&nbsp;&nbsp;#&nbsp;-421667297069596717<br>print(tom)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Person.&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;Age:&nbsp;38</code></pre>
- </div>
- <p class="paragraph">În acest caz, activăm generarea hash-ului și a funcțiilor de ordonare, precum și suprascriem explicit funcția __repr__ pentru a crea o reprezentare textuală personalizată a obiectului.</p>
- <h2 class="subtitle">Valori implicite</h2>
- <p class="paragraph">Dacă este necesar, atributelor li se pot atribui valori implicite în cazul în care constructorul nu primește valori pentru acestea:</p>
- <div class="code-inline">
-  <pre><code>from&nbsp;dataclasses&nbsp;import&nbsp;dataclass<br><br>@dataclass<br>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;name:&nbsp;str<br>&nbsp;&nbsp;&nbsp;age:&nbsp;int&nbsp;=&nbsp;18<br><br>tom&nbsp;=&nbsp;Person("Tom",&nbsp;38)<br>print(tom)&nbsp;&nbsp;#&nbsp;Person(name="Tom",&nbsp;age=38)<br><br>bob&nbsp;=&nbsp;Person("Bob")<br>print(bob)&nbsp;&nbsp;#&nbsp;Person(name="Bob",&nbsp;age=18)</code></pre>
- </div>
- <h2 class="subtitle">Adăugarea de funcționalitate suplimentară</h2>
- <p class="paragraph">Deși clasele de date sunt destinate în principal stocării de date, ele pot include și metode suplimentare pentru a adăuga funcționalitate:</p>
- <div class="code-inline">
-  <pre><code>from&nbsp;dataclasses&nbsp;import&nbsp;dataclass<br><br>@dataclass<br>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;name:&nbsp;str<br>&nbsp;&nbsp;&nbsp;age:&nbsp;int<br><br>&nbsp;&nbsp;&nbsp;def&nbsp;say_hello(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"{self.name}&nbsp;says&nbsp;hello")<br><br>tom&nbsp;=&nbsp;Person("Tom",&nbsp;38)<br>tom.say_hello()&nbsp;&nbsp;#&nbsp;Tom&nbsp;says&nbsp;hello</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Modulul dataclass. Clasele de date</h1>
+     <p class="paragraph">Modulul dataclasses oferă decoratorul @dataclass, care permite crearea claselor de date (data classes), reducând astfel semnificativ codul boilerplate al claselor. De regulă, aceste clase sunt destinate stocării unor stări sau date și nu necesită comportamente complexe sub forma funcțiilor.</p>
+     <p class="paragraph">Exemplu simplu:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name,&nbsp;age):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.name&nbsp;=&nbsp;name<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.age&nbsp;=&nbsp;age<br><br>tom&nbsp;=&nbsp;Person("Tom",&nbsp;38)<br>print(f"Name:&nbsp;{tom.name}&nbsp;&nbsp;Age:&nbsp;{tom.age}")&nbsp;&nbsp;#&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;Age:&nbsp;38</code></pre>
+     </div>
+     <p class="paragraph">Aici am definit clasa Person, care are două atribute în constructor: name și age. Apoi am creat un obiect al acestei clase și am afișat valorile atributelor sale.</p>
+     <p class="paragraph">Acum să modificăm această programă, transformând clasa Person într-o clasă de date:</p>
+     <div class="code-inline">
+      <pre><code>from&nbsp;dataclasses&nbsp;import&nbsp;dataclass<br><br>@dataclass<br>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;name:&nbsp;str<br>&nbsp;&nbsp;&nbsp;age:&nbsp;int<br><br>tom&nbsp;=&nbsp;Person("Tom",&nbsp;38)<br>print(f"Name:&nbsp;{tom.name}&nbsp;&nbsp;Age:&nbsp;{tom.age}")&nbsp;&nbsp;#&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;Age:&nbsp;38</code></pre>
+     </div>
+     <p class="paragraph">Pentru a crea o clasă de date, importăm decoratorul @dataclass din modulul dataclasses și îl aplicăm clasei Person. În acest caz, nu mai trebuie să specificăm explicit constructorul __init__. Doar indicăm atributele, iar Python va genera automat constructorul, permițându-ne să transmitem valori pentru atributele obiectului.</p>
+     <p class="paragraph">Astfel, am simplificat definirea clasei. Dar funcționalitatea decoratorului @dataclass nu se limitează la generarea metodei __init__. În realitate, clasa de date:</p>
+     <div class="code-inline">
+      <pre><code>@dataclass<br>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;name:&nbsp;str<br>&nbsp;&nbsp;&nbsp;age:&nbsp;int</code></pre>
+     </div>
+     <p class="paragraph">este echivalentă cu următoarea:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name,&nbsp;age):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.name&nbsp;=&nbsp;name<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.age&nbsp;=&nbsp;age<br><br>&nbsp;&nbsp;&nbsp;def&nbsp;__repr__(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;f"Person(name={self.name!r},&nbsp;age={self.age!r})"<br><br>&nbsp;&nbsp;&nbsp;def&nbsp;__eq__(self,&nbsp;other):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;other.__class__&nbsp;is&nbsp;self.__class__:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;(self.name,&nbsp;self.age)&nbsp;==&nbsp;(other.name,&nbsp;other.age)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;NotImplemented</code></pre>
+     </div>
+     <p class="paragraph">Pe lângă funcția __init__, sunt generate automat și funcțiile __repr__() pentru a oferi o reprezentare textuală și __eq__() pentru a compara două obiecte. Exemplu de utilizare a acestor funcții:</p>
+     <div class="code-inline">
+      <pre><code>from&nbsp;dataclasses&nbsp;import&nbsp;dataclass<br><br>@dataclass<br>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;name:&nbsp;str<br>&nbsp;&nbsp;&nbsp;age:&nbsp;int<br><br>tom&nbsp;=&nbsp;Person("Tom",&nbsp;38)<br>bob&nbsp;=&nbsp;Person("Bob",&nbsp;42)<br>tomas&nbsp;=&nbsp;Person("Tom",&nbsp;38)<br><br>print(tom&nbsp;==&nbsp;tomas)&nbsp;&nbsp;#&nbsp;True<br>print(tom&nbsp;==&nbsp;bob)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;False<br>print(tom)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Person(name="Tom",&nbsp;age=38)</code></pre>
+     </div>
+     <h2 class="subtitle">Parametrii decoratorului @dataclass</h2>
+     <p class="paragraph">Cu ajutorul parametrilor, decoratorul @dataclass poate genera cod suplimentar și permite personalizarea generării codului:</p>
+     <div class="code-inline">
+      <pre><code>def&nbsp;dataclass(cls=None,&nbsp;/,&nbsp;*,&nbsp;init=True,&nbsp;repr=True,&nbsp;eq=True,&nbsp;order=False,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unsafe_hash=False,&nbsp;frozen=False,&nbsp;match_args=True,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;kw_only=False,&nbsp;slots=False)</code></pre>
+     </div>
+     <p class="paragraph">Parametrii principali:</p>
+     <ul class="enumeration">
+      <li>init: dacă este True, se generează funcția __init__(). Implicit este True</li>
+      <li>repr: dacă este True, se generează funcția __repr__(), care returnează o reprezentare textuală a obiectului. Implicit este True</li>
+      <li>eq: dacă este True, se generează funcția __eq__(), care compară două obiecte. Implicit este True</li>
+      <li>order: dacă este True, se generează funcțiile __lt__ (operația &lt;), __le__ (&lt;=), __gt__ (&gt;), __ge__ (&gt;=), care sunt utilizate pentru ordonarea obiectelor. Implicit este False</li>
+      <li>unsafe_hash: dacă este True, se generează funcția __hash__(), care returnează hash-ul obiectului. Implicit este False</li>
+     </ul>
+     <p class="paragraph">Funcțiile generate implicit pot fi suprascrise.</p>
+     <p class="paragraph">Exemplu de utilizare a parametrilor:</p>
+     <div class="code-inline">
+      <pre><code>from&nbsp;dataclasses&nbsp;import&nbsp;dataclass<br><br>@dataclass(unsafe_hash=True,&nbsp;order=True)<br>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;name:&nbsp;str<br>&nbsp;&nbsp;&nbsp;age:&nbsp;int<br><br>&nbsp;&nbsp;&nbsp;def&nbsp;__repr__(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;f"Person.&nbsp;Name:&nbsp;{self.name}&nbsp;&nbsp;Age:&nbsp;{self.age}"<br><br>tom&nbsp;=&nbsp;Person("Tom",&nbsp;38)<br>print(tom.__hash__())&nbsp;&nbsp;#&nbsp;-421667297069596717<br>print(tom)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Person.&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;Age:&nbsp;38</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, activăm generarea hash-ului și a funcțiilor de ordonare, precum și suprascriem explicit funcția __repr__ pentru a crea o reprezentare textuală personalizată a obiectului.</p>
+     <h2 class="subtitle">Valori implicite</h2>
+     <p class="paragraph">Dacă este necesar, atributelor li se pot atribui valori implicite în cazul în care constructorul nu primește valori pentru acestea:</p>
+     <div class="code-inline">
+      <pre><code>from&nbsp;dataclasses&nbsp;import&nbsp;dataclass<br><br>@dataclass<br>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;name:&nbsp;str<br>&nbsp;&nbsp;&nbsp;age:&nbsp;int&nbsp;=&nbsp;18<br><br>tom&nbsp;=&nbsp;Person("Tom",&nbsp;38)<br>print(tom)&nbsp;&nbsp;#&nbsp;Person(name="Tom",&nbsp;age=38)<br><br>bob&nbsp;=&nbsp;Person("Bob")<br>print(bob)&nbsp;&nbsp;#&nbsp;Person(name="Bob",&nbsp;age=18)</code></pre>
+     </div>
+     <h2 class="subtitle">Adăugarea de funcționalitate suplimentară</h2>
+     <p class="paragraph">Deși clasele de date sunt destinate în principal stocării de date, ele pot include și metode suplimentare pentru a adăuga funcționalitate:</p>
+     <div class="code-inline">
+      <pre><code>from&nbsp;dataclasses&nbsp;import&nbsp;dataclass<br><br>@dataclass<br>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;name:&nbsp;str<br>&nbsp;&nbsp;&nbsp;age:&nbsp;int<br><br>&nbsp;&nbsp;&nbsp;def&nbsp;say_hello(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"{self.name}&nbsp;says&nbsp;hello")<br><br>tom&nbsp;=&nbsp;Person("Tom",&nbsp;38)<br>tom.say_hello()&nbsp;&nbsp;#&nbsp;Tom&nbsp;says&nbsp;hello</code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

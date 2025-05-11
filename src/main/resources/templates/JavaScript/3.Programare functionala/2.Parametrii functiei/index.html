@@ -1,217 +1,207 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='3.Programare functionala', activeLesson='2.Parametrii functiei'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Parametrii funcției</h1>
- <p class="paragraph">Funcția în JavaScript poate primi parametri. Parametrii reprezintă modul de transmitere a datelor către o funcție. Parametrii sunt specificați în paranteze după numele funcției.</p>
- <p class="paragraph">De exemplu, să definim o funcție simplă care primește un singur parametru:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;print(message){<br>&nbsp;&nbsp;&nbsp;console.log(message);<br>}<br><br>print("Hello&nbsp;JavaScript");<br>print("Hello&nbsp;FDC.COM");<br>print("Function&nbsp;in&nbsp;JavaScript");</code></pre>
- </div>
- <p class="paragraph">Funcția print() primește un singur parametru - message. Prin urmare, la apelul funcției, putem furniza o valoare pentru acesta, de exemplu, un șir de caractere:</p>
- <div class="code-inline">
-  <pre><code>print("Hello&nbsp;JavaScript");</code></pre>
- </div>
- <p class="paragraph">Valorile transmise parametrilor sunt numite și argumente.</p>
- <p class="paragraph">Spre deosebire de unele limbaje de programare, în principiu, nu suntem obligați să transmitem valori parametrilor în JavaScript. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;print(message){<br>&nbsp;&nbsp;&nbsp;console.log(message);<br>}<br>print();</code></pre>
- </div>
- <p class="paragraph">Dacă nu se furnizează o valoare parametrului, acesta va avea valoarea undefined.</p>
- <p class="paragraph">Dacă o funcție primește mai mulți parametri, aceștia sunt enumerați prin virgulă:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;sum(a,&nbsp;b){<br>&nbsp;&nbsp;&nbsp;const&nbsp;result&nbsp;=&nbsp;a&nbsp;+&nbsp;b;<br>&nbsp;&nbsp;&nbsp;console.log(result);<br>}<br><br>sum(2,&nbsp;6);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;8<br>sum(4,&nbsp;5);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;9<br>sum(109,&nbsp;11);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;120</code></pre>
- </div>
- <p class="paragraph">La apelul funcției cu mai mulți parametri, valorile sunt transmise parametrilor pe baza poziției. Cu alte cuvinte, prima valoare este transmisă primului parametru, a doua valoare - celui de-al doilea, și tot așa. De exemplu, în apelul:</p>
- <div class="code-inline">
-  <pre><code>sum(2,&nbsp;6);</code></pre>
- </div>
- <p class="paragraph">Numărul 2 este transmis parametrului a, iar numărul 6 - parametrului b.</p>
- <h2 class="subtitle">Transmiterea unui array ca parametru și operatorul spread</h2>
- <p class="paragraph">Este convenabil să ținem datele legate de ceva într-un array. Și, eventual, ne-ar putea fi necesar să transmitem întregul set de date către o funcție. În general, putem transmite un array ca parametru și în interiorul funcției să ne referim la elementele sale:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;printPerson(person)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Nume:",&nbsp;person[0]);<br>&nbsp;&nbsp;&nbsp;console.log("Vârstă:",&nbsp;person[1]);<br>&nbsp;&nbsp;&nbsp;console.log("Email:",&nbsp;person[2]);<br>&nbsp;&nbsp;&nbsp;console.log("=========================");<br>}<br><br>const&nbsp;tom&nbsp;=&nbsp;["Tom",&nbsp;39,&nbsp;"tom@example.com"];<br>const&nbsp;bob&nbsp;=&nbsp;["Bob",&nbsp;43,&nbsp;"bob@example.com"];<br><br>printPerson(tom);<br>printPerson(bob);</code></pre>
- </div>
- <p class="paragraph">În acest caz, funcția printPerson primește un array, care se presupune că are trei elemente. Și în interiorul funcției are loc referirea la aceste elemente.</p>
- <p class="paragraph">Dar să examinăm o altă situație, când funcția primește date sub formă de parametri separați. În acest caz, este mai convenabil să utilizăm operatorul spread:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;printPerson(username,&nbsp;age,&nbsp;email)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Nume:",&nbsp;username);<br>&nbsp;&nbsp;&nbsp;console.log("Vârstă:",&nbsp;age);<br>&nbsp;&nbsp;&nbsp;console.log("Email:",&nbsp;email);<br>&nbsp;&nbsp;&nbsp;console.log("=========================");<br>}<br><br>const&nbsp;tom&nbsp;=&nbsp;["Tom",&nbsp;39,&nbsp;"tom@example.com"];<br>const&nbsp;bob&nbsp;=&nbsp;["Bob",&nbsp;43,&nbsp;"bob@example.com"];<br><br>printPerson(...tom);<br>printPerson(...bob);</code></pre>
- </div>
- <p class="paragraph">Pentru a transmite în mod consecutiv elementele array-ului ca parametri pentru funcție, înaintea numelui array-ului se specifică operatorul spread:</p>
- <div class="code-inline">
-  <pre><code>printPerson(...tom);</code></pre>
- </div>
- <p class="paragraph">Acest lucru este echivalent cu a scrie:</p>
- <div class="code-inline">
-  <pre><code>printPerson(tom[0],&nbsp;tom[1],&nbsp;tom[2]);</code></pre>
- </div>
- <p class="paragraph">Doar că operatorul spread permite o transmitere mai concisă a valorilor.</p>
- <h2 class="subtitle">Parametri opționali și valori implicite</h2>
- <p class="paragraph">O funcție poate să primească mai mulți parametri, dar unele sau toate acestea pot fi opționale. Dacă nu se furnizează valori pentru parametri, atunci implicit aceștia vor avea valoarea "undefined". Cu toate acestea, uneori este necesar ca parametrii să aibă cu siguranță anumite valori, cum ar fi valori implicite. Înainte de standardul ES6, era nevoie să verificăm valorile parametrilor pentru a vedea dacă sunt "undefined":</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;sum(x,&nbsp;y){<br>&nbsp;&nbsp;&nbsp;if(y&nbsp;===&nbsp;undefined)&nbsp;y&nbsp;=&nbsp;5;<br>&nbsp;&nbsp;&nbsp;if(x&nbsp;===&nbsp;undefined)&nbsp;x&nbsp;=&nbsp;8;<br>&nbsp;&nbsp;&nbsp;const&nbsp;z&nbsp;=&nbsp;x&nbsp;+&nbsp;y;<br>&nbsp;&nbsp;&nbsp;console.log(z);<br>}<br><br>sum();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;13<br>sum(6);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;11<br>sum(6,&nbsp;4)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;10</code></pre>
- </div>
- <p class="paragraph">Aici, funcția sum() primește doi parametri. La apelul funcției, putem verifica valorile lor. Cu toate acestea, la apelul funcției, nu este necesar să furnizăm valori pentru acești parametri. Pentru a verifica existența valorilor parametrilor, se folosește comparația cu "undefined".</p>
- <p class="paragraph">De asemenea, putem defini direct valori implicite pentru parametri:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;sum(x&nbsp;=&nbsp;8,&nbsp;y&nbsp;=&nbsp;5){<br>&nbsp;&nbsp;&nbsp;const&nbsp;z&nbsp;=&nbsp;x&nbsp;+&nbsp;y;<br>&nbsp;&nbsp;&nbsp;console.log(z);<br>}<br><br>sum();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;13<br>sum(6);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;11<br>sum(6,&nbsp;4)&nbsp;&nbsp;&nbsp;//&nbsp;10</code></pre>
- </div>
- <p class="paragraph">Dacă nu se furnizează valori pentru parametrii x și y, aceștia vor primi valorile 5 și, respectiv, 10. Acest mod de a face lucrurile este mai concis și intuitiv decât comparația cu "undefined".</p>
- <p class="paragraph">În același timp, valoarea implicită a parametrului poate fi derivată și poate reprezenta o expresie:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;sum(x&nbsp;=&nbsp;8,&nbsp;y&nbsp;=&nbsp;10&nbsp;+&nbsp;x){<br>&nbsp;&nbsp;&nbsp;const&nbsp;z&nbsp;=&nbsp;x&nbsp;+&nbsp;y;<br>&nbsp;&nbsp;&nbsp;console.log(z);<br>}<br><br>sum();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;26<br>sum(6);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;22<br>sum(6,&nbsp;4)&nbsp;&nbsp;&nbsp;//&nbsp;10</code></pre>
- </div>
- <p class="paragraph">În acest caz, valoarea parametrului y depinde de valoarea lui x.</p>
- <h2 class="subtitle">Funcții cu un număr arbitrar de parametri</h2>
- <p class="paragraph">JavaScript permite definirea așa-numitelor funcții variadice sau funcții cu un număr arbitrar de parametri. Pentru aceasta, se pot utiliza câteva instrumente.</p>
- <h2 class="subtitle">Obiectul arguments</h2>
- <p class="paragraph">Dacă este necesar, putem obține toți parametrii furnizați prin intermediul obiectului arguments, disponibil în interiorul funcției:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;sum(){<br>&nbsp;&nbsp;&nbsp;let&nbsp;result&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;for(const&nbsp;n&nbsp;of&nbsp;arguments)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;+=&nbsp;n;<br>&nbsp;&nbsp;&nbsp;console.log(result);<br>}<br>sum(6);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;6<br>sum(6,&nbsp;4)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;10<br>sum(6,&nbsp;4,&nbsp;5)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;15</code></pre>
- </div>
- <p class="paragraph">În acest caz, nu contează dacă am specificat sau nu parametri la definirea funcției; oricum putem furniza parametri și să le obținem valorile prin intermediul obiectului arguments.</p>
- <p class="paragraph">În plus, putem să definim parametrii explicit:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;sum(a,&nbsp;b,&nbsp;c){<br>&nbsp;&nbsp;&nbsp;console.log("a&nbsp;=",&nbsp;a);<br>&nbsp;&nbsp;&nbsp;console.log("b&nbsp;=",&nbsp;b);<br>&nbsp;&nbsp;&nbsp;console.log("c&nbsp;=",&nbsp;c);<br><br>&nbsp;&nbsp;&nbsp;let&nbsp;result&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;for(const&nbsp;n&nbsp;of&nbsp;arguments)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;+=&nbsp;n;<br>&nbsp;&nbsp;&nbsp;console.log("result&nbsp;=",&nbsp;result);<br>}<br>sum(6,&nbsp;4,&nbsp;5,&nbsp;8)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;23</code></pre>
- </div>
- <p class="paragraph">Cu toate că funcția este definită să primească doar 3 parametri, putem furniza un număr mai mare de argumente și să le obținem prin intermediul array-ului arguments. Rezultatul afișat în consolă:</p>
- <div class="code-inline">
-  <pre><code>a&nbsp;=&nbsp;6<br>b&nbsp;=&nbsp;4<br>c&nbsp;=&nbsp;5<br>result&nbsp;=&nbsp;23</code></pre>
- </div>
- <p class="paragraph">Deși putem itera obiectul arguments ca pe un array, acesta nu este un array. Chiar dacă putem obține lungimea folosind proprietatea length și să accesezi argumentele furnizate funcției folosind un index:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;sum(nums){<br>&nbsp;&nbsp;&nbsp;let&nbsp;result&nbsp;=&nbsp;0;&nbsp;&nbsp;//&nbsp;rezultatul&nbsp;funcției<br>&nbsp;&nbsp;&nbsp;if(arguments.length&nbsp;&gt;=1)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;este&nbsp;furnizat&nbsp;cel&nbsp;puțin&nbsp;un&nbsp;parametru<br>&nbsp;&nbsp;&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;=&nbsp;result&nbsp;+&nbsp;arguments[0];&nbsp;//&nbsp;accesează&nbsp;primul&nbsp;parametru<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;if(arguments.length&nbsp;&gt;=2)&nbsp;//&nbsp;dacă&nbsp;sunt&nbsp;furnizate&nbsp;cel&nbsp;puțin&nbsp;două&nbsp;parametri<br>&nbsp;&nbsp;&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;=&nbsp;result&nbsp;+&nbsp;arguments[1];&nbsp;//&nbsp;accesează&nbsp;al&nbsp;doilea&nbsp;parametru<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;console.log("result&nbsp;=",&nbsp;result);<br>}<br><br>sum(6)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;result&nbsp;=&nbsp;6<br>sum(6,&nbsp;5)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;result&nbsp;=&nbsp;11<br>sum(6,&nbsp;5,&nbsp;4)&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;result&nbsp;=&nbsp;11&nbsp;-&nbsp;al&nbsp;treilea&nbsp;parametru&nbsp;nu&nbsp;este&nbsp;luat&nbsp;în&nbsp;considerare</code></pre>
- </div>
- <h2 class="subtitle">Operatorul rest (...)</h2>
- <p class="paragraph">Operatorul rest (...) poate fi folosit pentru a transmite un număr variabil de valori:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;sum(...numbers){<br>&nbsp;&nbsp;&nbsp;let&nbsp;result&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;for(const&nbsp;n&nbsp;of&nbsp;numbers)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;+=&nbsp;n;<br>&nbsp;&nbsp;&nbsp;console.log(result);<br>}<br>sum(6,&nbsp;4,&nbsp;5)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;15</code></pre>
- </div>
- <p class="paragraph">În acest caz, parametrul ...numbers indică faptul că în locul său pot fi transmise diferite cantități de valori. În funcție, numbers reprezintă efectiv un array al valorilor transmise, pe care le putem obține. Cu toate acestea, în ciuda acestui fapt, atunci când apelăm funcția, nu transmitem un array, ci valori individuale.</p>
- <p class="paragraph">Astfel de parametri rest pot fi combinați cu parametri obișnuiți:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;display(season,&nbsp;...temps){<br>&nbsp;&nbsp;&nbsp;console.log(season);<br>&nbsp;&nbsp;&nbsp;for(index&nbsp;in&nbsp;temps){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(temps[index]);<br>&nbsp;&nbsp;&nbsp;}<br>}<br>display("Primăvara",&nbsp;-2,&nbsp;-3,&nbsp;4,&nbsp;2,&nbsp;5);<br>display("Vara",&nbsp;20,&nbsp;23,&nbsp;31);</code></pre>
- </div>
- <p class="paragraph">Aici, prima valoare transmisă funcției va fi interpretată ca valoare pentru parametrul season, iar toate celelalte valori vor merge către parametrul temps.</p>
- <p class="paragraph">Ieșirea în consolă:</p>
- <p class="paragraph">Primăvara -2 -3 4 2 5 Vara 20 23 31</p>
- <h2 class="subtitle">Matrice ca parametru</h2>
- <p class="paragraph">A treia modalitate de a transmite o cantitate nedeterminată de date presupune transmiterea acestora printr-un parametru de tip matrice. Cu toate că formal avem un singur parametru (numărul de parametri este definit), totuși cantitatea specifică de date în această matrice este nedeterminată (la fel ca și în cazul array-ului arguments):</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;sum(numbers){<br>&nbsp;&nbsp;&nbsp;let&nbsp;result&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;for(const&nbsp;n&nbsp;of&nbsp;numbers)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;+=&nbsp;n;<br>&nbsp;&nbsp;&nbsp;console.log("result&nbsp;=",&nbsp;result);<br>}<br>const&nbsp;nums&nbsp;=&nbsp;[6,&nbsp;4,&nbsp;5,&nbsp;8];<br>sum(nums)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;result&nbsp;=&nbsp;23</code></pre>
- </div>
- <h2 class="subtitle">Funcțiile în calitate de parametri</h2>
- <p class="paragraph">Funcțiile pot servi drept parametri pentru alte funcții:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;sum(x,&nbsp;y){<br>&nbsp;&nbsp;&nbsp;return&nbsp;x&nbsp;+&nbsp;y;<br>}<br><br>function&nbsp;subtract(x,&nbsp;y){<br>&nbsp;&nbsp;&nbsp;return&nbsp;x&nbsp;-&nbsp;y;<br>}<br><br>function&nbsp;operation(x,&nbsp;y,&nbsp;func){<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;result&nbsp;=&nbsp;func(x,&nbsp;y);<br>&nbsp;&nbsp;&nbsp;console.log(result);<br>}<br><br>console.log("Sum");<br>operation(10,&nbsp;6,&nbsp;sum);&nbsp;&nbsp;//&nbsp;16<br><br>console.log("Subtract");<br>operation(10,&nbsp;6,&nbsp;subtract);&nbsp;//&nbsp;4</code></pre>
- </div>
- <p class="paragraph">Funcția operation primește trei parametri: x, y și func. func reprezintă o funcție, iar la momentul definirii funcției operation nu este important ce fel de funcție este aceasta. Singurul lucru cunoscut este că funcția func poate să primească doi parametri și să returneze o valoare, care este apoi afișată în consola browser-ului. Prin urmare, putem defini diverse funcții (de exemplu, funcțiile sum și subtract în acest caz) și să le pasăm în apelul funcției operation.</p>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Parametrii funcției</h1>
+     <p class="paragraph">Funcția în JavaScript poate primi parametri. Parametrii reprezintă modul de transmitere a datelor către o funcție. Parametrii sunt specificați în paranteze după numele funcției.</p>
+     <p class="paragraph">De exemplu, să definim o funcție simplă care primește un singur parametru:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;print(message){<br>&nbsp;&nbsp;&nbsp;console.log(message);<br>}<br><br>print("Hello&nbsp;JavaScript");<br>print("Hello&nbsp;FDC.COM");<br>print("Function&nbsp;in&nbsp;JavaScript");</code></pre>
+     </div>
+     <p class="paragraph">Funcția print() primește un singur parametru - message. Prin urmare, la apelul funcției, putem furniza o valoare pentru acesta, de exemplu, un șir de caractere:</p>
+     <div class="code-inline">
+      <pre><code>print("Hello&nbsp;JavaScript");</code></pre>
+     </div>
+     <p class="paragraph">Valorile transmise parametrilor sunt numite și argumente.</p>
+     <p class="paragraph">Spre deosebire de unele limbaje de programare, în principiu, nu suntem obligați să transmitem valori parametrilor în JavaScript. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;print(message){<br>&nbsp;&nbsp;&nbsp;console.log(message);<br>}<br>print();</code></pre>
+     </div>
+     <p class="paragraph">Dacă nu se furnizează o valoare parametrului, acesta va avea valoarea undefined.</p>
+     <p class="paragraph">Dacă o funcție primește mai mulți parametri, aceștia sunt enumerați prin virgulă:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;sum(a,&nbsp;b){<br>&nbsp;&nbsp;&nbsp;const&nbsp;result&nbsp;=&nbsp;a&nbsp;+&nbsp;b;<br>&nbsp;&nbsp;&nbsp;console.log(result);<br>}<br><br>sum(2,&nbsp;6);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;8<br>sum(4,&nbsp;5);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;9<br>sum(109,&nbsp;11);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;120</code></pre>
+     </div>
+     <p class="paragraph">La apelul funcției cu mai mulți parametri, valorile sunt transmise parametrilor pe baza poziției. Cu alte cuvinte, prima valoare este transmisă primului parametru, a doua valoare - celui de-al doilea, și tot așa. De exemplu, în apelul:</p>
+     <div class="code-inline">
+      <pre><code>sum(2,&nbsp;6);</code></pre>
+     </div>
+     <p class="paragraph">Numărul 2 este transmis parametrului a, iar numărul 6 - parametrului b.</p>
+     <h2 class="subtitle">Transmiterea unui array ca parametru și operatorul spread</h2>
+     <p class="paragraph">Este convenabil să ținem datele legate de ceva într-un array. Și, eventual, ne-ar putea fi necesar să transmitem întregul set de date către o funcție. În general, putem transmite un array ca parametru și în interiorul funcției să ne referim la elementele sale:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;printPerson(person)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Nume:",&nbsp;person[0]);<br>&nbsp;&nbsp;&nbsp;console.log("Vârstă:",&nbsp;person[1]);<br>&nbsp;&nbsp;&nbsp;console.log("Email:",&nbsp;person[2]);<br>&nbsp;&nbsp;&nbsp;console.log("=========================");<br>}<br><br>const&nbsp;tom&nbsp;=&nbsp;["Tom",&nbsp;39,&nbsp;"tom@example.com"];<br>const&nbsp;bob&nbsp;=&nbsp;["Bob",&nbsp;43,&nbsp;"bob@example.com"];<br><br>printPerson(tom);<br>printPerson(bob);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, funcția printPerson primește un array, care se presupune că are trei elemente. Și în interiorul funcției are loc referirea la aceste elemente.</p>
+     <p class="paragraph">Dar să examinăm o altă situație, când funcția primește date sub formă de parametri separați. În acest caz, este mai convenabil să utilizăm operatorul spread:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;printPerson(username,&nbsp;age,&nbsp;email)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Nume:",&nbsp;username);<br>&nbsp;&nbsp;&nbsp;console.log("Vârstă:",&nbsp;age);<br>&nbsp;&nbsp;&nbsp;console.log("Email:",&nbsp;email);<br>&nbsp;&nbsp;&nbsp;console.log("=========================");<br>}<br><br>const&nbsp;tom&nbsp;=&nbsp;["Tom",&nbsp;39,&nbsp;"tom@example.com"];<br>const&nbsp;bob&nbsp;=&nbsp;["Bob",&nbsp;43,&nbsp;"bob@example.com"];<br><br>printPerson(...tom);<br>printPerson(...bob);</code></pre>
+     </div>
+     <p class="paragraph">Pentru a transmite în mod consecutiv elementele array-ului ca parametri pentru funcție, înaintea numelui array-ului se specifică operatorul spread:</p>
+     <div class="code-inline">
+      <pre><code>printPerson(...tom);</code></pre>
+     </div>
+     <p class="paragraph">Acest lucru este echivalent cu a scrie:</p>
+     <div class="code-inline">
+      <pre><code>printPerson(tom[0],&nbsp;tom[1],&nbsp;tom[2]);</code></pre>
+     </div>
+     <p class="paragraph">Doar că operatorul spread permite o transmitere mai concisă a valorilor.</p>
+     <h2 class="subtitle">Parametri opționali și valori implicite</h2>
+     <p class="paragraph">O funcție poate să primească mai mulți parametri, dar unele sau toate acestea pot fi opționale. Dacă nu se furnizează valori pentru parametri, atunci implicit aceștia vor avea valoarea "undefined". Cu toate acestea, uneori este necesar ca parametrii să aibă cu siguranță anumite valori, cum ar fi valori implicite. Înainte de standardul ES6, era nevoie să verificăm valorile parametrilor pentru a vedea dacă sunt "undefined":</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;sum(x,&nbsp;y){<br>&nbsp;&nbsp;&nbsp;if(y&nbsp;===&nbsp;undefined)&nbsp;y&nbsp;=&nbsp;5;<br>&nbsp;&nbsp;&nbsp;if(x&nbsp;===&nbsp;undefined)&nbsp;x&nbsp;=&nbsp;8;<br>&nbsp;&nbsp;&nbsp;const&nbsp;z&nbsp;=&nbsp;x&nbsp;+&nbsp;y;<br>&nbsp;&nbsp;&nbsp;console.log(z);<br>}<br><br>sum();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;13<br>sum(6);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;11<br>sum(6,&nbsp;4)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;10</code></pre>
+     </div>
+     <p class="paragraph">Aici, funcția sum() primește doi parametri. La apelul funcției, putem verifica valorile lor. Cu toate acestea, la apelul funcției, nu este necesar să furnizăm valori pentru acești parametri. Pentru a verifica existența valorilor parametrilor, se folosește comparația cu "undefined".</p>
+     <p class="paragraph">De asemenea, putem defini direct valori implicite pentru parametri:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;sum(x&nbsp;=&nbsp;8,&nbsp;y&nbsp;=&nbsp;5){<br>&nbsp;&nbsp;&nbsp;const&nbsp;z&nbsp;=&nbsp;x&nbsp;+&nbsp;y;<br>&nbsp;&nbsp;&nbsp;console.log(z);<br>}<br><br>sum();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;13<br>sum(6);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;11<br>sum(6,&nbsp;4)&nbsp;&nbsp;&nbsp;//&nbsp;10</code></pre>
+     </div>
+     <p class="paragraph">Dacă nu se furnizează valori pentru parametrii x și y, aceștia vor primi valorile 5 și, respectiv, 10. Acest mod de a face lucrurile este mai concis și intuitiv decât comparația cu "undefined".</p>
+     <p class="paragraph">În același timp, valoarea implicită a parametrului poate fi derivată și poate reprezenta o expresie:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;sum(x&nbsp;=&nbsp;8,&nbsp;y&nbsp;=&nbsp;10&nbsp;+&nbsp;x){<br>&nbsp;&nbsp;&nbsp;const&nbsp;z&nbsp;=&nbsp;x&nbsp;+&nbsp;y;<br>&nbsp;&nbsp;&nbsp;console.log(z);<br>}<br><br>sum();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;26<br>sum(6);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;22<br>sum(6,&nbsp;4)&nbsp;&nbsp;&nbsp;//&nbsp;10</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, valoarea parametrului y depinde de valoarea lui x.</p>
+     <h2 class="subtitle">Funcții cu un număr arbitrar de parametri</h2>
+     <p class="paragraph">JavaScript permite definirea așa-numitelor funcții variadice sau funcții cu un număr arbitrar de parametri. Pentru aceasta, se pot utiliza câteva instrumente.</p>
+     <h2 class="subtitle">Obiectul arguments</h2>
+     <p class="paragraph">Dacă este necesar, putem obține toți parametrii furnizați prin intermediul obiectului arguments, disponibil în interiorul funcției:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;sum(){<br>&nbsp;&nbsp;&nbsp;let&nbsp;result&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;for(const&nbsp;n&nbsp;of&nbsp;arguments)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;+=&nbsp;n;<br>&nbsp;&nbsp;&nbsp;console.log(result);<br>}<br>sum(6);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;6<br>sum(6,&nbsp;4)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;10<br>sum(6,&nbsp;4,&nbsp;5)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;15</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, nu contează dacă am specificat sau nu parametri la definirea funcției; oricum putem furniza parametri și să le obținem valorile prin intermediul obiectului arguments.</p>
+     <p class="paragraph">În plus, putem să definim parametrii explicit:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;sum(a,&nbsp;b,&nbsp;c){<br>&nbsp;&nbsp;&nbsp;console.log("a&nbsp;=",&nbsp;a);<br>&nbsp;&nbsp;&nbsp;console.log("b&nbsp;=",&nbsp;b);<br>&nbsp;&nbsp;&nbsp;console.log("c&nbsp;=",&nbsp;c);<br><br>&nbsp;&nbsp;&nbsp;let&nbsp;result&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;for(const&nbsp;n&nbsp;of&nbsp;arguments)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;+=&nbsp;n;<br>&nbsp;&nbsp;&nbsp;console.log("result&nbsp;=",&nbsp;result);<br>}<br>sum(6,&nbsp;4,&nbsp;5,&nbsp;8)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;23</code></pre>
+     </div>
+     <p class="paragraph">Cu toate că funcția este definită să primească doar 3 parametri, putem furniza un număr mai mare de argumente și să le obținem prin intermediul array-ului arguments. Rezultatul afișat în consolă:</p>
+     <div class="code-inline">
+      <pre><code>a&nbsp;=&nbsp;6<br>b&nbsp;=&nbsp;4<br>c&nbsp;=&nbsp;5<br>result&nbsp;=&nbsp;23</code></pre>
+     </div>
+     <p class="paragraph">Deși putem itera obiectul arguments ca pe un array, acesta nu este un array. Chiar dacă putem obține lungimea folosind proprietatea length și să accesezi argumentele furnizate funcției folosind un index:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;sum(nums){<br>&nbsp;&nbsp;&nbsp;let&nbsp;result&nbsp;=&nbsp;0;&nbsp;&nbsp;//&nbsp;rezultatul&nbsp;funcției<br>&nbsp;&nbsp;&nbsp;if(arguments.length&nbsp;&gt;=1)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;este&nbsp;furnizat&nbsp;cel&nbsp;puțin&nbsp;un&nbsp;parametru<br>&nbsp;&nbsp;&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;=&nbsp;result&nbsp;+&nbsp;arguments[0];&nbsp;//&nbsp;accesează&nbsp;primul&nbsp;parametru<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;if(arguments.length&nbsp;&gt;=2)&nbsp;//&nbsp;dacă&nbsp;sunt&nbsp;furnizate&nbsp;cel&nbsp;puțin&nbsp;două&nbsp;parametri<br>&nbsp;&nbsp;&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;=&nbsp;result&nbsp;+&nbsp;arguments[1];&nbsp;//&nbsp;accesează&nbsp;al&nbsp;doilea&nbsp;parametru<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;console.log("result&nbsp;=",&nbsp;result);<br>}<br><br>sum(6)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;result&nbsp;=&nbsp;6<br>sum(6,&nbsp;5)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;result&nbsp;=&nbsp;11<br>sum(6,&nbsp;5,&nbsp;4)&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;result&nbsp;=&nbsp;11&nbsp;-&nbsp;al&nbsp;treilea&nbsp;parametru&nbsp;nu&nbsp;este&nbsp;luat&nbsp;în&nbsp;considerare</code></pre>
+     </div>
+     <h2 class="subtitle">Operatorul rest (...)</h2>
+     <p class="paragraph">Operatorul rest (...) poate fi folosit pentru a transmite un număr variabil de valori:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;sum(...numbers){<br>&nbsp;&nbsp;&nbsp;let&nbsp;result&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;for(const&nbsp;n&nbsp;of&nbsp;numbers)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;+=&nbsp;n;<br>&nbsp;&nbsp;&nbsp;console.log(result);<br>}<br>sum(6,&nbsp;4,&nbsp;5)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;15</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, parametrul ...numbers indică faptul că în locul său pot fi transmise diferite cantități de valori. În funcție, numbers reprezintă efectiv un array al valorilor transmise, pe care le putem obține. Cu toate acestea, în ciuda acestui fapt, atunci când apelăm funcția, nu transmitem un array, ci valori individuale.</p>
+     <p class="paragraph">Astfel de parametri rest pot fi combinați cu parametri obișnuiți:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;display(season,&nbsp;...temps){<br>&nbsp;&nbsp;&nbsp;console.log(season);<br>&nbsp;&nbsp;&nbsp;for(index&nbsp;in&nbsp;temps){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(temps[index]);<br>&nbsp;&nbsp;&nbsp;}<br>}<br>display("Primăvara",&nbsp;-2,&nbsp;-3,&nbsp;4,&nbsp;2,&nbsp;5);<br>display("Vara",&nbsp;20,&nbsp;23,&nbsp;31);</code></pre>
+     </div>
+     <p class="paragraph">Aici, prima valoare transmisă funcției va fi interpretată ca valoare pentru parametrul season, iar toate celelalte valori vor merge către parametrul temps.</p>
+     <p class="paragraph">Ieșirea în consolă:</p>
+     <p class="paragraph">Primăvara -2 -3 4 2 5 Vara 20 23 31</p>
+     <h2 class="subtitle">Matrice ca parametru</h2>
+     <p class="paragraph">A treia modalitate de a transmite o cantitate nedeterminată de date presupune transmiterea acestora printr-un parametru de tip matrice. Cu toate că formal avem un singur parametru (numărul de parametri este definit), totuși cantitatea specifică de date în această matrice este nedeterminată (la fel ca și în cazul array-ului arguments):</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;sum(numbers){<br>&nbsp;&nbsp;&nbsp;let&nbsp;result&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;for(const&nbsp;n&nbsp;of&nbsp;numbers)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;+=&nbsp;n;<br>&nbsp;&nbsp;&nbsp;console.log("result&nbsp;=",&nbsp;result);<br>}<br>const&nbsp;nums&nbsp;=&nbsp;[6,&nbsp;4,&nbsp;5,&nbsp;8];<br>sum(nums)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;result&nbsp;=&nbsp;23</code></pre>
+     </div>
+     <h2 class="subtitle">Funcțiile în calitate de parametri</h2>
+     <p class="paragraph">Funcțiile pot servi drept parametri pentru alte funcții:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;sum(x,&nbsp;y){<br>&nbsp;&nbsp;&nbsp;return&nbsp;x&nbsp;+&nbsp;y;<br>}<br><br>function&nbsp;subtract(x,&nbsp;y){<br>&nbsp;&nbsp;&nbsp;return&nbsp;x&nbsp;-&nbsp;y;<br>}<br><br>function&nbsp;operation(x,&nbsp;y,&nbsp;func){<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;result&nbsp;=&nbsp;func(x,&nbsp;y);<br>&nbsp;&nbsp;&nbsp;console.log(result);<br>}<br><br>console.log("Sum");<br>operation(10,&nbsp;6,&nbsp;sum);&nbsp;&nbsp;//&nbsp;16<br><br>console.log("Subtract");<br>operation(10,&nbsp;6,&nbsp;subtract);&nbsp;//&nbsp;4</code></pre>
+     </div>
+     <p class="paragraph">Funcția operation primește trei parametri: x, y și func. func reprezintă o funcție, iar la momentul definirii funcției operation nu este important ce fel de funcție este aceasta. Singurul lucru cunoscut este că funcția func poate să primească doi parametri și să returneze o valoare, care este apoi afișată în consola browser-ului. Prin urmare, putem defini diverse funcții (de exemplu, funcțiile sum și subtract în acest caz) și să le pasăm în apelul funcției operation.</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

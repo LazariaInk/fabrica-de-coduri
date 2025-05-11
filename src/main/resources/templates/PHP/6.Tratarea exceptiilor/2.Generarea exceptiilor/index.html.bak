@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='PHP', activeChapter='6.Tratarea exceptiilor', activeLesson='2.Generarea exceptiilor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Generarea excepțiilor</h1>
+     <p class="paragraph">PHP implicit prezintă situații în care sunt generate automat erori și excepții, de exemplu, la împărțirea la zero. Dar uneori este necesar să generăm manual o excepție. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;private&nbsp;$name,&nbsp;$age;<br>&nbsp;&nbsp;&nbsp;function&nbsp;__construct($name,&nbsp;$age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this-&gt;name&nbsp;=&nbsp;$name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this-&gt;age&nbsp;=&nbsp;$age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;function&nbsp;printInfo()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;"Name:&nbsp;$this-&gt;name&lt;br&gt;Age:&nbsp;$this-&gt;age";<br>&nbsp;&nbsp;&nbsp;}<br>}<br>$tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;-105);<br>$tom-&gt;printInfo();</code></pre>
+     </div>
+     <p class="paragraph">Aici clasa Person primește prin constructor numele și vârsta utilizatorului. Cu toate acestea, în realitate, putem transmite orice valori, de exemplu, o vârstă negativă.</p>
+     <p class="paragraph">Este evident că aceasta este o valoare invalidă. Pentru a evita astfel de situații, una dintre soluții este generarea unei excepții atunci când se primește o valoare invalidă.</p>
+     <p class="paragraph">Pentru generarea unei excepții se folosește operatorul throw, urmat de obiectul excepției.</p>
+     <p class="paragraph">De exemplu, să modificăm codul clasei Person definit mai sus:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;private&nbsp;$name,&nbsp;$age;<br>&nbsp;&nbsp;&nbsp;function&nbsp;__construct($name,&nbsp;$age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if($age&nbsp;&lt;&nbsp;0)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;Exception("Vârstă&nbsp;invalidă");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this-&gt;name&nbsp;=&nbsp;$name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this-&gt;age&nbsp;=&nbsp;$age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;function&nbsp;printInfo()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;"Name:&nbsp;$this-&gt;name&lt;br&gt;Age:&nbsp;$this-&gt;age";<br>&nbsp;&nbsp;&nbsp;}<br>}<br>$tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;-105);<br>$tom-&gt;printInfo();</code></pre>
+     </div>
+     <p class="paragraph">Acum, dacă vârsta este negativă, se va genera o excepție de tip Exception.</p>
+     <div class="code-inline">
+      <pre><code>throw&nbsp;new&nbsp;Exception("Vârstă&nbsp;invalidă");</code></pre>
+     </div>
+     <p class="paragraph">Constructorul clasei Exception primește ca parametru un mesaj de eroare, care va fi afișat la apariția excepției.</p>
+     <p class="paragraph">În final, la execuția liniei:</p>
+     <div class="code-inline">
+      <pre><code>$tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;-105);</code></pre>
+     </div>
+     <p class="paragraph">se va executa codul:</p>
+     <div class="code-inline">
+      <pre><code>throw&nbsp;new&nbsp;Exception("Vârstă&nbsp;invalidă");</code></pre>
+     </div>
+     <p class="paragraph">Și în final, în browser vom vedea informația despre eroare:</p>
+     <div class="code-inline">
+      <pre><code>Fatal&nbsp;error:&nbsp;Uncaught&nbsp;Exception:&nbsp;Vârstă&nbsp;invalidă&nbsp;in&nbsp;C:\localhost\hello.php:17&nbsp;Stack&nbsp;trace:&nbsp;#0&nbsp;C:\localhost\hello.php(26):&nbsp;Person-&gt;__construct('Tom',&nbsp;-105)&nbsp;#1&nbsp;{main}&nbsp;thrown&nbsp;in&nbsp;C:\localhost\hello.php&nbsp;on&nbsp;line&nbsp;17</code></pre>
+     </div>
+     <p class="paragraph">Deoarece apelul constructorului clasei Person creează o situație în care poate apărea o excepție, este mai bine să plasăm apelul constructorului într-o construcție try-catch:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;private&nbsp;$name,&nbsp;$age;<br>&nbsp;&nbsp;&nbsp;function&nbsp;__construct($name,&nbsp;$age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this-&gt;name&nbsp;=&nbsp;$name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if($age&nbsp;&lt;&nbsp;0)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;Exception("Vârstă&nbsp;invalidă");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this-&gt;age&nbsp;=&nbsp;$age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;function&nbsp;printInfo()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;"Name:&nbsp;$this-&gt;name&lt;br&gt;Age:&nbsp;$this-&gt;age";<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>try<br>{<br>&nbsp;&nbsp;&nbsp;$tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;-105);<br>&nbsp;&nbsp;&nbsp;$tom-&gt;printInfo();<br>}<br>catch(Exception&nbsp;$ex)<br>{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$ex-&gt;getMessage();<br>}</code></pre>
+     </div>
+     <p class="paragraph">Afișarea în browser:</p>
+     <div class="code-inline">
+      <pre><code>Vârstă&nbsp;invalidă</code></pre>
+     </div>
+     <h2 class="subtitle">Crearea claselor de excepții</h2>
+     <p class="paragraph">La generarea excepțiilor putem să ne bazăm pe clasele de excepții încorporate, cum este cazul clasei Exception din exemplul de mai sus. Totuși, poate fi necesar să transmitem mai multe informații la generarea excepției sau să personalizăm comportamentul clasei de excepții.</p>
+     <p class="paragraph">În acest caz, putem crea propria clasă de excepții, adaptată nevoilor specifice:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;PersonInvalidAgeException&nbsp;extends&nbsp;Exception<br>{<br>&nbsp;&nbsp;&nbsp;function&nbsp;__construct($age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this-&gt;message&nbsp;=&nbsp;"Vârstă&nbsp;invalidă:&nbsp;$age.&nbsp;Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;între&nbsp;0&nbsp;și&nbsp;120";<br>&nbsp;&nbsp;&nbsp;}<br>}<br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;private&nbsp;$name,&nbsp;$age;<br>&nbsp;&nbsp;&nbsp;function&nbsp;__construct($name,&nbsp;$age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this-&gt;name&nbsp;=&nbsp;$name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if($age&nbsp;&lt;&nbsp;0)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;PersonInvalidAgeException($age);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this-&gt;age&nbsp;=&nbsp;$age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;function&nbsp;printInfo()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;"Name:&nbsp;$this-&gt;name&lt;br&gt;Age:&nbsp;$this-&gt;age";<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>try<br>{<br>&nbsp;&nbsp;&nbsp;$tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;-105);<br>&nbsp;&nbsp;&nbsp;$tom-&gt;printInfo();<br>}<br>catch(PersonInvalidAgeException&nbsp;$ex)<br>{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$ex-&gt;getMessage();<br>}</code></pre>
+     </div>
+     <p class="paragraph">În exemplu este definită o clasă simplă de excepție, care este moșteneștă din clasa Exception. (În realitate, pentru a crea o clasă de excepție, este suficient să implementăm interfața Throwable).</p>
+     <p class="paragraph">În această clasă, constructorul este suprascris și primește ca parametru vârsta invalidă.</p>
+     <p class="paragraph">Valoarea afișată în clasa Exception este stocată în proprietatea message, astfel încât în clasa derivată PersonInvalidAgeException putem folosi această proprietate pentru a seta propriul mesaj. În final, la generarea excepției, browserul va afișa mesajul corespunzător de eroare:</p>
+     <div class="code-inline">
+      <pre><code>Vârstă&nbsp;invalidă:&nbsp;-105.&nbsp;Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;între&nbsp;0&nbsp;și&nbsp;120</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

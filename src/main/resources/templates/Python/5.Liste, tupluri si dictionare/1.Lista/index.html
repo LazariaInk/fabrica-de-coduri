@@ -1,354 +1,369 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='Python', activeChapter='5.Liste, tupluri si dictionare', activeLesson='1.Lista'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Lista</h1>
- <p class="paragraph">Pentru a lucra cu seturi de date, Python oferă tipuri de date încorporate precum liste, tupluri și dicționare.</p>
- <p class="paragraph">O listă (list) reprezintă un tip de date care stochează un set sau o secvență de elemente. În multe limbaje de programare, există o structură de date similară numită matrice.</p>
- <h2 class="subtitle">Crearea unei liste</h2>
- <p class="paragraph">Pentru a crea o listă, se folosesc paranteze pătrate [], în interiorul cărora elementele listei sunt enumerate separate prin virgulă. De exemplu, să definim o listă de numere:</p>
- <div class="code-inline">
-  <pre><code>numbers&nbsp;=&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]</code></pre>
- </div>
- <p class="paragraph">În mod similar, se pot defini liste cu date de alte tipuri, de exemplu, să definim o listă de șiruri de caractere:</p>
- <div class="code-inline">
-  <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"]</code></pre>
- </div>
- <p class="paragraph">De asemenea, pentru a crea o listă, se poate folosi funcția constructor list():</p>
- <div class="code-inline">
-  <pre><code>numbers1&nbsp;=&nbsp;[]<br>numbers2&nbsp;=&nbsp;list()</code></pre>
- </div>
- <p class="paragraph">Ambele definiții ale listei sunt echivalente - creează o listă goală.</p>
- <p class="paragraph">O listă nu trebuie să conțină neapărat doar obiecte de același tip. Putem pune într-o singură listă simultan șiruri de caractere, numere, obiecte de alte tipuri de date:</p>
- <div class="code-inline">
-  <pre><code>objects&nbsp;=&nbsp;[1,&nbsp;2.6,&nbsp;"Hello",&nbsp;True]</code></pre>
- </div>
- <p class="paragraph">Pentru a verifica elementele unei liste, se poate folosi funcția standardă print, care afișează conținutul listei într-un mod ușor de citit:</p>
- <div class="code-inline">
-  <pre><code>numbers&nbsp;=&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]<br>people&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"]<br><br>print(numbers)&nbsp;&nbsp;#&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]<br>print(people)&nbsp;&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"]</code></pre>
- </div>
- <p class="paragraph">Constructorul list poate primi un set de valori pe baza cărora se creează o listă:</p>
- <div class="code-inline">
-  <pre><code>numbers1&nbsp;=&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]<br>numbers2&nbsp;=&nbsp;list(numbers1)<br>print(numbers2)&nbsp;&nbsp;#&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]<br><br>letters&nbsp;=&nbsp;list("Hello")<br>print(letters)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;['H',&nbsp;'e',&nbsp;'l',&nbsp;'l',&nbsp;'o']</code></pre>
- </div>
- <p class="paragraph">Dacă este necesar să creăm o listă în care aceeași valoare se repetă de mai multe ori, putem folosi simbolul asterisc *, adică aplicăm practic operația de înmulțire la o listă existentă:</p>
- <div class="code-inline">
-  <pre><code>numbers&nbsp;=&nbsp;[5]&nbsp;*&nbsp;6&nbsp;&nbsp;&nbsp;#&nbsp;6&nbsp;ori&nbsp;repetăm&nbsp;5<br>print(numbers)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;[5,&nbsp;5,&nbsp;5,&nbsp;5,&nbsp;5,&nbsp;5]<br><br>people&nbsp;=&nbsp;["Tom"]&nbsp;*&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;3&nbsp;ori&nbsp;repetăm&nbsp;"Tom"<br>print(people)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Tom",&nbsp;"Tom"]<br><br>students&nbsp;=&nbsp;["Bob",&nbsp;"Sam"]&nbsp;*&nbsp;2&nbsp;&nbsp;&nbsp;#&nbsp;2&nbsp;ori&nbsp;repetăm&nbsp;"Bob",&nbsp;"Sam"<br>print(students)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["Bob",&nbsp;"Sam",&nbsp;"Bob",&nbsp;"Sam"]</code></pre>
- </div>
- <h2 class="subtitle">Accesarea elementelor din listă</h2>
- <p class="paragraph">Pentru a accesa elementele dintr-o listă, se folosesc indexuri, care reprezintă numărul elementului din listă. Indexurile încep de la zero. Adică primul element va avea indexul 0, al doilea element - indexul 1 și așa mai departe. Pentru a accesa elementele de la sfârșit, se pot folosi indexuri negative, începând de la -1. Adică ultimul element va avea indexul -1, penultimul - -2 și așa mai departe.</p>
- <div class="code-inline">
-  <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"]<br>#&nbsp;obținerea&nbsp;elementelor&nbsp;de&nbsp;la&nbsp;începutul&nbsp;listei<br>print(people[0])&nbsp;&nbsp;&nbsp;#&nbsp;Tom<br>print(people[1])&nbsp;&nbsp;&nbsp;#&nbsp;Sam<br>print(people[2])&nbsp;&nbsp;&nbsp;#&nbsp;Bob<br><br>#&nbsp;obținerea&nbsp;elementelor&nbsp;de&nbsp;la&nbsp;sfârșitul&nbsp;listei<br>print(people[-2])&nbsp;&nbsp;&nbsp;#&nbsp;Sam<br>print(people[-1])&nbsp;&nbsp;&nbsp;#&nbsp;Bob<br>print(people[-3])&nbsp;&nbsp;&nbsp;#&nbsp;Tom</code></pre>
- </div>
- <p class="paragraph">Pentru a modifica un element din listă, este suficient să îi atribuim o valoare nouă:</p>
- <div class="code-inline">
-  <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"]<br><br>people[1]&nbsp;=&nbsp;"Mike"&nbsp;&nbsp;#&nbsp;modificarea&nbsp;celui&nbsp;de-al&nbsp;doilea&nbsp;element<br>print(people[1])&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Mike<br>print(people)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Mike",&nbsp;"Bob"]</code></pre>
- </div>
- <h2 class="subtitle">Descompunerea listei</h2>
- <p class="paragraph">Python permite descompunerea unei liste în elemente individuale:</p>
- <div class="code-inline">
-  <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Sam"]<br><br>tom,&nbsp;bob,&nbsp;sam&nbsp;=&nbsp;people<br><br>print(tom)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Tom<br>print(bob)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Bob<br>print(sam)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Sam</code></pre>
- </div>
- <p class="paragraph">În acest caz, variabilelor tom, bob și sam li se atribuie succesiv elementele din lista people. Cu toate acestea, trebuie să ținem cont că numărul variabilelor trebuie să fie egal cu numărul elementelor din lista atribuită.</p>
- <h2 class="subtitle">Parcurgerea elementelor</h2>
- <p class="paragraph">Pentru a parcurge elementele, se pot folosi atât ciclul for, cât și ciclul while.</p>
- <p class="paragraph">Parcurgerea folosind ciclul for:</p>
- <div class="code-inline">
-  <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"]<br>for&nbsp;person&nbsp;in&nbsp;people:<br>&nbsp;&nbsp;&nbsp;print(person)</code></pre>
- </div>
- <p class="paragraph">Aici se va parcurge lista people, iar fiecare element al său va fi plasat în variabila person.</p>
- <p class="paragraph">Parcurgerea se poate face și folosind ciclul while:</p>
- <div class="code-inline">
-  <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"]<br>i&nbsp;=&nbsp;0<br>while&nbsp;i&nbsp;&lt;&nbsp;len(people):<br>&nbsp;&nbsp;&nbsp;print(people[i])&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;aplicăm&nbsp;indexul&nbsp;pentru&nbsp;a&nbsp;obține&nbsp;elementul<br>&nbsp;&nbsp;&nbsp;i&nbsp;+=&nbsp;1</code></pre>
- </div>
- <p class="paragraph">Pentru parcurgerea cu ajutorul funcției len(), obținem lungimea listei. Cu ajutorul contorului i, se afișează câte un element, până când valoarea contorului devine egală cu lungimea listei.</p>
- <h2 class="subtitle">Compararea listelor</h2>
- <p class="paragraph">Două liste sunt considerate egale dacă conțin același set de elemente:</p>
- <div class="code-inline">
-  <pre><code>numbers1&nbsp;=&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]<br>numbers2&nbsp;=&nbsp;list([1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5])<br>if&nbsp;numbers1&nbsp;==&nbsp;numbers2:<br>&nbsp;&nbsp;&nbsp;print("numbers1&nbsp;este&nbsp;egală&nbsp;cu&nbsp;numbers2")<br>else:<br>&nbsp;&nbsp;&nbsp;print("numbers1&nbsp;nu&nbsp;este&nbsp;egală&nbsp;cu&nbsp;numbers2")</code></pre>
- </div>
- <p class="paragraph">În acest caz, ambele liste vor fi egale.</p>
- <h2 class="subtitle">Obținerea unei părți a listei</h2>
- <p class="paragraph">Dacă este necesar să obținem o anumită parte a listei, putem aplica o sintaxă specială, care poate lua următoarele forme:</p>
- <ul class="enumeration">
-  <li>list[:end]: prin parametrul end se transmite indexul elementului până la care trebuie copiată lista</li>
-  <li>list[start:end]: parametrul start indică indexul elementului de la care trebuie să începem să copiem elementele</li>
-  <li>list[start:end:step]: parametrul step indică pasul, prin care vor fi copiate elementele din listă. În mod implicit, acest parametru este egal cu 1</li>
- </ul>
- <div class="code-inline">
-  <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice",&nbsp;"Sam",&nbsp;"Tim",&nbsp;"Bill"]<br><br>slice_people1&nbsp;=&nbsp;people[:3]&nbsp;&nbsp;&nbsp;#&nbsp;de&nbsp;la&nbsp;0&nbsp;până&nbsp;la&nbsp;3<br>print(slice_people1)&nbsp;&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice"]<br><br>slice_people2&nbsp;=&nbsp;people[1:3]&nbsp;&nbsp;&nbsp;#&nbsp;de&nbsp;la&nbsp;1&nbsp;până&nbsp;la&nbsp;3<br>print(slice_people2)&nbsp;&nbsp;&nbsp;#&nbsp;["Bob",&nbsp;"Alice"]<br><br>slice_people3&nbsp;=&nbsp;people[1:6:2]&nbsp;&nbsp;&nbsp;#&nbsp;de&nbsp;la&nbsp;1&nbsp;până&nbsp;la&nbsp;6&nbsp;cu&nbsp;pasul&nbsp;2<br>print(slice_people3)&nbsp;&nbsp;&nbsp;#&nbsp;["Bob",&nbsp;"Sam",&nbsp;"Bill"]</code></pre>
- </div>
- <p class="paragraph">Se pot folosi indexuri negative, atunci numărătoarea va porni de la sfârșit, de exemplu, -1 - penultimul, -2 - al treilea de la sfârșit și așa mai departe.</p>
- <div class="code-inline">
-  <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice",&nbsp;"Sam",&nbsp;"Tim",&nbsp;"Bill"]<br><br>slice_people1&nbsp;=&nbsp;people[:-1]&nbsp;&nbsp;&nbsp;#&nbsp;de&nbsp;la&nbsp;penultimul&nbsp;până&nbsp;la&nbsp;primul<br>print(slice_people1)&nbsp;&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice",&nbsp;"Sam",&nbsp;"Tim"]<br><br>slice_people2&nbsp;=&nbsp;people[-3:-1]&nbsp;&nbsp;&nbsp;#&nbsp;de&nbsp;la&nbsp;al&nbsp;treilea&nbsp;de&nbsp;la&nbsp;sfârșit&nbsp;până&nbsp;la&nbsp;penultimul<br>print(slice_people2)&nbsp;&nbsp;&nbsp;#&nbsp;["Sam",&nbsp;"Tim"]</code></pre>
- </div>
- <h2 class="subtitle">Metode și funcții pentru lucrul cu liste</h2>
- <p class="paragraph">Pentru gestionarea elementelor, listele au o serie de metode. Unele dintre ele sunt:</p>
- <ul class="enumeration">
-  <li>append(item): adaugă elementul item la sfârșitul listei</li>
-  <li>insert(index, item): adaugă elementul item în listă la indexul index</li>
-  <li>extend(items): adaugă un set de elemente items la sfârșitul listei</li>
-  <li>remove(item): elimină elementul item. Este eliminată doar prima apariție a elementului. Dacă elementul nu este găsit, generează o excepție ValueError</li>
-  <li>clear(): elimină toate elementele din listă</li>
-  <li>index(item): returnează indexul elementului item. Dacă elementul nu este găsit, generează o excepție ValueError</li>
-  <li>pop([index]): elimină și returnează elementul de la indexul index. Dacă indexul nu este transmis, elimină pur și simplu ultimul element</li>
-  <li>count(item): returnează numărul de apariții ale elementului item în listă</li>
-  <li>sort([key]): sortează elementele. În mod implicit, sortează în ordine crescătoare. Dar cu ajutorul parametrului key, putem transmite o funcție de sortare</li>
-  <li>reverse(): inversează ordinea elementelor din listă</li>
-  <li>copy(): copiază lista</li>
- </ul>
- <p class="paragraph">În plus, Python oferă o serie de funcții încorporate pentru lucrul cu liste:</p>
- <ul class="enumeration">
-  <li>len(list): returnează lungimea listei</li>
-  <li>sorted(list, [key]): returnează lista sortată</li>
-  <li>min(list): returnează cel mai mic element din listă</li>
-  <li>max(list): returnează cel mai mare element din listă</li>
- </ul>
- <h2 class="subtitle">Adăugarea și eliminarea elementelor</h2>
- <p class="paragraph">Pentru adăugarea unui element, se folosesc metodele append(), extend și insert, iar pentru eliminare - metodele remove(), pop() și clear().</p>
- <p class="paragraph">Utilizarea metodelor:</p>
- <div class="code-inline">
-  <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Bob"]<br><br>#&nbsp;adăugăm&nbsp;la&nbsp;sfârșitul&nbsp;listei<br>people.append("Alice")&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice"]<br>#&nbsp;adăugăm&nbsp;pe&nbsp;a&nbsp;doua&nbsp;poziție<br>people.insert(1,&nbsp;"Bill")&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Bill",&nbsp;"Bob",&nbsp;"Alice"]<br>#&nbsp;adăugăm&nbsp;setul&nbsp;de&nbsp;elemente&nbsp;["Mike",&nbsp;"Sam"]<br>people.extend(["Mike",&nbsp;"Sam"])&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Bill",&nbsp;"Bob",&nbsp;"Alice",&nbsp;"Mike",&nbsp;"Sam"]<br>#&nbsp;obținem&nbsp;indexul&nbsp;elementului<br>index_of_tom&nbsp;=&nbsp;people.index("Tom")<br>#&nbsp;eliminăm&nbsp;după&nbsp;acest&nbsp;index<br>removed_item&nbsp;=&nbsp;people.pop(index_of_tom)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["Bill",&nbsp;"Bob",&nbsp;"Alice",&nbsp;"Mike",&nbsp;"Sam"]<br>#&nbsp;eliminăm&nbsp;ultimul&nbsp;element<br>last_item&nbsp;=&nbsp;people.pop()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["Bill",&nbsp;"Bob",&nbsp;"Alice",&nbsp;"Mike"]<br>#&nbsp;eliminăm&nbsp;elementul&nbsp;"Alice"<br>people.remove("Alice")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["Bill",&nbsp;"Bob",&nbsp;"Mike"]<br>print(people)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["Bill",&nbsp;"Bob",&nbsp;"Mike"]<br>#&nbsp;eliminăm&nbsp;toate&nbsp;elementele<br>people.clear()<br>print(people)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;[]</code></pre>
- </div>
- <h2 class="subtitle">Verificarea existenței unui element</h2>
- <p class="paragraph">Dacă un anumit element nu este găsit, metodele remove și index generează o excepție. Pentru a evita această situație, înainte de a efectua o operație cu elementul, se poate verifica existența acestuia folosind cuvântul cheie in:</p>
- <div class="code-inline">
-  <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice",&nbsp;"Sam"]<br><br>if&nbsp;"Alice"&nbsp;in&nbsp;people:<br>&nbsp;&nbsp;&nbsp;people.remove("Alice")<br>print(people)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Sam"]</code></pre>
- </div>
- <p class="paragraph">Expresia if "Alice" in people returnează True dacă elementul "Alice" există în lista people. Astfel, construcția if "Alice" in people poate executa blocul de instrucțiuni ulterior în funcție de existența elementului în listă.</p>
- <h2 class="subtitle">Eliminarea cu ajutorul del</h2>
- <p class="paragraph">Python acceptă, de asemenea, un alt mod de a elimina elemente dintr-o listă - folosind operatorul del. Ca parametru, acest operator primește elementul eliminat sau un set de elemente:</p>
- <p class="paragraph">people = ["Tom", "Bob", "Alice", "Sam", "Bill", "Kate", "Mike"] del people[1] # eliminăm al doilea element print(people) # ["Tom", "Alice", "Sam", "Bill", "Kate", "Mike"] del people[:3] # eliminăm până la al patrulea element, exclusiv print(people) # ["Bill", "Kate", "Mike"] del people[1:] # eliminăm de la al doilea element încolo print(people) # ["Bill"]</p>
- <h2 class="subtitle">Modificarea unei subliste</h2>
- <p class="paragraph">Pentru a modifica o sublistă - un set de elemente dintr-o listă, se poate folosi sintaxa discutată anterior [start:end]:</p>
- <div class="code-inline">
-  <pre><code>nums&nbsp;=&nbsp;[10,&nbsp;20,&nbsp;30,&nbsp;40,&nbsp;50]<br>nums[1:4]=[11,&nbsp;22]<br>print(nums)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;[10,&nbsp;11,&nbsp;22,&nbsp;50]</code></pre>
- </div>
- <p class="paragraph">Aici, expresia nums[1:4] se referă de fapt la sublista [20, 30, 40]. Atribuirea acestei subliste la lista [11, 22] permite înlocuirea elementelor de la indexul 1 la 4 inclusiv cu elementele [11, 22]. După modificare, obținem lista [10, 11, 22, 50].</p>
- <h2 class="subtitle">Numărarea aparițiilor</h2>
- <p class="paragraph">Dacă este necesar să aflăm de câte ori este prezent un anumit element într-o listă, putem folosi metoda count():</p>
- <div class="code-inline">
-  <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice",&nbsp;"Tom",&nbsp;"Bill",&nbsp;"Tom"]<br><br>people_count&nbsp;=&nbsp;people.count("Tom")<br>print(people_count)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;3</code></pre>
- </div>
- <h2 class="subtitle">Sortarea</h2>
- <p class="paragraph">Pentru sortare în ordine crescătoare, se folosește metoda sort():</p>
- <div class="code-inline">
-  <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice",&nbsp;"Sam",&nbsp;"Bill"]<br><br>people.sort()<br>print(people)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["Alice",&nbsp;"Bill",&nbsp;"Bob",&nbsp;"Sam",&nbsp;"Tom"]</code></pre>
- </div>
- <p class="paragraph">Dacă este necesar să sortăm datele în ordine inversă, putem aplica metoda reverse() după sortare:</p>
- <div class="code-inline">
-  <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice",&nbsp;"Sam",&nbsp;"Bill"]<br><br>people.sort()<br>people.reverse()<br>print(people)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob",&nbsp;"Bill",&nbsp;"Alice"]</code></pre>
- </div>
- <p class="paragraph">În timpul sortării, se compară practic două obiecte, iar cel care este "mai mic" este plasat înaintea celui care este "mai mare". Conceptele de "mai mare" și "mai mic" sunt destul de relative. Și dacă pentru numere totul este simplu - numerele sunt plasate în ordine crescătoare, pentru șiruri de caractere și alte obiecte situația este mai complicată.</p>
- <p class="paragraph">În special, șirurile de caractere sunt evaluate pe baza primelor caractere. Dacă primele caractere sunt egale, sunt evaluate cele de-al doilea caractere și așa mai departe. În plus, un simbol numeric este considerat "mai mic" decât un simbol alfabetic cu majuscule, iar un simbol cu majuscule este considerat mai mic decât unul cu litere mici.</p>
- <p class="paragraph">Astfel, dacă în listă se combină șiruri de caractere cu majuscule și minuscule, putem obține rezultate care nu sunt neapărat corecte, deoarece pentru noi șirul "bob" ar trebui să fie înaintea șirului "Tom". Și pentru a modifica comportamentul standard al sortării, putem transmite în metoda sort() o funcție ca parametru:</p>
- <div class="code-inline">
-  <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"bob",&nbsp;"alice",&nbsp;"Sam",&nbsp;"Bill"]<br><br>people.sort()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;sortare&nbsp;standard<br>print(people)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["Bill",&nbsp;"Sam",&nbsp;"Tom",&nbsp;"alice",&nbsp;"bob"]<br><br>people.sort(key=str.lower)&nbsp;&nbsp;#&nbsp;sortare&nbsp;fără&nbsp;a&nbsp;ține&nbsp;cont&nbsp;de&nbsp;majuscule<br>print(people)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["alice",&nbsp;"Bill",&nbsp;"bob",&nbsp;"Sam",&nbsp;"Tom"]</code></pre>
- </div>
- <p class="paragraph">Pe lângă metoda sort, putem folosi funcția încorporată sorted, care are două forme:</p>
- <ul class="enumeration">
-  <li>sorted(list): sortează lista list</li>
-  <li>sorted(list, key): sortează lista list, aplicând o funcție key elementelor</li>
- </ul>
- <div class="code-inline">
-  <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"bob",&nbsp;"alice",&nbsp;"Sam",&nbsp;"Bill"]<br><br>sorted_people&nbsp;=&nbsp;sorted(people,&nbsp;key=str.lower)<br>print(sorted_people)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["alice",&nbsp;"Bill",&nbsp;"bob",&nbsp;"Sam",&nbsp;"Tom"]</code></pre>
- </div>
- <p class="paragraph">Când folosim această funcție, trebuie să avem în vedere că aceasta nu modifică lista sortată, ci toate elementele sortate sunt plasate într-o nouă listă, care este returnată ca rezultat.</p>
- <h2 class="subtitle">Filtrarea listei</h2>
- <p class="paragraph">Pentru a filtra o listă, se folosește funcția filter(), căreia i se transmite o funcție-condiție și lista care trebuie filtrată:</p>
- <div class="code-inline">
-  <pre><code>filter(fun,&nbsp;iter)</code></pre>
- </div>
- <p class="paragraph">Funcția acceptă doi parametri:</p>
- <ul class="enumeration">
-  <li>fun: funcția-condiție, căreia i se transmite fiecare element al colecției și care returnează True dacă elementul îndeplinește condiția. Altfel, returnează False</li>
-  <li>iter: colecția care urmează să fie filtrată</li>
- </ul>
- <p class="paragraph">Ca rezultat, funcția returnează lista elementelor filtrate. De exemplu, obținem dintr-o listă de numere toate valorile mai mari de 1:</p>
- <div class="code-inline">
-  <pre><code>numbers&nbsp;=&nbsp;[-5,&nbsp;-4,&nbsp;-3&nbsp;,-2,&nbsp;-1,&nbsp;0,&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]<br><br>def&nbsp;condition(number):&nbsp;return&nbsp;number&nbsp;&gt;&nbsp;1<br><br>result&nbsp;=&nbsp;filter(condition,&nbsp;numbers)<br><br>for&nbsp;n&nbsp;in&nbsp;result:&nbsp;print(n,&nbsp;end="&nbsp;")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;2&nbsp;3&nbsp;4&nbsp;5</code></pre>
- </div>
- <p class="paragraph">Aici se filtrează lista numbers. Pentru filtrare, definim funcția condition, în care ca parametru se transmite fiecare element din lista numbers. Rezultatul funcției este True dacă numărul este mai mare de 1 sau False dacă numărul este mai mic de 2.</p>
- <p class="paragraph">Rezultatul funcției filter este lista filtrată.</p>
- <p class="paragraph">În loc să definim o funcție-condiție separată, dacă condiția este scurtă, este convenabil să folosim expresii lambda în astfel de cazuri:</p>
- <div class="code-inline">
-  <pre><code>numbers&nbsp;=&nbsp;[-5,&nbsp;-4,&nbsp;-3&nbsp;,-2,&nbsp;-1,&nbsp;0,&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]<br><br>result&nbsp;=&nbsp;filter(lambda&nbsp;n:&nbsp;n&nbsp;&gt;&nbsp;1,&nbsp;numbers)<br><br>for&nbsp;n&nbsp;in&nbsp;result:&nbsp;print(n,&nbsp;end="&nbsp;")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;2&nbsp;3&nbsp;4&nbsp;5</code></pre>
- </div>
- <p class="paragraph">În mod similar, putem filtra listele de obiecte mai complexe:</p>
- <div class="code-inline">
-  <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name,&nbsp;age):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.name&nbsp;=&nbsp;name<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.age&nbsp;=&nbsp;age<br><br>people&nbsp;=&nbsp;[&nbsp;Person("Tom",&nbsp;38),&nbsp;Person("Kate",&nbsp;31),&nbsp;Person("Bob",&nbsp;42),<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person("Alice",&nbsp;34),&nbsp;&nbsp;Person("Sam",&nbsp;25)&nbsp;]<br><br>#&nbsp;filtrarea&nbsp;elementelor&nbsp;care&nbsp;au&nbsp;age&nbsp;&gt;&nbsp;33<br>view&nbsp;=&nbsp;filter(lambda&nbsp;p:&nbsp;p.age&nbsp;&gt;&nbsp;33,&nbsp;people)<br><br>for&nbsp;person&nbsp;in&nbsp;view:<br>&nbsp;&nbsp;&nbsp;print(f"Name:&nbsp;{person.name}&nbsp;Age:&nbsp;{person.age}")</code></pre>
- </div>
- <p class="paragraph">În acest caz, filtrăm lista de obiecte Person, așa că în funcția-condiție/expresia lambda se transmite ca parametru fiecare obiect Person din listă. Fiecare obiect Person stochează un nume (name) și o vârstă (age), iar aici selectăm toate persoanele care au vârsta mai mare de 33 de ani.</p>
- <h2 class="subtitle">Proiecția listei</h2>
- <p class="paragraph">Pentru proiecția/conversia elementelor unei liste, se folosește funcția map(), căreia i se transmite o funcție-condiție și lista care trebuie filtrată:</p>
- <div class="code-inline">
-  <pre><code>map(fun,&nbsp;iter)</code></pre>
- </div>
- <p class="paragraph">Funcția acceptă doi parametri:</p>
- <ul class="enumeration">
-  <li>fun: funcția de conversie, căreia i se transmite fiecare element al colecției</li>
-  <li>iter: colecția de elemente care trebuie parcursă</li>
- </ul>
- <p class="paragraph">Ca rezultat, funcția returnează lista valorilor care au fost obținute după aplicarea funcției de conversie. De exemplu, transformăm o listă de numere într-o listă a pătratelor acestora:</p>
- <div class="code-inline">
-  <pre><code>numbers&nbsp;=&nbsp;[&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]<br><br>def&nbsp;square(number):&nbsp;return&nbsp;number&nbsp;*&nbsp;number<br><br>result&nbsp;=&nbsp;map(square,&nbsp;numbers)<br><br>for&nbsp;n&nbsp;in&nbsp;result:&nbsp;print(n,&nbsp;end="&nbsp;")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;1&nbsp;4&nbsp;9&nbsp;16&nbsp;25</code></pre>
- </div>
- <p class="paragraph">Ca funcție de conversie aici, apare funcția square, căreia i se transmite un număr din listă și care returnează pătratul acestuia.</p>
- <p class="paragraph">De asemenea, ca funcție de conversie, se pot folosi expresii lambda:</p>
- <div class="code-inline">
-  <pre><code>numbers&nbsp;=&nbsp;[&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]<br><br>result&nbsp;=&nbsp;map(lambda&nbsp;n:&nbsp;n&nbsp;*&nbsp;n,&nbsp;numbers)<br><br>for&nbsp;n&nbsp;in&nbsp;result:&nbsp;print(n,&nbsp;end="&nbsp;")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;1&nbsp;4&nbsp;9&nbsp;16&nbsp;25</code></pre>
- </div>
- <p class="paragraph">În mod similar, putem transforma colecții de obiecte mai complexe:</p>
- <div class="code-inline">
-  <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name,&nbsp;age):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.name&nbsp;=&nbsp;name<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.age&nbsp;=&nbsp;age<br><br>people&nbsp;=&nbsp;[&nbsp;Person("Tom",&nbsp;38),&nbsp;Person("Kate",&nbsp;31),&nbsp;Person("Bob",&nbsp;42),<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person("Alice",&nbsp;34),&nbsp;&nbsp;Person("Sam",&nbsp;25)&nbsp;]<br><br>#&nbsp;obținem&nbsp;din&nbsp;Person&nbsp;un&nbsp;șir&nbsp;cu&nbsp;numele<br>view&nbsp;=&nbsp;map(lambda&nbsp;p:&nbsp;p.name,&nbsp;people)<br><br>for&nbsp;person&nbsp;in&nbsp;view:<br>&nbsp;&nbsp;&nbsp;print(person)</code></pre>
- </div>
- <p class="paragraph">Aici, proiecția se aplică listei de obiecte Person. Funcția de conversie primește fiecare obiect Person și returnează valoarea atributului său name. Adică, lista rezultată va conține un set de șiruri de caractere (atributele name ale tuturor obiectelor Person). Afișare în consolă:</p>
- <div class="code-inline">
-  <pre><code>Tom<br>Kate<br>Bob<br>Alice<br>Sam</code></pre>
- </div>
- <h2 class="subtitle">Valorile minime și maxime</h2>
- <p class="paragraph">Funcțiile încorporate Python min() și max() permit găsirea valorilor minime și maxime, respectiv:</p>
- <div class="code-inline">
-  <pre><code>numbers&nbsp;=&nbsp;[9,&nbsp;21,&nbsp;12,&nbsp;1,&nbsp;3,&nbsp;15,&nbsp;18]<br>print(min(numbers))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;1<br>print(max(numbers))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;21</code></pre>
- </div>
- <h2 class="subtitle">Copierea listelor</h2>
- <p class="paragraph">Când copiem liste, trebuie să avem în vedere că listele reprezintă un tip mutabil, așa că dacă ambele variabile vor indica aceeași listă, modificarea unei variabile va afecta și cealaltă variabilă:</p>
- <div class="code-inline">
-  <pre><code>people1&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice"]<br>people2&nbsp;=&nbsp;people1<br>people2.append("Sam")&nbsp;&nbsp;&nbsp;#&nbsp;adăugăm&nbsp;un&nbsp;element&nbsp;în&nbsp;a&nbsp;doua&nbsp;listă<br>#&nbsp;people1&nbsp;și&nbsp;people2&nbsp;indică&nbsp;aceeași&nbsp;listă<br>print(people1)&nbsp;&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice",&nbsp;"Sam"]<br>print(people2)&nbsp;&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice",&nbsp;"Sam"]</code></pre>
- </div>
- <p class="paragraph">Aceasta este așa-numita "copiere superficială" (shallow copy). Și, de regulă, un astfel de comportament nu este de dorit. Pentru a copia elementele, dar pentru ca variabilele să indice liste diferite, trebuie să facem o copiere profundă (deep copy). Pentru aceasta, putem folosi metoda copy():</p>
- <div class="code-inline">
-  <pre><code>people1&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice"]<br>people2&nbsp;=&nbsp;people1.copy()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;copiem&nbsp;elementele&nbsp;din&nbsp;people1&nbsp;în&nbsp;people2<br>people2.append("Sam")&nbsp;&nbsp;&nbsp;#&nbsp;adăugăm&nbsp;un&nbsp;element&nbsp;DOAR&nbsp;în&nbsp;a&nbsp;doua&nbsp;listă<br>#&nbsp;people1&nbsp;și&nbsp;people2&nbsp;indică&nbsp;liste&nbsp;diferite<br>print(people1)&nbsp;&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice"]<br>print(people2)&nbsp;&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice",&nbsp;"Sam"]</code></pre>
- </div>
- <h2 class="subtitle">Unirea listelor</h2>
- <p class="paragraph">Pentru unirea listelor se folosește operația de adunare +:</p>
- <div class="code-inline">
-  <pre><code>people1&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice"]<br>people2&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Tim",&nbsp;"Bill"]<br>people3&nbsp;=&nbsp;people1&nbsp;+&nbsp;people2<br>print(people3)&nbsp;&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice",&nbsp;"Tom",&nbsp;"Sam",&nbsp;"Tim",&nbsp;"Bill"]</code></pre>
- </div>
- <h2 class="subtitle">Liste de liste</h2>
- <p class="paragraph">Listele, pe lângă datele standard de tip șiruri de caractere, numere, pot conține și alte liste. Astfel de liste pot fi asociate cu tabele, unde listele imbricate joacă rolul de rânduri. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>people&nbsp;=&nbsp;[<br>&nbsp;&nbsp;&nbsp;["Tom",&nbsp;29],<br>&nbsp;&nbsp;&nbsp;["Alice",&nbsp;33],<br>&nbsp;&nbsp;&nbsp;["Bob",&nbsp;27]<br>]<br><br>print(people[0])&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;29]<br>print(people[0][0])&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Tom<br>print(people[0][1])&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;29</code></pre>
- </div>
- <p class="paragraph">Pentru a accesa un element dintr-o listă imbricată, este necesar să folosim o pereche de indici: people[0][1] - accesarea celui de-al doilea element al primei liste imbricate.</p>
- <p class="paragraph">Adăugarea, eliminarea și modificarea unei liste generale, precum și a listelor imbricate, se face similar cu listele obișnuite (unidimensionale):</p>
- <div class="code-inline">
-  <pre><code>people&nbsp;=&nbsp;[<br>&nbsp;&nbsp;&nbsp;["Tom",&nbsp;29],<br>&nbsp;&nbsp;&nbsp;["Alice",&nbsp;33],<br>&nbsp;&nbsp;&nbsp;["Bob",&nbsp;27]<br>]<br><br>#&nbsp;crearea&nbsp;unei&nbsp;liste&nbsp;imbricate<br>person&nbsp;=&nbsp;list()<br>person.append("Bill")<br>person.append(41)<br>#&nbsp;adăugarea&nbsp;listei&nbsp;imbricate<br>people.append(person)<br><br>print(people[-1])&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["Bill",&nbsp;41]<br><br>#&nbsp;adăugarea&nbsp;unui&nbsp;element&nbsp;în&nbsp;lista&nbsp;imbricată<br>people[-1].append("+79876543210")<br><br>print(people[-1])&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["Bill",&nbsp;41,&nbsp;"+79876543210"]<br><br>#&nbsp;eliminarea&nbsp;ultimului&nbsp;element&nbsp;din&nbsp;lista&nbsp;imbricată<br>people[-1].pop()<br>print(people[-1])&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["Bill",&nbsp;41]<br><br>#&nbsp;eliminarea&nbsp;întregii&nbsp;liste&nbsp;imbricate<br>people.pop(-1)<br><br>#modificarea&nbsp;primului&nbsp;element<br>people[0]&nbsp;=&nbsp;["Sam",&nbsp;18]<br>print(people)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;[["Sam",&nbsp;18],&nbsp;["Alice",&nbsp;33],&nbsp;["Bob",&nbsp;27]]</code></pre>
- </div>
- <p class="paragraph">Parcurgerea listelor imbricate:</p>
- <div class="code-inline">
-  <pre><code>people&nbsp;=&nbsp;[<br>&nbsp;&nbsp;&nbsp;["Tom",&nbsp;29],<br>&nbsp;&nbsp;&nbsp;["Alice",&nbsp;33],<br>&nbsp;&nbsp;&nbsp;["Bob",&nbsp;27]<br>]<br><br>for&nbsp;person&nbsp;in&nbsp;people:<br>&nbsp;&nbsp;&nbsp;for&nbsp;item&nbsp;in&nbsp;person:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(item,&nbsp;end="&nbsp;|&nbsp;")</code></pre>
- </div>
- <p class="paragraph">Afișare în consolă:</p>
- <div class="code-inline">
-  <pre><code>Tom&nbsp;|&nbsp;29&nbsp;|&nbsp;Alice&nbsp;|&nbsp;33&nbsp;|&nbsp;Bob&nbsp;|&nbsp;27&nbsp;|</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Lista</h1>
+     <p class="paragraph">Pentru a lucra cu seturi de date, Python oferă tipuri de date încorporate precum liste, tupluri și dicționare.</p>
+     <p class="paragraph">O listă (list) reprezintă un tip de date care stochează un set sau o secvență de elemente. În multe limbaje de programare, există o structură de date similară numită matrice.</p>
+     <h2 class="subtitle">Crearea unei liste</h2>
+     <p class="paragraph">Pentru a crea o listă, se folosesc paranteze pătrate [], în interiorul cărora elementele listei sunt enumerate separate prin virgulă. De exemplu, să definim o listă de numere:</p>
+     <div class="code-inline">
+      <pre><code>numbers&nbsp;=&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]</code></pre>
+     </div>
+     <p class="paragraph">În mod similar, se pot defini liste cu date de alte tipuri, de exemplu, să definim o listă de șiruri de caractere:</p>
+     <div class="code-inline">
+      <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"]</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, pentru a crea o listă, se poate folosi funcția constructor list():</p>
+     <div class="code-inline">
+      <pre><code>numbers1&nbsp;=&nbsp;[]<br>numbers2&nbsp;=&nbsp;list()</code></pre>
+     </div>
+     <p class="paragraph">Ambele definiții ale listei sunt echivalente - creează o listă goală.</p>
+     <p class="paragraph">O listă nu trebuie să conțină neapărat doar obiecte de același tip. Putem pune într-o singură listă simultan șiruri de caractere, numere, obiecte de alte tipuri de date:</p>
+     <div class="code-inline">
+      <pre><code>objects&nbsp;=&nbsp;[1,&nbsp;2.6,&nbsp;"Hello",&nbsp;True]</code></pre>
+     </div>
+     <p class="paragraph">Pentru a verifica elementele unei liste, se poate folosi funcția standardă print, care afișează conținutul listei într-un mod ușor de citit:</p>
+     <div class="code-inline">
+      <pre><code>numbers&nbsp;=&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]<br>people&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"]<br><br>print(numbers)&nbsp;&nbsp;#&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]<br>print(people)&nbsp;&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"]</code></pre>
+     </div>
+     <p class="paragraph">Constructorul list poate primi un set de valori pe baza cărora se creează o listă:</p>
+     <div class="code-inline">
+      <pre><code>numbers1&nbsp;=&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]<br>numbers2&nbsp;=&nbsp;list(numbers1)<br>print(numbers2)&nbsp;&nbsp;#&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]<br><br>letters&nbsp;=&nbsp;list("Hello")<br>print(letters)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;['H',&nbsp;'e',&nbsp;'l',&nbsp;'l',&nbsp;'o']</code></pre>
+     </div>
+     <p class="paragraph">Dacă este necesar să creăm o listă în care aceeași valoare se repetă de mai multe ori, putem folosi simbolul asterisc *, adică aplicăm practic operația de înmulțire la o listă existentă:</p>
+     <div class="code-inline">
+      <pre><code>numbers&nbsp;=&nbsp;[5]&nbsp;*&nbsp;6&nbsp;&nbsp;&nbsp;#&nbsp;6&nbsp;ori&nbsp;repetăm&nbsp;5<br>print(numbers)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;[5,&nbsp;5,&nbsp;5,&nbsp;5,&nbsp;5,&nbsp;5]<br><br>people&nbsp;=&nbsp;["Tom"]&nbsp;*&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;3&nbsp;ori&nbsp;repetăm&nbsp;"Tom"<br>print(people)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Tom",&nbsp;"Tom"]<br><br>students&nbsp;=&nbsp;["Bob",&nbsp;"Sam"]&nbsp;*&nbsp;2&nbsp;&nbsp;&nbsp;#&nbsp;2&nbsp;ori&nbsp;repetăm&nbsp;"Bob",&nbsp;"Sam"<br>print(students)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["Bob",&nbsp;"Sam",&nbsp;"Bob",&nbsp;"Sam"]</code></pre>
+     </div>
+     <h2 class="subtitle">Accesarea elementelor din listă</h2>
+     <p class="paragraph">Pentru a accesa elementele dintr-o listă, se folosesc indexuri, care reprezintă numărul elementului din listă. Indexurile încep de la zero. Adică primul element va avea indexul 0, al doilea element - indexul 1 și așa mai departe. Pentru a accesa elementele de la sfârșit, se pot folosi indexuri negative, începând de la -1. Adică ultimul element va avea indexul -1, penultimul - -2 și așa mai departe.</p>
+     <div class="code-inline">
+      <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"]<br>#&nbsp;obținerea&nbsp;elementelor&nbsp;de&nbsp;la&nbsp;începutul&nbsp;listei<br>print(people[0])&nbsp;&nbsp;&nbsp;#&nbsp;Tom<br>print(people[1])&nbsp;&nbsp;&nbsp;#&nbsp;Sam<br>print(people[2])&nbsp;&nbsp;&nbsp;#&nbsp;Bob<br><br>#&nbsp;obținerea&nbsp;elementelor&nbsp;de&nbsp;la&nbsp;sfârșitul&nbsp;listei<br>print(people[-2])&nbsp;&nbsp;&nbsp;#&nbsp;Sam<br>print(people[-1])&nbsp;&nbsp;&nbsp;#&nbsp;Bob<br>print(people[-3])&nbsp;&nbsp;&nbsp;#&nbsp;Tom</code></pre>
+     </div>
+     <p class="paragraph">Pentru a modifica un element din listă, este suficient să îi atribuim o valoare nouă:</p>
+     <div class="code-inline">
+      <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"]<br><br>people[1]&nbsp;=&nbsp;"Mike"&nbsp;&nbsp;#&nbsp;modificarea&nbsp;celui&nbsp;de-al&nbsp;doilea&nbsp;element<br>print(people[1])&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Mike<br>print(people)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Mike",&nbsp;"Bob"]</code></pre>
+     </div>
+     <h2 class="subtitle">Descompunerea listei</h2>
+     <p class="paragraph">Python permite descompunerea unei liste în elemente individuale:</p>
+     <div class="code-inline">
+      <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Sam"]<br><br>tom,&nbsp;bob,&nbsp;sam&nbsp;=&nbsp;people<br><br>print(tom)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Tom<br>print(bob)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Bob<br>print(sam)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Sam</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, variabilelor tom, bob și sam li se atribuie succesiv elementele din lista people. Cu toate acestea, trebuie să ținem cont că numărul variabilelor trebuie să fie egal cu numărul elementelor din lista atribuită.</p>
+     <h2 class="subtitle">Parcurgerea elementelor</h2>
+     <p class="paragraph">Pentru a parcurge elementele, se pot folosi atât ciclul for, cât și ciclul while.</p>
+     <p class="paragraph">Parcurgerea folosind ciclul for:</p>
+     <div class="code-inline">
+      <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"]<br>for&nbsp;person&nbsp;in&nbsp;people:<br>&nbsp;&nbsp;&nbsp;print(person)</code></pre>
+     </div>
+     <p class="paragraph">Aici se va parcurge lista people, iar fiecare element al său va fi plasat în variabila person.</p>
+     <p class="paragraph">Parcurgerea se poate face și folosind ciclul while:</p>
+     <div class="code-inline">
+      <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"]<br>i&nbsp;=&nbsp;0<br>while&nbsp;i&nbsp;&lt;&nbsp;len(people):<br>&nbsp;&nbsp;&nbsp;print(people[i])&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;aplicăm&nbsp;indexul&nbsp;pentru&nbsp;a&nbsp;obține&nbsp;elementul<br>&nbsp;&nbsp;&nbsp;i&nbsp;+=&nbsp;1</code></pre>
+     </div>
+     <p class="paragraph">Pentru parcurgerea cu ajutorul funcției len(), obținem lungimea listei. Cu ajutorul contorului i, se afișează câte un element, până când valoarea contorului devine egală cu lungimea listei.</p>
+     <h2 class="subtitle">Compararea listelor</h2>
+     <p class="paragraph">Două liste sunt considerate egale dacă conțin același set de elemente:</p>
+     <div class="code-inline">
+      <pre><code>numbers1&nbsp;=&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]<br>numbers2&nbsp;=&nbsp;list([1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5])<br>if&nbsp;numbers1&nbsp;==&nbsp;numbers2:<br>&nbsp;&nbsp;&nbsp;print("numbers1&nbsp;este&nbsp;egală&nbsp;cu&nbsp;numbers2")<br>else:<br>&nbsp;&nbsp;&nbsp;print("numbers1&nbsp;nu&nbsp;este&nbsp;egală&nbsp;cu&nbsp;numbers2")</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, ambele liste vor fi egale.</p>
+     <h2 class="subtitle">Obținerea unei părți a listei</h2>
+     <p class="paragraph">Dacă este necesar să obținem o anumită parte a listei, putem aplica o sintaxă specială, care poate lua următoarele forme:</p>
+     <ul class="enumeration">
+      <li>list[:end]: prin parametrul end se transmite indexul elementului până la care trebuie copiată lista</li>
+      <li>list[start:end]: parametrul start indică indexul elementului de la care trebuie să începem să copiem elementele</li>
+      <li>list[start:end:step]: parametrul step indică pasul, prin care vor fi copiate elementele din listă. În mod implicit, acest parametru este egal cu 1</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice",&nbsp;"Sam",&nbsp;"Tim",&nbsp;"Bill"]<br><br>slice_people1&nbsp;=&nbsp;people[:3]&nbsp;&nbsp;&nbsp;#&nbsp;de&nbsp;la&nbsp;0&nbsp;până&nbsp;la&nbsp;3<br>print(slice_people1)&nbsp;&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice"]<br><br>slice_people2&nbsp;=&nbsp;people[1:3]&nbsp;&nbsp;&nbsp;#&nbsp;de&nbsp;la&nbsp;1&nbsp;până&nbsp;la&nbsp;3<br>print(slice_people2)&nbsp;&nbsp;&nbsp;#&nbsp;["Bob",&nbsp;"Alice"]<br><br>slice_people3&nbsp;=&nbsp;people[1:6:2]&nbsp;&nbsp;&nbsp;#&nbsp;de&nbsp;la&nbsp;1&nbsp;până&nbsp;la&nbsp;6&nbsp;cu&nbsp;pasul&nbsp;2<br>print(slice_people3)&nbsp;&nbsp;&nbsp;#&nbsp;["Bob",&nbsp;"Sam",&nbsp;"Bill"]</code></pre>
+     </div>
+     <p class="paragraph">Se pot folosi indexuri negative, atunci numărătoarea va porni de la sfârșit, de exemplu, -1 - penultimul, -2 - al treilea de la sfârșit și așa mai departe.</p>
+     <div class="code-inline">
+      <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice",&nbsp;"Sam",&nbsp;"Tim",&nbsp;"Bill"]<br><br>slice_people1&nbsp;=&nbsp;people[:-1]&nbsp;&nbsp;&nbsp;#&nbsp;de&nbsp;la&nbsp;penultimul&nbsp;până&nbsp;la&nbsp;primul<br>print(slice_people1)&nbsp;&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice",&nbsp;"Sam",&nbsp;"Tim"]<br><br>slice_people2&nbsp;=&nbsp;people[-3:-1]&nbsp;&nbsp;&nbsp;#&nbsp;de&nbsp;la&nbsp;al&nbsp;treilea&nbsp;de&nbsp;la&nbsp;sfârșit&nbsp;până&nbsp;la&nbsp;penultimul<br>print(slice_people2)&nbsp;&nbsp;&nbsp;#&nbsp;["Sam",&nbsp;"Tim"]</code></pre>
+     </div>
+     <h2 class="subtitle">Metode și funcții pentru lucrul cu liste</h2>
+     <p class="paragraph">Pentru gestionarea elementelor, listele au o serie de metode. Unele dintre ele sunt:</p>
+     <ul class="enumeration">
+      <li>append(item): adaugă elementul item la sfârșitul listei</li>
+      <li>insert(index, item): adaugă elementul item în listă la indexul index</li>
+      <li>extend(items): adaugă un set de elemente items la sfârșitul listei</li>
+      <li>remove(item): elimină elementul item. Este eliminată doar prima apariție a elementului. Dacă elementul nu este găsit, generează o excepție ValueError</li>
+      <li>clear(): elimină toate elementele din listă</li>
+      <li>index(item): returnează indexul elementului item. Dacă elementul nu este găsit, generează o excepție ValueError</li>
+      <li>pop([index]): elimină și returnează elementul de la indexul index. Dacă indexul nu este transmis, elimină pur și simplu ultimul element</li>
+      <li>count(item): returnează numărul de apariții ale elementului item în listă</li>
+      <li>sort([key]): sortează elementele. În mod implicit, sortează în ordine crescătoare. Dar cu ajutorul parametrului key, putem transmite o funcție de sortare</li>
+      <li>reverse(): inversează ordinea elementelor din listă</li>
+      <li>copy(): copiază lista</li>
+     </ul>
+     <p class="paragraph">În plus, Python oferă o serie de funcții încorporate pentru lucrul cu liste:</p>
+     <ul class="enumeration">
+      <li>len(list): returnează lungimea listei</li>
+      <li>sorted(list, [key]): returnează lista sortată</li>
+      <li>min(list): returnează cel mai mic element din listă</li>
+      <li>max(list): returnează cel mai mare element din listă</li>
+     </ul>
+     <h2 class="subtitle">Adăugarea și eliminarea elementelor</h2>
+     <p class="paragraph">Pentru adăugarea unui element, se folosesc metodele append(), extend și insert, iar pentru eliminare - metodele remove(), pop() și clear().</p>
+     <p class="paragraph">Utilizarea metodelor:</p>
+     <div class="code-inline">
+      <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Bob"]<br><br>#&nbsp;adăugăm&nbsp;la&nbsp;sfârșitul&nbsp;listei<br>people.append("Alice")&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice"]<br>#&nbsp;adăugăm&nbsp;pe&nbsp;a&nbsp;doua&nbsp;poziție<br>people.insert(1,&nbsp;"Bill")&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Bill",&nbsp;"Bob",&nbsp;"Alice"]<br>#&nbsp;adăugăm&nbsp;setul&nbsp;de&nbsp;elemente&nbsp;["Mike",&nbsp;"Sam"]<br>people.extend(["Mike",&nbsp;"Sam"])&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Bill",&nbsp;"Bob",&nbsp;"Alice",&nbsp;"Mike",&nbsp;"Sam"]<br>#&nbsp;obținem&nbsp;indexul&nbsp;elementului<br>index_of_tom&nbsp;=&nbsp;people.index("Tom")<br>#&nbsp;eliminăm&nbsp;după&nbsp;acest&nbsp;index<br>removed_item&nbsp;=&nbsp;people.pop(index_of_tom)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["Bill",&nbsp;"Bob",&nbsp;"Alice",&nbsp;"Mike",&nbsp;"Sam"]<br>#&nbsp;eliminăm&nbsp;ultimul&nbsp;element<br>last_item&nbsp;=&nbsp;people.pop()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["Bill",&nbsp;"Bob",&nbsp;"Alice",&nbsp;"Mike"]<br>#&nbsp;eliminăm&nbsp;elementul&nbsp;"Alice"<br>people.remove("Alice")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["Bill",&nbsp;"Bob",&nbsp;"Mike"]<br>print(people)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["Bill",&nbsp;"Bob",&nbsp;"Mike"]<br>#&nbsp;eliminăm&nbsp;toate&nbsp;elementele<br>people.clear()<br>print(people)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;[]</code></pre>
+     </div>
+     <h2 class="subtitle">Verificarea existenței unui element</h2>
+     <p class="paragraph">Dacă un anumit element nu este găsit, metodele remove și index generează o excepție. Pentru a evita această situație, înainte de a efectua o operație cu elementul, se poate verifica existența acestuia folosind cuvântul cheie in:</p>
+     <div class="code-inline">
+      <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice",&nbsp;"Sam"]<br><br>if&nbsp;"Alice"&nbsp;in&nbsp;people:<br>&nbsp;&nbsp;&nbsp;people.remove("Alice")<br>print(people)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Sam"]</code></pre>
+     </div>
+     <p class="paragraph">Expresia if "Alice" in people returnează True dacă elementul "Alice" există în lista people. Astfel, construcția if "Alice" in people poate executa blocul de instrucțiuni ulterior în funcție de existența elementului în listă.</p>
+     <h2 class="subtitle">Eliminarea cu ajutorul del</h2>
+     <p class="paragraph">Python acceptă, de asemenea, un alt mod de a elimina elemente dintr-o listă - folosind operatorul del. Ca parametru, acest operator primește elementul eliminat sau un set de elemente:</p>
+     <p class="paragraph">people = ["Tom", "Bob", "Alice", "Sam", "Bill", "Kate", "Mike"] del people[1] # eliminăm al doilea element print(people) # ["Tom", "Alice", "Sam", "Bill", "Kate", "Mike"] del people[:3] # eliminăm până la al patrulea element, exclusiv print(people) # ["Bill", "Kate", "Mike"] del people[1:] # eliminăm de la al doilea element încolo print(people) # ["Bill"]</p>
+     <h2 class="subtitle">Modificarea unei subliste</h2>
+     <p class="paragraph">Pentru a modifica o sublistă - un set de elemente dintr-o listă, se poate folosi sintaxa discutată anterior [start:end]:</p>
+     <div class="code-inline">
+      <pre><code>nums&nbsp;=&nbsp;[10,&nbsp;20,&nbsp;30,&nbsp;40,&nbsp;50]<br>nums[1:4]=[11,&nbsp;22]<br>print(nums)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;[10,&nbsp;11,&nbsp;22,&nbsp;50]</code></pre>
+     </div>
+     <p class="paragraph">Aici, expresia nums[1:4] se referă de fapt la sublista [20, 30, 40]. Atribuirea acestei subliste la lista [11, 22] permite înlocuirea elementelor de la indexul 1 la 4 inclusiv cu elementele [11, 22]. După modificare, obținem lista [10, 11, 22, 50].</p>
+     <h2 class="subtitle">Numărarea aparițiilor</h2>
+     <p class="paragraph">Dacă este necesar să aflăm de câte ori este prezent un anumit element într-o listă, putem folosi metoda count():</p>
+     <div class="code-inline">
+      <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice",&nbsp;"Tom",&nbsp;"Bill",&nbsp;"Tom"]<br><br>people_count&nbsp;=&nbsp;people.count("Tom")<br>print(people_count)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;3</code></pre>
+     </div>
+     <h2 class="subtitle">Sortarea</h2>
+     <p class="paragraph">Pentru sortare în ordine crescătoare, se folosește metoda sort():</p>
+     <div class="code-inline">
+      <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice",&nbsp;"Sam",&nbsp;"Bill"]<br><br>people.sort()<br>print(people)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["Alice",&nbsp;"Bill",&nbsp;"Bob",&nbsp;"Sam",&nbsp;"Tom"]</code></pre>
+     </div>
+     <p class="paragraph">Dacă este necesar să sortăm datele în ordine inversă, putem aplica metoda reverse() după sortare:</p>
+     <div class="code-inline">
+      <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice",&nbsp;"Sam",&nbsp;"Bill"]<br><br>people.sort()<br>people.reverse()<br>print(people)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob",&nbsp;"Bill",&nbsp;"Alice"]</code></pre>
+     </div>
+     <p class="paragraph">În timpul sortării, se compară practic două obiecte, iar cel care este "mai mic" este plasat înaintea celui care este "mai mare". Conceptele de "mai mare" și "mai mic" sunt destul de relative. Și dacă pentru numere totul este simplu - numerele sunt plasate în ordine crescătoare, pentru șiruri de caractere și alte obiecte situația este mai complicată.</p>
+     <p class="paragraph">În special, șirurile de caractere sunt evaluate pe baza primelor caractere. Dacă primele caractere sunt egale, sunt evaluate cele de-al doilea caractere și așa mai departe. În plus, un simbol numeric este considerat "mai mic" decât un simbol alfabetic cu majuscule, iar un simbol cu majuscule este considerat mai mic decât unul cu litere mici.</p>
+     <p class="paragraph">Astfel, dacă în listă se combină șiruri de caractere cu majuscule și minuscule, putem obține rezultate care nu sunt neapărat corecte, deoarece pentru noi șirul "bob" ar trebui să fie înaintea șirului "Tom". Și pentru a modifica comportamentul standard al sortării, putem transmite în metoda sort() o funcție ca parametru:</p>
+     <div class="code-inline">
+      <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"bob",&nbsp;"alice",&nbsp;"Sam",&nbsp;"Bill"]<br><br>people.sort()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;sortare&nbsp;standard<br>print(people)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["Bill",&nbsp;"Sam",&nbsp;"Tom",&nbsp;"alice",&nbsp;"bob"]<br><br>people.sort(key=str.lower)&nbsp;&nbsp;#&nbsp;sortare&nbsp;fără&nbsp;a&nbsp;ține&nbsp;cont&nbsp;de&nbsp;majuscule<br>print(people)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["alice",&nbsp;"Bill",&nbsp;"bob",&nbsp;"Sam",&nbsp;"Tom"]</code></pre>
+     </div>
+     <p class="paragraph">Pe lângă metoda sort, putem folosi funcția încorporată sorted, care are două forme:</p>
+     <ul class="enumeration">
+      <li>sorted(list): sortează lista list</li>
+      <li>sorted(list, key): sortează lista list, aplicând o funcție key elementelor</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"bob",&nbsp;"alice",&nbsp;"Sam",&nbsp;"Bill"]<br><br>sorted_people&nbsp;=&nbsp;sorted(people,&nbsp;key=str.lower)<br>print(sorted_people)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["alice",&nbsp;"Bill",&nbsp;"bob",&nbsp;"Sam",&nbsp;"Tom"]</code></pre>
+     </div>
+     <p class="paragraph">Când folosim această funcție, trebuie să avem în vedere că aceasta nu modifică lista sortată, ci toate elementele sortate sunt plasate într-o nouă listă, care este returnată ca rezultat.</p>
+     <h2 class="subtitle">Filtrarea listei</h2>
+     <p class="paragraph">Pentru a filtra o listă, se folosește funcția filter(), căreia i se transmite o funcție-condiție și lista care trebuie filtrată:</p>
+     <div class="code-inline">
+      <pre><code>filter(fun,&nbsp;iter)</code></pre>
+     </div>
+     <p class="paragraph">Funcția acceptă doi parametri:</p>
+     <ul class="enumeration">
+      <li>fun: funcția-condiție, căreia i se transmite fiecare element al colecției și care returnează True dacă elementul îndeplinește condiția. Altfel, returnează False</li>
+      <li>iter: colecția care urmează să fie filtrată</li>
+     </ul>
+     <p class="paragraph">Ca rezultat, funcția returnează lista elementelor filtrate. De exemplu, obținem dintr-o listă de numere toate valorile mai mari de 1:</p>
+     <div class="code-inline">
+      <pre><code>numbers&nbsp;=&nbsp;[-5,&nbsp;-4,&nbsp;-3&nbsp;,-2,&nbsp;-1,&nbsp;0,&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]<br><br>def&nbsp;condition(number):&nbsp;return&nbsp;number&nbsp;&gt;&nbsp;1<br><br>result&nbsp;=&nbsp;filter(condition,&nbsp;numbers)<br><br>for&nbsp;n&nbsp;in&nbsp;result:&nbsp;print(n,&nbsp;end="&nbsp;")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;2&nbsp;3&nbsp;4&nbsp;5</code></pre>
+     </div>
+     <p class="paragraph">Aici se filtrează lista numbers. Pentru filtrare, definim funcția condition, în care ca parametru se transmite fiecare element din lista numbers. Rezultatul funcției este True dacă numărul este mai mare de 1 sau False dacă numărul este mai mic de 2.</p>
+     <p class="paragraph">Rezultatul funcției filter este lista filtrată.</p>
+     <p class="paragraph">În loc să definim o funcție-condiție separată, dacă condiția este scurtă, este convenabil să folosim expresii lambda în astfel de cazuri:</p>
+     <div class="code-inline">
+      <pre><code>numbers&nbsp;=&nbsp;[-5,&nbsp;-4,&nbsp;-3&nbsp;,-2,&nbsp;-1,&nbsp;0,&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]<br><br>result&nbsp;=&nbsp;filter(lambda&nbsp;n:&nbsp;n&nbsp;&gt;&nbsp;1,&nbsp;numbers)<br><br>for&nbsp;n&nbsp;in&nbsp;result:&nbsp;print(n,&nbsp;end="&nbsp;")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;2&nbsp;3&nbsp;4&nbsp;5</code></pre>
+     </div>
+     <p class="paragraph">În mod similar, putem filtra listele de obiecte mai complexe:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name,&nbsp;age):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.name&nbsp;=&nbsp;name<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.age&nbsp;=&nbsp;age<br><br>people&nbsp;=&nbsp;[&nbsp;Person("Tom",&nbsp;38),&nbsp;Person("Kate",&nbsp;31),&nbsp;Person("Bob",&nbsp;42),<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person("Alice",&nbsp;34),&nbsp;&nbsp;Person("Sam",&nbsp;25)&nbsp;]<br><br>#&nbsp;filtrarea&nbsp;elementelor&nbsp;care&nbsp;au&nbsp;age&nbsp;&gt;&nbsp;33<br>view&nbsp;=&nbsp;filter(lambda&nbsp;p:&nbsp;p.age&nbsp;&gt;&nbsp;33,&nbsp;people)<br><br>for&nbsp;person&nbsp;in&nbsp;view:<br>&nbsp;&nbsp;&nbsp;print(f"Name:&nbsp;{person.name}&nbsp;Age:&nbsp;{person.age}")</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, filtrăm lista de obiecte Person, așa că în funcția-condiție/expresia lambda se transmite ca parametru fiecare obiect Person din listă. Fiecare obiect Person stochează un nume (name) și o vârstă (age), iar aici selectăm toate persoanele care au vârsta mai mare de 33 de ani.</p>
+     <h2 class="subtitle">Proiecția listei</h2>
+     <p class="paragraph">Pentru proiecția/conversia elementelor unei liste, se folosește funcția map(), căreia i se transmite o funcție-condiție și lista care trebuie filtrată:</p>
+     <div class="code-inline">
+      <pre><code>map(fun,&nbsp;iter)</code></pre>
+     </div>
+     <p class="paragraph">Funcția acceptă doi parametri:</p>
+     <ul class="enumeration">
+      <li>fun: funcția de conversie, căreia i se transmite fiecare element al colecției</li>
+      <li>iter: colecția de elemente care trebuie parcursă</li>
+     </ul>
+     <p class="paragraph">Ca rezultat, funcția returnează lista valorilor care au fost obținute după aplicarea funcției de conversie. De exemplu, transformăm o listă de numere într-o listă a pătratelor acestora:</p>
+     <div class="code-inline">
+      <pre><code>numbers&nbsp;=&nbsp;[&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]<br><br>def&nbsp;square(number):&nbsp;return&nbsp;number&nbsp;*&nbsp;number<br><br>result&nbsp;=&nbsp;map(square,&nbsp;numbers)<br><br>for&nbsp;n&nbsp;in&nbsp;result:&nbsp;print(n,&nbsp;end="&nbsp;")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;1&nbsp;4&nbsp;9&nbsp;16&nbsp;25</code></pre>
+     </div>
+     <p class="paragraph">Ca funcție de conversie aici, apare funcția square, căreia i se transmite un număr din listă și care returnează pătratul acestuia.</p>
+     <p class="paragraph">De asemenea, ca funcție de conversie, se pot folosi expresii lambda:</p>
+     <div class="code-inline">
+      <pre><code>numbers&nbsp;=&nbsp;[&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]<br><br>result&nbsp;=&nbsp;map(lambda&nbsp;n:&nbsp;n&nbsp;*&nbsp;n,&nbsp;numbers)<br><br>for&nbsp;n&nbsp;in&nbsp;result:&nbsp;print(n,&nbsp;end="&nbsp;")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;1&nbsp;4&nbsp;9&nbsp;16&nbsp;25</code></pre>
+     </div>
+     <p class="paragraph">În mod similar, putem transforma colecții de obiecte mai complexe:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name,&nbsp;age):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.name&nbsp;=&nbsp;name<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.age&nbsp;=&nbsp;age<br><br>people&nbsp;=&nbsp;[&nbsp;Person("Tom",&nbsp;38),&nbsp;Person("Kate",&nbsp;31),&nbsp;Person("Bob",&nbsp;42),<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person("Alice",&nbsp;34),&nbsp;&nbsp;Person("Sam",&nbsp;25)&nbsp;]<br><br>#&nbsp;obținem&nbsp;din&nbsp;Person&nbsp;un&nbsp;șir&nbsp;cu&nbsp;numele<br>view&nbsp;=&nbsp;map(lambda&nbsp;p:&nbsp;p.name,&nbsp;people)<br><br>for&nbsp;person&nbsp;in&nbsp;view:<br>&nbsp;&nbsp;&nbsp;print(person)</code></pre>
+     </div>
+     <p class="paragraph">Aici, proiecția se aplică listei de obiecte Person. Funcția de conversie primește fiecare obiect Person și returnează valoarea atributului său name. Adică, lista rezultată va conține un set de șiruri de caractere (atributele name ale tuturor obiectelor Person). Afișare în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Tom<br>Kate<br>Bob<br>Alice<br>Sam</code></pre>
+     </div>
+     <h2 class="subtitle">Valorile minime și maxime</h2>
+     <p class="paragraph">Funcțiile încorporate Python min() și max() permit găsirea valorilor minime și maxime, respectiv:</p>
+     <div class="code-inline">
+      <pre><code>numbers&nbsp;=&nbsp;[9,&nbsp;21,&nbsp;12,&nbsp;1,&nbsp;3,&nbsp;15,&nbsp;18]<br>print(min(numbers))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;1<br>print(max(numbers))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;21</code></pre>
+     </div>
+     <h2 class="subtitle">Copierea listelor</h2>
+     <p class="paragraph">Când copiem liste, trebuie să avem în vedere că listele reprezintă un tip mutabil, așa că dacă ambele variabile vor indica aceeași listă, modificarea unei variabile va afecta și cealaltă variabilă:</p>
+     <div class="code-inline">
+      <pre><code>people1&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice"]<br>people2&nbsp;=&nbsp;people1<br>people2.append("Sam")&nbsp;&nbsp;&nbsp;#&nbsp;adăugăm&nbsp;un&nbsp;element&nbsp;în&nbsp;a&nbsp;doua&nbsp;listă<br>#&nbsp;people1&nbsp;și&nbsp;people2&nbsp;indică&nbsp;aceeași&nbsp;listă<br>print(people1)&nbsp;&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice",&nbsp;"Sam"]<br>print(people2)&nbsp;&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice",&nbsp;"Sam"]</code></pre>
+     </div>
+     <p class="paragraph">Aceasta este așa-numita "copiere superficială" (shallow copy). Și, de regulă, un astfel de comportament nu este de dorit. Pentru a copia elementele, dar pentru ca variabilele să indice liste diferite, trebuie să facem o copiere profundă (deep copy). Pentru aceasta, putem folosi metoda copy():</p>
+     <div class="code-inline">
+      <pre><code>people1&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice"]<br>people2&nbsp;=&nbsp;people1.copy()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;copiem&nbsp;elementele&nbsp;din&nbsp;people1&nbsp;în&nbsp;people2<br>people2.append("Sam")&nbsp;&nbsp;&nbsp;#&nbsp;adăugăm&nbsp;un&nbsp;element&nbsp;DOAR&nbsp;în&nbsp;a&nbsp;doua&nbsp;listă<br>#&nbsp;people1&nbsp;și&nbsp;people2&nbsp;indică&nbsp;liste&nbsp;diferite<br>print(people1)&nbsp;&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice"]<br>print(people2)&nbsp;&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice",&nbsp;"Sam"]</code></pre>
+     </div>
+     <h2 class="subtitle">Unirea listelor</h2>
+     <p class="paragraph">Pentru unirea listelor se folosește operația de adunare +:</p>
+     <div class="code-inline">
+      <pre><code>people1&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice"]<br>people2&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Tim",&nbsp;"Bill"]<br>people3&nbsp;=&nbsp;people1&nbsp;+&nbsp;people2<br>print(people3)&nbsp;&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Alice",&nbsp;"Tom",&nbsp;"Sam",&nbsp;"Tim",&nbsp;"Bill"]</code></pre>
+     </div>
+     <h2 class="subtitle">Liste de liste</h2>
+     <p class="paragraph">Listele, pe lângă datele standard de tip șiruri de caractere, numere, pot conține și alte liste. Astfel de liste pot fi asociate cu tabele, unde listele imbricate joacă rolul de rânduri. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>people&nbsp;=&nbsp;[<br>&nbsp;&nbsp;&nbsp;["Tom",&nbsp;29],<br>&nbsp;&nbsp;&nbsp;["Alice",&nbsp;33],<br>&nbsp;&nbsp;&nbsp;["Bob",&nbsp;27]<br>]<br><br>print(people[0])&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;["Tom",&nbsp;29]<br>print(people[0][0])&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Tom<br>print(people[0][1])&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;29</code></pre>
+     </div>
+     <p class="paragraph">Pentru a accesa un element dintr-o listă imbricată, este necesar să folosim o pereche de indici: people[0][1] - accesarea celui de-al doilea element al primei liste imbricate.</p>
+     <p class="paragraph">Adăugarea, eliminarea și modificarea unei liste generale, precum și a listelor imbricate, se face similar cu listele obișnuite (unidimensionale):</p>
+     <div class="code-inline">
+      <pre><code th:text="'people = [[' +
+                    '&quot;Tom&quot;, 29], [' +
+                    '&quot;Alice&quot;, 33], [' +
+                    '&quot;Bob&quot;, 27]]\n\n' +
+                    '# crearea unei liste imbricate\n' +
+                    'person = list()\n' +
+                    'person.append(&quot;Bill&quot;)\n' +
+                    'person.append(41)\n' +
+                    '# adăugarea listei imbricate\n' +
+                    'people.append(person)\n\n' +
+                    'print(people[-1])  # [&quot;Bill&quot;, 41]\n\n' +
+                    '# adăugarea unui element în lista imbricată\n' +
+                    'people[-1].append(&quot;+79876543210&quot;)\n\n' +
+                    'print(people[-1])  # [&quot;Bill&quot;, 41, &quot;+79876543210&quot;]\n\n' +
+                    '# eliminarea ultimului element din lista imbricată\n' +
+                    'people[-1].pop()\n' +
+                    'print(people[-1])  # [&quot;Bill&quot;, 41]\n\n' +
+                    '# eliminarea întregii liste imbricate\n' +
+                    'people.pop(-1)\n\n' +
+                    '# modificarea primului element\n' +
+                    'people[0] = [&quot;Sam&quot;, 18]\n' +
+                    'print(people)  # [[&quot;Sam&quot;, 18], [&quot;Alice&quot;, 33], [&quot;Bob&quot;, 27]]'"></code></pre>
+     </div>
+     <p class="paragraph">Parcurgerea listelor imbricate:</p>
+     <div class="code-inline">
+      <pre><code>people&nbsp;=&nbsp;[<br>&nbsp;&nbsp;&nbsp;["Tom",&nbsp;29],<br>&nbsp;&nbsp;&nbsp;["Alice",&nbsp;33],<br>&nbsp;&nbsp;&nbsp;["Bob",&nbsp;27]<br>]<br><br>for&nbsp;person&nbsp;in&nbsp;people:<br>&nbsp;&nbsp;&nbsp;for&nbsp;item&nbsp;in&nbsp;person:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(item,&nbsp;end="&nbsp;|&nbsp;")</code></pre>
+     </div>
+     <p class="paragraph">Afișare în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Tom&nbsp;|&nbsp;29&nbsp;|&nbsp;Alice&nbsp;|&nbsp;33&nbsp;|&nbsp;Bob&nbsp;|&nbsp;27&nbsp;|</code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

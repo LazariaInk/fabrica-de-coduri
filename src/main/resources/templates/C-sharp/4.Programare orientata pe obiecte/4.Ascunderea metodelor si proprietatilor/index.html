@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='4.Programare orientata pe obiecte', activeLesson='4.Ascunderea metodelor si proprietatilor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Ascunderea metodelor și proprietăților</h1>
+     <p class="paragraph">În tema anterioară, am discutat despre definirea și suprascrierea metodelor virtuale. O altă metodă de a modifica funcționalitatea unei metode moștenite de la clasa de bază este ascunderea (shadowing / hiding).</p>
+     <p class="paragraph">Ascunderea unei metode sau proprietăți implică definirea în clasa derivată a unei metode sau proprietăți care corespunde ca nume și set de parametri cu metoda sau proprietatea clasei de bază. Pentru ascunderea membrilor clasei se utilizează cuvântul cheie new. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Print()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Name:&nbsp;{Name}");<br>&nbsp;&nbsp;&nbsp;}<br>}<br>class&nbsp;Employee&nbsp;:&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Company&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Employee(string&nbsp;name,&nbsp;string&nbsp;company)&nbsp;:&nbsp;base(name)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Company&nbsp;=&nbsp;company;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;new&nbsp;void&nbsp;Print()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Name:&nbsp;{Name}&nbsp;&nbsp;&nbsp;Company:&nbsp;{Company}");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici este definită clasa Person, care reprezintă o persoană, și clasa Employee, care reprezintă un angajat al unei companii. Employee moștenește toate proprietățile și metodele de la Person. Dar în clasa Employee, pe lângă proprietățile moștenite, există și proprietatea proprie Company, care stochează numele companiei.</p>
+     <p class="paragraph">Și dorim ca metoda Print să afișeze informații despre companie împreună cu numele pe consolă. Pentru aceasta, se definește metoda Print cu cuvântul cheie new, care ascunde implementarea acestei metode din clasa de bază.</p>
+     <p class="paragraph">În ce situații putem folosi ascunderea? De exemplu, în exemplul de mai sus, metoda Print în clasa de bază nu este virtuală, deci nu o putem suprascrie, dar presupunem că implementarea ei nu ne satisface pentru clasa derivată, deci putem folosi ascunderea pentru a defini funcționalitatea necesară.</p>
+     <p class="paragraph">Utilizarea acestor clase în program în metoda Main:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person("Bob");<br>bob.Print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Bob<br><br>Employee&nbsp;tom&nbsp;=&nbsp;new&nbsp;Employee("Tom",&nbsp;"Microsoft");<br>tom.Print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;Company:&nbsp;Microsoft</code></pre>
+     </div>
+     <p class="paragraph">Ieșirea consolă a programului:</p>
+     <div class="code-inline">
+      <pre><code>Name:&nbsp;Bob<br>Name:&nbsp;Tom&nbsp;&nbsp;Company:&nbsp;Microsoft</code></pre>
+     </div>
+     <p class="paragraph">Dacă dorim să accesăm în mod explicit implementarea proprietății sau metodei din clasa de bază, putem folosi cuvântul cheie base pentru a accesa funcționalitatea clasei de bază.</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Employee&nbsp;:&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Company&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Employee(string&nbsp;name,&nbsp;string&nbsp;company)&nbsp;:&nbsp;base(name)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Company&nbsp;=&nbsp;company;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;new&nbsp;void&nbsp;Print()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;base.Print();&nbsp;&nbsp;&nbsp;//&nbsp;apelăm&nbsp;metoda&nbsp;Print&nbsp;din&nbsp;clasa&nbsp;de&nbsp;bază&nbsp;Person<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Company:&nbsp;{Company}");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Ascunderea proprietăților</h2>
+     <p class="paragraph">La fel, putem organiza ascunderea proprietăților:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person("Bob");<br>Console.WriteLine(bob.Name);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Bob<br><br>Employee&nbsp;tom&nbsp;=&nbsp;new&nbsp;Employee("Tom",&nbsp;"Microsoft");<br>Console.WriteLine(tom.Name);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Mr./Ms.&nbsp;Tom<br><br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>}<br>class&nbsp;Employee&nbsp;:&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;ascundem&nbsp;proprietatea&nbsp;Name&nbsp;a&nbsp;clasei&nbsp;de&nbsp;bază<br>&nbsp;&nbsp;&nbsp;public&nbsp;new&nbsp;string&nbsp;Name<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get&nbsp;=&gt;&nbsp;$"Mr./Ms.&nbsp;{base.Name}";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set&nbsp;=&gt;&nbsp;base.Name&nbsp;=&nbsp;value;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Company&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Employee(string&nbsp;name,&nbsp;string&nbsp;company)&nbsp;:&nbsp;base(name)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Company&nbsp;=&nbsp;company;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, în clasa Employee este suprascrisă proprietatea Name. În blocul get, luăm valoarea proprietății din clasa de bază Person și adăugăm "Mr./Ms.". În blocul set, transmitem valoarea primită implementării proprietății Name din clasa de bază Person.</p>
+     <h2 class="subtitle">Ascunderea variabilelor și constantelor</h2>
+     <p class="paragraph">Spre deosebire de suprascriere, C# permite aplicarea ascunderii și la variabile (atat statice, cât și non-statice) și constante, folosind de asemenea cuvântul cheie new:</p>
+     <div class="code-inline">
+      <pre><code>Console.WriteLine(Person.minAge);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;1<br>Console.WriteLine(Person.typeName);&nbsp;&nbsp;&nbsp;//&nbsp;Person<br><br>Console.WriteLine(Employee.minAge);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;18<br>Console.WriteLine(Employee.typeName);&nbsp;&nbsp;&nbsp;//&nbsp;Employee<br><br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;readonly&nbsp;static&nbsp;int&nbsp;minAge&nbsp;=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;public&nbsp;const&nbsp;string&nbsp;typeName&nbsp;=&nbsp;"Person";<br>}<br>class&nbsp;Employee&nbsp;:&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;ascundem&nbsp;câmpurile&nbsp;și&nbsp;constantele&nbsp;clasei&nbsp;de&nbsp;bază<br>&nbsp;&nbsp;&nbsp;public&nbsp;new&nbsp;readonly&nbsp;static&nbsp;int&nbsp;minAge&nbsp;=&nbsp;18;<br>&nbsp;&nbsp;&nbsp;public&nbsp;new&nbsp;const&nbsp;string&nbsp;typeName&nbsp;=&nbsp;"Employee";<br>}</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

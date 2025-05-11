@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='15.Programare paralela si biblioteca TPL', activeLesson='1.Sarcini si clasa Task'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Sarcini și clasa Task</h1>
+     <p class="paragraph">În era mașinilor multicore, care permit executarea simultană a mai multor procese, mijloacele standard de lucru cu thread-uri în .NET au devenit insuficiente. De aceea, în framework-ul .NET a fost adăugată biblioteca de sarcini paralele TPL (Task Parallel Library), al cărei funcțional principal se află în namespace-ul System.Threading.Tasks.</p>
+     <p class="paragraph">Această bibliotecă simplifică lucrul cu sistemele multiprocesor și multicore. În plus, simplifică lucrul de creare a noilor thread-uri. De aceea, se recomandă de obicei utilizarea TPL și a claselor sale pentru crearea aplicațiilor multithreading, deși mijloacele standard și clasa Thread sunt încă larg utilizate.</p>
+     <p class="paragraph">La baza bibliotecii TPL stă conceptul de sarcini, fiecare dintre acestea descriind o operație separată și continuă. În biblioteca de clase .NET, o sarcină este reprezentată de clasa Task, care se află în namespace-ul System.Threading.Tasks.</p>
+     <p class="paragraph">Această clasă descrie o sarcină separată, care se lansează asincron într-unul din thread-urile din pool-ul de thread-uri. Totuși, se poate lansa și sincron în thread-ul curent. În orice caz, trebuie menționat că o sarcină nu este un thread.</p>
+     <p class="paragraph">Pentru definirea și lansarea unei sarcini, există mai multe metode.</p>
+     <p class="paragraph">Prima metodă este crearea unui obiect Task și apelarea metodei Start:</p>
+     <div class="code-inline">
+      <pre><code>Task&nbsp;task&nbsp;=&nbsp;new&nbsp;Task(()&nbsp;=&gt;&nbsp;Console.WriteLine("Hello&nbsp;Task!"));<br>task.Start();</code></pre>
+     </div>
+     <p class="paragraph">Ca parametru, obiectul Task primește un delegat Action, deci putem transmite orice acțiune care corespunde acestui delegat, de exemplu, o expresie lambda, ca în acest caz, sau o referință la o metodă. În acest caz, la executarea sarcinii, pe consolă va fi afișat șirul "Hello Task!".</p>
+     <div class="code-inline">
+      <pre><code>Metoda&nbsp;Start()&nbsp;lansează&nbsp;efectiv&nbsp;sarcina.</code></pre>
+     </div>
+     <p class="paragraph">A doua metodă constă în utilizarea metodei statice Task.Factory.StartNew(). Această metodă, de asemenea, primește ca parametru un delegat Action, care specifică acțiunea ce va fi executată. Această metodă lansează imediat sarcina:</p>
+     <div class="code-inline">
+      <pre><code>Task&nbsp;task&nbsp;=&nbsp;Task.Factory.StartNew(()&nbsp;=&gt;&nbsp;Console.WriteLine("Hello&nbsp;Task!"));</code></pre>
+     </div>
+     <p class="paragraph">Ca rezultat, metoda returnează sarcina lansată.</p>
+     <p class="paragraph">A treia metodă de definire și lansare a sarcinilor este utilizarea metodei statice Task.Run():</p>
+     <div class="code-inline">
+      <pre><code>Task&nbsp;task&nbsp;=&nbsp;Task.Run(()&nbsp;=&gt;&nbsp;Console.WriteLine("Hello&nbsp;Task!"));</code></pre>
+     </div>
+     <p class="paragraph">Metoda Task.Run() poate primi ca parametru un delegat Action - acțiunea de executat și returnează un obiect Task.</p>
+     <p class="paragraph">Să definim un program mic în care folosim toate aceste metode:</p>
+     <div class="code-inline">
+      <pre><code>Task&nbsp;task1&nbsp;=&nbsp;new&nbsp;Task(()&nbsp;=&gt;&nbsp;Console.WriteLine("Task1&nbsp;is&nbsp;executed"));<br>task1.Start();<br><br>Task&nbsp;task2&nbsp;=&nbsp;Task.Factory.StartNew(()&nbsp;=&gt;&nbsp;Console.WriteLine("Task2&nbsp;is&nbsp;executed"));<br><br>Task&nbsp;task3&nbsp;=&nbsp;Task.Run(()&nbsp;=&gt;&nbsp;Console.WriteLine("Task3&nbsp;is&nbsp;executed"));</code></pre>
+     </div>
+     <p class="paragraph">În acest cod, sarcinile sunt create și lansate, dar la rularea aplicației pe consolă s-ar putea să nu vedem nimic. De ce? Deoarece atunci când thread-ul sarcinii este lansat din thread-ul principal al programului - thread-ul metodei Main, aplicația poate finaliza execuția înainte ca toate cele trei sarcini sau măcar una dintre ele să înceapă execuția. Pentru a preveni acest lucru, putem aștepta în mod programatic finalizarea sarcinii.</p>
+     <h2 class="subtitle">Așteptarea finalizării sarcinii</h2>
+     <p class="paragraph">Pentru ca aplicația să aștepte finalizarea sarcinii, putem folosi metoda Wait() a obiectului Task:</p>
+     <div class="code-inline">
+      <pre><code>Task&nbsp;task1&nbsp;=&nbsp;new&nbsp;Task(()&nbsp;=&gt;&nbsp;Console.WriteLine("Task1&nbsp;is&nbsp;executed"));<br>task1.Start();<br><br>Task&nbsp;task2&nbsp;=&nbsp;Task.Factory.StartNew(()&nbsp;=&gt;&nbsp;Console.WriteLine("Task2&nbsp;is&nbsp;executed"));<br><br>Task&nbsp;task3&nbsp;=&nbsp;Task.Run(()&nbsp;=&gt;&nbsp;Console.WriteLine("Task3&nbsp;is&nbsp;executed"));<br><br>task1.Wait();&nbsp;&nbsp;&nbsp;//&nbsp;așteptăm&nbsp;finalizarea&nbsp;sarcinii&nbsp;task1<br>task2.Wait();&nbsp;&nbsp;&nbsp;//&nbsp;așteptăm&nbsp;finalizarea&nbsp;sarcinii&nbsp;task2<br>task3.Wait();&nbsp;&nbsp;&nbsp;//&nbsp;așteptăm&nbsp;finalizarea&nbsp;sarcinii&nbsp;task3</code></pre>
+     </div>
+     <p class="paragraph">Posibilă ieșire pe consolă a programului:</p>
+     <div class="code-inline">
+      <pre><code>Task3&nbsp;is&nbsp;executed<br>Task2&nbsp;is&nbsp;executed<br>Task1&nbsp;is&nbsp;executed</code></pre>
+     </div>
+     <p class="paragraph">Ieșirea pe consolă nu este deterministă, deoarece sarcinile nu se execută secvențial. Prima sarcină lansată poate finaliza execuția după ultima sarcină.</p>
+     <p class="paragraph">Trebuie menționat că metoda Wait() blochează thread-ul apelant, în care sarcina este lansată, până când această sarcină își finalizează execuția. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>Console.WriteLine("Main&nbsp;Starts");<br>//&nbsp;creăm&nbsp;sarcina<br>Task&nbsp;task1&nbsp;=&nbsp;new&nbsp;Task(()&nbsp;=&gt;<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Task&nbsp;Starts");<br>&nbsp;&nbsp;&nbsp;Thread.Sleep(1000);&nbsp;&nbsp;//&nbsp;întârziere&nbsp;de&nbsp;1&nbsp;secundă&nbsp;-&nbsp;imitație&nbsp;a&nbsp;unei&nbsp;lucrări&nbsp;îndelungate<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Task&nbsp;Ends");<br>});<br>task1.Start();&nbsp;&nbsp;//&nbsp;lansăm&nbsp;sarcina<br>task1.Wait();&nbsp;&nbsp;&nbsp;//&nbsp;așteptăm&nbsp;finalizarea&nbsp;sarcinii<br>Console.WriteLine("Main&nbsp;Ends");</code></pre>
+     </div>
+     <p class="paragraph">Pentru a emula o lucrare îndelungată, în sarcina task1 se setează o întârziere de 1 secundă. În final, când execuția ajunge la apelul task1.Wait(), thread-ul principal își va opri execuția și va aștepta finalizarea sarcinii. Și vom obține următoarea ieșire pe consolă:</p>
+     <div class="code-inline">
+      <pre><code>Main&nbsp;Starts<br>Task&nbsp;Starts<br>Task&nbsp;Ends<br>Main&nbsp;Ends</code></pre>
+     </div>
+     <p class="paragraph">Dacă acest comportament nu este esențial, așteptarea finalizării sarcinii poate fi plasată la sfârșitul metodei Main:</p>
+     <div class="code-inline">
+      <pre><code>Console.WriteLine("Main&nbsp;Starts");<br>//&nbsp;creăm&nbsp;sarcina<br>Task&nbsp;task1&nbsp;=&nbsp;new&nbsp;Task(()&nbsp;=&gt;<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Task&nbsp;Starts");<br>&nbsp;&nbsp;&nbsp;Thread.Sleep(1000);&nbsp;&nbsp;//&nbsp;întârziere&nbsp;de&nbsp;1&nbsp;secundă&nbsp;-&nbsp;imitație&nbsp;a&nbsp;unei&nbsp;lucrări&nbsp;îndelungate<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Task&nbsp;Ends");<br>});<br>task1.Start();&nbsp;&nbsp;//&nbsp;lansăm&nbsp;sarcina<br>Console.WriteLine("Main&nbsp;Ends");<br>task1.Wait();&nbsp;&nbsp;&nbsp;//&nbsp;așteptăm&nbsp;finalizarea&nbsp;sarcinii</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, aplicația va aștepta totuși finalizarea sarcinii, dar alte acțiuni sincronizate în thread-ul principal nu vor fi blocate și nu vor aștepta finalizarea sarcinii.</p>
+     <h2 class="subtitle">Lansarea sincronă a sarcinii</h2>
+     <p class="paragraph">În mod implicit, sarcinile sunt lansate asincron. Cu toate acestea, cu ajutorul metodei RunSynchronously() putem lansa sarcinile sincron:</p>
+     <div class="code-inline">
+      <pre><code>console.WriteLine("Main&nbsp;Starts");<br>//&nbsp;creăm&nbsp;sarcina<br>Task&nbsp;task1&nbsp;=&nbsp;new&nbsp;Task(()&nbsp;=&gt;<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Task&nbsp;Starts");<br>&nbsp;&nbsp;&nbsp;Thread.Sleep(1000);<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Task&nbsp;Ends");<br>});<br>task1.RunSynchronously();&nbsp;//&nbsp;lansăm&nbsp;sarcina&nbsp;sincron<br>Console.WriteLine("Main&nbsp;Ends");&nbsp;//&nbsp;acest&nbsp;apel&nbsp;așteaptă&nbsp;finalizarea&nbsp;sarcinii&nbsp;task1</code></pre>
+     </div>
+     <h2 class="subtitle">Proprietăți ale clasei Task</h2>
+     <p class="paragraph">Clasa Task are o serie de proprietăți, prin intermediul cărora putem obține informații despre obiect. Unele dintre acestea sunt:</p>
+     <ul class="enumeration">
+      <li>AsyncState: returnează obiectul de stare al sarcinii</li>
+      <li>CurrentId: returnează identificatorul sarcinii curente (proprietate statică)</li>
+      <li>Id: returnează identificatorul sarcinii curente</li>
+      <li>Exception: returnează obiectul excepției apărute în timpul execuției sarcinii</li>
+      <li>Status: returnează starea sarcinii</li>
+     </ul>
+     <p class="paragraph">System.Threading.Tasks.TaskStatus, care are următoarele valori:</p>
+     <ul class="enumeration">
+      <li>Canceled: sarcina a fost anulată</li>
+      <li>Created: sarcina a fost creată, dar nu a fost lansată încă</li>
+      <li>Faulted: în timpul execuției sarcinii a apărut o excepție</li>
+      <li>RanToCompletion: sarcina a fost finalizată cu succes</li>
+      <li>Running: sarcina este lansată, dar nu este finalizată încă</li>
+      <li>WaitingForActivation: sarcina așteaptă activarea și planificarea execuției</li>
+      <li>WaitingForChildrenToComplete: sarcina a fost finalizată și așteaptă finalizarea sarcinilor copil atașate</li>
+      <li>WaitingToRun: sarcina este planificată pentru execuție, dar nu a început încă execuția</li>
+      <li>IsCompleted: returnează true dacă sarcina este finalizată</li>
+      <li>IsCanceled: returnează true dacă sarcina a fost anulată</li>
+      <li>IsFaulted: returnează true dacă sarcina s-a încheiat cu apariția unei excepții</li>
+      <li>IsCompletedSuccessfully: returnează true dacă sarcina s-a încheiat cu succes</li>
+     </ul>
+     <p class="paragraph">Folosim unele dintre aceste proprietăți:</p>
+     <div class="code-inline">
+      <pre><code>Task&nbsp;task1&nbsp;=&nbsp;new&nbsp;Task(()&nbsp;=&gt;<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Task{Task.CurrentId}&nbsp;Starts");<br>&nbsp;&nbsp;&nbsp;Thread.Sleep(1000);<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Task{Task.CurrentId}&nbsp;Ends");<br>});<br>task1.Start();&nbsp;//&nbsp;lansăm&nbsp;sarcina<br><br>//&nbsp;obținem&nbsp;informații&nbsp;despre&nbsp;sarcină<br>Console.WriteLine($"task1&nbsp;Id:&nbsp;{task1.Id}");<br>Console.WriteLine($"task1&nbsp;is&nbsp;Completed:&nbsp;{task1.IsCompleted}");<br>Console.WriteLine($"task1&nbsp;Status:&nbsp;{task1.Status}");<br><br>task1.Wait();&nbsp;//&nbsp;așteptăm&nbsp;finalizarea&nbsp;sarcinii</code></pre>
+     </div>
+     <p class="paragraph">Exemplu de ieșire pe consolă:</p>
+     <div class="code-inline">
+      <pre><code>task1&nbsp;Id:&nbsp;1<br>Task1&nbsp;Starts<br>task1&nbsp;is&nbsp;Completed:&nbsp;False<br>task1&nbsp;Status:&nbsp;Running<br>Task1&nbsp;Ends</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

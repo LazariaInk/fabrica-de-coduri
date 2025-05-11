@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='13.Clase si structuri suplimentare in dot NET', activeLesson='3.Convertirea tipurilor si clasa Convert'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Convertirea tipurilor și clasa Convert</h1>
+     <h2 class="subtitle">Metodele Parse și TryParse</h2>
+     <p class="paragraph">Toate tipurile primitive au două metode care permit convertirea unei șiruri în tipul respectiv. Aceste metode sunt Parse() și TryParse().</p>
+     <p class="paragraph">Metoda Parse() acceptă ca parametru un șir de caractere și returnează un obiect de tipul curent. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;a&nbsp;=&nbsp;int.Parse("10");<br>double&nbsp;b&nbsp;=&nbsp;double.Parse("23,56");<br>decimal&nbsp;c&nbsp;=&nbsp;decimal.Parse("12,45");<br>byte&nbsp;d&nbsp;=&nbsp;byte.Parse("4");<br>Console.WriteLine($"a={a}&nbsp;&nbsp;b={b}&nbsp;&nbsp;c={c}&nbsp;&nbsp;d={d}");</code></pre>
+     </div>
+     <p class="paragraph">Este de remarcat faptul că parsarea numerelor zecimale depinde de setările culturii curente. În special, pentru a obține un număr de tip double, am transmis șirul "23,56" cu virgulă ca separator.</p>
+     <p class="paragraph">Dacă aș fi transmis punct în loc de virgulă, aplicația ar fi generat o eroare de execuție. Pe calculatoarele cu o altă localizare, dimpotrivă, utilizarea virgulei în loc de punct ar fi generat o eroare.</p>
+     <p class="paragraph">Pentru a nu depinde de diferențele culturale, putem stabili un format clar folosind clasa NumberFormatInfo și proprietatea sa NumberDecimalSeparator:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Globalization;<br><br>IFormatProvider&nbsp;formatter&nbsp;=&nbsp;new&nbsp;NumberFormatInfo&nbsp;{&nbsp;NumberDecimalSeparator&nbsp;=&nbsp;"."&nbsp;};<br>double&nbsp;number&nbsp;=&nbsp;double.Parse("23.56",&nbsp;formatter);<br>Console.WriteLine(number);&nbsp;&nbsp;&nbsp;//&nbsp;23,56</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, separatorul este stabilit ca punct. Cu toate acestea, utilizând metoda Parse, putem întâlni potențial o eroare, de exemplu, în cazul transmiterii caracterelor alfabetice în locul celor numerice. În acest caz, o alegere mai bună ar fi utilizarea metodei TryParse().</p>
+     <p class="paragraph">Aceasta încearcă să convertească șirul într-un tip și, dacă conversia are succes, returnează true. În caz contrar, returnează false:</p>
+     <div class="code-inline">
+      <pre><code>Console.WriteLine("Introduceți&nbsp;un&nbsp;șir:");<br>string?&nbsp;input&nbsp;=&nbsp;Console.ReadLine();<br><br>bool&nbsp;result&nbsp;=&nbsp;int.TryParse(input,&nbsp;out&nbsp;var&nbsp;number);<br>if&nbsp;(result&nbsp;==&nbsp;true)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Conversia&nbsp;a&nbsp;fost&nbsp;reușită.&nbsp;Număr:&nbsp;{number}");<br>else<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Conversia&nbsp;a&nbsp;eșuat");</code></pre>
+     </div>
+     <p class="paragraph">Dacă conversia eșuează, nu va fi aruncată nicio excepție, pur și simplu metoda TryParse va returna false, iar variabila number va conține valoarea implicită.</p>
+     <h2 class="subtitle">Clasa Convert</h2>
+     <p class="paragraph">Clasa Convert reprezintă o altă modalitate de a converti valorile. Pentru aceasta, în ea sunt definite următoarele metode statice:</p>
+     <ul class="enumeration">
+      <li>ToBoolean(value)</li>
+      <li>ToByte(value)</li>
+      <li>ToChar(value)</li>
+      <li>ToDateTime(value)</li>
+      <li>ToDecimal(value)</li>
+      <li>ToDouble(value)</li>
+      <li>ToInt16(value)</li>
+      <li>ToInt32(value)</li>
+      <li>ToInt64(value)</li>
+      <li>ToSByte(value)</li>
+      <li>ToSingle(value)</li>
+      <li>ToUInt16(value)</li>
+      <li>ToUInt32(value)</li>
+      <li>ToUInt64(value)</li>
+     </ul>
+     <p class="paragraph">Ca parametru, aceste metode pot accepta valori de diferite tipuri primitive, nu neapărat șiruri:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;n&nbsp;=&nbsp;Convert.ToInt32("23");<br>bool&nbsp;b&nbsp;=&nbsp;true;<br>double&nbsp;d&nbsp;=&nbsp;Convert.ToDouble(b);<br>Console.WriteLine($"n={n}&nbsp;&nbsp;d={d}");</code></pre>
+     </div>
+     <p class="paragraph">Totuși, la fel ca în cazul metodei Parse, dacă metoda nu reușește să convertească valoarea la tipul dorit, va arunca o excepție FormatException.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

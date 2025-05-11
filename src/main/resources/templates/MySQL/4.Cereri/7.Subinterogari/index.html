@@ -1,166 +1,156 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='MySQL', activeChapter='4.Cereri', activeLesson='7.Subinterogari'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Subinterogări</h1>
- <p class="paragraph">Subinterogările reprezintă expresii SELECT încorporate în alte interogări SQL. Să examinăm un exemplu simplu de utilizare a subinterogărilor.</p>
- <p class="paragraph">De exemplu, să creăm tabele pentru produse și comenzi:</p>
- <div class="code-inline">
-  <pre><code>CREATE&nbsp;TABLE&nbsp;Products<br>(<br>&nbsp;&nbsp;&nbsp;Id&nbsp;INT&nbsp;AUTO_INCREMENT&nbsp;PRIMARY&nbsp;KEY,<br>&nbsp;&nbsp;&nbsp;ProductName&nbsp;VARCHAR(30)&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;Manufacturer&nbsp;VARCHAR(20)&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;ProductCount&nbsp;INT&nbsp;DEFAULT&nbsp;0,<br>&nbsp;&nbsp;&nbsp;Price&nbsp;DECIMAL&nbsp;NOT&nbsp;NULL<br>);<br>CREATE&nbsp;TABLE&nbsp;Orders<br>(<br>&nbsp;&nbsp;&nbsp;Id&nbsp;INT&nbsp;AUTO_INCREMENT&nbsp;PRIMARY&nbsp;KEY,<br>&nbsp;&nbsp;&nbsp;ProductId&nbsp;INT&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;ProductCount&nbsp;INT&nbsp;DEFAULT&nbsp;1,<br>&nbsp;&nbsp;&nbsp;CreatedAt&nbsp;DATE&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;Price&nbsp;DECIMAL&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;FOREIGN&nbsp;KEY&nbsp;(ProductId)&nbsp;REFERENCES&nbsp;Products(Id)&nbsp;ON&nbsp;DELETE&nbsp;CASCADE<br>);</code></pre>
- </div>
- <p class="paragraph">Tabela Orders conține date despre produsele achiziționate din tabela Products.</p>
- <p class="paragraph">Să adăugăm unele date în tabele:</p>
- <div class="code-inline">
-  <pre><code>INSERT&nbsp;INTO&nbsp;Products&nbsp;(ProductName,&nbsp;Manufacturer,&nbsp;ProductCount,&nbsp;Price)<br>VALUES&nbsp;('iPhone&nbsp;X',&nbsp;'Apple',&nbsp;2,&nbsp;76000),<br>('iPhone&nbsp;8',&nbsp;'Apple',&nbsp;2,&nbsp;51000),<br>('iPhone&nbsp;7',&nbsp;'Apple',&nbsp;5,&nbsp;42000),<br>('Galaxy&nbsp;S9',&nbsp;'Samsung',&nbsp;2,&nbsp;56000),<br>('Galaxy&nbsp;S8',&nbsp;'Samsung',&nbsp;1,&nbsp;46000),<br>('Honor&nbsp;10',&nbsp;'Huawei',&nbsp;2,&nbsp;26000),<br>('Nokia&nbsp;8',&nbsp;'HMD&nbsp;Global',&nbsp;6,&nbsp;38000);<br><br>INSERT&nbsp;INTO&nbsp;Orders&nbsp;(ProductId,&nbsp;CreatedAt,&nbsp;ProductCount,&nbsp;Price)<br>VALUES<br>(<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Id&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;ProductName='Galaxy&nbsp;S8'),<br>&nbsp;&nbsp;&nbsp;'2018-05-21',<br>&nbsp;&nbsp;&nbsp;2,<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Price&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;ProductName='Galaxy&nbsp;S8')<br>),<br>(<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Id&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;ProductName='iPhone&nbsp;X'),<br>&nbsp;&nbsp;&nbsp;'2018-05-23',&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;1,<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Price&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;ProductName='iPhone&nbsp;X')<br>),<br>(<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Id&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;ProductName='iPhone&nbsp;8'),<br>&nbsp;&nbsp;&nbsp;'2018-05-21',&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;1,<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Price&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;ProductName='iPhone&nbsp;8')<br>);</code></pre>
- </div>
- <p class="paragraph">La adăugarea datelor în tabela Orders, sunt folosite subinterogările. De exemplu, prima comandă a fost făcută pentru produsul Galaxy S8. Prin urmare, în tabela Orders trebuie să salvăm informații despre comanda în care câmpul ProductId indică Id-ul produsului Galaxy S8, iar câmpul Price - prețul acestuia.</p>
- <p class="paragraph">Dar în momentul redactării interogării, pot fi necunoscute atât Id-ul cumpărătorului, cât și Id-ul produsului și prețul produsului. În acest caz, se poate efectua o subinterogare sub forma:</p>
- <div class="code-inline">
-  <pre><code>(SELECT&nbsp;Price&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;ProductName='iPhone&nbsp;8')</code></pre>
- </div>
- <p class="paragraph">Subinterogarea realizează o comandă SELECT și este înconjurată de paranteze. În acest caz, la adăugarea unui singur produs, sunt efectuate două subinterogări.</p>
- <p class="paragraph">Fiecare subinterogare returnează o valoare scalară, cum ar fi un identificator numeric.</p>
- <p class="paragraph">În exemplul de mai sus, subinterogările au fost executate asupra unei alte tabele, dar pot fi executate și asupra aceleiași tabele pentru care este apelată interogarea principală. De exemplu, să găsim produsele din tabela Products care au prețul minim:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Price&nbsp;=&nbsp;(SELECT&nbsp;MIN(Price)&nbsp;FROM&nbsp;Products);</code></pre>
- </div>
- <p class="paragraph">Sau să găsim produsele ale căror prețuri sunt mai mari decât media:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Price&nbsp;&gt;&nbsp;(SELECT&nbsp;AVG(Price)&nbsp;FROM&nbsp;Products);</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image1.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Subinterogările corelate și necorelate</h2>
- <p class="paragraph">Subinterogările pot fi de două tipuri: corelate și necorelate. În exemplele anterioare, comenzile SELECT efectiv au efectuat o singură subinterogare pentru toate rândurile extrase de comandă.</p>
- <p class="paragraph">De exemplu, subinterogarea returnează prețul minim sau mediu, care nu se schimbă, indiferent câte rânduri alege comanda principală. Cu alte cuvinte, rezultatul subinterogării nu depinde de rândurile extrase de comanda principală. Și astfel de subinterogări sunt executate o singură dată pentru întreaga comandă externă.</p>
- <p class="paragraph">Cu toate acestea, se pot folosi și subinterogări corelate (correlated subquery), ale căror rezultate depind de rândurile extrase de comanda principală.</p>
- <p class="paragraph">De exemplu, să selectăm toate comenzile din tabela Orders, adăugând informații despre produs:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;&nbsp;CreatedAt,&nbsp;Price,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(SELECT&nbsp;ProductName&nbsp;FROM&nbsp;Products<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;Products.Id&nbsp;=&nbsp;Orders.ProductId)&nbsp;AS&nbsp;Product<br>FROM&nbsp;Orders;</code></pre>
- </div>
- <p class="paragraph">În acest caz, pentru fiecare rând din tabela Orders se va executa o subinterogare, rezultatul căreia depinde de coloana ProductId. Și fiecare subinterogare poate returna date diferite.</p>
- <div class="image-container">
-  <img src="images/image2.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Correlația unei subinterogări poate să se realizeze și în cadrul aceleiași tabele la care se efectuează interogarea principală. De exemplu, să selectăm din tabela Products produsele ale căror prețuri sunt mai mari decât media prețurilor pentru același producător:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;ProductName,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Manufacturer,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Price,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(SELECT&nbsp;AVG(Price)&nbsp;FROM&nbsp;Products&nbsp;AS&nbsp;SubProds<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;SubProds.Manufacturer=Prods.Manufacturer)&nbsp;&nbsp;AS&nbsp;AvgPrice<br>FROM&nbsp;Products&nbsp;AS&nbsp;Prods<br>WHERE&nbsp;Price&nbsp;&gt;<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;AVG(Price)&nbsp;FROM&nbsp;Products&nbsp;AS&nbsp;SubProds<br>&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;SubProds.Manufacturer=Prods.Manufacturer);</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image3.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Aici sunt definite două subinterogări corelate. Prima subinterogare definește specificația coloanei AvgPrice. Aceasta va fi executată pentru fiecare rând extras din tabela Products. Subinterogarea primește producătorul produsului și, pe baza acestuia, selectează prețul mediu pentru produsele aceluiași producător.</p>
- <p class="paragraph">Și, deoarece producătorul la produse poate să difere, rezultatul subinterogării poate varia în fiecare caz.</p>
- <p class="paragraph">A doua subinterogare este similară, dar este folosită pentru filtrarea rândurilor extrase din tabela Products. De asemenea, va fi executată pentru fiecare rând.</p>
- <p class="paragraph">Pentru a evita ambiguitatea în timpul filtrării în subinterogare în timpul comparării producătorilor (SubProds.Manufacturer=Prods.Manufacturer), pentru selecția externă, este setat un alias Prods, iar pentru selecția din subinterogări este definit un alias SubProds.</p>
- <p class="paragraph">Trebuie să luați în considerare că subinterogările corelate sunt executate pentru fiecare înregistrare individuală extrasa, astfel încât execuția acestor subinterogări poate încetini în ansamblu executarea întregii interogări.</p>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Subinterogări</h1>
+     <p class="paragraph">Subinterogările reprezintă expresii SELECT încorporate în alte interogări SQL. Să examinăm un exemplu simplu de utilizare a subinterogărilor.</p>
+     <p class="paragraph">De exemplu, să creăm tabele pentru produse și comenzi:</p>
+     <div class="code-inline">
+      <pre><code>CREATE&nbsp;TABLE&nbsp;Products<br>(<br>&nbsp;&nbsp;&nbsp;Id&nbsp;INT&nbsp;AUTO_INCREMENT&nbsp;PRIMARY&nbsp;KEY,<br>&nbsp;&nbsp;&nbsp;ProductName&nbsp;VARCHAR(30)&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;Manufacturer&nbsp;VARCHAR(20)&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;ProductCount&nbsp;INT&nbsp;DEFAULT&nbsp;0,<br>&nbsp;&nbsp;&nbsp;Price&nbsp;DECIMAL&nbsp;NOT&nbsp;NULL<br>);<br>CREATE&nbsp;TABLE&nbsp;Orders<br>(<br>&nbsp;&nbsp;&nbsp;Id&nbsp;INT&nbsp;AUTO_INCREMENT&nbsp;PRIMARY&nbsp;KEY,<br>&nbsp;&nbsp;&nbsp;ProductId&nbsp;INT&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;ProductCount&nbsp;INT&nbsp;DEFAULT&nbsp;1,<br>&nbsp;&nbsp;&nbsp;CreatedAt&nbsp;DATE&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;Price&nbsp;DECIMAL&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;FOREIGN&nbsp;KEY&nbsp;(ProductId)&nbsp;REFERENCES&nbsp;Products(Id)&nbsp;ON&nbsp;DELETE&nbsp;CASCADE<br>);</code></pre>
+     </div>
+     <p class="paragraph">Tabela Orders conține date despre produsele achiziționate din tabela Products.</p>
+     <p class="paragraph">Să adăugăm unele date în tabele:</p>
+     <div class="code-inline">
+      <pre><code>INSERT&nbsp;INTO&nbsp;Products&nbsp;(ProductName,&nbsp;Manufacturer,&nbsp;ProductCount,&nbsp;Price)<br>VALUES&nbsp;('iPhone&nbsp;X',&nbsp;'Apple',&nbsp;2,&nbsp;76000),<br>('iPhone&nbsp;8',&nbsp;'Apple',&nbsp;2,&nbsp;51000),<br>('iPhone&nbsp;7',&nbsp;'Apple',&nbsp;5,&nbsp;42000),<br>('Galaxy&nbsp;S9',&nbsp;'Samsung',&nbsp;2,&nbsp;56000),<br>('Galaxy&nbsp;S8',&nbsp;'Samsung',&nbsp;1,&nbsp;46000),<br>('Honor&nbsp;10',&nbsp;'Huawei',&nbsp;2,&nbsp;26000),<br>('Nokia&nbsp;8',&nbsp;'HMD&nbsp;Global',&nbsp;6,&nbsp;38000);<br><br>INSERT&nbsp;INTO&nbsp;Orders&nbsp;(ProductId,&nbsp;CreatedAt,&nbsp;ProductCount,&nbsp;Price)<br>VALUES<br>(<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Id&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;ProductName='Galaxy&nbsp;S8'),<br>&nbsp;&nbsp;&nbsp;'2018-05-21',<br>&nbsp;&nbsp;&nbsp;2,<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Price&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;ProductName='Galaxy&nbsp;S8')<br>),<br>(<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Id&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;ProductName='iPhone&nbsp;X'),<br>&nbsp;&nbsp;&nbsp;'2018-05-23',&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;1,<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Price&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;ProductName='iPhone&nbsp;X')<br>),<br>(<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Id&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;ProductName='iPhone&nbsp;8'),<br>&nbsp;&nbsp;&nbsp;'2018-05-21',&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;1,<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Price&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;ProductName='iPhone&nbsp;8')<br>);</code></pre>
+     </div>
+     <p class="paragraph">La adăugarea datelor în tabela Orders, sunt folosite subinterogările. De exemplu, prima comandă a fost făcută pentru produsul Galaxy S8. Prin urmare, în tabela Orders trebuie să salvăm informații despre comanda în care câmpul ProductId indică Id-ul produsului Galaxy S8, iar câmpul Price - prețul acestuia.</p>
+     <p class="paragraph">Dar în momentul redactării interogării, pot fi necunoscute atât Id-ul cumpărătorului, cât și Id-ul produsului și prețul produsului. În acest caz, se poate efectua o subinterogare sub forma:</p>
+     <div class="code-inline">
+      <pre><code>(SELECT&nbsp;Price&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;ProductName='iPhone&nbsp;8')</code></pre>
+     </div>
+     <p class="paragraph">Subinterogarea realizează o comandă SELECT și este înconjurată de paranteze. În acest caz, la adăugarea unui singur produs, sunt efectuate două subinterogări.</p>
+     <p class="paragraph">Fiecare subinterogare returnează o valoare scalară, cum ar fi un identificator numeric.</p>
+     <p class="paragraph">În exemplul de mai sus, subinterogările au fost executate asupra unei alte tabele, dar pot fi executate și asupra aceleiași tabele pentru care este apelată interogarea principală. De exemplu, să găsim produsele din tabela Products care au prețul minim:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Price&nbsp;=&nbsp;(SELECT&nbsp;MIN(Price)&nbsp;FROM&nbsp;Products);</code></pre>
+     </div>
+     <p class="paragraph">Sau să găsim produsele ale căror prețuri sunt mai mari decât media:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Price&nbsp;&gt;&nbsp;(SELECT&nbsp;AVG(Price)&nbsp;FROM&nbsp;Products);</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/4.Cereri/7.Subinterogari/images/interogare-subinterogare-pret-mediu-mysql.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Subinterogările corelate și necorelate</h2>
+     <p class="paragraph">Subinterogările pot fi de două tipuri: corelate și necorelate. În exemplele anterioare, comenzile SELECT efectiv au efectuat o singură subinterogare pentru toate rândurile extrase de comandă.</p>
+     <p class="paragraph">De exemplu, subinterogarea returnează prețul minim sau mediu, care nu se schimbă, indiferent câte rânduri alege comanda principală. Cu alte cuvinte, rezultatul subinterogării nu depinde de rândurile extrase de comanda principală. Și astfel de subinterogări sunt executate o singură dată pentru întreaga comandă externă.</p>
+     <p class="paragraph">Cu toate acestea, se pot folosi și subinterogări corelate (correlated subquery), ale căror rezultate depind de rândurile extrase de comanda principală.</p>
+     <p class="paragraph">De exemplu, să selectăm toate comenzile din tabela Orders, adăugând informații despre produs:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;&nbsp;CreatedAt,&nbsp;Price,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(SELECT&nbsp;ProductName&nbsp;FROM&nbsp;Products<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;Products.Id&nbsp;=&nbsp;Orders.ProductId)&nbsp;AS&nbsp;Product<br>FROM&nbsp;Orders;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, pentru fiecare rând din tabela Orders se va executa o subinterogare, rezultatul căreia depinde de coloana ProductId. Și fiecare subinterogare poate returna date diferite.</p>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/4.Cereri/7.Subinterogari/images/interogare-subinterogare-select-nume-produs-mysql.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Correlația unei subinterogări poate să se realizeze și în cadrul aceleiași tabele la care se efectuează interogarea principală. De exemplu, să selectăm din tabela Products produsele ale căror prețuri sunt mai mari decât media prețurilor pentru același producător:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;ProductName,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Manufacturer,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Price,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(SELECT&nbsp;AVG(Price)&nbsp;FROM&nbsp;Products&nbsp;AS&nbsp;SubProds<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;SubProds.Manufacturer=Prods.Manufacturer)&nbsp;&nbsp;AS&nbsp;AvgPrice<br>FROM&nbsp;Products&nbsp;AS&nbsp;Prods<br>WHERE&nbsp;Price&nbsp;&gt;<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;AVG(Price)&nbsp;FROM&nbsp;Products&nbsp;AS&nbsp;SubProds<br>&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;SubProds.Manufacturer=Prods.Manufacturer);</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/4.Cereri/7.Subinterogari/images/interogare-pret-mai-mare-decât-media-pe-producator-mysql.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Aici sunt definite două subinterogări corelate. Prima subinterogare definește specificația coloanei AvgPrice. Aceasta va fi executată pentru fiecare rând extras din tabela Products. Subinterogarea primește producătorul produsului și, pe baza acestuia, selectează prețul mediu pentru produsele aceluiași producător.</p>
+     <p class="paragraph">Și, deoarece producătorul la produse poate să difere, rezultatul subinterogării poate varia în fiecare caz.</p>
+     <p class="paragraph">A doua subinterogare este similară, dar este folosită pentru filtrarea rândurilor extrase din tabela Products. De asemenea, va fi executată pentru fiecare rând.</p>
+     <p class="paragraph">Pentru a evita ambiguitatea în timpul filtrării în subinterogare în timpul comparării producătorilor (SubProds.Manufacturer=Prods.Manufacturer), pentru selecția externă, este setat un alias Prods, iar pentru selecția din subinterogări este definit un alias SubProds.</p>
+     <p class="paragraph">Trebuie să luați în considerare că subinterogările corelate sunt executate pentru fiecare înregistrare individuală extrasa, astfel încât execuția acestor subinterogări poate încetini în ansamblu executarea întregii interogări.</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

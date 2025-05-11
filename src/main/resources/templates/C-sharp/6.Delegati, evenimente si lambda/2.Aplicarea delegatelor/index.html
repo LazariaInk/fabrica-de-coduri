@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='6.Delegati, evenimente si lambda', activeLesson='2.Aplicarea delegatelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Aplicarea delegatelor</h1>
+     <p class="paragraph">În tema anterioară, delegații au fost examinați în detaliu. Totuși, exemplele date poate că nu arată adevărata putere a delegatelor, deoarece metodele necesare în acest caz pot fi apelate direct fără niciun delegat.</p>
+     <p class="paragraph">Cu toate acestea, partea cea mai puternică a delegatelor constă în faptul că ele permit delegarea executării unui cod extern. Și în momentul scrierii programului, putem să nu știm ce cod va fi executat.</p>
+     <p class="paragraph">Pur și simplu apelăm delegatul. Iar ce metodă va fi executată efectiv la apelarea delegatului, va fi decis ulterior.</p>
+     <p class="paragraph">Să luăm un exemplu detaliat. Să presupunem că avem o clasă care descrie un cont bancar:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;class&nbsp;Account<br>{<br>&nbsp;&nbsp;&nbsp;int&nbsp;sum;&nbsp;//&nbsp;Variabilă&nbsp;pentru&nbsp;stocarea&nbsp;sumei<br>&nbsp;&nbsp;&nbsp;//&nbsp;prin&nbsp;constructor&nbsp;se&nbsp;stabilește&nbsp;suma&nbsp;inițială&nbsp;în&nbsp;cont<br>&nbsp;&nbsp;&nbsp;public&nbsp;Account(int&nbsp;sum)&nbsp;=&gt;&nbsp;this.sum&nbsp;=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;//&nbsp;adaugă&nbsp;fonduri&nbsp;în&nbsp;cont<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Add(int&nbsp;sum)&nbsp;=&gt;&nbsp;this.sum&nbsp;+=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;//&nbsp;retrage&nbsp;bani&nbsp;din&nbsp;cont<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Take(int&nbsp;sum)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;retragem&nbsp;bani&nbsp;dacă&nbsp;sunt&nbsp;suficienți&nbsp;în&nbsp;cont<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(this.sum&nbsp;&gt;=&nbsp;sum)&nbsp;this.sum&nbsp;-=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În variabila sum este stocată suma din cont. Cu ajutorul constructorului se stabilește suma inițială în cont. Metoda Add() servește pentru a adăuga bani în cont, iar metoda Take - pentru a retrage bani din cont.</p>
+     <p class="paragraph">Să presupunem că, în cazul retragerii banilor prin metoda Take, trebuie cumva să-l notificăm pe deținătorul contului și, poate, alte obiecte.</p>
+     <p class="paragraph">Dacă este vorba de un program de consolă, și clasa va fi utilizată în același proiect în care a fost creată, putem scrie pur și simplu:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;class&nbsp;Account<br>{<br>&nbsp;&nbsp;&nbsp;int&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;public&nbsp;Account(int&nbsp;sum)&nbsp;=&gt;&nbsp;this.sum&nbsp;=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Add(int&nbsp;sum)&nbsp;=&gt;&nbsp;this.sum&nbsp;+=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Take(int&nbsp;sum)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(this.sum&nbsp;&gt;=&nbsp;sum)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.sum&nbsp;-=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"S-au&nbsp;retras&nbsp;{sum}&nbsp;unități.");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Dar ce facem dacă clasa noastră este planificată să fie utilizată în alte proiecte, de exemplu, într-o aplicație grafică pe Windows Forms sau WPF, într-o aplicație mobilă, într-o aplicație web. Acolo linia de notificare:</p>
+     <div class="code-inline">
+      <pre><code>Console.WriteLine($"S-au&nbsp;retras&nbsp;{sum}&nbsp;unități.");</code></pre>
+     </div>
+     <p class="paragraph">Nu va avea mare sens.</p>
+     <p class="paragraph">Mai mult, clasa noastră Account va fi utilizată de alți dezvoltatori sub forma unei biblioteci de clase separate. Și acești dezvoltatori vor dori să notifice retragerea fondurilor într-un alt mod, despre care nici nu putem bănui în momentul scrierii clasei. Prin urmare, notificarea primitivă sub forma unei linii de cod:</p>
+     <div class="code-inline">
+      <pre><code>Console.WriteLine($"S-au&nbsp;retras&nbsp;{sum}&nbsp;unități.");</code></pre>
+     </div>
+     <p class="paragraph">Nu este cea mai bună soluție în acest caz. Iar delegații permit delegarea definirii acțiunii din clasă către un cod extern, care va folosi această clasă.</p>
+     <p class="paragraph">Să modificăm clasa, aplicând delegații:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;Declarăm&nbsp;delegatul<br>public&nbsp;delegate&nbsp;void&nbsp;AccountHandler(string&nbsp;message);<br>public&nbsp;class&nbsp;Account<br>{<br>&nbsp;&nbsp;&nbsp;int&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;//&nbsp;Creăm&nbsp;o&nbsp;variabilă&nbsp;delegat<br>&nbsp;&nbsp;&nbsp;AccountHandler?&nbsp;taken;<br>&nbsp;&nbsp;&nbsp;public&nbsp;Account(int&nbsp;sum)&nbsp;=&gt;&nbsp;this.sum&nbsp;=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;//&nbsp;Înregistrăm&nbsp;delegatul<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;RegisterHandler(AccountHandler&nbsp;del)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;taken&nbsp;=&nbsp;del;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Add(int&nbsp;sum)&nbsp;=&gt;&nbsp;this.sum&nbsp;+=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Take(int&nbsp;sum)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(this.sum&nbsp;&gt;=&nbsp;sum)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.sum&nbsp;-=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;apelăm&nbsp;delegatul,&nbsp;transmitându-i&nbsp;mesajul<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;taken?.Invoke($"S-au&nbsp;retras&nbsp;{sum}&nbsp;unități.");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;taken?.Invoke($"Fonduri&nbsp;insuficiente.&nbsp;Sold:&nbsp;{this.sum}&nbsp;unități.");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Pentru delegarea acțiunii aici este definit delegatul AccountHandler. Acest delegat corespunde oricăror metode care au tipul void și acceptă un parametru de tip string.</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;delegate&nbsp;void&nbsp;AccountHandler(string&nbsp;message);</code></pre>
+     </div>
+     <p class="paragraph">În clasa Account definim variabila taken, care reprezintă acest delegat:</p>
+     <div class="code-inline">
+      <pre><code>AccountHandler?&nbsp;taken;</code></pre>
+     </div>
+     <p class="paragraph">Acum trebuie să legăm această variabilă de o acțiune concretă, care va fi executată. Putem folosi diferite modalități pentru a transmite delegatul în clasă. În acest caz, se definește o metodă specială RegisterHandler, în care în variabila taken este transmisă acțiunea reală:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;void&nbsp;RegisterHandler(AccountHandler&nbsp;del)<br>{<br>&nbsp;&nbsp;&nbsp;taken&nbsp;=&nbsp;del;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Astfel, delegatul este stabilit, și acum poate fi apelat. Apelul delegatului se realizează în metoda Take:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;void&nbsp;Take(int&nbsp;sum)<br>{<br>&nbsp;&nbsp;&nbsp;if&nbsp;(this.sum&nbsp;&gt;=&nbsp;sum)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.sum&nbsp;-=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;apelăm&nbsp;delegatul,&nbsp;transmitându-i&nbsp;mesajul<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;taken?.Invoke($"S-au&nbsp;retras&nbsp;{sum}&nbsp;unități.");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;taken?.Invoke($"Fonduri&nbsp;insuficiente.&nbsp;Sold:&nbsp;{this.sum}&nbsp;unități.");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Deoarece delegatul AccountHandler acceptă ca parametru un șir de caractere, la apelarea variabilei taken() putem transmite în acest apel un mesaj concret. În funcție de faptul dacă s-a realizat retragerea banilor sau nu, în apelul delegatului sunt transmise mesaje diferite.</p>
+     <p class="paragraph">Deci, în locul delegatului vor fi efectuate acțiunile care sunt transmise delegatului în metoda RegisterHandler. Și, repet, la apelarea delegatului nu știm ce acțiuni vor fi. Aici doar transmitem acțiunilor mesajul despre reușita sau nereușita retragerii.</p>
+     <p class="paragraph">Acum testăm clasa în programul principal:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;creăm&nbsp;un&nbsp;cont&nbsp;bancar<br>Account&nbsp;account&nbsp;=&nbsp;new&nbsp;Account(200);<br>//&nbsp;Adăugăm&nbsp;în&nbsp;delegat&nbsp;o&nbsp;referință&nbsp;la&nbsp;metoda&nbsp;PrintSimpleMessage<br>account.RegisterHandler(PrintSimpleMessage);<br>//&nbsp;Încercăm&nbsp;de&nbsp;două&nbsp;ori&nbsp;la&nbsp;rând&nbsp;să&nbsp;retragem&nbsp;bani<br>account.Take(100);<br>account.Take(150);<br><br>void&nbsp;PrintSimpleMessage(string&nbsp;message)&nbsp;=&gt;&nbsp;Console.WriteLine(message);</code></pre>
+     </div>
+     <p class="paragraph">Aici, prin metoda RegisterHandler, variabilei taken din clasa Account i se transmite o referință la metoda PrintSimpleMessage. Această metodă corespunde delegatului AccountHandler. Astfel, acolo unde în clasa Account se apelează delegatul taken, în realitate va fi executată metoda PrintSimpleMessage.</p>
+     <p class="paragraph">Prin parametrul message, metoda PrintSimpleMessage va primi mesajul transmis din delegat și îl va afișa în consolă:</p>
+     <div class="code-inline">
+      <pre><code>S-au&nbsp;retras&nbsp;100&nbsp;unități.<br>Fonduri&nbsp;insuficiente.&nbsp;Sold:&nbsp;100&nbsp;unități.</code></pre>
+     </div>
+     <p class="paragraph">Astfel, am creat un mecanism de apel invers pentru clasa Account, care se activează în cazul retragerii banilor. Aici afișăm mesajul în consolă. Da, am putea pur și simplu să afișăm mesajul în consolă și fără delegați. Totuși, cu un delegat, pentru clasa Account nu contează cum se afișează acest mesaj. Clasa Account nici nu știe ce se va face efectiv ca urmare a retragerii banilor. Ea doar trimite o notificare despre acest lucru prin delegat.</p>
+     <p class="paragraph">În rezultat, dacă creăm o aplicație de consolă, putem afișa mesajul în consolă prin delegat. Dacă creăm o aplicație grafică Windows Forms sau WPF, putem afișa mesajul sub formă de fereastră grafică.</p>
+     <p class="paragraph">Sau putem nu doar să afișăm mesajul. Putem, de exemplu, să înregistrăm informația despre această acțiune într-un fișier sau să trimitem o notificare prin e-mail. În general, putem trata apelul delegatului prin orice metode. Iar modul de tratare nu va depinde de clasa Account.</p>
+     <h2 class="subtitle">Adăugarea și eliminarea metodelor în delegat</h2>
+     <p class="paragraph">Deși în exemplul nostru delegatul accepta adresa unei singure metode, în realitate el poate indica simultan mai multe metode. În plus, dacă este necesar, putem elimina referințele la anumite metode, astfel încât acestea să nu fie apelate la apelul delegatului.</p>
+     <p class="paragraph">Așadar, modificăm în clasa Account metoda RegisterHandler și adăugăm o nouă metodă UnregisterHandler, care va elimina metodele din lista metodelor delegatului:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;delegate&nbsp;void&nbsp;AccountHandler(string&nbsp;message);<br>public&nbsp;class&nbsp;Account<br>{<br>&nbsp;&nbsp;&nbsp;int&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;AccountHandler?&nbsp;taken;<br>&nbsp;&nbsp;&nbsp;public&nbsp;Account(int&nbsp;sum)&nbsp;=&gt;&nbsp;this.sum&nbsp;=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;//&nbsp;Înregistrăm&nbsp;delegatul<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;RegisterHandler(AccountHandler&nbsp;del)<br><br><br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;taken&nbsp;+=&nbsp;del;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;//&nbsp;Anularea&nbsp;înregistrării&nbsp;delegatului<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;UnregisterHandler(AccountHandler&nbsp;del)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;taken&nbsp;-=&nbsp;del;&nbsp;//&nbsp;eliminăm&nbsp;delegatul<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Add(int&nbsp;sum)&nbsp;=&gt;&nbsp;this.sum&nbsp;+=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Take(int&nbsp;sum)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(this.sum&nbsp;&gt;=&nbsp;sum)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.sum&nbsp;-=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;taken?.Invoke($"S-au&nbsp;retras&nbsp;{sum}&nbsp;unități.");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;taken?.Invoke($"Fonduri&nbsp;insuficiente.&nbsp;Sold:&nbsp;{this.sum}&nbsp;unități.");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În prima metodă, delegații taken și del sunt combinați într-unul singur, care apoi este atribuit variabilei taken. În a doua metodă, din variabila taken este eliminat delegatul del.</p>
+     <p class="paragraph">Aplicăm noile metode:</p>
+     <div class="code-inline">
+      <pre><code>Account&nbsp;account&nbsp;=&nbsp;new&nbsp;Account(200);<br>//&nbsp;Adăugăm&nbsp;în&nbsp;delegat&nbsp;referințe&nbsp;la&nbsp;metode<br>account.RegisterHandler(PrintSimpleMessage);<br>account.RegisterHandler(PrintColorMessage);<br>//&nbsp;Încercăm&nbsp;de&nbsp;două&nbsp;ori&nbsp;la&nbsp;rând&nbsp;să&nbsp;retragem&nbsp;bani<br>account.Take(100);<br>account.Take(150);<br><br>//&nbsp;Eliminăm&nbsp;delegatul<br>account.UnregisterHandler(PrintColorMessage);<br>//&nbsp;încercăm&nbsp;din&nbsp;nou&nbsp;să&nbsp;retragem&nbsp;bani<br>account.Take(50);<br><br>void&nbsp;PrintSimpleMessage(string&nbsp;message)&nbsp;=&gt;&nbsp;Console.WriteLine(message);<br>void&nbsp;PrintColorMessage(string&nbsp;message)<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;Setăm&nbsp;culoarea&nbsp;roșie&nbsp;a&nbsp;caracterelor<br>&nbsp;&nbsp;&nbsp;Console.ForegroundColor&nbsp;=&nbsp;ConsoleColor.Red;<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(message);<br>&nbsp;&nbsp;&nbsp;//&nbsp;Resetăm&nbsp;setările&nbsp;de&nbsp;culoare<br>&nbsp;&nbsp;&nbsp;Console.ResetColor();<br>}</code></pre>
+     </div>
+     <p class="paragraph">Pentru testare, am creat încă o metodă - PrintColorMessage, care afișează același mesaj doar că în culoarea roșie. Referința la această metodă este, de asemenea, transmisă în metoda RegisterHandler, și astfel va fi primită de variabila taken.</p>
+     <p class="paragraph">În linia account.UnregisterHandler(PrintColorMessage); această metodă este eliminată din lista apelurilor delegatului, deci această metodă nu va mai fi executată. Afișarea în consolă va avea următoarea formă:</p>
+     <div class="code-inline">
+      <pre><code>S-au&nbsp;retras&nbsp;100&nbsp;unități.<br>S-au&nbsp;retras&nbsp;100&nbsp;unități.<br>Fonduri&nbsp;insuficiente.&nbsp;Sold:&nbsp;100&nbsp;unități.<br>Fonduri&nbsp;insuficiente.&nbsp;Sold:&nbsp;100&nbsp;unități.<br>S-au&nbsp;retras&nbsp;50&nbsp;unități.</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

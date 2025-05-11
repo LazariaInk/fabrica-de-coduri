@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='PHP', activeChapter='2.Elemente de baza PHP', activeLesson='16.Generatoare'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Generatoare</h1>
+     <p class="paragraph">Un generator oferă o funcție care generează un set de valori.</p>
+     <p class="paragraph">Pentru a returna o valoare dintr-o funcție se folosește operatorul yield. Spre deosebire de return, operatorul yield păstrează starea funcției, permițându-i să continue execuția de unde s-a oprit.</p>
+     <p class="paragraph">Exemplu de funcție generator simplă:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;generator()&nbsp;{<br>&nbsp;&nbsp;&nbsp;yield&nbsp;21;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici, funcția generator returnează de fapt un singur număr, 21. Totuși, putem itera rezultatul funcției generator într-o buclă, la fel ca un array obișnuit:</p>
+     <div class="code-inline">
+      <pre><code>foreach(generator()&nbsp;as&nbsp;$number)&nbsp;{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$number;&nbsp;//&nbsp;21<br>}</code></pre>
+     </div>
+     <p class="paragraph">În mod similar, generatorul poate returna mai multe valori:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;generateNumbers()&nbsp;{<br>&nbsp;&nbsp;&nbsp;for&nbsp;($i&nbsp;=&nbsp;0;&nbsp;$i&nbsp;&lt;=&nbsp;5;&nbsp;$i++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yield&nbsp;$i;<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>foreach(generateNumbers()&nbsp;as&nbsp;$number)&nbsp;{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$number;&nbsp;//&nbsp;012345<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, funcția generator generateNumbers() folosește o buclă pentru a genera valori de la 0 la 5 inclusiv. Este echivalent cu:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;generateNumbers()&nbsp;{<br>&nbsp;&nbsp;&nbsp;yield&nbsp;0;<br>&nbsp;&nbsp;&nbsp;yield&nbsp;1;<br>&nbsp;&nbsp;&nbsp;yield&nbsp;2;<br>&nbsp;&nbsp;&nbsp;yield&nbsp;3;<br>&nbsp;&nbsp;&nbsp;yield&nbsp;4;<br>&nbsp;&nbsp;&nbsp;yield&nbsp;5;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Când iterăm în buclă, parcurgem de fapt rezultatul funcției ca pe un array obișnuit, fiecare element având un index numeric începând de la zero:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>function&nbsp;generateNumbers()&nbsp;{<br>&nbsp;&nbsp;&nbsp;for&nbsp;($i&nbsp;=&nbsp;10;&nbsp;$i&nbsp;&lt;=&nbsp;15;&nbsp;$i++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yield&nbsp;$i;<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>foreach(generateNumbers()&nbsp;as&nbsp;$index&nbsp;=&gt;&nbsp;$number)&nbsp;{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"$index&nbsp;-&nbsp;$number&lt;br/&gt;";<br>}<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Rezultatul funcției:</p>
+     <div class="code-inline">
+      <pre><code>0&nbsp;-&nbsp;10<br>1&nbsp;-&nbsp;11<br>2&nbsp;-&nbsp;12<br>3&nbsp;-&nbsp;13<br>4&nbsp;-&nbsp;14<br>5&nbsp;-&nbsp;15</code></pre>
+     </div>
+     <p class="paragraph">Cu ajutorul operatorului from, putem defini un array ca sursă de date pentru generator:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;generateNumbers()&nbsp;{<br>&nbsp;&nbsp;&nbsp;yield&nbsp;1;<br>&nbsp;&nbsp;&nbsp;yield&nbsp;from&nbsp;[2,&nbsp;3,&nbsp;4];<br>&nbsp;&nbsp;&nbsp;yield&nbsp;5;<br>}<br><br>foreach(generateNumbers()&nbsp;as&nbsp;$number)&nbsp;{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$number;&nbsp;//&nbsp;12345<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, funcția generateNumbers() pentru generarea unei părți din date utilizează array-ul [2, 3, 4] prin expresia yield from [2, 3, 4].</p>
+     <p class="paragraph">Funcția generator poate accepta parametri, permițând astfel personalizarea comportamentului generatorului:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;generateNumbers($start,&nbsp;$end)&nbsp;{<br>&nbsp;&nbsp;&nbsp;for($i&nbsp;=&nbsp;$start;&nbsp;$i&nbsp;&lt;&nbsp;$end;&nbsp;$i++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yield&nbsp;$i;<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>foreach(generateNumbers(4,&nbsp;9)&nbsp;as&nbsp;$number)&nbsp;{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$number;&nbsp;//&nbsp;45678<br>}</code></pre>
+     </div>
+     <p class="paragraph">Poate apărea întrebarea: de ce avem nevoie de generatoare? Nu putem să iterăm pur și simplu un array obișnuit? De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>$numbers&nbsp;=&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5];<br>foreach($numbers&nbsp;as&nbsp;$number)&nbsp;{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$number;&nbsp;//&nbsp;12345<br>}</code></pre>
+     </div>
+     <p class="paragraph">Problema este că, atunci când lucrăm cu un array, întregul array este încărcat în memorie. În cazul unor volume mici de date, acest aspect poate fi ignorat. Însă, pe măsură ce dimensiunea array-ului crește, cresc și costurile și pierderile în performanță.</p>
+     <p class="paragraph">Generatoarele sunt menite să rezolve această problemă, extrăgând doar o valoare la un moment dat când se apelează funcția, economisind astfel resursele de calcul.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

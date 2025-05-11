@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Python', activeChapter='6.Module', activeLesson='2.Generarea bytecode-ului modulelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Generarea bytecode-ului modulelor</h1>
+     <p class="paragraph">La executarea unui script în limbajul Python, execuția este, în general, împărțită în două etape:</p>
+     <ul class="enumeration">
+      <li>Fișierul cu codul (fișierul cu extensia .py) este compilat într-un bytecode intermediar</li>
+      <li>Apoi bytecode-ul compilat este interpretat, adică are loc execuția propriu-zisă a programului</li>
+     </ul>
+     <p class="paragraph">În acest proces, nu trebuie să generăm explicit niciun bytecode; acesta este creat implicit în timpul execuției scriptului Python. Dacă programul importă module/biblioteci externe și acestea sunt importate pentru prima dată, bytecode-ul lor compilat este salvat într-un fișier cu extensia .pyc și este stocat în directorul __pycache__ din folderul în care se află fișierul cu codul Python</p>
+     <p class="paragraph">Dacă aducem modificări în fișierul sursă al bibliotecii, Python recompilează fișierul bytecode. Dacă nu există modificări în cod, este încărcat bytecode-ul compilat anterior din fișierul *.pyc. Acest lucru permite optimizarea lucrului cu aplicația, compilarea și execuția ei mai rapidă.</p>
+     <p class="paragraph">Cu toate acestea, bytecode-ul scriptului principal, care reprezintă fișierul principal al programului și care este transmis interpretului Python, nu este salvat în fișierul *.pyc și este recompilat de fiecare dată la lansarea aplicației.</p>
+     <p class="paragraph">Să presupunem că în folderul proiectului avem un fișier user.py cu o funcție simplă care primește doi parametri și afișează valorile lor:</p>
+     <div class="code-inline">
+      <pre><code>def&nbsp;printUser(username,&nbsp;userage):<br>&nbsp;&nbsp;&nbsp;print(f"Name:&nbsp;{username}&nbsp;&nbsp;Age:{userage}")</code></pre>
+     </div>
+     <p class="paragraph">Conectăm acest fișier în modulul principal al programului, pe care îl vom numi app.py:</p>
+     <div class="code-inline">
+      <pre><code>import&nbsp;user<br>username&nbsp;=&nbsp;"Tom"<br>userage&nbsp;=&nbsp;39<br><br>user.printUser(username,&nbsp;userage)</code></pre>
+     </div>
+     <p class="paragraph">La executarea acestui script, în folderul proiectului (unde se află modulul "user.py") va fi creat directorul __pycache__. În acesta va fi generat un fișier bytecode, care va fi similar cu user.cpython-versiune.pyc, unde versiunea va corespunde versiunii interpretului utilizat, de exemplu, 311 (pentru versiunea Python 3.11). Fișierul pyc generat este binar, deci nu are sens să fie deschis într-un editor de text.</p>
+     <div class="image-container">
+      <img th:src="@{/images/Python/6.Module/2.Generarea%20bytecode-ului%20modulelor/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Compilarea manuală a bytecode-ului</h2>
+     <p class="paragraph">Deși fișierul bytecode este creat automat, putem să-l generăm manual. Există câteva metode pentru acest lucru: compilarea cu ajutorul scriptului py_compile și compilarea cu ajutorul modulului compileall.</p>
+     <p class="paragraph">Scriptul py_compile este utilizat pentru compilarea fișierelor individuale. Pentru a compila un script arbitrar, user.py, într-un fișier cu bytecode, am putea folosi următorul program:</p>
+     <div class="code-inline">
+      <pre><code>import&nbsp;py_compile<br><br>py_compile.compile("user.py")&nbsp;&nbsp;&nbsp;#&nbsp;transmitem&nbsp;calea&nbsp;către&nbsp;script</code></pre>
+     </div>
+     <p class="paragraph">Pentru compilare, transmitem calea către script funcției compile(). După execuția programului, în folderul curent va fi generat și un director __pycache__, iar în el un fișier user.cpython-311.pyc</p>
+     <p class="paragraph">Modulul compileall este utilizat pentru a compila toate fișierele Python din anumite locații. De exemplu, vom compila toate fișierele din directorul C:/python/files</p>
+     <div class="code-inline">
+      <pre><code>python&nbsp;-m&nbsp;compileall&nbsp;c:\python\files</code></pre>
+     </div>
+     <p class="paragraph">În mod implicit, sunt compilate chiar și acele fișiere care se află în subdirectoare. Dacă dorim să compilăm doar fișierele care se află direct în folderul specificat, se utilizează opțiunea -l</p>
+     <div class="code-inline">
+      <pre><code>python&nbsp;-m&nbsp;compileall&nbsp;c:\python\files&nbsp;-l</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

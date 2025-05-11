@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='6.Delegati, evenimente si lambda', activeLesson='8.Inchideri'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Închideri (closure)</h1>
+     <p class="paragraph">O închidere (closure) reprezintă un obiect funcție care memorează mediul său lexical chiar și atunci când este executată în afara domeniului său de vizibilitate.</p>
+     <p class="paragraph">Tehnic, o închidere include trei componente:</p>
+     <ul class="enumeration">
+      <li>Funcția externă, care definește un anumit domeniu de vizibilitate și în care sunt definite unele variabile și parametri - mediul lexical</li>
+      <li>Variabilele și parametrii (mediul lexical), care sunt definite în funcția externă</li>
+      <li>Funcția internă, care utilizează variabilele și parametrii funcției externe</li>
+     </ul>
+     <p class="paragraph">În limbajul C#, închiderile pot fi realizate în diferite moduri - cu ajutorul funcțiilor locale și expresiilor lambda.</p>
+     <p class="paragraph">Să analizăm crearea închiderilor prin funcții locale:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;fn&nbsp;=&nbsp;Outer();&nbsp;&nbsp;&nbsp;//&nbsp;fn&nbsp;=&nbsp;Inner,&nbsp;deoarece&nbsp;metoda&nbsp;Outer&nbsp;returnează&nbsp;funcția&nbsp;Inner<br>//&nbsp;apelăm&nbsp;funcția&nbsp;internă&nbsp;Inner<br>fn();&nbsp;&nbsp;&nbsp;//&nbsp;6<br>fn();&nbsp;&nbsp;&nbsp;//&nbsp;7<br>fn();&nbsp;&nbsp;&nbsp;//&nbsp;8<br><br>Action&nbsp;Outer()&nbsp;&nbsp;//&nbsp;metodă&nbsp;sau&nbsp;funcție&nbsp;externă<br>{<br>&nbsp;&nbsp;&nbsp;int&nbsp;x&nbsp;=&nbsp;5;&nbsp;&nbsp;//&nbsp;mediu&nbsp;lexical&nbsp;-&nbsp;variabilă&nbsp;locală<br>&nbsp;&nbsp;&nbsp;void&nbsp;Inner()&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;funcție&nbsp;locală<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x++;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;operații&nbsp;cu&nbsp;mediul&nbsp;lexical<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(x);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;return&nbsp;Inner;&nbsp;&nbsp;&nbsp;//&nbsp;returnăm&nbsp;funcția&nbsp;locală<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici, metoda Outer are ca tip de returnare tipul Action, adică metoda returnează o funcție care nu acceptă parametri și are tipul void.</p>
+     <div class="code-inline">
+      <pre><code>Action&nbsp;Outer()</code></pre>
+     </div>
+     <p class="paragraph">În interiorul metodei Outer este definită variabila x - aceasta este mediul lexical pentru funcția internă:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;x&nbsp;=&nbsp;5;</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, în interiorul metodei Outer este definită funcția internă - funcția locală Inner, care accesează mediul său lexical - variabila x - îi mărește valoarea cu unu și o afișează în consolă:</p>
+     <div class="code-inline">
+      <pre><code>void&nbsp;Inner()<br>{<br>&nbsp;&nbsp;&nbsp;x++;<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(x);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Această funcție locală este returnată de metoda Outer:</p>
+     <div class="code-inline">
+      <pre><code>return&nbsp;Inner;</code></pre>
+     </div>
+     <p class="paragraph">În program, apelăm metoda Outer și obținem în variabila fn funcția locală Inner:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;fn&nbsp;=&nbsp;Outer();</code></pre>
+     </div>
+     <p class="paragraph">Variabila fn reprezintă o închidere, adică combină două lucruri: funcția și mediul în care funcția a fost creată. Și, deși am obținut funcția locală și o putem apela în afara metodei în care a fost definită, aceasta își amintește mediul său lexical și poate să-l acceseze și să-l modifice, ceea ce vedem prin ieșirea în consolă:</p>
+     <div class="code-inline">
+      <pre><code>fn();&nbsp;&nbsp;&nbsp;//&nbsp;6<br>fn();&nbsp;&nbsp;&nbsp;//&nbsp;7<br>fn();&nbsp;&nbsp;&nbsp;//&nbsp;8</code></pre>
+     </div>
+     <h2 class="subtitle">Realizarea cu ajutorul expresiilor lambda</h2>
+     <p class="paragraph">Cu ajutorul lambdelor putem simplifica definirea unei închideri:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;outerFn&nbsp;=&nbsp;()&nbsp;=&gt;<br>{<br>&nbsp;&nbsp;&nbsp;int&nbsp;x&nbsp;=&nbsp;10;<br>&nbsp;&nbsp;&nbsp;var&nbsp;innerFn&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;Console.WriteLine(++x);<br>&nbsp;&nbsp;&nbsp;return&nbsp;innerFn;<br>};<br><br>var&nbsp;fn&nbsp;=&nbsp;outerFn();&nbsp;&nbsp;&nbsp;//&nbsp;fn&nbsp;=&nbsp;innerFn,&nbsp;deoarece&nbsp;outerFn&nbsp;returnează&nbsp;innerFn<br>//&nbsp;apelăm&nbsp;innerFn<br>fn();&nbsp;&nbsp;&nbsp;//&nbsp;11<br>fn();&nbsp;&nbsp;&nbsp;//&nbsp;12<br>fn();&nbsp;&nbsp;&nbsp;//&nbsp;13</code></pre>
+     </div>
+     <h2 class="subtitle">Utilizarea parametrilor</h2>
+     <p class="paragraph">Pe lângă variabilele externe, mediul lexical include și parametrii metodei înconjurătoare. Să analizăm utilizarea parametrilor:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;fn&nbsp;=&nbsp;Multiply(5);<br><br>Console.WriteLine(fn(5));&nbsp;&nbsp;&nbsp;//&nbsp;25<br>Console.WriteLine(fn(6));&nbsp;&nbsp;&nbsp;//&nbsp;30<br>Console.WriteLine(fn(7));&nbsp;&nbsp;&nbsp;//&nbsp;35<br><br>Operation&nbsp;Multiply(int&nbsp;n)<br>{<br>&nbsp;&nbsp;&nbsp;int&nbsp;Inner(int&nbsp;m)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;n&nbsp;*&nbsp;m;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;return&nbsp;Inner;<br>}<br>delegate&nbsp;int&nbsp;Operation(int&nbsp;n);</code></pre>
+     </div>
+     <p class="paragraph">Aici, funcția externă - metoda Multiply returnează o funcție care acceptă un număr de tip int și returnează un număr de tip int. Pentru aceasta este definit delegatul Operation, care va reprezenta tipul returnat:</p>
+     <div class="code-inline">
+      <pre><code>delegate&nbsp;int&nbsp;Operation(int&nbsp;n);</code></pre>
+     </div>
+     <p class="paragraph">Deși am putea folosi și delegatul încorporat Func&lt;int, int&gt;.</p>
+     <p class="paragraph">Apelul metodei Multiply() returnează funcția locală care corespunde semnăturii delegatului Operation:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;Inner(int&nbsp;m)<br>{<br>&nbsp;&nbsp;&nbsp;return&nbsp;n&nbsp;*&nbsp;m;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Această funcție își amintește mediul în care a fost creată, în special valoarea parametrului n. În plus, acceptă un parametru și returnează produsul parametrilor n și m.</p>
+     <p class="paragraph">În final, la apelul metodei Multiply, se definește variabila fn, care primește funcția locală Inner și mediul său lexical - valoarea parametrului n:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;fn&nbsp;=&nbsp;Multiply(5);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, parametrul n este egal cu 5.</p>
+     <p class="paragraph">La apelul funcției locale, de exemplu, în cazul:</p>
+     <div class="code-inline">
+      <pre><code>Console.WriteLine(fn(6));&nbsp;&nbsp;&nbsp;//&nbsp;30</code></pre>
+     </div>
+     <p class="paragraph">Numărul 6 este transmis pentru parametrul m al funcției locale, care returnează produsul n și m, adică 5 * 6 = 30.</p>
+     <p class="paragraph">De asemenea, putem simplifica tot acest cod cu ajutorul lambdelor:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;multiply&nbsp;=&nbsp;(int&nbsp;n)&nbsp;=&gt;&nbsp;(int&nbsp;m)&nbsp;=&gt;&nbsp;n&nbsp;*&nbsp;m;<br><br>var&nbsp;fn&nbsp;=&nbsp;multiply(5);<br><br>Console.WriteLine(fn(5));&nbsp;&nbsp;&nbsp;//&nbsp;25<br>Console.WriteLine(fn(6));&nbsp;&nbsp;&nbsp;//&nbsp;30<br>Console.WriteLine(fn(7));&nbsp;&nbsp;&nbsp;//&nbsp;35</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

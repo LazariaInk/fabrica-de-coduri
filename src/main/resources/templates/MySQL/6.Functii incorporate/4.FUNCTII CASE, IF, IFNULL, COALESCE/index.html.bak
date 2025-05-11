@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='MySQL', activeChapter='6.Functii incorporate', activeLesson='4.FUNCTII CASE, IF, IFNULL, COALESCE'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">FUNCȚII CASE, IF, IFNULL, COALESCE</h1>
+     <h2 class="subtitle">Funcția CASE</h2>
+     <p class="paragraph">Funcția CASE verifică veridicitatea unui set de condiții și, în funcție de rezultatul verificării, poate returna un rezultat specific. Această funcție are următoarea formă:</p>
+     <div class="code-inline">
+      <pre><code>CASE<br>&nbsp;&nbsp;&nbsp;WHEN&nbsp;conditie_1&nbsp;THEN&nbsp;rezultat_1<br>&nbsp;&nbsp;&nbsp;WHEN&nbsp;conditie_2&nbsp;THEN&nbsp;rezultat_2<br>&nbsp;&nbsp;&nbsp;.................................<br>&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;conditie_N&nbsp;THEN&nbsp;rezultat_N<br>&nbsp;&nbsp;&nbsp;[ELSE&nbsp;rezultat_alternativ]<br>END</code></pre>
+     </div>
+     <p class="paragraph">Haideți să luăm ca exemplu următoarea tabelă Products:</p>
+     <div class="code-inline">
+      <pre><code>CREATE&nbsp;TABLE&nbsp;Products<br>(<br>&nbsp;&nbsp;&nbsp;Id&nbsp;INT&nbsp;AUTO_INCREMENT&nbsp;PRIMARY&nbsp;KEY,<br>&nbsp;&nbsp;&nbsp;ProductName&nbsp;VARCHAR(30)&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;Manufacturer&nbsp;VARCHAR(20)&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;ProductCount&nbsp;INT&nbsp;DEFAULT&nbsp;0,<br>&nbsp;&nbsp;&nbsp;Price&nbsp;DECIMAL&nbsp;NOT&nbsp;NULL<br>);</code></pre>
+     </div>
+     <p class="paragraph">Vom face o interogare la această tabelă și vom utiliza funcția CASE:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;ProductName,&nbsp;ProductCount,<br>CASE<br>&nbsp;&nbsp;&nbsp;WHEN&nbsp;ProductCount&nbsp;=&nbsp;1&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;THEN&nbsp;'Stoc&nbsp;epuizat'<br>&nbsp;&nbsp;&nbsp;WHEN&nbsp;ProductCount&nbsp;=&nbsp;2&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;THEN&nbsp;'Stoc&nbsp;redus'<br>&nbsp;&nbsp;&nbsp;WHEN&nbsp;ProductCount&nbsp;=&nbsp;3&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;THEN&nbsp;'În&nbsp;stoc'<br>&nbsp;&nbsp;&nbsp;ELSE&nbsp;'Stoc&nbsp;bogat'<br>END&nbsp;AS&nbsp;Category<br>FROM&nbsp;Products;</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/6.Functii%20incorporate/4.FUNCTII%20CASE,%20IF,%20IFNULL,%20COALESCE/images/mysql-cazuri-case-verificare-stocuri-produse.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Funcția IF</h2>
+     <p class="paragraph">Funcția IF, în funcție de rezultatul unei expresii condiționale, returnează una dintre cele două valori. Forma generală a funcției arată astfel:</p>
+     <div class="code-inline">
+      <pre><code>IF(&nbsp;condiție,&nbsp;valoare_1,&nbsp;valoare_2&nbsp;)</code></pre>
+     </div>
+     <p class="paragraph">Dacă condiția transmisă ca prim parametru este adevărată, atunci se returnează prima valoare, altfel se returnează a doua valoare. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;ProductName,&nbsp;Manufacturer,<br>&nbsp;&nbsp;&nbsp;IF(ProductCount&nbsp;&gt;&nbsp;3,&nbsp;'Multe&nbsp;produse',&nbsp;'Puține&nbsp;produse')<br>FROM&nbsp;Products;</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/6.Functii%20incorporate/4.FUNCTII%20CASE,%20IF,%20IFNULL,%20COALESCE/images/mysql-if-conditie-multe-putine-produse.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Funcția IFNULL</h2>
+     <p class="paragraph">Funcția IFNULL verifică valoarea unei anumite expresii. Dacă aceasta este NULL, atunci funcția returnează valoarea furnizată ca al doilea parametru.</p>
+     <div class="code-inline">
+      <pre><code>IFNULL(expresie,&nbsp;valoare)</code></pre>
+     </div>
+     <p class="paragraph">Spre exemplu, să luăm următoarea tabelă:</p>
+     <div class="code-inline">
+      <pre><code>CREATE&nbsp;TABLE&nbsp;Clients<br>(<br>&nbsp;&nbsp;&nbsp;Id&nbsp;INT&nbsp;AUTO_INCREMENT&nbsp;PRIMARY&nbsp;KEY,<br>&nbsp;&nbsp;&nbsp;FirstName&nbsp;VARCHAR(20)&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;LastName&nbsp;VARCHAR(20)&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;Phone&nbsp;VARCHAR(20)&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;Email&nbsp;VARCHAR(20)&nbsp;NULL<br>);<br>&nbsp;<br>INSERT&nbsp;INTO&nbsp;Clients&nbsp;(FirstName,&nbsp;LastName,&nbsp;Phone,&nbsp;Email)<br>VALUES&nbsp;('Tom',&nbsp;'Smith',&nbsp;'+36436734',&nbsp;NULL),<br>('Bob',&nbsp;'Simpson',&nbsp;NULL,&nbsp;NULL);</code></pre>
+     </div>
+     <p class="paragraph">Și aplicăm funcția IFNULL la obținerea datelor:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;FirstName,&nbsp;LastName,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IFNULL(Phone,&nbsp;'nu&nbsp;este&nbsp;definit')&nbsp;AS&nbsp;Phone,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IFNULL(Email,&nbsp;'necunoscut')&nbsp;AS&nbsp;Email<br>FROM&nbsp;Clients;</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/6.Functii%20incorporate/4.FUNCTII%20CASE,%20IF,%20IFNULL,%20COALESCE/images/mysql-ifnull-date-clienti-lipsa-email-telefon.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Funcția COALESCE</h2>
+     <p class="paragraph">Funcția COALESCE primește o listă de valori și returnează prima dintre ele care nu este NULL:</p>
+     <div class="code-inline">
+      <pre><code>COALESCE(Expresia_1,&nbsp;Expresia_2,&nbsp;Expresia_N)</code></pre>
+     </div>
+     <p class="paragraph">De exemplu, să selectăm din tabela "Clients" utilizatorii și să determinăm în detaliile de contact ale acestora fie un număr de telefon, fie o adresă de email, dacă acestea nu sunt nule (NULL):</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;FirstName,&nbsp;LastName,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COALESCE(Phone,&nbsp;Email,&nbsp;nedefinit')&nbsp;AS&nbsp;Contacts<br>FROM&nbsp;Clients;</code></pre>
+     </div>
+     <p class="paragraph">Deci, în acest caz, se returnează numărul de telefon, dacă acesta este definit. Dacă nu este definit, se returnează adresa de e-mail. Dacă și adresa de e-mail nu este definită, se returnează șirul "nedefinit".</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

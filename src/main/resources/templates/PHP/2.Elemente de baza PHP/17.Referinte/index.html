@@ -1,180 +1,170 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='PHP', activeChapter='2.Elemente de baza PHP', activeLesson='17.Referinte'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Referințe</h1>
- <p class="paragraph">Referințele în PHP permit referirea la o zonă de memorie unde este localizată valoarea unei variabile sau a unui parametru.</p>
- <p class="paragraph">Pentru a crea o referință, se folosește simbolul ampersand (&amp;) înaintea variabilei. Înainte de a examina referințele, să analizăm un exemplu simplu de copiere a variabilelor:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>$tom&nbsp;=&nbsp;"Tom";<br>$sam&nbsp;=&nbsp;$tom;<br>$sam&nbsp;=&nbsp;"Sam";<br>echo&nbsp;"tom&nbsp;=&nbsp;$tom&nbsp;&lt;br&gt;";&nbsp;&nbsp;&nbsp;//&nbsp;tom&nbsp;=&nbsp;Tom<br>echo&nbsp;"sam&nbsp;=&nbsp;$sam";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;sam&nbsp;=&nbsp;Sam<br>?&gt;</code></pre>
- </div>
- <p class="paragraph">Aici, variabilei $sam i se atribuie valoarea variabilei $tom ("Tom"). Apoi, variabilei $sam i se atribuie o nouă valoare - "Sam". Rezultatul programului este previzibil - ambele variabile au valori diferite:</p>
- <div class="code-inline">
-  <pre><code>tom&nbsp;=&nbsp;Tom<br>sam&nbsp;=&nbsp;Sam</code></pre>
- </div>
- <p class="paragraph">Acum, la copierea valorii variabilelor, vom folosi o referință:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>$tom&nbsp;=&nbsp;"Tom";<br>$sam&nbsp;=&nbsp;&amp;$tom;&nbsp;&nbsp;&nbsp;//&nbsp;transmiterea&nbsp;referinței<br>$sam&nbsp;=&nbsp;"Sam";<br>echo&nbsp;"tom&nbsp;=&nbsp;$tom&nbsp;&lt;br&gt;";&nbsp;&nbsp;&nbsp;//&nbsp;tom&nbsp;=&nbsp;Sam<br>echo&nbsp;"sam&nbsp;=&nbsp;$sam";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;sam&nbsp;=&nbsp;Sam<br>?&gt;</code></pre>
- </div>
- <p class="paragraph">Aici ne interesează expresia:</p>
- <div class="code-inline">
-  <pre><code>$sam&nbsp;=&nbsp;&amp;$tom;</code></pre>
- </div>
- <p class="paragraph">În acest caz, variabilei $sam i se atribuie nu copia valorii variabilei $tom, ca în exemplul anterior, ci o referință la zona de memorie ocupată de variabila $tom. După executarea instrucțiunii:</p>
- <div class="code-inline">
-  <pre><code>$sam&nbsp;=&nbsp;&amp;$tom;</code></pre>
- </div>
- <p class="paragraph">Ambele variabile vor indica aceeași adresă de memorie. Acest lucru va duce la faptul că schimbarea valorii uneia dintre aceste variabile va schimba și valoarea celeilalte variabile, deoarece ele indică aceeași zonă de memorie și, prin urmare, au aceeași valoare comună:</p>
- <div class="code-inline">
-  <pre><code>tom&nbsp;=&nbsp;Sam<br>sam&nbsp;=&nbsp;Sam</code></pre>
- </div>
- <p class="paragraph">Atribuirea unei referințe la variabilă se poate face în două moduri:</p>
- <div class="code-inline">
-  <pre><code>$sam&nbsp;=&nbsp;&amp;$tom;<br>//&nbsp;sau&nbsp;așa<br>$sam&nbsp;=&nbsp;&amp;&nbsp;$tom;</code></pre>
- </div>
- <h2 class="subtitle">Transmiterea prin referință</h2>
- <p class="paragraph">În exemplul din temele anterioare, am transmis parametrii prin valoare. Dar în PHP există și o altă formă de transmitere a parametrilor - prin referință.</p>
- <p class="paragraph">Să examinăm și să comparăm aceste două moduri de transmitere a parametrilor. Transmiterea standard a parametrilor prin valoare:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>function&nbsp;square($a)&nbsp;{<br>&nbsp;&nbsp;&nbsp;$a&nbsp;*=&nbsp;$a;<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"a&nbsp;=&nbsp;$a";<br>}<br><br>$number&nbsp;=&nbsp;5;<br>square($number);<br>echo&nbsp;"&lt;br&nbsp;/&gt;number&nbsp;=&nbsp;$number";<br>?&gt;</code></pre>
- </div>
- <p class="paragraph">Rezultatul programului:</p>
- <div class="code-inline">
-  <pre><code>a&nbsp;=&nbsp;25<br>number&nbsp;=&nbsp;5</code></pre>
- </div>
- <p class="paragraph">În acest caz, în interiorul funcției square(), valoarea parametrului $a este ridicată la pătrat. Adică valoarea parametrului din interiorul funcției se schimbă.</p>
- <p class="paragraph">Cu toate acestea, după apelul funcției square(), valoarea variabilei $number transmisă parametrului $a nu se va schimba. Aceasta este transmiterea prin valoare, care nu afectează variabila $number.</p>
- <p class="paragraph">Acum să examinăm transmiterea parametrului prin referință:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>function&nbsp;square(&amp;$a)&nbsp;{<br>&nbsp;&nbsp;&nbsp;$a&nbsp;*=&nbsp;$a;<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"a&nbsp;=&nbsp;$a";<br>}<br><br>$number&nbsp;=&nbsp;5;<br>square($number);<br>echo&nbsp;"&lt;br&nbsp;/&gt;number&nbsp;=&nbsp;$number";<br>?&gt;</code></pre>
- </div>
- <p class="paragraph">Rezultatul programului:</p>
- <div class="code-inline">
-  <pre><code>a&nbsp;=&nbsp;25<br>number&nbsp;=&nbsp;25</code></pre>
- </div>
- <p class="paragraph">La transmiterea prin referință, se pune simbolul ampersand înaintea parametrului: function square(&amp;$a). Acum, interpretatorul va transmite nu valoarea variabilei, ci referința la această variabilă din memorie.</p>
- <p class="paragraph">Astfel, atât variabila $number, cât și parametrul $a vor indica aceeași zonă de memorie. În consecință, valoarea variabilei $number după transmiterea parametrului &amp;$a se va schimba.</p>
- <h2 class="subtitle">Returnarea unei referințe din funcție</h2>
- <p class="paragraph">O funcție poate returna și o referință. În acest caz, la definirea și apelul funcției, se pune simbolul ampersand înaintea numelui funcției:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>function&nbsp;&amp;checkName(&amp;$name)&nbsp;{<br>&nbsp;&nbsp;&nbsp;if&nbsp;($name&nbsp;===&nbsp;"admin")&nbsp;$name&nbsp;=&nbsp;"Tom";<br>&nbsp;&nbsp;&nbsp;return&nbsp;$name;<br>}<br><br>$userName&nbsp;=&nbsp;"admin";<br>$checkedName&nbsp;=&nbsp;&amp;checkName($userName);<br>echo&nbsp;"&lt;br&nbsp;/&gt;userName:&nbsp;$userName";<br>echo&nbsp;"&lt;br&nbsp;/&gt;checkedName:&nbsp;$checkedName";<br>?&gt;</code></pre>
- </div>
- <p class="paragraph">În acest caz, funcția checkName() primește un parametru prin referință și returnează o referință - de fapt, referința transmisă în funcție. Pentru aceasta, înaintea definirii funcției se pune simbolul ampersand:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;&amp;checkName(&amp;$name)</code></pre>
- </div>
- <p class="paragraph">Pentru a imita funcționarea, funcția verifică numele utilizatorului și îl schimbă la un nume standard dacă este egal cu "admin".</p>
- <p class="paragraph">La apelul funcției, se pune simbolul ampersand înaintea numelui funcției:</p>
- <div class="code-inline">
-  <pre><code>$checkedName&nbsp;=&nbsp;&amp;checkName($userName)</code></pre>
- </div>
- <p class="paragraph">După executarea funcției, variabila $checkedName va conține de fapt referința la variabila $userName.</p>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Referințe</h1>
+     <p class="paragraph">Referințele în PHP permit referirea la o zonă de memorie unde este localizată valoarea unei variabile sau a unui parametru.</p>
+     <p class="paragraph">Pentru a crea o referință, se folosește simbolul ampersand (&amp;) înaintea variabilei. Înainte de a examina referințele, să analizăm un exemplu simplu de copiere a variabilelor:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$tom&nbsp;=&nbsp;"Tom";<br>$sam&nbsp;=&nbsp;$tom;<br>$sam&nbsp;=&nbsp;"Sam";<br>echo&nbsp;"tom&nbsp;=&nbsp;$tom&nbsp;&lt;br&gt;";&nbsp;&nbsp;&nbsp;//&nbsp;tom&nbsp;=&nbsp;Tom<br>echo&nbsp;"sam&nbsp;=&nbsp;$sam";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;sam&nbsp;=&nbsp;Sam<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici, variabilei $sam i se atribuie valoarea variabilei $tom ("Tom"). Apoi, variabilei $sam i se atribuie o nouă valoare - "Sam". Rezultatul programului este previzibil - ambele variabile au valori diferite:</p>
+     <div class="code-inline">
+      <pre><code>tom&nbsp;=&nbsp;Tom<br>sam&nbsp;=&nbsp;Sam</code></pre>
+     </div>
+     <p class="paragraph">Acum, la copierea valorii variabilelor, vom folosi o referință:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$tom&nbsp;=&nbsp;"Tom";<br>$sam&nbsp;=&nbsp;&amp;$tom;&nbsp;&nbsp;&nbsp;//&nbsp;transmiterea&nbsp;referinței<br>$sam&nbsp;=&nbsp;"Sam";<br>echo&nbsp;"tom&nbsp;=&nbsp;$tom&nbsp;&lt;br&gt;";&nbsp;&nbsp;&nbsp;//&nbsp;tom&nbsp;=&nbsp;Sam<br>echo&nbsp;"sam&nbsp;=&nbsp;$sam";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;sam&nbsp;=&nbsp;Sam<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici ne interesează expresia:</p>
+     <div class="code-inline">
+      <pre><code>$sam&nbsp;=&nbsp;&amp;$tom;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, variabilei $sam i se atribuie nu copia valorii variabilei $tom, ca în exemplul anterior, ci o referință la zona de memorie ocupată de variabila $tom. După executarea instrucțiunii:</p>
+     <div class="code-inline">
+      <pre><code>$sam&nbsp;=&nbsp;&amp;$tom;</code></pre>
+     </div>
+     <p class="paragraph">Ambele variabile vor indica aceeași adresă de memorie. Acest lucru va duce la faptul că schimbarea valorii uneia dintre aceste variabile va schimba și valoarea celeilalte variabile, deoarece ele indică aceeași zonă de memorie și, prin urmare, au aceeași valoare comună:</p>
+     <div class="code-inline">
+      <pre><code>tom&nbsp;=&nbsp;Sam<br>sam&nbsp;=&nbsp;Sam</code></pre>
+     </div>
+     <p class="paragraph">Atribuirea unei referințe la variabilă se poate face în două moduri:</p>
+     <div class="code-inline">
+      <pre><code>$sam&nbsp;=&nbsp;&amp;$tom;<br>//&nbsp;sau&nbsp;așa<br>$sam&nbsp;=&nbsp;&amp;&nbsp;$tom;</code></pre>
+     </div>
+     <h2 class="subtitle">Transmiterea prin referință</h2>
+     <p class="paragraph">În exemplul din temele anterioare, am transmis parametrii prin valoare. Dar în PHP există și o altă formă de transmitere a parametrilor - prin referință.</p>
+     <p class="paragraph">Să examinăm și să comparăm aceste două moduri de transmitere a parametrilor. Transmiterea standard a parametrilor prin valoare:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>function&nbsp;square($a)&nbsp;{<br>&nbsp;&nbsp;&nbsp;$a&nbsp;*=&nbsp;$a;<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"a&nbsp;=&nbsp;$a";<br>}<br><br>$number&nbsp;=&nbsp;5;<br>square($number);<br>echo&nbsp;"&lt;br&nbsp;/&gt;number&nbsp;=&nbsp;$number";<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Rezultatul programului:</p>
+     <div class="code-inline">
+      <pre><code>a&nbsp;=&nbsp;25<br>number&nbsp;=&nbsp;5</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, în interiorul funcției square(), valoarea parametrului $a este ridicată la pătrat. Adică valoarea parametrului din interiorul funcției se schimbă.</p>
+     <p class="paragraph">Cu toate acestea, după apelul funcției square(), valoarea variabilei $number transmisă parametrului $a nu se va schimba. Aceasta este transmiterea prin valoare, care nu afectează variabila $number.</p>
+     <p class="paragraph">Acum să examinăm transmiterea parametrului prin referință:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>function&nbsp;square(&amp;$a)&nbsp;{<br>&nbsp;&nbsp;&nbsp;$a&nbsp;*=&nbsp;$a;<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"a&nbsp;=&nbsp;$a";<br>}<br><br>$number&nbsp;=&nbsp;5;<br>square($number);<br>echo&nbsp;"&lt;br&nbsp;/&gt;number&nbsp;=&nbsp;$number";<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Rezultatul programului:</p>
+     <div class="code-inline">
+      <pre><code>a&nbsp;=&nbsp;25<br>number&nbsp;=&nbsp;25</code></pre>
+     </div>
+     <p class="paragraph">La transmiterea prin referință, se pune simbolul ampersand înaintea parametrului: function square(&amp;$a). Acum, interpretatorul va transmite nu valoarea variabilei, ci referința la această variabilă din memorie.</p>
+     <p class="paragraph">Astfel, atât variabila $number, cât și parametrul $a vor indica aceeași zonă de memorie. În consecință, valoarea variabilei $number după transmiterea parametrului &amp;$a se va schimba.</p>
+     <h2 class="subtitle">Returnarea unei referințe din funcție</h2>
+     <p class="paragraph">O funcție poate returna și o referință. În acest caz, la definirea și apelul funcției, se pune simbolul ampersand înaintea numelui funcției:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>function&nbsp;&amp;checkName(&amp;$name)&nbsp;{<br>&nbsp;&nbsp;&nbsp;if&nbsp;($name&nbsp;===&nbsp;"admin")&nbsp;$name&nbsp;=&nbsp;"Tom";<br>&nbsp;&nbsp;&nbsp;return&nbsp;$name;<br>}<br><br>$userName&nbsp;=&nbsp;"admin";<br>$checkedName&nbsp;=&nbsp;&amp;checkName($userName);<br>echo&nbsp;"&lt;br&nbsp;/&gt;userName:&nbsp;$userName";<br>echo&nbsp;"&lt;br&nbsp;/&gt;checkedName:&nbsp;$checkedName";<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, funcția checkName() primește un parametru prin referință și returnează o referință - de fapt, referința transmisă în funcție. Pentru aceasta, înaintea definirii funcției se pune simbolul ampersand:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;&amp;checkName(&amp;$name)</code></pre>
+     </div>
+     <p class="paragraph">Pentru a imita funcționarea, funcția verifică numele utilizatorului și îl schimbă la un nume standard dacă este egal cu "admin".</p>
+     <p class="paragraph">La apelul funcției, se pune simbolul ampersand înaintea numelui funcției:</p>
+     <div class="code-inline">
+      <pre><code>$checkedName&nbsp;=&nbsp;&amp;checkName($userName)</code></pre>
+     </div>
+     <p class="paragraph">După executarea funcției, variabila $checkedName va conține de fapt referința la variabila $userName.</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

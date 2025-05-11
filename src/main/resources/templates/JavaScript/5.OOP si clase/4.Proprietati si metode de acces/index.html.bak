@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='5.OOP si clase', activeLesson='4.Proprietati si metode de acces'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Proprietăți și metode de acces</h1>
+     <p class="paragraph">Pentru a intermedi accesul la proprietățile unei clase, în ultimele standarde JavaScript a fost adăugat suport pentru metodele de acces - get și set. Mai întâi, să examinăm problema cu care ne putem confrunta:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;constructor(name,&nbsp;age){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>}<br>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;37);<br>console.log(tom.age);&nbsp;&nbsp;&nbsp;//&nbsp;37<br>tom.age&nbsp;=&nbsp;-15;<br>console.log(tom.age);&nbsp;&nbsp;&nbsp;//&nbsp;-15</code></pre>
+     </div>
+     <p class="paragraph">Clasa Person definește două proprietăți - name (nume) și age (vârstă a persoanei), ale căror valori le putem obține sau seta. Dar ce se întâmplă dacă transmitem valori incorecte? De exemplu, în exemplul de mai sus, proprietății age i se transmite un număr negativ, însă vârsta nu poate fi negativă.</p>
+     <p class="paragraph">Pentru a ieși din această situație, putem defini un câmp privat age, la care am putea avea acces doar din interiorul clasei curente. Și pentru a obține sau seta valoarea sa, putem crea metode speciale:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;#ageValue&nbsp;=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;constructor(name,&nbsp;age){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.setAge(age);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;getAge(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;this.#ageValue;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;setAge(value){&nbsp;if(value&gt;0&nbsp;&amp;&amp;&nbsp;value&nbsp;&lt;&nbsp;110)&nbsp;this.#ageValue&nbsp;=&nbsp;value;&nbsp;}<br>}<br>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;37);<br>console.log(tom.getAge());&nbsp;&nbsp;//&nbsp;37<br>tom.setAge(-15);<br>console.log(tom.getAge());&nbsp;&nbsp;//&nbsp;37</code></pre>
+     </div>
+     <p class="paragraph">Acum vârsta este stocată în câmpul privat ageValue. La setarea sa în metoda setAge(), se verifică valoarea furnizată. Setarea are loc doar dacă valoarea furnizată este corectă. Metoda getAge() returnează valoarea acestei variabile.</p>
+     <p class="paragraph">Dar există și o altă soluție - utilizarea metodelor de acces get și set.</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;Definirea&nbsp;unui&nbsp;câmp&nbsp;privat<br>#field;<br>set&nbsp;field(value){<br>&nbsp;&nbsp;&nbsp;this.#field=&nbsp;value;<br>}<br>get&nbsp;field(){<br>&nbsp;&nbsp;&nbsp;return&nbsp;this.#field;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Ambele metode - get și set - au aceleași nume. De obicei, ele intermedierează accesul la un anumit câmp privat. Metoda set este destinată pentru setare și primește noul valor ca parametru. Ulterior, în metoda set, putem efectua o serie de acțiuni la momentul setării.</p>
+     <p class="paragraph">Metoda get este destinată pentru obținere și returnează valoarea. Aici, putem defini o logică pentru returnarea valorii.</p>
+     <p class="paragraph">Astfel, vom rescrie exemplul anterior folosind get și set:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;#ageValue&nbsp;=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;constructor(name,&nbsp;age){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;set&nbsp;age(value){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Transmis&nbsp;${value}`);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(value&gt;0&nbsp;&amp;&amp;&nbsp;value&nbsp;&lt;&nbsp;110)&nbsp;this.#ageValue&nbsp;=&nbsp;value;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;get&nbsp;age(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;this.#ageValue;<br>&nbsp;&nbsp;&nbsp;}<br>}<br>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;37);<br>console.log(tom.age);<br>tom.age&nbsp;=&nbsp;-15;<br>console.log(tom.age);</code></pre>
+     </div>
+     <p class="paragraph">Este bine de menționat că lucrul cu metodele de acces se face în același mod ca și cu proprietățile obișnuite. Astfel, pentru a obține valoarea și a o afișa în consolă, se folosește un apel:</p>
+     <div class="code-inline">
+      <pre><code>console.log(tom.age);</code></pre>
+     </div>
+     <p class="paragraph">Dar nu</p>
+     <div class="code-inline">
+      <pre><code>console.log(tom.age());</code></pre>
+     </div>
+     <p class="paragraph">La accesarea `tom.age`, efectiv se va apela metoda `get`, care va returna valoarea câmpului `ageValue`.</p>
+     <p class="paragraph">Iar la apelul</p>
+     <div class="code-inline">
+      <pre><code>tom.age&nbsp;=&nbsp;-15;</code></pre>
+     </div>
+     <p class="paragraph">Efectiv, se va declanșa metoda `set`, care va primi valoarea transmisă prin singurul său parametru (în acest caz, numărul -15). Mai departe, în cadrul metodei `set`, putem decide dacă să setăm această valoare sau nu.</p>
+     <h2 class="subtitle">Proprietăți disponibile doar pentru citire</h2>
+     <p class="paragraph">Anterior, am folosit ambele metode `get` și `set`, prin urmare, valoarea câmpului putea fi atât obținută, cât și setată. Cu toate acestea, în practică, putem folosi doar una dintre ele. De exemplu, putem menține doar metoda `get`, făcând astfel proprietatea disponibilă doar pentru citire.</p>
+     <p class="paragraph">De exemplu, vom modifica exemplul anterior și vom face proprietatea `name` disponibilă doar pentru citire:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person&nbsp;{<br>&nbsp;&nbsp;&nbsp;#age&nbsp;=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;#name;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;constructor(name,&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.#name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;//set&nbsp;name(value){&nbsp;this.#name&nbsp;=&nbsp;value;&nbsp;}<br>&nbsp;&nbsp;&nbsp;get&nbsp;name()&nbsp;{&nbsp;return&nbsp;this.#name;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;set&nbsp;age(value)&nbsp;{&nbsp;if&nbsp;(value&nbsp;&gt;&nbsp;0&nbsp;&amp;&amp;&nbsp;value&nbsp;&lt;&nbsp;110)&nbsp;this.#age&nbsp;=&nbsp;value;&nbsp;}<br>&nbsp;&nbsp;&nbsp;get&nbsp;age()&nbsp;{&nbsp;return&nbsp;this.#age;&nbsp;}<br>}<br><br>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;37);<br>console.log(tom.name);&nbsp;&nbsp;//&nbsp;Tom<br>tom.name&nbsp;=&nbsp;"Bob";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Aceasta&nbsp;nu&nbsp;va&nbsp;schimba&nbsp;nimic<br>console.log(tom.name);&nbsp;&nbsp;//&nbsp;Tom&nbsp;-&nbsp;valoarea&nbsp;nu&nbsp;s-a&nbsp;modificat</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, în loc de o proprietate publică `name`, este definit un câmp privat `#name`. Acesta poate fi setat doar din interiorul clasei, ceea ce facem în constructorul clasei. Cu toate acestea, din exterior, acesta poate fi doar citit folosind metoda `get`. Prin urmare, încercarea de a seta proprietatea `name` din exterior, așa cum este evidențiat în comentariu:</p>
+     <div class="code-inline">
+      <pre><code>tom.name&nbsp;=&nbsp;"Bob";</code></pre>
+     </div>
+     <p class="paragraph">Nu va avea niciun efect.</p>
+     <h2 class="subtitle">Proprietăți doar pentru setare</h2>
+     <p class="paragraph">De asemenea, putem face o proprietate disponibilă doar pentru scriere, lăsând doar metoda set. De exemplu, să adăugăm o nouă proprietate "id", care va fi disponibilă doar pentru scriere:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person&nbsp;{<br>&nbsp;&nbsp;&nbsp;#id;<br>&nbsp;&nbsp;&nbsp;constructor(name,&nbsp;age,&nbsp;id)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.id&nbsp;=&nbsp;id;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;set&nbsp;id(value)&nbsp;{&nbsp;this.#id&nbsp;=&nbsp;value;&nbsp;}<br>&nbsp;&nbsp;&nbsp;print()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`id:&nbsp;${this.#id}&nbsp;&nbsp;&nbsp;name:&nbsp;${this.name}&nbsp;&nbsp;&nbsp;age:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;37,&nbsp;1);<br>tom.print();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;id:&nbsp;1&nbsp;&nbsp;&nbsp;name:&nbsp;Tom&nbsp;&nbsp;&nbsp;age:&nbsp;37<br>tom.id&nbsp;=&nbsp;55;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;setăm&nbsp;valoarea&nbsp;proprietății&nbsp;id<br>tom.print();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;id:&nbsp;55&nbsp;&nbsp;&nbsp;name:&nbsp;Tom&nbsp;&nbsp;&nbsp;age:&nbsp;37<br>console.log(tom.id);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;undefined&nbsp;-&nbsp;nu&nbsp;se&nbsp;poate&nbsp;obține&nbsp;valoarea&nbsp;proprietății&nbsp;id</code></pre>
+     </div>
+     <p class="paragraph">În acest cod este definită proprietatea `id`, care setează valoarea câmpului privat `#id`. Deoarece nu este definită metoda `get` pentru această proprietate, la încercarea de a obține valoarea proprietății `id`, se va obține `undefined`:</p>
+     <div class="code-inline">
+      <pre><code>console.log(tom.id);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;undefined&nbsp;-&nbsp;nu&nbsp;se&nbsp;poate&nbsp;obține&nbsp;valoarea&nbsp;proprietății&nbsp;id</code></pre>
+     </div>
+     <h2 class="subtitle">Proprietăți fără referire la câmpuri</h2>
+     <p class="paragraph">Trebuie menționat că metodele get și set nu sunt obligate să facă referire la câmpuri private sau necompletate. Acestea pot fi și proprietăți calculate. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;constructor(firstName,&nbsp;lastName){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.firstName&nbsp;=&nbsp;firstName;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.lastName&nbsp;=&nbsp;lastName;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;get&nbsp;fullName(){&nbsp;return&nbsp;`${this.firstName}&nbsp;${this.lastName}`&nbsp;}<br>}<br>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;"Smith");<br>console.log(tom.fullName);&nbsp;&nbsp;//&nbsp;Tom&nbsp;Smith</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, proprietatea de citire `fullName` returnează, de fapt, concatenarea a două proprietăți - `firstName` și `lastName`.</p>
+     <p class="paragraph">În mod similar, se poate defini o proprietate pentru scriere:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;constructor(firstName,&nbsp;lastName){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.firstName&nbsp;=&nbsp;firstName;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.lastName&nbsp;=&nbsp;lastName;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;get&nbsp;fullName(){&nbsp;return&nbsp;`${this.firstName}&nbsp;${this.lastName}`&nbsp;}<br>&nbsp;&nbsp;&nbsp;set&nbsp;fullName(value){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[this.firstName,&nbsp;this.lastName]&nbsp;=&nbsp;value.split("&nbsp;");<br>&nbsp;&nbsp;&nbsp;}<br>}<br>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;"Smith");<br>console.log(tom.fullName);&nbsp;&nbsp;//&nbsp;Tom&nbsp;Smith<br>tom.fullName&nbsp;=&nbsp;"Tomas&nbsp;Jefferson";<br>console.log(tom.lastName);&nbsp;&nbsp;//&nbsp;Jefferson</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, metoda set a proprietății `fullName` primește un anumit șir și, folosind metoda `split`, îl împarte în funcție de spațiu pentru a obține un șir de substraturi separate prin spațiu. Astfel, teoretic, ne așteptăm să fie furnizat ceva similar cu "Tom Smith", iar după despărțirea la spațiu, proprietatea `firstName` va primi valoarea "Tom", iar `lastName` va primi valoarea "Smith".</p>
+     <p class="paragraph">Trebuie menționat că, în scopul simplității și pentru a evidenția demonstrația, nu tratăm situațiile excepționale, cum ar fi furnizarea unui șir gol sau a unui șir care nu poate fi împărțit în două părți în funcție de spațiu, etc.</p>
+     <p class="paragraph">În final, la obținerea unei noi valori:</p>
+     <div class="code-inline">
+      <pre><code>tom.fullName&nbsp;=&nbsp;"Tomas&nbsp;Jefferson";</code></pre>
+     </div>
+     <p class="paragraph">Metoda set îl va diviza prin spațiu, iar primul element al array-ului va fi atribuit proprietății firstName, în timp ce al doilea element va fi atribuit proprietății lastName.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

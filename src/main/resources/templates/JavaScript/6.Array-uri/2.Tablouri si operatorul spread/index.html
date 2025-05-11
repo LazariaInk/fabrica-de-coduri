@@ -1,169 +1,159 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='6.Array-uri', activeLesson='2.Tablouri si operatorul spread'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Tablouri și operatorul spread</h1>
- <p class="paragraph">Operatorul spread (operatorul ...) permite dezambalarea unui tablou în valori separate. Pentru a face acest lucru, se adaugă trei puncte în fața tabloului:</p>
- <div class="code-inline">
-  <pre><code>...array</code></pre>
- </div>
- <p class="paragraph">Exemplu simplu:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;users&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"];<br>console.log(...users);&nbsp;&nbsp;//&nbsp;Tom&nbsp;Sam&nbsp;Bob</code></pre>
- </div>
- <p class="paragraph">Și, aplicând acest operator, putem umple un tablou cu valorile din alt tablou:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;users&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"];<br>console.log(users);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"]<br>const&nbsp;people1&nbsp;=&nbsp;[...users];<br>const&nbsp;people2&nbsp;=&nbsp;new&nbsp;Array(...users);<br>const&nbsp;people3&nbsp;=&nbsp;Array.of(...users);<br>console.log(people1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"]<br>console.log(people2);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"]<br>console.log(people3);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"]</code></pre>
- </div>
- <h2 class="subtitle">Unirea tablourilor</h2>
- <p class="paragraph">Cu ajutorul operatorului spread, poți transmite valori din mai multe tablouri la crearea unui nou tablou. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;men&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"];<br>const&nbsp;women&nbsp;=&nbsp;["Kate",&nbsp;"Alice",&nbsp;"Mary"];<br>const&nbsp;people&nbsp;=&nbsp;[...men,&nbsp;"Alex",&nbsp;...women];<br><br>console.log(people);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob",&nbsp;"Alex",&nbsp;"Kate",&nbsp;"Alice",&nbsp;"Mary"]</code></pre>
- </div>
- <p class="paragraph">În acest caz, valorile din tablourile men și women sunt transmise către tabloul people, iar în plus, putem adăuga valori suplimentare care nu fac parte din aceste tablouri.</p>
- <h2 class="subtitle">Transmiterea argumentelor unei funcții</h2>
- <p class="paragraph">Similar, poți transmite valorile dintr-un tablou ca argumente pentru parametrii unei funcții:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;people&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"];<br><br>function&nbsp;print(first,&nbsp;second,&nbsp;third){<br>&nbsp;&nbsp;&nbsp;console.log(first);<br>&nbsp;&nbsp;&nbsp;console.log(second);<br>&nbsp;&nbsp;&nbsp;console.log(third);<br>}<br>print(...people);<br>//&nbsp;Tom<br>//&nbsp;Sam<br>//&nbsp;Bob</code></pre>
- </div>
- <p class="paragraph">În acest caz, funcția print() primește trei parametri. Operația ...people la apelul funcției permite dezambalarea tabloului people în valori separate, care sunt apoi transmise ca parametri pentru această funcție.</p>
- <p class="paragraph">Trebuie de menționat că acest lucru nu este echivalent cu a transmite tabloul în întregime la apelul funcției:</p>
- <div class="code-inline">
-  <pre><code>print(people);</code></pre>
- </div>
- <p class="paragraph">În acest caz, întregul tablou va fi transmis primului parametru al funcției - parametrul first, în timp ce celelalte vor avea valoarea undefined.</p>
- <p class="paragraph">Un alt exemplu de transmitere a valorilor dintr-un tablou ca parametri pentru o funcție:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;sum(a,&nbsp;b,&nbsp;c){<br>&nbsp;&nbsp;&nbsp;const&nbsp;d&nbsp;=&nbsp;a&nbsp;+&nbsp;b&nbsp;+&nbsp;c;<br>&nbsp;&nbsp;&nbsp;console.log(d);<br>}<br>sum(1,&nbsp;2,&nbsp;3);<br>const&nbsp;nums&nbsp;=&nbsp;[4,&nbsp;5,&nbsp;6];<br>sum(...nums);</code></pre>
- </div>
- <p class="paragraph">În al doilea caz, funcției i se transmit numerele din tabloul nums. Pentru a transmite nu doar tabloul ca o singură valoare, ci fiecare dintre elementele sale, este folosit operatorul spread (cele trei puncte ...).</p>
- <p class="paragraph">Dacă numărul de parametri ai funcției este mai mic decât numărul de elemente din tablou, atunci elementele rămase în tablou vor fi pur și simplu ignorate. Dacă numărul de parametri este mai mare decât numărul de elemente din tablou, atunci parametrii pentru care nu există valori în tablou vor primi valoarea undefined:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;people1&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob",&nbsp;"Mike"];<br>const&nbsp;people2&nbsp;=&nbsp;["Alex",&nbsp;"Bill"];<br>function&nbsp;print(first,&nbsp;second,&nbsp;third){<br>&nbsp;&nbsp;&nbsp;console.log(`${first},&nbsp;${second},&nbsp;${third}`);<br>}<br>print(...people1);&nbsp;&nbsp;//&nbsp;Tom,&nbsp;Sam,&nbsp;Bob<br>print(...people2);&nbsp;&nbsp;//&nbsp;Alex,&nbsp;Bill,&nbsp;undefined<br><br></code></pre>
- </div>
- <h2 class="subtitle">Copierea tablourilor</h2>
- <p class="paragraph">Operatorul spread oferă cel mai simplu mod de a copia elementele unui tablou în altul. Totuși, trebuie să fii atent. Să analizăm un exemplu:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;people&nbsp;=&nbsp;["Sam",&nbsp;"Tom",&nbsp;"Bob"];<br>const&nbsp;employees&nbsp;=&nbsp;[...people];<br>employees[0]&nbsp;=&nbsp;"Dan";<br>console.log(employees);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;["Dan",&nbsp;"Tom",&nbsp;"Bob"]<br>console.log(people);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;&nbsp;["Sam",&nbsp;"Tom",&nbsp;"Bob"]</code></pre>
- </div>
- <p class="paragraph">Aici sunt create două tablouri. Tabloul employees primește elementele din tabloul people. Mai apoi, modificăm primul element al tabloului employees. Din afișarea în consolă, putem vedea că modificarea unui tablou nu afectează celălalt tablou.</p>
- <p class="paragraph">Cu toate acestea, ce se întâmplă dacă copiem un tablou de obiecte:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;people&nbsp;=&nbsp;[{name:"Sam"},&nbsp;{name:"Tom"},&nbsp;{name:"Bob"}];<br>const&nbsp;employees&nbsp;=&nbsp;[...people];<br>//employees[0]&nbsp;=&nbsp;{name:&nbsp;"Dan"};<br>employees[0].name&nbsp;=&nbsp;"Dan";<br>console.log(employees);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;&nbsp;[{name:"Dan"},&nbsp;{name:"Tom"},&nbsp;{name:"Bob"}]<br>console.log(people);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;&nbsp;[{name:"Dan"},&nbsp;{name:"Tom"},&nbsp;{name:"Bob"}]</code></pre>
- </div>
- <p class="paragraph">Acum, tabloul people furnizează un tablou de obiecte, unde fiecare obiect are o singură proprietate - name. Apoi, modificăm valoarea proprietății name pentru primul element.</p>
- <p class="paragraph">Afișajul în consolă ne arată că modificarea unui tablou a dus la modificarea celuilalt tablou. Deoarece obiectele reprezintă un tip de date referențial, la copierea lor într-un nou tablou nu se transmite o copie a obiectului (cum ar fi în cazul șirurilor), ci însuși obiectul. Prin urmare, primul element al primului tablou și primul element al celui de-al doilea tablou vor reprezenta efectiv același obiect.</p>
- <p class="paragraph">Cu toate acestea, putem înlocui complet un element al unui tablou cu un alt obiect, și atunci elementul din cel de-al doilea tablou va continua să facă referire la vechiul obiect și să nu depindă de primul tablou:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;people&nbsp;=&nbsp;[{name:"Sam"},&nbsp;{name:"Tom"},&nbsp;{name:"Bob"}];<br>const&nbsp;employees&nbsp;=&nbsp;[...people];<br>employees[0]&nbsp;=&nbsp;{name:&nbsp;"Dan"};<br>console.log(employees);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;&nbsp;[{name:"Dan"},&nbsp;{name:"Tom"},&nbsp;{name:"Bob"}]<br>console.log(people);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;&nbsp;[{name:"Sam"},&nbsp;{name:"Tom"},&nbsp;{name:"Bob"}]</code></pre>
- </div>
- <p class="paragraph">În acest caz, primul element al tabloului employees este înlocuit cu o referință către un obiect nou, în timp ce primul element al tabloului people continuă să facă referire la obiectul vechi.</p>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Tablouri și operatorul spread</h1>
+     <p class="paragraph">Operatorul spread (operatorul ...) permite dezambalarea unui tablou în valori separate. Pentru a face acest lucru, se adaugă trei puncte în fața tabloului:</p>
+     <div class="code-inline">
+      <pre><code>...array</code></pre>
+     </div>
+     <p class="paragraph">Exemplu simplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;users&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"];<br>console.log(...users);&nbsp;&nbsp;//&nbsp;Tom&nbsp;Sam&nbsp;Bob</code></pre>
+     </div>
+     <p class="paragraph">Și, aplicând acest operator, putem umple un tablou cu valorile din alt tablou:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;users&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"];<br>console.log(users);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"]<br>const&nbsp;people1&nbsp;=&nbsp;[...users];<br>const&nbsp;people2&nbsp;=&nbsp;new&nbsp;Array(...users);<br>const&nbsp;people3&nbsp;=&nbsp;Array.of(...users);<br>console.log(people1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"]<br>console.log(people2);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"]<br>console.log(people3);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"]</code></pre>
+     </div>
+     <h2 class="subtitle">Unirea tablourilor</h2>
+     <p class="paragraph">Cu ajutorul operatorului spread, poți transmite valori din mai multe tablouri la crearea unui nou tablou. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;men&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"];<br>const&nbsp;women&nbsp;=&nbsp;["Kate",&nbsp;"Alice",&nbsp;"Mary"];<br>const&nbsp;people&nbsp;=&nbsp;[...men,&nbsp;"Alex",&nbsp;...women];<br><br>console.log(people);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob",&nbsp;"Alex",&nbsp;"Kate",&nbsp;"Alice",&nbsp;"Mary"]</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, valorile din tablourile men și women sunt transmise către tabloul people, iar în plus, putem adăuga valori suplimentare care nu fac parte din aceste tablouri.</p>
+     <h2 class="subtitle">Transmiterea argumentelor unei funcții</h2>
+     <p class="paragraph">Similar, poți transmite valorile dintr-un tablou ca argumente pentru parametrii unei funcții:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;people&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"];<br><br>function&nbsp;print(first,&nbsp;second,&nbsp;third){<br>&nbsp;&nbsp;&nbsp;console.log(first);<br>&nbsp;&nbsp;&nbsp;console.log(second);<br>&nbsp;&nbsp;&nbsp;console.log(third);<br>}<br>print(...people);<br>//&nbsp;Tom<br>//&nbsp;Sam<br>//&nbsp;Bob</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, funcția print() primește trei parametri. Operația ...people la apelul funcției permite dezambalarea tabloului people în valori separate, care sunt apoi transmise ca parametri pentru această funcție.</p>
+     <p class="paragraph">Trebuie de menționat că acest lucru nu este echivalent cu a transmite tabloul în întregime la apelul funcției:</p>
+     <div class="code-inline">
+      <pre><code>print(people);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, întregul tablou va fi transmis primului parametru al funcției - parametrul first, în timp ce celelalte vor avea valoarea undefined.</p>
+     <p class="paragraph">Un alt exemplu de transmitere a valorilor dintr-un tablou ca parametri pentru o funcție:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;sum(a,&nbsp;b,&nbsp;c){<br>&nbsp;&nbsp;&nbsp;const&nbsp;d&nbsp;=&nbsp;a&nbsp;+&nbsp;b&nbsp;+&nbsp;c;<br>&nbsp;&nbsp;&nbsp;console.log(d);<br>}<br>sum(1,&nbsp;2,&nbsp;3);<br>const&nbsp;nums&nbsp;=&nbsp;[4,&nbsp;5,&nbsp;6];<br>sum(...nums);</code></pre>
+     </div>
+     <p class="paragraph">În al doilea caz, funcției i se transmit numerele din tabloul nums. Pentru a transmite nu doar tabloul ca o singură valoare, ci fiecare dintre elementele sale, este folosit operatorul spread (cele trei puncte ...).</p>
+     <p class="paragraph">Dacă numărul de parametri ai funcției este mai mic decât numărul de elemente din tablou, atunci elementele rămase în tablou vor fi pur și simplu ignorate. Dacă numărul de parametri este mai mare decât numărul de elemente din tablou, atunci parametrii pentru care nu există valori în tablou vor primi valoarea undefined:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;people1&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob",&nbsp;"Mike"];<br>const&nbsp;people2&nbsp;=&nbsp;["Alex",&nbsp;"Bill"];<br>function&nbsp;print(first,&nbsp;second,&nbsp;third){<br>&nbsp;&nbsp;&nbsp;console.log(`${first},&nbsp;${second},&nbsp;${third}`);<br>}<br>print(...people1);&nbsp;&nbsp;//&nbsp;Tom,&nbsp;Sam,&nbsp;Bob<br>print(...people2);&nbsp;&nbsp;//&nbsp;Alex,&nbsp;Bill,&nbsp;undefined<br><br></code></pre>
+     </div>
+     <h2 class="subtitle">Copierea tablourilor</h2>
+     <p class="paragraph">Operatorul spread oferă cel mai simplu mod de a copia elementele unui tablou în altul. Totuși, trebuie să fii atent. Să analizăm un exemplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;people&nbsp;=&nbsp;["Sam",&nbsp;"Tom",&nbsp;"Bob"];<br>const&nbsp;employees&nbsp;=&nbsp;[...people];<br>employees[0]&nbsp;=&nbsp;"Dan";<br>console.log(employees);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;["Dan",&nbsp;"Tom",&nbsp;"Bob"]<br>console.log(people);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;&nbsp;["Sam",&nbsp;"Tom",&nbsp;"Bob"]</code></pre>
+     </div>
+     <p class="paragraph">Aici sunt create două tablouri. Tabloul employees primește elementele din tabloul people. Mai apoi, modificăm primul element al tabloului employees. Din afișarea în consolă, putem vedea că modificarea unui tablou nu afectează celălalt tablou.</p>
+     <p class="paragraph">Cu toate acestea, ce se întâmplă dacă copiem un tablou de obiecte:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;people&nbsp;=&nbsp;[{name:"Sam"},&nbsp;{name:"Tom"},&nbsp;{name:"Bob"}];<br>const&nbsp;employees&nbsp;=&nbsp;[...people];<br>//employees[0]&nbsp;=&nbsp;{name:&nbsp;"Dan"};<br>employees[0].name&nbsp;=&nbsp;"Dan";<br>console.log(employees);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;&nbsp;[{name:"Dan"},&nbsp;{name:"Tom"},&nbsp;{name:"Bob"}]<br>console.log(people);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;&nbsp;[{name:"Dan"},&nbsp;{name:"Tom"},&nbsp;{name:"Bob"}]</code></pre>
+     </div>
+     <p class="paragraph">Acum, tabloul people furnizează un tablou de obiecte, unde fiecare obiect are o singură proprietate - name. Apoi, modificăm valoarea proprietății name pentru primul element.</p>
+     <p class="paragraph">Afișajul în consolă ne arată că modificarea unui tablou a dus la modificarea celuilalt tablou. Deoarece obiectele reprezintă un tip de date referențial, la copierea lor într-un nou tablou nu se transmite o copie a obiectului (cum ar fi în cazul șirurilor), ci însuși obiectul. Prin urmare, primul element al primului tablou și primul element al celui de-al doilea tablou vor reprezenta efectiv același obiect.</p>
+     <p class="paragraph">Cu toate acestea, putem înlocui complet un element al unui tablou cu un alt obiect, și atunci elementul din cel de-al doilea tablou va continua să facă referire la vechiul obiect și să nu depindă de primul tablou:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;people&nbsp;=&nbsp;[{name:"Sam"},&nbsp;{name:"Tom"},&nbsp;{name:"Bob"}];<br>const&nbsp;employees&nbsp;=&nbsp;[...people];<br>employees[0]&nbsp;=&nbsp;{name:&nbsp;"Dan"};<br>console.log(employees);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;&nbsp;[{name:"Dan"},&nbsp;{name:"Tom"},&nbsp;{name:"Bob"}]<br>console.log(people);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;&nbsp;[{name:"Sam"},&nbsp;{name:"Tom"},&nbsp;{name:"Bob"}]</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, primul element al tabloului employees este înlocuit cu o referință către un obiect nou, în timp ce primul element al tabloului people continuă să facă referire la obiectul vechi.</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

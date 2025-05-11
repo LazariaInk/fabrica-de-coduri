@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Python', activeChapter='3.Programare orientata pe obiecte', activeLesson='4.Suprascrierea functionalitatii clasei de baza'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Suprascrierea funcțonalității clasei de bază</h1>
+     <p class="paragraph">În articolul anterior, clasa Employee prelua complet funcționalitatea clasei Person:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.__name&nbsp;=&nbsp;name&nbsp;&nbsp;&nbsp;#&nbsp;numele&nbsp;persoanei<br><br>&nbsp;&nbsp;&nbsp;&nbsp;@property<br>&nbsp;&nbsp;&nbsp;def&nbsp;name(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;self.__name<br><br>&nbsp;&nbsp;&nbsp;def&nbsp;display_info(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"Nume:&nbsp;{self.__name}")<br><br>class&nbsp;Employee(Person):<br>&nbsp;&nbsp;&nbsp;def&nbsp;work(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"{self.name}&nbsp;lucrează")</code></pre>
+     </div>
+     <p class="paragraph">Dar ce facem dacă dorim să schimbăm ceva din această funcționalitate? De exemplu, să adăugăm un nou atribut pentru angajat, care să păstreze compania la care lucrează, sau să modificăm implementarea metodei display_info. Python permite suprascrierea funcționalității clasei de bază.</p>
+     <p class="paragraph">De exemplu, să modificăm clasele astfel:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.__name&nbsp;=&nbsp;name&nbsp;&nbsp;&nbsp;#&nbsp;numele&nbsp;persoanei<br><br>&nbsp;&nbsp;&nbsp;&nbsp;@property<br>&nbsp;&nbsp;&nbsp;def&nbsp;name(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;self.__name<br><br>&nbsp;&nbsp;&nbsp;def&nbsp;display_info(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"Nume:&nbsp;{self.__name}")<br><br>class&nbsp;Employee(Person):<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name,&nbsp;company):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super().__init__(name)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.company&nbsp;=&nbsp;company<br><br>&nbsp;&nbsp;&nbsp;def&nbsp;display_info(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super().display_info()<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"Companie:&nbsp;{self.company}")<br><br>&nbsp;&nbsp;&nbsp;def&nbsp;work(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"{self.name}&nbsp;lucrează")<br><br>tom&nbsp;=&nbsp;Employee("Tom",&nbsp;"Microsoft")<br>tom.display_info()&nbsp;&nbsp;#&nbsp;Nume:&nbsp;Tom<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Companie:&nbsp;Microsoft</code></pre>
+     </div>
+     <p class="paragraph">Aici, în clasa Employee, se adaugă un nou atribut - self.company, care păstrează compania angajatului. Metoda __init__() primește trei parametri: al doilea pentru setarea numelui și al treilea pentru setarea companiei.</p>
+     <p class="paragraph">Dar dacă în clasa de bază este definit un constructor folosind metoda __init__, iar noi vrem să schimbăm logica constructorului în clasa derivată, trebuie să apelăm constructorul clasei de bază în constructorul clasei derivate. Adică în constructorul Employee trebuie să apelăm constructorul clasei Person.</p>
+     <p class="paragraph">Pentru a apela clasa de bază, se folosește expresia super(). Astfel, în constructorul Employee se face apelul:</p>
+     <div class="code-inline">
+      <pre><code>super().__init__(name)</code></pre>
+     </div>
+     <p class="paragraph">Această expresie va reprezenta apelul constructorului clasei Person, căruia i se transmite numele angajatului. Și aceasta este logic. De fapt, numele angajatului se setează în constructorul clasei Person. În constructorul Employee setăm doar proprietatea company.</p>
+     <p class="paragraph">În plus, în clasa Employee se suprascrie metoda display_info() - în ea se adaugă afișarea companiei angajatului. Am putea defini această metodă astfel:</p>
+     <div class="code-inline">
+      <pre><code>def&nbsp;display_info(self):<br>&nbsp;&nbsp;&nbsp;print(f"Nume:&nbsp;{self.name}")<br>&nbsp;&nbsp;&nbsp;print(f"Companie:&nbsp;{self.company}")</code></pre>
+     </div>
+     <p class="paragraph">Dar în acest caz, linia de afișare a numelui ar repeta codul din clasa Person. Dacă această parte a codului este aceeași cu metoda din clasa Person, nu are sens să ne repetăm, așa că folosim din nou expresia super() pentru a apela implementarea metodei display_info din clasa Person:</p>
+     <div class="code-inline">
+      <pre><code>def&nbsp;display_info(self):<br>&nbsp;&nbsp;&nbsp;super().display_info()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;apelarea&nbsp;metodei&nbsp;display_info&nbsp;din&nbsp;clasa&nbsp;Person<br>&nbsp;&nbsp;&nbsp;print(f"Companie:&nbsp;{self.company}")</code></pre>
+     </div>
+     <p class="paragraph">Apoi putem apela constructorul Employee pentru a crea un obiect al acestei clase și să apelăm metoda display_info:</p>
+     <div class="code-inline">
+      <pre><code>tom&nbsp;=&nbsp;Employee("Tom",&nbsp;"Microsoft")<br>tom.display_info()</code></pre>
+     </div>
+     <p class="paragraph">Afișarea în consolă a programului:</p>
+     <div class="code-inline">
+      <pre><code>Nume:&nbsp;Tom<br>Companie:&nbsp;Microsoft</code></pre>
+     </div>
+     <h2 class="subtitle">Verificarea tipului obiectului</h2>
+     <p class="paragraph">În lucrul cu obiectele poate fi necesar, în funcție de tipul lor, să executăm anumite operațiuni. Cu ajutorul funcției încorporate isinstance(), putem verifica tipul obiectului. Această funcție primește doi parametri:</p>
+     <div class="code-inline">
+      <pre><code>isinstance(object,&nbsp;type)</code></pre>
+     </div>
+     <p class="paragraph">Primul parametru reprezintă obiectul, iar al doilea - tipul pentru care se face verificarea. Dacă obiectul reprezintă tipul specificat, funcția returnează True. De exemplu, să luăm următoarea ierarhie de clase Person-Employee/Student:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.__name&nbsp;=&nbsp;name&nbsp;&nbsp;&nbsp;#&nbsp;numele&nbsp;persoanei<br><br>&nbsp;&nbsp;&nbsp;&nbsp;@property<br>&nbsp;&nbsp;&nbsp;def&nbsp;name(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;self.__name<br><br>&nbsp;&nbsp;&nbsp;def&nbsp;do_nothing(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"{self.name}&nbsp;nu&nbsp;face&nbsp;nimic")<br><br>#&nbsp;clasa&nbsp;angajatului<br>class&nbsp;Employee(Person):<br>&nbsp;&nbsp;&nbsp;def&nbsp;work(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"{self.name}&nbsp;lucrează")<br><br>#&nbsp;clasa&nbsp;studentului<br>class&nbsp;Student(Person):<br>&nbsp;&nbsp;&nbsp;def&nbsp;study(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"{self.name}&nbsp;studiază")<br><br>def&nbsp;act(person):<br>&nbsp;&nbsp;&nbsp;if&nbsp;isinstance(person,&nbsp;Student):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;person.study()<br>&nbsp;&nbsp;&nbsp;elif&nbsp;isinstance(person,&nbsp;Employee):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;person.work()<br>&nbsp;&nbsp;&nbsp;elif&nbsp;isinstance(person,&nbsp;Person):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;person.do_nothing()<br><br>tom&nbsp;=&nbsp;Employee("Tom")<br>bob&nbsp;=&nbsp;Student("Bob")<br>sam&nbsp;=&nbsp;Person("Sam")<br><br>act(tom)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Tom&nbsp;lucrează<br>act(bob)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Bob&nbsp;studiază<br>act(sam)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Sam&nbsp;nu&nbsp;face&nbsp;nimic</code></pre>
+     </div>
+     <p class="paragraph">Aici, clasa Employee definește metoda work(), iar clasa Student - metoda study.</p>
+     <p class="paragraph">De asemenea, este definită funcția act, care verifică cu ajutorul funcției isinstance dacă parametrul person reprezintă un anumit tip și, în funcție de rezultatul verificării, apelează metoda corespunzătoare a obiectului.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

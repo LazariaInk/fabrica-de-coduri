@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='24.Lucrul cu XML in C sharp', activeLesson='4.XPath'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">XPath</h1>
+     <p class="paragraph">XPath reprezintă un limbaj de interogare în XML. Acesta permite selectarea elementelor care corespund unui anumit selector.</p>
+     <p class="paragraph">Să analizăm câțiva dintre cei mai des utilizați selectori:</p>
+     <ul class="enumeration">
+      <li>.: selecția nodului curent</li>
+      <li>..: selecția nodului părinte</li>
+      <li>*: selecția tuturor nodurilor copii ale nodului curent</li>
+      <li>person: selecția tuturor nodurilor cu un anumit nume, în acest caz cu numele "person"</li>
+      <li>@name: selecția atributului nodului curent, după semnul @ se indică numele atributului (în acest caz "name")</li>
+      <li>@*: selecția tuturor atributelor nodului curent</li>
+      <li>element[3]: selecția unui anumit nod copil după index, în acest caz al treilea nod</li>
+      <li>//person: selecția în document a tuturor nodurilor cu numele "person"</li>
+      <li>person[@name='Tom']: selecția elementelor cu o anumită valoare a atributului. În acest caz, sunt selectate toate elementele "person" cu atributul name='Tom'</li>
+      <li>person[company='Microsoft']: selecția elementelor cu o anumită valoare a unui element încorporat. În acest caz, sunt selectate toate elementele "person" al căror element copil "company" are valoarea 'Microsoft'</li>
+      <li>//person/company: selecția în document a tuturor nodurilor cu numele "company" care se află în elementele "person"</li>
+     </ul>
+     <p class="paragraph">Funcționarea interogărilor XPath se bazează pe utilizarea a două metode ale clasei XmlElement:</p>
+     <ul class="enumeration">
+      <li>SelectSingleNode(): selecția unui singur nod din rezultatele interogării. Dacă interogarea returnează mai multe noduri, este selectat primul</li>
+      <li>SelectNodes(): selecția unei colecții de noduri ca obiect XmlNodeList</li>
+     </ul>
+     <p class="paragraph">Pentru interogări, vom lua documentul XML din temele anterioare:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?xml&nbsp;version="1.0"&nbsp;encoding="utf-8"&nbsp;?&gt;<br>&lt;people&gt;<br>&nbsp;&lt;person&nbsp;name="Tom"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;company&gt;Microsoft&lt;/company&gt;<br>&nbsp;&nbsp;&nbsp;&lt;age&gt;37&lt;/age&gt;<br>&nbsp;&lt;/person&gt;<br>&nbsp;&lt;person&nbsp;name="Bob"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;company&gt;Google&lt;/company&gt;<br>&nbsp;&nbsp;&nbsp;&lt;age&gt;41&lt;/age&gt;<br>&nbsp;&lt;/person&gt;<br>&lt;/people&gt;</code></pre>
+     </div>
+     <p class="paragraph">Acum vom selecta toate nodurile elementului rădăcină, adică toate elementele person:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Xml;<br><br>XmlDocument&nbsp;xDoc&nbsp;=&nbsp;new&nbsp;XmlDocument();<br>xDoc.Load("people.xml");<br>XmlElement?&nbsp;xRoot&nbsp;=&nbsp;xDoc.DocumentElement;<br><br>//&nbsp;selecția&nbsp;tuturor&nbsp;nodurilor&nbsp;fiice<br>XmlNodeList?&nbsp;nodes&nbsp;=&nbsp;xRoot?.SelectNodes("*");<br>if&nbsp;(nodes&nbsp;is&nbsp;not&nbsp;null)<br>{<br>&nbsp;&nbsp;&nbsp;foreach&nbsp;(XmlNode&nbsp;node&nbsp;in&nbsp;nodes)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(node.OuterXml);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Afișarea în consolă:</p>
+     <div class="code-inline">
+      <pre><code>&lt;person&nbsp;name="Tom"&gt;&lt;company&gt;Microsoft&lt;/company&gt;&lt;age&gt;37&lt;/age&gt;&lt;/person&gt;<br>&lt;person&nbsp;name="Bob"&gt;&lt;company&gt;Google&lt;/company&gt;&lt;age&gt;41&lt;/age&gt;&lt;/person&gt;</code></pre>
+     </div>
+     <p class="paragraph">Vom selecta toate nodurile &lt;person&gt;:</p>
+     <div class="code-inline">
+      <pre><code>XmlNodeList?&nbsp;personNodes&nbsp;=&nbsp;xRoot?.SelectNodes("person");</code></pre>
+     </div>
+     <p class="paragraph">Vom afișa în consolă valorile atributelor name ale elementelor person:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Xml;<br><br>XmlDocument&nbsp;xDoc&nbsp;=&nbsp;new&nbsp;XmlDocument();<br>xDoc.Load("people.xml");<br>XmlElement?&nbsp;xRoot&nbsp;=&nbsp;xDoc.DocumentElement;<br>XmlNodeList?&nbsp;personNodes&nbsp;=&nbsp;xRoot?.SelectNodes("person");<br>if(personNodes&nbsp;is&nbsp;not&nbsp;null)<br>{<br>&nbsp;&nbsp;&nbsp;foreach&nbsp;(XmlNode&nbsp;node&nbsp;in&nbsp;personNodes)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(node.SelectSingleNode("@name")?.Value);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Rezultatul afișat va fi:</p>
+     <div class="code-inline">
+      <pre><code>Tom<br>Bob</code></pre>
+     </div>
+     <p class="paragraph">Vom selecta nodul al cărui atribut name are valoarea "Tom":</p>
+     <div class="code-inline">
+      <pre><code>XmlNode?&nbsp;tomNode&nbsp;=&nbsp;xRoot?.SelectSingleNode("person[@name='Tom']");<br>Console.WriteLine(tomNode?.OuterXml);</code></pre>
+     </div>
+     <p class="paragraph">Să presupunem că trebuie să obținem doar companiile. Pentru aceasta, trebuie să facem o selecție în josul ierarhiei elementelor:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Xml;<br><br>XmlDocument&nbsp;xDoc&nbsp;=&nbsp;new&nbsp;XmlDocument();<br>xDoc.Load("people.xml");<br>XmlElement?&nbsp;xRoot&nbsp;=&nbsp;xDoc.DocumentElement;<br><br>XmlNodeList?&nbsp;companyNodes&nbsp;=&nbsp;xRoot?.SelectNodes("//person/company");<br>if(companyNodes&nbsp;is&nbsp;not&nbsp;null)<br>{<br>&nbsp;&nbsp;&nbsp;foreach&nbsp;(XmlNode&nbsp;node&nbsp;in&nbsp;companyNodes)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(node.InnerText);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Acest cod va afișa numele companiilor asociate cu fiecare element person.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

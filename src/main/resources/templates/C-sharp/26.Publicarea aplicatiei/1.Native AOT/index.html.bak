@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='26.Publicarea aplicatiei', activeLesson='1.Native AOT'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Native AOT</h1>
+     <p class="paragraph">În mod implicit, un program C# este compilat într-un cod intermediar MSIL. Pentru a rula un astfel de program, este necesar ca pe computer să fie instalat framework-ul .NET. Cu toate acestea, .NET SDK permite de asemenea compilarea unui proiect C# într-o aplicație nativă, care nu utilizează compilarea JIT și poate fi rulată pe un computer fără .NET instalat.</p>
+     <p class="paragraph">Acest model se numește Native AOT și este disponibil începând cu .NET 7 (pentru proiecte console). Suportul pentru ASP.NET Core și MacOS a fost adăugat în .NET 8.0.</p>
+     <p class="paragraph">Pentru a utiliza Native AOT, este necesară instalarea unor instrumente suplimentare. Pe Windows, prin instalatorul Visual Studio, trebuie instalată încărcătura "Desktop development with C++" (Dezvoltarea aplicațiilor clasice pe C++).</p>
+     <div class="image-container">
+      <img th:src="@{/images/26.Publicarea%20aplicatiei/1.Native%20AOT/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Pentru a specifica faptul că proiectul va folosi modelul de publicare Native AOT, în fișierul proiectului, în elementul PropertyGroup, trebuie adăugat elementul &lt;PublishAot&gt;true&lt;/PublishAot&gt;:</p>
+     <div class="code-inline">
+      <pre><code>&lt;PropertyGroup&gt;<br>&nbsp;&nbsp;&nbsp;&lt;PublishAot&gt;true&lt;/PublishAot&gt;<br>&lt;/PropertyGroup&gt;</code></pre>
+     </div>
+     <p class="paragraph">Pentru compilarea folosind .NET CLI se folosește următoarea comandă:</p>
+     <div class="code-inline">
+      <pre><code>dotnet&nbsp;publish&nbsp;-r&nbsp;&lt;RID&gt;</code></pre>
+     </div>
+     <p class="paragraph">În particular, câțiva identificatori comuni sunt Pentru Windows:</p>
+     <ul class="enumeration">
+      <li>win-x64</li>
+      <li>win-x86</li>
+      <li>win-arm64</li>
+     </ul>
+     <p class="paragraph">Pentru Linux:</p>
+     <ul class="enumeration">
+      <li>linux-x64</li>
+      <li>linux-arm64</li>
+     </ul>
+     <p class="paragraph">Pentru MacOS:</p>
+     <ul class="enumeration">
+      <li>osx-x64</li>
+      <li>osx-arm64</li>
+     </ul>
+     <p class="paragraph">Lista completă a identificatorilor poate fi găsită la adresa: https://github.com/dotnet/runtime/blob/main/src/libraries/Microsoft.NETCore.Platforms/src/runtime.json</p>
+     <p class="paragraph">De exemplu, pentru compilarea unei aplicații pentru Windows pe 64 de biți, se utilizează comanda:</p>
+     <div class="code-inline">
+      <pre><code>dotnet&nbsp;publish&nbsp;-r&nbsp;win-x64&nbsp;-c&nbsp;Release</code></pre>
+     </div>
+     <p class="paragraph">Să luăm, de exemplu, un proiect simplu de aplicație console. Mai întâi, adăugăm în fișierul proiectului csproj parametrii:</p>
+     <div class="code-inline">
+      <pre><code>&lt;PublishAot&gt;true&lt;/PublishAot&gt;</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/26.Publicarea%20aplicatiei/1.Native%20AOT/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Accesăm în consola folderul proiectului. Să presupunem că trebuie să compilăm aplicația pentru Windows pe 64 de biți. Pentru aceasta, executăm comanda:</p>
+     <div class="code-inline">
+      <pre><code>dotnet&nbsp;publish&nbsp;-r&nbsp;win-x64&nbsp;-c&nbsp;Release</code></pre>
+     </div>
+     <p class="paragraph">Ca rezultat, vom obține următorul output în consolă:</p>
+     <div class="code-inline">
+      <pre><code>C:\Users\Petrea\source\repos&gt;cd&nbsp;C:\Users\Petrea\source\repos\FDCApp\FDCApp<br><br>C:\Users\Petrea\source\repos\FDCApp\FDCApp&gt;dotnet&nbsp;publish&nbsp;-r&nbsp;win-x64&nbsp;-c&nbsp;Release<br>&nbsp;Determining&nbsp;projects&nbsp;to&nbsp;restore...<br>&nbsp;All&nbsp;projects&nbsp;are&nbsp;up-to-date&nbsp;for&nbsp;restore.<br>&nbsp;FDCApp&nbsp;-&gt;&nbsp;C:\Users\Petrea\source\repos\FDCApp\FDCApp\bin\Release\net8.0\win-x64\FDCApp.dll<br>&nbsp;FDCApp&nbsp;-&gt;&nbsp;C:\Users\Petrea\source\repos\FDCApp\FDCApp\bin\Release\net8.0\win-x64\publish\<br>C:\Users\Petrea\source\repos\FDCApp\FDCApp&gt;</code></pre>
+     </div>
+     <p class="paragraph">După aceasta, în proiect, în folderul bin\Release\netX.X\win-x64\publish\ se poate găsi aplicația compilată.</p>
+     <div class="image-container">
+      <img th:src="@{/images/26.Publicarea%20aplicatiei/1.Native%20AOT/images/image3.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">În final, fișierul executabil (exe) compilat poate fi rulat pe sisteme Windows pe 64 de biți, chiar și acolo unde .NET nu este instalat.</p>
+     <p class="paragraph">Unul dintre principalele dezavantaje ale compilării într-o aplicație nativă este dimensiunea acesteia. De exemplu, așa cum se vede în captura de ecran, la compilarea cu .NET 8.0 Preview, o simplă aplicație console, care afișează o linie în consolă, ocupă 1793 KB.</p>
+     <p class="paragraph">Cu toate acestea, merită menționat că, comparativ cu .NET 7.0, în .NET 8.0 dimensiunea aplicației native a fost semnificativ redusă, iar echipa de dezvoltare .NET continuă să lucreze la acest aspect, astfel încât dimensiunea aplicației ar putea scădea semnificativ în viitor.</p>
+     <p class="paragraph">În plus, se pot aplica diferite optimizări. Cea mai simplă este utilizarea modului invariant pentru parametrii de globalizare, pentru care trebuie adăugată în fișierul proiectului următoarea setare:</p>
+     <div class="code-inline">
+      <pre><code>&lt;InvariantGlobalization&gt;true&lt;/InvariantGlobalization&gt;</code></pre>
+     </div>
+     <p class="paragraph">Astfel, doar această setare a permis în cazul meu reducerea dimensiunii aplicației de la 1793 KB la 1567 KB.</p>
+     <p class="paragraph">În plus față de dimensiunea mai mare, merită menționat și alte dezavantaje ale acestui model de publicare. În primul rând, nu este disponibil pentru toate tipurile de proiecte, biblioteci și medii. De exemplu, suportul pentru aplicațiile console a fost adăugat de la început, în .NET 7.0. Pentru ASP.NET Core, acest model este disponibil doar începând cu .NET 8.0.</p>
+     <p class="paragraph">De asemenea, pentru astfel de aplicații native, încărcarea dinamică a bibliotecilor (de exemplu, folosind metoda Assembly.LoadFile) nu este disponibilă.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

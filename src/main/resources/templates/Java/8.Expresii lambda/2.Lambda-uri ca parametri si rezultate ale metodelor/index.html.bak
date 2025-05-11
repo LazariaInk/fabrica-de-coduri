@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Java', activeChapter='8.Expresii lambda', activeLesson='2.Lambda-uri ca parametri si rezultate ale metodelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Lambda-uri ca parametri și rezultate ale metodelor</h1>
+     <p class="paragraph">Unul dintre avantajele lambda-urilor în Java este că ele pot fi transmise ca parametri în metode. Să analizăm un exemplu:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;class&nbsp;LambdaApp&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Expression&nbsp;func&nbsp;=&nbsp;(n)&nbsp;-&gt;&nbsp;n&nbsp;%&nbsp;2&nbsp;==&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int[]&nbsp;nums&nbsp;=&nbsp;{1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5,&nbsp;6,&nbsp;7,&nbsp;8,&nbsp;9};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(sum(nums,&nbsp;func));&nbsp;//&nbsp;20<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;private&nbsp;static&nbsp;int&nbsp;sum&nbsp;(int[]&nbsp;numbers,&nbsp;Expression&nbsp;func)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;result&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(int&nbsp;i&nbsp;:&nbsp;numbers)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(func.isEqual(i))<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;+=&nbsp;i;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;result;<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>interface&nbsp;Expression&nbsp;{<br>&nbsp;&nbsp;&nbsp;boolean&nbsp;isEqual(int&nbsp;n);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Interfața funcțională Expression definește metoda isEqual(), care returnează true dacă pentru numărul n este îndeplinită o anumită condiție.</p>
+     <p class="paragraph">În clasa principală a programului este definită metoda sum(), care calculează suma tuturor elementelor dintr-un array care îndeplinesc o anumită condiție. Condiția este transmisă prin parametrul Expression func. În momentul scrierii metodei sum, nu știm exact ce condiție va fi utilizată. Condiția este definită sub formă de expresie lambda:</p>
+     <div class="code-inline">
+      <pre><code>Expression&nbsp;func&nbsp;=&nbsp;(n)&nbsp;-&gt;&nbsp;n&nbsp;%&nbsp;2&nbsp;==&nbsp;0;</code></pre>
+     </div>
+     <p class="paragraph">Astfel, în acest caz, toate numerele trebuie să fie pare, adică restul împărțirii lor la 2 trebuie să fie 0. Apoi, această expresie lambda este transmisă în apelul metodei sum.</p>
+     <p class="paragraph">Se poate de asemenea să nu definim o variabilă pentru interfață și să transmitem direct expresia lambda în metodă:</p>
+     <div class="code-inline">
+      <pre><code>int[]&nbsp;nums&nbsp;=&nbsp;{1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5,&nbsp;6,&nbsp;7,&nbsp;8,&nbsp;9};<br>int&nbsp;x&nbsp;=&nbsp;sum(nums,&nbsp;(n)&nbsp;-&gt;&nbsp;n&nbsp;&gt;&nbsp;5);&nbsp;//&nbsp;suma&nbsp;numerelor&nbsp;mai&nbsp;mari&nbsp;de&nbsp;5<br>System.out.println(x);&nbsp;//&nbsp;30</code></pre>
+     </div>
+     <h2 class="subtitle">Referințe la metode ca parametri ai metodelor</h2>
+     <p class="paragraph">Începând cu JDK 8, în Java putem transmite o referință la o metodă ca parametru într-o altă metodă. Acest mod este similar cu transmiterea unei expresii lambda în metodă.</p>
+     <p class="paragraph">O referință la metodă este transmisă în formatul numele_clasei::numele_metodei_statice (dacă metoda este statică) sau obiect_clasa::numele_metodei (dacă metoda nu este statică). Să analizăm un exemplu:</p>
+     <div class="code-inline">
+      <pre><code>interface&nbsp;Expression&nbsp;{<br>&nbsp;&nbsp;&nbsp;boolean&nbsp;isEqual(int&nbsp;n);<br>}<br><br>class&nbsp;ExpressionHelper&nbsp;{<br>&nbsp;&nbsp;&nbsp;static&nbsp;boolean&nbsp;isEven(int&nbsp;n)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;n&nbsp;%&nbsp;2&nbsp;==&nbsp;0;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;static&nbsp;boolean&nbsp;isPositive(int&nbsp;n)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;n&nbsp;&gt;&nbsp;0;<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>public&nbsp;class&nbsp;LambdaApp&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int[]&nbsp;nums&nbsp;=&nbsp;{-5,&nbsp;-4,&nbsp;-3,&nbsp;-2,&nbsp;-1,&nbsp;0,&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(sum(nums,&nbsp;ExpressionHelper::isEven));<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Expression&nbsp;expr&nbsp;=&nbsp;ExpressionHelper::isPositive;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(sum(nums,&nbsp;expr));<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;private&nbsp;static&nbsp;int&nbsp;sum(int[]&nbsp;numbers,&nbsp;Expression&nbsp;func)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;result&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;:&nbsp;numbers)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(func.isEqual(i))<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;+=&nbsp;i;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;result;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, interfața funcțională Expression are o singură metodă. În plus, este definită clasa ExpressionHelper, care conține două metode statice. Aceste metode puteau fi definite și în clasa principală a programului, dar au fost plasate într-o clasă separată.</p>
+     <p class="paragraph">În clasa principală LambdaApp este definită metoda sum(), care returnează suma elementelor dintr-un array ce îndeplinesc o anumită condiție. Condiția este transmisă ca un obiect al interfeței funcționale Expression.</p>
+     <p class="paragraph">În metoda main, apelăm de două ori metoda sum, transmițând același array de numere, dar condiții diferite. În primul apel:</p>
+     <div class="code-inline">
+      <pre><code>System.out.println(sum(nums,&nbsp;ExpressionHelper::isEven));</code></pre>
+     </div>
+     <p class="paragraph">La locul celui de-al doilea parametru este transmisă referința la metoda statică isEven() din clasa ExpressionHelper. Metodele la care se face referință trebuie să aibă aceleași parametri și rezultate ca metoda interfeței funcționale.</p>
+     <p class="paragraph">În cel de-al doilea apel al metodei sum, creăm separat un obiect Expression, care este apoi transmis în metodă:</p>
+     <div class="code-inline">
+      <pre><code>Expression&nbsp;expr&nbsp;=&nbsp;ExpressionHelper::isPositive;<br>System.out.println(sum(nums,&nbsp;expr));</code></pre>
+     </div>
+     <p class="paragraph">Utilizarea referințelor la metode ca parametri este similară cu utilizarea expresiilor lambda.</p>
+     <p class="paragraph">Dacă trebuie să apelăm metode non-statice, în referință, în loc de numele clasei, utilizăm numele obiectului acestei clase:</p>
+     <div class="code-inline">
+      <pre><code>interface&nbsp;Expression&nbsp;{<br>&nbsp;&nbsp;&nbsp;boolean&nbsp;isEqual(int&nbsp;n);<br>}<br><br>class&nbsp;ExpressionHelper&nbsp;{<br>&nbsp;&nbsp;&nbsp;boolean&nbsp;isEven(int&nbsp;n)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;n&nbsp;%&nbsp;2&nbsp;==&nbsp;0;<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>public&nbsp;class&nbsp;LambdaApp&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int[]&nbsp;nums&nbsp;=&nbsp;{-5,&nbsp;-4,&nbsp;-3,&nbsp;-2,&nbsp;-1,&nbsp;0,&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ExpressionHelper&nbsp;exprHelper&nbsp;=&nbsp;new&nbsp;ExpressionHelper();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(sum(nums,&nbsp;exprHelper::isEven));&nbsp;//&nbsp;0&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;private&nbsp;static&nbsp;int&nbsp;sum(int[]&nbsp;numbers,&nbsp;Expression&nbsp;func)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;result&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;:&nbsp;numbers)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(func.isEqual(i))<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;+=&nbsp;i;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;result;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Referințe la constructori</h2>
+     <p class="paragraph">În mod similar, putem folosi referințele la constructori: numele_clasei::new. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;class&nbsp;LambdaApp&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UserBuilder&nbsp;userBuilder&nbsp;=&nbsp;User::new;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;User&nbsp;user&nbsp;=&nbsp;userBuilder.create("Tom");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(user.getName());<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>interface&nbsp;UserBuilder&nbsp;{<br>&nbsp;&nbsp;&nbsp;User&nbsp;create(String&nbsp;name);<br>}<br><br>class&nbsp;User&nbsp;{<br>&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;name;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;String&nbsp;getName()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;User(String&nbsp;n)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;n;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Când folosim constructori, metodele interfețelor funcționale trebuie să accepte aceleași liste de parametri ca și constructorii clasei și să returneze un obiect al acestei clase.</p>
+     <h2 class="subtitle">Lambda-uri ca rezultat al metodelor</h2>
+     <p class="paragraph">De asemenea, o metodă din Java poate returna o expresie lambda. Iată un exemplu:</p>
+     <div class="code-inline">
+      <pre><code>interface&nbsp;Operation&nbsp;{<br>&nbsp;&nbsp;&nbsp;int&nbsp;execute(int&nbsp;x,&nbsp;int&nbsp;y);<br>}<br><br>public&nbsp;class&nbsp;LambdaApp&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Operation&nbsp;func&nbsp;=&nbsp;action(1);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;a&nbsp;=&nbsp;func.execute(6,&nbsp;5);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(a);&nbsp;//&nbsp;11<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;b&nbsp;=&nbsp;action(2).execute(8,&nbsp;2);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(b);&nbsp;//&nbsp;6<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;private&nbsp;static&nbsp;Operation&nbsp;action(int&nbsp;number)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;switch&nbsp;(number)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;1:&nbsp;return&nbsp;(x,&nbsp;y)&nbsp;-&gt;&nbsp;x&nbsp;+&nbsp;y;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;2:&nbsp;return&nbsp;(x,&nbsp;y)&nbsp;-&gt;&nbsp;x&nbsp;-&nbsp;y;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;3:&nbsp;return&nbsp;(x,&nbsp;y)&nbsp;-&gt;&nbsp;x&nbsp;*&nbsp;y;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;default:&nbsp;return&nbsp;(x,&nbsp;y)&nbsp;-&gt;&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, este definită o interfață funcțională Operation, în care metoda execute acceptă două valori de tip int și returnează o valoare de tip int.</p>
+     <p class="paragraph">Metoda action primește ca parametru un număr și, în funcție de valoarea sa, returnează o expresie lambda corespunzătoare pentru adunare, scădere, înmulțire sau returnează 0.</p>
+     <p class="paragraph">În metoda main, putem apela această metodă action. Mai întâi, obținem rezultatul său – o expresie lambda, care este atribuită variabilei Operation. Apoi, folosim metoda execute pentru a executa această expresie lambda:</p>
+     <div class="code-inline">
+      <pre><code>Operation&nbsp;func&nbsp;=&nbsp;action(1);<br>int&nbsp;a&nbsp;=&nbsp;func.execute(6,&nbsp;5);<br>System.out.println(a);&nbsp;//&nbsp;11</code></pre>
+     </div>
+     <p class="paragraph">Sau putem obține și executa expresia lambda imediat:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;b&nbsp;=&nbsp;action(2).execute(8,&nbsp;2);<br>System.out.println(b);&nbsp;//&nbsp;6</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

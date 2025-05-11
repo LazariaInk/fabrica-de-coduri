@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='4.Programare orientata pe obiecte', activeLesson='10.Mostenirea tipurilor generice'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Moștenirea tipurilor generice</h1>
+     <p class="paragraph">Un tip generic poate fi moștenit de la alt tip generic. Există mai multe moduri de a realiza această moștenire.</p>
+     <p class="paragraph">Să presupunem că avem următoarea clasă de bază Person:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person&lt;T&gt;<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;T&nbsp;Id&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(T&nbsp;id)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Id&nbsp;=&nbsp;id;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Primul mod: Crearea unei clase derivate, tipizată cu același tip ca și clasa de bază</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;UniversalPerson&lt;T&gt;&nbsp;:&nbsp;Person&lt;T&gt;<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;UniversalPerson(T&nbsp;id)&nbsp;:&nbsp;base(id)&nbsp;{&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aplicarea clasei:</p>
+     <div class="code-inline">
+      <pre><code>Person&lt;string&gt;&nbsp;person1&nbsp;=&nbsp;new&nbsp;Person&lt;string&gt;("34");<br>Person&lt;int&gt;&nbsp;person3&nbsp;=&nbsp;new&nbsp;UniversalPerson&lt;int&gt;(45);<br>UniversalPerson&lt;int&gt;&nbsp;person2&nbsp;=&nbsp;new&nbsp;UniversalPerson&lt;int&gt;(33);<br><br>Console.WriteLine(person1.Id);<br>Console.WriteLine(person2.Id);<br>Console.WriteLine(person3.Id);</code></pre>
+     </div>
+     <p class="paragraph">Al doilea mod: Crearea unei clase derivate ne-generice</p>
+     <p class="paragraph">În acest caz, la moștenire trebuie să specificăm tipul folosit în clasa de bază:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;StringPerson&nbsp;:&nbsp;Person&lt;string&gt;<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;StringPerson(string&nbsp;id)&nbsp;:&nbsp;base(id)&nbsp;{&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aplicarea clasei:</p>
+     <div class="code-inline">
+      <pre><code>StringPerson&nbsp;person4&nbsp;=&nbsp;new&nbsp;StringPerson("438767");<br>Person&lt;string&gt;&nbsp;person5&nbsp;=&nbsp;new&nbsp;StringPerson("43875");<br>//&nbsp;așa&nbsp;nu&nbsp;se&nbsp;poate&nbsp;scrie<br>//Person&lt;int&gt;&nbsp;person6&nbsp;=&nbsp;new&nbsp;StringPerson("45545");<br><br>Console.WriteLine(person4.Id);<br>Console.WriteLine(person5.Id);</code></pre>
+     </div>
+     <p class="paragraph">Al treilea mod: Tipizarea clasei derivate cu un alt tip</p>
+     <p class="paragraph">În acest caz, pentru clasa de bază trebuie să specificăm tipul utilizat:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;IntPerson&lt;T&gt;&nbsp;:&nbsp;Person&lt;int&gt;<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;T&nbsp;Code&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;IntPerson(int&nbsp;id,&nbsp;T&nbsp;code)&nbsp;:&nbsp;base(id)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Code&nbsp;=&nbsp;code;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aplicarea clasei:</p>
+     <div class="code-inline">
+      <pre><code>IntPerson&lt;string&gt;&nbsp;person7&nbsp;=&nbsp;new&nbsp;IntPerson&lt;string&gt;(5,&nbsp;"r4556");<br>Person&lt;int&gt;&nbsp;person8&nbsp;=&nbsp;new&nbsp;IntPerson&lt;long&gt;(7,&nbsp;4587);<br><br>Console.WriteLine(person7.Id);<br>Console.WriteLine(person8.Id);</code></pre>
+     </div>
+     <p class="paragraph">La fel putem combina parametruluniversal din clasa de bază cu parametrii proprii:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;MixedPerson&lt;T,&nbsp;K&gt;&nbsp;:&nbsp;Person&lt;T&gt;<br>&nbsp;&nbsp;&nbsp;where&nbsp;K&nbsp;:&nbsp;struct<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;K&nbsp;Code&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;MixedPerson(T&nbsp;id,&nbsp;K&nbsp;code)&nbsp;:&nbsp;base(id)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Code&nbsp;=&nbsp;code;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, se adaugă un nou parametru K pe lângă parametrul T moștenit din clasa de bază. Dacă este necesar, se pot adăuga restricții după denumirea clasei de bază. Aplicarea clasei:</p>
+     <div class="code-inline">
+      <pre><code>MixedPerson&lt;string,&nbsp;int&gt;&nbsp;person9&nbsp;=&nbsp;new&nbsp;MixedPerson&lt;string,&nbsp;int&gt;("456",&nbsp;356);<br>Person&lt;string&gt;&nbsp;person10&nbsp;=&nbsp;new&nbsp;MixedPerson&lt;string,&nbsp;int&gt;("9867",&nbsp;35678);<br><br>Console.WriteLine(person9.Id);<br>Console.WriteLine(person10.Id);</code></pre>
+     </div>
+     <p class="paragraph">Dacă în clasa de bază este stabilită o restricție pentru parametrul universal, aceeași restricție trebuie specificată și în clasele derivate care folosesc acest parametru:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person&lt;T&gt;&nbsp;where&nbsp;T&nbsp;:&nbsp;class<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;T&nbsp;Id&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(T&nbsp;id)&nbsp;=&gt;&nbsp;Id&nbsp;=&nbsp;id;<br>}<br><br>class&nbsp;UniversalPerson&lt;T&gt;&nbsp;:&nbsp;Person&lt;T&gt;&nbsp;where&nbsp;T&nbsp;:&nbsp;class<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;UniversalPerson(T&nbsp;id)&nbsp;:&nbsp;base(id)&nbsp;{&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Dacă în clasa de bază restricția este class, adică orice clasă, atunci în clasa derivată trebuie specificată aceeași restricție sau un anumit tip de clasă.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='19.Reflectie', activeLesson='5.Incarcarea dinamica a asamblarilor si legarea tarzie'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Încărcarea dinamică a asamblărilor și legarea târzie</h1>
+     <p class="paragraph">La crearea unei aplicații, se definește un set de asamblări care vor fi utilizate. În proiect se specifică referințele către aceste asamblări, iar când aplicația este executată, la accesarea funcționalității acestor asamblări, acestea sunt încărcate automat.</p>
+     <p class="paragraph">Totuși, putem încărca dinamic și alte asamblări, pentru care nu există referințe în proiect.</p>
+     <p class="paragraph">Pentru gestionarea asamblărilor, în spațiul de nume System.Reflection există clasa Assembly. Cu ajutorul acesteia, putem încărca și examina o asamblare.</p>
+     <p class="paragraph">Pentru a încărca dinamic o asamblare în aplicație, trebuie să folosim metodele statice Assembly.LoadFrom() sau Assembly.Load().</p>
+     <p class="paragraph">Metoda LoadFrom() primește ca parametru calea către asamblare.</p>
+     <p class="paragraph">Să presupunem că avem două proiecte:</p>
+     <div class="image-container">
+      <img th:src="@{/images/19.Reflectie/5.Incarcarea%20dinamica%20a%20asamblarilor%20si%20legarea%20tarzie/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Să presupunem că în proiectul MyApp, care este compilat într-o asamblare MyApp.dll, avem un fișier Program.cs cu următorul cod:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom");<br>Console.WriteLine($"Hello,&nbsp;{tom.Name}");<br><br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name)&nbsp;=&gt;&nbsp;Name&nbsp;=&nbsp;name;<br>}</code></pre>
+     </div>
+     <p class="paragraph">În alt proiect, vom examina asamblarea MyApp.dll pentru a vedea ce tipuri conține:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Reflection;<br><br>string&nbsp;dllPath&nbsp;=&nbsp;@"C:\Users\Petrea\source\repos\MyApp\MyApp\bin\Debug\net8.0\MyApp.dll";<br>Assembly&nbsp;asm&nbsp;=&nbsp;Assembly.LoadFrom(dllPath);<br><br>Console.WriteLine(asm.FullName);<br>//&nbsp;obținem&nbsp;toate&nbsp;tipurile&nbsp;din&nbsp;asamblarea&nbsp;MyApp.dll<br>Type[]&nbsp;types&nbsp;=&nbsp;asm.GetTypes();<br>foreach&nbsp;(Type&nbsp;t&nbsp;in&nbsp;types)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(t.Name);<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, se specifică asamblarea MyApp.dll pentru examinare. Aici este folosită calea relativă, deoarece asamblarea se află în același folder cu aplicația - în proiect, în directorul bin/Debug/net8.0. Se poate specifica și numele aplicației curente, caz în care programul se va examina pe sine. Oricum, trebuie avut în vedere că se pot încărca (cel puțin în .NET 8.0) asamblări cu extensia .dll, dar nu și .exe.</p>
+     <p class="paragraph">În cazul meu, voi obține următoarea ieșire în consolă:</p>
+     <div class="code-inline">
+      <pre><code>MyApp,&nbsp;Version=1.0.0.0,&nbsp;Culture=neutral,&nbsp;PublicKeyToken=null<br><br>Program<br><br>Person</code></pre>
+     </div>
+     <p class="paragraph">După cum se poate observa din ieșire, denumirea completă a asamblării este: MyApp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null. Iar asamblarea MyApp.dll conține patru tipuri - pe lângă clasa Person și clasa Program definită implicit.</p>
+     <p class="paragraph">Metoda Load() funcționează similar, doar că primește ca parametru un nume prietenos al asamblării, care deseori coincide cu numele aplicației: Assembly asm = Assembly.Load("MyApp");</p>
+     <p class="paragraph">După ce am obținut toate tipurile asamblării cu ajutorul metodei GetTypes(), putem aplica fiecărui tip toate metodele discutate în tema anterioară.</p>
+     <h2 class="subtitle">Legarea târzie</h2>
+     <p class="paragraph">Cu ajutorul încărcării dinamice, putem implementa tehnologia legării târzii. Legarea târzie permite crearea instanțelor unui anumit tip și utilizarea acestora în timpul execuției aplicației.</p>
+     <p class="paragraph">Utilizarea legării târzii este mai puțin sigură, deoarece în cazul codificării stricte a tuturor tipurilor (legare timpurie) la etapa de compilare, putem detecta multe erori. Totuși, legarea târzie permite crearea aplicațiilor extensibile, unde funcționalitatea suplimentară a programului nu este cunoscută și poate fi dezvoltată și conectată de dezvoltatori terți.</p>
+     <p class="paragraph">Rolul cheie în legarea târzie îl joacă clasa System.Activator. Cu ajutorul metodei sale statice Activator.CreateInstance(), se pot crea instanțe ale unui tip specificat.</p>
+     <p class="paragraph">De exemplu, să încărcăm dinamic o asamblare și să apelăm o metodă din aceasta. Să presupunem că asamblarea MyApp.exe conține următorul program:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Program<br>{<br>&nbsp;&nbsp;&nbsp;static&nbsp;void&nbsp;Main(string[]&nbsp;args)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;number&nbsp;=&nbsp;5;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;result&nbsp;=&nbsp;Square(number);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Pătratul&nbsp;lui&nbsp;{number}&nbsp;este&nbsp;{result}");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;static&nbsp;int&nbsp;Square(int&nbsp;n)&nbsp;=&gt;&nbsp;n&nbsp;*&nbsp;n;<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, am definit explicit clasa Program cu metoda Main. De asemenea, în clasa Program am definit o metodă statică Square, care primește un număr ca parametru și returnează pătratul acestuia.</p>
+     <p class="paragraph">Acum, să încărcăm dinamic asamblarea cu acest program într-un alt program și să apelăm metodele sale.</p>
+     <p class="paragraph">Să presupunem că programul nostru principal arată astfel:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Reflection;<br><br>Assembly&nbsp;asm&nbsp;=&nbsp;Assembly.LoadFrom("MyApp.dll");<br><br>Type?&nbsp;t&nbsp;=&nbsp;asm.GetType("Program");<br>if&nbsp;(t&nbsp;is&nbsp;not&nbsp;null)<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;metoda&nbsp;Square<br>&nbsp;&nbsp;&nbsp;MethodInfo?&nbsp;square&nbsp;=&nbsp;t.GetMethod("Square",&nbsp;BindingFlags.NonPublic&nbsp;|&nbsp;BindingFlags.Static);<br><br>&nbsp;&nbsp;&nbsp;//&nbsp;apelăm&nbsp;metoda,&nbsp;îi&nbsp;transmitem&nbsp;valori&nbsp;pentru&nbsp;parametri&nbsp;și&nbsp;obținem&nbsp;rezultatul<br>&nbsp;&nbsp;&nbsp;object?&nbsp;result&nbsp;=&nbsp;square?.Invoke(null,&nbsp;new&nbsp;object[]&nbsp;{&nbsp;7&nbsp;});<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(result);&nbsp;//&nbsp;49<br>}</code></pre>
+     </div>
+     <p class="paragraph">Mai întâi obținem o referință la asamblarea pe care o examinăm în variabila asm:</p>
+     <div class="code-inline">
+      <pre><code>Assembly&nbsp;asm&nbsp;=&nbsp;Assembly.LoadFrom("MyApp.dll");</code></pre>
+     </div>
+     <p class="paragraph">Apoi, cu ajutorul metodei GetType, obținem tipul - clasa Program, care se află în asamblarea MyApp.dll:</p>
+     <div class="code-inline">
+      <pre><code>Type?&nbsp;t&nbsp;=&nbsp;asm.GetType("Program");</code></pre>
+     </div>
+     <p class="paragraph">În cele din urmă, apelăm metoda. În primul rând, obținem metoda propriu-zisă:</p>
+     <div class="code-inline">
+      <pre><code>MethodInfo?&nbsp;square&nbsp;=&nbsp;t.GetMethod("Square",&nbsp;BindingFlags.NonPublic&nbsp;|&nbsp;BindingFlags.Static);</code></pre>
+     </div>
+     <p class="paragraph">Deoarece metoda Square este privată și statică, se transmit flagurile BindingFlags.NonPublic | BindingFlags.Static ca al doilea parametru al metodei.</p>
+     <p class="paragraph">Apoi, apelăm metoda folosind Invoke:</p>
+     <div class="code-inline">
+      <pre><code>object?&nbsp;result&nbsp;=&nbsp;square?.Invoke(null,&nbsp;new&nbsp;object[]&nbsp;{&nbsp;7&nbsp;});</code></pre>
+     </div>
+     <p class="paragraph">Aici, primul parametru reprezintă obiectul pentru care este apelată metoda, iar al doilea - setul de parametri sub forma unei matrice object[]. Totuși, deoarece metoda apelată este statică și nu aparține unui anumit obiect, se transmite null ca prim argument în metodă.</p>
+     <p class="paragraph">Deoarece metoda Square returnează o valoare, putem obține această valoare din metodă sub forma unui obiect de tip object.</p>
+     <p class="paragraph">Dacă metoda nu ar fi primit parametri, în locul matricei de obiecte s-ar fi folosit valoarea null: method.Invoke(null, null).</p>
+     <p class="paragraph">În asamblarea MyApp.exe, în clasa Program există și o altă metodă - metoda Main, care de asemenea efectuează anumite operațiuni. Să o apelăm acum:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Reflection;<br><br>Assembly&nbsp;asm&nbsp;=&nbsp;Assembly.LoadFrom("MyApp.dll");<br><br>Type?&nbsp;program&nbsp;=&nbsp;asm.GetType("Program");<br>if&nbsp;(program&nbsp;is&nbsp;not&nbsp;null)<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;metoda&nbsp;Main<br>&nbsp;&nbsp;&nbsp;MethodInfo?&nbsp;main&nbsp;=&nbsp;program.GetMethod("Main",&nbsp;BindingFlags.NonPublic&nbsp;|&nbsp;BindingFlags.Static);<br><br>&nbsp;&nbsp;&nbsp;//&nbsp;apelăm&nbsp;metoda&nbsp;Main<br>&nbsp;&nbsp;&nbsp;main?.Invoke(null,&nbsp;new&nbsp;object[]&nbsp;{&nbsp;new&nbsp;string[]&nbsp;{&nbsp;}&nbsp;});&nbsp;&nbsp;&nbsp;//&nbsp;Pătratul&nbsp;lui&nbsp;5&nbsp;este&nbsp;25<br>}</code></pre>
+     </div>
+     <p class="paragraph">Deoarece metoda Main este statică și non-publică, se aplică și aici masca de biți BindingFlags.NonPublic | BindingFlags.Static. Și deoarece ea primește ca parametru un șir de stringuri, la apelarea metodei se transmite o valoare corespunzătoare: main.Invoke(null, new object[]{new string[]{}}).</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

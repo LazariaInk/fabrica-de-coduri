@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='PHP', activeChapter='3.Trimiterea datelor pe server', activeLesson='6.Exemplu de procesare a formularelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Exemplu de procesare a formularelor</h1>
+     <p class="paragraph">Vom examina un exemplu complex de procesare a formularelor, în care vom combina procesarea diverselor elemente HTML. Definim următorul formular:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;h2&gt;Chestionar&lt;/h2&gt;<br>&lt;form&nbsp;action="input.php"&nbsp;method="POST"&gt;<br>&lt;p&gt;Introduceți&nbsp;numele:&lt;br&gt;&nbsp;<br>&lt;input&nbsp;type="text"&nbsp;name="firstname"&nbsp;/&gt;&lt;/p&gt;<br>&lt;p&gt;Forma&nbsp;de&nbsp;învățământ:&nbsp;&lt;br&gt;&nbsp;<br>&lt;input&nbsp;type="radio"&nbsp;name="eduform"&nbsp;value="zi"&nbsp;/&gt;zi&nbsp;&lt;br&gt;<br>&lt;input&nbsp;type="radio"&nbsp;name="eduform"&nbsp;value="fără&nbsp;frecvență"&nbsp;/&gt;fără&nbsp;frecvență&nbsp;&lt;/p&gt;<br>&lt;p&gt;Este&nbsp;necesară&nbsp;cazare:&lt;br&gt;<br>&lt;input&nbsp;type="checkbox"&nbsp;name="hostel"&nbsp;/&gt;Da&lt;/p&gt;<br>&lt;p&gt;Alegeți&nbsp;cursurile:&nbsp;&lt;br&gt;<br>&lt;select&nbsp;name="courses[]"&nbsp;size="5"&nbsp;multiple="multiple"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;option&nbsp;value="ASP.NET"&gt;ASP.NET&lt;/option&gt;<br>&nbsp;&nbsp;&nbsp;&lt;option&nbsp;value="PHP"&gt;PHP&lt;/option&gt;<br>&nbsp;&nbsp;&nbsp;&lt;option&nbsp;value="Ruby"&gt;RUBY&lt;/option&gt;<br>&nbsp;&nbsp;&nbsp;&lt;option&nbsp;value="Python"&gt;Python&lt;/option&gt;<br>&nbsp;&nbsp;&nbsp;&lt;option&nbsp;value="Java"&gt;Java&lt;/option&gt;<br>&lt;/select&gt;&lt;/p&gt;<br>&lt;p&gt;Comentariu&nbsp;scurt:&nbsp;&lt;br&gt;<br>&lt;textarea&nbsp;name="comment"&nbsp;maxlength="200"&gt;&lt;/textarea&gt;&lt;/p&gt;<br>&lt;input&nbsp;type="submit"&nbsp;value="Trimite"&gt;<br>&lt;/form&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici este definit un formular simplu și standard de introducere a datelor unui chestionar.</p>
+     <p class="paragraph">Acum definim scriptul input.php, care va procesa acest formular:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>if(isset($_POST["firstname"])&nbsp;&amp;&amp;&nbsp;isset($_POST["eduform"])&nbsp;&amp;&amp;<br>&nbsp;&nbsp;&nbsp;isset($_POST["comment"])&nbsp;&amp;&amp;&nbsp;isset($_POST["courses"]))<br>{<br>&nbsp;&nbsp;&nbsp;$name&nbsp;=&nbsp;htmlentities($_POST["firstname"]);<br>&nbsp;&nbsp;&nbsp;$eduform&nbsp;=&nbsp;htmlentities($_POST["eduform"]);<br>&nbsp;&nbsp;&nbsp;$hostel&nbsp;=&nbsp;"nu";<br>&nbsp;&nbsp;&nbsp;if(isset($_POST["hostel"]))&nbsp;$hostel&nbsp;=&nbsp;"da";<br>&nbsp;&nbsp;&nbsp;$comment&nbsp;=&nbsp;htmlentities($_POST["comment"]);<br>&nbsp;&nbsp;&nbsp;$courses&nbsp;=&nbsp;$_POST["courses"];<br>&nbsp;&nbsp;&nbsp;$output&nbsp;="<br>&nbsp;&nbsp;&nbsp;&lt;html&gt;<br>&nbsp;&nbsp;&nbsp;&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;Datele&nbsp;chestionarului&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;Te&nbsp;numești:&nbsp;$name&lt;br&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;Forma&nbsp;de&nbsp;învățământ:&nbsp;$eduform&lt;br&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;Este&nbsp;necesară&nbsp;cazare:&nbsp;$hostel&lt;br&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;Cursurile&nbsp;alese:<br>&nbsp;&nbsp;&nbsp;&lt;ul&gt;";<br>&nbsp;&nbsp;&nbsp;foreach($courses&nbsp;as&nbsp;$item)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$output.="&lt;li&gt;"&nbsp;.&nbsp;htmlentities($item)&nbsp;.&nbsp;"&lt;/li&gt;";<br>&nbsp;&nbsp;&nbsp;$output.="&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;";<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$output;<br>}<br>else<br>{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Datele&nbsp;introduse&nbsp;sunt&nbsp;incorecte";<br>}<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Accesăm pagina cu formularul, introducem toate datele:</p>
+     <div class="image-container">
+      <img th:src="@{/images/PHP/3.Trimiterea%20datelor%20pe%20server/6.Exemplu%20de%20procesare%20a%20formularelor/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Și trimitem formularul pe server:</p>
+     <div class="image-container">
+      <img th:src="@{/images/PHP/3.Trimiterea%20datelor%20pe%20server/6.Exemplu%20de%20procesare%20a%20formularelor/images/image2.png}" alt="" class="responsive-image">
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='11.Lucrul cu siruri de caractere', activeLesson='5.Expresii regulate'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Expresii regulate</h1>
+     <p class="paragraph">Clasele StringBuilder și String oferă funcționalitate suficientă pentru lucrul cu șiruri de caractere. Cu toate acestea, .NET oferă încă un instrument puternic - expresiile regulate. Expresiile regulate reprezintă o metodă eficientă și flexibilă pentru procesarea textelor mari, permițând în același timp reducerea semnificativă a volumului de cod comparativ cu utilizarea operațiilor standard cu șiruri.</p>
+     <p class="paragraph">Funcționalitatea principală a expresiilor regulate în .NET este concentrată în spațiul de nume System.Text.RegularExpressions. Clasa centrală pentru lucrul cu expresiile regulate este clasa Regex. De exemplu, avem un text și trebuie să găsim toate formele unui cuvânt. Cu clasa Regex, acest lucru se face foarte simplu:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Text.RegularExpressions;<br><br>string&nbsp;s&nbsp;=&nbsp;"Boul&nbsp;cu&nbsp;buze&nbsp;groase,&nbsp;buzișoare&nbsp;groaznice,&nbsp;boul&nbsp;are&nbsp;buza&nbsp;albă&nbsp;groasă";<br>Regex&nbsp;regex&nbsp;=&nbsp;new&nbsp;Regex(@"gro(a*)");<br>MatchCollection&nbsp;matches&nbsp;=&nbsp;regex.Matches(s);<br>if&nbsp;(matches.Count&nbsp;&gt;&nbsp;0)<br>{<br>&nbsp;&nbsp;&nbsp;foreach&nbsp;(Match&nbsp;match&nbsp;in&nbsp;matches)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(match.Value);<br>}<br>else<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Nu&nbsp;s-au&nbsp;găsit&nbsp;potriviri");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici găsim în șirul căutat toate formele cuvântului "groa". În constructorul obiectului Regex se transmite expresia regulată pentru căutare. Vom analiza mai departe câteva elemente ale sintaxei expresiilor regulate, dar deocamdată este suficient să știm că expresia gro(a*) înseamnă găsirea tuturor cuvintelor care au rădăcina "groa" și după care poate urma un număr variabil de caractere.</p>
+     <p class="paragraph">Expresia \w reprezintă un caracter alfanumeric, iar asteriscul după expresie indică un număr nedefinit de astfel de caractere - pot fi unul, două, trei sau deloc.</p>
+     <p class="paragraph">Metoda Matches a clasei Regex acceptă un șir, la care trebuie aplicate expresiile regulate, și returnează o colecție de potriviri găsite.</p>
+     <p class="paragraph">Fiecare element al acestei colecții reprezintă un obiect Match. Proprietatea sa Value returnează potrivirea găsită.</p>
+     <p class="paragraph">În acest caz, vom obține următoarea afișare în consolă:</p>
+     <div class="code-inline">
+      <pre><code>groase<br>groaznice<br>groasă</code></pre>
+     </div>
+     <h2 class="subtitle">Parametrul RegexOptions</h2>
+     <p class="paragraph">Clasa Regex are o serie de constructori care permit inițializarea obiectului. Două versiuni ale constructorilor acceptă ca unul dintre parametri enumerarea RegexOptions. Câteva dintre valorile acceptate de această enumerare sunt:</p>
+     <ul class="enumeration">
+      <li>Compiled: când este setată această valoare, expresia regulată este compilată într-o asamblare, ceea ce asigură o execuție mai rapidă</li>
+      <li>CultureInvariant: când este setată această valoare, vor fi ignorate diferențele regionale</li>
+      <li>IgnoreCase: când este setată această valoare, va fi ignorată diferența între majuscule și minuscule</li>
+      <li>IgnorePatternWhitespace: elimină spațiile din șir și permite comentarii care încep cu semnul #</li>
+      <li>Multiline: specifică că textul trebuie considerat în mod multiline. În acest mod, caracterele "^" și "$" se potrivesc cu începutul și sfârșitul oricărei linii, nu doar al întregului text</li>
+      <li>RightToLeft: specifică citirea șirului de la dreapta la stânga</li>
+      <li>Singleline: în acest mod, caracterul "." corespunde oricărui caracter, inclusiv secvenței "\n" care realizează trecerea la o linie nouă</li>
+     </ul>
+     <p class="paragraph">De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>Regex&nbsp;regex&nbsp;=&nbsp;new&nbsp;Regex(@"gro(a*)",&nbsp;RegexOptions.IgnoreCase);</code></pre>
+     </div>
+     <p class="paragraph">Dacă este necesar, putem seta mai mulți parametri:</p>
+     <div class="code-inline">
+      <pre><code>Regex&nbsp;regex&nbsp;=&nbsp;new&nbsp;Regex(@"gro(a*)",&nbsp;RegexOptions.Compiled&nbsp;|&nbsp;RegexOptions.IgnoreCase);</code></pre>
+     </div>
+     <h2 class="subtitle">Sintaxa expresiilor regulate</h2>
+     <p class="paragraph">Să analizăm pe scurt câteva elemente ale sintaxei expresiilor regulate:</p>
+     <ul class="enumeration">
+      <li>^: potrivirea trebuie să înceapă la începutul șirului (de exemplu, expresia @"^cu\w*" se potrivește cuvântului "cuvânt" în șirul "cuvânt mare")</li>
+      <li>$: sfârșitul șirului (de exemplu, expresia @"\w*are$" se potrivește cuvântului "mare" în șirul "cuvânt mare", deoarece partea "are" se află la sfârșit)</li>
+      <li>.: punctul reprezintă orice caracter unic (de exemplu, expresia "c.v" se potrivește cuvântului "cuvânt" sau "cav")</li>
+      <li>*: caracterul anterior se repetă de 0 sau mai multe ori</li>
+      <li>+: caracterul anterior se repetă de 1 sau mai multe ori</li>
+      <li>?: caracterul anterior se repetă de 0 sau 1 dată</li>
+      <li>\s: corespunde oricărui caracter de spațiu</li>
+      <li>\S: corespunde oricărui caracter care nu este spațiu</li>
+      <li>\w: corespunde oricărui caracter alfanumeric</li>
+      <li>\W: corespunde oricărui caracter non-alfanumeric</li>
+      <li>\d: corespunde oricărei cifre zecimale</li>
+      <li>\D: corespunde oricărui caracter care nu este o cifră zecimală</li>
+     </ul>
+     <p class="paragraph">Aceasta este doar o mică parte a elementelor. O descriere mai detaliată a sintaxei expresiilor regulate poate fi găsită pe msdn în articolul "Regular Expression Language - Quick Reference".</p>
+     <p class="paragraph">Să vedem acum câteva exemple de utilizare. Să luăm primul exemplu cu "Boul cu buze groase, buzișoare groaznice, boul are buza albă groasă" și să găsim toate cuvintele în care apare rădăcina "buze":</p>
+     <div class="code-inline">
+      <pre><code>string&nbsp;s&nbsp;=&nbsp;"Boul&nbsp;cu&nbsp;buze&nbsp;groase,&nbsp;buzișoare&nbsp;groaznice,&nbsp;boul&nbsp;are&nbsp;buza&nbsp;albă&nbsp;groasă";<br>Regex&nbsp;regex&nbsp;=&nbsp;new&nbsp;Regex(@"\w*buz\w*");</code></pre>
+     </div>
+     <p class="paragraph">Deoarece expresia \w* corespunde oricărei secvențe de caractere alfanumerice de orice lungime, această expresie va găsi toate cuvintele care conțin rădăcina "buz".</p>
+     <p class="paragraph">Un alt exemplu simplu - găsirea unui număr de telefon în formatul 111-111-1111:</p>
+     <div class="code-inline">
+      <pre><code>string&nbsp;s&nbsp;=&nbsp;"456-435-2318";<br>Regex&nbsp;regex&nbsp;=&nbsp;new&nbsp;Regex(@"\d{3}-\d{3}-\d{4}");</code></pre>
+     </div>
+     <p class="paragraph">Dacă știm exact câte caractere trebuie să fie, putem specifica numărul lor explicit între acolade: \d{3} - în acest caz, trei cifre.</p>
+     <p class="paragraph">Putem nu doar să specificăm căutarea după anumite tipuri de caractere - spații, cifre, ci și să specificăm caracterele concrete care trebuie să apară în expresia regulată. De exemplu, să rescriem exemplul cu numărul de telefon și să specificăm clar ce caractere trebuie să conțină:</p>
+     <div class="code-inline">
+      <pre><code>string&nbsp;s&nbsp;=&nbsp;"456-435-2318";<br>Regex&nbsp;regex&nbsp;=&nbsp;new&nbsp;Regex("[0-9]{3}-[0-9]{3}-[0-9]{4}");</code></pre>
+     </div>
+     <p class="paragraph">Între paranteze pătrate se specifică intervalul de caractere care trebuie să apară în acel loc. În cele din urmă, acest șablon și șablonul anterior pentru numărul de telefon vor fi echivalente.</p>
+     <p class="paragraph">De asemenea, putem specifica intervale pentru caracterele alfabetice: Regex regex = new Regex("[a-v]{5}"); - această expresie va corespunde oricărei combinații de cinci caractere, în care toate caracterele se află în intervalul de la a la v.</p>
+     <p class="paragraph">Putem specifica și valori individuale: Regex regex = new Regex(@"[2]*-[0-9]{3}-\d{4}");. Această expresie va corespunde, de exemplu, unui număr de telefon "222-222-2222" (deoarece primele cifre sunt doi).</p>
+     <p class="paragraph">Cu ajutorul operatorului | putem specifica caractere alternative, de exemplu:</p>
+     <div class="code-inline">
+      <pre><code>Regex&nbsp;regex&nbsp;=&nbsp;new&nbsp;Regex(@"(2|3){3}-[0-9]{3}-\d{4}");</code></pre>
+     </div>
+     <p class="paragraph">Adică primele trei cifre pot conține doar doi sau trei. Un astfel de șablon va corespunde, de exemplu, șirurilor "222-222-2222" și "323-435-2318". Dar șirul "235-435-2318" nu se va potrivi șablonului, deoarece una dintre primele trei cifre este cinci.</p>
+     <p class="paragraph">Astfel, caracterele precum *, + și altele sunt folosite ca simboluri speciale. Și apare întrebarea, ce facem dacă trebuie să găsim șiruri care conțin punct, asterisc sau alt simbol special? În acest caz, trebuie doar să scăpăm aceste caractere cu un backslash:</p>
+     <div class="code-inline">
+      <pre><code>Regex&nbsp;regex&nbsp;=&nbsp;new&nbsp;Regex(@"(2|3){3}\.[0-9]{3}\.\d{4}");<br>//&nbsp;această&nbsp;expresie&nbsp;va&nbsp;corespunde&nbsp;șirului&nbsp;"222.222.2222"</code></pre>
+     </div>
+     <h2 class="subtitle">Verificarea formatului șirului</h2>
+     <p class="paragraph">Adesea, trebuie să verificăm corectitudinea datelor introduse de utilizator. Aceasta poate fi verificarea unei adrese de email, a unui număr de telefon, etc. Clasa Regex oferă metoda statică IsMatch, care permite verificarea unui șir cu un șablon:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Text.RegularExpressions;<br><br>string&nbsp;pattern&nbsp;=&nbsp;@"^(?("")(""[^""]+?""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&amp;'\*\+/=\?\^\{\}\|~\w])*)(?&lt;=[0-9a-z])@))"&nbsp;+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-\w]*[0-9a-z]*\.)+[a-z0-9]{2,17}))$";<br>var&nbsp;data&nbsp;=&nbsp;new&nbsp;string[]<br>{<br>&nbsp;&nbsp;&nbsp;"tom@gmail.com",<br>&nbsp;&nbsp;&nbsp;"+12345678999",<br>&nbsp;&nbsp;&nbsp;"bob@yahoo.com",<br>&nbsp;&nbsp;&nbsp;"+13435465566",<br>&nbsp;&nbsp;&nbsp;"sam@yandex.ru",<br>&nbsp;&nbsp;&nbsp;"+43743989393"<br>};<br><br>Console.WriteLine("Email&nbsp;List");<br>for(int&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;data.Length;&nbsp;i++)<br>{<br>&nbsp;&nbsp;&nbsp;if&nbsp;(Regex.IsMatch(data[i],&nbsp;pattern,&nbsp;RegexOptions.IgnoreCase))<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(data[i]);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Variabila pattern specifică expresia regulată pentru verificarea adresei de email. Această expresie este oferită de Microsoft pe paginile msdn.</p>
+     <p class="paragraph">Apoi, în ciclul for, parcurgem tabloul de șiruri și determinăm care șiruri corespund acestui șablon, adică reprezintă o adresă de email validă. Pentru verificarea corespondenței unui șir cu un șablon, se folosește metoda IsMatch:</p>
+     <p class="paragraph">Regex.IsMatch(data[i], pattern, RegexOptions.IgnoreCase). Ultimul parametru indică faptul că diferențele de majuscule/minuscule pot fi ignorate. Și dacă șirul corespunde șablonului, metoda returnează true.</p>
+     <h2 class="subtitle">Înlocuirea și metoda Replace</h2>
+     <p class="paragraph">Clasa Regex are metoda Replace, care permite înlocuirea unui șir ce corespunde expresiei regulate cu un alt șir:</p>
+     <div class="code-inline">
+      <pre><code>string&nbsp;text&nbsp;=&nbsp;"Mama&nbsp;spăla&nbsp;geamul.";<br>string&nbsp;pattern&nbsp;=&nbsp;@"\s+";<br>string&nbsp;target&nbsp;=&nbsp;"&nbsp;";<br>Regex&nbsp;regex&nbsp;=&nbsp;new&nbsp;Regex(pattern);<br>string&nbsp;result&nbsp;=&nbsp;regex.Replace(text,&nbsp;target);<br>Console.WriteLine(result);</code></pre>
+     </div>
+     <p class="paragraph">Această versiune a metodei Replace primește doi parametri: șirul cu textul unde trebuie făcută înlocuirea și șirul de înlocuire. Deoarece șablonul ales este expresia "\s+ (adică unul sau mai multe spații), metoda Replace parcurge tot textul și înlocuiește spațiile consecutive cu unul singur.</p>
+     <p class="paragraph">Un alt exemplu - se dă un număr de telefon în format arbitrar și dorim să păstrăm doar cifrele:</p>
+     <div class="code-inline">
+      <pre><code>string&nbsp;phoneNumber&nbsp;=&nbsp;"+1(876)-234-12-98";<br>string&nbsp;pattern&nbsp;=&nbsp;@"\D";<br>string&nbsp;target&nbsp;=&nbsp;"";<br>Regex&nbsp;regex&nbsp;=&nbsp;new&nbsp;Regex(pattern);<br>string&nbsp;result&nbsp;=&nbsp;regex.Replace(phoneNumber,&nbsp;target);<br>Console.WriteLine(result);&nbsp;//&nbsp;18762341298</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, șablonul "\D" reprezintă orice caracter care nu este cifră. Orice astfel de caracter este înlocuit cu un șir gol "", adică în final din șirul "+1(876)-234-12-98" obținem șirul "18762341298".</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

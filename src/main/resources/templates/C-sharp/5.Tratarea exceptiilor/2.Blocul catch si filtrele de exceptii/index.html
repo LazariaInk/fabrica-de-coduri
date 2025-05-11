@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='5.Tratarea exceptiilor', activeLesson='2.Blocul catch si filtrele de exceptii'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Blocul catch și filtrele de excepții</h1>
+     <h2 class="subtitle">Definirea blocului catch</h2>
+     <p class="paragraph">Tratamentul excepțiilor este responsabilitatea blocului catch, care poate avea următoarele forme:</p>
+     <div class="code-inline">
+      <pre><code>catch<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;instrucțiuni&nbsp;executate<br>}</code></pre>
+     </div>
+     <p class="paragraph">Acest bloc tratează orice excepție care apare în blocul try. Mai sus a fost demonstrat un exemplu al unui astfel de bloc.</p>
+     <div class="code-inline">
+      <pre><code>catch&nbsp;(tip_excepție)<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;instrucțiuni&nbsp;executate<br>}</code></pre>
+     </div>
+     <p class="paragraph">Acest bloc tratează doar excepțiile care corespund tipului specificat în paranteze după operatorul catch.</p>
+     <p class="paragraph">De exemplu, să tratăm doar excepțiile de tip DivideByZeroException:</p>
+     <div class="code-inline">
+      <pre><code>try<br>{<br>&nbsp;&nbsp;&nbsp;int&nbsp;x&nbsp;=&nbsp;5;<br>&nbsp;&nbsp;&nbsp;int&nbsp;y&nbsp;=&nbsp;x&nbsp;/&nbsp;0;<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Rezultatul:&nbsp;{y}");<br>}<br>catch&nbsp;(DivideByZeroException)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("A&nbsp;apărut&nbsp;o&nbsp;excepție&nbsp;DivideByZeroException");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Cu toate acestea, dacă în blocul try apar excepții de alte tipuri decât DivideByZeroException, acestea nu vor fi tratate.</p>
+     <div class="code-inline">
+      <pre><code>catch&nbsp;(tip_excepție&nbsp;nume_variabilă)<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;instrucțiuni&nbsp;executate<br>}</code></pre>
+     </div>
+     <p class="paragraph">Acest bloc tratează doar excepțiile care corespund tipului specificat în paranteze după operatorul catch, iar toată informația despre excepție este plasată într-o variabilă de acest tip. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>try<br>{<br>&nbsp;&nbsp;&nbsp;int&nbsp;x&nbsp;=&nbsp;5;<br>&nbsp;&nbsp;&nbsp;int&nbsp;y&nbsp;=&nbsp;x&nbsp;/&nbsp;0;<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Rezultatul:&nbsp;{y}");<br>}<br>catch&nbsp;(DivideByZeroException&nbsp;ex)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"A&nbsp;apărut&nbsp;o&nbsp;excepție:&nbsp;{ex.Message}");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Acest caz este similar cu cel precedent, cu excepția faptului că aici se folosește o variabilă. În acest caz, informațiile despre excepția apărută sunt plasate în variabila ex, care reprezintă tipul DivideByZeroException. Cu ajutorul proprietății Message putem obține mesajul de eroare.</p>
+     <p class="paragraph">Dacă nu avem nevoie de informații despre excepție, putem să nu folosim variabila, ca în cazul precedent.</p>
+     <h2 class="subtitle">Filtrele de excepții</h2>
+     <p class="paragraph">Filtrele de excepții permit tratarea excepțiilor în funcție de anumite condiții. Pentru a le aplica, după expresia catch urmează expresia when, după care în paranteze se specifică condiția:</p>
+     <div class="code-inline">
+      <pre><code>catch&nbsp;when(condiție)<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;instrucțiuni&nbsp;executate<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, tratarea excepției în blocul catch are loc doar dacă condiția din expresia when este adevărată. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;x&nbsp;=&nbsp;1;<br>int&nbsp;y&nbsp;=&nbsp;0;<br><br>try<br>{<br>&nbsp;&nbsp;&nbsp;int&nbsp;result1&nbsp;=&nbsp;x&nbsp;/&nbsp;y;<br>&nbsp;&nbsp;&nbsp;int&nbsp;result2&nbsp;=&nbsp;y&nbsp;/&nbsp;x;<br>}<br>catch&nbsp;(DivideByZeroException)&nbsp;when&nbsp;(y&nbsp;==&nbsp;0)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("y&nbsp;nu&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;egal&nbsp;cu&nbsp;0");<br>}<br>catch&nbsp;(DivideByZeroException&nbsp;ex)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(ex.Message);<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz va fi aruncată o excepție, deoarece y=0. Aici avem două blocuri catch, ambele tratând excepții de tip DivideByZeroException, adică toate excepțiile generate la împărțirea la zero.</p>
+     <p class="paragraph">Dar, deoarece pentru primul bloc este specificată condiția y == 0, acest bloc va trata excepția - condiția specificată după operatorul when returnează true.</p>
+     <p class="paragraph">Situația opusă:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;x&nbsp;=&nbsp;0;<br>int&nbsp;y&nbsp;=&nbsp;1;<br><br>try<br>{<br>&nbsp;&nbsp;&nbsp;int&nbsp;result1&nbsp;=&nbsp;x&nbsp;/&nbsp;y;<br>&nbsp;&nbsp;&nbsp;int&nbsp;result2&nbsp;=&nbsp;y&nbsp;/&nbsp;x;<br>}<br>catch&nbsp;(DivideByZeroException)&nbsp;when&nbsp;(y&nbsp;==&nbsp;0)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("y&nbsp;nu&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;egal&nbsp;cu&nbsp;0");<br>}<br>catch&nbsp;(DivideByZeroException&nbsp;ex)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(ex.Message);<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz va fi aruncată o excepție, deoarece x=0. Condiția primului bloc catch - y == 0 - acum returnează false. Prin urmare, CLR va continua să caute blocuri catch corespunzătoare și va alege pentru tratarea excepției al doilea bloc catch. În final, dacă eliminăm al doilea bloc catch, excepția nu va fi tratată deloc.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

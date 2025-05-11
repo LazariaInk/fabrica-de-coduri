@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='4.Programare orientata pe obiecte', activeLesson='2.Conversia tipurilor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Conversia tipurilor</h1>
+     <p class="paragraph">În capitolul anterior am discutat despre conversiile obiectelor de tipuri simple. Acum vom aborda tema conversiei obiectelor claselor. Să presupunem că avem următoarea ierarhie de clase:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Print()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Person&nbsp;{Name}");<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;Employee&nbsp;:&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Company&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Employee(string&nbsp;name,&nbsp;string&nbsp;company)&nbsp;:&nbsp;base(name)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Company&nbsp;=&nbsp;company;<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;Client&nbsp;:&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Bank&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Client(string&nbsp;name,&nbsp;string&nbsp;bank)&nbsp;:&nbsp;base(name)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Bank&nbsp;=&nbsp;bank;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În această ierarhie de clase putem urmări următoarea linie de moștenire: Object (toate clasele moștenesc implicit de la tipul Object) -&gt; Person -&gt; Employee|Client.</p>
+     <div class="image-container">
+      <img th:src="@{/images/4.Programare%20orientata%20pe%20obiecte/2.Conversia%20tipurilor/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">În această ierarhie, tipurile de bază sunt la partea superioară, iar tipurile derivate sunt la partea inferioară.</p>
+     <h2 class="subtitle">Conversii ascendente - Upcasting</h2>
+     <p class="paragraph">Obiectele unui tip derivat (care se află în partea de jos a ierarhiei) în același timp reprezintă și tipul de bază. De exemplu, un obiect Employee este în același timp și un obiect al clasei Person. Acest lucru este natural, deoarece fiecare angajat (Employee) este o persoană (Person). Și putem scrie, de exemplu, în felul următor:</p>
+     <div class="code-inline">
+      <pre><code><br>Employee&nbsp;employee&nbsp;=&nbsp;new&nbsp;Employee("Tom",&nbsp;"Microsoft");<br>Person&nbsp;person&nbsp;=&nbsp;employee;&nbsp;&nbsp;&nbsp;//&nbsp;conversia&nbsp;de&nbsp;la&nbsp;Employee&nbsp;la&nbsp;Person<br><br>Console.WriteLine(person.Name);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, variabilei person, care reprezintă tipul Person, i se atribuie o referință la obiectul Employee. Dar pentru a păstra o referință la un obiect al unei clase într-o variabilă a unei alte clase, este necesar să efectuăm o conversie de tipuri - în acest caz, de la tipul Employee la tipul Person.</p>
+     <p class="paragraph">Și cum Employee moștenește de la clasa Person, se efectuează automat o conversie ascendentă implicită - conversia la un tip care se află în partea superioară a ierarhiei claselor, adică la clasa de bază.</p>
+     <p class="paragraph">În final, variabilele employee și person vor indica același obiect în memorie, dar variabilei person îi va fi accesibilă doar acea parte care reprezintă funcționalitatea tipului Person.</p>
+     <div class="image-container">
+      <img th:src="@{/images/4.Programare%20orientata%20pe%20obiecte/2.Conversia%20tipurilor/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Conversiile ascendente similare se efectuează în mod similar:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;bob&nbsp;=&nbsp;new&nbsp;Client("Bob",&nbsp;"ContosoBank");&nbsp;&nbsp;&nbsp;//&nbsp;conversia&nbsp;de&nbsp;la&nbsp;Client&nbsp;la&nbsp;Person</code></pre>
+     </div>
+     <p class="paragraph">Aici, variabila bob, care reprezintă tipul Person, păstrează o referință la obiectul Client, prin urmare se efectuează de asemenea o conversie ascendentă implicită de la clasa derivată Client la tipul de bază Person.</p>
+     <p class="paragraph">Conversia ascendentă implicită se va întâmpla și în următorul caz:</p>
+     <div class="code-inline">
+      <pre><code>object&nbsp;person1&nbsp;=&nbsp;new&nbsp;Employee("Tom",&nbsp;"Microsoft");&nbsp;&nbsp;//&nbsp;de&nbsp;la&nbsp;Employee&nbsp;la&nbsp;object<br>object&nbsp;person2&nbsp;=&nbsp;new&nbsp;Client("Bob",&nbsp;"ContosoBank");&nbsp;&nbsp;//&nbsp;de&nbsp;la&nbsp;Client&nbsp;la&nbsp;object<br>object&nbsp;person3&nbsp;=&nbsp;new&nbsp;Person("Sam");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;de&nbsp;la&nbsp;Person&nbsp;la&nbsp;object</code></pre>
+     </div>
+     <p class="paragraph">Deoarece tipul object este baza pentru toate celelalte tipuri, conversia către acesta se va efectua automat.</p>
+     <h2 class="subtitle">Conversii descendente - Downcasting</h2>
+     <p class="paragraph">Pe lângă conversiile ascendente de la derivat la bază există și conversii descendente sau downcasting - de la tipul de bază la cel derivat. De exemplu, în următorul cod, variabila person păstrează o referință la obiectul Employee:</p>
+     <div class="code-inline">
+      <pre><code>Employee&nbsp;employee&nbsp;=&nbsp;new&nbsp;Employee("Tom",&nbsp;"Microsoft");<br>Person&nbsp;person&nbsp;=&nbsp;employee;&nbsp;&nbsp;&nbsp;//&nbsp;conversia&nbsp;de&nbsp;la&nbsp;Employee&nbsp;la&nbsp;Person</code></pre>
+     </div>
+     <p class="paragraph">Și poate apărea întrebarea dacă se poate accesa funcționalitatea tipului Employee prin variabila tipului Person. Dar astfel de conversii nu se efectuează automat, deoarece nu fiecare persoană (obiect Person) este un angajat al unei companii (obiect Employee).</p>
+     <p class="paragraph">Și pentru o conversie descendentă este necesară aplicarea unei conversii explicite, indicând între paranteze tipul la care trebuie efectuată conversia:</p>
+     <div class="code-inline">
+      <pre><code>Employee&nbsp;employee1&nbsp;=&nbsp;new&nbsp;Employee("Tom",&nbsp;"Microsoft");<br>Person&nbsp;person&nbsp;=&nbsp;employee1;&nbsp;&nbsp;&nbsp;//&nbsp;conversia&nbsp;de&nbsp;la&nbsp;Employee&nbsp;la&nbsp;Person<br><br>//Employee&nbsp;employee2&nbsp;=&nbsp;person;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;nu&nbsp;se&nbsp;poate,&nbsp;este&nbsp;necesară&nbsp;o&nbsp;conversie&nbsp;explicită<br>Employee&nbsp;employee2&nbsp;=&nbsp;(Employee)person;&nbsp;&nbsp;//&nbsp;conversia&nbsp;de&nbsp;la&nbsp;Person&nbsp;la&nbsp;Employee</code></pre>
+     </div>
+     <p class="paragraph">Să examinăm unele exemple de conversii:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;Obiectul&nbsp;Employee&nbsp;reprezintă&nbsp;de&nbsp;asemenea&nbsp;tipul&nbsp;object<br>object&nbsp;obj&nbsp;=&nbsp;new&nbsp;Employee("Bill",&nbsp;"Microsoft");<br><br>//&nbsp;pentru&nbsp;a&nbsp;accesa&nbsp;capacitățile&nbsp;tipului&nbsp;Employee,&nbsp;convertim&nbsp;obiectul&nbsp;la&nbsp;tipul&nbsp;Employee<br>Employee&nbsp;employee&nbsp;=&nbsp;(Employee)&nbsp;obj;<br><br>//&nbsp;obiectul&nbsp;Client&nbsp;reprezintă&nbsp;de&nbsp;asemenea&nbsp;tipul&nbsp;Person<br>Person&nbsp;person&nbsp;=&nbsp;new&nbsp;Client("Sam",&nbsp;"ContosoBank");<br>//&nbsp;conversia&nbsp;de&nbsp;la&nbsp;tipul&nbsp;Person&nbsp;la&nbsp;Client<br>Client&nbsp;client&nbsp;=&nbsp;(Client)person;</code></pre>
+     </div>
+     <p class="paragraph">În primul caz, variabilei obj i se atribuie o referință la obiectul Employee, deci putem converti obiectul obj la orice tip care se află în ierarhia de clase între tipul object și Employee.</p>
+     <p class="paragraph">Dacă avem nevoie să accesăm unele proprietăți sau metode specifice ale obiectului, nu este obligatoriu să atribuim obiectul convertit unei variabile:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;Obiectul&nbsp;Employee&nbsp;reprezintă&nbsp;de&nbsp;asemenea&nbsp;tipul&nbsp;object<br>object&nbsp;obj&nbsp;=&nbsp;new&nbsp;Employee("Bill",&nbsp;"Microsoft");<br><br>//&nbsp;conversia&nbsp;la&nbsp;tipul&nbsp;Person&nbsp;pentru&nbsp;a&nbsp;apela&nbsp;metoda&nbsp;Print<br>((Person)obj).Print();<br>//&nbsp;sau&nbsp;așa<br>//&nbsp;((Employee)obj).Print();<br><br>//&nbsp;conversia&nbsp;la&nbsp;tipul&nbsp;Employee&nbsp;pentru&nbsp;a&nbsp;obține&nbsp;proprietatea&nbsp;Company<br>string&nbsp;company&nbsp;=&nbsp;((Employee)obj).Company;</code></pre>
+     </div>
+     <p class="paragraph">În același timp, trebuie să fim prudenți cu astfel de conversii. De exemplu, ce se va întâmpla în următorul caz:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;Obiectul&nbsp;Employee&nbsp;reprezintă&nbsp;de&nbsp;asemenea&nbsp;tipul&nbsp;object<br>object&nbsp;obj&nbsp;=&nbsp;new&nbsp;Employee("Bill",&nbsp;"Microsoft");<br><br>//&nbsp;conversia&nbsp;la&nbsp;tipul&nbsp;Client&nbsp;pentru&nbsp;a&nbsp;obține&nbsp;proprietatea&nbsp;Bank<br>string&nbsp;bank&nbsp;=&nbsp;((Client)obj).Bank;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz vom primi o eroare, deoarece variabila obj păstrează o referință la obiectul Employee. Acest obiect este de asemenea un obiect al tipurilor object și Person, prin urmare putem să-l convertim la aceste tipuri. Dar nu putem să-l convertim la tipul Client.</p>
+     <p class="paragraph">Un alt exemplu:</p>
+     <div class="code-inline">
+      <pre><code>Employee&nbsp;employee1&nbsp;=&nbsp;new&nbsp;Person("Tom");&nbsp;//&nbsp;Eroare!<br><br>Person&nbsp;person&nbsp;=&nbsp;new&nbsp;Person("Bob");<br>Employee&nbsp;employee2&nbsp;=&nbsp;(Employee)&nbsp;person;&nbsp;//&nbsp;Eroare!</code></pre>
+     </div>
+     <p class="paragraph">În acest caz încercăm să convertim un obiect de tip Person la tipul Employee, iar obiectul Person nu este un obiect Employee. În ultimul caz, Visual Studio nu va indica că în această linie există o eroare, și linia va fi compilată normal, totuși în timpul executării programului vom primi o eroare.</p>
+     <p class="paragraph">În acest lucru constă și perfidia conversiilor, deci în astfel de situații trebuie să fim precauți.</p>
+     <p class="paragraph">Există mai multe modalități de a evita astfel de erori de conversie.</p>
+     <h2 class="subtitle">Modalități de conversie</h2>
+     <p class="paragraph">În primul rând, puteți folosi cuvântul cheie as. Cu ajutorul lui, programul încearcă să convertească expresia la un anumit tip, fără să arunce o excepție. În cazul unei conversii eșuate, expresia va conține valoarea null:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;person&nbsp;=&nbsp;new&nbsp;Person("Tom");<br><br>Employee?&nbsp;employee&nbsp;=&nbsp;person&nbsp;as&nbsp;Employee;<br>if&nbsp;(employee&nbsp;==&nbsp;null)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Conversia&nbsp;a&nbsp;eșuat");<br>}<br>else<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(employee.Company);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Trebuie menționat că variabila employee aici este definită nu doar ca o variabilă Employee, ci mai exact ca Employee? - după numele tipului se pune un semn întrebător. Acest lucru indică faptul că variabila poate conține atât valoarea null, cât și valoarea Employee.</p>
+     <p class="paragraph">A doua metodă constă în verificarea admisibilității conversiei cu ajutorul cuvântului cheie is:</p>
+     <div class="code-inline">
+      <pre><code>value&nbsp;is&nbsp;type</code></pre>
+     </div>
+     <p class="paragraph">Dacă valoarea din stânga operatorului reprezintă tipul indicat în dreapta operatorului, atunci operatorul is returnează true, altfel returnează false.</p>
+     <p class="paragraph">În plus, operatorul is permite să convertească automat valoarea la tip, dacă aceasta reprezintă acel tip. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;person&nbsp;=&nbsp;new&nbsp;Person("Tom");<br>if&nbsp;(person&nbsp;is&nbsp;Employee&nbsp;employee)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(employee.Company);<br>}<br>else<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Conversia&nbsp;nu&nbsp;este&nbsp;permisă");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Expresia if (person is Employee employee) verifică dacă variabila person este un obiect de tip Employee. Și dacă person este un obiect Employee, atunci automat convertește valoarea variabilei person în tipul Employee și valoarea convertită este salvată în variabila employee.</p>
+     <p class="paragraph">Apoi, în blocul if, putem folosi obiectul employee ca o valoare de tip Employee.</p>
+     <p class="paragraph">Totuși, dacă person nu este un obiect de tip Employee, cum este în acest caz, o astfel de verificare va returna valoarea false, și conversia nu va avea loc.</p>
+     <p class="paragraph">Operatorul is poate fi folosit și fără conversie, verificând doar conformitatea cu tipul:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;person&nbsp;=&nbsp;new&nbsp;Person("Tom");<br>if&nbsp;(person&nbsp;is&nbsp;Employee)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Reprezintă&nbsp;tipul&nbsp;Employee");<br>}<br>else<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("NU&nbsp;este&nbsp;un&nbsp;obiect&nbsp;de&nbsp;tip&nbsp;Employee");<br>}</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='3.Clase, structuri si spatii de nume in C-sharp', activeLesson='15.Membri statici si modificatorul static'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Membri statici și modificatorul static</h1>
+     <p class="paragraph">În afară de câmpurile, metodele și proprietățile obișnuite, clasele și structurile pot avea câmpuri, metode și proprietăți statice. Câmpurile, metodele și proprietățile statice se referă la întreaga clasă/structură și pentru a accesa astfel de membri nu este necesar să se creeze o instanță a clasei/structurii.</p>
+     <h2 class="subtitle">Câmpuri statice</h2>
+     <p class="paragraph">Câmpurile statice stochează starea întregii clase/structuri. Un câmp static este definit la fel ca unul obișnuit, doar că înainte de tipul câmpului se adaugă cuvântul cheie static. De exemplu, să considerăm clasa Person, care reprezintă o persoană:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;bob&nbsp;=&nbsp;new(68);<br>bob.СheckAge();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Deja&nbsp;la&nbsp;pensie<br><br>Person&nbsp;tom&nbsp;=&nbsp;new(37);<br>tom.СheckAge();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Câți&nbsp;ani&nbsp;mai&nbsp;sunt&nbsp;până&nbsp;la&nbsp;pensie:&nbsp;28<br><br>//&nbsp;obținerea&nbsp;câmpului&nbsp;static<br>Console.WriteLine(Person.retirementAge);&nbsp;//&nbsp;65<br>//&nbsp;modificarea&nbsp;câmpului&nbsp;static<br>Person.retirementAge&nbsp;=&nbsp;67;<br><br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;int&nbsp;age;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;int&nbsp;retirementAge&nbsp;=&nbsp;65;<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(int&nbsp;age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;СheckAge()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(age&nbsp;&gt;=&nbsp;retirementAge)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Deja&nbsp;la&nbsp;pensie");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Câți&nbsp;ani&nbsp;mai&nbsp;sunt&nbsp;până&nbsp;la&nbsp;pensie:&nbsp;{retirementAge&nbsp;-&nbsp;age}");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, clasa Person are două câmpuri: age (stochează vârsta persoanei) și retirementAge (stochează vârsta de pensionare). Însă câmpul retirementAge este static. El nu se referă la o persoană concretă, ci la toate persoanele. (În acest caz, pentru simplificare, ignorăm faptul că vârsta de pensionare poate varia în funcție de sex și profesie.)</p>
+     <p class="paragraph">Astfel, câmpul retirementAge nu se referă la un obiect separat și nu stochează valoarea unui obiect separat al clasei Person, ci se referă la întreaga clasă Person și stochează o valoare comună pentru întreaga clasă.</p>
+     <p class="paragraph">În clasă putem folosi acest câmp ca orice alt câmp. De exemplu, în metoda СheckAge(), care verifică statutul de pensionare al persoanei, pentru verificare folosim acest câmp:</p>
+     <div class="code-inline">
+      <pre><code>if&nbsp;(age&nbsp;&gt;=&nbsp;retirementAge)</code></pre>
+     </div>
+     <p class="paragraph">Dar dacă dorim să accesăm acest câmp în afara clasei, putem face acest lucru folosind numele clasei:</p>
+     <div class="code-inline">
+      <pre><code>Console.WriteLine(Person.retirementAge);<br>Person.retirementAge&nbsp;=&nbsp;67;</code></pre>
+     </div>
+     <p class="paragraph">La nivelul memoriei, pentru câmpurile statice se va crea o zonă în memorie care va fi comună pentru toate obiectele clasei.</p>
+     <div class="image-container">
+      <img th:src="@{/images/C-sharp/3.Clase,%20structuri%20si%20spatii%20de%20nume%20in%20C-sharp/15.Membri%20statici%20si%20modificatorul%20static/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Memoria pentru variabilele statice este alocată chiar și în cazul în care nu a fost creat niciun obiect al acestei clase.</p>
+     <h2 class="subtitle">Proprietăți statice</h2>
+     <p class="paragraph">În mod similar, putem crea și folosi proprietăți statice:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;bob&nbsp;=&nbsp;new(68);<br>bob.СheckAge();<br><br>Console.WriteLine(Person.RetirementAge);&nbsp;//&nbsp;65<br><br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;int&nbsp;age;<br>&nbsp;&nbsp;&nbsp;static&nbsp;int&nbsp;retirementAge&nbsp;=&nbsp;65;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;int&nbsp;RetirementAge<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get&nbsp;{&nbsp;return&nbsp;retirementAge;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set&nbsp;{&nbsp;if&nbsp;(value&nbsp;&gt;&nbsp;1&nbsp;și&nbsp;value&nbsp;&lt;&nbsp;100)&nbsp;retirementAge&nbsp;=&nbsp;value;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(int&nbsp;age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;СheckAge()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(age&nbsp;&gt;=&nbsp;retirementAge)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Deja&nbsp;la&nbsp;pensie");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Câți&nbsp;ani&nbsp;mai&nbsp;sunt&nbsp;până&nbsp;la&nbsp;pensie:&nbsp;{retirementAge&nbsp;-&nbsp;age}")&nbsp;;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, accesul la variabila statică retirementAge este intermediat prin proprietatea statică RetirementAge.</p>
+     <p class="paragraph">Astfel, variabilele și proprietățile care stochează starea comună pentru toate obiectele clasei/structurii trebuie definite ca statice.</p>
+     <p class="paragraph">Adesea, câmpurile și proprietățile statice sunt folosite pentru stocarea contoarelor. De exemplu, dorim să avem un contor care să ne permită să aflăm câte obiecte Person au fost create:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person();<br>var&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person();<br>var&nbsp;sam&nbsp;=&nbsp;new&nbsp;Person();<br>Console.WriteLine(Person.Counter);&nbsp;&nbsp;//&nbsp;3<br><br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;static&nbsp;int&nbsp;counter&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;int&nbsp;Counter&nbsp;=&gt;&nbsp;counter;<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;counter++;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, în clasa Person, contorul este stocat într-o variabilă privată counter, a cărei valoare crește cu unu la crearea unui obiect în constructor. Iar cu ajutorul proprietății statice Counter, care este disponibilă doar pentru citire, putem obține valoarea contorului.</p>
+     <h2 class="subtitle">Metode statice</h2>
+     <p class="paragraph">Metodele statice definesc un comportament comun pentru toate obiectele, care nu depinde de un obiect specific. Pentru a accesa metodele statice se folosește de asemenea numele clasei/structurii:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;bob&nbsp;=&nbsp;new(68);<br>Person.CheckRetirementStatus(bob);<br><br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Age&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;static&nbsp;int&nbsp;retirementAge&nbsp;=&nbsp;65;<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(int&nbsp;age)&nbsp;=&gt;&nbsp;Age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;CheckRetirementStatus(Person&nbsp;person)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(person.Age&nbsp;&gt;=&nbsp;retirementAge)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Deja&nbsp;la&nbsp;pensie");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Câți&nbsp;ani&nbsp;mai&nbsp;sunt&nbsp;până&nbsp;la&nbsp;pensie:&nbsp;{retirementAge&nbsp;-&nbsp;person.Age}")&nbsp;;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, în clasa Person este definită metoda statică CheckRetirementStatus(), care primește ca parametru un obiect Person și îi verifică statutul de pensionare.</p>
+     <p class="paragraph">Trebuie să ținem cont că metodele statice pot accesa doar membrii statici ai clasei. Nu putem accesa metode, câmpuri sau proprietăți nestatice în cadrul unei metode statice.</p>
+     <h2 class="subtitle">Constructor static</h2>
+     <p class="paragraph">În afară de constructorii obișnuiți, clasa poate avea și constructori statici. Constructorii statici au următoarele caracteristici distinctive:</p>
+     <ul class="enumeration">
+      <li>Constructorii statici nu trebuie să aibă modificator de acces și nu acceptă parametri</li>
+      <li>Ca și în metodele statice, în constructorii statici nu se poate folosi cuvântul cheie this pentru referință la obiectul curent al clasei și se pot accesa doar membrii statici ai clasei</li>
+      <li>Constructorii statici nu pot fi apelați manual în program. Ei sunt executați automat la prima creare a unui obiect al acestei clase sau la primul acces la membrii săi statici (dacă există)</li>
+      <li>Constructorii statici sunt de obicei folosiți pentru inițializarea datelor statice sau pentru a efectua acțiuni care trebuie realizate doar o dată</li>
+     </ul>
+     <p class="paragraph">Să definim un constructor static:</p>
+     <div class="code-inline">
+      <pre><code>Console.WriteLine(Person.RetirementAge);<br><br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;static&nbsp;int&nbsp;retirementAge;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;int&nbsp;RetirementAge&nbsp;=&gt;&nbsp;retirementAge;<br>&nbsp;&nbsp;&nbsp;static&nbsp;Person()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(DateTime.Now.Year&nbsp;==&nbsp;2022)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retirementAge&nbsp;=&nbsp;65;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retirementAge&nbsp;=&nbsp;67;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, folosim structura integrată DateTime pentru a obține anul curent. Pentru aceasta se folosește proprietatea DateTime.Now.Year. dacă este egal cu 2022, setăm o anumită vârstă de pensionare. În caz contrar, setăm o altă valoare pentru vârsta de pensionare.</p>
+     <h2 class="subtitle">Clase statice</h2>
+     <p class="paragraph">Clasele statice sunt declarate cu modificatorul static și pot conține doar câmpuri, proprietăți și metode statice. De exemplu, să definim o clasă care efectuează o serie de operații aritmetice:</p>
+     <div class="code-inline">
+      <pre><code>Console.WriteLine(Operations.Add(5,&nbsp;4));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;9<br>Console.WriteLine(Operations.Subtract(5,&nbsp;4));&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;1<br>Console.WriteLine(Operations.Multiply(5,&nbsp;4));&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;20<br><br>static&nbsp;class&nbsp;Operations<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;int&nbsp;Add(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;=&gt;&nbsp;x&nbsp;+&nbsp;y;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;int&nbsp;Subtract(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;=&gt;&nbsp;x&nbsp;-&nbsp;y;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;int&nbsp;Multiply(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;=&gt;&nbsp;x&nbsp;*&nbsp;y;<br>}</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

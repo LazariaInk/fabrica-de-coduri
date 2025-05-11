@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='26.File API', activeLesson='1.File API'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">File API</h1>
+     <h2 class="subtitle">Încărcarea fișierelor</h2>
+     <p class="paragraph">File API permite utilizarea JavaScript pentru citirea fișierelor locale, în special, pentru aceasta se aplică următoarele interfețe:</p>
+     <ul class="enumeration">
+      <li>File: reprezintă un singur fișier și conține informații despre fișier, cum ar fi numele fișierului sau data ultimei modificări</li>
+      <li>FileList: reprezintă o listă de obiecte File</li>
+      <li>Blob: reprezintă date binare</li>
+      <li>FileReader: oferă metode pentru citirea obiectelor de tip File și Blob</li>
+     </ul>
+     <p class="paragraph">Pentru a accesa conținutul unui fișier, trebuie să-l selectăm. Există două opțiuni de selectare a fișierelor: prin dialogul de selectare a fișierelor și prin drag-and-drop într-o zonă specifică a paginii web. Să examinăm ambele opțiuni.</p>
+     <h2 class="subtitle">Selectarea fișierului prin dialogul de selectare</h2>
+     <p class="paragraph">Pentru a accesa fișierele locale prin File API, utilizatorul trebuie mai întâi să selecteze fișierele corespunzătoare. Acest lucru garantează că fișierele arbitrare nu pot fi citite în mod neobservat prin JavaScript. Una dintre opțiunile de a oferi utilizatorilor posibilitatea de a selecta un fișier este prin elementul input type="file". De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;input&nbsp;type="file"&nbsp;id="files"&nbsp;name="files[]"&nbsp;multiple&nbsp;/&gt;</code></pre>
+     </div>
+     <p class="paragraph">Dacă utilizatorul a selectat unul sau mai multe fișiere, atunci elementul input generează un eveniment change. Utilizând un handler pentru acest eveniment, putem obține fișierele selectate:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;input&nbsp;type="file"&nbsp;id="files"&nbsp;name="files[]"&nbsp;multiple&nbsp;/&gt;<br>&lt;div&nbsp;id="list"&gt;&lt;/div&gt;<br>&lt;script&gt;<br>function&nbsp;printFiles(e)&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;files&nbsp;=&nbsp;e.target.files;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;toate&nbsp;fișierele&nbsp;selectate&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;let&nbsp;output&nbsp;=&nbsp;"";<br>&nbsp;&nbsp;&nbsp;for&nbsp;(let&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;files.length;&nbsp;i++)&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Parcurgem&nbsp;toate&nbsp;fișierele&nbsp;selectate&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;file&nbsp;=&nbsp;files[i];&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Obținem&nbsp;fișierul<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(file);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;output&nbsp;+=&nbsp;"&lt;li&gt;&lt;p&gt;&lt;strong&gt;"&nbsp;+&nbsp;file.name&nbsp;+&nbsp;"&lt;/strong&gt;&lt;/p&gt;";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;output&nbsp;+=&nbsp;"&lt;p&gt;Type:&nbsp;"&nbsp;+&nbsp;file.type&nbsp;||&nbsp;"n/a&lt;/p&gt;";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;output&nbsp;+=&nbsp;"&lt;p&gt;Size:&nbsp;"&nbsp;+&nbsp;file.size&nbsp;+&nbsp;"&nbsp;bytes&lt;/p&gt;";&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;output&nbsp;+=&nbsp;"&lt;p&gt;Changed&nbsp;on:&nbsp;"&nbsp;+&nbsp;&nbsp;file.lastModifiedDate.toLocaleDateString()&nbsp;+&nbsp;"&lt;/p&gt;&lt;/li&gt;";&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;document.getElementById("list").innerHTML&nbsp;=&nbsp;"&lt;ul&gt;"&nbsp;+&nbsp;output&nbsp;+&nbsp;"&lt;/ul&gt;";<br>}<br>document.getElementById("files").addEventListener("change",&nbsp;printFiles);<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici, pe pagină este situat un element pentru selectarea fișierelor, precum și un element div pentru afișarea informațiilor despre fișierele selectate.</p>
+     <p class="paragraph">În codul JavaScript, atașăm la evenimentul "change" al elementului de selectare a fișierelor funcția-handler printFiles. În această funcție, prin parametru obținem fișierele selectate:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;files&nbsp;=&nbsp;e.target.files;</code></pre>
+     </div>
+     <p class="paragraph">Valoarea e.target.files reprezintă un obiect FileList - o specie de masiv de fișiere, unde fiecare fișier este reprezentat de un obiect File. Tipul File stochează informații despre fișier în propriile sale proprietăți:</p>
+     <ul class="enumeration">
+      <li>name: numele fișierului</li>
+      <li>type: tipul fișierului</li>
+      <li>size: dimensiunea fișierului în bytes</li>
+      <li>lastModifiedDate: data și ora ultimei modificări</li>
+     </ul>
+     <p class="paragraph">Și în continuare, într-un ciclu, parcurgem toate fișierele și valorile tuturor proprietăților fișierului le adăugăm în variabila output, care apoi este afișată pe pagina web.</p>
+     <div class="code-inline">
+      <pre><code>for&nbsp;(let&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;files.length;&nbsp;i++)&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Parcurgem&nbsp;toate&nbsp;fișierele&nbsp;selectate&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;file&nbsp;=&nbsp;files[i];&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Obținem&nbsp;fișierul<br>&nbsp;&nbsp;&nbsp;console.log(file);<br>&nbsp;&nbsp;&nbsp;output&nbsp;+=&nbsp;"&lt;li&gt;&lt;p&gt;&lt;strong&gt;"&nbsp;+&nbsp;file.name&nbsp;+&nbsp;"&lt;/strong&gt;&lt;/p&gt;";<br>&nbsp;&nbsp;&nbsp;output&nbsp;+=&nbsp;"&lt;p&gt;Type:&nbsp;"&nbsp;+&nbsp;file.type&nbsp;||&nbsp;"n/a&lt;/p&gt;";<br>&nbsp;&nbsp;&nbsp;output&nbsp;+=&nbsp;"&lt;p&gt;Size:&nbsp;"&nbsp;+&nbsp;file.size&nbsp;+&nbsp;"&nbsp;bytes&lt;/p&gt;";&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;output&nbsp;+=&nbsp;"&lt;p&gt;Changed&nbsp;on:&nbsp;"&nbsp;+&nbsp;&nbsp;file.lastModifiedDate.toLocaleDateString()&nbsp;+&nbsp;"&lt;/p&gt;&lt;/li&gt;";&nbsp;&nbsp;<br>}</code></pre>
+     </div>
+     <p class="paragraph">De exemplu, folosind elementul &lt;input type="file" /&gt;, selectez din sistemul de fișiere, 2 fișiere:</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/26.File%20API/1.File%20API/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Și după selecție, codul JavaScript va obține fișierele selectate și va afișa informațiile obținute pe pagina web:</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/26.File%20API/1.File%20API/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Obținerea fișierelor prin intermediul Drag and Drop API</h2>
+     <p class="paragraph">Utilizarea Drag and Drop API reprezintă a doua metodă de obținere a fișierelor. Pentru utilizarea acestui API, este necesar mai întâi să se definească un element pe pagina web, pe care utilizatorul va trage fișierul(e). Ca un astfel de element poate servi elementul &lt;div&gt;. Apoi, pentru acest element sunt înregistrate handlere pentru două evenimente: pentru evenimentul de tragere dragover și pentru evenimentul de finalizare a tragerii drop.</p>
+     <p class="paragraph">Evenimentul de tragere dragover este executat când un fișier este tras pe element (dar încă nu este eliberat). Evenimentul de finalizare a tragerii drop este executat când utilizatorul eliberează fișierul pe element, și tragerea este completată.</p>
+     <p class="paragraph">Definim următoarea pagină web:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;div&nbsp;id="target"&nbsp;style="width:300px;&nbsp;padding:&nbsp;15px;&nbsp;background-color:&nbsp;gray;"&gt;Trageți&nbsp;fișierele&nbsp;aici&lt;/div&gt;<br>&lt;div&nbsp;id="fileList"&gt;&lt;/div&gt;<br>&lt;script&gt;<br>function&nbsp;printFiles(e)&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;e.preventDefault();<br>&nbsp;&nbsp;&nbsp;const&nbsp;files&nbsp;=&nbsp;e.dataTransfer.files;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;toate&nbsp;fișierele&nbsp;selectate&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;let&nbsp;output&nbsp;=&nbsp;"";<br>&nbsp;&nbsp;&nbsp;for&nbsp;(let&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;files.length;&nbsp;i++)&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Parcurgem&nbsp;toate&nbsp;fișierele&nbsp;selectate&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;file&nbsp;=&nbsp;files[i];&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Obținem&nbsp;fișierul<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(file);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;output&nbsp;+=&nbsp;"&lt;li&gt;&lt;p&gt;&lt;strong&gt;"&nbsp;+&nbsp;file.name&nbsp;+&nbsp;"&lt;/strong&gt;&lt;/p&gt;";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;output&nbsp;+=&nbsp;"&lt;p&gt;Type:&nbsp;"&nbsp;+&nbsp;&nbsp;file.type&nbsp;||&nbsp;"n/a&lt;/p&gt;";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;output&nbsp;+=&nbsp;"&lt;p&gt;Size:&nbsp;"&nbsp;+&nbsp;file.size&nbsp;+&nbsp;"&nbsp;bytes&lt;/p&gt;";&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;output&nbsp;+=&nbsp;"&lt;p&gt;Changed&nbsp;on:&nbsp;"&nbsp;+&nbsp;&nbsp;file.lastModifiedDate.toLocaleDateString()&nbsp;+&nbsp;"&lt;/p&gt;&lt;/li&gt;";&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;document.getElementById("fileList").innerHTML&nbsp;=&nbsp;"&lt;ul&gt;"&nbsp;+&nbsp;output&nbsp;+&nbsp;"&lt;/ul&gt;";<br>}<br>function&nbsp;handleDragOver(e)&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;e.preventDefault();&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;e.dataTransfer.dropEffect&nbsp;=&nbsp;"copy";<br>}<br>const&nbsp;target&nbsp;=&nbsp;document.getElementById("target");<br>target.addEventListener("dragover",&nbsp;handleDragOver);<br>target.addEventListener("drop",&nbsp;printFiles);<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici, pe pagină avem de asemenea un element &lt;div&gt; pentru afișarea informațiilor despre fișierele selectate. Și de asemenea este definit un element &lt;div&gt; separat, pe care utilizatorul va trage fișierele. Pentru ca zona de tragere să fie vizibilă, aceasta este colorată în gri.</p>
+     <p class="paragraph">Pentru zona de tragere (&lt;div id="target"&gt;) sunt stabilite două handlere. Handlerul evenimentului dragover stabilește valoarea "copy" ca efect al tragerii:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;handleDragOver(e)&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;e.preventDefault();&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;e.dataTransfer.dropEffect&nbsp;=&nbsp;"copy";<br>}</code></pre>
+     </div>
+     <p class="paragraph">Handlerul evenimentului drop - funcția printFiles afișează datele fișierelor pe pagina web. Pentru obținerea fișierelor selectate se utilizează proprietatea e.dataTransfer.files:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;files&nbsp;=&nbsp;e.dataTransfer.files</code></pre>
+     </div>
+     <p class="paragraph">Această proprietate reprezintă de asemenea un obiect-listă FileList, unde fiecare element reprezintă un obiect File.</p>
+     <p class="paragraph">Astfel, putem trage pe zona gri fișierele dorite, și mai jos va fi afișată informația despre aceste fișiere.</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/26.File%20API/1.File%20API/images/image3.png}" alt="" class="responsive-image">
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

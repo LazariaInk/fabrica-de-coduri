@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='PHP', activeChapter='5.Functionalitati de baza ale PHP', activeLesson='1.Elemente fundamentale ale limbajului PHP'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Elemente fundamentale ale limbajului PHP</h1>
+     <h2 class="subtitle">Includerea fișierelor externe</h2>
+     <p class="paragraph">În dezvoltarea programelor PHP, este posibil să dorim să utilizăm anumite părți de cod în alte fișiere PHP. În acest caz, putem distribui codul în fișiere separate.</p>
+     <p class="paragraph">Aceasta ne permite să nu scriem același cod de mai multe ori în sute de scripturi, fiind suficient să includem fișierul cu codul PHP. În plus, dacă este necesar să modificăm comportamentul codului inclus, este suficient să modificăm codul din fișierul inclus.</p>
+     <p class="paragraph">PHP oferă mai multe modalități pentru includerea fișierelor.</p>
+     <h2 class="subtitle">Instrucțiunea include</h2>
+     <p class="paragraph">Instrucțiunea include conectează în program un fișier extern cu cod PHP. De exemplu, să definim fișierul welcome.php:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>function&nbsp;welcome($name)<br>{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Hello,&nbsp;$name";<br>}<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici este definită funcția welcome, care primește ca parametru un nume și îl folosește pentru a afișa un mesaj de salut.</p>
+     <p class="paragraph">Acum să includem acest fișier în programul nostru, care este definit într-un alt fișier în același director:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>include&nbsp;"welcome.php";<br><br>$name&nbsp;=&nbsp;"Tom";<br>welcome($name);<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">În locul unde este definită instrucțiunea include, va fi inserat întregul cod din fișierul welcome.php. Inserarea fișierului trebuie să aibă loc înainte de utilizarea funcției definite în acel fișier. În acest caz, fișierul welcome.php și fișierul în care este inclus sunt situate în același director.</p>
+     <p class="paragraph">Instrucțiunea include poate folosi atât căi relative, cât și absolute. De exemplu, mai sus am folosit o cale relativă. Sau, de exemplu, dacă avem următoarea structură:</p>
+     <ul class="enumeration">
+      <li>Fișierul index.php</li>
+      <li>Directorul scripts</li>
+      <li>Fișierul welcome.php</li>
+     </ul>
+     <p class="paragraph">Pentru a include fișierul welcome.php din directorul scripts în fișierul index.php, trebuie să folosim următoarea cale relativă:</p>
+     <div class="code-inline">
+      <pre><code>include&nbsp;"scripts/welcome.php";</code></pre>
+     </div>
+     <p class="paragraph">Dacă fișierul welcome.php este situat la calea completă C:\localhost\scripts\welcome.php, putem folosi și o cale absolută:</p>
+     <div class="code-inline">
+      <pre><code>include&nbsp;"C:\localhost\scripts\welcome.php";</code></pre>
+     </div>
+     <h2 class="subtitle">Instrucțiunea include_once</h2>
+     <p class="paragraph">Utilizarea instrucțiunii include are dezavantaje. De exemplu, putem include din greșeală același fișier de mai multe ori în diferite locuri din cod, ceea ce va provoca erori la rularea codului.</p>
+     <p class="paragraph">Pentru a evita includerea repetată a fișierului, în loc de include ar trebui să folosim instrucțiunea include_once:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>include_once&nbsp;"welcome.php";<br><br>$name&nbsp;=&nbsp;"Sam";<br>welcome($name);<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Și acum, dacă includem același fișier cu ajutorul include_once încă o dată mai jos, această includere va fi ignorată, deoarece fișierul a fost deja inclus în program.</p>
+     <h2 class="subtitle">Instrucțiunile require și require_once</h2>
+     <p class="paragraph">Instrucțiunea require funcționează similar cu include: include un fișier extern, inserând conținutul acestuia în program. Totuși, dacă fișierul nu este găsit, execuția programului se va opri (instrucțiunea include în acest caz aruncă doar un avertisment):</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>require&nbsp;"welcome.php";<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, dacă în cod întâlnim mai multe instrucțiuni require care includ același fișier, interpretul va genera o eroare. Pentru a evita această situație, ar trebui să folosim instrucțiunea require_once:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>require_once&nbsp;"welcome.php";<br>?&gt;</code></pre>
+     </div>
+     <h2 class="subtitle">Funcția spl_autoload_register.</h2>
+     <p class="paragraph">În aplicațiile mari, numărul fișierelor incluse poate fi destul de mare. Totuși, funcția încorporată spl_autoload_register() în anumite situații permite evitarea unui număr mare de include-uri. Această funcție acceptă ca parametru o funcție de autoload.</p>
+     <p class="paragraph">Această funcție este apelată automat atunci când în program începe să fie utilizată o clasă sau un interfață necunoscută. Funcția de autoload încearcă să încarce această clasă sau interfață. Ca parametru, funcția de autoload primește numele clasei sau interfeței care trebuie încărcată.</p>
+     <p class="paragraph">De exemplu, să presupunem că avem fișierul Person.php, care conține clasa Person:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;private&nbsp;$name,&nbsp;$age;<br>&nbsp;&nbsp;&nbsp;function&nbsp;__construct($name,&nbsp;$age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this-&gt;name&nbsp;=&nbsp;$name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this-&gt;age&nbsp;=&nbsp;$age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;function&nbsp;printInfo()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;"Name:&nbsp;$this-&gt;name&lt;br&gt;Age:&nbsp;$this-&gt;age";<br>&nbsp;&nbsp;&nbsp;}<br>}<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Observați că numele fișierului corespunde numelui clasei.</p>
+     <p class="paragraph">Utilizăm funcția de autoload pentru a include această clasă:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>function&nbsp;my_autoloader($class)&nbsp;{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Apel&nbsp;funcție&nbsp;de&nbsp;autoload&lt;br&gt;";<br>&nbsp;&nbsp;&nbsp;include&nbsp;$class&nbsp;.&nbsp;".php";<br>}<br><br>spl_autoload_register("my_autoloader");<br><br>$tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;25);<br>$tom-&gt;printInfo();<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Funcția spl_autoload_register() acceptă ca parametru numele funcției de autoload - în acest caz, este funcția my_autoloader(). Ca parametru, aceasta primește numele clasei. De exemplu, în acest caz, este utilizată clasa Person, care nu este definită în acest script.</p>
+     <p class="paragraph">Când programul întâlnește utilizarea acestei clase, va apela funcția my_autoloader(), iar ca parametru $class îi va transmite numele clasei Person.</p>
+     <p class="paragraph">Toate acțiunile funcției de autoload sunt definite de noi. În acest caz, folosind echo, afișăm un mesaj de diagnostic și includem fișierul clasei:</p>
+     <div class="code-inline">
+      <pre><code>include&nbsp;$class&nbsp;.&nbsp;".php";</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, nu contează ce clasă este, principalul este să fie stocată într-un fișier cu același nume și extensia .php. Programul va afișa următoarele:</p>
+     <div class="code-inline">
+      <pre><code>Apel&nbsp;funcție&nbsp;de&nbsp;autoload<br>Name:&nbsp;Tom<br>Age:&nbsp;25</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

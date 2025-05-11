@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='23.Canvas API', activeLesson='4.Crearea unui gradient'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Crearea unui gradient</h1>
+     <p class="paragraph">Elementul Canvas permite utilizarea gradientului ca fundal. Pentru acest lucru se folosește obiectul CanvasGradient, care poate fi creat fie cu ajutorul metodei createLinearGradient() (gradient liniar), fie cu ajutorul metodei createRadialGradient() (gradient radial).</p>
+     <h2 class="subtitle">Gradient liniar</h2>
+     <p class="paragraph">Gradientul liniar se creează prin metoda createLinearGradient(x0, y0, x1, y1), unde x0 și y0 sunt coordonatele punctului de început al gradientului relativ la colțul superior stâng al canvasului, iar x1 și y1 sunt coordonatele punctului final al gradientului. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;gradient&nbsp;=&nbsp;context.createLinearGradient(50,&nbsp;30,&nbsp;150,&nbsp;150);</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, pentru crearea gradientului este necesar să se definească punctele de referință, care determină culoarea. Pentru acest lucru, la obiectul CanvasGradient se aplică metoda addColorStop(offset, color), unde offset este deplasarea punctului de gradient, iar color este culoarea acestuia. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>gradient.addColorStop(0,&nbsp;"blue");</code></pre>
+     </div>
+     <p class="paragraph">Deplasarea reprezintă o valoare în intervalul de la 0 la 1. Deplasarea 0 reprezintă începutul gradientului, iar 1 - sfârșitul acestuia. Culoarea este specificată fie ca un șir de caractere, fie ca o valoare hexazecimală, fie ca o valoare rgb/rgba.</p>
+     <p class="paragraph">Aplicăm gradientul:</p>
+     <div class="code-inline">
+      <pre><code><br>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;canvas&nbsp;id="canvas"&nbsp;width="400"&nbsp;height="250"&gt;&lt;/canvas&gt;<br>&lt;script&gt;<br>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>const&nbsp;gradient&nbsp;=&nbsp;context.createLinearGradient(50,&nbsp;30,&nbsp;150,&nbsp;150);<br>gradient.addColorStop(0,&nbsp;"blue");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;de&nbsp;la&nbsp;culoarea&nbsp;albastră<br>gradient.addColorStop(1,&nbsp;"white");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;la&nbsp;culoarea&nbsp;albă<br>context.fillStyle&nbsp;=&nbsp;gradient;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;setăm&nbsp;gradientul&nbsp;ca&nbsp;stil&nbsp;de&nbsp;umplere<br>context.fillRect(50,&nbsp;30,&nbsp;150,&nbsp;150);<br>context.strokeRect(50,&nbsp;30,&nbsp;150,&nbsp;150);<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici, pentru crearea gradientului, au fost adăugate două puncte de referință - pentru culoarea albastră și albă. În final, obținem o tranziție de la culoarea albastră la cea albă:</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/4.Crearea%20unui%20gradient/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Este de menționat că pot fi mai multe puncte de referință pentru crearea unui gradient:</p>
+     <div class="code-inline">
+      <pre><code>gradient.addColorStop(0,&nbsp;"blue");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;de&nbsp;la&nbsp;culoarea&nbsp;albă<br>gradient.addColorStop(0.5,&nbsp;"green");&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;la&nbsp;culoarea&nbsp;verde<br>gradient.addColorStop(1,&nbsp;"white");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;la&nbsp;culoarea&nbsp;albastră</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/4.Crearea%20unui%20gradient/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">În exemplul de mai sus obținem un gradient liniar diagonal. Controlând coordonatele, putem obține un gradient orizontal sau vertical.</p>
+     <p class="paragraph">Coincidența coordonatelor x ale punctului de început și de sfârșit creează un gradient vertical:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;gradient&nbsp;=&nbsp;context.createLinearGradient(50,&nbsp;30,&nbsp;50,&nbsp;150);</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/4.Crearea%20unui%20gradient/images/image3.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Și coincidența coordonatelor y ale punctului de început și de sfârșit creează un gradient orizontal:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;gradient&nbsp;=&nbsp;context.createLinearGradient(50,&nbsp;30,&nbsp;150,&nbsp;30);</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/4.Crearea%20unui%20gradient/images/image4.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Gradient radial</h2>
+     <p class="paragraph">Gradientul radial se creează cu ajutorul metodei createRadialGradient(x0, y0, r0, x1, y1, r1), care acceptă următoarele parametri:</p>
+     <ul class="enumeration">
+      <li>x0 și y0: coordonatele centrului primei cercuri</li>
+      <li>r0: raza primei cercuri</li>
+      <li>x1 și y1: coordonatele centrului celei de-a doua cercuri</li>
+      <li>r1: raza celei de-a doua cercuri</li>
+     </ul>
+     <p class="paragraph">De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;gradient&nbsp;=&nbsp;context.createRadialGradient(120,100,100,120,100,30);</code></pre>
+     </div>
+     <p class="paragraph">Și, de asemenea, pentru gradientul radial trebuie să definim punctele de referință de culoare folosind metoda addColorStop()</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>const&nbsp;gradient&nbsp;=&nbsp;context.createRadialGradient(120,100,100,120,100,30);<br>gradient.addColorStop(0,&nbsp;"blue");<br>gradient.addColorStop(1,&nbsp;"white");<br>context.fillStyle&nbsp;=&nbsp;gradient;<br>context.fillRect(50,&nbsp;30,&nbsp;150,&nbsp;150);<br>context.strokeRect(50,&nbsp;30,&nbsp;150,&nbsp;150);</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/4.Crearea%20unui%20gradient/images/image5.png}" alt="" class="responsive-image">
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

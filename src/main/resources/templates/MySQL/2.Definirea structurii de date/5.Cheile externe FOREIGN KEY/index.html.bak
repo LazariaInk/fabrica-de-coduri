@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='MySQL', activeChapter='2.Definirea structurii de date', activeLesson='5.Cheile externe FOREIGN KEY'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Cheile externe FOREIGN KEY</h1>
+     <p class="paragraph">Cheile externe permit stabilirea relațiilor între tabele. Cheia externă este stabilită pentru coloanele dintr-o tabelă dependentă sau subordonată și indică către una dintre coloanele din tabela principală. De obicei, cheia externă indică către cheia primară din tabela principală asociată.</p>
+     <p class="paragraph">Sintaxa generală pentru stabilirea unei chei externe la nivelul tabelei este:</p>
+     <div class="code-inline">
+      <pre><code>[CONSTRAINT&nbsp;nume_restrictie]<br>FOREIGN&nbsp;KEY&nbsp;(coloana1,&nbsp;coloana2,&nbsp;...&nbsp;coloanaN)<br>REFERENCES&nbsp;tabela_principala&nbsp;(coloana_tabela_principala1,&nbsp;coloana_tabela_principala2,&nbsp;...&nbsp;coloana_tabela_principalaN)<br>[ON&nbsp;DELETE&nbsp;actiune]<br>[ON&nbsp;UPDATE&nbsp;actiune]</code></pre>
+     </div>
+     <p class="paragraph">Pentru a crea o restricție de cheie externă, după cuvântul cheie FOREIGN KEY se specifică coloana tabelului care va reprezenta cheia externă. Apoi, după cuvântul cheie REFERENCES, se indică numele tabelului asociat, iar între paranteze numele coloanei asociate care va fi indicată de cheia externă.</p>
+     <p class="paragraph">După expresia REFERENCES urmează expresiile ON DELETE și ON UPDATE, care definesc acțiunile la ștergerea și actualizarea rândului din tabelul principal, respectiv.</p>
+     <div class="code-inline">
+      <pre><code>CREATE&nbsp;TABLE&nbsp;Customers<br>(<br>&nbsp;&nbsp;&nbsp;Id&nbsp;INT&nbsp;PRIMARY&nbsp;KEY&nbsp;AUTO_INCREMENT,<br>&nbsp;&nbsp;&nbsp;Age&nbsp;INT,<br>&nbsp;&nbsp;&nbsp;FirstName&nbsp;VARCHAR(20)&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;LastName&nbsp;VARCHAR(20)&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;Phone&nbsp;VARCHAR(20)&nbsp;NOT&nbsp;NULL&nbsp;UNIQUE<br>);<br><br>CREATE&nbsp;TABLE&nbsp;Orders<br>(<br>&nbsp;&nbsp;&nbsp;Id&nbsp;INT&nbsp;PRIMARY&nbsp;KEY&nbsp;AUTO_INCREMENT,<br>&nbsp;&nbsp;&nbsp;CustomerId&nbsp;INT,<br>&nbsp;&nbsp;&nbsp;CreatedAt&nbsp;Date,<br>&nbsp;&nbsp;&nbsp;FOREIGN&nbsp;KEY&nbsp;(CustomerId)&nbsp;&nbsp;REFERENCES&nbsp;Customers&nbsp;(Id)<br>);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, sunt definite tabelele "Customers" și "Orders". "Customers" este tabela principală și reprezintă un client. "Orders" este o tabelă dependentă și reprezintă o comandă plasată de către client. Tabela "Orders" este legată de tabela "Customers" prin intermediul coloanei "CustomerId", care este un cheie externă ce indică către coloana "Id" din tabela "Customers".</p>
+     <p class="paragraph">Cu ajutorul operatorului CONSTRAINT, poți atribui un nume restricției cheii externe.</p>
+     <div class="code-inline">
+      <pre><code>CREATE&nbsp;TABLE&nbsp;Orders<br>(<br>&nbsp;&nbsp;&nbsp;Id&nbsp;INT&nbsp;PRIMARY&nbsp;KEY&nbsp;AUTO_INCREMENT,<br>&nbsp;&nbsp;&nbsp;CustomerId&nbsp;INT,<br>&nbsp;&nbsp;&nbsp;CreatedAt&nbsp;Date,<br>&nbsp;&nbsp;&nbsp;CONSTRAINT&nbsp;orders_custonmers_fk<br>&nbsp;&nbsp;&nbsp;FOREIGN&nbsp;KEY&nbsp;(CustomerId)&nbsp;&nbsp;REFERENCES&nbsp;Customers&nbsp;(Id)<br>);</code></pre>
+     </div>
+     <h2 class="subtitle">ON DELETE și ON UPDATE</h2>
+     <p class="paragraph">Cu ajutorul expresiilor ON DELETE și ON UPDATE, poți stabili acțiuni care se desfășoară, respectiv, la ștergerea și actualizarea unui rând asociat din tabela principală. Ca acțiuni, pot fi folosite următoarele opțiuni:</p>
+     <ul class="enumeration">
+      <li>CASCADE: șterge sau actualizează automat rândurile din tabela dependentă la ștergerea sau actualizarea rândurilor asociate din tabela principală</li>
+      <li>SET NULL: atunci când se șterge sau actualizează un rând asociat din tabela principală, setează valoarea NULL pentru coloana cheii externe. (În acest caz, coloana cheii externe trebuie să permită valori NULL.)</li>
+      <li>RESTRICT: respinge ștergerea sau actualizarea rândurilor din tabela principală în prezența rândurilor asociate în tabela dependentă</li>
+      <li>NO ACTION: echivalent cu RESTRICT</li>
+      <li>SET DEFAULT: atunci când se șterge un rând asociat din tabela principală, setează valoarea implicită pentru coloana cheii externe, definită prin atributul DEFAULT. Deși această opțiune este disponibilă în principiu, motorul InnoDB nu susține această expresie</li>
+     </ul>
+     <h2 class="subtitle">Ștergerea în cascădă</h2>
+     <p class="paragraph">Ștergerea în cascădă permite ștergerea automată a tuturor rândurilor asociate din tabela dependentă atunci când se șterge un rând din tabela principală. Aceasta se realizează folosind opțiunea:</p>
+     <ul class="enumeration">
+      <li>CASCADE:</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>CREATE&nbsp;TABLE&nbsp;Orders<br>(<br>&nbsp;&nbsp;&nbsp;Id&nbsp;INT&nbsp;PRIMARY&nbsp;KEY&nbsp;AUTO_INCREMENT,<br>&nbsp;&nbsp;&nbsp;CustomerId&nbsp;INT,<br>&nbsp;&nbsp;&nbsp;CreatedAt&nbsp;Date,<br>&nbsp;&nbsp;&nbsp;FOREIGN&nbsp;KEY&nbsp;(CustomerId)&nbsp;REFERENCES&nbsp;Customers&nbsp;(Id)&nbsp;ON&nbsp;DELETE&nbsp;CASCADE<br>);</code></pre>
+     </div>
+     <p class="paragraph">Similar, funcționează și expresia ON UPDATE CASCADE. La modificarea valorii cheii primare, valoarea cheii externe asociate se actualizează automat. Cu toate acestea, deoarece cheile primare sunt modificate foarte rar și, în principiu, nu se recomandă utilizarea coloanelor cu valori schimbătoare ca chei primare, în practică, expresia ON UPDATE este folosită rar.</p>
+     <h2 class="subtitle">Setarea la NULL</h2>
+     <p class="paragraph">Atunci când se utilizează opțiunea SET NULL pentru cheia externă, este necesar ca coloana cheii externe să admită valoarea NULL:</p>
+     <div class="code-inline">
+      <pre><code>CREATE&nbsp;TABLE&nbsp;Orders<br>(<br>&nbsp;&nbsp;&nbsp;Id&nbsp;INT&nbsp;PRIMARY&nbsp;KEY&nbsp;AUTO_INCREMENT,<br>&nbsp;&nbsp;&nbsp;CustomerId&nbsp;INT,<br>&nbsp;&nbsp;&nbsp;CreatedAt&nbsp;Date,<br>&nbsp;&nbsp;&nbsp;FOREIGN&nbsp;KEY&nbsp;(CustomerId)&nbsp;REFERENCES&nbsp;Customers&nbsp;(Id)&nbsp;ON&nbsp;DELETE&nbsp;SET&nbsp;NULL<br>);</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

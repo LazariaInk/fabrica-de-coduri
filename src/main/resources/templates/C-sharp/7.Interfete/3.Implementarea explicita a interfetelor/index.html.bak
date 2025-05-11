@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='7.Interfete', activeLesson='3.Implementarea explicita a interfetelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Implementarea explicită a interfețelor</h1>
+     <p class="paragraph">Pe lângă utilizarea implicită a interfețelor, care a fost discutată în articolul anterior, există și implementarea explicită a interfeței. În cazul implementării explicite, se menționează numele metodei sau proprietății împreună cu numele interfeței. În acest caz, nu putem folosi niciun fel de modificatori:</p>
+     <div class="code-inline">
+      <pre><code>interface&nbsp;IAction<br>{<br>&nbsp;&nbsp;&nbsp;void&nbsp;Move();<br>}<br>class&nbsp;BaseAction&nbsp;:&nbsp;IAction<br>{<br>&nbsp;&nbsp;&nbsp;void&nbsp;IAction.Move()&nbsp;=&gt;&nbsp;Console.WriteLine("Move&nbsp;in&nbsp;Base&nbsp;Class");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Trebuie să avem în vedere că, la implementarea explicită a interfeței, metodele și proprietățile acesteia nu fac parte din interfața clasei. Prin urmare, nu putem accesa direct aceste metode și proprietăți prin obiectul clasei:</p>
+     <div class="code-inline">
+      <pre><code>BaseAction&nbsp;baseAction1&nbsp;=&nbsp;new&nbsp;BaseAction();<br><br>//&nbsp;baseAction1.Move();&nbsp;&nbsp;//&nbsp;!&nbsp;Eroare&nbsp;-&nbsp;în&nbsp;BaseAction&nbsp;nu&nbsp;există&nbsp;metoda&nbsp;Move<br>//&nbsp;este&nbsp;necesară&nbsp;conversia&nbsp;la&nbsp;tipul&nbsp;IAction<br>//&nbsp;conversie&nbsp;nesigură<br>((IAction)baseAction1).Move();&nbsp;&nbsp;<br>//&nbsp;conversie&nbsp;sigură<br>if&nbsp;(baseAction1&nbsp;is&nbsp;IAction&nbsp;action)&nbsp;action.Move();<br>//&nbsp;sau&nbsp;așa<br>IAction&nbsp;baseAction2&nbsp;=&nbsp;new&nbsp;BaseAction();<br>baseAction2.Move();</code></pre>
+     </div>
+     <p class="paragraph">În ce situație poate fi necesară implementarea explicită a interfeței? De exemplu, când o clasă implementează mai multe interfețe, dar acestea au aceeași metodă cu același rezultat și aceiași parametri:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person&nbsp;:&nbsp;ISchool,&nbsp;IUniversity<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Study()&nbsp;=&gt;&nbsp;Console.WriteLine("Învățare&nbsp;la&nbsp;școală&nbsp;sau&nbsp;la&nbsp;universitate");<br>}<br>interface&nbsp;ISchool<br>{<br>&nbsp;&nbsp;&nbsp;void&nbsp;Study();<br>}<br>interface&nbsp;IUniversity<br>{<br>&nbsp;&nbsp;&nbsp;void&nbsp;Study();<br>}</code></pre>
+     </div>
+     <p class="paragraph">Clasa Person definește o metodă Study(), creând o implementare comună pentru ambele interfețe aplicate. Indiferent dacă tratăm obiectul Person ca obiect de tip ISchool sau IUniversity, rezultatul metodei va fi același.</p>
+     <p class="paragraph">Pentru a distinge interfețele implementate, trebuie să aplicăm explicit interfața:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person&nbsp;:&nbsp;ISchool,&nbsp;IUniversity<br>{<br>&nbsp;&nbsp;&nbsp;void&nbsp;ISchool.Study()&nbsp;=&gt;&nbsp;Console.WriteLine("Învățare&nbsp;la&nbsp;școală");<br>&nbsp;&nbsp;&nbsp;void&nbsp;IUniversity.Study()&nbsp;=&gt;&nbsp;Console.WriteLine("Învățare&nbsp;la&nbsp;universitate");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Utilizare:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;person&nbsp;=&nbsp;new&nbsp;Person();<br><br>((ISchool)person).Study();<br>((IUniversity)person).Study();</code></pre>
+     </div>
+     <p class="paragraph">O altă situație este atunci când în clasa de bază interfața este deja implementată, dar este necesară implementarea diferită a acesteia în clasa derivată:</p>
+     <div class="code-inline">
+      <pre><code>interface&nbsp;IAction<br>{<br>&nbsp;&nbsp;&nbsp;void&nbsp;Move();<br>}<br>class&nbsp;BaseAction&nbsp;:&nbsp;IAction<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Move()&nbsp;=&gt;&nbsp;Console.WriteLine("Move&nbsp;in&nbsp;BaseAction");<br>}<br>class&nbsp;HeroAction&nbsp;:&nbsp;BaseAction,&nbsp;IAction<br>{<br>&nbsp;&nbsp;&nbsp;void&nbsp;IAction.Move()&nbsp;=&gt;&nbsp;Console.WriteLine("Move&nbsp;in&nbsp;HeroAction");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Deși clasa de bază BaseAction a implementat deja interfața IAction, clasa derivată o implementează în mod diferit. Utilizarea claselor:</p>
+     <div class="code-inline">
+      <pre><code><br>HeroAction&nbsp;action1&nbsp;=&nbsp;new&nbsp;HeroAction();<br>action1.Move();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Move&nbsp;in&nbsp;BaseAction<br>((IAction)action1).Move();&nbsp;//&nbsp;Move&nbsp;in&nbsp;HeroAction<br><br>IAction&nbsp;action2&nbsp;=&nbsp;new&nbsp;HeroAction();<br>action2.Move();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Move&nbsp;in&nbsp;HeroAction</code></pre>
+     </div>
+     <h2 class="subtitle">Modificatori de acces</h2>
+     <p class="paragraph">Membrii interfeței pot avea diferiți modificatori de acces. Dacă modificatorul de acces nu este public, ci altul, atunci la implementarea metodei, proprietății sau evenimentului interfeței în clase și structuri, putem folosi două metode. În primul rând, putem folosi și implementarea explicită a interfeței, implementând toate necesitățile interfeței fără modificatori de acces:</p>
+     <div class="code-inline">
+      <pre><code>IMovable&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom");<br>//&nbsp;abonare&nbsp;la&nbsp;eveniment<br>tom.MoveEvent&nbsp;+=&nbsp;()&nbsp;=&gt;&nbsp;Console.WriteLine($"{tom.Name}&nbsp;is&nbsp;moving");<br>tom.Move();<br><br>delegate&nbsp;void&nbsp;MoveHandler();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;delegat&nbsp;de&nbsp;mișcare<br>interface&nbsp;IMovable<br>{<br>&nbsp;&nbsp;&nbsp;protected&nbsp;internal&nbsp;void&nbsp;Move();<br>&nbsp;&nbsp;&nbsp;protected&nbsp;internal&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;protected&nbsp;internal&nbsp;event&nbsp;MoveHandler&nbsp;MoveEvent;<br>}<br>class&nbsp;Person&nbsp;:&nbsp;IMovable<br>{<br>&nbsp;&nbsp;&nbsp;string&nbsp;name;<br>&nbsp;&nbsp;&nbsp;//&nbsp;implementarea&nbsp;explicită&nbsp;a&nbsp;evenimentului&nbsp;-&nbsp;se&nbsp;creează&nbsp;o&nbsp;variabilă&nbsp;suplimentară<br>&nbsp;&nbsp;&nbsp;MoveHandler?&nbsp;moveEvent;<br>&nbsp;&nbsp;&nbsp;event&nbsp;MoveHandler&nbsp;IMovable.MoveEvent<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add&nbsp;=&gt;&nbsp;moveEvent&nbsp;+=&nbsp;value;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remove&nbsp;=&gt;&nbsp;moveEvent&nbsp;-=&nbsp;value;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;//&nbsp;implementarea&nbsp;explicită&nbsp;a&nbsp;proprietății&nbsp;-&nbsp;ca&nbsp;auto-proprietate<br>&nbsp;&nbsp;&nbsp;string&nbsp;IMovable.Name&nbsp;{&nbsp;get&nbsp;=&gt;&nbsp;name;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name)&nbsp;=&gt;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;//&nbsp;implementarea&nbsp;explicită&nbsp;a&nbsp;metodei<br>&nbsp;&nbsp;&nbsp;void&nbsp;IMovable.Move()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"{name}&nbsp;is&nbsp;walking");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;moveEvent?.Invoke();<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, trebuie să avem în vedere că putem accesa direct aceste metode, proprietăți și evenimente doar prin variabila interfeței, nu prin variabila clasei.</p>
+     <p class="paragraph">O alternativă o reprezintă implementarea implicită cu modificatorul public:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom");<br>//&nbsp;abonare&nbsp;la&nbsp;eveniment<br>tom.MoveEvent&nbsp;+=&nbsp;()&nbsp;=&gt;&nbsp;Console.WriteLine($"{tom.Name}&nbsp;is&nbsp;moving");<br>tom.Move();<br><br>delegate&nbsp;void&nbsp;MoveHandler();<br><br>interface&nbsp;IMovable<br>{<br>&nbsp;&nbsp;&nbsp;protected&nbsp;internal&nbsp;void&nbsp;Move();<br>&nbsp;&nbsp;&nbsp;protected&nbsp;internal&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;protected&nbsp;internal&nbsp;event&nbsp;MoveHandler&nbsp;MoveEvent;<br>}<br>class&nbsp;Person&nbsp;:&nbsp;IMovable<br>{<br>&nbsp;&nbsp;&nbsp;string&nbsp;name;<br>&nbsp;&nbsp;&nbsp;//&nbsp;implementarea&nbsp;explicită&nbsp;a&nbsp;evenimentului&nbsp;-&nbsp;se&nbsp;creează&nbsp;o&nbsp;variabilă&nbsp;suplimentară<br>&nbsp;&nbsp;&nbsp;MoveHandler?&nbsp;moveEvent;<br>&nbsp;&nbsp;&nbsp;//&nbsp;implementarea&nbsp;implicită&nbsp;a&nbsp;evenimentului&nbsp;cu&nbsp;modificatorul&nbsp;public<br>&nbsp;&nbsp;&nbsp;public&nbsp;event&nbsp;MoveHandler&nbsp;MoveEvent<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add&nbsp;=&gt;&nbsp;moveEvent&nbsp;+=&nbsp;value;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remove&nbsp;=&gt;&nbsp;moveEvent&nbsp;-=&nbsp;value;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;//&nbsp;implementarea&nbsp;implicită&nbsp;a&nbsp;proprietății&nbsp;-&nbsp;ca&nbsp;auto-proprietate,&nbsp;dar&nbsp;cu&nbsp;modificatorul&nbsp;public<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get&nbsp;=&gt;&nbsp;name;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name)&nbsp;=&gt;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;//&nbsp;implementarea&nbsp;implicită&nbsp;a&nbsp;metodei,&nbsp;dar&nbsp;cu&nbsp;modificatorul&nbsp;public<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Move()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"{name}&nbsp;is&nbsp;walking");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;moveEvent?.Invoke();<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, metodele, proprietățile și evenimentele interfeței pot fi accesate prin variabila clasei.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

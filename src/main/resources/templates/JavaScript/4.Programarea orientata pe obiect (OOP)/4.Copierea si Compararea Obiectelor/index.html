@@ -1,200 +1,190 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='4.Programarea orientata pe obiect (OOP)', activeLesson='4.Copierea si Compararea Obiectelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Copierea și Compararea Obiectelor</h1>
- <h2 class="subtitle">Copierea obiectelor</h2>
- <p class="paragraph">Spre deosebire de datele de tipuri primitive, datele din obiecte sunt copiate prin referință. Ce înseamnă asta? Să luăm în considerare următorul exemplu:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;tom&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom"&nbsp;};<br>const&nbsp;bob&nbsp;=&nbsp;tom;<br><br>//&nbsp;verificăm&nbsp;proprietatea&nbsp;name&nbsp;pentru&nbsp;ambele&nbsp;constante<br>console.log(tom.name);&nbsp;&nbsp;//&nbsp;Tom<br>console.log(bob.name);&nbsp;&nbsp;//&nbsp;Tom<br><br>//&nbsp;schimbăm&nbsp;proprietatea&nbsp;name&nbsp;pentru&nbsp;constanta&nbsp;bob<br>bob.name&nbsp;=&nbsp;"Bob";<br><br>//&nbsp;verificăm&nbsp;din&nbsp;nou&nbsp;proprietatea&nbsp;name&nbsp;pentru&nbsp;ambele&nbsp;constante<br>console.log("După&nbsp;modificare");<br>console.log(tom.name);&nbsp;&nbsp;//&nbsp;Bob<br>console.log(bob.name);&nbsp;&nbsp;//&nbsp;Bob</code></pre>
- </div>
- <p class="paragraph">La început, se definește un obiect obișnuit numit tom cu o singură proprietate name. Apoi, atribuim valoarea acestui obiect constantei bob:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;bob&nbsp;=&nbsp;tom;</code></pre>
- </div>
- <p class="paragraph">În acest caz, constanta bob primește o referință sau, să spunem, adresa constantei tom, astfel încât după această atribuire, ambele constante practic indică către același obiect în memorie. Prin urmare, modificările efectuate printr-o constantă, cum ar fi:</p>
- <div class="code-inline">
-  <pre><code>bob.name&nbsp;=&nbsp;"Bob";</code></pre>
- </div>
- <p class="paragraph">Vor afecta și cealaltă constantă, tom:</p>
- <div class="code-inline">
-  <pre><code>console.log(tom.name);&nbsp;&nbsp;//&nbsp;Bob</code></pre>
- </div>
- <p class="paragraph">În plus, să adăugăm un nou element la obiect printr-una dintre constante:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;tom&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom"&nbsp;};<br>const&nbsp;bob&nbsp;=&nbsp;tom;<br><br>//&nbsp;adăugăm&nbsp;constantei&nbsp;bob&nbsp;o&nbsp;nouă&nbsp;proprietate&nbsp;-&nbsp;age<br>bob.age&nbsp;=&nbsp;37;<br><br>//&nbsp;și&nbsp;vedem&nbsp;că&nbsp;și&nbsp;pentru&nbsp;tom&nbsp;s-a&nbsp;adăugat&nbsp;o&nbsp;nouă&nbsp;proprietate<br>console.log(tom.age);&nbsp;&nbsp;&nbsp;//&nbsp;37</code></pre>
- </div>
- <p class="paragraph">După adăugarea proprietății age constantei bob, putem observa că pentru constanta tom s-a adăugat aceeași proprietate, deoarece, din nou, ambele constante reprezintă același obiect.</p>
- <p class="paragraph">Dar ce se întâmplă dacă dorim să copiem o proprietate a unui obiect, astfel încât ambele constante sau variabile să indice complet obiecte diferite, astfel încât modificările asupra unuia să nu afecteze celălalt? În acest caz, putem utiliza metoda încorporată Object.assign().</p>
- <h2 class="subtitle">Metoda Object.assign()</h2>
- <p class="paragraph">Metoda Object.assign() primește doi parametri:</p>
- <div class="code-inline">
-  <pre><code>Object.assign(target,&nbsp;...sources)</code></pre>
- </div>
- <p class="paragraph">Primul parametru - target - reprezintă obiectul în care trebuie copiate proprietățile. Al doilea parametru - ...sources - este un set de obiecte din care trebuie copiate proprietățile (adică putem copia proprietăți din mai multe obiecte simultan).</p>
- <p class="paragraph">Metoda returnează obiectul țintă în care au fost copiate proprietățile din obiectele surse.</p>
- <p class="paragraph">De exemplu:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;tom&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom",&nbsp;age:&nbsp;37};<br>const&nbsp;bob&nbsp;=&nbsp;Object.assign({},&nbsp;tom);<br>bob.name&nbsp;=&nbsp;"Bob";<br>bob.age&nbsp;=&nbsp;41;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>console.log(`Obiectul&nbsp;tom.&nbsp;Name:&nbsp;${tom.name}&nbsp;&nbsp;&nbsp;Age:&nbsp;${tom.age}`);<br>console.log(`Obiectul&nbsp;bob.&nbsp;Name:&nbsp;${bob.name}&nbsp;&nbsp;&nbsp;Age:&nbsp;${bob.age}`);</code></pre>
- </div>
- <p class="paragraph">În acest caz, apelul Object.assign({}, tom) înseamnă că copiem datele din obiectul tom într-un obiect gol {}. Rezultatul acestei copieri devine obiectul bob. Important de menționat că acesta este un obiect cu totul diferit de tom. Orice modificări aduse constantei bob nu vor afecta constanta tom.</p>
- <p class="paragraph">Iată rezultatul în consolă al programului:</p>
- <div class="code-inline">
-  <pre><code>Obiect&nbsp;tom.&nbsp;Nume:&nbsp;Tom&nbsp;&nbsp;&nbsp;Vârstă:&nbsp;37<br>Obiect&nbsp;bob.&nbsp;Nume:&nbsp;Bob&nbsp;&nbsp;&nbsp;Vârstă:&nbsp;41</code></pre>
- </div>
- <h2 class="subtitle">Copierea din mai multe obiecte</h2>
- <p class="paragraph">Similar, putem copia date din mai multe obiecte:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;tom&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom"&nbsp;};<br>const&nbsp;sam&nbsp;=&nbsp;{&nbsp;age:&nbsp;37&nbsp;};<br>const&nbsp;person&nbsp;=&nbsp;{&nbsp;height:&nbsp;170&nbsp;};<br>Object.assign(person,&nbsp;tom,&nbsp;sam);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;copiem&nbsp;din&nbsp;tom&nbsp;și&nbsp;sam&nbsp;în&nbsp;person<br>console.log(person);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;{height:&nbsp;170,&nbsp;name:&nbsp;"Tom",&nbsp;age:&nbsp;37}</code></pre>
- </div>
- <p class="paragraph">Aici, toate proprietățile din obiectele tom și sam sunt copiate în obiectul person. Astfel, după copiere, obiectul person va avea trei proprietăți.</p>
- <h2 class="subtitle">Copierea proprietăților cu același nume</h2>
- <p class="paragraph">Dacă obiectele din care facem copierea conțin proprietăți cu același nume, proprietățile din obiectele mai recente vor suprascrie proprietățile din obiectele mai vechi:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;tom&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom",&nbsp;age:&nbsp;37};<br>const&nbsp;sam&nbsp;=&nbsp;{&nbsp;age:&nbsp;45};<br>const&nbsp;person&nbsp;=&nbsp;{&nbsp;height:&nbsp;170};<br>Object.assign(person,&nbsp;tom,&nbsp;sam);<br>console.log(person);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;{height:&nbsp;170,&nbsp;name:&nbsp;"Tom",&nbsp;age:&nbsp;45}</code></pre>
- </div>
- <p class="paragraph">Aici ambele obiecte - tom și sam - conțin proprietatea age, dar în obiectul person, proprietatea age este egală cu 45 - valoarea din obiectul sam, deoarece copierea din obiectul sam se face în ultimul rând.</p>
- <h2 class="subtitle">Copierea proprietăților-obiect</h2>
- <p class="paragraph">Cu toate că Object.assign() funcționează excelent pentru obiecte simple, ce se întâmplă dacă proprietatea obiectului copiat reprezintă tot un obiect:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;tom&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom",&nbsp;company:&nbsp;{title:&nbsp;"Microsoft"}};<br>const&nbsp;bob&nbsp;=&nbsp;Object.assign({},&nbsp;tom);<br>bob.name&nbsp;=&nbsp;"Bob";<br>bob.company.title&nbsp;=&nbsp;"Google";<br>console.log(tom.name);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Tom<br>console.log(tom.company.title);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Google</code></pre>
- </div>
- <p class="paragraph">Aici, proprietatea company a obiectului tom reprezintă un alt obiect cu o singură proprietate. În timpul copierii, obiectul bob nu primește o copie a valorii tom.company, ci primește o referință la acest obiect. Prin urmare, modificările aduse lui bob.company vor afecta și tom.company.</p>
- <h2 class="subtitle">Copierea obiectului cu ajutorul operatorului spread (...)</h2>
- <p class="paragraph">Operatorul spread (...) permite descompunerea unui obiect în diverse perechi cheie-valoare, pe care le putem transmite către un alt obiect.</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;tom&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom",&nbsp;age:&nbsp;37,&nbsp;company:&nbsp;"Google"};<br>const&nbsp;bob&nbsp;=&nbsp;{...tom}<br>bob.name&nbsp;=&nbsp;"Bob";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>console.log(tom);&nbsp;&nbsp;&nbsp;//&nbsp;{name:&nbsp;"Tom",&nbsp;age:&nbsp;37,&nbsp;company:&nbsp;"Google"}<br>console.log(bob);&nbsp;&nbsp;&nbsp;//&nbsp;{name:&nbsp;"Bob",&nbsp;age:&nbsp;37,&nbsp;company:&nbsp;"Google"}</code></pre>
- </div>
- <p class="paragraph">În acest caz, obiectului bob i se transmit copii ale proprietăților obiectului tom.</p>
- <p class="paragraph">Dacă unele proprietăți ale noului obiect trebuie să aibă alte valori (așa cum este în exemplul de mai sus pentru proprietatea name), acestea pot fi specificate la sfârșit:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;tom&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom",&nbsp;age:&nbsp;37,&nbsp;company:&nbsp;"Google"};<br>const&nbsp;bob&nbsp;=&nbsp;{...tom,&nbsp;name:&nbsp;"Bob"};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>console.log(bob);&nbsp;&nbsp;&nbsp;//&nbsp;{name:&nbsp;"Bob",&nbsp;age:&nbsp;37,&nbsp;company:&nbsp;"Google"}</code></pre>
- </div>
- <p class="paragraph">După cum se poate vedea din exemplul anterior, ambele constante, după copiere, reprezintă referințe către obiecte diferite, și modificările asupra unuia dintre ele nu vor afecta celălalt obiect.</p>
- <p class="paragraph">Cu toate acestea, dacă obiectele conțin obiecte încorporate, aceste obiecte încorporate vor reprezenta, din nou, referințe către același obiect în timpul copierii:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;tom&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom",&nbsp;age:&nbsp;37,&nbsp;company:&nbsp;{title:&nbsp;"Microsoft"}};<br>const&nbsp;bob&nbsp;=&nbsp;{...tom}<br>bob.name&nbsp;=&nbsp;"Bob";<br>bob.company.title&nbsp;=&nbsp;"Google";<br><br>console.log(`${tom.name}&nbsp;-&nbsp;${tom.company.title}`);&nbsp;&nbsp;//&nbsp;Tom&nbsp;-&nbsp;Google<br>console.log(`${bob.name}&nbsp;-&nbsp;${bob.company.title}`);&nbsp;&nbsp;//&nbsp;Bob&nbsp;-&nbsp;Google</code></pre>
- </div>
- <h2 class="subtitle">Compararea obiectelor</h2>
- <p class="paragraph">Să comparăm două obiecte folosind operațiile standard de comparare și echivalență:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;tom&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom"};<br>const&nbsp;bob&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Bob"};<br>console.log(tom&nbsp;==&nbsp;bob);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;false<br>console.log(tom&nbsp;===&nbsp;bob);&nbsp;&nbsp;&nbsp;//&nbsp;false</code></pre>
- </div>
- <p class="paragraph">Ambii operatori, în acest caz, vor returna false, adică obiectele nu sunt egale. Chiar și dacă valorile proprietăților obiectelor ar fi aceleași, totuși, în ambele cazuri, vom obține false.</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;tom&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom"};<br>const&nbsp;bob&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom"};<br>console.log(tom&nbsp;==&nbsp;bob);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;false<br>console.log(tom&nbsp;===&nbsp;bob);&nbsp;&nbsp;&nbsp;//&nbsp;false</code></pre>
- </div>
- <p class="paragraph">Totuși, ce se întâmplă dacă ambele constante (variabile) rețin o referință la același obiect:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;tom&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom"};<br>const&nbsp;bob&nbsp;=&nbsp;tom;<br>console.log(tom&nbsp;==&nbsp;bob);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;true<br>console.log(tom&nbsp;===&nbsp;bob);&nbsp;&nbsp;&nbsp;//&nbsp;true</code></pre>
- </div>
- <p class="paragraph">În acest caz, în ambele situații vom obține true, deoarece valorile ambelor constante sunt egale, practic reprezentând același obiect.</p>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Copierea și Compararea Obiectelor</h1>
+     <h2 class="subtitle">Copierea obiectelor</h2>
+     <p class="paragraph">Spre deosebire de datele de tipuri primitive, datele din obiecte sunt copiate prin referință. Ce înseamnă asta? Să luăm în considerare următorul exemplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;tom&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom"&nbsp;};<br>const&nbsp;bob&nbsp;=&nbsp;tom;<br><br>//&nbsp;verificăm&nbsp;proprietatea&nbsp;name&nbsp;pentru&nbsp;ambele&nbsp;constante<br>console.log(tom.name);&nbsp;&nbsp;//&nbsp;Tom<br>console.log(bob.name);&nbsp;&nbsp;//&nbsp;Tom<br><br>//&nbsp;schimbăm&nbsp;proprietatea&nbsp;name&nbsp;pentru&nbsp;constanta&nbsp;bob<br>bob.name&nbsp;=&nbsp;"Bob";<br><br>//&nbsp;verificăm&nbsp;din&nbsp;nou&nbsp;proprietatea&nbsp;name&nbsp;pentru&nbsp;ambele&nbsp;constante<br>console.log("După&nbsp;modificare");<br>console.log(tom.name);&nbsp;&nbsp;//&nbsp;Bob<br>console.log(bob.name);&nbsp;&nbsp;//&nbsp;Bob</code></pre>
+     </div>
+     <p class="paragraph">La început, se definește un obiect obișnuit numit tom cu o singură proprietate name. Apoi, atribuim valoarea acestui obiect constantei bob:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;bob&nbsp;=&nbsp;tom;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, constanta bob primește o referință sau, să spunem, adresa constantei tom, astfel încât după această atribuire, ambele constante practic indică către același obiect în memorie. Prin urmare, modificările efectuate printr-o constantă, cum ar fi:</p>
+     <div class="code-inline">
+      <pre><code>bob.name&nbsp;=&nbsp;"Bob";</code></pre>
+     </div>
+     <p class="paragraph">Vor afecta și cealaltă constantă, tom:</p>
+     <div class="code-inline">
+      <pre><code>console.log(tom.name);&nbsp;&nbsp;//&nbsp;Bob</code></pre>
+     </div>
+     <p class="paragraph">În plus, să adăugăm un nou element la obiect printr-una dintre constante:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;tom&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom"&nbsp;};<br>const&nbsp;bob&nbsp;=&nbsp;tom;<br><br>//&nbsp;adăugăm&nbsp;constantei&nbsp;bob&nbsp;o&nbsp;nouă&nbsp;proprietate&nbsp;-&nbsp;age<br>bob.age&nbsp;=&nbsp;37;<br><br>//&nbsp;și&nbsp;vedem&nbsp;că&nbsp;și&nbsp;pentru&nbsp;tom&nbsp;s-a&nbsp;adăugat&nbsp;o&nbsp;nouă&nbsp;proprietate<br>console.log(tom.age);&nbsp;&nbsp;&nbsp;//&nbsp;37</code></pre>
+     </div>
+     <p class="paragraph">După adăugarea proprietății age constantei bob, putem observa că pentru constanta tom s-a adăugat aceeași proprietate, deoarece, din nou, ambele constante reprezintă același obiect.</p>
+     <p class="paragraph">Dar ce se întâmplă dacă dorim să copiem o proprietate a unui obiect, astfel încât ambele constante sau variabile să indice complet obiecte diferite, astfel încât modificările asupra unuia să nu afecteze celălalt? În acest caz, putem utiliza metoda încorporată Object.assign().</p>
+     <h2 class="subtitle">Metoda Object.assign()</h2>
+     <p class="paragraph">Metoda Object.assign() primește doi parametri:</p>
+     <div class="code-inline">
+      <pre><code>Object.assign(target,&nbsp;...sources)</code></pre>
+     </div>
+     <p class="paragraph">Primul parametru - target - reprezintă obiectul în care trebuie copiate proprietățile. Al doilea parametru - ...sources - este un set de obiecte din care trebuie copiate proprietățile (adică putem copia proprietăți din mai multe obiecte simultan).</p>
+     <p class="paragraph">Metoda returnează obiectul țintă în care au fost copiate proprietățile din obiectele surse.</p>
+     <p class="paragraph">De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;tom&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom",&nbsp;age:&nbsp;37};<br>const&nbsp;bob&nbsp;=&nbsp;Object.assign({},&nbsp;tom);<br>bob.name&nbsp;=&nbsp;"Bob";<br>bob.age&nbsp;=&nbsp;41;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>console.log(`Obiectul&nbsp;tom.&nbsp;Name:&nbsp;${tom.name}&nbsp;&nbsp;&nbsp;Age:&nbsp;${tom.age}`);<br>console.log(`Obiectul&nbsp;bob.&nbsp;Name:&nbsp;${bob.name}&nbsp;&nbsp;&nbsp;Age:&nbsp;${bob.age}`);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, apelul Object.assign({}, tom) înseamnă că copiem datele din obiectul tom într-un obiect gol {}. Rezultatul acestei copieri devine obiectul bob. Important de menționat că acesta este un obiect cu totul diferit de tom. Orice modificări aduse constantei bob nu vor afecta constanta tom.</p>
+     <p class="paragraph">Iată rezultatul în consolă al programului:</p>
+     <div class="code-inline">
+      <pre><code>Obiect&nbsp;tom.&nbsp;Nume:&nbsp;Tom&nbsp;&nbsp;&nbsp;Vârstă:&nbsp;37<br>Obiect&nbsp;bob.&nbsp;Nume:&nbsp;Bob&nbsp;&nbsp;&nbsp;Vârstă:&nbsp;41</code></pre>
+     </div>
+     <h2 class="subtitle">Copierea din mai multe obiecte</h2>
+     <p class="paragraph">Similar, putem copia date din mai multe obiecte:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;tom&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom"&nbsp;};<br>const&nbsp;sam&nbsp;=&nbsp;{&nbsp;age:&nbsp;37&nbsp;};<br>const&nbsp;person&nbsp;=&nbsp;{&nbsp;height:&nbsp;170&nbsp;};<br>Object.assign(person,&nbsp;tom,&nbsp;sam);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;copiem&nbsp;din&nbsp;tom&nbsp;și&nbsp;sam&nbsp;în&nbsp;person<br>console.log(person);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;{height:&nbsp;170,&nbsp;name:&nbsp;"Tom",&nbsp;age:&nbsp;37}</code></pre>
+     </div>
+     <p class="paragraph">Aici, toate proprietățile din obiectele tom și sam sunt copiate în obiectul person. Astfel, după copiere, obiectul person va avea trei proprietăți.</p>
+     <h2 class="subtitle">Copierea proprietăților cu același nume</h2>
+     <p class="paragraph">Dacă obiectele din care facem copierea conțin proprietăți cu același nume, proprietățile din obiectele mai recente vor suprascrie proprietățile din obiectele mai vechi:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;tom&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom",&nbsp;age:&nbsp;37};<br>const&nbsp;sam&nbsp;=&nbsp;{&nbsp;age:&nbsp;45};<br>const&nbsp;person&nbsp;=&nbsp;{&nbsp;height:&nbsp;170};<br>Object.assign(person,&nbsp;tom,&nbsp;sam);<br>console.log(person);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;{height:&nbsp;170,&nbsp;name:&nbsp;"Tom",&nbsp;age:&nbsp;45}</code></pre>
+     </div>
+     <p class="paragraph">Aici ambele obiecte - tom și sam - conțin proprietatea age, dar în obiectul person, proprietatea age este egală cu 45 - valoarea din obiectul sam, deoarece copierea din obiectul sam se face în ultimul rând.</p>
+     <h2 class="subtitle">Copierea proprietăților-obiect</h2>
+     <p class="paragraph">Cu toate că Object.assign() funcționează excelent pentru obiecte simple, ce se întâmplă dacă proprietatea obiectului copiat reprezintă tot un obiect:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;tom&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom",&nbsp;company:&nbsp;{title:&nbsp;"Microsoft"}};<br>const&nbsp;bob&nbsp;=&nbsp;Object.assign({},&nbsp;tom);<br>bob.name&nbsp;=&nbsp;"Bob";<br>bob.company.title&nbsp;=&nbsp;"Google";<br>console.log(tom.name);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Tom<br>console.log(tom.company.title);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Google</code></pre>
+     </div>
+     <p class="paragraph">Aici, proprietatea company a obiectului tom reprezintă un alt obiect cu o singură proprietate. În timpul copierii, obiectul bob nu primește o copie a valorii tom.company, ci primește o referință la acest obiect. Prin urmare, modificările aduse lui bob.company vor afecta și tom.company.</p>
+     <h2 class="subtitle">Copierea obiectului cu ajutorul operatorului spread (...)</h2>
+     <p class="paragraph">Operatorul spread (...) permite descompunerea unui obiect în diverse perechi cheie-valoare, pe care le putem transmite către un alt obiect.</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;tom&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom",&nbsp;age:&nbsp;37,&nbsp;company:&nbsp;"Google"};<br>const&nbsp;bob&nbsp;=&nbsp;{...tom}<br>bob.name&nbsp;=&nbsp;"Bob";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>console.log(tom);&nbsp;&nbsp;&nbsp;//&nbsp;{name:&nbsp;"Tom",&nbsp;age:&nbsp;37,&nbsp;company:&nbsp;"Google"}<br>console.log(bob);&nbsp;&nbsp;&nbsp;//&nbsp;{name:&nbsp;"Bob",&nbsp;age:&nbsp;37,&nbsp;company:&nbsp;"Google"}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, obiectului bob i se transmit copii ale proprietăților obiectului tom.</p>
+     <p class="paragraph">Dacă unele proprietăți ale noului obiect trebuie să aibă alte valori (așa cum este în exemplul de mai sus pentru proprietatea name), acestea pot fi specificate la sfârșit:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;tom&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom",&nbsp;age:&nbsp;37,&nbsp;company:&nbsp;"Google"};<br>const&nbsp;bob&nbsp;=&nbsp;{...tom,&nbsp;name:&nbsp;"Bob"};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>console.log(bob);&nbsp;&nbsp;&nbsp;//&nbsp;{name:&nbsp;"Bob",&nbsp;age:&nbsp;37,&nbsp;company:&nbsp;"Google"}</code></pre>
+     </div>
+     <p class="paragraph">După cum se poate vedea din exemplul anterior, ambele constante, după copiere, reprezintă referințe către obiecte diferite, și modificările asupra unuia dintre ele nu vor afecta celălalt obiect.</p>
+     <p class="paragraph">Cu toate acestea, dacă obiectele conțin obiecte încorporate, aceste obiecte încorporate vor reprezenta, din nou, referințe către același obiect în timpul copierii:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;tom&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom",&nbsp;age:&nbsp;37,&nbsp;company:&nbsp;{title:&nbsp;"Microsoft"}};<br>const&nbsp;bob&nbsp;=&nbsp;{...tom}<br>bob.name&nbsp;=&nbsp;"Bob";<br>bob.company.title&nbsp;=&nbsp;"Google";<br><br>console.log(`${tom.name}&nbsp;-&nbsp;${tom.company.title}`);&nbsp;&nbsp;//&nbsp;Tom&nbsp;-&nbsp;Google<br>console.log(`${bob.name}&nbsp;-&nbsp;${bob.company.title}`);&nbsp;&nbsp;//&nbsp;Bob&nbsp;-&nbsp;Google</code></pre>
+     </div>
+     <h2 class="subtitle">Compararea obiectelor</h2>
+     <p class="paragraph">Să comparăm două obiecte folosind operațiile standard de comparare și echivalență:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;tom&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom"};<br>const&nbsp;bob&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Bob"};<br>console.log(tom&nbsp;==&nbsp;bob);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;false<br>console.log(tom&nbsp;===&nbsp;bob);&nbsp;&nbsp;&nbsp;//&nbsp;false</code></pre>
+     </div>
+     <p class="paragraph">Ambii operatori, în acest caz, vor returna false, adică obiectele nu sunt egale. Chiar și dacă valorile proprietăților obiectelor ar fi aceleași, totuși, în ambele cazuri, vom obține false.</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;tom&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom"};<br>const&nbsp;bob&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom"};<br>console.log(tom&nbsp;==&nbsp;bob);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;false<br>console.log(tom&nbsp;===&nbsp;bob);&nbsp;&nbsp;&nbsp;//&nbsp;false</code></pre>
+     </div>
+     <p class="paragraph">Totuși, ce se întâmplă dacă ambele constante (variabile) rețin o referință la același obiect:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;tom&nbsp;=&nbsp;{&nbsp;name:&nbsp;"Tom"};<br>const&nbsp;bob&nbsp;=&nbsp;tom;<br>console.log(tom&nbsp;==&nbsp;bob);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;true<br>console.log(tom&nbsp;===&nbsp;bob);&nbsp;&nbsp;&nbsp;//&nbsp;true</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, în ambele situații vom obține true, deoarece valorile ambelor constante sunt egale, practic reprezentând același obiect.</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

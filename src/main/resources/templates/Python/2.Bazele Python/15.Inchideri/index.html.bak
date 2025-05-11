@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Python', activeChapter='2.Bazele Python', activeLesson='15.Inchideri'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Închideri</h1>
+     <p class="paragraph">O închidere (closure) reprezintă o funcție care își amintește mediul său lexical chiar și atunci când este executată în afara domeniului său de vizibilitate.</p>
+     <p class="paragraph">Tehnic, o închidere include trei componente:</p>
+     <ul class="enumeration">
+      <li>Funcția exterioară, care definește un anumit domeniu de vizibilitate și în care sunt definite unele variabile și parametri - mediul lexical.</li>
+      <li>Variabilele și parametrii (mediul lexical) care sunt definite în funcția exterioară.</li>
+      <li>Funcția imbricată, care folosește variabilele și parametrii funcției exterioare.</li>
+     </ul>
+     <p class="paragraph">Pentru a defini închideri în Python, se folosesc funcții locale:</p>
+     <div class="code-inline">
+      <pre><code>def&nbsp;outer():&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;funcție&nbsp;exterioară<br>&nbsp;&nbsp;&nbsp;n&nbsp;=&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;mediu&nbsp;lexical&nbsp;-&nbsp;variabilă&nbsp;locală<br>&nbsp;&nbsp;&nbsp;def&nbsp;inner():&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;funcție&nbsp;locală<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nonlocal&nbsp;n<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;n&nbsp;+=&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;operații&nbsp;cu&nbsp;mediul&nbsp;lexical<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(n)<br>&nbsp;&nbsp;&nbsp;return&nbsp;inner<br>fn&nbsp;=&nbsp;outer()&nbsp;&nbsp;&nbsp;#&nbsp;fn&nbsp;=&nbsp;inner,&nbsp;deoarece&nbsp;funcția&nbsp;outer&nbsp;returnează&nbsp;funcția&nbsp;inner<br>#&nbsp;apelăm&nbsp;funcția&nbsp;internă&nbsp;inner<br>fn()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;6<br>fn()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;7<br>fn()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;8</code></pre>
+     </div>
+     <p class="paragraph">Aici, funcția outer definește o variabilă locală n - acesta este mediul lexical pentru funcția internă:</p>
+     <p class="paragraph">În interiorul funcției outer, este definită funcția internă inner, care accesează mediul său lexical - variabila n, îi crește valoarea cu unul și o afișează pe consolă:</p>
+     <div class="code-inline">
+      <pre><code>def&nbsp;inner():&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;funcție&nbsp;locală<br>&nbsp;&nbsp;&nbsp;nonlocal&nbsp;n<br>&nbsp;&nbsp;&nbsp;n&nbsp;+=&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;operații&nbsp;cu&nbsp;mediul&nbsp;lexical<br>&nbsp;&nbsp;&nbsp;print(n)</code></pre>
+     </div>
+     <p class="paragraph">Această funcție locală este returnată de funcția outer:</p>
+     <div class="code-inline">
+      <pre><code>return&nbsp;inner</code></pre>
+     </div>
+     <p class="paragraph">În program, apelăm funcția outer și obținem în variabila fn funcția locală inner:</p>
+     <div class="code-inline">
+      <pre><code>fn&nbsp;=&nbsp;outer()</code></pre>
+     </div>
+     <p class="paragraph">Variabila fn reprezintă o închidere, adică combină două lucruri: funcția și mediul în care funcția a fost creată. Și, deși am obținut funcția locală și o putem apela în afara funcției înconjurătoare în care a fost definită, ea își amintește mediul său lexical și poate să-l acceseze și să-l modifice, așa cum vedem în ieșirea consolei:</p>
+     <div class="code-inline">
+      <pre><code>fn()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;6<br>fn()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;7<br>fn()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;8</code></pre>
+     </div>
+     <h2 class="subtitle">Utilizarea parametrilor</h2>
+     <p class="paragraph">Pe lângă variabilele exterioare, mediul lexical include și parametrii funcției înconjurătoare. Să analizăm utilizarea parametrilor:</p>
+     <div class="code-inline">
+      <pre><code>def&nbsp;multiply(n):<br>&nbsp;&nbsp;&nbsp;def&nbsp;inner(m):&nbsp;return&nbsp;n&nbsp;*&nbsp;m<br>&nbsp;&nbsp;&nbsp;return&nbsp;inner<br>fn&nbsp;=&nbsp;multiply(5)<br>print(fn(5))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;25<br>print(fn(6))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;30<br>print(fn(7))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;35<br><br><br></code></pre>
+     </div>
+     <p class="paragraph">Aici, funcția exterioară - multiply returnează o funcție care primește un număr și returnează un număr.</p>
+     <p class="paragraph">Apelul funcției multiply() returnează funcția locală inner:</p>
+     <div class="code-inline">
+      <pre><code>def&nbsp;inner(m):&nbsp;return&nbsp;n&nbsp;*&nbsp;m</code></pre>
+     </div>
+     <p class="paragraph">Această funcție își amintește mediul în care a fost creată, în special valoarea parametrului n. În plus, primește și un parametru și returnează produsul parametrilor n și m.</p>
+     <p class="paragraph">În final, la apelul funcției multiply, este definită variabila fn, care primește funcția locală inner și mediul său lexical - valoarea parametrului n:</p>
+     <div class="code-inline">
+      <pre><code>fn&nbsp;=&nbsp;multiply(5)</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, parametrul n este egal cu 5.</p>
+     <p class="paragraph">La apelul funcției locale, de exemplu, în cazul:</p>
+     <div class="code-inline">
+      <pre><code>print(fn(6))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;30</code></pre>
+     </div>
+     <p class="paragraph">Numărul 6 este transmis ca parametru m funcției locale, care returnează produsul n și m, adică 5 * 6 = 30.</p>
+     <p class="paragraph">De asemenea, am putea scurta acest cod folosind lambda:</p>
+     <div class="code-inline">
+      <pre><code>def&nbsp;multiply(n):&nbsp;return&nbsp;lambda&nbsp;m:&nbsp;n&nbsp;*&nbsp;m<br>fn&nbsp;=&nbsp;multiply(5)<br>print(fn(5))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;25<br>print(fn(6))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;30<br>print(fn(7))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;35</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

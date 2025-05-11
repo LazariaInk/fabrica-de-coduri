@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='25.Procese si domenii de aplicatie', activeLesson='1.Procese'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Procese</h1>
+     <p class="paragraph">La lansarea unei aplicații, sistemul de operare creează pentru aceasta un proces separat, căruia i se alocă un spațiu de adresă specific în memorie și care este izolat de alte procese. Un proces poate avea mai multe fire de execuție (threads). În mod minim, un proces conține un fir de execuție principal.</p>
+     <p class="paragraph">Într-o aplicație C#, punctul de intrare al programului este metoda Main. Apelul acestei metode creează automat firul de execuție principal, iar din acest fir pot fi lansate fire de execuție secundare.</p>
+     <p class="paragraph">În .NET, un proces este reprezentat de clasa Process din spațiul de nume System.Diagnostics. Această clasă permite gestionarea proceselor deja lansate, precum și lansarea unor procese noi. În această clasă sunt definite mai multe proprietăți și metode care permit obținerea informațiilor despre procese și gestionarea lor:</p>
+     <ul class="enumeration">
+      <li>Handle: returnează descriptorul procesului</li>
+      <li>Id: obține identificatorul unic al procesului în cadrul sesiunii curente a sistemului de operare</li>
+      <li>MachineName: returnează numele calculatorului pe care este lansat procesul</li>
+      <li>MainModule: reprezintă modulul principal – fișierul executabil al programului, reprezentat de un obiect de tip ProcessModule</li>
+      <li>Modules: obține accesul la colecția ProcessModuleCollection, care stochează, sub formă de obiecte ProcessModule, setul de module (de exemplu, fișiere dll și exe) încărcate în cadrul procesului respectiv</li>
+      <li>ProcessName: returnează numele procesului, care adesea coincide cu numele aplicației</li>
+      <li>StartTime: returnează ora la care a fost lansat procesul</li>
+      <li>PageMemorySize64: returnează volumul de memorie alocat pentru acest proces</li>
+      <li>VirtualMemorySize64: returnează volumul de memorie virtuală alocat pentru acest proces</li>
+     </ul>
+     <p class="paragraph">Metode importante:</p>
+     <ul class="enumeration">
+      <li>CloseMainWindow(): închide fereastra procesului care are interfață grafică</li>
+      <li>GetProcesses(): returnează un array cu toate procesele lansate</li>
+      <li>GetProcessesByName(): returnează procesele după numele lor (pot fi lansate mai multe instanțe ale aceleași aplicații, deci returnează un array)</li>
+      <li>GetProcessById(): returnează procesul după Id (pot fi lansate mai multe instanțe ale aceleași aplicații, deci returnează un array)</li>
+      <li>Kill(): oprește procesul</li>
+      <li>Start(): lansează un proces nou</li>
+     </ul>
+     <p class="paragraph">De exemplu, să analizăm procesul curent:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Diagnostics;<br><br>var&nbsp;process&nbsp;=&nbsp;Process.GetCurrentProcess();<br>Console.WriteLine($"Id:&nbsp;{process.Id}");<br>Console.WriteLine($"Name:&nbsp;{process.ProcessName}");<br>Console.WriteLine($"VirtualMemory:&nbsp;{process.VirtualMemorySize64}");</code></pre>
+     </div>
+     <p class="paragraph">Pentru a obține toate procesele lansate:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Diagnostics;<br><br>foreach(Process&nbsp;process&nbsp;in&nbsp;Process.GetProcesses())<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;afișăm&nbsp;id&nbsp;și&nbsp;numele&nbsp;procesului<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"ID:&nbsp;{process.Id}&nbsp;&nbsp;Name:&nbsp;{process.ProcessName}");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Pentru a obține ID-urile proceselor care reprezintă instanțele lansate ale Visual Studio:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Diagnostics;<br><br>Process[]&nbsp;vsProcs&nbsp;=&nbsp;Process.GetProcessesByName("devenv");&nbsp;&nbsp;&nbsp;//&nbsp;pentru&nbsp;Windows<br>//&nbsp;Process[]&nbsp;vsProcs&nbsp;=&nbsp;Process.GetProcessesByName("VisualStudio");&nbsp;//&nbsp;pentru&nbsp;MacOS<br>foreach&nbsp;(var&nbsp;proc&nbsp;in&nbsp;vsProcs)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"ID:&nbsp;{proc.Id}");</code></pre>
+     </div>
+     <h2 class="subtitle">Firele de execuție ale procesului</h2>
+     <p class="paragraph">Proprietatea Threads reprezintă colecția firelor de execuție ale procesului - un obiect ProcessThreadCollection, fiecare fir de execuție fiind un obiect ProcessThread. În această clasă, se remarcă următoarele proprietăți:</p>
+     <ul class="enumeration">
+      <li>CurrentPriority: returnează prioritatea curentă a firului de execuție</li>
+      <li>Id: identificatorul firului de execuție</li>
+      <li>IdealProcessor: permite setarea procesorului pentru executarea firului de execuție</li>
+      <li>PriorityLevel: nivelul de prioritate al firului de execuție</li>
+      <li>StartAddress: adresa în memorie a funcției care a lansat firul de execuție</li>
+      <li>StartTime: ora lansării firului de execuție (suportată doar pe Windows și Linux)</li>
+     </ul>
+     <p class="paragraph">De exemplu, să obținem toate firele de execuție ale procesului Visual Studio:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Diagnostics;<br><br>Process&nbsp;proc&nbsp;=&nbsp;Process.GetProcessesByName("devenv")[0];&nbsp;&nbsp;//&nbsp;Windows<br>//&nbsp;Process&nbsp;proc&nbsp;=&nbsp;Process.GetProcessesByName("VisualStudio")[0];&nbsp;&nbsp;//&nbsp;MacOS<br>ProcessThreadCollection&nbsp;processThreads&nbsp;=&nbsp;proc.Threads;<br><br>foreach(ProcessThread&nbsp;thread&nbsp;in&nbsp;processThreads)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"ThreadId:&nbsp;{thread.Id}");<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Modulele procesului</h2>
+     <p class="paragraph">O aplicație poate folosi un set de biblioteci și module terțe. Pentru a le obține, clasa Process are proprietatea Modules, care reprezintă un obiect ProcessModuleCollection. Fiecare modul este reprezentat de clasa ProcessModule, care include următoarele proprietăți:</p>
+     <ul class="enumeration">
+      <li>BaseAddress: adresa modulului în memorie</li>
+      <li>FileName: calea completă către fișierul modulului</li>
+      <li>EntryPointAddress: adresa funcției în memorie care a lansat modulul</li>
+      <li>ModuleName: numele modulului (numele scurt al fișierului)</li>
+      <li>ModuleMemorySize: returnează volumul de memorie necesar pentru încărcarea modulului</li>
+     </ul>
+     <p class="paragraph">Pentru a obține toate modulele folosite de Visual Studio:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Diagnostics;<br><br>Process&nbsp;proc&nbsp;=&nbsp;Process.GetProcessesByName("devenv")[0];&nbsp;//&nbsp;pentru&nbsp;Windows<br>//&nbsp;Process&nbsp;proc&nbsp;=&nbsp;Process.GetProcessesByName("VisualStudio")[0];&nbsp;//&nbsp;pentru&nbsp;MacOS<br>ProcessModuleCollection&nbsp;modules&nbsp;=&nbsp;proc.Modules;<br><br>foreach(ProcessModule&nbsp;module&nbsp;in&nbsp;modules)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Name:&nbsp;{module.ModuleName}&nbsp;&nbsp;FileName:&nbsp;{module.FileName}");<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Lansarea unui nou proces</h2>
+     <p class="paragraph">Cu ajutorul metodei statice Process.Start(), se poate lansa un nou proces. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;lansarea&nbsp;unei&nbsp;aplicații<br>Process.Start(@"C:\Program&nbsp;Files\Google\Chrome\Application\chrome");<br><br>//&nbsp;Process.Start("/Applications/Google&nbsp;Chrome.app/Contents/MacOS/Google&nbsp;Chrome");&nbsp;//&nbsp;pe&nbsp;MacOS</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, se lansează browserul Google Chrome.</p>
+     <p class="paragraph">În cazul lansării unor programe, poate fi necesar să le transmitem diferiți parametri. În acest caz, se poate folosi o versiune suprasolicitată a metodei, unde se transmit parametrii:</p>
+     <div class="code-inline">
+      <pre><code>Process.Start(@"C:\Program&nbsp;Files\Google\Chrome\Application\chrome",&nbsp;"https://metanit.com");</code></pre>
+     </div>
+     <p class="paragraph">Pentru a separa configurarea parametrilor de lansare de lansarea propriu-zisă, se poate folosi clasa ProcessStartInfo:</p>
+     <div class="code-inline">
+      <pre><code>ProcessStartInfo&nbsp;procInfo&nbsp;=&nbsp;new&nbsp;ProcessStartInfo();<br>//&nbsp;fișierul&nbsp;executabil&nbsp;al&nbsp;programului&nbsp;-&nbsp;browserul&nbsp;Chrome<br>procInfo.FileName&nbsp;=&nbsp;@"C:\Program&nbsp;Files\Google\Chrome\Application\chrome";<br>//&nbsp;argumentele&nbsp;de&nbsp;lansare&nbsp;-&nbsp;adresa&nbsp;resursei&nbsp;internet<br>procInfo.Arguments&nbsp;=&nbsp;"https://metanit.com";<br>Process.Start(procInfo);</code></pre>
+     </div>
+     <p class="paragraph">Aceste metode permit gestionarea eficientă a proceselor și resurselor utilizate de aplicațiile .NET.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

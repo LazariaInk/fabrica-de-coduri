@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Java', activeChapter='7.Lucrul cu siruri de caractere', activeLesson='3.StringBuffer si StringBuilder'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">StringBuffer și StringBuilder</h1>
+     <p class="paragraph">Obiectele de tip String sunt imuabile, astfel că toate operațiunile care modifică șirurile de caractere conduc, de fapt, la crearea unui nou șir, ceea ce poate afecta performanța aplicației.</p>
+     <p class="paragraph">Pentru a soluționa această problemă și pentru a reduce costurile în lucrul cu șiruri, în Java au fost adăugate clasele StringBuffer și StringBuilder. Aceste clase sunt, în esență, șiruri extensibile, care pot fi modificate fără a afecta performanța.</p>
+     <p class="paragraph">Aceste clase sunt foarte similare, aproape identice, având aceiași constructori și metode, care sunt utilizate în mod identic. Singura diferență dintre ele constă în faptul că StringBuffer este sincronizat și sigur pentru utilizarea în aplicații multi-thread.</p>
+     <p class="paragraph">Astfel, este mai potrivit pentru aplicațiile multi-thread, în care obiectul poate fi modificat de mai multe fire de execuție. Pe de altă parte, StringBuilder nu este thread-safe, dar funcționează mai rapid în aplicațiile single-thread.</p>
+     <p class="paragraph">StringBuffer definește patru constructori:</p>
+     <div class="code-inline">
+      <pre><code>StringBuffer()<br>StringBuffer(int&nbsp;capacity)<br>StringBuffer(String&nbsp;str)<br>StringBuffer(CharSequence&nbsp;chars)</code></pre>
+     </div>
+     <p class="paragraph">Constructorii similari sunt definiți de StringBuilder:</p>
+     <div class="code-inline">
+      <pre><code>StringBuilder()<br>StringBuilder(int&nbsp;capacity)<br>StringBuilder(String&nbsp;str)<br>StringBuilder(CharSequence&nbsp;chars)</code></pre>
+     </div>
+     <p class="paragraph">Să analizăm funcționalitatea acestor clase folosind StringBuffer.</p>
+     <p class="paragraph">În toate operațiunile cu șiruri, StringBuffer/StringBuilder redistribuie memoria alocată. Pentru a evita prea frecventele redistribuiri de memorie, StringBuffer/StringBuilder rezervă inițial o anumită zonă de memorie care poate fi utilizată ulterior.</p>
+     <p class="paragraph">Constructorul fără parametri rezervă memorie pentru 16 caractere. Dacă dorim ca numărul de caractere să fie diferit, putem folosi al doilea constructor, care primește numărul de caractere ca parametru.</p>
+     <p class="paragraph">Constructorii al treilea și al patrulea din ambele clase primesc un șir sau o secvență de caractere și rezervă memorie suplimentară pentru încă 16 caractere.</p>
+     <p class="paragraph">Cu metoda capacity() putem obține numărul de caractere pentru care este rezervată memoria, iar cu metoda ensureCapacity() putem modifica capacitatea minimă a bufferului de caractere:</p>
+     <div class="code-inline">
+      <pre><code>String&nbsp;str&nbsp;=&nbsp;"Java";<br>StringBuffer&nbsp;strBuffer&nbsp;=&nbsp;new&nbsp;StringBuffer(str);<br>System.out.println("Capacitate:&nbsp;"&nbsp;+&nbsp;strBuffer.capacity());&nbsp;//&nbsp;20<br>strBuffer.ensureCapacity(32);<br>System.out.println("Capacitate:&nbsp;"&nbsp;+&nbsp;strBuffer.capacity());&nbsp;//&nbsp;42<br>System.out.println("Lungime:&nbsp;"&nbsp;+&nbsp;strBuffer.length());&nbsp;//&nbsp;4</code></pre>
+     </div>
+     <p class="paragraph">Deoarece StringBuffer este inițializat cu șirul "Java", capacitatea sa este de 4 + 16 = 20 de caractere. Apoi, creștem capacitatea bufferului prin apelul la strBuffer.ensureCapacity(32), ridicând capacitatea minimă la 32 de caractere. Cu toate acestea, capacitatea finală poate fi mai mare, cum este cazul aici, unde capacitatea devine 42 de caractere.</p>
+     <p class="paragraph">Acest lucru se întâmplă deoarece Java alocă memorie suplimentară pentru a îmbunătăți eficiența.</p>
+     <p class="paragraph">Totuși, indiferent de capacitate, lungimea șirului, care poate fi obținută cu metoda length(), rămâne aceeași - 4 caractere (deoarece "Java" are 4 caractere).</p>
+     <p class="paragraph">Pentru a obține șirul care este stocat în StringBuffer, putem folosi metoda standard toString():</p>
+     <div class="code-inline">
+      <pre><code>String&nbsp;str&nbsp;=&nbsp;"Java";<br>StringBuffer&nbsp;strBuffer&nbsp;=&nbsp;new&nbsp;StringBuffer(str);<br>System.out.println(strBuffer.toString());&nbsp;//&nbsp;Java</code></pre>
+     </div>
+     <p class="paragraph">În toate operațiunile sale, StringBuffer și StringBuilder sunt asemănătoare cu clasa String.</p>
+     <h2 class="subtitle">Obținerea și setarea caracterelor</h2>
+     <p class="paragraph">Metoda charAt() obține, iar metoda setCharAt() setează un caracter la un index specific:</p>
+     <div class="code-inline">
+      <pre><code>StringBuffer&nbsp;strBuffer&nbsp;=&nbsp;new&nbsp;StringBuffer("Java");<br>char&nbsp;c&nbsp;=&nbsp;strBuffer.charAt(0);&nbsp;//&nbsp;J<br>System.out.println(c);<br>strBuffer.setCharAt(0,&nbsp;'c');<br>System.out.println(strBuffer.toString());&nbsp;//&nbsp;cava</code></pre>
+     </div>
+     <p class="paragraph">Metoda getChars() obține un set de caractere între indexurile specificate:</p>
+     <div class="code-inline">
+      <pre><code>StringBuffer&nbsp;strBuffer&nbsp;=&nbsp;new&nbsp;StringBuffer("world");<br>int&nbsp;startIndex&nbsp;=&nbsp;1;<br>int&nbsp;endIndex&nbsp;=&nbsp;4;<br>char[]&nbsp;buffer&nbsp;=&nbsp;new&nbsp;char[endIndex&nbsp;-&nbsp;startIndex];<br>strBuffer.getChars(startIndex,&nbsp;endIndex,&nbsp;buffer,&nbsp;0);<br>System.out.println(buffer);&nbsp;//&nbsp;orl</code></pre>
+     </div>
+     <h2 class="subtitle">Adăugarea în șir</h2>
+     <p class="paragraph">Metoda append() adaugă un subșir la finalul unui StringBuffer:</p>
+     <div class="code-inline">
+      <pre><code>StringBuffer&nbsp;strBuffer&nbsp;=&nbsp;new&nbsp;StringBuffer("hello");<br>strBuffer.append("&nbsp;world");<br>System.out.println(strBuffer.toString());&nbsp;//&nbsp;hello&nbsp;world</code></pre>
+     </div>
+     <p class="paragraph">Metoda insert() adaugă un șir sau un caracter la un anumit index în StringBuffer:</p>
+     <div class="code-inline">
+      <pre><code>StringBuffer&nbsp;strBuffer&nbsp;=&nbsp;new&nbsp;StringBuffer("word");<br>strBuffer.insert(3,&nbsp;'l');<br>System.out.println(strBuffer.toString());&nbsp;//&nbsp;world<br><br>strBuffer.insert(0,&nbsp;"s");<br>System.out.println(strBuffer.toString());&nbsp;//&nbsp;sworld</code></pre>
+     </div>
+     <h2 class="subtitle">Ștergerea caracterelor</h2>
+     <p class="paragraph">Metoda delete() șterge toate caracterele de la un anumit index până la o anumită poziție, iar metoda deleteCharAt() șterge un caracter la un anumit index:</p>
+     <div class="code-inline">
+      <pre><code>StringBuffer&nbsp;strBuffer&nbsp;=&nbsp;new&nbsp;StringBuffer("assembler");<br>strBuffer.delete(0,&nbsp;2);<br>System.out.println(strBuffer.toString());&nbsp;//&nbsp;sembler<br><br>strBuffer.deleteCharAt(6);<br>System.out.println(strBuffer.toString());&nbsp;//&nbsp;semble</code></pre>
+     </div>
+     <h2 class="subtitle">Decuparea șirului</h2>
+     <p class="paragraph">Metoda substring() taie șirul de la un anumit index până la sfârșit sau până la un anumit index:</p>
+     <div class="code-inline">
+      <pre><code>StringBuffer&nbsp;strBuffer&nbsp;=&nbsp;new&nbsp;StringBuffer("hello&nbsp;java!");<br>String&nbsp;str1&nbsp;=&nbsp;strBuffer.substring(6);&nbsp;//&nbsp;taie&nbsp;de&nbsp;la&nbsp;caracterul&nbsp;6&nbsp;până&nbsp;la&nbsp;sfârșit<br>System.out.println(str1);&nbsp;//&nbsp;java!<br><br>String&nbsp;str2&nbsp;=&nbsp;strBuffer.substring(3,&nbsp;9);&nbsp;//&nbsp;taie&nbsp;de&nbsp;la&nbsp;caracterul&nbsp;3&nbsp;până&nbsp;la&nbsp;9<br>System.out.println(str2);&nbsp;//&nbsp;lo&nbsp;jav</code></pre>
+     </div>
+     <h2 class="subtitle">Modificarea lungimii</h2>
+     <p class="paragraph">Pentru a modifica lungimea unui StringBuffer (nu capacitatea bufferului), se folosește metoda setLength(). Dacă StringBuffer crește, șirul este completat cu caractere goale la sfârșit, iar dacă scade, șirul este tăiat:</p>
+     <div class="code-inline">
+      <pre><code>StringBuffer&nbsp;strBuffer&nbsp;=&nbsp;new&nbsp;StringBuffer("hello");<br>strBuffer.setLength(10);<br>System.out.println(strBuffer.toString());&nbsp;//"hello&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"<br><br>strBuffer.setLength(4);<br>System.out.println(strBuffer.toString());&nbsp;//"hell"</code></pre>
+     </div>
+     <h2 class="subtitle">Înlocuirea în șir</h2>
+     <p class="paragraph">Pentru a înlocui un subșir între anumite poziții în StringBuffer cu alt subșir, se folosește metoda replace():</p>
+     <div class="code-inline">
+      <pre><code>StringBuffer&nbsp;strBuffer&nbsp;=&nbsp;new&nbsp;StringBuffer("hello&nbsp;world!");<br>strBuffer.replace(6,&nbsp;11,&nbsp;"java");<br>System.out.println(strBuffer.toString());&nbsp;//&nbsp;hello&nbsp;java!</code></pre>
+     </div>
+     <p class="paragraph">Primul parametru al metodei replace() indică poziția de început a înlocuirii, al doilea parametru indică poziția de sfârșit, iar al treilea parametru indică subșirul de înlocuire.</p>
+     <h2 class="subtitle">Ordinea inversă a șirului</h2>
+     <p class="paragraph">Metoda reverse() inversează ordinea șirului în StringBuffer:</p>
+     <div class="code-inline">
+      <pre><code>StringBuffer&nbsp;strBuffer&nbsp;=&nbsp;new&nbsp;StringBuffer("assembler");<br>strBuffer.reverse();<br>System.out.println(strBuffer.toString());&nbsp;//&nbsp;relbmessa</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

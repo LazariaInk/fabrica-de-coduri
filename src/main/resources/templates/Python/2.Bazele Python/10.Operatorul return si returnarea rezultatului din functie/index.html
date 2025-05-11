@@ -1,155 +1,145 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Python', activeChapter='2.Bazele Python', activeLesson='10.Operatorul return si returnarea rezultatului din functie'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Operatorul return și returnarea rezultatului din funcție</h1>
- <h2 class="subtitle">Returnarea rezultatului</h2>
- <p class="paragraph">O funcție poate returna un rezultat. Pentru aceasta, în funcție se folosește operatorul return, după care se specifică valoarea returnată:</p>
- <div class="code-inline">
-  <pre><code>def&nbsp;nume_funcție([parametri]):<br>&nbsp;&nbsp;&nbsp;instrucțiuni<br>&nbsp;&nbsp;&nbsp;return&nbsp;valoare_returnată</code></pre>
- </div>
- <p class="paragraph">Să definim o funcție simplă care returnează o valoare:</p>
- <div class="code-inline">
-  <pre><code>def&nbsp;obține_mesaj():<br>&nbsp;&nbsp;&nbsp;return&nbsp;"Salut&nbsp;www.fabricadecoduri.com"</code></pre>
- </div>
- <p class="paragraph">Aici, după operatorul return, se află șirul "Salut www.fabricadecoduri.com" - aceasta este valoarea pe care o va returna funcția obține_mesaj().</p>
- <p class="paragraph">Apoi, acest rezultat al funcției poate fi atribuit unei variabile sau folosit ca valoare obișnuită:</p>
- <div class="code-inline">
-  <pre><code>def&nbsp;obține_mesaj():<br>&nbsp;&nbsp;&nbsp;return&nbsp;"Salut&nbsp;www.fabricadecoduri.com"<br><br><br>mesaj&nbsp;=&nbsp;obține_mesaj()&nbsp;&nbsp;#&nbsp;obținem&nbsp;rezultatul&nbsp;funcției&nbsp;obține_mesaj&nbsp;în&nbsp;variabila&nbsp;mesaj<br>print(mesaj)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Salut&nbsp;www.fabricadecoduri.com<br><br>#&nbsp;putem&nbsp;transmite&nbsp;direct&nbsp;rezultatul&nbsp;funcției&nbsp;obține_mesaj<br>print(obține_mesaj())&nbsp;&nbsp;&nbsp;#&nbsp;Salut&nbsp;www.fabricaedcoduri.com</code></pre>
- </div>
- <p class="paragraph">După operatorul return poate urma și o expresie complexă, al cărei rezultat va fi returnat din funcție. De exemplu, să definim o funcție care înmulțește un număr cu doi:</p>
- <div class="code-inline">
-  <pre><code>def&nbsp;dublează(număr):<br>&nbsp;&nbsp;&nbsp;return&nbsp;2&nbsp;*&nbsp;număr</code></pre>
- </div>
- <p class="paragraph">Aici, funcția dublează va returna rezultatul expresiei 2 * număr:</p>
- <div class="code-inline">
-  <pre><code>def&nbsp;dublează(număr):<br>&nbsp;&nbsp;&nbsp;return&nbsp;2&nbsp;*&nbsp;număr<br>rezultat1&nbsp;=&nbsp;dublează(4)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;rezultat1&nbsp;=&nbsp;8<br>rezultat2&nbsp;=&nbsp;dublează(5)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;rezultat2&nbsp;=&nbsp;10<br>print(f"rezultat1&nbsp;=&nbsp;{rezultat1}")&nbsp;&nbsp;&nbsp;#&nbsp;rezultat1&nbsp;=&nbsp;8<br>print(f"rezultat2&nbsp;=&nbsp;{rezultat2}")&nbsp;&nbsp;&nbsp;#&nbsp;rezultat2&nbsp;=&nbsp;10</code></pre>
- </div>
- <p class="paragraph">Sau un alt exemplu - obținerea sumei numerelor:</p>
- <div class="code-inline">
-  <pre><code>def&nbsp;sumă(a,&nbsp;b):<br>&nbsp;&nbsp;&nbsp;return&nbsp;a&nbsp;+&nbsp;b<br>rezultat&nbsp;=&nbsp;sumă(4,&nbsp;6)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;rezultat&nbsp;=&nbsp;10<br>print(f"sumă(4,&nbsp;6)&nbsp;=&nbsp;{rezultat}")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;sumă(4,&nbsp;6)&nbsp;=&nbsp;10<br>print(f"sumă(3,&nbsp;5)&nbsp;=&nbsp;{sumă(3,&nbsp;5)}")&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;sumă(3,&nbsp;5)&nbsp;=&nbsp;8</code></pre>
- </div>
- <h2 class="subtitle">Ieșirea din funcție</h2>
- <p class="paragraph">Operatorul return nu doar returnează o valoare, ci și produce ieșirea din funcție. De aceea, el trebuie definit după celelalte instrucțiuni. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>def&nbsp;obține_mesaj():<br>&nbsp;&nbsp;&nbsp;return&nbsp;"Salut&nbsp;www.fabricadecoduri.com"<br>&nbsp;&nbsp;&nbsp;print("Sfârșitul&nbsp;funcției")<br><br>print(obține_mesaj())</code></pre>
- </div>
- <p class="paragraph">Din punct de vedere sintactic, această funcție este corectă, însă instrucțiunea print("Sfârșitul funcției") nu are sens - nu va fi niciodată executată, deoarece operatorul return va returna valoarea și va produce ieșirea din funcție înainte de aceasta.</p>
- <p class="paragraph">Cu toate acestea, putem folosi operatorul return și în funcții care nu returnează nici-o valoare. În acest caz, după operatorul return nu se specifică nicio valoare returnată. O situație tipică este să se producă ieșirea din funcție în funcție de anumite condiții:</p>
- <div class="code-inline">
-  <pre><code>def&nbsp;afișează_persoană(nume,&nbsp;vârstă):<br>&nbsp;&nbsp;&nbsp;dacă&nbsp;vârstă&nbsp;&gt;&nbsp;120&nbsp;sau&nbsp;vârstă&nbsp;&lt;&nbsp;1:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print("Vârstă&nbsp;nevalidă")<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return<br>&nbsp;&nbsp;&nbsp;print(f"Nume:&nbsp;{nume}&nbsp;&nbsp;Vârstă:&nbsp;{vârstă}")<br><br><br>afișează_persoană("Tom",&nbsp;22)<br>afișează_persoană("Bob",&nbsp;-102)</code></pre>
- </div>
- <p class="paragraph">Aici, funcția afișează_persoană primește ca parametri numele și vârsta utilizatorului. Cu toate acestea, în funcție verificăm mai întâi dacă vârsta se încadrează într-un anumit interval (mai mică de 120 și mai mare de 0). Dacă vârsta se află în afara acestui interval, afișăm un mesaj despre vârsta nevalidă și, folosind operatorul return, ieșim din funcție. După aceasta, funcția își încheie execuția.</p>
- <p class="paragraph">Totuși, dacă vârsta este corectă, afișăm informațiile despre utilizator în consolă. Output-ul în consolă:</p>
- <div class="code-inline">
-  <pre><code>Nume:&nbsp;Tom&nbsp;&nbsp;Vârstă:&nbsp;22<br>Vârstă&nbsp;nevalidă</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Operatorul return și returnarea rezultatului din funcție</h1>
+     <h2 class="subtitle">Returnarea rezultatului</h2>
+     <p class="paragraph">O funcție poate returna un rezultat. Pentru aceasta, în funcție se folosește operatorul return, după care se specifică valoarea returnată:</p>
+     <div class="code-inline">
+      <pre><code>def&nbsp;nume_funcție([parametri]):<br>&nbsp;&nbsp;&nbsp;instrucțiuni<br>&nbsp;&nbsp;&nbsp;return&nbsp;valoare_returnată</code></pre>
+     </div>
+     <p class="paragraph">Să definim o funcție simplă care returnează o valoare:</p>
+     <div class="code-inline">
+      <pre><code>def&nbsp;obține_mesaj():<br>&nbsp;&nbsp;&nbsp;return&nbsp;"Salut&nbsp;www.fabricadecoduri.com"</code></pre>
+     </div>
+     <p class="paragraph">Aici, după operatorul return, se află șirul "Salut www.fabricadecoduri.com" - aceasta este valoarea pe care o va returna funcția obține_mesaj().</p>
+     <p class="paragraph">Apoi, acest rezultat al funcției poate fi atribuit unei variabile sau folosit ca valoare obișnuită:</p>
+     <div class="code-inline">
+      <pre><code>def&nbsp;obține_mesaj():<br>&nbsp;&nbsp;&nbsp;return&nbsp;"Salut&nbsp;www.fabricadecoduri.com"<br><br><br>mesaj&nbsp;=&nbsp;obține_mesaj()&nbsp;&nbsp;#&nbsp;obținem&nbsp;rezultatul&nbsp;funcției&nbsp;obține_mesaj&nbsp;în&nbsp;variabila&nbsp;mesaj<br>print(mesaj)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Salut&nbsp;www.fabricadecoduri.com<br><br>#&nbsp;putem&nbsp;transmite&nbsp;direct&nbsp;rezultatul&nbsp;funcției&nbsp;obține_mesaj<br>print(obține_mesaj())&nbsp;&nbsp;&nbsp;#&nbsp;Salut&nbsp;www.fabricaedcoduri.com</code></pre>
+     </div>
+     <p class="paragraph">După operatorul return poate urma și o expresie complexă, al cărei rezultat va fi returnat din funcție. De exemplu, să definim o funcție care înmulțește un număr cu doi:</p>
+     <div class="code-inline">
+      <pre><code>def&nbsp;dublează(număr):<br>&nbsp;&nbsp;&nbsp;return&nbsp;2&nbsp;*&nbsp;număr</code></pre>
+     </div>
+     <p class="paragraph">Aici, funcția dublează va returna rezultatul expresiei 2 * număr:</p>
+     <div class="code-inline">
+      <pre><code>def&nbsp;dublează(număr):<br>&nbsp;&nbsp;&nbsp;return&nbsp;2&nbsp;*&nbsp;număr<br>rezultat1&nbsp;=&nbsp;dublează(4)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;rezultat1&nbsp;=&nbsp;8<br>rezultat2&nbsp;=&nbsp;dublează(5)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;rezultat2&nbsp;=&nbsp;10<br>print(f"rezultat1&nbsp;=&nbsp;{rezultat1}")&nbsp;&nbsp;&nbsp;#&nbsp;rezultat1&nbsp;=&nbsp;8<br>print(f"rezultat2&nbsp;=&nbsp;{rezultat2}")&nbsp;&nbsp;&nbsp;#&nbsp;rezultat2&nbsp;=&nbsp;10</code></pre>
+     </div>
+     <p class="paragraph">Sau un alt exemplu - obținerea sumei numerelor:</p>
+     <div class="code-inline">
+      <pre><code>def&nbsp;sumă(a,&nbsp;b):<br>&nbsp;&nbsp;&nbsp;return&nbsp;a&nbsp;+&nbsp;b<br>rezultat&nbsp;=&nbsp;sumă(4,&nbsp;6)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;rezultat&nbsp;=&nbsp;10<br>print(f"sumă(4,&nbsp;6)&nbsp;=&nbsp;{rezultat}")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;sumă(4,&nbsp;6)&nbsp;=&nbsp;10<br>print(f"sumă(3,&nbsp;5)&nbsp;=&nbsp;{sumă(3,&nbsp;5)}")&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;sumă(3,&nbsp;5)&nbsp;=&nbsp;8</code></pre>
+     </div>
+     <h2 class="subtitle">Ieșirea din funcție</h2>
+     <p class="paragraph">Operatorul return nu doar returnează o valoare, ci și produce ieșirea din funcție. De aceea, el trebuie definit după celelalte instrucțiuni. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>def&nbsp;obține_mesaj():<br>&nbsp;&nbsp;&nbsp;return&nbsp;"Salut&nbsp;www.fabricadecoduri.com"<br>&nbsp;&nbsp;&nbsp;print("Sfârșitul&nbsp;funcției")<br><br>print(obține_mesaj())</code></pre>
+     </div>
+     <p class="paragraph">Din punct de vedere sintactic, această funcție este corectă, însă instrucțiunea print("Sfârșitul funcției") nu are sens - nu va fi niciodată executată, deoarece operatorul return va returna valoarea și va produce ieșirea din funcție înainte de aceasta.</p>
+     <p class="paragraph">Cu toate acestea, putem folosi operatorul return și în funcții care nu returnează nici-o valoare. În acest caz, după operatorul return nu se specifică nicio valoare returnată. O situație tipică este să se producă ieșirea din funcție în funcție de anumite condiții:</p>
+     <div class="code-inline">
+      <pre><code>def&nbsp;afișează_persoană(nume,&nbsp;vârstă):<br>&nbsp;&nbsp;&nbsp;dacă&nbsp;vârstă&nbsp;&gt;&nbsp;120&nbsp;sau&nbsp;vârstă&nbsp;&lt;&nbsp;1:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print("Vârstă&nbsp;nevalidă")<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return<br>&nbsp;&nbsp;&nbsp;print(f"Nume:&nbsp;{nume}&nbsp;&nbsp;Vârstă:&nbsp;{vârstă}")<br><br><br>afișează_persoană("Tom",&nbsp;22)<br>afișează_persoană("Bob",&nbsp;-102)</code></pre>
+     </div>
+     <p class="paragraph">Aici, funcția afișează_persoană primește ca parametri numele și vârsta utilizatorului. Cu toate acestea, în funcție verificăm mai întâi dacă vârsta se încadrează într-un anumit interval (mai mică de 120 și mai mare de 0). Dacă vârsta se află în afara acestui interval, afișăm un mesaj despre vârsta nevalidă și, folosind operatorul return, ieșim din funcție. După aceasta, funcția își încheie execuția.</p>
+     <p class="paragraph">Totuși, dacă vârsta este corectă, afișăm informațiile despre utilizator în consolă. Output-ul în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Nume:&nbsp;Tom&nbsp;&nbsp;Vârstă:&nbsp;22<br>Vârstă&nbsp;nevalidă</code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

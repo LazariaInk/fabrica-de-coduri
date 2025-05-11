@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Java', activeChapter='9.Programare multithreading', activeLesson='5.Metodele wait si notify'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Metodele wait și notify</h1>
+     <p class="paragraph">Uneori, în interacțiunea între thread-uri, apare necesitatea de a notifica un thread despre acțiunile altui thread. De exemplu, acțiunile unui thread pot depinde de rezultatele acțiunilor altui thread, și este nevoie să notificăm un thread că altul a finalizat o anumită sarcină. Pentru astfel de situații, clasa Object definește o serie de metode:</p>
+     <ul class="enumeration">
+      <li>wait(): eliberează monitorul și pune thread-ul apelant în starea de așteptare până când un alt thread va apela metoda notify()</li>
+      <li>notify(): reia execuția thread-ului care a apelat anterior metoda wait()</li>
+      <li>notifyAll(): reia execuția tuturor thread-urilor care au apelat anterior metoda wait()</li>
+     </ul>
+     <p class="paragraph">Toate aceste metode trebuie apelate doar dintr-un context sincronizat – adică dintr-un bloc sau o metodă sincronizată.</p>
+     <p class="paragraph">Să vedem cum putem folosi aceste metode. Vom lua un exemplu clasic din tema precedentă – "Producător-Consumator": în acest caz, consumatorul nu poate cumpăra un produs până când producătorul nu îl produce.</p>
+     <p class="paragraph">Să presupunem că producătorul trebuie să producă 5 produse, iar consumatorul trebuie să le achiziționeze pe toate. Totuși, la un moment dat, în depozit nu pot fi mai mult de 3 produse. Pentru a rezolva această problemă, folosim metodele wait() și notify():</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;class&nbsp;Program&nbsp;{<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Store&nbsp;store&nbsp;=&nbsp;new&nbsp;Store();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Producer&nbsp;producer&nbsp;=&nbsp;new&nbsp;Producer(store);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Consumer&nbsp;consumer&nbsp;=&nbsp;new&nbsp;Consumer(store);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;Thread(producer).start();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;Thread(consumer).start();<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>//&nbsp;Clasa&nbsp;Magazin,&nbsp;care&nbsp;stochează&nbsp;produsele&nbsp;fabricate<br>class&nbsp;Store&nbsp;{<br>&nbsp;&nbsp;private&nbsp;int&nbsp;product&nbsp;=&nbsp;0;<br>&nbsp;<br>&nbsp;&nbsp;public&nbsp;synchronized&nbsp;void&nbsp;get()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while&nbsp;(product&nbsp;&lt;&nbsp;1)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wait();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;catch&nbsp;(InterruptedException&nbsp;e)&nbsp;{}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;product--;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Consumatorul&nbsp;a&nbsp;cumpărat&nbsp;1&nbsp;produs");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Produse&nbsp;pe&nbsp;stoc:&nbsp;"&nbsp;+&nbsp;product);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;notify();<br>&nbsp;&nbsp;}<br>&nbsp;<br>&nbsp;&nbsp;public&nbsp;synchronized&nbsp;void&nbsp;put()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while&nbsp;(product&nbsp;&gt;=&nbsp;3)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wait();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;catch&nbsp;(InterruptedException&nbsp;e)&nbsp;{}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;product++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Producătorul&nbsp;a&nbsp;adăugat&nbsp;1&nbsp;produs");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Produse&nbsp;pe&nbsp;stoc:&nbsp;"&nbsp;+&nbsp;product);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;notify();<br>&nbsp;&nbsp;}<br>}<br><br>//&nbsp;Clasa&nbsp;Producător<br>class&nbsp;Producer&nbsp;implements&nbsp;Runnable&nbsp;{<br>&nbsp;&nbsp;&nbsp;Store&nbsp;store;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Producer(Store&nbsp;store)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.store&nbsp;=&nbsp;store;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;run()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;&nbsp;6;&nbsp;i++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;store.put();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>//&nbsp;Clasa&nbsp;Consumator<br>class&nbsp;Consumer&nbsp;implements&nbsp;Runnable&nbsp;{<br>&nbsp;&nbsp;&nbsp;Store&nbsp;store;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Consumer(Store&nbsp;store)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.store&nbsp;=&nbsp;store;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;run()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;&nbsp;6;&nbsp;i++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;store.get();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici sunt definite clasele Store, Producer și Consumer. Producătorul, în metoda run(), adaugă 5 produse în obiectul Store folosind metoda sa put(). Consumatorul, în metoda run(), apelează în ciclu metoda get() a obiectului Store pentru a obține produsele. Ambele metode din Store – put() și get() – sunt sincronizate.</p>
+     <p class="paragraph">Pentru a urmări disponibilitatea produselor în clasa Store, verificăm valoarea variabilei product. Implicit, nu există niciun produs, astfel că variabila este egală cu 0. Metoda get() (de obținere a produsului) trebuie să funcționeze doar când există cel puțin un produs. De aceea, în metoda get() verificăm dacă produsul este absent:</p>
+     <div class="code-inline">
+      <pre><code>while&nbsp;(product&nbsp;&lt;&nbsp;1)</code></pre>
+     </div>
+     <p class="paragraph">Dacă nu există produs, se apelează metoda wait(). Aceasta eliberează monitorul obiectului Store și blochează execuția metodei get() până când, pentru același monitor, se va apela metoda notify().</p>
+     <p class="paragraph">Când în metoda put() se adaugă un produs și se apelează notify(), metoda get() obține monitorul și iese din construcția while (product &lt; 1), deoarece produsul a fost adăugat. Apoi se simulează achiziția produsului de către consumator – se afișează un mesaj, iar valoarea variabilei product este scăzută: product--. La final, apelul metodei notify() semnalează metodei put() că poate continua execuția.</p>
+     <p class="paragraph">În metoda put() funcționează o logică similară, dar de această dată metoda put() trebuie să funcționeze doar dacă există mai puțin de trei produse în magazin. Prin urmare, se verifică existența produselor în ciclu, și dacă produsele există deja, monitorul este eliberat cu ajutorul metodei wait() și așteptăm apelul metodei notify() din get().</p>
+     <p class="paragraph">Rezultatul programului va fi următorul:</p>
+     <div class="code-inline">
+      <pre><code>Producătorul&nbsp;a&nbsp;adăugat&nbsp;1&nbsp;produs<br>Produse&nbsp;pe&nbsp;stoc:&nbsp;1<br>Producătorul&nbsp;a&nbsp;adăugat&nbsp;1&nbsp;produs<br>Produse&nbsp;pe&nbsp;stoc:&nbsp;2<br>Producătorul&nbsp;a&nbsp;adăugat&nbsp;1&nbsp;produs<br>Produse&nbsp;pe&nbsp;stoc:&nbsp;3<br>Consumatorul&nbsp;a&nbsp;cumpărat&nbsp;1&nbsp;produs<br>Produse&nbsp;pe&nbsp;stoc:&nbsp;2<br>Consumatorul&nbsp;a&nbsp;cumpărat&nbsp;1&nbsp;produs<br>Produse&nbsp;pe&nbsp;stoc:&nbsp;1<br>Consumatorul&nbsp;a&nbsp;cumpărat&nbsp;1&nbsp;produs<br>Produse&nbsp;pe&nbsp;stoc:&nbsp;0<br>Producătorul&nbsp;a&nbsp;adăugat&nbsp;1&nbsp;produs<br>Produse&nbsp;pe&nbsp;stoc:&nbsp;1<br>Producătorul&nbsp;a&nbsp;adăugat&nbsp;1&nbsp;produs<br>Produse&nbsp;pe&nbsp;stoc:&nbsp;2<br>Consumatorul&nbsp;a&nbsp;cumpărat&nbsp;1&nbsp;produs<br>Produse&nbsp;pe&nbsp;stoc:&nbsp;1<br>Consumatorul&nbsp;a&nbsp;cumpărat&nbsp;1&nbsp;produs<br>Produse&nbsp;pe&nbsp;stoc:&nbsp;0</code></pre>
+     </div>
+     <p class="paragraph">Astfel, folosind metoda wait() în metoda get(), așteptăm ca producătorul să adauge un nou produs. După adăugare, se apelează notify(), semnalând că există un loc liber în magazin și se pot adăuga mai multe produse.</p>
+     <p class="paragraph">În metoda put(), folosind wait(), așteptăm eliberarea unui loc în magazin. După ce locul devine disponibil, adăugăm un produs și prin notify() notificăm consumatorul că poate lua produsul.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

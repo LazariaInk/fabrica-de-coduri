@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='14.Multithreading', activeLesson='8.Semaforele'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Semaforele</h1>
+     <p class="paragraph">Semaforele sunt un alt instrument pe care platforma .NET îl oferă pentru gestionarea sincronizării. Semaforele permit limitarea numărului de thread-uri care au acces la anumite resurse. În .NET, semaforele sunt reprezentate de clasa Semaphore.</p>
+     <p class="paragraph">Pentru a crea un semafor, se folosește unul dintre constructorii clasei Semaphore:</p>
+     <ul class="enumeration">
+      <li>Semaphore(int initialCount, int maximumCount): parametrul initialCount setează numărul inițial de thread-uri, iar maximumCount - numărul maxim de thread-uri care au acces la resursele comune</li>
+      <li>Semaphore(int initialCount, int maximumCount, string? name): în plus, setează numele semaforului</li>
+      <li>Semaphore(int initialCount, int maximumCount, string? name, out bool createdNew): ultimul parametru - createdNew indică prin valoarea true că semaforul a fost creat cu succes. Dacă acest parametru este false, semaforul cu numele specificat deja există</li>
+     </ul>
+     <p class="paragraph">Pentru a lucra cu thread-uri, clasa Semaphore are două metode principale:</p>
+     <ul class="enumeration">
+      <li>WaitOne(): așteaptă obținerea unui loc liber în semafor</li>
+      <li>Release(): eliberează un loc în semafor</li>
+     </ul>
+     <p class="paragraph">De exemplu, avem următoarea sarcină: există un număr de cititori care vin la bibliotecă de trei ori pe zi pentru a citi. Să presupunem că avem o limită de trei cititori simultan în bibliotecă. Această sarcină poate fi rezolvată foarte ușor cu ajutorul semafoarelor:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;pornim&nbsp;cinci&nbsp;thread-uri<br>for&nbsp;(int&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;&nbsp;6;&nbsp;i++)<br>{<br>&nbsp;&nbsp;&nbsp;Reader&nbsp;reader&nbsp;=&nbsp;new&nbsp;Reader(i);<br>}<br><br>class&nbsp;Reader<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;creăm&nbsp;semaforul<br>&nbsp;&nbsp;&nbsp;static&nbsp;Semaphore&nbsp;sem&nbsp;=&nbsp;new&nbsp;Semaphore(3,&nbsp;3);<br>&nbsp;&nbsp;&nbsp;Thread&nbsp;myThread;<br>&nbsp;&nbsp;&nbsp;int&nbsp;count&nbsp;=&nbsp;3;&nbsp;//&nbsp;numărul&nbsp;de&nbsp;citiri<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;Reader(int&nbsp;i)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;myThread&nbsp;=&nbsp;new&nbsp;Thread(Read);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;myThread.Name&nbsp;=&nbsp;$"Cititor&nbsp;{i}";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;myThread.Start();<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Read()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while&nbsp;(count&nbsp;&gt;&nbsp;0)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sem.WaitOne();&nbsp;&nbsp;//&nbsp;așteptăm&nbsp;eliberarea&nbsp;unui&nbsp;loc<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"{Thread.CurrentThread.Name}&nbsp;intră&nbsp;în&nbsp;bibliotecă");<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"{Thread.CurrentThread.Name}&nbsp;citește");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread.Sleep(1000);<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"{Thread.CurrentThread.Name}&nbsp;părăsește&nbsp;biblioteca");<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sem.Release();&nbsp;&nbsp;//&nbsp;eliberăm&nbsp;locul<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;count--;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread.Sleep(1000);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest program, cititorul este reprezentat de clasa Reader. Aceasta încapsulează toată funcționalitatea legată de thread-uri prin variabila Thread myThread.</p>
+     <p class="paragraph">Semaforul în sine este definit ca o variabilă statică sem:</p>
+     <div class="code-inline">
+      <pre><code>static&nbsp;Semaphore&nbsp;sem&nbsp;=&nbsp;new&nbsp;Semaphore(3,&nbsp;3);</code></pre>
+     </div>
+     <p class="paragraph">Constructorul său primește doi parametri: primul specifică numărul de obiecte care inițial vor avea acces la semafor, iar al doilea specifică numărul maxim de obiecte care vor folosi semaforul. În acest caz, doar trei cititori pot fi simultan în bibliotecă, deci numărul maxim este 3.</p>
+     <p class="paragraph">Funcționalitatea principală este concentrată în metoda Read, care se execută în thread. La început, pentru a aștepta eliberarea unui loc în semafor, se folosește metoda sem.WaitOne():</p>
+     <div class="code-inline">
+      <pre><code>sem.WaitOne();&nbsp;&nbsp;//&nbsp;așteptăm&nbsp;eliberarea&nbsp;unui&nbsp;loc</code></pre>
+     </div>
+     <p class="paragraph">După ce un loc se eliberează în semafor, thread-ul respectiv ocupă locul și începe să execute toate acțiunile următoare.</p>
+     <p class="paragraph">După terminarea citirii, eliberăm semaforul folosind metoda sem.Release():</p>
+     <div class="code-inline">
+      <pre><code>sem.Release();&nbsp;&nbsp;//&nbsp;eliberăm&nbsp;locul</code></pre>
+     </div>
+     <p class="paragraph">Astfel, un loc se eliberează în semafor și este ocupat de un alt thread aflat în așteptare.</p>
+     <p class="paragraph">Exemplu de ieșire pe consolă:</p>
+     <div class="code-inline">
+      <pre><code>Cititor&nbsp;5&nbsp;intră&nbsp;în&nbsp;bibliotecă<br>Cititor&nbsp;5&nbsp;citește<br>Cititor&nbsp;4&nbsp;intră&nbsp;în&nbsp;bibliotecă<br>Cititor&nbsp;4&nbsp;citește<br>Cititor&nbsp;1&nbsp;intră&nbsp;în&nbsp;bibliotecă<br>Cititor&nbsp;1&nbsp;citește<br>Cititor&nbsp;5&nbsp;părăsește&nbsp;biblioteca<br>Cititor&nbsp;1&nbsp;părăsește&nbsp;biblioteca<br>Cititor&nbsp;4&nbsp;părăsește&nbsp;biblioteca<br>Cititor&nbsp;3&nbsp;intră&nbsp;în&nbsp;bibliotecă<br>Cititor&nbsp;3&nbsp;citește<br>Cititor&nbsp;2&nbsp;intră&nbsp;în&nbsp;bibliotecă<br>Cititor&nbsp;2&nbsp;citește<br>Cititor&nbsp;4&nbsp;intră&nbsp;în&nbsp;bibliotecă<br>Cititor&nbsp;3&nbsp;părăsește&nbsp;biblioteca<br>Cititor&nbsp;2&nbsp;părăsește&nbsp;biblioteca<br>Cititor&nbsp;5&nbsp;intră&nbsp;în&nbsp;bibliotecă<br>Cititor&nbsp;5&nbsp;citește<br>Cititor&nbsp;4&nbsp;citește<br>Cititor&nbsp;1&nbsp;intră&nbsp;în&nbsp;bibliotecă<br>Cititor&nbsp;1&nbsp;citește<br>Cititor&nbsp;5&nbsp;părăsește&nbsp;biblioteca<br>Cititor&nbsp;3&nbsp;intră&nbsp;în&nbsp;bibliotecă<br>Cititor&nbsp;3&nbsp;citește<br>Cititor&nbsp;4&nbsp;părăsește&nbsp;biblioteca<br>Cititor&nbsp;1&nbsp;părăsește&nbsp;biblioteca<br>Cititor&nbsp;2&nbsp;intră&nbsp;în&nbsp;bibliotecă<br>Cititor&nbsp;2&nbsp;citește<br>Cititor&nbsp;3&nbsp;părăsește&nbsp;biblioteca<br>Cititor&nbsp;5&nbsp;intră&nbsp;în&nbsp;bibliotecă<br>Cititor&nbsp;5&nbsp;citește<br>Cititor&nbsp;2&nbsp;părăsește&nbsp;biblioteca<br>Cititor&nbsp;1&nbsp;intră&nbsp;în&nbsp;bibliotecă<br>Cititor&nbsp;4&nbsp;intră&nbsp;în&nbsp;bibliotecă<br>Cititor&nbsp;1&nbsp;citește<br>Cititor&nbsp;4&nbsp;citește<br>Cititor&nbsp;5&nbsp;părăsește&nbsp;biblioteca<br>Cititor&nbsp;1&nbsp;părăsește&nbsp;biblioteca<br>Cititor&nbsp;4&nbsp;părăsește&nbsp;biblioteca<br>Cititor&nbsp;2&nbsp;intră&nbsp;în&nbsp;bibliotecă<br>Cititor&nbsp;3&nbsp;intră&nbsp;în&nbsp;bibliotecă<br>Cititor&nbsp;2&nbsp;citește<br>Cititor&nbsp;3&nbsp;citește<br>Cititor&nbsp;3&nbsp;părăsește&nbsp;biblioteca<br>Cititor&nbsp;2&nbsp;părăsește&nbsp;biblioteca</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

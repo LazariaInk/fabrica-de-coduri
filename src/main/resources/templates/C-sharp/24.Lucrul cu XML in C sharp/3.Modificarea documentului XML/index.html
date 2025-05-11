@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='24.Lucrul cu XML in C sharp', activeLesson='3.Modificarea documentului XML'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Modificarea documentului XML</h1>
+     <p class="paragraph">Pentru editarea unui document XML (modificarea, adăugarea sau ștergerea elementelor), putem utiliza metodele clasei XmlNode:</p>
+     <ul class="enumeration">
+      <li>AppendChild: adaugă la sfârșitul nodului curent un nou nod copil</li>
+      <li>InsertAfter: adaugă un nou nod după un anumit nod</li>
+      <li>InsertBefore: adaugă un nou nod înainte de un anumit nod</li>
+      <li>RemoveAll: șterge toate nodurile copii ale nodului curent</li>
+      <li>RemoveChild: șterge un nod copil al nodului curent și îl returnează</li>
+     </ul>
+     <p class="paragraph">Clasa XmlDocument adaugă încă o serie de metode care permit crearea de noduri noi:</p>
+     <ul class="enumeration">
+      <li>CreateNode: creează un nod de orice tip</li>
+      <li>CreateElement: creează un nod de tip XmlDocument</li>
+      <li>CreateAttribute: creează un nod de tip XmlAttribute</li>
+      <li>CreateTextNode: creează un nod de tip XmlTextNode</li>
+      <li>CreateComment: creează un comentariu</li>
+     </ul>
+     <p class="paragraph">Vom lua documentul XML people.xml din tema anterioară:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?xml&nbsp;version="1.0"&nbsp;encoding="utf-8"&nbsp;?&gt;<br>&lt;people&gt;<br>&nbsp;&lt;person&nbsp;name="Tom"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;company&gt;Microsoft&lt;/company&gt;<br>&nbsp;&nbsp;&nbsp;&lt;age&gt;37&lt;/age&gt;<br>&nbsp;&lt;/person&gt;<br>&nbsp;&lt;person&nbsp;name="Bob"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;company&gt;Google&lt;/company&gt;<br>&nbsp;&nbsp;&nbsp;&lt;age&gt;41&lt;/age&gt;<br>&nbsp;&lt;/person&gt;<br>&lt;/people&gt;</code></pre>
+     </div>
+     <p class="paragraph">Vom adăuga în acest document XML un nou element &lt;person&gt;:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Xml;<br><br>XmlDocument&nbsp;xDoc&nbsp;=&nbsp;new&nbsp;XmlDocument();<br>xDoc.Load("people.xml");<br>XmlElement?&nbsp;xRoot&nbsp;=&nbsp;xDoc.DocumentElement;<br><br>//&nbsp;creăm&nbsp;un&nbsp;nou&nbsp;element&nbsp;person<br>XmlElement&nbsp;personElem&nbsp;=&nbsp;xDoc.CreateElement("person");<br><br>//&nbsp;creăm&nbsp;atributul&nbsp;name<br>XmlAttribute&nbsp;nameAttr&nbsp;=&nbsp;xDoc.CreateAttribute("name");<br><br>//&nbsp;creăm&nbsp;elementele&nbsp;company&nbsp;și&nbsp;age<br>XmlElement&nbsp;companyElem&nbsp;=&nbsp;xDoc.CreateElement("company");<br>XmlElement&nbsp;ageElem&nbsp;=&nbsp;xDoc.CreateElement("age");<br><br>//&nbsp;creăm&nbsp;valorile&nbsp;text&nbsp;pentru&nbsp;elemente&nbsp;și&nbsp;atribut<br>XmlText&nbsp;nameText&nbsp;=&nbsp;xDoc.CreateTextNode("Mark");<br>XmlText&nbsp;companyText&nbsp;=&nbsp;xDoc.CreateTextNode("Facebook");<br>XmlText&nbsp;ageText&nbsp;=&nbsp;xDoc.CreateTextNode("30");<br><br>//&nbsp;adăugăm&nbsp;nodurile<br>nameAttr.AppendChild(nameText);<br>companyElem.AppendChild(companyText);<br>ageElem.AppendChild(ageText);<br><br>//&nbsp;adăugăm&nbsp;atributul&nbsp;name<br>personElem.Attributes.Append(nameAttr);<br>//&nbsp;adăugăm&nbsp;elementele&nbsp;company&nbsp;și&nbsp;age<br>personElem.AppendChild(companyElem);<br>personElem.AppendChild(ageElem);<br>//&nbsp;adăugăm&nbsp;în&nbsp;elementul&nbsp;rădăcină&nbsp;noul&nbsp;element&nbsp;person<br>xRoot?.AppendChild(personElem);<br>//&nbsp;salvăm&nbsp;modificările&nbsp;documentului&nbsp;XML&nbsp;în&nbsp;fișier<br>xDoc.Save("people.xml");</code></pre>
+     </div>
+     <p class="paragraph">Adăugarea elementelor urmează un șablon. Mai întâi creăm elementul (xDoc.CreateElement("person")). Dacă elementul este complex, adică conține alte elemente, atunci creăm aceste elemente. Dacă elementul este simplu, conținând un text, creăm acest text (XmlText companyText = xDoc.CreateTextNode("Facebook");).</p>
+     <p class="paragraph">Apoi, toate elementele sunt adăugate în elementul principal person, care este adăugat în elementul rădăcină (xRoot.AppendChild(personElem);).</p>
+     <p class="paragraph">Pentru a salva documentul modificat pe disc, utilizăm metoda Save: xDoc.Save("people.xml").</p>
+     <p class="paragraph">După aceasta, în fișierul XML va apărea următorul element:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?xml&nbsp;version="1.0"&nbsp;encoding="utf-8"?&gt;<br>&lt;people&gt;<br>&nbsp;&lt;person&nbsp;name="Tom"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;company&gt;Microsoft&lt;/company&gt;<br>&nbsp;&nbsp;&nbsp;&lt;age&gt;37&lt;/age&gt;<br>&nbsp;&lt;/person&gt;<br>&nbsp;&lt;person&nbsp;name="Bob"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;company&gt;Google&lt;/company&gt;<br>&nbsp;&nbsp;&nbsp;&lt;age&gt;41&lt;/age&gt;<br>&nbsp;&lt;/person&gt;<br>&nbsp;&lt;person&nbsp;name="Mark"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;company&gt;Facebook&lt;/company&gt;<br>&nbsp;&nbsp;&nbsp;&lt;age&gt;30&lt;/age&gt;<br>&nbsp;&lt;/person&gt;<br>&lt;/people&gt;</code></pre>
+     </div>
+     <h2 class="subtitle">Ștergerea nodurilor</h2>
+     <p class="paragraph">Vom șterge primul nod din documentul XML:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Xml;<br><br>XmlDocument&nbsp;xDoc&nbsp;=&nbsp;new&nbsp;XmlDocument();<br>xDoc.Load("people.xml");<br>XmlElement?&nbsp;xRoot&nbsp;=&nbsp;xDoc.DocumentElement;<br>XmlNode?&nbsp;firstNode&nbsp;=&nbsp;xRoot?.FirstChild;<br>if&nbsp;(firstNode&nbsp;is&nbsp;not&nbsp;null)&nbsp;xRoot?.RemoveChild(firstNode);<br>xDoc.Save("people.xml");</code></pre>
+     </div>
+     <p class="paragraph">Acest cod șterge primul nod copil al elementului rădăcină și salvează modificările în fișierul XML.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

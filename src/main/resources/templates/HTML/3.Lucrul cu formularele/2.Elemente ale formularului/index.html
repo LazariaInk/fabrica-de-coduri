@@ -1,164 +1,154 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='HTML', activeChapter='3.Lucrul cu formularele', activeLesson='2.Elemente ale formularului'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h2 class="subtitle">Elemente ale formularului</h2>
- <p class="paragraph">Formularele sunt compuse dintr-un anumit număr de elemente de intrare. Toate elementele de intrare sunt plasate între etichetele &lt;form&gt; și &lt;/form&gt;.</p>
- <p class="paragraph">Cel mai comun element de intrare este elementul input. Cu toate acestea, acțiunea reală a acestui element depinde de valoarea atribuită atributului său type. Acesta poate avea următoarele valori:</p>
- <ul class="enumeration">
-  <li>text: un câmp text obișnuit</li>
-  <li>password: de asemenea, un câmp text, doar că în loc de caracterele introduse se afișează steluțe, deci este folosit în principal pentru introducerea parolei</li>
-  <li>radio: un buton radio sau comutator. Dintr-un grup de butoane radio se poate selecta doar unul</li>
-  <li>checkbox: un element de tip casetă de selectare, care poate fi în stare bifată sau nebifată</li>
-  <li>hidden: un câmp ascuns</li>
-  <li>submit: un buton de trimitere a formularului</li>
-  <li>color: un câmp pentru introducerea culorii</li>
-  <li>date: un câmp pentru introducerea datei</li>
-  <li>datetime: un câmp pentru introducerea datei și a orei cu fus orar</li>
-  <li>datetime-local: un câmp pentru introducerea datei și a orei fără a lua în considerare fusul orar</li>
-  <li>email: un câmp pentru introducerea adresei de e-mail</li>
-  <li>month: un câmp pentru introducerea anului și a lunii</li>
-  <li>number: un câmp pentru introducerea numerelor</li>
-  <li>range: un cursor pentru alegerea unui număr dintr-un anumit interval</li>
-  <li>tel: un câmp pentru introducerea numărului de telefon</li>
-  <li>time: un câmp pentru introducerea timpului</li>
-  <li>week: un câmp pentru introducerea anului și a săptămânii</li>
-  <li>url: un câmp pentru introducerea adresei URL</li>
-  <li>file: un câmp pentru alegerea fișierului de trimis</li>
-  <li>image: creează un buton sub forma unei imagini</li>
- </ul>
- <p class="paragraph">Pe lângă elementul input în diferitele sale modificări, există și un mic set de elemente care pot fi folosite pe formular:</p>
- <ul class="enumeration">
-  <li>button: creează un buton</li>
-  <li>select: o listă derulantă</li>
-  <li>label: creează o etichetă care se afișează lângă câmpul de intrare</li>
-  <li>textarea: un câmp text multilinie</li>
- </ul>
- <h2 class="subtitle">Atributele name și value</h2>
- <p class="paragraph">Toate elementele de intrare pot avea setate atributele name și value. Aceste atribute sunt importante. Prin atributul name putem identifica câmpul de intrare, iar atributul value ne permite să setăm valoarea câmpului de intrare. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&nbsp;&nbsp;&nbsp;&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;Formulare&nbsp;în&nbsp;HTML5&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;form&nbsp;method="get"&nbsp;action="index.html"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="text"&nbsp;name="login"&nbsp;value="Tom"/&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="password"&nbsp;name="password"/&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="submit"&nbsp;value="Intră"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/form&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">Aici, câmpul text are valoarea "Tom" (așa cum este indicat în atributul value), deci la încărcarea paginii web în acest câmp vom vedea textul dat.</p>
- <div class="image-container">
-  <img src="images/image1.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Deoarece metoda de trimitere a datelor formularului este metoda "get", datele vor fi trimise prin linia de comandă. Deoarece nu ne pasă cum sunt primite datele, indiferent de serverul care primește datele, am setat aceeași pagină ca adresă - adică fișierul index.html. Și la trimitere vom putea vedea datele introduse în linia de comandă:</p>
- <div class="image-container">
-  <img src="images/image2.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">În linia de comandă, ne interesează următoarea parte:</p>
- <div class="code-inline">
-  <pre><code>login=Tom&amp;password=password</code></pre>
- </div>
- <p class="paragraph">La trimiterea formularului, browserul combină toate datele într-un set de perechi "cheie-valoare". În cazul nostru, două astfel de perechi: login=Tom și password=password. Cheia în aceste perechi este numele câmpului de intrare, care este determinat de atributul name, iar valoarea - de fapt valoarea introdusă în câmpul de intrare (sau valoarea atributului value).</p>
- <p class="paragraph">Primind aceste date, serverul poate ușor să afle ce valori au fost introduse de utilizator în câmpurile de intrare.</p>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h2 class="subtitle">Elemente ale formularului</h2>
+     <p class="paragraph">Formularele sunt compuse dintr-un anumit număr de elemente de intrare. Toate elementele de intrare sunt plasate între etichetele &lt;form&gt; și &lt;/form&gt;.</p>
+     <p class="paragraph">Cel mai comun element de intrare este elementul input. Cu toate acestea, acțiunea reală a acestui element depinde de valoarea atribuită atributului său type. Acesta poate avea următoarele valori:</p>
+     <ul class="enumeration">
+      <li>text: un câmp text obișnuit</li>
+      <li>password: de asemenea, un câmp text, doar că în loc de caracterele introduse se afișează steluțe, deci este folosit în principal pentru introducerea parolei</li>
+      <li>radio: un buton radio sau comutator. Dintr-un grup de butoane radio se poate selecta doar unul</li>
+      <li>checkbox: un element de tip casetă de selectare, care poate fi în stare bifată sau nebifată</li>
+      <li>hidden: un câmp ascuns</li>
+      <li>submit: un buton de trimitere a formularului</li>
+      <li>color: un câmp pentru introducerea culorii</li>
+      <li>date: un câmp pentru introducerea datei</li>
+      <li>datetime: un câmp pentru introducerea datei și a orei cu fus orar</li>
+      <li>datetime-local: un câmp pentru introducerea datei și a orei fără a lua în considerare fusul orar</li>
+      <li>email: un câmp pentru introducerea adresei de e-mail</li>
+      <li>month: un câmp pentru introducerea anului și a lunii</li>
+      <li>number: un câmp pentru introducerea numerelor</li>
+      <li>range: un cursor pentru alegerea unui număr dintr-un anumit interval</li>
+      <li>tel: un câmp pentru introducerea numărului de telefon</li>
+      <li>time: un câmp pentru introducerea timpului</li>
+      <li>week: un câmp pentru introducerea anului și a săptămânii</li>
+      <li>url: un câmp pentru introducerea adresei URL</li>
+      <li>file: un câmp pentru alegerea fișierului de trimis</li>
+      <li>image: creează un buton sub forma unei imagini</li>
+     </ul>
+     <p class="paragraph">Pe lângă elementul input în diferitele sale modificări, există și un mic set de elemente care pot fi folosite pe formular:</p>
+     <ul class="enumeration">
+      <li>button: creează un buton</li>
+      <li>select: o listă derulantă</li>
+      <li>label: creează o etichetă care se afișează lângă câmpul de intrare</li>
+      <li>textarea: un câmp text multilinie</li>
+     </ul>
+     <h2 class="subtitle">Atributele name și value</h2>
+     <p class="paragraph">Toate elementele de intrare pot avea setate atributele name și value. Aceste atribute sunt importante. Prin atributul name putem identifica câmpul de intrare, iar atributul value ne permite să setăm valoarea câmpului de intrare. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&nbsp;&nbsp;&nbsp;&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;Formulare&nbsp;în&nbsp;HTML5&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;form&nbsp;method="get"&nbsp;action="index.html"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="text"&nbsp;name="login"&nbsp;value="Tom"/&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="password"&nbsp;name="password"/&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="submit"&nbsp;value="Intră"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/form&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici, câmpul text are valoarea "Tom" (așa cum este indicat în atributul value), deci la încărcarea paginii web în acest câmp vom vedea textul dat.</p>
+     <div class="image-container">
+      <img th:src="@{/images/HTML/3.Lucrul%20cu%20formularele/2.Elemente%20ale%20formularului/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Deoarece metoda de trimitere a datelor formularului este metoda "get", datele vor fi trimise prin linia de comandă. Deoarece nu ne pasă cum sunt primite datele, indiferent de serverul care primește datele, am setat aceeași pagină ca adresă - adică fișierul index.html. Și la trimitere vom putea vedea datele introduse în linia de comandă:</p>
+     <div class="image-container">
+      <img th:src="@{/images/HTML/3.Lucrul%20cu%20formularele/2.Elemente%20ale%20formularului/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">În linia de comandă, ne interesează următoarea parte:</p>
+     <div class="code-inline">
+      <pre><code>login=Tom&amp;password=password</code></pre>
+     </div>
+     <p class="paragraph">La trimiterea formularului, browserul combină toate datele într-un set de perechi "cheie-valoare". În cazul nostru, două astfel de perechi: login=Tom și password=password. Cheia în aceste perechi este numele câmpului de intrare, care este determinat de atributul name, iar valoarea - de fapt valoarea introdusă în câmpul de intrare (sau valoarea atributului value).</p>
+     <p class="paragraph">Primind aceste date, serverul poate ușor să afle ce valori au fost introduse de utilizator în câmpurile de intrare.</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

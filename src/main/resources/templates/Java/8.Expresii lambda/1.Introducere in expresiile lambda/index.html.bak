@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Java', activeChapter='8.Expresii lambda', activeLesson='1.Introducere in expresiile lambda'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Introducere în expresiile lambda</h1>
+     <p class="paragraph">Printre noutățile aduse în limbajul Java odată cu lansarea JDK 8, expresiile lambda ocupă un loc special. O lambda reprezintă un set de instrucțiuni care pot fi atribuite unei variabile și apoi apelate de mai multe ori în diverse locuri din program.</p>
+     <p class="paragraph">Baza unei expresii lambda este operatorul lambda, reprezentat prin săgeata -&gt;. Acest operator împarte expresia lambda în două părți: partea stângă conține lista de parametri ai expresiei, iar partea dreaptă reprezintă corpul expresiei lambda, unde se efectuează acțiunile.</p>
+     <p class="paragraph">Expresia lambda nu se execută de sine stătător, ci implementează un metodă definită într-o interfață funcțională. Este important ca interfața funcțională să conțină un singur metodă abstractă fără implementare.</p>
+     <p class="paragraph">Exemplu:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;class&nbsp;LambdaApp&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Operationable&nbsp;operation;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;operation&nbsp;=&nbsp;(x,&nbsp;y)&nbsp;-&gt;&nbsp;x&nbsp;+&nbsp;y;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;result&nbsp;=&nbsp;operation.calculate(10,&nbsp;20);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(result);&nbsp;//&nbsp;30<br>&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>}<br><br>interface&nbsp;Operationable&nbsp;{<br>&nbsp;&nbsp;&nbsp;int&nbsp;calculate(int&nbsp;x,&nbsp;int&nbsp;y);<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, interfața funcțională este Operationable, care definește o singură metodă abstractă - calculate(). Această metodă primește doi parametri de tip întreg și returnează un număr întreg.</p>
+     <p class="paragraph">Expresiile lambda sunt o formă simplificată a claselor anonime interne, care erau folosite anterior în Java. De exemplu, codul de mai sus poate fi rescris astfel:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;class&nbsp;LambdaApp&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Operationable&nbsp;op&nbsp;=&nbsp;new&nbsp;Operationable()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;calculate(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;x&nbsp;+&nbsp;y;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;z&nbsp;=&nbsp;op.calculate(20,&nbsp;10);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(z);&nbsp;//&nbsp;30<br>&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>}<br><br>interface&nbsp;Operationable&nbsp;{<br>&nbsp;&nbsp;&nbsp;int&nbsp;calculate(int&nbsp;x,&nbsp;int&nbsp;y);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Pași pentru a folosi o expresie lambda:</p>
+     <p class="paragraph">1. Definirea unei referințe către o interfață funcțională:</p>
+     <div class="code-inline">
+      <pre><code>Operationable&nbsp;operation;</code></pre>
+     </div>
+     <p class="paragraph">2. Crearea unei expresii lambda:</p>
+     <div class="code-inline">
+      <pre><code>operation&nbsp;=&nbsp;(x,&nbsp;y)&nbsp;-&gt;&nbsp;x&nbsp;+&nbsp;y;</code></pre>
+     </div>
+     <p class="paragraph">Parametrii expresiei lambda corespund parametrilor metodei unice din interfața funcțională, iar rezultatul corespunde tipului de returnare al metodei. Nu este necesară utilizarea cuvântului cheie return pentru a returna un rezultat dintr-o expresie lambda.</p>
+     <p class="paragraph">3. Utilizarea expresiei lambda prin apelarea metodei din interfață:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;result&nbsp;=&nbsp;operation.calculate(10,&nbsp;20);</code></pre>
+     </div>
+     <p class="paragraph">Deoarece în expresia lambda este definită o operație de adunare a parametrilor, rezultatul metodei va fi suma numerelor 10 și 20.</p>
+     <p class="paragraph">Deoarece în expresia lambda este definită o operație de adunare a parametrilor, rezultatul metodei va fi suma numerelor 10 și 20.</p>
+     <p class="paragraph">Pentru aceeași interfață funcțională, putem defini mai multe expresii lambda:</p>
+     <div class="code-inline">
+      <pre><code>Operationable&nbsp;operation1&nbsp;=&nbsp;(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;-&gt;&nbsp;x&nbsp;+&nbsp;y;<br>Operationable&nbsp;operation2&nbsp;=&nbsp;(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;-&gt;&nbsp;x&nbsp;-&nbsp;y;<br>Operationable&nbsp;operation3&nbsp;=&nbsp;(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;-&gt;&nbsp;x&nbsp;*&nbsp;y;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>System.out.println(operation1.calculate(20,&nbsp;10));&nbsp;//&nbsp;30<br>System.out.println(operation2.calculate(20,&nbsp;10));&nbsp;//&nbsp;10<br>System.out.println(operation3.calculate(20,&nbsp;10));&nbsp;//&nbsp;200</code></pre>
+     </div>
+     <h2 class="subtitle">Execuție amânată</h2>
+     <p class="paragraph">Unul dintre aspectele cheie ale utilizării lambdelor este execuția amânată (deferred execution). Astfel, putem defini o expresie lambda într-un loc din program și să o apelăm de câte ori este necesar, în diferite părți ale programului. Execuția amânată poate fi necesară în cazuri precum:</p>
+     <ul class="enumeration">
+      <li>Executarea codului într-un fir de execuție separat</li>
+      <li>Repetarea aceleiași acțiuni de mai multe ori</li>
+      <li>Executarea codului în urma unui eveniment</li>
+      <li>Executarea codului doar atunci când este necesar</li>
+     </ul>
+     <h2 class="subtitle">Transmiterea parametrilor către expresia lambda</h2>
+     <p class="paragraph">Parametrii dintr-o expresie lambda trebuie să corespundă tipului parametrilor din metoda interfeței funcționale. Nu este necesar să specificăm tipul parametrilor în expresia lambda, deși putem face acest lucru:</p>
+     <div class="code-inline">
+      <pre><code>operation&nbsp;=&nbsp;(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;-&gt;&nbsp;x&nbsp;+&nbsp;y;</code></pre>
+     </div>
+     <p class="paragraph">Dacă metoda nu primește niciun parametru, se folosesc paranteze goale:</p>
+     <div class="code-inline">
+      <pre><code>()&nbsp;-&gt;&nbsp;30&nbsp;+&nbsp;20;</code></pre>
+     </div>
+     <p class="paragraph">Dacă metoda primește doar un singur parametru, putem omite parantezele:</p>
+     <div class="code-inline">
+      <pre><code>n&nbsp;-&gt;&nbsp;n&nbsp;*&nbsp;n;</code></pre>
+     </div>
+     <h2 class="subtitle">Lambde terminale</h2>
+     <p class="paragraph">Lambdele pot să nu returneze niciun rezultat. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>interface&nbsp;Printable&nbsp;{<br>&nbsp;&nbsp;&nbsp;void&nbsp;print(String&nbsp;s);<br>}<br><br>public&nbsp;class&nbsp;LambdaApp&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Printable&nbsp;printer&nbsp;=&nbsp;s&nbsp;-&gt;&nbsp;System.out.println(s);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printer.print("Hello&nbsp;Java!");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Lambde și variabile locale</h2>
+     <p class="paragraph">O expresie lambda poate folosi variabile definite într-o arie de vizibilitate mai largă – la nivelul clasei sau al metodei în care este definită lambda. Însă, în funcție de locul unde sunt definite variabilele, modul lor de utilizare în lambde poate varia.</p>
+     <p class="paragraph">Variabile la nivel de clasă:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;class&nbsp;LambdaApp&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;static&nbsp;int&nbsp;x&nbsp;=&nbsp;10;<br>&nbsp;&nbsp;&nbsp;static&nbsp;int&nbsp;y&nbsp;=&nbsp;20;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Operation&nbsp;op&nbsp;=&nbsp;()&nbsp;-&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x&nbsp;=&nbsp;30;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;x&nbsp;+&nbsp;y;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(op.calculate());&nbsp;//&nbsp;50<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(x);&nbsp;//&nbsp;30<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>interface&nbsp;Operation&nbsp;{<br>&nbsp;&nbsp;&nbsp;int&nbsp;calculate();<br>}</code></pre>
+     </div>
+     <p class="paragraph">Variabilele x și y sunt declarate la nivel de clasă și pot fi modificate în expresia lambda.</p>
+     <p class="paragraph">Variabile locale la nivel de metodă:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;int&nbsp;n&nbsp;=&nbsp;70;<br>&nbsp;&nbsp;&nbsp;int&nbsp;m&nbsp;=&nbsp;30;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Operation&nbsp;op&nbsp;=&nbsp;()&nbsp;-&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;n&nbsp;=&nbsp;100;&nbsp;-&nbsp;nu&nbsp;este&nbsp;permis<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;m&nbsp;+&nbsp;n;<br>&nbsp;&nbsp;&nbsp;};<br>&nbsp;&nbsp;&nbsp;//&nbsp;n&nbsp;=&nbsp;100;&nbsp;&nbsp;-&nbsp;de&nbsp;asemenea,&nbsp;nu&nbsp;este&nbsp;permis<br>&nbsp;&nbsp;&nbsp;System.out.println(op.calculate());&nbsp;//&nbsp;100<br>}</code></pre>
+     </div>
+     <p class="paragraph">Variabilele locale la nivelul metodei pot fi utilizate și în expresiile lambda, dar nu pot fi modificate. Dacă încercăm să facem acest lucru, mediul de dezvoltare (Intellij IDEA) poate afișa o eroare și indica faptul că variabila respectivă trebuie marcată cu ajutorul cuvântului cheie final, adică trebuie făcută constantă: final int n=70;.</p>
+     <p class="paragraph">Totuși, acest lucru nu este obligatoriu.</p>
+     <p class="paragraph">Mai mult, nu vom putea modifica valoarea variabilei care este utilizată într-o expresie lambda în afara acesteia. Chiar dacă variabila respectivă nu este declarată ca și constantă, ea devine, în esență, constantă.</p>
+     <h2 class="subtitle">Blocuri de cod în expresiile lambda</h2>
+     <p class="paragraph">Există două tipuri de expresii lambda: expresii pe o singură linie și blocuri de cod. Exemple de expresii pe o singură linie au fost prezentate mai sus. Blocurile de cod sunt delimitate de acolade.</p>
+     <p class="paragraph">În expresiile lambda care conțin blocuri de cod, putem folosi blocuri interne, bucle, structuri if, switch, putem crea variabile etc. Dacă un bloc lambda trebuie să returneze o valoare, se folosește explicit operatorul return:</p>
+     <div class="code-inline">
+      <pre><code>Operationable&nbsp;operation&nbsp;=&nbsp;(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;-&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;if&nbsp;(y&nbsp;==&nbsp;0)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;<br>&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;x&nbsp;/&nbsp;y;<br>};<br><br>System.out.println(operation.calculate(20,&nbsp;10));&nbsp;//&nbsp;2<br>System.out.println(operation.calculate(20,&nbsp;0));&nbsp;&nbsp;//&nbsp;0</code></pre>
+     </div>
+     <h2 class="subtitle">Interfața funcțională generică</h2>
+     <p class="paragraph">O interfață funcțională poate fi generică, însă în expresia lambda nu se permite folosirea generics-urilor. În acest caz, trebuie să tipizăm obiectul interfeței cu un anumit tip, care va fi utilizat apoi în expresia lambda. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;class&nbsp;LambdaApp&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Operationable&lt;Integer&gt;&nbsp;operation1&nbsp;=&nbsp;(x,&nbsp;y)&nbsp;-&gt;&nbsp;x&nbsp;+&nbsp;y;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Operationable&lt;String&gt;&nbsp;operation2&nbsp;=&nbsp;(x,&nbsp;y)&nbsp;-&gt;&nbsp;x&nbsp;+&nbsp;y;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(operation1.calculate(20,&nbsp;10));&nbsp;//&nbsp;30<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(operation2.calculate("20",&nbsp;"10"));&nbsp;//&nbsp;2010<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>interface&nbsp;Operationable&lt;T&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;T&nbsp;calculate(T&nbsp;x,&nbsp;T&nbsp;y);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Astfel, la declararea expresiei lambda, deja se știe ce tip de parametri vor fi utilizați și ce tip va fi returnat.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

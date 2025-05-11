@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='8.Functionalitati suplimentare ale OOP in C-sharp', activeLesson='4.Variabile de tip referinta si returnarea unei referinte'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Variabile de tip referință și returnarea unei referințe</h1>
+     <p class="paragraph">Pe lângă parametrii metodei, care cu ajutorul modificatorului ref permit transmiterea valorii prin referință, C# permite de asemenea folosirea cuvântului cheie ref pentru a returna o referință dintr-o metodă și a defini o variabilă care va stoca o referință.</p>
+     <h2 class="subtitle">Variabilă de tip referință</h2>
+     <p class="paragraph">Pentru a defini o variabilă locală de tip referință (ref local), înainte de tipul ei se adaugă cuvântul cheie ref:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;x&nbsp;=&nbsp;5;<br>ref&nbsp;int&nbsp;xRef&nbsp;=&nbsp;ref&nbsp;x;</code></pre>
+     </div>
+     <p class="paragraph">Aici variabila xRef indică nu doar valoarea variabilei x, ci și zona din memorie unde se află această variabilă. Pentru aceasta, înainte de x se adaugă de asemenea cuvântul ref.</p>
+     <p class="paragraph">Nu putem pur și simplu să definim o variabilă de tip referință, trebuie să îi atribuim neapărat o valoare. Astfel, următorul cod va genera o eroare:</p>
+     <div class="code-inline">
+      <pre><code>ref&nbsp;int&nbsp;xRef;&nbsp;&nbsp;&nbsp;//&nbsp;eroare</code></pre>
+     </div>
+     <p class="paragraph">Obținând o referință, putem manipula valoarea prin această referință. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;x&nbsp;=&nbsp;5;<br>ref&nbsp;int&nbsp;xRef&nbsp;=&nbsp;ref&nbsp;x;<br>Console.WriteLine(x);&nbsp;//&nbsp;5<br>xRef&nbsp;=&nbsp;125;<br>Console.WriteLine(x);&nbsp;//&nbsp;125<br>x&nbsp;=&nbsp;625;<br>Console.WriteLine(xRef);&nbsp;//&nbsp;625</code></pre>
+     </div>
+     <h2 class="subtitle">Referința ca rezultat al unei funcții</h2>
+     <p class="paragraph">Pentru a returna o referință dintr-o funcție, în semnătura funcției, înainte de tipul returnat și după operatorul return, se adaugă cuvântul cheie ref:</p>
+     <div class="code-inline">
+      <pre><code>int[]&nbsp;numbers&nbsp;=&nbsp;{&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5,&nbsp;6,&nbsp;7&nbsp;};<br>ref&nbsp;int&nbsp;numberRef&nbsp;=&nbsp;ref&nbsp;Find(4,&nbsp;numbers);&nbsp;//&nbsp;căutăm&nbsp;numărul&nbsp;4&nbsp;în&nbsp;array<br>numberRef&nbsp;=&nbsp;9;&nbsp;//&nbsp;înlocuim&nbsp;4&nbsp;cu&nbsp;9<br>Console.WriteLine(numbers[3]);&nbsp;//&nbsp;9<br><br>ref&nbsp;int&nbsp;Find(int&nbsp;number,&nbsp;int[]&nbsp;numbers)<br>{<br>&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;numbers.Length;&nbsp;i++)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(numbers[i]&nbsp;==&nbsp;number)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;ref&nbsp;numbers[i];&nbsp;//&nbsp;returnăm&nbsp;referința&nbsp;la&nbsp;adresa,&nbsp;nu&nbsp;valoarea<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;IndexOutOfRangeException("numărul&nbsp;nu&nbsp;a&nbsp;fost&nbsp;găsit");<br>}</code></pre>
+     </div>
+     <p class="paragraph">În metoda Find căutăm un număr în array, dar în loc să returnăm valoarea numărului, returnăm referința la acesta în memorie. Pentru aceasta, în semnătura metodei ca tip de rezultat se specifică nu doar int, ci ref int.</p>
+     <p class="paragraph">În plus, în metoda propriu-zisă, după cuvântul return se adaugă ref:</p>
+     <div class="code-inline">
+      <pre><code>return&nbsp;ref&nbsp;numbers[i];</code></pre>
+     </div>
+     <p class="paragraph">Astfel obținem nu doar valoarea, ci și referința la obiectul din memorie.</p>
+     <p class="paragraph">În metoda Main, pentru a defini o variabilă care va conține referința, se folosește cuvântul cheie ref. La apelul metodei se specifică de asemenea cuvântul ref:</p>
+     <div class="code-inline">
+      <pre><code>ref&nbsp;int&nbsp;numberRef&nbsp;=&nbsp;ref&nbsp;Find(7,&nbsp;numbers);</code></pre>
+     </div>
+     <p class="paragraph">În final, variabila numberRef va conține referința la un obiect de tip int și prin această variabilă putem modifica ulterior obiectul respectiv.</p>
+     <p class="paragraph">Un alt exemplu - returnarea referinței la numărul maxim dintre două numere:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;a&nbsp;=&nbsp;5;<br>int&nbsp;b&nbsp;=&nbsp;8;<br>ref&nbsp;int&nbsp;pointer&nbsp;=&nbsp;ref&nbsp;Max(ref&nbsp;a,&nbsp;ref&nbsp;b);<br>pointer&nbsp;=&nbsp;34;&nbsp;&nbsp;&nbsp;//&nbsp;modificăm&nbsp;valoarea&nbsp;numărului&nbsp;maxim<br>Console.WriteLine($"a:&nbsp;{a}&nbsp;&nbsp;b:&nbsp;{b}");&nbsp;//&nbsp;a:&nbsp;5&nbsp;&nbsp;&nbsp;b:&nbsp;34<br><br>ref&nbsp;int&nbsp;Max(ref&nbsp;int&nbsp;n1,&nbsp;ref&nbsp;int&nbsp;n2)<br>{<br>&nbsp;&nbsp;&nbsp;if&nbsp;(n1&nbsp;&gt;&nbsp;n2)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;ref&nbsp;n1;<br>&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;ref&nbsp;n2;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Este important de remarcat faptul că parametrii metodei în acest caz sunt definiți cu cuvântul cheie ref.</p>
+     <p class="paragraph">La definirea unei metode care returnează o referință, trebuie avut în vedere că o astfel de metodă nu poate avea tipul void. În plus, o astfel de metodă nu poate returna:</p>
+     <ul class="enumeration">
+      <li>Valoarea null</li>
+      <li>O constantă</li>
+      <li>Valoarea unui enum</li>
+      <li>Proprietatea unei clase sau structuri</li>
+      <li>Un câmp doar pentru citire (care are modificatorul read-only)</li>
+     </ul>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

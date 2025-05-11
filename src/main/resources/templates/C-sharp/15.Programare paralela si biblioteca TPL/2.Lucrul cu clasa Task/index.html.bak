@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='15.Programare paralela si biblioteca TPL', activeLesson='2.Lucrul cu clasa Task'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Lucrul cu clasa Task</h1>
+     <h2 class="subtitle">Sarcini imbricate</h2>
+     <p class="paragraph">O sarcină poate lansa o altă sarcină imbricată. Aceste sarcini se execută independent una de cealaltă. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;outer&nbsp;=&nbsp;Task.Factory.StartNew(()&nbsp;=&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;sarcină&nbsp;exterioară<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Outer&nbsp;task&nbsp;starting...");<br>&nbsp;&nbsp;&nbsp;var&nbsp;inner&nbsp;=&nbsp;Task.Factory.StartNew(()&nbsp;=&gt;&nbsp;&nbsp;//&nbsp;sarcină&nbsp;imbricată<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Inner&nbsp;task&nbsp;starting...");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread.Sleep(2000);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Inner&nbsp;task&nbsp;finished.");<br>&nbsp;&nbsp;&nbsp;});<br>});<br>outer.Wait();&nbsp;//&nbsp;așteptăm&nbsp;finalizarea&nbsp;sarcinii&nbsp;exterioare<br>Console.WriteLine("End&nbsp;of&nbsp;Main");</code></pre>
+     </div>
+     <p class="paragraph">Deși aici așteptăm finalizarea sarcinii exterioare, sarcina imbricată poate finaliza execuția chiar și după încheierea metodei Main:</p>
+     <div class="code-inline">
+      <pre><code>Outer&nbsp;task&nbsp;starting...<br>End&nbsp;of&nbsp;Main</code></pre>
+     </div>
+     <p class="paragraph">Sarcina internă poate chiar să nu înceapă execuția până la terminarea thread-ului principal al programului. În acest caz, sarcinile exterioare și imbricate se execută independent una de cealaltă.</p>
+     <p class="paragraph">Dacă este necesar ca sarcina imbricată să se execute ca parte a sarcinii exterioare, trebuie utilizată valoarea TaskCreationOptions.AttachedToParent:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;outer&nbsp;=&nbsp;Task.Factory.StartNew(()&nbsp;=&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;sarcină&nbsp;exterioară<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Outer&nbsp;task&nbsp;starting...");<br>&nbsp;&nbsp;&nbsp;var&nbsp;inner&nbsp;=&nbsp;Task.Factory.StartNew(()&nbsp;=&gt;&nbsp;&nbsp;//&nbsp;sarcină&nbsp;imbricată<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Inner&nbsp;task&nbsp;starting...");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread.Sleep(2000);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Inner&nbsp;task&nbsp;finished.");<br>&nbsp;&nbsp;&nbsp;},&nbsp;TaskCreationOptions.AttachedToParent);<br>});<br>outer.Wait();&nbsp;//&nbsp;așteptăm&nbsp;finalizarea&nbsp;sarcinii&nbsp;exterioare<br>Console.WriteLine("End&nbsp;of&nbsp;Main");</code></pre>
+     </div>
+     <p class="paragraph">Ieșire pe consolă:</p>
+     <div class="code-inline">
+      <pre><code>Outer&nbsp;task&nbsp;starting...<br>Inner&nbsp;task&nbsp;starting...<br>Inner&nbsp;task&nbsp;finished.<br>End&nbsp;of&nbsp;Main</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, sarcina imbricată este atașată sarcinii exterioare și se execută ca parte a acesteia. Sarcina exterioară se va încheia doar atunci când toate sarcinile imbricate atașate se vor încheia.</p>
+     <h2 class="subtitle">Array de sarcini</h2>
+     <p class="paragraph">La fel ca și în cazul thread-urilor, putem crea și lansa un array de sarcini. Putem defini toate sarcinile într-un array direct prin intermediul obiectului Task:</p>
+     <div class="code-inline">
+      <pre><code>Task[]&nbsp;tasks1&nbsp;=&nbsp;new&nbsp;Task[3]<br>{<br>&nbsp;&nbsp;&nbsp;new&nbsp;Task(()&nbsp;=&gt;&nbsp;Console.WriteLine("First&nbsp;Task")),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Task(()&nbsp;=&gt;&nbsp;Console.WriteLine("Second&nbsp;Task")),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Task(()&nbsp;=&gt;&nbsp;Console.WriteLine("Third&nbsp;Task"))<br>};<br><br>//&nbsp;lansăm&nbsp;sarcinile&nbsp;din&nbsp;array<br>foreach&nbsp;(var&nbsp;t&nbsp;in&nbsp;tasks1)<br>&nbsp;&nbsp;&nbsp;t.Start();</code></pre>
+     </div>
+     <p class="paragraph">Sau putem folosi metodele Task.Factory.StartNew sau Task.Run pentru a lansa imediat toate sarcinile:</p>
+     <div class="code-inline">
+      <pre><code>Task[]&nbsp;tasks2&nbsp;=&nbsp;new&nbsp;Task[3];<br>int&nbsp;j&nbsp;=&nbsp;1;<br>for&nbsp;(int&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;tasks2.Length;&nbsp;i++)<br>&nbsp;&nbsp;&nbsp;tasks2[i]&nbsp;=&nbsp;Task.Factory.StartNew(()&nbsp;=&gt;&nbsp;Console.WriteLine($"Task&nbsp;{j++}"));</code></pre>
+     </div>
+     <p class="paragraph">În ambele cazuri, putem întâlni situația în care toate sarcinile din array se pot finaliza după ce metoda Main, care lansează aceste sarcini, își termină execuția:</p>
+     <div class="code-inline">
+      <pre><code>Task[]&nbsp;tasks&nbsp;=&nbsp;new&nbsp;Task[3];<br>for(var&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;tasks.Length;&nbsp;i++)<br>{<br>&nbsp;&nbsp;&nbsp;tasks[i]&nbsp;=&nbsp;new&nbsp;Task(()&nbsp;=&gt;<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread.Sleep(1000);&nbsp;//&nbsp;emulare&nbsp;de&nbsp;lucru&nbsp;îndelungat<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Task{i}&nbsp;finished");<br>&nbsp;&nbsp;&nbsp;});<br>&nbsp;&nbsp;&nbsp;tasks[i].Start();&nbsp;&nbsp;&nbsp;//&nbsp;lansăm&nbsp;sarcina<br>}<br>Console.WriteLine("Finalizarea&nbsp;metodei&nbsp;Main");</code></pre>
+     </div>
+     <p class="paragraph">Posibilă ieșire pe consolă:</p>
+     <div class="code-inline">
+      <pre><code>Finalizarea&nbsp;metodei&nbsp;Main</code></pre>
+     </div>
+     <p class="paragraph">Dacă este necesar ca programul să finalizeze execuția sau să execute un anumit cod doar după ce toate sarcinile din array se finalizează, putem folosi metoda Task.WaitAll(tasks):</p>
+     <div class="code-inline">
+      <pre><code>Task[]&nbsp;tasks&nbsp;=&nbsp;new&nbsp;Task[3];<br>for(var&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;tasks.Length;&nbsp;i++)<br>{<br>&nbsp;&nbsp;&nbsp;tasks[i]&nbsp;=&nbsp;new&nbsp;Task(()&nbsp;=&gt;<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread.Sleep(1000);&nbsp;//&nbsp;emulare&nbsp;de&nbsp;lucru&nbsp;îndelungat<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Task{i}&nbsp;finished");<br>&nbsp;&nbsp;&nbsp;});<br>&nbsp;&nbsp;&nbsp;tasks[i].Start();&nbsp;&nbsp;&nbsp;//&nbsp;lansăm&nbsp;sarcina<br>}<br>Console.WriteLine("Finalizarea&nbsp;metodei&nbsp;Main");<br><br>Task.WaitAll(tasks);&nbsp;//&nbsp;așteptăm&nbsp;finalizarea&nbsp;tuturor&nbsp;sarcinilor</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, mai întâi se vor finaliza toate sarcinile, și abia după aceea se va executa codul ulterior din metoda Main:</p>
+     <div class="code-inline">
+      <pre><code>Finalizarea&nbsp;metodei&nbsp;Main<br>Task0&nbsp;finished<br>Task1&nbsp;finished<br>Task2&nbsp;finished</code></pre>
+     </div>
+     <p class="paragraph">Totuși, ordinea de execuție a sarcinilor din array nu este deterministă.</p>
+     <p class="paragraph">De asemenea, putem folosi metoda Task.WaitAny(tasks). Aceasta așteaptă finalizarea oricărei sarcini din array.</p>
+     <h2 class="subtitle">Returnarea rezultatelor din sarcini</h2>
+     <p class="paragraph">Sarcinile nu doar se execută ca proceduri, ci pot returna și anumite rezultate:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;n1&nbsp;=&nbsp;4,&nbsp;n2&nbsp;=&nbsp;5;<br>Task&lt;int&gt;&nbsp;sumTask&nbsp;=&nbsp;new&nbsp;Task&lt;int&gt;(()&nbsp;=&gt;&nbsp;Sum(n1,&nbsp;n2));<br>sumTask.Start();<br><br>int&nbsp;result&nbsp;=&nbsp;sumTask.Result;<br>Console.WriteLine($"{n1}&nbsp;+&nbsp;{n2}&nbsp;=&nbsp;{result}");&nbsp;//&nbsp;4&nbsp;+&nbsp;5&nbsp;=&nbsp;9<br><br>int&nbsp;Sum(int&nbsp;a,&nbsp;int&nbsp;b)&nbsp;=&gt;&nbsp;a&nbsp;+&nbsp;b;</code></pre>
+     </div>
+     <p class="paragraph">În primul rând, pentru a obține un rezultat dintr-o sarcină, trebuie să tipizăm obiectul Task cu tipul obiectului pe care dorim să-l obținem din sarcină. De exemplu, în exemplul de mai sus, așteptăm să obținem un număr de tip int din sarcina sumTask, astfel că tipizăm obiectul Task cu acest tip - Task&lt;int&gt;.</p>
+     <p class="paragraph">În al doilea rând, sarcina trebuie să execute o metodă care returnează acest tip de obiect. În acest caz, sarcina execută metoda Sum, care primește două numere și returnează suma lor - o valoare de tip int.</p>
+     <p class="paragraph">Rezultatul returnat va fi stocat în proprietatea Result: sumTask.Result. Nu trebuie să-l convertim la tipul int, deoarece va reprezenta deja un număr.</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;result&nbsp;=&nbsp;sumTask.Result;</code></pre>
+     </div>
+     <p class="paragraph">Atunci când accesăm proprietatea Result, thread-ul curent își oprește execuția și așteaptă obținerea rezultatului din sarcina executată.</p>
+     <p class="paragraph">Un alt exemplu:</p>
+     <div class="code-inline">
+      <pre><code>Task&lt;Person&gt;&nbsp;defaultPersonTask&nbsp;=&nbsp;new&nbsp;Task&lt;Person&gt;(()&nbsp;=&gt;&nbsp;new&nbsp;Person("Tom",&nbsp;37));<br>defaultPersonTask.Start();<br><br>Person&nbsp;defaultPerson&nbsp;=&nbsp;defaultPersonTask.Result;<br>Console.WriteLine($"{defaultPerson.Name}&nbsp;-&nbsp;{defaultPerson.Age}");&nbsp;//&nbsp;Tom&nbsp;-&nbsp;37<br><br>record&nbsp;class&nbsp;Person(string&nbsp;Name,&nbsp;int&nbsp;Age);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, sarcina defaultPersonTask returnează un obiect de tip Person, pe care îl putem obține din proprietatea Result.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

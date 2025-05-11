@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='9.Pattern matching', activeLesson='2.Pattern pentru proprietati'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Pattern pentru proprietăți</h1>
+     <p class="paragraph">Pattern pentru proprietăți permite compararea cu valorile anumitor proprietăți ale unui obiect. De exemplu, să presupunem că avem următoarea clasă:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}&nbsp;=&nbsp;"";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;numele&nbsp;utilizatorului<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Status&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}&nbsp;=&nbsp;"";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;statutul&nbsp;utilizatorului<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Language&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}&nbsp;=&nbsp;"";&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;limba&nbsp;utilizatorului<br>}</code></pre>
+     </div>
+     <p class="paragraph">De exemplu, în funcție de limba utilizatorului, vom afișa un mesaj specific folosind pattern pentru proprietăți:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person&nbsp;{&nbsp;Language&nbsp;=&nbsp;"english",&nbsp;Status&nbsp;=&nbsp;"user",&nbsp;Name&nbsp;=&nbsp;"Tom"&nbsp;};<br>Person&nbsp;pierre&nbsp;=&nbsp;new&nbsp;Person&nbsp;{&nbsp;Language&nbsp;=&nbsp;"french",&nbsp;Status&nbsp;=&nbsp;"user",&nbsp;Name&nbsp;=&nbsp;"Pierre"&nbsp;};<br><br>SayHello(tom);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Hello<br>SayHello(pierre);&nbsp;&nbsp;&nbsp;//&nbsp;Salut<br><br>void&nbsp;SayHello(Person&nbsp;person)<br>{<br>&nbsp;&nbsp;&nbsp;if&nbsp;(person&nbsp;is&nbsp;Person&nbsp;{&nbsp;Language:&nbsp;"french"&nbsp;})<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Salut");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Hello");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici, metoda SayHello primește ca parametru un obiect de tip Person și îl compară cu un anumit pattern. Patternul este reprezentat de expresia Person { Language: "french" }. Adică, parametrul person trebuie să fie un obiect de tip Person al cărui proprietate Language este egală cu "french".</p>
+     <p class="paragraph">Putem folosi și un set de proprietăți. De exemplu, adăugăm verificarea pentru proprietatea Status:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person&nbsp;{&nbsp;Language&nbsp;=&nbsp;"english",&nbsp;Status&nbsp;=&nbsp;"user",&nbsp;Name&nbsp;=&nbsp;"Tom"&nbsp;};<br>Person&nbsp;pierre&nbsp;=&nbsp;new&nbsp;Person&nbsp;{&nbsp;Language&nbsp;=&nbsp;"french",&nbsp;Status&nbsp;=&nbsp;"user",&nbsp;Name&nbsp;=&nbsp;"Pierre"&nbsp;};<br>Person&nbsp;admin&nbsp;=&nbsp;new&nbsp;Person&nbsp;{&nbsp;Language&nbsp;=&nbsp;"english",&nbsp;Status&nbsp;=&nbsp;"admin",&nbsp;Name&nbsp;=&nbsp;"Admin"&nbsp;};<br><br>SayHello(admin);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Hello,&nbsp;admin<br>SayHello(tom);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Hello<br>SayHello(pierre);&nbsp;&nbsp;&nbsp;//&nbsp;Salut<br><br>void&nbsp;SayHello(Person&nbsp;person)<br>{<br>&nbsp;&nbsp;&nbsp;if&nbsp;(person&nbsp;is&nbsp;Person&nbsp;{&nbsp;Language:&nbsp;"english",&nbsp;Status:&nbsp;"admin"&nbsp;})<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Hello,&nbsp;admin");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else&nbsp;if&nbsp;(person&nbsp;is&nbsp;Person&nbsp;{&nbsp;Language:&nbsp;"french"&nbsp;})<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Salut");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Hello");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Acum, expresia if verifică dacă parametrul person este un obiect de tip Person al cărui proprietăți Language și Status au anumite valori.</p>
+     <p class="paragraph">De asemenea, putem folosi pattern matching pentru proprietăți în construcția switch:</p>
+     <div class="code-inline">
+      <pre><code>string&nbsp;GetMessage(Person?&nbsp;p)&nbsp;=&gt;&nbsp;p&nbsp;switch<br>{<br>&nbsp;&nbsp;&nbsp;{&nbsp;Language:&nbsp;"english"&nbsp;}&nbsp;=&gt;&nbsp;"Hello!",<br>&nbsp;&nbsp;&nbsp;{&nbsp;Language:&nbsp;"german",&nbsp;Status:&nbsp;"admin"&nbsp;}&nbsp;=&gt;&nbsp;"Hallo,&nbsp;admin!",<br>&nbsp;&nbsp;&nbsp;{&nbsp;Language:&nbsp;"french"&nbsp;}&nbsp;=&gt;&nbsp;"Salut!",<br>&nbsp;&nbsp;&nbsp;{&nbsp;}&nbsp;=&gt;&nbsp;"undefined",<br>&nbsp;&nbsp;&nbsp;null&nbsp;=&gt;&nbsp;"null"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;Person&nbsp;p&nbsp;=&nbsp;null<br>};</code></pre>
+     </div>
+     <p class="paragraph">Patternurile pentru proprietăți presupun folosirea acoladelor, în interiorul cărora sunt specificate proprietățile și valorile acestora: { proprietate: valoare }. Proprietățile obiectului transmis sunt comparate cu valorile din acolade.</p>
+     <p class="paragraph">Putem specifica mai multe proprietăți și valori în acolade: { Language: "german", Status: "admin" }, iar proprietățile obiectului transmis trebuie să corespundă tuturor acestor valori.</p>
+     <p class="paragraph">Putem lăsa acoladele goale, cum este cazul { } =&gt; "undefined" - obiectul transmis va corespunde acoladelor goale dacă nu corespunde nici unei valori anterioare sau dacă proprietățile sale nu sunt specificate sau au valoarea null.</p>
+     <p class="paragraph">Aplicare:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;pierre&nbsp;=&nbsp;new&nbsp;Person&nbsp;{&nbsp;Language&nbsp;=&nbsp;"french",&nbsp;Status&nbsp;=&nbsp;"user",&nbsp;Name&nbsp;=&nbsp;"Pierre"&nbsp;};<br>string&nbsp;message&nbsp;=&nbsp;GetMessage(pierre);<br>Console.WriteLine(message);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Salut!<br><br>Person&nbsp;tomas&nbsp;=&nbsp;new&nbsp;Person&nbsp;{&nbsp;Language&nbsp;=&nbsp;"german",&nbsp;Status&nbsp;=&nbsp;"admin",&nbsp;Name&nbsp;=&nbsp;"Tomas"&nbsp;};<br>Console.WriteLine(GetMessage(tomas));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Hallo,&nbsp;admin!<br><br>Person&nbsp;pablo&nbsp;=&nbsp;new&nbsp;Person&nbsp;{&nbsp;Language&nbsp;=&nbsp;"spanish",&nbsp;Status&nbsp;=&nbsp;"user",&nbsp;Name&nbsp;=&nbsp;"Pablo"&nbsp;};<br>Console.WriteLine(GetMessage(pablo));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;undefined<br><br>Console.WriteLine(GetMessage(null));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;null</code></pre>
+     </div>
+     <p class="paragraph">În plus, putem defini variabile în pattern-urile pentru proprietăți, să le atribuim valori din obiect și să le folosim la returnarea valorii:</p>
+     <div class="code-inline">
+      <pre><code>string&nbsp;GetMessage(Person?&nbsp;p)&nbsp;=&gt;&nbsp;p&nbsp;switch<br>{<br>&nbsp;&nbsp;&nbsp;{&nbsp;Language:&nbsp;"german",&nbsp;Status:&nbsp;"admin"&nbsp;}&nbsp;=&gt;&nbsp;"Hallo,&nbsp;admin!",<br>&nbsp;&nbsp;&nbsp;{&nbsp;Language:&nbsp;"french",&nbsp;Name:&nbsp;var&nbsp;name&nbsp;}&nbsp;=&gt;&nbsp;$"Salut,&nbsp;{name}!",<br>&nbsp;&nbsp;&nbsp;{&nbsp;Language:&nbsp;var&nbsp;lang&nbsp;}&nbsp;=&gt;&nbsp;$"Unknown&nbsp;language:&nbsp;{lang}",<br>&nbsp;&nbsp;&nbsp;null&nbsp;=&gt;&nbsp;"null"<br>};</code></pre>
+     </div>
+     <p class="paragraph">Astfel, sub-expresia Name: var name spune că trebuie să atribuim variabilei name valoarea proprietății Name. Apoi, o putem folosi la generarea valorii de ieșire: =&gt; $"Salut, {name}!"</p>
+     <p class="paragraph">Aplicare:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;pierre&nbsp;=&nbsp;new&nbsp;Person&nbsp;{&nbsp;Language&nbsp;=&nbsp;"french",&nbsp;Status&nbsp;=&nbsp;"user",&nbsp;Name&nbsp;=&nbsp;"Pierre"&nbsp;};<br>string&nbsp;message&nbsp;=&nbsp;GetMessage(pierre);<br>Console.WriteLine(message);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Salut,&nbsp;Pierre!<br><br>Person&nbsp;tomas&nbsp;=&nbsp;new&nbsp;Person&nbsp;{&nbsp;Language&nbsp;=&nbsp;"german",&nbsp;Status&nbsp;=&nbsp;"admin",&nbsp;Name&nbsp;=&nbsp;"Tomas"&nbsp;};<br>Console.WriteLine(GetMessage(tomas));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Hallo,&nbsp;admin!<br><br>Person&nbsp;pablo&nbsp;=&nbsp;new&nbsp;Person&nbsp;{&nbsp;Language&nbsp;=&nbsp;"spanish",&nbsp;Status&nbsp;=&nbsp;"user",&nbsp;Name&nbsp;=&nbsp;"Pablo"&nbsp;};<br>Console.WriteLine(GetMessage(pablo));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Unknown&nbsp;language:&nbsp;spanish<br><br>Person?&nbsp;bob&nbsp;=&nbsp;null;<br>Console.WriteLine(GetMessage(bob));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;null</code></pre>
+     </div>
+     <p class="paragraph">Începând cu versiunea C# 10, a fost simplificată potrivirea cu proprietățile obiectelor imbricate. Să presupunem că avem următoarele clase:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Employee<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Company&nbsp;Company&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Employee(string&nbsp;name,&nbsp;Company&nbsp;company)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Company&nbsp;=&nbsp;company;<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;Company<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Title&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Company(string&nbsp;title)&nbsp;=&gt;&nbsp;Title&nbsp;=&nbsp;title;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Clasa Company definește proprietatea Title, care stochează denumirea companiei. Clasa Employee definește un angajat al companiei și stochează compania în proprietatea Company. Aplicăm pattern matching pentru proprietăți pe baza proprietăților obiectului imbricat Company:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;microsoft&nbsp;=&nbsp;new&nbsp;Company("Microsoft");<br>var&nbsp;google&nbsp;=&nbsp;new&nbsp;Company("Google");<br>var&nbsp;tom&nbsp;=&nbsp;new&nbsp;Employee("Tom",&nbsp;microsoft);<br>var&nbsp;bob&nbsp;=&nbsp;new&nbsp;Employee("Bob",&nbsp;google);<br><br>PrintCompany(tom);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Tom&nbsp;works&nbsp;in&nbsp;Microsoft<br>PrintCompany(bob);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Bob&nbsp;works&nbsp;somewhere<br><br>void&nbsp;PrintCompany(Employee&nbsp;employee)<br>{<br>&nbsp;&nbsp;&nbsp;if&nbsp;(employee&nbsp;is&nbsp;Employee&nbsp;{&nbsp;Company:&nbsp;{&nbsp;Title:&nbsp;"Microsoft"&nbsp;}&nbsp;})<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"{employee.Name}&nbsp;works&nbsp;in&nbsp;Microsoft");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"{employee.Name}&nbsp;works&nbsp;somewhere");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În metoda PrintCompany, obiectul employee este comparat cu patternul Employee { Company: { Title: "Microsoft" } }. Adică, angajatul trebuie să fie un obiect Employee al cărui companie are titlul "Microsoft".</p>
+     <p class="paragraph">Putem simplifica acest pattern astfel:</p>
+     <div class="code-inline">
+      <pre><code>void&nbsp;PrintCompany(Employee&nbsp;employee)<br>{<br>&nbsp;&nbsp;&nbsp;if&nbsp;(employee&nbsp;is&nbsp;Employee&nbsp;{&nbsp;Company.Title:&nbsp;"Microsoft"&nbsp;})<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"{employee.Name}&nbsp;works&nbsp;in&nbsp;Microsoft");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"{employee.Name}&nbsp;works&nbsp;somewhere");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

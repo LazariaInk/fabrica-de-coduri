@@ -1,189 +1,179 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='4.Programarea orientata pe obiect (OOP)', activeLesson='8.Extinderea obiectelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Extinderea obiectelor - Prototipuri</h1>
- <p class="paragraph">JavaScript este un limbaj bazat pe prototipuri, ceea ce înseamnă că nu cunoaște nicio clasă reală - cel puțin, nu în sensul tradițional. În schimb, totul în JavaScript este bazat pe obiecte. Aproape fiecare obiect în JavaScript se bazează pe un prototip.</p>
- <p class="paragraph">Excepțiile, cum ar fi tipul Object (baza tuturor obiectelor) sau obiectele ale căror prototipuri sunt explicit setate la null, nu au prototip. Fiecare obiect poate servi și ca șablon, adică prototip, pentru alt obiect. În acest caz, noul obiect moștenește proprietățile și metodele prototipului.</p>
- <p class="paragraph">Prototipul unui obiect este stocat în proprietatea __proto__, implementată ca pseudonim pentru proprietățile interne [[Prototype]]. De asemenea, se poate obține prototipul unui obiect folosind metoda getPrototypeOf(). De exemplu:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;tom&nbsp;=&nbsp;{name:&nbsp;"Tom",&nbsp;age:&nbsp;39};<br><br>//&nbsp;obținem&nbsp;prototipul<br>console.log(tom.__proto__);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Object<br>console.log(Object.getPrototypeOf(tom));&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Object</code></pre>
- </div>
- <p class="paragraph">În ambele cazuri, vom obține același rezultat, sub forma definiției tipului Object.</p>
- <div class="code-inline">
-  <pre><code>Object<br>&nbsp;&nbsp;&nbsp;&nbsp;constructor:&nbsp;ƒ&nbsp;Object()<br>&nbsp;&nbsp;&nbsp;&nbsp;hasOwnProperty:&nbsp;ƒ&nbsp;hasOwnProperty()<br>&nbsp;&nbsp;&nbsp;&nbsp;isPrototypeOf:&nbsp;f&nbsp;isPrototypeOf()<br>&nbsp;&nbsp;&nbsp;&nbsp;propertyIsEnumerable:&nbsp;f&nbsp;propertyIsEnumerable()<br>&nbsp;&nbsp;&nbsp;&nbsp;toLocaleString:&nbsp;f&nbsp;toLocaleString()<br>&nbsp;&nbsp;&nbsp;&nbsp;toString:&nbsp;f&nbsp;toString()<br>&nbsp;&nbsp;&nbsp;&nbsp;valueOf:&nbsp;f&nbsp;valueOf()<br>&nbsp;&nbsp;&nbsp;&nbsp;__defineGetter__:&nbsp;f&nbsp;__defineGetter__()<br>&nbsp;&nbsp;&nbsp;&nbsp;__defineSetter__:&nbsp;f&nbsp;__defineSetter__()<br>&nbsp;&nbsp;&nbsp;&nbsp;__lookupGetter__:&nbsp;f&nbsp;__lookupGetter__()<br>&nbsp;&nbsp;&nbsp;&nbsp;__lookupSetter__:&nbsp;f&nbsp;__lookupSetter__()<br>&nbsp;&nbsp;&nbsp;&nbsp;__proto__:&nbsp;null<br>&nbsp;&nbsp;&nbsp;&nbsp;get&nbsp;__proto__:&nbsp;f&nbsp;__proto__()<br>&nbsp;&nbsp;&nbsp;&nbsp;set&nbsp;__proto__:&nbsp;f&nbsp;__proto__(</code></pre>
- </div>
- <h2 class="subtitle">Prototipul Funcțiilor Constructor</h2>
- <p class="paragraph">În tema anterioară am discutat despre funcțiile constructor, cunoscute și sub numele de constructori de obiecte, care permit definirea unui tip de obiect și crearea de instanțe ale acestui tip de obiect.</p>
- <p class="paragraph">Fiecare astfel de funcție constructor definește propriul său prototip, care servește ca bază pentru obiectele create. Acest prototip poate fi, de asemenea, obținut folosind proprietatea prototype. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;Person(name,&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;this.print&nbsp;=&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;};<br>}<br><br>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;39);<br><br>//primim&nbsp;prototipul<br>console.log(Person.prototype);<br>console.log(tom.__proto__);<br>console.log(Object.getPrototypeOf(tom));</code></pre>
- </div>
- <p class="paragraph">Aici obținem prototipul funcției constructor pentru Person. Toate cele trei modalități de obținere a prototipului sunt echivalente, iar la afișarea în consolă în toate cele trei cazuri vom vedea ceva similar:</p>
- <p class="paragraph">{constructor: ƒ} constructor : ƒ Person(name, age) [[Prototype]] : Object</p>
- <h2 class="subtitle">Constructorul și prototipul</h2>
- <p class="paragraph">Este important să facem distincția între constructor și prototip. Prototipul este, în esență, un plan al obiectului, care poate consta din diverse părți - metode și variabile, în timp ce constructorul în sine reprezintă doar o parte a prototipului. De exemplu, să luăm funcția Person definită mai sus:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;Person(name,&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;this.print&nbsp;=&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;};<br>}<br>console.log(Person.prototype);</code></pre>
- </div>
- <p class="paragraph">Afișaj în consolă:</p>
- <div class="code-inline">
-  <pre><code>{constructor:&nbsp;ƒ}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constructor:&nbsp;ƒ&nbsp;Person(name,&nbsp;age)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[[Prototype]]:&nbsp;Object</code></pre>
- </div>
- <p class="paragraph">Schematic, putem reprezenta prototipul astfel:</p>
- <div class="image-container">
-  <img src="images/image1.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">În realitate, prototipul funcției constructor pentru Person constă doar din constructor (în care implicit sunt incluse și metodele moștenite de la tipul Object, cum ar fi toString()). Putem obține acest constructor folosind proprietatea constructor:</p>
- <div class="code-inline">
-  <pre><code>console.log(Person.prototype.constructor);</code></pre>
- </div>
- <p class="paragraph">Consola ar trebui să afișeze ceva similar cu:</p>
- <div class="code-inline">
-  <pre><code>ƒ&nbsp;Person(name,&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.print&nbsp;=&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age});<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};</code></pre>
- </div>
- <p class="paragraph">Deoarece proprietatea constructor face parte din prototip, puteți să o accesați și prin intermediul numelui obiectului:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;39);<br>console.log(tom.constructor);</code></pre>
- </div>
- <p class="paragraph">Acum vom elimina metoda print() din constructor și o vom defini ca parte a prototipului:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;Person&nbsp;(name,&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>}<br><br>//&nbsp;funcția&nbsp;print&nbsp;este&nbsp;definită&nbsp;ca&nbsp;parte&nbsp;a&nbsp;prototipului<br>Person.prototype.print&nbsp;=&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>};<br><br>console.log(Person.prototype);</code></pre>
- </div>
- <p class="paragraph">Afișajul în consolă al browser-ului:</p>
- <div class="code-inline">
-  <pre><code>{print:&nbsp;ƒ,&nbsp;constructor:&nbsp;ƒ}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print:&nbsp;ƒ&nbsp;()<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constructor:&nbsp;ƒ&nbsp;Person(name,&nbsp;age)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[[Prototype]]:&nbsp;Object</code></pre>
- </div>
- <p class="paragraph">Acum, prototipul constă din funcția print și constructor:</p>
- <div class="image-container">
-  <img src="images/image2.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Indiferent de modul în care definim metodele și proprietățile - în interiorul constructorului sau ca parte a prototipului, le putem utiliza în același mod pentru obiectele de acest tip:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;Person(name,&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;this.print&nbsp;=&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;};<br>}<br><br>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;39);<br>const&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person("Bob",&nbsp;43);<br><br>//&nbsp;modificăm&nbsp;prototipul<br>Person.prototype.sayHello&nbsp;=&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;console.log(this.name,&nbsp;"says:&nbsp;Hello");<br>};<br><br>tom.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;Age:&nbsp;39<br>tom.sayHello();&nbsp;//&nbsp;Tom&nbsp;says:&nbsp;Hello<br>bob.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Bob&nbsp;&nbsp;Age:&nbsp;43<br>bob.sayHello();&nbsp;//&nbsp;Bob&nbsp;says:&nbsp;Hello</code></pre>
- </div>
- <p class="paragraph">În acest caz, putem defini aceleași proprietăți și metode atât în interiorul constructorului, cât și ca parte a prototipului:</p>
- <div class="code-inline">
-  <pre><code>//&nbsp;constructorul&nbsp;pentru&nbsp;utilizatori<br>function&nbsp;Person&nbsp;(name,&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;this.print&nbsp;=&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`[Constructor]&nbsp;Nume:&nbsp;${this.name}&nbsp;&nbsp;Vârstă:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;};<br>}<br><br>Person.prototype.print&nbsp;=&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;console.log(`[Prototip]&nbsp;Nume:&nbsp;${this.name}&nbsp;&nbsp;Vârstă:&nbsp;${this.age}`);<br>};<br><br>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;39);<br>const&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person("Bob",&nbsp;43);<br>tom.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[Constructor]&nbsp;Nume:&nbsp;Tom&nbsp;&nbsp;Vârstă:&nbsp;39<br>bob.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[Constructor]&nbsp;Nume:&nbsp;Bob&nbsp;&nbsp;Vârstă:&nbsp;43</code></pre>
- </div>
- <p class="paragraph">În acest caz, metodele definite în interiorul constructorului vor ascunde metodele cu același nume din prototip.</p>
- <h2 class="subtitle">Definirea proprietăților prototipului</h2>
- <p class="paragraph">În mod similar, se pot adăuga și proprietăți. De exemplu, să adăugăm proprietatea company, care reprezintă compania:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;39);<br>const&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person("Bob",&nbsp;43);<br><br>//&nbsp;adăugăm&nbsp;în&nbsp;prototipul&nbsp;proprietatea&nbsp;company<br>Person.prototype.company&nbsp;=&nbsp;"SuperCorp";<br>console.log(tom.company);&nbsp;&nbsp;&nbsp;//&nbsp;SuperCorp<br>console.log(bob.company);&nbsp;&nbsp;&nbsp;//&nbsp;SuperCorp</code></pre>
- </div>
- <p class="paragraph">Este important să observăm că valoarea proprietății company va fi aceeași pentru toate obiectele, fiind o proprietate statică partajată. Spre deosebire, de exemplu, de proprietatea this.name, care stochează o valoare specifică pentru un anumit obiect.</p>
- <p class="paragraph">Totodată, putem defini într-un obiect o proprietate care să aibă același nume cu o proprietate a prototipului. În acest caz, proprietatea specifică obiectului va avea prioritate față de proprietatea prototipului:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;39);<br>const&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person("Bob",&nbsp;43);<br><br>Person.prototype.company&nbsp;=&nbsp;"SuperCorp";<br>bob.company&nbsp;=&nbsp;"MegaCorp";&nbsp;&nbsp;&nbsp;//&nbsp;definim&nbsp;proprietatea&nbsp;cu&nbsp;același&nbsp;nume&nbsp;la&nbsp;nivelul&nbsp;unui&nbsp;obiect<br>console.log(bob.company);&nbsp;&nbsp;&nbsp;//&nbsp;MegaCorp&nbsp;-&nbsp;ia&nbsp;proprietatea&nbsp;din&nbsp;obiectul&nbsp;bob<br>console.log(tom.company);&nbsp;&nbsp;&nbsp;//&nbsp;SuperCorp&nbsp;-&nbsp;ia&nbsp;proprietatea&nbsp;din&nbsp;prototipul&nbsp;Person</code></pre>
- </div>
- <p class="paragraph">La accesarea proprietății company, JavaScript caută mai întâi această proprietate printre proprietățile obiectului, iar dacă nu este găsită, atunci se referă la proprietățile prototipului. Același principiu se aplică și la metode.</p>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Extinderea obiectelor - Prototipuri</h1>
+     <p class="paragraph">JavaScript este un limbaj bazat pe prototipuri, ceea ce înseamnă că nu cunoaște nicio clasă reală - cel puțin, nu în sensul tradițional. În schimb, totul în JavaScript este bazat pe obiecte. Aproape fiecare obiect în JavaScript se bazează pe un prototip.</p>
+     <p class="paragraph">Excepțiile, cum ar fi tipul Object (baza tuturor obiectelor) sau obiectele ale căror prototipuri sunt explicit setate la null, nu au prototip. Fiecare obiect poate servi și ca șablon, adică prototip, pentru alt obiect. În acest caz, noul obiect moștenește proprietățile și metodele prototipului.</p>
+     <p class="paragraph">Prototipul unui obiect este stocat în proprietatea __proto__, implementată ca pseudonim pentru proprietățile interne [[Prototype]]. De asemenea, se poate obține prototipul unui obiect folosind metoda getPrototypeOf(). De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;tom&nbsp;=&nbsp;{name:&nbsp;"Tom",&nbsp;age:&nbsp;39};<br><br>//&nbsp;obținem&nbsp;prototipul<br>console.log(tom.__proto__);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Object<br>console.log(Object.getPrototypeOf(tom));&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Object</code></pre>
+     </div>
+     <p class="paragraph">În ambele cazuri, vom obține același rezultat, sub forma definiției tipului Object.</p>
+     <div class="code-inline">
+      <pre><code>Object<br>&nbsp;&nbsp;&nbsp;&nbsp;constructor:&nbsp;ƒ&nbsp;Object()<br>&nbsp;&nbsp;&nbsp;&nbsp;hasOwnProperty:&nbsp;ƒ&nbsp;hasOwnProperty()<br>&nbsp;&nbsp;&nbsp;&nbsp;isPrototypeOf:&nbsp;f&nbsp;isPrototypeOf()<br>&nbsp;&nbsp;&nbsp;&nbsp;propertyIsEnumerable:&nbsp;f&nbsp;propertyIsEnumerable()<br>&nbsp;&nbsp;&nbsp;&nbsp;toLocaleString:&nbsp;f&nbsp;toLocaleString()<br>&nbsp;&nbsp;&nbsp;&nbsp;toString:&nbsp;f&nbsp;toString()<br>&nbsp;&nbsp;&nbsp;&nbsp;valueOf:&nbsp;f&nbsp;valueOf()<br>&nbsp;&nbsp;&nbsp;&nbsp;__defineGetter__:&nbsp;f&nbsp;__defineGetter__()<br>&nbsp;&nbsp;&nbsp;&nbsp;__defineSetter__:&nbsp;f&nbsp;__defineSetter__()<br>&nbsp;&nbsp;&nbsp;&nbsp;__lookupGetter__:&nbsp;f&nbsp;__lookupGetter__()<br>&nbsp;&nbsp;&nbsp;&nbsp;__lookupSetter__:&nbsp;f&nbsp;__lookupSetter__()<br>&nbsp;&nbsp;&nbsp;&nbsp;__proto__:&nbsp;null<br>&nbsp;&nbsp;&nbsp;&nbsp;get&nbsp;__proto__:&nbsp;f&nbsp;__proto__()<br>&nbsp;&nbsp;&nbsp;&nbsp;set&nbsp;__proto__:&nbsp;f&nbsp;__proto__(</code></pre>
+     </div>
+     <h2 class="subtitle">Prototipul Funcțiilor Constructor</h2>
+     <p class="paragraph">În tema anterioară am discutat despre funcțiile constructor, cunoscute și sub numele de constructori de obiecte, care permit definirea unui tip de obiect și crearea de instanțe ale acestui tip de obiect.</p>
+     <p class="paragraph">Fiecare astfel de funcție constructor definește propriul său prototip, care servește ca bază pentru obiectele create. Acest prototip poate fi, de asemenea, obținut folosind proprietatea prototype. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;Person(name,&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;this.print&nbsp;=&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;};<br>}<br><br>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;39);<br><br>//primim&nbsp;prototipul<br>console.log(Person.prototype);<br>console.log(tom.__proto__);<br>console.log(Object.getPrototypeOf(tom));</code></pre>
+     </div>
+     <p class="paragraph">Aici obținem prototipul funcției constructor pentru Person. Toate cele trei modalități de obținere a prototipului sunt echivalente, iar la afișarea în consolă în toate cele trei cazuri vom vedea ceva similar:</p>
+     <p class="paragraph">{constructor: ƒ} constructor : ƒ Person(name, age) [[Prototype]] : Object</p>
+     <h2 class="subtitle">Constructorul și prototipul</h2>
+     <p class="paragraph">Este important să facem distincția între constructor și prototip. Prototipul este, în esență, un plan al obiectului, care poate consta din diverse părți - metode și variabile, în timp ce constructorul în sine reprezintă doar o parte a prototipului. De exemplu, să luăm funcția Person definită mai sus:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;Person(name,&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;this.print&nbsp;=&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;};<br>}<br>console.log(Person.prototype);</code></pre>
+     </div>
+     <p class="paragraph">Afișaj în consolă:</p>
+     <div class="code-inline">
+      <pre><code>{constructor:&nbsp;ƒ}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constructor:&nbsp;ƒ&nbsp;Person(name,&nbsp;age)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[[Prototype]]:&nbsp;Object</code></pre>
+     </div>
+     <p class="paragraph">Schematic, putem reprezenta prototipul astfel:</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/4.Programarea%20orientata%20pe%20obiect%20(OOP)/8.Extinderea%20obiectelor/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">În realitate, prototipul funcției constructor pentru Person constă doar din constructor (în care implicit sunt incluse și metodele moștenite de la tipul Object, cum ar fi toString()). Putem obține acest constructor folosind proprietatea constructor:</p>
+     <div class="code-inline">
+      <pre><code>console.log(Person.prototype.constructor);</code></pre>
+     </div>
+     <p class="paragraph">Consola ar trebui să afișeze ceva similar cu:</p>
+     <div class="code-inline">
+      <pre><code>ƒ&nbsp;Person(name,&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.print&nbsp;=&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age});<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};</code></pre>
+     </div>
+     <p class="paragraph">Deoarece proprietatea constructor face parte din prototip, puteți să o accesați și prin intermediul numelui obiectului:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;39);<br>console.log(tom.constructor);</code></pre>
+     </div>
+     <p class="paragraph">Acum vom elimina metoda print() din constructor și o vom defini ca parte a prototipului:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;Person&nbsp;(name,&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>}<br><br>//&nbsp;funcția&nbsp;print&nbsp;este&nbsp;definită&nbsp;ca&nbsp;parte&nbsp;a&nbsp;prototipului<br>Person.prototype.print&nbsp;=&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>};<br><br>console.log(Person.prototype);</code></pre>
+     </div>
+     <p class="paragraph">Afișajul în consolă al browser-ului:</p>
+     <div class="code-inline">
+      <pre><code>{print:&nbsp;ƒ,&nbsp;constructor:&nbsp;ƒ}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print:&nbsp;ƒ&nbsp;()<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constructor:&nbsp;ƒ&nbsp;Person(name,&nbsp;age)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[[Prototype]]:&nbsp;Object</code></pre>
+     </div>
+     <p class="paragraph">Acum, prototipul constă din funcția print și constructor:</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/4.Programarea%20orientata%20pe%20obiect%20(OOP)/8.Extinderea%20obiectelor/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Indiferent de modul în care definim metodele și proprietățile - în interiorul constructorului sau ca parte a prototipului, le putem utiliza în același mod pentru obiectele de acest tip:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;Person(name,&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;this.print&nbsp;=&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;};<br>}<br><br>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;39);<br>const&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person("Bob",&nbsp;43);<br><br>//&nbsp;modificăm&nbsp;prototipul<br>Person.prototype.sayHello&nbsp;=&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;console.log(this.name,&nbsp;"says:&nbsp;Hello");<br>};<br><br>tom.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;Age:&nbsp;39<br>tom.sayHello();&nbsp;//&nbsp;Tom&nbsp;says:&nbsp;Hello<br>bob.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Bob&nbsp;&nbsp;Age:&nbsp;43<br>bob.sayHello();&nbsp;//&nbsp;Bob&nbsp;says:&nbsp;Hello</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, putem defini aceleași proprietăți și metode atât în interiorul constructorului, cât și ca parte a prototipului:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;constructorul&nbsp;pentru&nbsp;utilizatori<br>function&nbsp;Person&nbsp;(name,&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;this.print&nbsp;=&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`[Constructor]&nbsp;Nume:&nbsp;${this.name}&nbsp;&nbsp;Vârstă:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;};<br>}<br><br>Person.prototype.print&nbsp;=&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;console.log(`[Prototip]&nbsp;Nume:&nbsp;${this.name}&nbsp;&nbsp;Vârstă:&nbsp;${this.age}`);<br>};<br><br>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;39);<br>const&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person("Bob",&nbsp;43);<br>tom.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[Constructor]&nbsp;Nume:&nbsp;Tom&nbsp;&nbsp;Vârstă:&nbsp;39<br>bob.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[Constructor]&nbsp;Nume:&nbsp;Bob&nbsp;&nbsp;Vârstă:&nbsp;43</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, metodele definite în interiorul constructorului vor ascunde metodele cu același nume din prototip.</p>
+     <h2 class="subtitle">Definirea proprietăților prototipului</h2>
+     <p class="paragraph">În mod similar, se pot adăuga și proprietăți. De exemplu, să adăugăm proprietatea company, care reprezintă compania:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;39);<br>const&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person("Bob",&nbsp;43);<br><br>//&nbsp;adăugăm&nbsp;în&nbsp;prototipul&nbsp;proprietatea&nbsp;company<br>Person.prototype.company&nbsp;=&nbsp;"SuperCorp";<br>console.log(tom.company);&nbsp;&nbsp;&nbsp;//&nbsp;SuperCorp<br>console.log(bob.company);&nbsp;&nbsp;&nbsp;//&nbsp;SuperCorp</code></pre>
+     </div>
+     <p class="paragraph">Este important să observăm că valoarea proprietății company va fi aceeași pentru toate obiectele, fiind o proprietate statică partajată. Spre deosebire, de exemplu, de proprietatea this.name, care stochează o valoare specifică pentru un anumit obiect.</p>
+     <p class="paragraph">Totodată, putem defini într-un obiect o proprietate care să aibă același nume cu o proprietate a prototipului. În acest caz, proprietatea specifică obiectului va avea prioritate față de proprietatea prototipului:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;39);<br>const&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person("Bob",&nbsp;43);<br><br>Person.prototype.company&nbsp;=&nbsp;"SuperCorp";<br>bob.company&nbsp;=&nbsp;"MegaCorp";&nbsp;&nbsp;&nbsp;//&nbsp;definim&nbsp;proprietatea&nbsp;cu&nbsp;același&nbsp;nume&nbsp;la&nbsp;nivelul&nbsp;unui&nbsp;obiect<br>console.log(bob.company);&nbsp;&nbsp;&nbsp;//&nbsp;MegaCorp&nbsp;-&nbsp;ia&nbsp;proprietatea&nbsp;din&nbsp;obiectul&nbsp;bob<br>console.log(tom.company);&nbsp;&nbsp;&nbsp;//&nbsp;SuperCorp&nbsp;-&nbsp;ia&nbsp;proprietatea&nbsp;din&nbsp;prototipul&nbsp;Person</code></pre>
+     </div>
+     <p class="paragraph">La accesarea proprietății company, JavaScript caută mai întâi această proprietate printre proprietățile obiectului, iar dacă nu este găsită, atunci se referă la proprietățile prototipului. Același principiu se aplică și la metode.</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

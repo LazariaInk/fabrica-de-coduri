@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='18.Parallel LINQ', activeLesson='1.Introducere in Parallel LINQ'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Introducere în Parallel LINQ - Metoda AsParallel</h1>
+     <p class="paragraph">În mod implicit, toate elementele colecției în LINQ sunt procesate secvențial, dar începând cu .NET 4.0, în spațiul de nume System.Linq a fost adăugată clasa ParallelEnumerable, care încorporează funcționalitatea PLINQ (Parallel LINQ) și permite efectuarea interogărilor asupra colecției în mod paralel.</p>
+     <p class="paragraph">În timpul procesării colecției, PLINQ utilizează capacitățile tuturor procesoarelor din sistem. Sursa de date este împărțită în segmente, iar fiecare segment este procesat într-un fir de execuție separat. Acest lucru permite efectuarea interogării pe mașini multicore mult mai rapid.</p>
+     <p class="paragraph">În același timp, implicit, PLINQ alege procesarea secvențială a datelor. Trecerea la procesarea paralelă are loc în cazul în care aceasta duce la o accelerare a muncii.</p>
+     <p class="paragraph">Totuși, de obicei, în operațiile paralele cresc costurile suplimentare. Prin urmare, dacă procesarea paralelă necesită potențial resurse mari, PLINQ poate alege procesarea secvențială, dacă aceasta nu necesită resurse mari.</p>
+     <p class="paragraph">Astfel, sensul utilizării PLINQ este predominant în colecțiile mari sau în operațiile complexe, unde beneficiul paralelizării interogărilor poate compensa costurile suplimentare generate.</p>
+     <p class="paragraph">De asemenea, trebuie să avem în vedere că, atunci când accesăm un stat partajat în operațiile paralele, se va folosi implicit sincronizarea pentru a evita blocarea reciprocă a accesului la aceste resurse comune. Costurile de sincronizare duc la scăderea performanței, astfel încât este recomandabil să evităm sau să limităm utilizarea resurselor partajate în operațiile paralele.</p>
+     <h2 class="subtitle">Metoda AsParallel</h2>
+     <p class="paragraph">Metoda AsParallel() permite paralelizarea interogării asupra sursei de date. Ea este implementată ca metodă de extensie LINQ pentru array-uri și colecții. La apelarea acestei metode, sursa de date este împărțită în părți (dacă este posibil) și asupra fiecărei părți se efectuează operații separat.</p>
+     <p class="paragraph">Să analizăm un exemplu simplu de găsire a pătratelor numerelor:</p>
+     <div class="code-inline">
+      <pre><code>int[]&nbsp;numbers&nbsp;=&nbsp;new&nbsp;int[]&nbsp;{&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5,&nbsp;6,&nbsp;7,&nbsp;8,&nbsp;};<br>var&nbsp;squares&nbsp;=&nbsp;from&nbsp;n&nbsp;in&nbsp;numbers.AsParallel()<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select&nbsp;Square(n);<br><br>foreach&nbsp;(var&nbsp;n&nbsp;in&nbsp;squares)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(n);<br><br>int&nbsp;Square(int&nbsp;n)&nbsp;=&gt;&nbsp;n&nbsp;*&nbsp;n;</code></pre>
+     </div>
+     <p class="paragraph">De fapt, aici avem o interogare LINQ obișnuită, doar că asupra sursei de date se aplică metoda AsParallel.</p>
+     <p class="paragraph">Rezultatul programului arată că datele au fost selectate pentru găsirea pătratelor nu secvențial. Deci, a avut loc paralelizarea muncii programului:</p>
+     <div class="code-inline">
+      <pre><code>49<br>1<br>9<br>25<br>64<br>4<br>16<br>36</code></pre>
+     </div>
+     <p class="paragraph">Operație similară folosind metode de extensie:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;squares&nbsp;=&nbsp;numbers.AsParallel().Select(x&nbsp;=&gt;&nbsp;Square(x));</code></pre>
+     </div>
+     <h2 class="subtitle">Metoda ForAll</h2>
+     <p class="paragraph">Codul de mai sus pentru calcularea pătratului unui număr poate fi optimizat și mai mult din punct de vedere al paralelizării. În special, pentru afișarea rezultatului operației paralele se folosește ciclul foreach. Dar utilizarea acestuia duce la creșterea costurilor - este necesar să se unească datele obținute în diferite fire de execuție într-un singur set și apoi să se parcurgă în ciclu. Mai optim în acest caz ar fi utilizarea metodei ForAll(), care afișează datele în același fir de execuție în care sunt procesate:</p>
+     <div class="code-inline">
+      <pre><code>int[]&nbsp;numbers&nbsp;=&nbsp;new&nbsp;int[]&nbsp;{&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5,&nbsp;6,&nbsp;7,&nbsp;8,&nbsp;};<br><br>//&nbsp;cu&nbsp;ajutorul&nbsp;operatorilor&nbsp;LINQ<br>(from&nbsp;n&nbsp;in&nbsp;numbers.AsParallel()&nbsp;select&nbsp;Square(n)).ForAll(Console.WriteLine);<br><br>//&nbsp;cu&nbsp;ajutorul&nbsp;metodelor&nbsp;de&nbsp;extensie&nbsp;LINQ<br>numbers.AsParallel().Select(n&nbsp;=&gt;&nbsp;Square(n)).ForAll(Console.WriteLine);<br><br>int&nbsp;Square(int&nbsp;n)&nbsp;=&gt;&nbsp;n&nbsp;*&nbsp;n;</code></pre>
+     </div>
+     <p class="paragraph">Metoda ForAll() acceptă ca parametru un delegat Action, care specifică acțiunea de executat.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

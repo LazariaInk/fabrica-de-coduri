@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='19.Reflectie', activeLesson='2.Aplicarea reflectiei si investigarea tipurilor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Aplicarea reflecției și investigarea tipurilor</h1>
+     <h2 class="subtitle">Obținerea tuturor componentelor unui tip</h2>
+     <p class="paragraph">Metoda GetMembers() returnează toate componentele disponibile ale unui tip sub formă de obiecte MemberInfo. Acest obiect permite extragerea anumitor informații despre componenta tipului. În particular, unele dintre proprietățile sale sunt:</p>
+     <ul class="enumeration">
+      <li>DeclaringType: returnează numele complet al tipului</li>
+      <li>MemberType: returnează o valoare din enumerația MemberTypes: - MemberTypes.Constructor - MemberTypes.Method - MemberTypes.Field - MemberTypes.Event - MemberTypes.Property - MemberTypes.NestedType</li>
+      <li>Name: returnează numele componentei</li>
+     </ul>
+     <p class="paragraph">Aplicarea metodei GetMembers pentru a afișa toate elementele disponibile ale unui tip:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Reflection;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;adăugăm&nbsp;funcționalitatea&nbsp;reflecției<br><br>Type&nbsp;myType&nbsp;=&nbsp;typeof(Person);<br><br>foreach&nbsp;(MemberInfo&nbsp;member&nbsp;in&nbsp;myType.GetMembers())<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"{member.DeclaringType}&nbsp;{member.MemberType}&nbsp;{member.Name}");<br>}<br><br>public&nbsp;class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;string&nbsp;name;<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Age&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name,&nbsp;int&nbsp;age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.Age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Print()&nbsp;=&gt;&nbsp;Console.WriteLine($"Name:&nbsp;{name}&nbsp;Age:&nbsp;{Age}");<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, vom obține toți membrii publici ai clasei Person:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;Method&nbsp;get_Age<br>Person&nbsp;Method&nbsp;set_Age<br>Person&nbsp;Method&nbsp;Print<br>System.Object&nbsp;Method&nbsp;GetType<br>System.Object&nbsp;Method&nbsp;ToString<br>System.Object&nbsp;Method&nbsp;Equals<br>System.Object&nbsp;Method&nbsp;GetHashCode<br>Person&nbsp;Constructor&nbsp;.ctor<br>Person&nbsp;Property&nbsp;Age</code></pre>
+     </div>
+     <p class="paragraph">Observați că în acest caz obținem doar membrii publici ai clasei și nu se afișează informații despre variabila privată name. De asemenea, pentru proprietate sunt afișate metodele de acces - getter-ul (get_Age) și setter-ul (set_Age). În mod implicit, obținem toate funcționalitățile, inclusiv cele moștenite de la clasele de bază (în acest caz, funcționalitatea clasei de bază Object).</p>
+     <h2 class="subtitle">BindingFlags</h2>
+     <p class="paragraph">În exemplul de mai sus, am folosit forma simplă a metodei GetMembers(), care extrage toate metodele publice disponibile. Dar putem folosi și o altă formă a metodei: MembersInfo[] GetMembers(BindingFlags). Enumerația BindingFlags poate accepta diverse valori:</p>
+     <ul class="enumeration">
+      <li>DeclaredOnly: obține doar metodele specificate direct în clasa curentă, metodele moștenite nu sunt extrase</li>
+      <li>Instance: obține doar metodele instanței</li>
+      <li>NonPublic: extrage metodele non-publice</li>
+      <li>Public: obține doar metodele publice</li>
+      <li>Static: obține doar metodele statice</li>
+     </ul>
+     <p class="paragraph">Combinând aceste valori folosind operația bitwise OR, putem combina rezultatele. De exemplu, obținem doar componentele clasei directe fără cele moștenite, atât publice, cât și non-publice:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Reflection;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;adăugăm&nbsp;funcționalitatea&nbsp;reflecției<br><br>Type&nbsp;myType&nbsp;=&nbsp;typeof(Person);<br><br>foreach&nbsp;(MemberInfo&nbsp;member&nbsp;in&nbsp;myType.GetMembers(BindingFlags.DeclaredOnly<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;BindingFlags.Instance&nbsp;|&nbsp;BindingFlags.NonPublic&nbsp;|&nbsp;BindingFlags.Public))<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"{member.DeclaringType}&nbsp;{member.MemberType}&nbsp;{member.Name}");<br>}<br><br>public&nbsp;class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;string&nbsp;name;<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Age&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name,&nbsp;int&nbsp;age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.Age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Print()&nbsp;=&gt;&nbsp;Console.WriteLine($"Name:&nbsp;{name}&nbsp;Age:&nbsp;{Age}");<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, vom obține un rezultat diferit:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;Method&nbsp;get_Age<br>Person&nbsp;Method&nbsp;set_Age<br>Person&nbsp;Method&nbsp;Print<br>Person&nbsp;Constructor&nbsp;.ctor<br>Person&nbsp;Property&nbsp;Age<br>Person&nbsp;Field&nbsp;name<br>Person&nbsp;Field&nbsp;&lt;Age&gt;k__BackingField</code></pre>
+     </div>
+     <h2 class="subtitle">Obținerea unei singure componente după nume</h2>
+     <p class="paragraph">Pentru a obține o singură componentă, putem folosi metoda GetMember(), căreia îi transmitem numele componentei. Opțional, putem transmite și valorile BindingFlags.</p>
+     <div class="code-inline">
+      <pre><code>Type&nbsp;myType&nbsp;=&nbsp;typeof(Person);<br><br>//&nbsp;obținem&nbsp;metoda&nbsp;Print<br>MemberInfo[]&nbsp;print&nbsp;=&nbsp;myType.GetMember("Print",&nbsp;BindingFlags.Instance&nbsp;|&nbsp;BindingFlags.Public);<br>foreach&nbsp;(MemberInfo&nbsp;member&nbsp;in&nbsp;print)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"{member.MemberType}&nbsp;{member.Name}");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Este important de menționat că la obținerea unui membru al tipului, se returnează din nou un array de MemberInfo[], deoarece într-o clasă pot exista mai multe elemente cu același nume, de exemplu, mai multe versiuni suprasolicitate ale metodei Print.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='21.Localizare', activeLesson='6.Compararea sirurilor cu Intl'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Compararea șirurilor cu Int.Collator</h1>
+     <p class="paragraph">Pentru compararea șirurilor ținând cont de specificul limbii se utilizează tipul Collator. Pentru acesta, tipul Collator oferă metoda compare(), care acceptă două șiruri ca parametri:</p>
+     <div class="code-inline">
+      <pre><code>collator.compare(string1,&nbsp;string2)</code></pre>
+     </div>
+     <p class="paragraph">Metoda compare returnează una dintre cele trei valori numerice:</p>
+     <ul class="enumeration">
+      <li>1, dacă primul șir este "mai mare" decât al doilea (primul șir se află după al doilea șir în ordinea lexicografică)</li>
+      <li>-1, dacă al doilea șir este "mai mare" decât primul (primul șir se află înaintea celui de-al doilea)</li>
+      <li>0, dacă ambele șiruri sunt egale</li>
+     </ul>
+     <p class="paragraph">Exemplu de comparare:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;collator&nbsp;=&nbsp;new&nbsp;Intl.Collator("ro-RO");<br>console.log(collator.compare("b",&nbsp;"a"));&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;1<br>console.log(collator.compare("b",&nbsp;"b"));&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;-1<br>console.log(collator.compare("b",&nbsp;"c"));&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;-1<br>console.log(collator.compare("b",&nbsp;"b"));&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;0<br><br>console.log(collator.compare("lume",&nbsp;"lumina"));&nbsp;&nbsp;&nbsp;//&nbsp;1<br>console.log(collator.compare("lume",&nbsp;"luna"));&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;-1<br>console.log(collator.compare("lume",&nbsp;"lume"));&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;0</code></pre>
+     </div>
+     <h2 class="subtitle">Configurarea comparării</h2>
+     <p class="paragraph">Principiul comparării șirurilor este determinat de obiectul de configurare, care este transmis constructorului Int.Collator ca al doilea parametru și care definește următoarele proprietăți:</p>
+     <ul class="enumeration">
+      <li>localeMatcher: reprezintă algoritmul folosit pentru selectarea localei. Poate lua două valori: "lookup" și "best fit" (implicit). Valoarea lookup presupune utilizarea unui algoritm definit în standard. Valoarea best fit folosește localizarea oferită de mediul de execuție</li>
+      <li>usage: specifică dacă compararea șirurilor va fi folosită pentru sortare sau căutare. Valorile posibile sunt "sort" (pentru sortare) și "search" (pentru căutare - implicit)</li>
+      <li>sensitivity: specifică ce simboluri trebuie considerate inegale. Valorile posibile:</li>
+     </ul>
+     <p class="paragraph">1) "base": șirurile sunt considerate inegale dacă diferă prin literele de bază. Exemplu: a ≠ b, a = á, a = A. 2) "accent": șirurile sunt considerate inegale dacă diferă prin literele de bază sau semnele diacritice. Exemplu: a ≠ b, a ≠ á, a = A. 3) "case": șirurile sunt considerate inegale dacă diferă prin literele de bază sau majusculă/minusculă. Exemplu: a ≠ b, a = á, a ≠ A. 4) "variant": șirurile sunt considerate inegale dacă diferă prin literele de bază, majusculă/minusculă sau semnele diacritice. Exemplu: a ≠ b, a ≠ á, a ≠ A. Implicit</p>
+     <ul class="enumeration">
+      <li>ignorePunctuation: dacă trebuie să se ignore punctuația. Acceptă valorile true (punctuația este ignorată) și false (nu este ignorată, implicit)</li>
+      <li>numeric: specifică dacă șirurile trebuie comparate ca numere (de exemplu, "1" &lt; "5" &lt; "10"). Acceptă valorile true și false (implicit)</li>
+      <li>caseFirst: specifică dacă trebuie luat în considerare cazul primei litere. Acceptă valorile "upper", "lower" sau "false" (implicit)</li>
+     </ul>
+     <p class="paragraph">De exemplu, să nu ținem cont de majuscule/minuscule la comparare:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;standardCollator&nbsp;=&nbsp;new&nbsp;Intl.Collator("ro-RO");<br>console.log(standardCollator.compare("Casa",&nbsp;"casa"));&nbsp;&nbsp;&nbsp;//&nbsp;1&nbsp;-&nbsp;șirurile&nbsp;nu&nbsp;sunt&nbsp;egale<br><br>const&nbsp;baseCollator&nbsp;=&nbsp;new&nbsp;Intl.Collator("ro-RO",&nbsp;{sensitivity:&nbsp;"base"});<br>console.log(baseCollator.compare("Casa",&nbsp;"casa"));&nbsp;&nbsp;&nbsp;//&nbsp;0&nbsp;-&nbsp;șirurile&nbsp;sunt&nbsp;egale</code></pre>
+     </div>
+     <h2 class="subtitle">Sortarea șirurilor</h2>
+     <p class="paragraph">Metoda compare() este utilă pentru sortarea unui array de șiruri. În special, metoda sort() a obiectului array acceptă o funcție de sortare sau comparare, care apoi compară perechi de elemente ale array-ului respectiv și, astfel, realizează sortarea:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;collator&nbsp;=&nbsp;new&nbsp;Intl.Collator("ro",&nbsp;{usage:&nbsp;"sort"});<br>const&nbsp;people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Sam",&nbsp;"Alice",&nbsp;"Kate"];<br>people.sort(collator.compare);&nbsp;&nbsp;//&nbsp;sortăm&nbsp;array-ul<br>console.log(people);&nbsp;&nbsp;&nbsp;//&nbsp;&nbsp;["Alice",&nbsp;"Bob",&nbsp;"Kate",&nbsp;"Sam",&nbsp;"Tom"]</code></pre>
+     </div>
+     <p class="paragraph">Acest exemplu demonstrează cum Intl.Collator poate fi folosit pentru a sorta un array de nume într-o manieră care respectă regulile lingvistice specifice limbii indicate.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Java', activeChapter='10.Stream API', activeLesson='6.Metodele skip si limit'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Metodele skip și limit</h1>
+     <p class="paragraph">Metoda skip(long n) este utilizată pentru a omite primii n elemente dintr-un flux. Această metodă returnează un nou flux, din care primele n elemente sunt omise.</p>
+     <p class="paragraph">Metoda limit(long n) este folosită pentru a selecta primele n elemente dintr-un flux. Aceasta returnează un flux modificat care conține maximum n elemente.</p>
+     <p class="paragraph">Adesea, aceste două metode sunt utilizate împreună pentru a crea efectul de navigare pe pagini. Să vedem cum pot fi aplicate:</p>
+     <div class="code-inline">
+      <pre><code>Stream&lt;String&gt;&nbsp;phoneStream&nbsp;=&nbsp;Stream.of("iPhone&nbsp;6&nbsp;S",&nbsp;"Lumia&nbsp;950",&nbsp;"Samsung&nbsp;Galaxy&nbsp;S&nbsp;6",&nbsp;"LG&nbsp;G&nbsp;4",&nbsp;"Nexus&nbsp;7");<br><br>phoneStream.skip(1)<br>&nbsp;&nbsp;&nbsp;.limit(2)<br>&nbsp;&nbsp;&nbsp;.forEach(s&nbsp;-&gt;&nbsp;System.out.println(s));</code></pre>
+     </div>
+     <p class="paragraph">În acest exemplu, metoda skip omite primul element, iar metoda limit selectează următoarele două elemente. Rezultatul afișat în consolă va fi:</p>
+     <div class="code-inline">
+      <pre><code>Lumia&nbsp;950&nbsp;<br>Samsung&nbsp;Galaxy&nbsp;S&nbsp;6</code></pre>
+     </div>
+     <p class="paragraph">Este posibil ca metoda skip să primească un parametru mai mare decât numărul de elemente din flux. În acest caz, toate elementele vor fi omise, iar fluxul rezultat va conține 0 elemente.</p>
+     <p class="paragraph">Dacă metoda limit primește un număr mai mare decât numărul de elemente din flux, vor fi selectate toate elementele din flux.</p>
+     <p class="paragraph">Acum să vedem cum se poate crea navigarea pe pagini:</p>
+     <div class="code-inline">
+      <pre><code>import&nbsp;java.util.ArrayList;<br>import&nbsp;java.util.Arrays;<br>import&nbsp;java.util.List;<br>import&nbsp;java.util.stream.*;<br>import&nbsp;java.util.Scanner;<br><br>public&nbsp;class&nbsp;Program&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;List&lt;String&gt;&nbsp;phones&nbsp;=&nbsp;new&nbsp;ArrayList&lt;String&gt;();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;phones.addAll(Arrays.asList(new&nbsp;String[]<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{"iPhone&nbsp;6&nbsp;S",&nbsp;"Lumia&nbsp;950",&nbsp;"Huawei&nbsp;Nexus&nbsp;6P",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Samsung&nbsp;Galaxy&nbsp;S&nbsp;6",&nbsp;"LG&nbsp;G&nbsp;4",&nbsp;"Xiaomi&nbsp;MI&nbsp;5",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"ASUS&nbsp;Zenfone&nbsp;2",&nbsp;"Sony&nbsp;Xperia&nbsp;Z5",&nbsp;"Meizu&nbsp;Pro&nbsp;5",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Lenovo&nbsp;S&nbsp;850"}));<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;pageSize&nbsp;=&nbsp;3;&nbsp;//&nbsp;numărul&nbsp;de&nbsp;elemente&nbsp;pe&nbsp;pagină<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Scanner&nbsp;scanner&nbsp;=&nbsp;new&nbsp;Scanner(System.in);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(true){<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Introduceți&nbsp;numărul&nbsp;paginii:&nbsp;");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;page&nbsp;=&nbsp;scanner.nextInt();<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(page&nbsp;&lt;&nbsp;1)&nbsp;break;&nbsp;//&nbsp;dacă&nbsp;numărul&nbsp;este&nbsp;mai&nbsp;mic&nbsp;decât&nbsp;1,&nbsp;ieșim&nbsp;din&nbsp;ciclu<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;phones.stream().skip((page-1)&nbsp;*&nbsp;pageSize)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.limit(pageSize)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.forEach(s&nbsp;-&gt;&nbsp;System.out.println(s));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, avem un set de 10 elemente. Cu ajutorul variabilei pageSize stabilim numărul de elemente pe pagină - 3. Astfel, vom avea 4 pagini (pe ultima pagină va fi doar un element).</p>
+     <p class="paragraph">În bucla infinită, obținem numărul paginii și selectăm doar acele elemente care se află pe pagina specificată.</p>
+     <p class="paragraph">Să introducem câteva numere de pagini, de exemplu, 4 și 2:</p>
+     <div class="code-inline">
+      <pre><code>Introduceți&nbsp;numărul&nbsp;paginii:<br>4<br>Lenovo&nbsp;S&nbsp;850<br>Introduceți&nbsp;numărul&nbsp;paginii:<br>2<br>Samsung&nbsp;Galaxy&nbsp;S&nbsp;6<br>LG&nbsp;G&nbsp;4<br>Xiaomi&nbsp;MI&nbsp;5</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='PHP', activeChapter='3.Trimiterea datelor pe server', activeLesson='1.Transmiterea informat╠жiilor ca╠Жtre server'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Transmiterea informațiilor către server</h1>
+     <h2 class="subtitle">Obținerea datelor din șirul de cerere</h2>
+     <p class="paragraph">Cel mai simplu mod de a trimite date pe serverul unei aplicații PHP din exterior este prin transmiterea datelor prin șirul de cerere.</p>
+     <p class="paragraph">Șirul de cerere reprezintă un set de parametri care sunt plasați în adresă după semnul întrebării. Fiecare parametru definește un nume și o valoare. De exemplu, în adresa:</p>
+     <div class="code-inline">
+      <pre><code>http://localhost/user.php?name=Tom&amp;age=36</code></pre>
+     </div>
+     <p class="paragraph">Partea ?name=Tom&amp;age=36 reprezintă șirul de cerere, în care există doi parametri: name și age. Pentru fiecare parametru este definit un nume și o valoare, care sunt separate prin semnul egal.</p>
+     <p class="paragraph">Parametrul name are valoarea "Tom", iar parametrul age - valoarea 36. Parametrii sunt separați între ei prin semnul ampersand.</p>
+     <p class="paragraph">De exemplu, definim următorul script user.php cu următorul conținut:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$name&nbsp;=&nbsp;"ne&nbsp;definit";<br>$age&nbsp;=&nbsp;"ne&nbsp;definit";<br>if(isset($_GET["name"])){<br>&nbsp;&nbsp;&nbsp;$name&nbsp;=&nbsp;$_GET["name"];<br>}<br>if(isset($_GET["age"])){<br>&nbsp;&nbsp;&nbsp;$age&nbsp;=&nbsp;$_GET["age"];<br>}<br>echo&nbsp;"Nume:&nbsp;$name&nbsp;&lt;br&gt;&nbsp;Vârstă:&nbsp;$age";<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Când introducem în bara de adrese a browserului o anumită adresă și apăsăm pe trimitere, pe server se trimite o cerere de tip GET. În PHP, în mod implicit, este definit un array asociativ global $_GET, care stochează toate valorile transmise în cererea GET.</p>
+     <p class="paragraph">Folosind cheile datelor transmise, putem obține valorile transmise din array-ul $_GET.</p>
+     <p class="paragraph">La trimiterea șirului de cerere, cheile în acest array vor fi numele parametrilor, iar valorile - valorile parametrilor.</p>
+     <p class="paragraph">De exemplu, în șirul de cerere se transmite parametrul name=Tom. Astfel, pentru a obține valoarea parametrului name din cerere, ne adresăm după cheia corespunzătoare:</p>
+     <div class="code-inline">
+      <pre><code>$name&nbsp;=&nbsp;$_GET["name"];&nbsp;&nbsp;//&nbsp;Tom</code></pre>
+     </div>
+     <p class="paragraph">Totuși, trebuie să ținem cont că în bara de adrese nu este obligatoriu să se folosească șirul de cerere sau acest parametru specific. Prin urmare, înainte de a obține valoarea parametrului, verificăm mai întâi dacă acest parametru a fost transmis:</p>
+     <div class="code-inline">
+      <pre><code>if(isset($_GET["name"])){</code></pre>
+     </div>
+     <p class="paragraph">Acum, accesăm acest script, de exemplu, astfel: http://localhost/user.php?name=Tom&amp;age=36:</p>
+     <div class="image-container">
+      <img th:src="@{/images/PHP/3.Trimiterea%20datelor%20pe%20server/1.Transmiterea%20informat╠жiilor%20ca╠Жtre%20server/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Dacă nu transmitem valorile vreunui parametru, variabila corespunzătoare va folosi valoarea implicită:</p>
+     <div class="image-container">
+      <img th:src="@{/images/PHP/3.Trimiterea%20datelor%20pe%20server/1.Transmiterea%20informat╠жiilor%20ca╠Жtre%20server/images/image2.png}" alt="" class="responsive-image">
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

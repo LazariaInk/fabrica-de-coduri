@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='11.Lucrul cu siruri de caractere', activeLesson='3.Formatarea si interpolarea sirurilor de caractere'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Formatarea și interpolarea șirurilor de caractere</h1>
+     <h2 class="subtitle">Formatarea șirurilor</h2>
+     <p class="paragraph">La afișarea șirurilor în consolă folosind metoda Console.WriteLine, pentru a încorpora valori într-un șir, putem folosi formatarea în locul concatenării:</p>
+     <div class="code-inline">
+      <pre><code>string&nbsp;name&nbsp;=&nbsp;"Tom";<br>int&nbsp;age&nbsp;=&nbsp;23;<br><br>Console.WriteLine("Nume:&nbsp;{0}&nbsp;Vârstă:&nbsp;{1}",&nbsp;name,&nbsp;age);<br>//&nbsp;afișare&nbsp;în&nbsp;consolă<br>//&nbsp;Nume:&nbsp;Tom&nbsp;Vârstă:&nbsp;23</code></pre>
+     </div>
+     <p class="paragraph">În șirul "Nume: {0} Vârstă: {1}", în locul {0} și {1} vor fi inserate valorile variabilelor name și age în ordinea lor.</p>
+     <p class="paragraph">Aceeași formatare a șirurilor o putem face nu doar în metoda Console.WriteLine, ci și oriunde în program cu ajutorul metodei string.Format:</p>
+     <div class="code-inline">
+      <pre><code>string&nbsp;name&nbsp;=&nbsp;"Tom";<br>int&nbsp;age&nbsp;=&nbsp;23;<br>string&nbsp;output&nbsp;=&nbsp;string.Format("Nume:&nbsp;{0}&nbsp;Vârstă:&nbsp;{1}",&nbsp;name,&nbsp;age);<br>Console.WriteLine(output);</code></pre>
+     </div>
+     <p class="paragraph">Metoda Format primește un șir cu placeholder-e de tip {0}, {1} etc., și un set de argumente care vor fi inserate în locul acestor placeholder-e. În final, se generează un nou șir.</p>
+     <h2 class="subtitle">Specificații de formatare</h2>
+     <p class="paragraph">În metoda Format pot fi utilizate diverse specificatori și descriptori, care permit ajustarea modului de afișare a datelor. Să analizăm principalele descriptori. Toate formatele utilizate:</p>
+     <ul class="enumeration">
+      <li>C / c: Specifică formatul unității monetare, indică numărul de zecimale după virgulă</li>
+      <li>D / d: Format întreg, indică numărul minim de cifre</li>
+      <li>E / e: Reprezentarea exponențială a unui număr, indică numărul de zecimale după virgulă</li>
+      <li>F / f: Formatul numerelor fracționare cu punct fix, indică numărul de zecimale după virgulă</li>
+      <li>G / g: Specifică cel mai scurt dintre cele două formate: F sau E</li>
+      <li>N / n: De asemenea, specifică formatul numerelor fracționare cu punct fix, determină numărul de zecimale după virgulă</li>
+      <li>P / p: Specifică afișarea semnului procentual lângă număr, indică numărul de zecimale după virgulă</li>
+      <li>X / x: Formatul hexazecimal al unui număr</li>
+     </ul>
+     <h2 class="subtitle">Formatarea valutei</h2>
+     <p class="paragraph">Pentru formatarea valutei se utilizează descriptorul "C":</p>
+     <div class="code-inline">
+      <pre><code>double&nbsp;number&nbsp;=&nbsp;23.7;<br>string&nbsp;result&nbsp;=&nbsp;string.Format("{0:C0}",&nbsp;number);<br>Console.WriteLine(result);&nbsp;//&nbsp;24&nbsp;р.<br>string&nbsp;result2&nbsp;=&nbsp;string.Format("{0:C2}",&nbsp;number);<br>Console.WriteLine(result2);&nbsp;//&nbsp;23,70&nbsp;р.</code></pre>
+     </div>
+     <p class="paragraph">Numărul după descriptor indică câte cifre vor fi folosite după separatorul între partea întreagă și cea fracționară. La afișare se adaugă și simbolul monetar pentru cultura curentă a calculatorului. În funcție de localizarea sistemului de operare rezultatul poate varia. Observați și rotunjirea în primul exemplu.</p>
+     <h2 class="subtitle">Formatarea numerelor întregi</h2>
+     <p class="paragraph">Pentru formatarea valorilor întregi se folosește descriptorul "d":</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;number&nbsp;=&nbsp;23;<br>string&nbsp;result&nbsp;=&nbsp;string.Format("{0:d}",&nbsp;number);<br>Console.WriteLine(result);&nbsp;//&nbsp;23<br>string&nbsp;result2&nbsp;=&nbsp;string.Format("{0:d4}",&nbsp;number);<br>Console.WriteLine(result2);&nbsp;//&nbsp;0023</code></pre>
+     </div>
+     <p class="paragraph">Numărul după descriptor indică câte cifre vor fi în valoarea numerică. Dacă în numărul inițial sunt mai puține cifre, se adaugă zerouri.</p>
+     <h2 class="subtitle">Formatarea numerelor fracționare</h2>
+     <p class="paragraph">Pentru formatarea numerelor fracționare se folosește descriptorul F, numărul după acesta indicând câte cifre vor fi folosite după separatorul între partea întreagă și cea fracționară. Dacă numărul inițial este întreg, se adaugă separatorul și zerourile.</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;number&nbsp;=&nbsp;23;<br>string&nbsp;result&nbsp;=&nbsp;string.Format("{0:f}",&nbsp;number);<br>Console.WriteLine(result);&nbsp;//&nbsp;23,00<br><br>double&nbsp;number2&nbsp;=&nbsp;45.08;<br>string&nbsp;result2&nbsp;=&nbsp;string.Format("{0:f4}",&nbsp;number2);<br>Console.WriteLine(result2);&nbsp;//&nbsp;45,0800<br><br>double&nbsp;number3&nbsp;=&nbsp;25.07;<br>string&nbsp;result3&nbsp;=&nbsp;string.Format("{0:f1}",&nbsp;number3);<br>Console.WriteLine(result3);&nbsp;//&nbsp;25,1</code></pre>
+     </div>
+     <h2 class="subtitle">Formatarea procentelor</h2>
+     <p class="paragraph">Descriptorul P specifică afișarea procentelor. Specificatorul numeric folosit cu acesta indică câte cifre vor fi după virgulă:</p>
+     <div class="code-inline">
+      <pre><code>decimal&nbsp;number&nbsp;=&nbsp;0.15345m;<br>Console.WriteLine("{0:P1}",&nbsp;number);&nbsp;//&nbsp;15,3%</code></pre>
+     </div>
+     <h2 class="subtitle">Formate personalizate</h2>
+     <p class="paragraph">Folosind semnul #, putem ajusta formatul de afișare. De exemplu, să afișăm un număr în formatul unui telefon +x (xxx)xxx-xx-xx:</p>
+     <div class="code-inline">
+      <pre><code>long&nbsp;number&nbsp;=&nbsp;19876543210;<br>string&nbsp;result&nbsp;=&nbsp;string.Format("{0:+#&nbsp;(###)&nbsp;###-##-##}",&nbsp;number);<br>Console.WriteLine(result);&nbsp;//&nbsp;+1&nbsp;(987)&nbsp;654-32-10</code></pre>
+     </div>
+     <h2 class="subtitle">Metoda ToString</h2>
+     <p class="paragraph">Metoda ToString() nu doar obține descrierea șirului obiectului, ci poate realiza și formatarea. Suportă aceleași descriptori care sunt utilizați în metoda Format:</p>
+     <div class="code-inline">
+      <pre><code>long&nbsp;number&nbsp;=&nbsp;19876543210;<br>Console.WriteLine(number.ToString("+#&nbsp;(###)&nbsp;###-##-##"));&nbsp;//&nbsp;+1&nbsp;(987)&nbsp;654-32-10<br><br>double&nbsp;money&nbsp;=&nbsp;24.8;<br>Console.WriteLine(money.ToString("C2"));&nbsp;//&nbsp;24,80&nbsp;р.</code></pre>
+     </div>
+     <h2 class="subtitle">Interpolarea șirurilor</h2>
+     <p class="paragraph">Interpolarea șirurilor este destinată să simplifice formatarea șirurilor. Să rescriem exemplul de afișare a valorilor variabilelor într-un șir:</p>
+     <div class="code-inline">
+      <pre><code>string&nbsp;name&nbsp;=&nbsp;"Tom";<br>int&nbsp;age&nbsp;=&nbsp;23;<br><br>Console.WriteLine($"Nume:&nbsp;{name}&nbsp;Vârstă:&nbsp;{age}");<br>//&nbsp;afișare&nbsp;în&nbsp;consolă<br>//&nbsp;Nume:&nbsp;Tom&nbsp;Vârstă:&nbsp;23</code></pre>
+     </div>
+     <p class="paragraph">Semnul dolar înaintea șirului indică faptul că va avea loc interpolarea șirurilor. În interiorul șirului se folosesc din nou placeholder-e {...}, dar în interiorul acoladelor putem scrie direct expresiile pe care dorim să le afișăm.</p>
+     <p class="paragraph">Interpolarea este practic o formatare mai concisă. În interiorul acoladelor putem specifica nu doar proprietăți, ci și diverse expresii C#:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;x&nbsp;=&nbsp;8;<br>int&nbsp;y&nbsp;=&nbsp;7;<br>string&nbsp;result&nbsp;=&nbsp;$"{x}&nbsp;+&nbsp;{y}&nbsp;=&nbsp;{x&nbsp;+&nbsp;y}";<br>Console.WriteLine(result);&nbsp;//&nbsp;8&nbsp;+&nbsp;7&nbsp;=&nbsp;15</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, în interiorul acoladelor putem executa expresii mai complexe, de exemplu, să apelăm metode:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;x&nbsp;=&nbsp;8;<br>int&nbsp;y&nbsp;=&nbsp;7;<br>string&nbsp;result&nbsp;=&nbsp;$"{x}&nbsp;*&nbsp;{y}&nbsp;=&nbsp;{Multiply(x,&nbsp;y)}";<br>Console.WriteLine(result);&nbsp;//&nbsp;8&nbsp;*&nbsp;7&nbsp;=&nbsp;56<br><br>int&nbsp;Multiply(int&nbsp;a,&nbsp;int&nbsp;b)&nbsp;=&gt;&nbsp;a&nbsp;*&nbsp;b;</code></pre>
+     </div>
+     <p class="paragraph">În interiorul șirului putem aplica formatarea. În acest caz putem folosi aceiași descriptori ca și în metoda Format. De exemplu, să afișăm un număr de telefon în formatul +x xxx-xxx-xx-xx:</p>
+     <div class="code-inline">
+      <pre><code>long&nbsp;number&nbsp;=&nbsp;19876543210;<br>Console.WriteLine($"{number:+#&nbsp;##&nbsp;##}");&nbsp;//&nbsp;+1&nbsp;987&nbsp;654&nbsp;32&nbsp;10</code></pre>
+     </div>
+     <p class="paragraph">Adăugăm spații înainte și după afișarea formatată:</p>
+     <div class="code-inline">
+      <pre><code>string&nbsp;name&nbsp;=&nbsp;"Tom";<br>int&nbsp;age&nbsp;=&nbsp;23;<br><br>Console.WriteLine($"Nume:&nbsp;{name,&nbsp;-5}&nbsp;Vârstă:&nbsp;{age}");&nbsp;//&nbsp;spații&nbsp;după<br>Console.WriteLine($"Nume:&nbsp;{name,&nbsp;5}&nbsp;Vârstă:&nbsp;{age}");&nbsp;//&nbsp;spații&nbsp;înainte</code></pre>
+     </div>
+     <p class="paragraph">Afișare:</p>
+     <div class="code-inline">
+      <pre><code>Nume:&nbsp;Tom&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vârstă:&nbsp;23<br>Nume:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tom&nbsp;Vârstă:&nbsp;23</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

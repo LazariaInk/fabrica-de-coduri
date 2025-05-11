@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='16.Stocarea Datelor', activeLesson='1.Stocarea Datelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Stocarea Datelor</h1>
+     <h2 class="subtitle">Cookie-uri</h2>
+     <p class="paragraph">Una dintre opțiunile pentru salvarea datelor în browser este utilizarea cookie-urilor. Astfel, de fiecare dată când accesăm o pagină web pe internet, serverul web, împreună cu acea pagină, trimite cookie-urile asociate (dacă există). Browserul stochează aceste date pentru o anumită perioadă. La accesările ulterioare ale aceleiași pagini sau site, în funcție de setările cookie-urilor, acestea sunt trimise înapoi de la browser la server.</p>
+     <p class="paragraph">Pentru lucrul cu cookie-urile în limbajul JavaScript, obiectul document dispune de proprietatea cookie.</p>
+     <p class="paragraph">Pentru a seta un cookie, este suficient să atribuim proprietății document.cookie un șir cu cookie-urile:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;script&gt;<br>document.cookie&nbsp;=&nbsp;"login=tom32;";<br>console.log(document.cookie);<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, se setează un cookie numit "login" care are valoarea "tom32". Apoi obținem cookie-ul și îl afișăm în consolă.</p>
+     <p class="paragraph">Este de menționat că lucrul cu cookie-urile poate varia în funcție de browserul utilizat și de modul în care este lansată pagina web: ca fișier local sau ca fișier pe serverul web. De exemplu, dacă lansăm pagina web ca fișier local, adică doar tragem pagina web definită mai sus în browserul Mozilla Firefox sau Safari, atunci browserul va seta cookie-ul și îl va afișa în consolă. Browserele suportă vizualizarea cookie-urilor setate (precum și a altor date salvate). De exemplu, în Mozilla Firefox, în instrumentele pentru dezvoltatori există filele "Storage" și acolo se pot vedea cookie-urile:</p>
+     <p class="paragraph">Cu toate acestea, în alte browsere, cum ar fi Google Chrome sau Opera, există restricții pentru setarea cookie-urilor pe paginile web care reprezintă fișiere locale. Astfel, dacă tragem pagina definită mai sus în Google Chrome, consola nu va afișa nimic. Deoarece Google Chrome permite setarea cookie-urilor doar pe paginile web care sunt încărcate de pe un server web și aparțin unui anumit domeniu în rețea. Ceea ce nu este surprinzător. Deoarece cookie-urile sunt destinate în primul rând pentru transmiterea datelor prin protocolul http de la client la server și înapoi.</p>
+     <p class="paragraph">Prin urmare, în continuare, pentru lucrul cu cookie-urile, vom plasa paginile HTML pe serverul web. În acest caz, vom folosi cea mai simplă opțiune - Node.js, deoarece această tehnologie este destul de simplă, disponibilă pentru toate sistemele de operare principale și permite de asemenea utilizarea JavaScript pentru crearea aplicațiilor.</p>
+     <p class="paragraph">Dar, desigur, înainte de a crea aplicația este necesar să instalăm Node.js. În acest caz, nu va fi necesară nicio cunoaștere a Node.js, tot codul utilizat este descris în detaliu. Dar, din nou, în loc de Node.js, poate fi orice altă tehnologie de server - php, asp.net, python etc., sau un anumit server web cum ar fi Apache sau IIS.</p>
+     <p class="paragraph">Așadar, vom crea în sistemul de fișiere un folder pentru fișierele serverului web. De exemplu, în cazul meu, acesta este folderul C:\app. Apoi, în acest folder, definim fișierul serverului. Să presupunem că se numește server.js și are următorul cod:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");<br>&nbsp;&nbsp;&nbsp;<br>http.createServer(function(_,&nbsp;response){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;fs.readFile("index.html",&nbsp;(_,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br><br>}).listen(3000,&nbsp;()=&gt;console.log("Serverul&nbsp;a&nbsp;fost&nbsp;lansat&nbsp;la&nbsp;adresa&nbsp;http://localhost:3000"));</code></pre>
+     </div>
+     <p class="paragraph">Acesta este cel mai primitiv server, care este suficient pentru sarcina noastră. Să trecem în revistă codul pe scurt. La început, se conectează pachetele cu funcționalitatea pe care intenționăm să o utilizăm:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");&nbsp;&nbsp;&nbsp;//&nbsp;pentru&nbsp;procesarea&nbsp;cererilor&nbsp;primite<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;pentru&nbsp;citirea&nbsp;din&nbsp;hard&nbsp;disk&nbsp;a&nbsp;fișierului&nbsp;index.html</code></pre>
+     </div>
+     <p class="paragraph">Pentru crearea serverului se folosește funcția http.createServer(). În această funcție se transmite un handler, care este apelat de fiecare dată când serverul primește o cerere. Această funcție are doi parametri: request (conține datele cererii) și response (gestionează trimiterea răspunsului). Primul parametru nu este utilizat, de aceea în locul său este indicat un underscore _.</p>
+     <p class="paragraph">În funcția handler trimitem fișierul index.html, pe care îl vom defini mai târziu:</p>
+     <div class="code-inline">
+      <pre><code>fs.readFile("index.html",&nbsp;(error,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));</code></pre>
+     </div>
+     <p class="paragraph">Pentru citirea fișierelor se folosește funcția încorporată fs.readFile(). Primul parametru al funcției este adresa fișierului (în acest caz se presupune că fișierul index.html se află în același folder cu fișierul server.js). Al doilea parametru este o funcție care este apelată după citirea fișierului și primește conținutul său prin al doilea parametru data. Apoi, conținutul citit poate fi trimis de asemenea cu ajutorul funcției response.end(data).</p>
+     <p class="paragraph">La sfârșit, cu funcția listen() lansăm serverul web pe portul 3000. Adică serverul va fi lansat la adresa http://localhost:3000/</p>
+     <p class="paragraph">Și, de asemenea, în același director vom defini fișierul index.html cu următorul cod:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;script&gt;<br>document.cookie&nbsp;=&nbsp;"login=tom32;";<br>console.log(document.cookie);<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici, după cum a fost examinat anterior, se setează cookie-ul pentru login. Apoi, cookie-ul este afișat în consolă.</p>
+     <p class="paragraph">Acum, în consolă, vom naviga la directorul serverului folosind comanda cd și vom lansa serverul folosind comanda node server.js:</p>
+     <div class="code-inline">
+      <pre><code>C:\app&gt;node&nbsp;server.js<br>Serverul&nbsp;a&nbsp;fost&nbsp;lansat&nbsp;la&nbsp;adresa&nbsp;http://localhost:3000</code></pre>
+     </div>
+     <p class="paragraph">După lansarea serverului, putem naviga în browser la adresa http://localhost:3000, unde ne va fi afișată pagina index.html. Folosind uneltele browserului, putem vizualiza cookie-urile setate. De exemplu, în Google Chrome, acest lucru se face din tab-ul Application, și în partea stângă, Storage -&gt; Cookies:</p>
+     <h2 class="subtitle">Setarea parametrilor cookie-ului</h2>
+     <p class="paragraph">Șirul cookie acceptă până la șase parametri diferiți:</p>
+     <ul class="enumeration">
+      <li>Numele și valoarea cookie-ului</li>
+     </ul>
+     <p class="paragraph">Numele nu este sensibil la majuscule, ceea ce înseamnă că, de exemplu, login și Login se referă la același cookie. Ca valori sunt permise doar șiruri (nu, de exemplu, numere). Numele și valoarea sunt singurele componente obligatorii. Nu este obligatoriu să specificați restul informațiilor (dacă nu sunt specificate, se folosesc valorile implicite).</p>
+     <ul class="enumeration">
+      <li>Perioada de expirare (parametrul expires)</li>
+     </ul>
+     <p class="paragraph">Data de expirare până la care cookie-ul este valid. După data specificată aici, cookie-ul expiră, este șters și nu mai este trimis la server. Dacă la crearea cookie-ului nu este specificată o dată de expirare, acesta este șters implicit la închiderea sesiunii browserului.</p>
+     <ul class="enumeration">
+      <li>Calea (parametrul path) și domeniul (parametrul domain)</li>
+     </ul>
+     <p class="paragraph">Sunt folosite pentru a delimita cookie-urile. De exemplu, un cookie cu domeniul www.localhost.com este trimis doar cu cererile către acest domeniu. Un cookie cu domeniul www.localhost.com și calea /home este trimis doar cu cererile către www.localhost.com/home, dar nu și către www.localhost.com/about.</p>
+     <ul class="enumeration">
+      <li>Parametrul secure</li>
+     </ul>
+     <p class="paragraph">Un indicator de securitate care poate fi folosit pentru a specifica dacă cookie-urile ar trebui trimise doar prin conexiuni care folosesc protocolul Secure Sockets Layer (SSL), de exemplu, pentru a permite trimiterea prin https. Dacă acest parametru este setat, cookie-ul poate fi trimis la adresa https://www.localhost.com, dar la cererile către adresa http://www.localhost.com, acest cookie NU este trimis.</p>
+     <p class="paragraph">Mai sus, au fost folosiți doar doi parametri: numele și valoarea cookie-ului:</p>
+     <div class="code-inline">
+      <pre><code>document.cookie&nbsp;=&nbsp;"login=tom32;";</code></pre>
+     </div>
+     <p class="paragraph">Adică, în acest caz, cookie-ul are numele login și valoarea tom32.</p>
+     <h2 class="subtitle">Parametrul expires</h2>
+     <p class="paragraph">Dar un astfel de cookie are un termen de viață foarte limitat: dacă nu se setează explicit un termen de expirare, cookie-ul va fi șters odată cu închiderea browserului. O astfel de situație poate fi ideală pentru cazurile în care este necesar să se șteargă toate informațiile după finalizarea lucrului cu aplicația web și închiderea browserului. Totuși, acest comportament nu este întotdeauna potrivit.</p>
+     <p class="paragraph">Și în acest caz, trebuie să setăm parametrul expires, adică perioada de valabilitate a cookie-urilor:</p>
+     <div class="code-inline">
+      <pre><code>document.cookie&nbsp;=&nbsp;"login=tom32;expires=Sun,&nbsp;31&nbsp;Dec&nbsp;2023&nbsp;23:59:00&nbsp;GMT;";</code></pre>
+     </div>
+     <p class="paragraph">Adică, perioada de valabilitate a cookie-ului login expiră luni, 31 decembrie 2023, la 23:59. Formatul parametrului expires este foarte important. Totuși, acesta poate fi generat programatic. În acest scop, putem folosi metoda toUTCString() a obiectului Date:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;expire&nbsp;=&nbsp;new&nbsp;Date();<br>expire.setHours(expire.getHours()&nbsp;+&nbsp;4);<br>document.cookie&nbsp;=&nbsp;"login=tom32;expires="&nbsp;+&nbsp;expire.toUTCString()&nbsp;+&nbsp;";";</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, termenul de valabilitate al cookie-ului va fi de 4 ore.</p>
+     <h2 class="subtitle">Calea și domeniul</h2>
+     <p class="paragraph">Dacă dorim să setăm cookie-uri pentru o anumită cale pe site, putem folosi parametrul path. De exemplu, dorim să setăm cookie-uri doar pentru calea http://localhost:3000/home:</p>
+     <div class="code-inline">
+      <pre><code>document.cookie&nbsp;=&nbsp;"login=tom32;expires=Sun,&nbsp;31&nbsp;Dec&nbsp;2023&nbsp;23:59:00&nbsp;GMT;path=/home;";</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, pentru alte căi de pe site, de exemplu, http://localhost:3000/about, aceste cookie-uri nu vor fi accesibile. Totuși, trebuie să reținem că acest cookie va fi setat dacă accesăm calea http://localhost:3000/home.</p>
+     <p class="paragraph">Dacă site-ul nostru are mai multe domenii și dorim să setăm cookie-uri direct pentru un anumit domeniu, atunci putem folosi parametrul domain. De exemplu, pe site-ul nostru există subdomeniul blog.mysite.com:</p>
+     <div class="code-inline">
+      <pre><code>document.cookie&nbsp;=&nbsp;"login=tom32;expires=Sun,&nbsp;31&nbsp;Dec&nbsp;2023&nbsp;23:59:00&nbsp;GMT;path=/;domain=blog.mysite.com;";</code></pre>
+     </div>
+     <p class="paragraph">Parametrul path=/ indică faptul că cookie-ul va fi accesibil pentru toate directoarele și căile subdomeniului blog.mysite.com.</p>
+     <h2 class="subtitle">Parametrul secure</h2>
+     <p class="paragraph">Ultimul parametru, secure, stabilește utilizarea SSL (Secure Sockets Layer) și este adecvat pentru site-uri care folosesc protocolul https. Dacă valoarea acestui parametru este true, cookie-urile vor fi utilizate doar în cazul stabilirii unei conexiuni securizate ssl. În mod implicit, acest parametru este setat pe false.</p>
+     <div class="code-inline">
+      <pre><code>document.cookie&nbsp;=&nbsp;"login=tom32;expires=Sun,&nbsp;31&nbsp;Dec&nbsp;2023&nbsp;23:59:00&nbsp;GMT;path=/;secure=true;";</code></pre>
+     </div>
+     <h2 class="subtitle">Obținerea cookie-urilor</h2>
+     <p class="paragraph">Pentru a extrage în mod simplu cookie-urile din browser, este suficient să accesăm proprietatea document.cookie:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;expire&nbsp;=&nbsp;new&nbsp;Date();<br>expire.setHours(expire.getHours()&nbsp;+&nbsp;4);<br><br>document.cookie&nbsp;=&nbsp;"language=JavaScript;expires="&nbsp;+&nbsp;expire.toUTCString()&nbsp;+&nbsp;";";<br>document.cookie&nbsp;=&nbsp;"company=Localhost;expires="&nbsp;+&nbsp;expire.toUTCString()&nbsp;+&nbsp;";";<br>document.cookie&nbsp;=&nbsp;"login=tom32;";<br><br>console.log(document.cookie);</code></pre>
+     </div>
+     <p class="paragraph">Aici au fost setate trei cookie-uri, iar consola browserului ne va afișa toate aceste cookie-uri:</p>
+     <div class="code-inline">
+      <pre><code>language=JavaScript;&nbsp;company=Localhost;&nbsp;login=tom32</code></pre>
+     </div>
+     <p class="paragraph">Cookie-urile extrase nu includ parametrii expires, path, domain și secure. De asemenea, cookie-urile sunt separate prin punct și virgulă, așadar este necesar să efectuăm unele transformări pentru a obține numele și valoarea acestora:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;cookies&nbsp;=&nbsp;document.cookie.split(";");<br>for(cookie&nbsp;of&nbsp;cookies){<br><br>&nbsp;&nbsp;&nbsp;const&nbsp;parts&nbsp;=&nbsp;cookie.split("=");<br>&nbsp;&nbsp;&nbsp;console.log("Numele&nbsp;cookie-ului:",&nbsp;parts[0]);<br>&nbsp;&nbsp;&nbsp;console.log("Valoarea:",&nbsp;parts[1],&nbsp;"\n\n");<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Restricții ale cookie-urilor</h2>
+     <p class="paragraph">Toate fișierele cookie pentru domeniul și calea corespunzătoare sunt trimise cu fiecare cerere, ceea ce afectează volumul datelor transmise. În plus, cookie-urile trimise prin protocolul HTTP (și nu prin protocolul securizat HTTPS) sunt transmise în formă necriptată, ceea ce reprezintă un risc de securitate în funcție de tipul de informații transmise. Un alt aspect limitativ al cookie-urilor este dimensiunea maximă permisă a memoriei, care este de 4 KB.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

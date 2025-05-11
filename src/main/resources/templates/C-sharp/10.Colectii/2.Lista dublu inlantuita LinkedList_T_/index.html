@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='10.Colectii', activeLesson='2.Lista dublu inlantuita LinkedList_T_'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Lista dublu înlănțuită LinkedList<t></t></h1>
+     <p class="paragraph">Clasa LinkedList&lt;T&gt; reprezintă o listă dublu înlănțuită, în care fiecare element stochează simultan o referință către următorul și către elementul anterior.</p>
+     <h2 class="subtitle">Crearea unei liste înlănțuite</h2>
+     <p class="paragraph">Pentru a crea o listă înlănțuită, putem folosi unul dintre constructorii săi. De exemplu, să creăm o listă înlănțuită goală:</p>
+     <div class="code-inline">
+      <pre><code>LinkedList&lt;string&gt;&nbsp;people&nbsp;=&nbsp;new&nbsp;LinkedList&lt;string&gt;();</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, lista înlănțuită people este destinată stocării șirurilor de caractere.</p>
+     <p class="paragraph">De asemenea, putem transmite o colecție de elemente constructorului, de exemplu, o listă List, după care va fi creată lista înlănțuită:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;employees&nbsp;=&nbsp;new&nbsp;List&lt;string&gt;&nbsp;{&nbsp;"Tom",&nbsp;"Sam",&nbsp;"Bob"&nbsp;};<br>LinkedList&lt;string&gt;&nbsp;people&nbsp;=&nbsp;new&nbsp;LinkedList&lt;string&gt;(employees);<br>foreach&nbsp;(string&nbsp;person&nbsp;in&nbsp;people)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(person);<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">LinkedListNode</h2>
+     <p class="paragraph">Dacă într-o listă simplă List&lt;T&gt; fiecare element reprezintă un obiect de tip T, în LinkedList&lt;T&gt; fiecare nod reprezintă un obiect al clasei LinkedListNode&lt;T&gt;. Iar elementele adăugate în lista înlănțuită T sunt de fapt învelite într-un obiect LinkedListNode.</p>
+     <p class="paragraph">Clasa LinkedListNode are următoarele proprietăți:</p>
+     <ul class="enumeration">
+      <li>Value: returnează sau setează valoarea nodului, reprezentată de tipul T</li>
+      <li>Next: returnează referința către următorul element de tip LinkedListNode&lt;T&gt; din listă. Dacă următorul element nu există, valoarea este null</li>
+      <li>Previous: returnează referința către elementul anterior de tip LinkedListNode&lt;T&gt; din listă. Dacă elementul anterior nu există, valoarea este null</li>
+     </ul>
+     <h2 class="subtitle">Proprietăți LinkedList</h2>
+     <p class="paragraph">Clasa LinkedList definește următoarele proprietăți:</p>
+     <ul class="enumeration">
+      <li>Count: numărul de elemente din lista înlănțuită</li>
+      <li>First: primul nod din listă sub formă de obiect LinkedListNode&lt;T&gt;</li>
+      <li>Last: ultimul nod din listă sub formă de obiect LinkedListNode&lt;T&gt;</li>
+     </ul>
+     <p class="paragraph">Utilizăm aceste proprietăți:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;employees&nbsp;=&nbsp;new&nbsp;List&lt;string&gt;&nbsp;{&nbsp;"Tom",&nbsp;"Sam",&nbsp;"Bob"&nbsp;};<br>LinkedList&lt;string&gt;&nbsp;people&nbsp;=&nbsp;new&nbsp;LinkedList&lt;string&gt;(employees);<br>Console.WriteLine(people.Count);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;3<br>Console.WriteLine(people.First?.Value);&nbsp;&nbsp;//&nbsp;Tom<br>Console.WriteLine(people.Last?.Value);&nbsp;&nbsp;&nbsp;//&nbsp;Bob</code></pre>
+     </div>
+     <p class="paragraph">Utilizând proprietățile LinkedList și LinkedListNode, putem parcurge toate elementele listei în ordine directă sau inversă:</p>
+     <div class="code-inline">
+      <pre><code>LinkedList&lt;string&gt;&nbsp;people&nbsp;=&nbsp;new&nbsp;LinkedList&lt;string&gt;(new[]&nbsp;{&nbsp;"Tom",&nbsp;"Sam",&nbsp;"Bob"&nbsp;});<br><br>//&nbsp;de&nbsp;la&nbsp;începutul&nbsp;până&nbsp;la&nbsp;sfârșitul&nbsp;listei<br>var&nbsp;currentNode&nbsp;=&nbsp;people.First;<br>while(currentNode&nbsp;!=&nbsp;null)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(currentNode.Value);<br>&nbsp;&nbsp;&nbsp;currentNode&nbsp;=&nbsp;currentNode.Next;<br>}<br><br>//&nbsp;de&nbsp;la&nbsp;sfârșitul&nbsp;până&nbsp;la&nbsp;începutul&nbsp;listei<br>currentNode&nbsp;=&nbsp;people.Last;<br>while&nbsp;(currentNode&nbsp;!=&nbsp;null)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(currentNode.Value);<br>&nbsp;&nbsp;&nbsp;currentNode&nbsp;=&nbsp;currentNode.Previous;<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Metode LinkedList</h2>
+     <p class="paragraph">Utilizând metodele clasei LinkedList&lt;T&gt;, putem accesa diferite elemente, atât la sfârșitul, cât și la începutul listei:</p>
+     <ul class="enumeration">
+      <li>AddAfter(LinkedListNode&lt;T&gt; node, LinkedListNode&lt;T&gt; newNode): inserează nodul newNode în listă după nodul node</li>
+      <li>AddAfter(LinkedListNode&lt;T&gt; node, T value): inserează în listă un nou nod cu valoarea value după nodul node</li>
+      <li>AddBefore(LinkedListNode&lt;T&gt; node, LinkedListNode&lt;T&gt; newNode): inserează în listă nodul newNode înaintea nodului node</li>
+      <li>AddBefore(LinkedListNode&lt;T&gt; node, T value): inserează în listă un nou nod cu valoarea value înaintea nodului node</li>
+      <li>AddFirst(LinkedListNode&lt;T&gt; node): inserează un nou nod la începutul listei</li>
+      <li>AddFirst(T value): inserează un nou nod cu valoarea value la începutul listei</li>
+      <li>AddLast(LinkedListNode&lt;T&gt; node): inserează un nou nod la sfârșitul listei</li>
+      <li>AddLast(T value): inserează un nou nod cu valoarea value la sfârșitul listei</li>
+      <li>RemoveFirst(): elimină primul nod din listă. După aceasta, nodul de lângă cel șters devine primul nod nou</li>
+      <li>RemoveLast(): șterge ultimul nod din listă</li>
+     </ul>
+     <p class="paragraph">Aplicăm unele dintre aceste metode:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;people&nbsp;=&nbsp;new&nbsp;LinkedList&lt;string&gt;();<br>people.AddLast("Tom");&nbsp;//&nbsp;inserăm&nbsp;nodul&nbsp;cu&nbsp;valoarea&nbsp;Tom&nbsp;pe&nbsp;ultimul&nbsp;loc<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;deoarece&nbsp;lista&nbsp;nu&nbsp;are&nbsp;noduri,&nbsp;ultimul&nbsp;va&nbsp;fi&nbsp;și&nbsp;primul<br>people.AddFirst("Bob");&nbsp;//&nbsp;inserăm&nbsp;nodul&nbsp;cu&nbsp;valoarea&nbsp;Bob&nbsp;pe&nbsp;primul&nbsp;loc<br><br>//&nbsp;inserăm&nbsp;după&nbsp;primul&nbsp;nod&nbsp;un&nbsp;nou&nbsp;nod&nbsp;cu&nbsp;valoarea&nbsp;Mike<br>if&nbsp;(people.First&nbsp;!=&nbsp;null)&nbsp;people.AddAfter(people.First,&nbsp;"Mike");<br><br>//&nbsp;acum&nbsp;lista&nbsp;are&nbsp;următoarea&nbsp;secvență:&nbsp;Bob&nbsp;Mike&nbsp;Tom<br>foreach&nbsp;(var&nbsp;person&nbsp;in&nbsp;people)&nbsp;Console.WriteLine(person);</code></pre>
+     </div>
+     <p class="paragraph">În mod similar, putem crea liste înlănțuite de alte tipuri:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;company&nbsp;=&nbsp;new&nbsp;LinkedList&lt;Person&gt;();<br><br>company.AddLast(new&nbsp;Person("Tom"));<br>company.AddLast(new&nbsp;Person("Sam"));<br>company.AddFirst(new&nbsp;Person("Bill"));<br><br>foreach&nbsp;(var&nbsp;person&nbsp;in&nbsp;company)&nbsp;Console.WriteLine(person.Name);<br><br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name)&nbsp;=&gt;&nbsp;Name&nbsp;=&nbsp;name;<br>}</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

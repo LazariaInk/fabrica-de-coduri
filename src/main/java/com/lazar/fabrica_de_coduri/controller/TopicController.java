@@ -30,6 +30,6 @@ public class TopicController {
         Chapter firstChapter = topic.getChapters().get(0);
         Lesson firstLesson = firstChapter.getLessons().get(0);
 
-        return "redirect:/lessons/" + firstLesson.getId();
+        return "redirect:/lectii/" + firstLesson.getId();
     }
 }

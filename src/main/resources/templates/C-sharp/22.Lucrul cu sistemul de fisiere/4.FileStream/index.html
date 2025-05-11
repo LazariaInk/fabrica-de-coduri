@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='22.Lucrul cu sistemul de fisiere', activeLesson='4.FileStream'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">FileStream - Citirea și scrierea fișierelor</h1>
+     <p class="paragraph">Clasa FileStream oferă posibilități pentru citirea și scrierea fișierelor. Aceasta permite lucrul atât cu fișiere text, cât și cu fișiere binare.</p>
+     <h2 class="subtitle">Crearea unui FileStream</h2>
+     <p class="paragraph">Pentru a crea un obiect FileStream, se pot utiliza fie constructorii acestei clase, fie metodele statice ale clasei File. Constructorul FileStream are multe versiuni supraîncărcate, dintre care una dintre cele mai simple și utilizate este:</p>
+     <div class="code-inline">
+      <pre><code>FileStream(string&nbsp;filename,&nbsp;FileMode&nbsp;mode)</code></pre>
+     </div>
+     <p class="paragraph">Aici, constructorul primește doi parametri: calea către fișier și enumerarea FileMode. Această enumerare indică modul de acces la fișier și poate lua următoarele valori:</p>
+     <ul class="enumeration">
+      <li>Append: dacă fișierul există, textul este adăugat la sfârșitul fișierului. Dacă fișierul nu există, acesta este creat. Fișierul este deschis doar pentru scriere</li>
+      <li>Create: se creează un fișier nou. Dacă un astfel de fișier deja există, acesta este suprascris</li>
+      <li>CreateNew: se creează un fișier nou. Dacă un astfel de fișier deja există, aplicația va arunca o eroare</li>
+      <li>Open: deschide fișierul. Dacă fișierul nu există, va arunca o excepție</li>
+      <li>OpenOrCreate: dacă fișierul există, acesta este deschis; dacă nu, se creează un fișier nou</li>
+      <li>Truncate: dacă fișierul există, acesta este suprascris. Fișierul este deschis doar pentru scriere</li>
+     </ul>
+     <p class="paragraph">O altă modalitate de a crea un obiect FileStream este prin metodele statice ale clasei File:</p>
+     <div class="code-inline">
+      <pre><code>FileStream&nbsp;File.Open(string&nbsp;file,&nbsp;FileMode&nbsp;mode);<br>FileStream&nbsp;File.OpenRead(string&nbsp;file);<br>FileStream&nbsp;File.OpenWrite(string&nbsp;file);</code></pre>
+     </div>
+     <p class="paragraph">Prima metodă deschide fișierul ținând cont de obiectul FileMode și returnează un flux de fișier FileStream. Această metodă are și câteva versiuni supraîncărcate. A doua metodă deschide fluxul pentru citire, iar a treia deschide fluxul pentru scriere.</p>
+     <h2 class="subtitle">Închiderea fluxului</h2>
+     <p class="paragraph">Clasa FileStream implementează interfața IDisposable pentru eliberarea tuturor resurselor asociate cu fișierul. După ce ați terminat de lucrat cu FileStream, trebuie să eliberați fișierul asociat prin apelarea metodei Dispose. Pentru închiderea corectă, puteți apela metoda Close(), care la rândul său apelează metoda Dispose:</p>
+     <div class="code-inline">
+      <pre><code>FileStream?&nbsp;fstream&nbsp;=&nbsp;null;<br>try<br>{<br>&nbsp;&nbsp;&nbsp;fstream&nbsp;=&nbsp;new&nbsp;FileStream("note3.dat",&nbsp;FileMode.OpenOrCreate);<br>&nbsp;&nbsp;&nbsp;//&nbsp;operațiuni&nbsp;cu&nbsp;fstream<br>}<br>catch(Exception&nbsp;ex)<br>{&nbsp;&nbsp;}<br>finally<br>{<br>&nbsp;&nbsp;&nbsp;fstream?.Close();<br>}</code></pre>
+     </div>
+     <p class="paragraph">Sau puteți folosi structura using, care va elibera automat toate resursele asociate cu FileStream:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;(FileStream&nbsp;fstream&nbsp;=&nbsp;new&nbsp;FileStream("note3.dat",&nbsp;FileMode.OpenOrCreate))<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;operațiuni&nbsp;cu&nbsp;fstream<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Proprietăți și metode ale FileStream</h2>
+     <p class="paragraph">Cele mai importante proprietăți ale clasei FileStream sunt:</p>
+     <ul class="enumeration">
+      <li>Length: returnează lungimea fluxului în bytes</li>
+      <li>Position: returnează poziția curentă în flux</li>
+      <li>Name: returnează calea absolută către fișierul deschis în FileStream</li>
+     </ul>
+     <p class="paragraph">Pentru citirea/scrierea fișierelor, se pot utiliza următoarele metode ale clasei FileStream:</p>
+     <ul class="enumeration">
+      <li>void CopyTo(Stream destination): copie datele din fluxul curent în fluxul destination</li>
+      <li>Task CopyToAsync(Stream destination): versiunea asincronă a metodei CopyTo</li>
+      <li>void Flush(): golește conținutul bufferului în fișier</li>
+      <li>Task FlushAsync(): versiunea asincronă a metodei Flush</li>
+      <li>int Read(byte[] array, int offset, int count): citește datele din fișier într-un array de bytes și returnează numărul de bytes citiți</li>
+     </ul>
+     <p class="paragraph">- int Read(byte[] array, int offset, int count) Primește trei parametri: array - array-ul de bytes în care vor fi plasate datele citite din fișier; offset - reprezintă deplasarea în bytes în array-ul array, în care bytes-ii citiți vor fi plasați; count - numărul maxim de bytes care urmează să fie citiți; Task&lt;int&gt; ReadAsync(byte[] array, int offset, int count): versiunea asincronă a metodei Read.</p>
+     <ul class="enumeration">
+      <li>long Seek(long offset, SeekOrigin origin): setează poziția în flux cu deplasare pe baza numărului de bytes indicat în parametrul offset.</li>
+      <li>void Write(byte[] array, int offset, int count): scrie datele din array-ul de bytes în fișier. Primește trei parametri: array - array-ul de bytes din care datele vor fi scrise în fișier; offset - deplasarea în bytes în array-ul array, de unde începe scrierea bytes-ilor în flux; count - numărul maxim de bytes care urmează să fie scriși.</li>
+      <li>Task WriteAsync(byte[] array, int offset, int count): versiunea asincronă a metodei Write.</li>
+     </ul>
+     <h2 class="subtitle">Citirea și scrierea fișierelor</h2>
+     <p class="paragraph">FileStream oferă acces la fișiere la nivel de bytes, așa că, de exemplu, dacă trebuie să citiți sau să scrieți una sau mai multe linii într-un fișier text, trebuie să transformați array-ul de bytes în stringuri folosind metode speciale. De aceea, pentru lucrul cu fișiere text sunt utilizate alte clase.</p>
+     <p class="paragraph">Totuși, când lucrați cu fișiere binare care au o anumită structură, FileStream poate fi foarte util pentru extragerea anumitor porțiuni de informații și procesarea lor.</p>
+     <p class="paragraph">Să vedem un exemplu de citire și scriere într-un fișier text:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Text;<br><br>string&nbsp;path&nbsp;=&nbsp;@"C:\app\note.txt";&nbsp;&nbsp;&nbsp;//&nbsp;calea&nbsp;către&nbsp;fișier<br><br>string&nbsp;text&nbsp;=&nbsp;"Hello&nbsp;FDC.COM";&nbsp;//&nbsp;textul&nbsp;pentru&nbsp;scriere<br><br>//&nbsp;scrierea&nbsp;în&nbsp;fișier<br>using&nbsp;(FileStream&nbsp;fstream&nbsp;=&nbsp;new&nbsp;FileStream(path,&nbsp;FileMode.OpenOrCreate))<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;transformăm&nbsp;string-ul&nbsp;în&nbsp;bytes<br>&nbsp;&nbsp;&nbsp;byte[]&nbsp;buffer&nbsp;=&nbsp;Encoding.Default.GetBytes(text);<br>&nbsp;&nbsp;&nbsp;//&nbsp;scrierea&nbsp;array-ului&nbsp;de&nbsp;bytes&nbsp;în&nbsp;fișier<br>&nbsp;&nbsp;&nbsp;await&nbsp;fstream.WriteAsync(buffer,&nbsp;0,&nbsp;buffer.Length);<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Textul&nbsp;a&nbsp;fost&nbsp;scris&nbsp;în&nbsp;fișier");<br>}<br><br>//&nbsp;citirea&nbsp;din&nbsp;fișier<br>using&nbsp;(FileStream&nbsp;fstream&nbsp;=&nbsp;File.OpenRead(path))<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;alocăm&nbsp;un&nbsp;array&nbsp;pentru&nbsp;citirea&nbsp;datelor&nbsp;din&nbsp;fișier<br>&nbsp;&nbsp;&nbsp;byte[]&nbsp;buffer&nbsp;=&nbsp;new&nbsp;byte[fstream.Length];<br>&nbsp;&nbsp;&nbsp;//&nbsp;citirea&nbsp;datelor<br>&nbsp;&nbsp;&nbsp;await&nbsp;fstream.ReadAsync(buffer,&nbsp;0,&nbsp;buffer.Length);<br>&nbsp;&nbsp;&nbsp;//&nbsp;decodăm&nbsp;bytes&nbsp;în&nbsp;string<br>&nbsp;&nbsp;&nbsp;string&nbsp;textFromFile&nbsp;=&nbsp;Encoding.Default.GetString(buffer);<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Textul&nbsp;din&nbsp;fișier:&nbsp;{textFromFile}");<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest exemplu, definim calea către fișier și textul pentru scriere.</p>
+     <p class="paragraph">Atât la citire, cât și la scriere, pentru crearea și eliminarea obiectului FileStream se utilizează structura using, la sfârșitul căreia pentru obiectul FileStream creat se apelează automat metoda Dispose, iar astfel obiectul este distrus.</p>
+     <p class="paragraph">Deoarece operațiile cu fișiere pot dura mult timp și reprezintă un punct sensibil în funcționarea programului, se recomandă utilizarea versiunilor asincrone ale metodelor FileStream. Atât la scriere, cât și la citire, se folosește obiectul de codificare Encoding.Default din spațiul de nume System.Text.</p>
+     <p class="paragraph">În acest caz, folosim două metode ale acestuia: GetBytes pentru obținerea unui array de bytes dintr-un string și GetString pentru obținerea unui string dintr-un array de bytes.</p>
+     <p class="paragraph">În final, textul introdus de noi este scris în fișierul note.txt și vom obține următorul rezultat în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Textul&nbsp;a&nbsp;fost&nbsp;scris&nbsp;în&nbsp;fișier<br>Textul&nbsp;din&nbsp;fișier:&nbsp;Hello&nbsp;FDC.COM</code></pre>
+     </div>
+     <p class="paragraph">Fișierul scris este, în esență, un fișier binar (nu text), deși dacă scriem doar un string în el, putem să-l vizualizăm într-un mod lizibil, deschizându-l într-un editor de text. Totuși, dacă scriem bytes aleatorii în el, de exemplu:</p>
+     <div class="code-inline">
+      <pre><code>fstream.WriteByte(13);<br>fstream.WriteByte(103);</code></pre>
+     </div>
+     <p class="paragraph">Atunci pot apărea probleme în interpretarea acestuia. De aceea, pentru lucrul cu fișiere text sunt destinate alte clase - StreamReader și StreamWriter.</p>
+     <h2 class="subtitle">Acces aleatoriu la fișiere</h2>
+     <p class="paragraph">Adesea, fișierele binare au o anumită structură. Cunoscând această structură, putem extrage porțiunea necesară de informații din fișier sau, invers, putem scrie într-o anumită poziție a fișierului un set specific de bytes.</p>
+     <p class="paragraph">e exemplu, în fișierele .wav, datele audio încep de la byte-ul 44, iar până la byte-ul 44 se află diferite metadate - numărul de canale audio, frecvența de eșantionare etc.</p>
+     <p class="paragraph">Cu ajutorul metodei Seek() putem controla poziția cursorului fluxului, de la care începe citirea sau scrierea în fișier. Această metodă primește doi parametri: offset (deplasare) și poziția în fișier. Poziția în fișier este descrisă de trei valori:</p>
+     <ul class="enumeration">
+      <li>SeekOrigin.Begin: începutul fișierului</li>
+      <li>SeekOrigin.End: sfârșitul fișierului</li>
+      <li>SeekOrigin.Current: poziția curentă în fișier</li>
+     </ul>
+     <p class="paragraph">Cursorul fluxului, de la care începe citirea sau scrierea, este deplasat înainte pe baza valorii offset în raport cu poziția specificată ca al doilea parametru. Deplasarea poate fi negativă, atunci cursorul se deplasează înapoi; dacă este pozitivă, se deplasează înainte.</p>
+     <p class="paragraph">Să vedem un exemplu simplu:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Text;<br><br>string&nbsp;path&nbsp;=&nbsp;"note.dat";<br><br>string&nbsp;text&nbsp;=&nbsp;"hello&nbsp;world";<br><br>using&nbsp;(FileStream&nbsp;fstream&nbsp;=&nbsp;new&nbsp;FileStream(path,&nbsp;FileMode.OpenOrCreate))<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;transformăm&nbsp;string-ul&nbsp;în&nbsp;bytes<br>&nbsp;&nbsp;&nbsp;byte[]&nbsp;input&nbsp;=&nbsp;Encoding.Default.GetBytes(text);<br>&nbsp;&nbsp;&nbsp;//&nbsp;scrierea&nbsp;array-ului&nbsp;de&nbsp;bytes&nbsp;în&nbsp;fișier<br>&nbsp;&nbsp;&nbsp;fstream.Write(input,&nbsp;0,&nbsp;input.Length);<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Textul&nbsp;a&nbsp;fost&nbsp;scris&nbsp;în&nbsp;fișier");<br>}<br>//&nbsp;citirea&nbsp;unei&nbsp;părți&nbsp;din&nbsp;fișier<br>using&nbsp;(FileStream&nbsp;fstream&nbsp;=&nbsp;new&nbsp;FileStream(path,&nbsp;FileMode.OpenOrCreate))<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;deplasăm&nbsp;cursorul&nbsp;la&nbsp;sfârșitul&nbsp;fișierului,&nbsp;cu&nbsp;cinci&nbsp;bytes&nbsp;înainte&nbsp;de&nbsp;sfârșit<br>&nbsp;&nbsp;&nbsp;fstream.Seek(-5,&nbsp;SeekOrigin.End);&nbsp;//&nbsp;minus&nbsp;5&nbsp;caractere&nbsp;de&nbsp;la&nbsp;sfârșitul&nbsp;fluxului<br><br>&nbsp;&nbsp;&nbsp;//&nbsp;citim&nbsp;cinci&nbsp;bytes&nbsp;de&nbsp;la&nbsp;poziția&nbsp;curentă<br>&nbsp;&nbsp;&nbsp;byte[]&nbsp;output&nbsp;=&nbsp;new&nbsp;byte[5];<br>&nbsp;&nbsp;&nbsp;await&nbsp;fstream.ReadAsync(output,&nbsp;0,&nbsp;output.Length);<br>&nbsp;&nbsp;&nbsp;//&nbsp;decodăm&nbsp;bytes&nbsp;în&nbsp;string<br>&nbsp;&nbsp;&nbsp;string&nbsp;textFromFile&nbsp;=&nbsp;Encoding.Default.GetString(output);<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Textul&nbsp;din&nbsp;fișier:&nbsp;{textFromFile}");&nbsp;//&nbsp;world<br>}</code></pre>
+     </div>
+     <p class="paragraph">Mai întâi, scriem în fișier textul "hello world". Apoi, accesăm din nou fișierul pentru citire. Inițial, deplasăm cursorul cu cinci caractere înapoi în raport cu sfârșitul fluxului de fișiere:</p>
+     <div class="code-inline">
+      <pre><code>fstream.Seek(-5,&nbsp;SeekOrigin.End)</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/22.Lucrul%20cu%20sistemul%20de%20fisiere/4.FileStream/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">După efectuarea acestei operațiuni, cursorul va fi poziționat pe caracterul "w".</p>
+     <p class="paragraph">După aceasta, citim cinci bytes începând cu caracterul "w". În codificarea implicită, 1 caracter reprezintă 1 byte. Prin urmare, citirea a 5 bytes este echivalentă cu citirea a cinci caractere: "world".</p>
+     <p class="paragraph">Astfel, obținem următorul rezultat în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Textul&nbsp;a&nbsp;fost&nbsp;scris&nbsp;în&nbsp;fișier<br>Textul&nbsp;din&nbsp;fișier:&nbsp;world</code></pre>
+     </div>
+     <p class="paragraph">Să vedem un exemplu puțin mai complex - cu scrierea începând de la o anumită poziție:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Text;<br><br>string&nbsp;path&nbsp;=&nbsp;"note2.dat";<br><br>string&nbsp;text&nbsp;=&nbsp;"hello&nbsp;world";<br><br>//&nbsp;scrierea&nbsp;în&nbsp;fișier<br>using&nbsp;(FileStream&nbsp;fstream&nbsp;=&nbsp;new&nbsp;FileStream(path,&nbsp;FileMode.OpenOrCreate))<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;transformăm&nbsp;string-ul&nbsp;în&nbsp;bytes<br>&nbsp;&nbsp;&nbsp;byte[]&nbsp;input&nbsp;=&nbsp;Encoding.Default.GetBytes(text);<br>&nbsp;&nbsp;&nbsp;//&nbsp;scrierea&nbsp;array-ului&nbsp;de&nbsp;bytes&nbsp;în&nbsp;fișier<br>&nbsp;&nbsp;&nbsp;fstream.Write(input,&nbsp;0,&nbsp;input.Length);<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Textul&nbsp;a&nbsp;fost&nbsp;scris&nbsp;în&nbsp;fișier");<br>}<br>using&nbsp;(FileStream&nbsp;fstream&nbsp;=&nbsp;new&nbsp;FileStream(path,&nbsp;FileMode.OpenOrCreate))<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;înlocuim&nbsp;în&nbsp;fișier&nbsp;cuvântul&nbsp;"world"&nbsp;cu&nbsp;"house"<br>&nbsp;&nbsp;&nbsp;string&nbsp;replaceText&nbsp;=&nbsp;"house";<br>&nbsp;&nbsp;&nbsp;fstream.Seek(-5,&nbsp;SeekOrigin.End);&nbsp;//&nbsp;minus&nbsp;5&nbsp;caractere&nbsp;de&nbsp;la&nbsp;sfârșitul&nbsp;fluxului<br>&nbsp;&nbsp;&nbsp;byte[]&nbsp;input&nbsp;=&nbsp;Encoding.Default.GetBytes(replaceText);<br>&nbsp;&nbsp;&nbsp;await&nbsp;fstream.WriteAsync(input,&nbsp;0,&nbsp;input.Length);<br><br>&nbsp;&nbsp;&nbsp;//&nbsp;citim&nbsp;întregul&nbsp;fișier<br>&nbsp;&nbsp;&nbsp;//&nbsp;readucem&nbsp;cursorul&nbsp;la&nbsp;începutul&nbsp;fișierului<br>&nbsp;&nbsp;&nbsp;fstream.Seek(0,&nbsp;SeekOrigin.Begin);<br>&nbsp;&nbsp;&nbsp;byte[]&nbsp;output&nbsp;=&nbsp;new&nbsp;byte[fstream.Length];<br>&nbsp;&nbsp;&nbsp;await&nbsp;fstream.ReadAsync(output,&nbsp;0,&nbsp;output.Length);<br>&nbsp;&nbsp;&nbsp;//&nbsp;decodăm&nbsp;bytes&nbsp;în&nbsp;string<br>&nbsp;&nbsp;&nbsp;string&nbsp;textFromFile&nbsp;=&nbsp;Encoding.Default.GetString(output);<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Textul&nbsp;din&nbsp;fișier:&nbsp;{textFromFile}");&nbsp;//&nbsp;hello&nbsp;house<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest exemplu, scriem inițial în fișier string-ul "hello world". Apoi deschidem din nou fișierul și ne deplasăm la sfârșitul fișierului, cu cinci caractere înainte de sfârșit (adică din nou de la poziția caracterului "w"), și scriem string-ul "house". Astfel, string-ul "house" înlocuiește string-ul "world".</p>
+     <p class="paragraph">Pentru a citi întregul fișier după această operațiune, mutăm cursorul la începutul fișierului:</p>
+     <div class="code-inline">
+      <pre><code>fstream.Seek(0,&nbsp;SeekOrigin.Begin);</code></pre>
+     </div>
+     <p class="paragraph">Rezultatul afișat în consolă va fi:</p>
+     <div class="code-inline">
+      <pre><code>Textul&nbsp;a&nbsp;fost&nbsp;scris&nbsp;în&nbsp;fișier<br>Textul&nbsp;din&nbsp;fișier:&nbsp;hello&nbsp;house</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='7.Siruri de caractere', activeLesson='8.Expresiile regulate in metodele String'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Expresiile regulate în metodele String</h1>
+     <h2 class="subtitle">Мetoda match</h2>
+     <p class="paragraph">Pentru a căuta toate potrivirile într-un șir, se utilizează metoda match():</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;initialText&nbsp;=&nbsp;"Am&nbsp;băut&nbsp;o&nbsp;băutura&nbsp;carbogazoasă";<br>const&nbsp;exp&nbsp;=&nbsp;/băut[a-z]*/gi;<br>const&nbsp;result&nbsp;=&nbsp;initialText.match(exp);<br>result.forEach(value&nbsp;=&gt;&nbsp;console.log(value));<br>//&nbsp;sau&nbsp;așa<br>//&nbsp;console.log(result[0]);<br>//&nbsp;console.log(result[1]);</code></pre>
+     </div>
+     <p class="paragraph">Simbolul asterisk (*) indică posibilitatea existenței unui număr nedeterminat de caractere de la a la z după șirul "băut". În final, în array-ul rezultat vor fi următoarele cuvinte:</p>
+     <div class="code-inline">
+      <pre><code>băut<br>băutura</code></pre>
+     </div>
+     <p class="paragraph">Pe de o parte, această metodă seamănă cu metoda exec() a obiectului RegExp, cu excepția faptului că exec() returnează doar prima potrivire:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;initialText&nbsp;=&nbsp;"Am&nbsp;băut&nbsp;o&nbsp;băutura&nbsp;carbogazoasă";<br>const&nbsp;exp&nbsp;=&nbsp;/băut[a-z]*/gi;<br>const&nbsp;result2&nbsp;=&nbsp;exp.exec(initialText);<br>result2.forEach(value&nbsp;=&gt;&nbsp;console.log(value));</code></pre>
+     </div>
+     <p class="paragraph">Afișarea consolei în browser:</p>
+     <div class="code-inline">
+      <pre><code>băut</code></pre>
+     </div>
+     <h2 class="subtitle">Divizarea șirului - Metoda split</h2>
+     <p class="paragraph">Metoda split poate utiliza expresii regulate pentru a separa șirurile. De exemplu, să despărțim textul în cuvinte (mai exact, după spații) folosind metacaracterul "\s":</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;initialText&nbsp;=&nbsp;"Astăzi&nbsp;a&nbsp;fost&nbsp;o&nbsp;vreme&nbsp;frumoasă";<br>const&nbsp;exp&nbsp;=&nbsp;/\s/;<br>const&nbsp;result&nbsp;=&nbsp;initialText.split(exp);<br>result.forEach(value&nbsp;=&gt;&nbsp;console.log(value));</code></pre>
+     </div>
+     <p class="paragraph">Afișajul consolei în browser:</p>
+     <p class="paragraph">Astăzi a fost o vreme frumoasă</p>
+     <h2 class="subtitle">Căutare în șir - Metoda search</h2>
+     <p class="paragraph">Metoda search găsește indexul primei potriviri în șir:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;initialText&nbsp;=&nbsp;"hello&nbsp;world";<br>const&nbsp;exp&nbsp;=&nbsp;/wor/;<br>const&nbsp;result&nbsp;=&nbsp;initialText.search(exp);<br>console.log(result);&nbsp;//&nbsp;6</code></pre>
+     </div>
+     <h2 class="subtitle">Înlocuire - Metodele replace</h2>
+     <p class="paragraph">Metoda replace permite înlocuirea tuturor potrivirilor unei expresii regulate cu un șir specific. Primul parametru al metodei este expresia regulată, iar al doilea este cu ce să înlocuim potrivirile. Exemplu de înlocuire:</p>
+     <div class="code-inline">
+      <pre><code>let&nbsp;meniu&nbsp;=&nbsp;"Mic&nbsp;dejun:&nbsp;terci,&nbsp;ceai.&nbsp;Prânz:&nbsp;supă,&nbsp;ceai.&nbsp;Cină:&nbsp;salată,&nbsp;ceai.";<br>const&nbsp;exp&nbsp;=&nbsp;/ceai/gi;<br>meniu&nbsp;=&nbsp;meniu.replace(exp,&nbsp;"cafea");<br>console.log(meniu);</code></pre>
+     </div>
+     <p class="paragraph">Afișajul în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Mic&nbsp;dejun:&nbsp;terci,&nbsp;cafea.&nbsp;Prânz:&nbsp;supă,&nbsp;cafea.&nbsp;Cină:&nbsp;salată,&nbsp;cafea.</code></pre>
+     </div>
+     <p class="paragraph">O altă formă a metodei acceptă o funcție de înlocuire ca al doilea parametru. Această funcție primește potrivirea expresiei regulate și returnează șirul cu care se înlocuiește potrivirea. De exemplu, să înlocuim "ceai" cu "cafea" doar pentru micul dejun:</p>
+     <div class="code-inline">
+      <pre><code>let&nbsp;meniu&nbsp;=&nbsp;"Mic&nbsp;dejun:&nbsp;terci,&nbsp;ceai.&nbsp;Prânz:&nbsp;supă,&nbsp;ceai.&nbsp;Cină:&nbsp;salată,&nbsp;ceai.";<br>const&nbsp;exp&nbsp;=&nbsp;/ceai/gi;<br>let&nbsp;i&nbsp;=&nbsp;0;<br>meniu&nbsp;=&nbsp;meniu.replace(exp,&nbsp;function(ceai){<br>&nbsp;&nbsp;&nbsp;if(i++&nbsp;==&nbsp;0)&nbsp;return&nbsp;"cafea";<br>&nbsp;&nbsp;&nbsp;else&nbsp;return&nbsp;ceai;<br>});<br>console.log(meniu);&nbsp;&nbsp;//&nbsp;Mic&nbsp;dejun:&nbsp;terci,&nbsp;cafea.&nbsp;Prânz:&nbsp;supă,&nbsp;ceai.&nbsp;Cină:&nbsp;salată,&nbsp;ceai.</code></pre>
+     </div>
+     <p class="paragraph">Pentru indicatorul de înlocuire, folosim un contor - variabila i. Dacă aceasta este egală cu 0, facem înlocuirea. În celelalte cazuri, returnăm potrivirea - șirul "ceai".</p>
+     <p class="paragraph">Un caz mai complex. Să presupunem că avem următorul text:</p>
+     <div class="code-inline">
+      <pre><code>Data&nbsp;publicării:&nbsp;2021-09-06<br>Actualizat&nbsp;la:&nbsp;2021-09-14</code></pre>
+     </div>
+     <p class="paragraph">Aici se utilizează datele în formatul yyyy-MM-dd. Să presupunem că trebuie să schimbăm formatul datelor la "dd.MM.yyyy". Pentru aceasta, vom defini următorul program:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;exp&nbsp;=&nbsp;/\d{4}-\d{2}-\d{2}/g;<br>let&nbsp;text&nbsp;=&nbsp;"Publication&nbsp;Date:&nbsp;2021-09-06\nUpdated&nbsp;on:&nbsp;2021-09-14"<br><br>text&nbsp;=&nbsp;text.replace(exp,&nbsp;function(date){<br>&nbsp;&nbsp;&nbsp;const&nbsp;arr&nbsp;=&nbsp;date.split("-");<br>&nbsp;&nbsp;&nbsp;return&nbsp;`${arr[2]}.${arr[1]}.${arr[0]}`;<br>});<br>console.log(text);</code></pre>
+     </div>
+     <p class="paragraph">Aici extragem toate potrivirile cu expresia regulată /\d{4}-\d{2}-\d{2}/g. În funcția de înlocuire, obținem potrivirea prin parametrul date și, folosind funcția split(), o despărțim în trei părți folosind separatorul liniei de dialog "-":</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;arr&nbsp;=&nbsp;date.split("-");</code></pre>
+     </div>
+     <p class="paragraph">Prin urmare, obținem un tablou format din trei componente ale datei. Apoi returnăm data în alt format:</p>
+     <div class="code-inline">
+      <pre><code>return&nbsp;`${arr[2]}.${arr[1]}.${arr[0]}`;</code></pre>
+     </div>
+     <p class="paragraph">În final, vom obține textul:</p>
+     <p class="paragraph">Publication Date: 06.09.2021 Updated on: 14.09.2021</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

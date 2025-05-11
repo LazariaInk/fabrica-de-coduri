@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='19.Reflectie', activeLesson='6.Atributele in dot NET'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Atributele în .NET</h1>
+     <p class="paragraph">Atributele în .NET reprezintă instrumente speciale care permit încorporarea de metadate suplimentare în asamblări. Atributele pot fi aplicate întregului tip (clasă, interfață etc.) sau anumitor părți ale acestuia (metodă, proprietate etc.). Baza atributelor o constituie clasa System.Attribute, din care derivă toate celelalte clase de atribute. În .NET există multe clase de atribute integrate, dar putem crea și propriile noastre clase de atribute care să definească metadate pentru alte tipuri.</p>
+     <p class="paragraph">Să presupunem că trebuie să verificăm dacă un utilizator îndeplinește anumite restricții de vârstă. Vom crea un atribut care va stoca pragul de vârstă de la care sunt permise anumite acțiuni:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;AgeValidationAttribute&nbsp;:&nbsp;Attribute<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Age&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;AgeValidationAttribute()&nbsp;{&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;AgeValidationAttribute(int&nbsp;age)&nbsp;=&gt;&nbsp;Age&nbsp;=&nbsp;age;<br>}</code></pre>
+     </div>
+     <p class="paragraph">În esență, aceasta este o clasă obișnuită, moștenită din System.Attribute. În ea sunt definiți doi constructori: unul cu parametri și unul fără. Constructorul cu parametri al atributului primește un prag de vârstă și îl salvează în proprietate.</p>
+     <p class="paragraph">Acum vom aplica acest atribut unei clase:</p>
+     <div class="code-inline">
+      <pre><code>[AgeValidation(18)]<br>public&nbsp;class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Age&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name,&nbsp;int&nbsp;age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Această clasă Person aplică atributul. Pentru aceasta, numele atributului este specificat între paranteze drepte chiar înainte de definirea clasei. Sufixul Attribute nu este obligatoriu de menționat. Ambele scrieri [AgeValidation(18)] și [AgeValidationAttribute(18)] sunt echivalente.</p>
+     <p class="paragraph">Dacă constructorul atributului prevede utilizarea unor parametri (public AgeValidationAttribute(int age)), atunci după numele atributului putem specifica valorile pentru parametrii constructorului. În acest caz, se transmite valoarea pentru parametrul age. Astfel, practic, spunem că în AgeValidationAttribute proprietatea Age va avea valoarea 18.</p>
+     <p class="paragraph">Ca alternativă, putem folosi parametri nominalizați pentru toate proprietățile atributului, dacă clasa atributului are un constructor fără parametri: [AgeValidation(Age = 18)].</p>
+     <p class="paragraph">Acum să obținem atributul clasei Person și să-l folosim pentru a verifica obiectele acestei clase:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;35);<br>Person&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person("Bob",&nbsp;16);<br>bool&nbsp;tomIsValid&nbsp;=&nbsp;ValidateUser(tom);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;true<br>bool&nbsp;bobIsValid&nbsp;=&nbsp;ValidateUser(bob);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;false<br><br>Console.WriteLine($"Rezultatul&nbsp;validării&nbsp;pentru&nbsp;Tom:&nbsp;{tomIsValid}");<br>Console.WriteLine($"Rezultatul&nbsp;validării&nbsp;pentru&nbsp;Bob:&nbsp;{bobIsValid}");<br><br>bool&nbsp;ValidateUser(Person&nbsp;person)<br>{<br>&nbsp;&nbsp;&nbsp;Type&nbsp;type&nbsp;=&nbsp;typeof(Person);<br>&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;toate&nbsp;atributele&nbsp;clasei&nbsp;Person<br>&nbsp;&nbsp;&nbsp;object[]&nbsp;attributes&nbsp;=&nbsp;type.GetCustomAttributes(false);<br><br>&nbsp;&nbsp;&nbsp;//&nbsp;parcurgem&nbsp;toate&nbsp;atributele<br>&nbsp;&nbsp;&nbsp;foreach&nbsp;(Attribute&nbsp;attr&nbsp;in&nbsp;attributes)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;atributul&nbsp;reprezintă&nbsp;tipul&nbsp;AgeValidationAttribute<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(attr&nbsp;is&nbsp;AgeValidationAttribute&nbsp;ageAttribute)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;returnăm&nbsp;rezultatul&nbsp;verificării&nbsp;vârstei<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;person.Age&nbsp;&gt;=&nbsp;ageAttribute.Age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;return&nbsp;true;<br>}<br><br>class&nbsp;AgeValidationAttribute&nbsp;:&nbsp;Attribute<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Age&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;AgeValidationAttribute()&nbsp;{&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;AgeValidationAttribute(int&nbsp;age)&nbsp;=&gt;&nbsp;Age&nbsp;=&nbsp;age;<br>}<br><br>[AgeValidation(18)]<br>public&nbsp;class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Age&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name,&nbsp;int&nbsp;age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, în metoda ValidateUser primim un obiect Person și folosind metoda GetCustomAttributes extragem toate atributele din tipul Person. Apoi, dintre atribute, obținem atributul AgeValidationAttribute, dacă acesta există (pentru că putem să nu-l aplicăm clasei) și verificăm dacă vârsta utilizatorului este permisă.</p>
+     <p class="paragraph">Dacă utilizatorul trece verificarea de vârstă, returnăm true, altfel returnăm false. Dacă atributul nu este aplicat, returnăm true.</p>
+     <h2 class="subtitle">Limitarea aplicării atributului</h2>
+     <p class="paragraph">Cu ajutorul atributului AttributeUsage putem limita tipurile la care poate fi aplicat atributul. De exemplu, dorim ca atributul definit mai sus să poată fi aplicat doar claselor:</p>
+     <div class="code-inline">
+      <pre><code>[AttributeUsage(AttributeTargets.Class)]<br>class&nbsp;AgeValidationAttribute&nbsp;:&nbsp;Attribute<br>{<br>//....................................<br>}</code></pre>
+     </div>
+     <p class="paragraph">Limitarea este definită prin enumerarea AttributeTargets, care poate accepta și alte valori:</p>
+     <ul class="enumeration">
+      <li>All: utilizat de toate tipurile</li>
+      <li>Assembly: atributul se aplică la asamblare</li>
+      <li>Constructor: atributul se aplică la constructor</li>
+      <li>Delegate: atributul se aplică la delegat</li>
+      <li>Enum: se aplică la enumerare</li>
+      <li>Event: atributul se aplică la eveniment</li>
+      <li>Field: se aplică la câmpul unui tip</li>
+      <li>Interface: atributul se aplică la interfață</li>
+      <li>Method: se aplică la metodă</li>
+      <li>Property: se aplică la proprietate</li>
+      <li>Struct: se aplică la structură</li>
+     </ul>
+     <p class="paragraph">Prin utilizarea operatorului logic OR, putem combina aceste valori. De exemplu, dacă atributul poate fi aplicat atât claselor, cât și structurilor: [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)].</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

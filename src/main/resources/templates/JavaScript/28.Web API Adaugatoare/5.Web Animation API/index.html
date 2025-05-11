@@ -1,185 +1,175 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='28.Web API Adaugatoare', activeLesson='5.Web Animation API'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Web Animation API</h1>
- <p class="paragraph">Web Animation API permite definirea și gestionarea animațiilor pe o pagină web. Pentru a crea animații la elementele unei pagini web se apelează metoda animate()</p>
- <div class="code-inline">
-  <pre><code>animate(keyframes,&nbsp;options)</code></pre>
- </div>
- <p class="paragraph">Primul parametru, keyframes, reprezintă definițiile cadrelor cheie. Al doilea parametru reprezintă setările de configurare ale animației sub forma unui obiect cu următoarele proprietăți:</p>
- <ul class="enumeration">
-  <li>delay: întârziere (în milisecunde) după care se lansează animația</li>
-  <li>endDelay: întârziere (în milisecunde) după care se încheie animația</li>
-  <li>fill: comportamentul de umplere al animației (valorile posibile: none, forwards, backwards, both, auto)</li>
-  <li>iterationStart: definește iterația în care se activează un anumit efect al animației</li>
-  <li>iterations: numărul de repetări (pentru repetare infinită a animației se transmite valoarea infinity)</li>
-  <li>duration: durata animației în milisecunde</li>
-  <li>direction: direcția animației (valorile posibile: alternate, normal, reverse, alternate-reverse)</li>
-  <li>easing: comportamentul animației (valorile posibile: ease, ease-in, ease-out, ease-in-out, cubic-bezier)</li>
- </ul>
- <p class="paragraph">Rezultatul metodei animate() este o animație sub forma unui obiect Animation</p>
- <p class="paragraph">Setările care pot fi efectuate cu ajutorul acestor doi parametri sunt similare cu setările animației în codul CSS. De exemplu, să luăm o animație CSS primitivă:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;@keyframes&nbsp;frames&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0%&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;transform:&nbsp;scale(2);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.2;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;30%&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;transform:&nbsp;scale(3);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.4;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;60%&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;transform:&nbsp;scale(4);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.6;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;100%&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;transform:&nbsp;scale(5);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.8;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;#circle&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:50px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;50px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.2;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;red;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;margin:&nbsp;100px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border-radius:&nbsp;25px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;animation:&nbsp;frames&nbsp;500ms&nbsp;ease-in-out&nbsp;10ms&nbsp;infinite&nbsp;alternate&nbsp;both;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;div&nbsp;id="circle"&gt;&lt;/div&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">Aici încă nu există niciun cod JavaScript, toată animația este definită complet în CSS. Animatia constă din cadre separate sau stări, iar întreaga esență a animației constă în trecerea de la una dintre aceste stări la alta. Pentru a seta cadrele se folosește cuvântul @keyframes. În acest caz, setul de cadre se numește frames și conține 4 cadre, fiecare descriind valorile proprietăților transform și opacity. De exemplu, să luăm următorul cadru:</p>
- <div class="code-inline">
-  <pre><code>30%&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;transform:&nbsp;scale(3);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.4;&nbsp;&nbsp;&nbsp;&nbsp;<br>}&nbsp;&nbsp;</code></pre>
- </div>
- <p class="paragraph">Cotele procentuale - 30% indică faptul că acest cadru va fi executat după ce animația parcurge 30% din timp. În acest cadru, la elementul animat se aplică setarea scale(3) - elementul se mărește de 3 ori. În plus, folosind proprietatea opacity: 0.4, se stabilește transparența elementului la 0.4</p>
- <p class="paragraph">Pentru a aplica animația la un element se utilizează proprietatea animation</p>
- <div class="code-inline">
-  <pre><code>#circle&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;.............<br>&nbsp;&nbsp;&nbsp;animation:&nbsp;frames&nbsp;500ms&nbsp;ease-in-out&nbsp;10ms&nbsp;infinite&nbsp;alternate&nbsp;both;<br>}</code></pre>
- </div>
- <p class="paragraph">Prin proprietatea stilului animation stabilim cadrele animației - frames și parametrii adiționali:</p>
- <ul class="enumeration">
-  <li>500ms: timpul animației - 500 milisecunde (parametrul duration)</li>
-  <li>ease-in-out: comportamentul animației (parametrul easing)</li>
-  <li>10ms: întârziere la startul animației - 10 milisecunde (parametrul delay)</li>
-  <li>Infinity: numărul de repetări - infinit (parametrul iterations)</li>
-  <li>alternate: direcția animației (parametrul direction)</li>
-  <li>both: "umplerea" animației - 500 milisecunde (parametrul fill)</li>
- </ul>
- <p class="paragraph">Astfel, obținem un cerc pulsatoriu care își schimbă dimensiunile și transparența:</p>
- <div class="image-container">
-  <img src="images/image1.png" alt="" class="responsive-image">
- </div>
- <div class="image-container">
-  <img src="images/image2.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Acum utilizăm Web Animation API și definim aceeași animație în codul JavaScript:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;#circle&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:50px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;50px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.2;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;red;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;margin:&nbsp;100px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border-radius:&nbsp;25px;<br>&nbsp;&nbsp;&nbsp;}<br>&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;div&nbsp;id="circle"&gt;&lt;/div&gt;<br>&lt;script&gt;<br>const&nbsp;circle&nbsp;=&nbsp;document.getElementById("circle");<br>//&nbsp;definim&nbsp;cadrele&nbsp;animației<br>const&nbsp;frames&nbsp;=&nbsp;[{<br>&nbsp;&nbsp;&nbsp;transform:&nbsp;"scale(2)",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.2,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;offset:&nbsp;0&nbsp;&nbsp;&nbsp;<br>},{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;transform:&nbsp;"scale(3)",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.4,<br>&nbsp;&nbsp;&nbsp;offset:&nbsp;0.3&nbsp;&nbsp;&nbsp;<br>},{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;transform:&nbsp;"scale(4)",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.6,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;offset:&nbsp;0.6&nbsp;&nbsp;&nbsp;<br>},{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;transform:&nbsp;"scale(5)",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;opacity:&nbsp;1.0,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;offset:&nbsp;1&nbsp;&nbsp;&nbsp;<br>}];<br>//&nbsp;parametrii&nbsp;animației<br>const&nbsp;config&nbsp;=&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;duration:&nbsp;500,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;durata&nbsp;animației&nbsp;în&nbsp;milisecunde&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;easing:&nbsp;"ease-in-out",&nbsp;&nbsp;//&nbsp;comportamentul&nbsp;animației&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;delay:&nbsp;10,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;întârzierea&nbsp;în&nbsp;milisecunde&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;iterations:&nbsp;Infinity,&nbsp;&nbsp;&nbsp;//&nbsp;numărul&nbsp;de&nbsp;repetări<br>&nbsp;&nbsp;&nbsp;direction:&nbsp;"alternate",&nbsp;//&nbsp;direcția&nbsp;animației&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;fill:&nbsp;"both"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;umplerea&nbsp;comportamentului&nbsp;animației<br>};<br>//&nbsp;executăm&nbsp;animația<br>circle.animate(frames,&nbsp;config);<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">Aici cadrele/framurile animației sunt definite ca un array frames, fiecare element având trei proprietăți. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>{<br>&nbsp;&nbsp;&nbsp;transform:&nbsp;"scale(3)",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.4,<br>&nbsp;&nbsp;&nbsp;offset:&nbsp;0.3&nbsp;&nbsp;&nbsp;<br>}</code></pre>
- </div>
- <p class="paragraph">Primele două proprietăți (transform și opacity) sunt aceleași proprietăți stilistice ale elementului care erau stabilite în CSS. A treia proprietate, offset, stabilește momentul în timp când acest cadru ar trebui să fie afișat în animație. Astfel, offset: 0.3 corespunde la 30% în CSS. Dacă această proprietate este omisă, cadrele cheie individuale sunt distribuite uniform pe durata specificată.</p>
- <p class="paragraph">Al doilea parametru al funcției animate() este similar cu parametrii adiționali ai animației care sunt stabiliți în CSS.</p>
- <h2 class="subtitle">Gestionarea animației</h2>
- <p class="paragraph">Metoda animate() returnează un obiect Animation, care permite gestionarea animației prin mai multe metode:</p>
- <ul class="enumeration">
-  <li>pause(): pune în pauză animația</li>
-  <li>play(): reia animația</li>
-  <li>cancel(): anulează animația</li>
-  <li>finish(): încheie animația</li>
- </ul>
- <p class="paragraph">În plus, folosind proprietatea playbackRate se poate controla viteza animației. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;#rect&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:50px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;50px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;green;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;margin-top:&nbsp;20px;<br>&nbsp;&nbsp;&nbsp;}<br>&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;div&gt;<br>&lt;button&nbsp;id="pause"&gt;Pause&lt;/button&gt;&nbsp;<br>&lt;button&nbsp;id="play"&gt;Play&lt;/button&gt;<br>&lt;button&nbsp;id="cancel"&gt;Cancel&lt;/button&gt;<br>&lt;button&nbsp;id="faster"&gt;Faster&lt;/button&gt;<br>&lt;button&nbsp;id="slower"&gt;Slower&lt;/button&gt;<br>&lt;/div&gt;<br>&lt;div&nbsp;id="rect"&gt;&lt;/div&gt;<br>&lt;script&gt;<br>//&nbsp;elementul&nbsp;animat<br>const&nbsp;rect&nbsp;=&nbsp;document.getElementById("rect");<br>//&nbsp;cadrele&nbsp;animației<br>const&nbsp;frames&nbsp;=&nbsp;[{<br>&nbsp;&nbsp;&nbsp;marginLeft:&nbsp;"50px",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;offset:&nbsp;0&nbsp;&nbsp;&nbsp;<br>},{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;marginLeft:&nbsp;"100px",<br>&nbsp;&nbsp;&nbsp;offset:&nbsp;0.3&nbsp;&nbsp;&nbsp;<br>},{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;marginLeft:&nbsp;"150px",&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;offset:&nbsp;0.6&nbsp;&nbsp;&nbsp;<br>},{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;marginLeft:&nbsp;"200px",&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;offset:&nbsp;1&nbsp;&nbsp;&nbsp;<br>}];<br>//&nbsp;parametrii&nbsp;animației<br>const&nbsp;config&nbsp;=&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;duration:&nbsp;600,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;easing:&nbsp;"ease-in-out",<br>&nbsp;&nbsp;&nbsp;iterations:&nbsp;Infinity,<br>&nbsp;&nbsp;&nbsp;direction:&nbsp;"alternate"<br>};<br>const&nbsp;animation&nbsp;=&nbsp;rect.animate(frames,&nbsp;config);<br><br>document.getElementById("pause").addEventListener("click",&nbsp;()&nbsp;=&gt;&nbsp;animation.pause());<br>document.getElementById("play").addEventListener("click",&nbsp;()&nbsp;=&gt;&nbsp;animation.play());<br>document.getElementById("cancel").addEventListener("click",&nbsp;()&nbsp;=&gt;&nbsp;animation.cancel());<br>//&nbsp;dublăm&nbsp;viteza<br>document.getElementById("faster").addEventListener("click",&nbsp;()&nbsp;=&gt;&nbsp;animation.playbackRate&nbsp;*=&nbsp;2);<br>//&nbsp;înjumătățim&nbsp;viteza<br>document.getElementById("slower").addEventListener("click",&nbsp;()&nbsp;=&gt;&nbsp;animation.playbackRate&nbsp;/=&nbsp;2);<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">În acest caz, cu ajutorul unui set de cadre, schimbăm proprietatea "margin-left" a unui element div, care este stilizat ca un pătrat verde. Și cu ajutorul butoanelor controlăm animația acestuia:</p>
- <div class="image-container">
-  <img src="images/image3.png" alt="" class="responsive-image">
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Web Animation API</h1>
+     <p class="paragraph">Web Animation API permite definirea și gestionarea animațiilor pe o pagină web. Pentru a crea animații la elementele unei pagini web se apelează metoda animate()</p>
+     <div class="code-inline">
+      <pre><code>animate(keyframes,&nbsp;options)</code></pre>
+     </div>
+     <p class="paragraph">Primul parametru, keyframes, reprezintă definițiile cadrelor cheie. Al doilea parametru reprezintă setările de configurare ale animației sub forma unui obiect cu următoarele proprietăți:</p>
+     <ul class="enumeration">
+      <li>delay: întârziere (în milisecunde) după care se lansează animația</li>
+      <li>endDelay: întârziere (în milisecunde) după care se încheie animația</li>
+      <li>fill: comportamentul de umplere al animației (valorile posibile: none, forwards, backwards, both, auto)</li>
+      <li>iterationStart: definește iterația în care se activează un anumit efect al animației</li>
+      <li>iterations: numărul de repetări (pentru repetare infinită a animației se transmite valoarea infinity)</li>
+      <li>duration: durata animației în milisecunde</li>
+      <li>direction: direcția animației (valorile posibile: alternate, normal, reverse, alternate-reverse)</li>
+      <li>easing: comportamentul animației (valorile posibile: ease, ease-in, ease-out, ease-in-out, cubic-bezier)</li>
+     </ul>
+     <p class="paragraph">Rezultatul metodei animate() este o animație sub forma unui obiect Animation</p>
+     <p class="paragraph">Setările care pot fi efectuate cu ajutorul acestor doi parametri sunt similare cu setările animației în codul CSS. De exemplu, să luăm o animație CSS primitivă:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;@keyframes&nbsp;frames&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0%&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;transform:&nbsp;scale(2);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.2;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;30%&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;transform:&nbsp;scale(3);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.4;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;60%&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;transform:&nbsp;scale(4);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.6;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;100%&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;transform:&nbsp;scale(5);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.8;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;#circle&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:50px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;50px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.2;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;red;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;margin:&nbsp;100px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border-radius:&nbsp;25px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;animation:&nbsp;frames&nbsp;500ms&nbsp;ease-in-out&nbsp;10ms&nbsp;infinite&nbsp;alternate&nbsp;both;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;div&nbsp;id="circle"&gt;&lt;/div&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici încă nu există niciun cod JavaScript, toată animația este definită complet în CSS. Animatia constă din cadre separate sau stări, iar întreaga esență a animației constă în trecerea de la una dintre aceste stări la alta. Pentru a seta cadrele se folosește cuvântul @keyframes. În acest caz, setul de cadre se numește frames și conține 4 cadre, fiecare descriind valorile proprietăților transform și opacity. De exemplu, să luăm următorul cadru:</p>
+     <div class="code-inline">
+      <pre><code>30%&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;transform:&nbsp;scale(3);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.4;&nbsp;&nbsp;&nbsp;&nbsp;<br>}&nbsp;&nbsp;</code></pre>
+     </div>
+     <p class="paragraph">Cotele procentuale - 30% indică faptul că acest cadru va fi executat după ce animația parcurge 30% din timp. În acest cadru, la elementul animat se aplică setarea scale(3) - elementul se mărește de 3 ori. În plus, folosind proprietatea opacity: 0.4, se stabilește transparența elementului la 0.4</p>
+     <p class="paragraph">Pentru a aplica animația la un element se utilizează proprietatea animation</p>
+     <div class="code-inline">
+      <pre><code>#circle&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;.............<br>&nbsp;&nbsp;&nbsp;animation:&nbsp;frames&nbsp;500ms&nbsp;ease-in-out&nbsp;10ms&nbsp;infinite&nbsp;alternate&nbsp;both;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Prin proprietatea stilului animation stabilim cadrele animației - frames și parametrii adiționali:</p>
+     <ul class="enumeration">
+      <li>500ms: timpul animației - 500 milisecunde (parametrul duration)</li>
+      <li>ease-in-out: comportamentul animației (parametrul easing)</li>
+      <li>10ms: întârziere la startul animației - 10 milisecunde (parametrul delay)</li>
+      <li>Infinity: numărul de repetări - infinit (parametrul iterations)</li>
+      <li>alternate: direcția animației (parametrul direction)</li>
+      <li>both: "umplerea" animației - 500 milisecunde (parametrul fill)</li>
+     </ul>
+     <p class="paragraph">Astfel, obținem un cerc pulsatoriu care își schimbă dimensiunile și transparența:</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/28.Web%20API%20Adaugatoare/5.Web%20Animation%20API/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/28.Web%20API%20Adaugatoare/5.Web%20Animation%20API/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Acum utilizăm Web Animation API și definim aceeași animație în codul JavaScript:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;#circle&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:50px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;50px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.2;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;red;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;margin:&nbsp;100px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border-radius:&nbsp;25px;<br>&nbsp;&nbsp;&nbsp;}<br>&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;div&nbsp;id="circle"&gt;&lt;/div&gt;<br>&lt;script&gt;<br>const&nbsp;circle&nbsp;=&nbsp;document.getElementById("circle");<br>//&nbsp;definim&nbsp;cadrele&nbsp;animației<br>const&nbsp;frames&nbsp;=&nbsp;[{<br>&nbsp;&nbsp;&nbsp;transform:&nbsp;"scale(2)",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.2,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;offset:&nbsp;0&nbsp;&nbsp;&nbsp;<br>},{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;transform:&nbsp;"scale(3)",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.4,<br>&nbsp;&nbsp;&nbsp;offset:&nbsp;0.3&nbsp;&nbsp;&nbsp;<br>},{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;transform:&nbsp;"scale(4)",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.6,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;offset:&nbsp;0.6&nbsp;&nbsp;&nbsp;<br>},{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;transform:&nbsp;"scale(5)",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;opacity:&nbsp;1.0,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;offset:&nbsp;1&nbsp;&nbsp;&nbsp;<br>}];<br>//&nbsp;parametrii&nbsp;animației<br>const&nbsp;config&nbsp;=&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;duration:&nbsp;500,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;durata&nbsp;animației&nbsp;în&nbsp;milisecunde&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;easing:&nbsp;"ease-in-out",&nbsp;&nbsp;//&nbsp;comportamentul&nbsp;animației&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;delay:&nbsp;10,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;întârzierea&nbsp;în&nbsp;milisecunde&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;iterations:&nbsp;Infinity,&nbsp;&nbsp;&nbsp;//&nbsp;numărul&nbsp;de&nbsp;repetări<br>&nbsp;&nbsp;&nbsp;direction:&nbsp;"alternate",&nbsp;//&nbsp;direcția&nbsp;animației&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;fill:&nbsp;"both"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;umplerea&nbsp;comportamentului&nbsp;animației<br>};<br>//&nbsp;executăm&nbsp;animația<br>circle.animate(frames,&nbsp;config);<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici cadrele/framurile animației sunt definite ca un array frames, fiecare element având trei proprietăți. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>{<br>&nbsp;&nbsp;&nbsp;transform:&nbsp;"scale(3)",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;opacity:&nbsp;0.4,<br>&nbsp;&nbsp;&nbsp;offset:&nbsp;0.3&nbsp;&nbsp;&nbsp;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Primele două proprietăți (transform și opacity) sunt aceleași proprietăți stilistice ale elementului care erau stabilite în CSS. A treia proprietate, offset, stabilește momentul în timp când acest cadru ar trebui să fie afișat în animație. Astfel, offset: 0.3 corespunde la 30% în CSS. Dacă această proprietate este omisă, cadrele cheie individuale sunt distribuite uniform pe durata specificată.</p>
+     <p class="paragraph">Al doilea parametru al funcției animate() este similar cu parametrii adiționali ai animației care sunt stabiliți în CSS.</p>
+     <h2 class="subtitle">Gestionarea animației</h2>
+     <p class="paragraph">Metoda animate() returnează un obiect Animation, care permite gestionarea animației prin mai multe metode:</p>
+     <ul class="enumeration">
+      <li>pause(): pune în pauză animația</li>
+      <li>play(): reia animația</li>
+      <li>cancel(): anulează animația</li>
+      <li>finish(): încheie animația</li>
+     </ul>
+     <p class="paragraph">În plus, folosind proprietatea playbackRate se poate controla viteza animației. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;#rect&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:50px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;50px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;green;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;margin-top:&nbsp;20px;<br>&nbsp;&nbsp;&nbsp;}<br>&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;div&gt;<br>&lt;button&nbsp;id="pause"&gt;Pause&lt;/button&gt;&nbsp;<br>&lt;button&nbsp;id="play"&gt;Play&lt;/button&gt;<br>&lt;button&nbsp;id="cancel"&gt;Cancel&lt;/button&gt;<br>&lt;button&nbsp;id="faster"&gt;Faster&lt;/button&gt;<br>&lt;button&nbsp;id="slower"&gt;Slower&lt;/button&gt;<br>&lt;/div&gt;<br>&lt;div&nbsp;id="rect"&gt;&lt;/div&gt;<br>&lt;script&gt;<br>//&nbsp;elementul&nbsp;animat<br>const&nbsp;rect&nbsp;=&nbsp;document.getElementById("rect");<br>//&nbsp;cadrele&nbsp;animației<br>const&nbsp;frames&nbsp;=&nbsp;[{<br>&nbsp;&nbsp;&nbsp;marginLeft:&nbsp;"50px",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;offset:&nbsp;0&nbsp;&nbsp;&nbsp;<br>},{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;marginLeft:&nbsp;"100px",<br>&nbsp;&nbsp;&nbsp;offset:&nbsp;0.3&nbsp;&nbsp;&nbsp;<br>},{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;marginLeft:&nbsp;"150px",&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;offset:&nbsp;0.6&nbsp;&nbsp;&nbsp;<br>},{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;marginLeft:&nbsp;"200px",&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;offset:&nbsp;1&nbsp;&nbsp;&nbsp;<br>}];<br>//&nbsp;parametrii&nbsp;animației<br>const&nbsp;config&nbsp;=&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;duration:&nbsp;600,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;easing:&nbsp;"ease-in-out",<br>&nbsp;&nbsp;&nbsp;iterations:&nbsp;Infinity,<br>&nbsp;&nbsp;&nbsp;direction:&nbsp;"alternate"<br>};<br>const&nbsp;animation&nbsp;=&nbsp;rect.animate(frames,&nbsp;config);<br><br>document.getElementById("pause").addEventListener("click",&nbsp;()&nbsp;=&gt;&nbsp;animation.pause());<br>document.getElementById("play").addEventListener("click",&nbsp;()&nbsp;=&gt;&nbsp;animation.play());<br>document.getElementById("cancel").addEventListener("click",&nbsp;()&nbsp;=&gt;&nbsp;animation.cancel());<br>//&nbsp;dublăm&nbsp;viteza<br>document.getElementById("faster").addEventListener("click",&nbsp;()&nbsp;=&gt;&nbsp;animation.playbackRate&nbsp;*=&nbsp;2);<br>//&nbsp;înjumătățim&nbsp;viteza<br>document.getElementById("slower").addEventListener("click",&nbsp;()&nbsp;=&gt;&nbsp;animation.playbackRate&nbsp;/=&nbsp;2);<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, cu ajutorul unui set de cadre, schimbăm proprietatea "margin-left" a unui element div, care este stilizat ca un pătrat verde. Și cu ajutorul butoanelor controlăm animația acestuia:</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/28.Web%20API%20Adaugatoare/5.Web%20Animation%20API/images/image3.png}" alt="" class="responsive-image">
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

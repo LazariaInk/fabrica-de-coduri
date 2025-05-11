@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='9.Pattern matching', activeLesson='3.Patternuri pentru Tuple-uri'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Patternuri pentru Tuple-uri</h1>
+     <p class="paragraph">Patternurile pentru tuple-uri permit compararea valorilor din tuple-uri. De exemplu, putem transmite un tuple în construcția switch care conține denumirea limbii și momentul zilei, iar în funcție de datele transmise, să returnăm un mesaj specific:</p>
+     <div class="code-inline">
+      <pre><code>string&nbsp;GetWelcome(string&nbsp;lang,&nbsp;string&nbsp;daytime)&nbsp;=&gt;&nbsp;(lang,&nbsp;daytime)&nbsp;switch<br>{<br>&nbsp;&nbsp;&nbsp;("english",&nbsp;"morning")&nbsp;=&gt;&nbsp;"Good&nbsp;morning",<br>&nbsp;&nbsp;&nbsp;("english",&nbsp;"evening")&nbsp;=&gt;&nbsp;"Good&nbsp;evening",<br>&nbsp;&nbsp;&nbsp;("german",&nbsp;"morning")&nbsp;=&gt;&nbsp;"Guten&nbsp;Morgen",<br>&nbsp;&nbsp;&nbsp;("german",&nbsp;"evening")&nbsp;=&gt;&nbsp;"Guten&nbsp;Abend",<br>&nbsp;&nbsp;&nbsp;_&nbsp;=&gt;&nbsp;"Bună"<br>};</code></pre>
+     </div>
+     <p class="paragraph">Aici, în metodă sunt transmise două valori, din care se creează un tuple (se poate transmite direct tuple-ul în metodă). În construcția switch, cu ajutorul parantezelor rotunde, se definesc valorile care trebuie să corespundă elementelor tuple-ului.</p>
+     <p class="paragraph">De exemplu, expresia ("english", "morning") =&gt; "Good morning" va fi executată dacă simultan lang = "english" și datetime = "morning".</p>
+     <p class="paragraph">Aplicare:</p>
+     <div class="code-inline">
+      <pre><code>string&nbsp;message&nbsp;=&nbsp;GetWelcome("english",&nbsp;"evening");<br>Console.WriteLine(message);&nbsp;&nbsp;//&nbsp;Good&nbsp;evening<br><br>message&nbsp;=&nbsp;GetWelcome("french",&nbsp;"morning");<br>Console.WriteLine(message);&nbsp;&nbsp;//&nbsp;Bună</code></pre>
+     </div>
+     <p class="paragraph">Nu este necesar să comparăm toate valorile din tuple, putem folosi doar anumite elemente ale tuple-ului. În cazul în care nu dorim să utilizăm un element din tuple, în locul său punem un underscore:</p>
+     <div class="code-inline">
+      <pre><code>string&nbsp;GetWelcome(string&nbsp;lang,&nbsp;string&nbsp;daytime,&nbsp;string&nbsp;status)&nbsp;=&gt;&nbsp;(lang,&nbsp;daytime,&nbsp;status)&nbsp;switch<br>{<br>&nbsp;&nbsp;&nbsp;("english",&nbsp;"morning",&nbsp;_)&nbsp;=&gt;&nbsp;"Good&nbsp;morning",<br>&nbsp;&nbsp;&nbsp;("english",&nbsp;"evening",&nbsp;_)&nbsp;=&gt;&nbsp;"Good&nbsp;evening",<br>&nbsp;&nbsp;&nbsp;("german",&nbsp;"morning",&nbsp;_)&nbsp;=&gt;&nbsp;"Guten&nbsp;Morgen",<br>&nbsp;&nbsp;&nbsp;("german",&nbsp;"evening",&nbsp;_)&nbsp;=&gt;&nbsp;"Guten&nbsp;Abend",<br>&nbsp;&nbsp;&nbsp;(_,&nbsp;_,&nbsp;"admin")&nbsp;=&gt;&nbsp;"Hello,&nbsp;Admin",<br>&nbsp;&nbsp;&nbsp;_&nbsp;=&gt;&nbsp;"Bună"<br>};</code></pre>
+     </div>
+     <p class="paragraph">Acum, tuple-ul conține trei elemente. Dar primele patru expresii nu folosesc ultimul element al tuple-ului, presupunem că acesta nu este important, de aceea în locul său punem un underscore ("english", "morning", _).</p>
+     <p class="paragraph">În penultimul exemplu, din contra, primele două elemente nu sunt importante, iar al treilea element este important: (_, _, "admin") =&gt;.</p>
+     <p class="paragraph">În orice caz, trebuie să specificăm valori concrete sau underscore pentru toate elementele tuple-ului.</p>
+     <div class="code-inline">
+      <pre><code>string&nbsp;message&nbsp;=&nbsp;GetWelcome("english",&nbsp;"evening",&nbsp;"user");<br>Console.WriteLine(message);&nbsp;&nbsp;//&nbsp;Good&nbsp;evening<br><br>message&nbsp;=&nbsp;GetWelcome("french",&nbsp;"morning",&nbsp;"admin");<br>Console.WriteLine(message);&nbsp;&nbsp;//&nbsp;Hello,&nbsp;Admin</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

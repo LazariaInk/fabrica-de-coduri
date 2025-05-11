@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='18.Parallel LINQ', activeLesson='3.Tratamentul erorilor si anularea operatiunii'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Tratamentul erorilor și anularea operațiunii</h1>
+     <p class="paragraph">În timpul execuției operațiunilor paralele pot apărea erori, a căror tratare are particularitățile sale. În procesarea paralelă, colecția este împărțită în părți, iar fiecare parte este procesată într-un fir de execuție separat. Totuși, dacă apare o eroare într-unul dintre firele de execuție, sistemul întrerupe execuția tuturor firelor.</p>
+     <p class="paragraph">La generarea excepțiilor, toate acestea sunt agregate într-o excepție de tip AggregateException.</p>
+     <p class="paragraph">De exemplu, să presupunem că în metoda factorialului se transmite un array de obiecte care conține nu doar numere, ci și șiruri de caractere:</p>
+     <div class="code-inline">
+      <pre><code>object[]&nbsp;numbers&nbsp;=&nbsp;new&nbsp;object[]&nbsp;{&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5,&nbsp;"6"&nbsp;};<br><br>var&nbsp;squares&nbsp;=&nbsp;from&nbsp;n&nbsp;in&nbsp;numbers.AsParallel()<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;let&nbsp;x&nbsp;=&nbsp;(int)n<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select&nbsp;Square(x);<br>try<br>{<br>&nbsp;&nbsp;&nbsp;squares.ForAll(n&nbsp;=&gt;&nbsp;Console.WriteLine(n));<br>}<br>catch&nbsp;(AggregateException&nbsp;ex)<br>{<br>&nbsp;&nbsp;&nbsp;foreach&nbsp;(var&nbsp;e&nbsp;in&nbsp;ex.InnerExceptions)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(e.Message);<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>int&nbsp;Square(int&nbsp;n)&nbsp;=&gt;&nbsp;n&nbsp;*&nbsp;n;</code></pre>
+     </div>
+     <p class="paragraph">Lansăm proiectul fără depanare. Și deoarece array-ul conține un șir de caractere, încercarea de conversie va eșua, iar pe consolă va fi afișat un mesaj de eroare. La rularea aplicației în Visual Studio în modul de depanare, execuția se va opri la linia de conversie. După continuare, va funcționa și capturarea excepției în blocul catch, iar pe consolă va fi afișat mesajul de eroare.</p>
+     <h2 class="subtitle">Întreruperea operațiunii paralele</h2>
+     <p class="paragraph">Este foarte probabil să avem nevoie să întrerupem o operațiune înainte de finalizarea acesteia. În acest caz, putem folosi metoda WithCancellation(), căreia i se transmite un token CancellationToken ca parametru:</p>
+     <div class="code-inline">
+      <pre><code>CancellationTokenSource&nbsp;cts&nbsp;=&nbsp;new&nbsp;CancellationTokenSource();<br>//&nbsp;lansăm&nbsp;o&nbsp;sarcină&nbsp;suplimentară&nbsp;care&nbsp;întrerupe&nbsp;operațiunea&nbsp;după&nbsp;400&nbsp;ms<br>new&nbsp;Task(()&nbsp;=&gt;<br>{<br>&nbsp;&nbsp;&nbsp;Thread.Sleep(400);<br>&nbsp;&nbsp;&nbsp;cts.Cancel();<br>}).Start();<br><br>try<br>{<br>&nbsp;&nbsp;&nbsp;int[]&nbsp;numbers&nbsp;=&nbsp;new&nbsp;int[]&nbsp;{&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5,&nbsp;6,&nbsp;7,&nbsp;8,&nbsp;};<br><br>&nbsp;&nbsp;&nbsp;var&nbsp;squares&nbsp;=&nbsp;from&nbsp;n&nbsp;in&nbsp;numbers.AsParallel().WithCancellation(cts.Token)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select&nbsp;Square(n);<br><br>&nbsp;&nbsp;&nbsp;foreach&nbsp;(var&nbsp;n&nbsp;in&nbsp;squares)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(n);<br>}<br>catch&nbsp;(OperationCanceledException)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Operațiunea&nbsp;a&nbsp;fost&nbsp;întreruptă");<br>}<br>catch&nbsp;(AggregateException&nbsp;ex)<br>{<br>&nbsp;&nbsp;&nbsp;if&nbsp;(ex.InnerExceptions&nbsp;!=&nbsp;null)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;foreach&nbsp;(Exception&nbsp;e&nbsp;in&nbsp;ex.InnerExceptions)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(e.Message);<br>&nbsp;&nbsp;&nbsp;}<br>}<br>finally<br>{<br>&nbsp;&nbsp;&nbsp;cts.Dispose();<br>}<br>int&nbsp;Square(int&nbsp;n)<br>{<br>&nbsp;&nbsp;&nbsp;var&nbsp;result&nbsp;=&nbsp;n&nbsp;*&nbsp;n;<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Pătratul&nbsp;numărului&nbsp;{n}&nbsp;este&nbsp;{result}");<br>&nbsp;&nbsp;&nbsp;Thread.Sleep(1000);&nbsp;//&nbsp;imitația&nbsp;unui&nbsp;calcul&nbsp;de&nbsp;durată<br>&nbsp;&nbsp;&nbsp;return&nbsp;result;<br>}</code></pre>
+     </div>
+     <p class="paragraph">În sarcina paralelă lansată, se apelează metoda cts.Cancel(), ceea ce duce la terminarea operațiunii și generarea excepției OperationCanceledException:</p>
+     <div class="code-inline">
+      <pre><code>Pătratul&nbsp;numărului&nbsp;5&nbsp;este&nbsp;25<br>Pătratul&nbsp;numărului&nbsp;3&nbsp;este&nbsp;9<br>Pătratul&nbsp;numărului&nbsp;1&nbsp;este&nbsp;1<br>Pătratul&nbsp;numărului&nbsp;7&nbsp;este&nbsp;49<br>Operațiunea&nbsp;a&nbsp;fost&nbsp;întreruptă</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, este de asemenea logic să se trateze excepția AggregateException, deoarece dacă apare o altă excepție în paralel, aceasta și OperationCanceledException sunt plasate într-un singur obiect AggregateException.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

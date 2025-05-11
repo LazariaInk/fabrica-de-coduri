@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='19.Reflectie', activeLesson='3.Cercetarea metodelor si constructorilor folosind reflectia'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Cercetarea metodelor și constructorilor folosind reflecția</h1>
+     <h2 class="subtitle">Obținerea informațiilor despre metode</h2>
+     <p class="paragraph">Pentru a obține informații separat despre metode, se folosește metoda GetMethods(). Această metodă returnează toate metodele de tip sub formă de matrice de obiecte MethodInfo. Proprietățile sale oferă informații despre metodă. Să menționăm câteva dintre proprietățile sale:</p>
+     <ul class="enumeration">
+      <li>IsAbstract: returnează true dacă metoda este abstractă</li>
+      <li>IsFamily: returnează true dacă metoda are modificatorul de acces protected</li>
+      <li>IsFamilyAndAssembly: returnează true dacă metoda are modificatorul de acces private protected</li>
+      <li>IsFamilyOrAssembly: returnează true dacă metoda are modificatorul de acces protected internal</li>
+      <li>IsAssembly: returnează true dacă metoda are modificatorul de acces internal</li>
+      <li>IsPrivate: returnează true dacă metoda are modificatorul de acces private</li>
+      <li>IsPublic: returnează true dacă metoda are modificatorul de acces public</li>
+      <li>IsConstructor: returnează true dacă metoda oferă un constructor</li>
+      <li>IsStatic: returnează true dacă metoda este statică</li>
+      <li>IsVirtual: returnează true dacă metoda este virtuală</li>
+      <li>ReturnType: returnează tipul valorii returnate</li>
+     </ul>
+     <p class="paragraph">Câteva dintre metodele MethodInfo:</p>
+     <ul class="enumeration">
+      <li>GetMethodBody(): returnează corpul metodei sub formă de obiect MethodBody</li>
+      <li>GetParameters(): returnează o matrice de parametri, unde fiecare parametru este reprezentat de un obiect de tip ParameterInfo</li>
+      <li>Invoke(): apelează metoda</li>
+     </ul>
+     <p class="paragraph">Aplicăm câteva proprietăți pentru a cerceta metodele clasei:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Reflection;<br><br>Type&nbsp;myType&nbsp;=&nbsp;typeof(Printer);<br><br>Console.WriteLine("Metode:");<br>foreach&nbsp;(MethodInfo&nbsp;method&nbsp;in&nbsp;myType.GetMethods())<br>{<br>&nbsp;&nbsp;&nbsp;string&nbsp;modificator&nbsp;=&nbsp;"";<br><br>&nbsp;&nbsp;&nbsp;if&nbsp;(method.IsStatic)&nbsp;modificator&nbsp;+=&nbsp;"static&nbsp;";<br>&nbsp;&nbsp;&nbsp;if&nbsp;(method.IsVirtual)&nbsp;modificator&nbsp;+=&nbsp;"virtual&nbsp;";<br><br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"{modificator}{method.ReturnType.Name}&nbsp;{method.Name}&nbsp;()");<br>}<br>class&nbsp;Printer<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;DefaultMessage&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}&nbsp;=&nbsp;"Hello";<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;PrintMessage(string&nbsp;message,&nbsp;int&nbsp;times&nbsp;=&nbsp;1)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while&nbsp;(times--&nbsp;&gt;&nbsp;0)&nbsp;Console.WriteLine(message);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;CreateMessage()&nbsp;=&gt;&nbsp;DefaultMessage;<br>}</code></pre>
+     </div>
+     <p class="paragraph">La ieșire vom obține următoarele informații:</p>
+     <div class="code-inline">
+      <pre><code>Metode:<br><br>String&nbsp;get_DefaultMessage&nbsp;()<br><br>Void&nbsp;set_DefaultMessage&nbsp;()<br><br>Void&nbsp;PrintMessage&nbsp;()<br><br>String&nbsp;CreateMessage&nbsp;()<br><br>Type&nbsp;GetType&nbsp;()<br><br>virtual&nbsp;String&nbsp;ToString&nbsp;()<br><br>virtual&nbsp;Boolean&nbsp;Equals&nbsp;()<br><br>virtual&nbsp;Int32&nbsp;GetHashCode&nbsp;()</code></pre>
+     </div>
+     <p class="paragraph">După cum se poate observa din ieșire, în categoria metodelor intră și proprietățile, care de fapt reprezintă două metode: get și set. Dacă această situație nu este convenabilă, atunci putem filtra suplimentar lista metodelor:</p>
+     <div class="code-inline">
+      <pre><code>foreach&nbsp;(MethodInfo&nbsp;method&nbsp;in&nbsp;myType.GetMethods()<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.Where(m&nbsp;=&gt;&nbsp;!m.Name.StartsWith("get_")&nbsp;&amp;&amp;&nbsp;!m.Name.StartsWith("set_")))<br>{<br>//&nbsp;.........<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">BindingFlags</h2>
+     <p class="paragraph">În exemplul de mai sus s-a folosit forma simplă a metodei GetMethods(), care extrage toate metodele publice. Dar putem folosi și o altă formă a metodei: MethodInfo[] GetMethods(BindingFlags). Combinând valorile BindingFlags, putem combina ieșirea. De exemplu, putem obține doar metodele clasei în sine, fără cele moștenite, atât publice, cât și toate celelalte:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Reflection;<br><br>Type&nbsp;myType&nbsp;=&nbsp;typeof(Printer);<br><br>Console.WriteLine("Metode:");<br>foreach&nbsp;(MethodInfo&nbsp;method&nbsp;in&nbsp;myType.GetMethods(BindingFlags.DeclaredOnly<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;BindingFlags.Instance&nbsp;|&nbsp;BindingFlags.NonPublic&nbsp;|&nbsp;BindingFlags.Public))<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"{method.ReturnType.Name}&nbsp;{method.Name}&nbsp;()");<br>}<br>class&nbsp;Printer<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;DefaultMessage&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}&nbsp;=&nbsp;"Hello";<br>&nbsp;&nbsp;&nbsp;protected&nbsp;internal&nbsp;void&nbsp;PrintMessage(string&nbsp;message,&nbsp;int&nbsp;times&nbsp;=&nbsp;1)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while&nbsp;(times--&nbsp;&gt;&nbsp;0)&nbsp;Console.WriteLine(message);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;private&nbsp;string&nbsp;CreateMessage()&nbsp;=&gt;&nbsp;DefaultMessage;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Acum metoda Print din clasa Person este privată, iar metoda SayMessage are modificatorul protected internal.</p>
+     <p class="paragraph">Pentru a obține toate metodele non-publice, în metoda GetMethods() se transmite un set de flaguri BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, adică obținem toate metodele instanței, atât publice, cât și non-publice, dar excludem pe cele statice. În consecință, acum vom obține următoarea ieșire:</p>
+     <div class="code-inline">
+      <pre><code>Metode:<br><br>String&nbsp;get_DefaultMessage&nbsp;()<br><br>Void&nbsp;set_DefaultMessage&nbsp;()<br><br>Void&nbsp;PrintMessage&nbsp;()<br><br>String&nbsp;CreateMessage&nbsp;()</code></pre>
+     </div>
+     <h2 class="subtitle">Cercetarea parametrilor</h2>
+     <p class="paragraph">Cu ajutorul metodei GetParameters() se pot obține toți parametrii metodei sub formă de matrice de obiecte ParameterInfo. Să menționăm câteva dintre proprietățile ParameterInfo, care permit obținerea de informații despre parametri:</p>
+     <ul class="enumeration">
+      <li>Attributes: returnează atributele parametrului</li>
+      <li>DefaultValue: returnează valoarea implicită a parametrului</li>
+      <li>HasDefaultValue: returnează true dacă parametrul are o valoare implicită</li>
+      <li>IsIn: returnează true dacă parametrul are modificatorul in</li>
+      <li>IsOptional: returnează true dacă parametrul este opțional</li>
+      <li>IsOut: returnează true dacă parametrul este de ieșire, adică are modificatorul out</li>
+      <li>Name: returnează numele parametrului</li>
+      <li>ParameterType: returnează tipul parametrului</li>
+     </ul>
+     <p class="paragraph">Folosim tipul ParameterInfo pentru a cerceta parametrii:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Reflection;<br><br>foreach&nbsp;(MethodInfo&nbsp;method&nbsp;in&nbsp;typeof(Printer).GetMethods())<br>{<br>&nbsp;&nbsp;&nbsp;Console.Write($"{method.ReturnType.Name}&nbsp;{method.Name}&nbsp;(");<br>&nbsp;&nbsp;&nbsp;ParameterInfo[]&nbsp;parameters&nbsp;=&nbsp;method.GetParameters();<br>&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;parameters.Length;&nbsp;i++)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;param&nbsp;=&nbsp;parameters[i];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;modificator&nbsp;=&nbsp;"";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(param.IsIn)&nbsp;modificator&nbsp;=&nbsp;"in";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;if&nbsp;(param.IsOut)&nbsp;modificator&nbsp;=&nbsp;"out";<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.Write($"{param.ParameterType.Name}&nbsp;{modificator}&nbsp;{param.Name}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(param.HasDefaultValue)&nbsp;Console.Write($"={param.DefaultValue}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(i&nbsp;&lt;&nbsp;parameters.Length&nbsp;-&nbsp;1)&nbsp;Console.Write(",&nbsp;");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(")");<br>}<br><br>class&nbsp;Printer<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;PrintMessage(string&nbsp;message,&nbsp;int&nbsp;times&nbsp;=&nbsp;1)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while&nbsp;(times--&nbsp;&gt;&nbsp;0)&nbsp;Console.WriteLine(message);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;CreateMessage(out&nbsp;string&nbsp;message)&nbsp;=&gt;&nbsp;message&nbsp;=&nbsp;"Hello&nbsp;FDC.com";<br>}</code></pre>
+     </div>
+     <p class="paragraph">Ieșirea consolei:</p>
+     <div class="code-inline">
+      <pre><code>Void&nbsp;PrintMessage&nbsp;(String&nbsp;message,&nbsp;Int32&nbsp;times=1)<br><br>Void&nbsp;CreateMessage&nbsp;(String&amp;&nbsp;out&nbsp;message)<br><br>Type&nbsp;GetType&nbsp;()<br><br>String&nbsp;ToString&nbsp;()<br><br>Boolean&nbsp;Equals&nbsp;(Object&nbsp;obj)<br><br>Int32&nbsp;GetHashCode&nbsp;()</code></pre>
+     </div>
+     <p class="paragraph">Trebuie menționat că dacă parametrul are modificatorul ref, in, out, atunci la sfârșitul denumirii tipului se adaugă ampersand - String&amp;.</p>
+     <h2 class="subtitle">Apelarea metodelor</h2>
+     <p class="paragraph">Cu ajutorul metodei Invoke() se poate apela o metodă:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;object?&nbsp;Invoke&nbsp;(object?&nbsp;obj,&nbsp;object?[]?&nbsp;parameters);</code></pre>
+     </div>
+     <p class="paragraph">Primul parametru reprezintă obiectul pentru care este apelată metoda. Al doilea parametru reprezintă o matrice de valori care sunt transmise parametrilor metodei. De asemenea, metoda poate returna un rezultat sub formă de valoare object?.</p>
+     <p class="paragraph">Apelarea metodei:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Reflection;<br><br>var&nbsp;myPrinter&nbsp;=&nbsp;new&nbsp;Printer("Hello");<br><br>var&nbsp;print&nbsp;=&nbsp;typeof(Printer).GetMethod("Print");<br>print?.Invoke(myPrinter,&nbsp;parameters:&nbsp;null);&nbsp;//&nbsp;Hello<br><br>class&nbsp;Printer<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Text&nbsp;{&nbsp;get;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Printer(string&nbsp;text)&nbsp;=&gt;&nbsp;Text&nbsp;=&nbsp;text;<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Print()&nbsp;=&gt;&nbsp;Console.WriteLine(Text);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Metoda GetMethod() returnează metoda care are un anumit nume - în acest caz metoda Print. Apoi, folosind metoda obținută, aceasta poate fi apelată. Aici, la apelare, ca prim parametru se transmite obiectul pentru care este apelată metoda Print - obiectul myPrinter. Și, deoarece metoda Print nu primește parametri, parametrului parameters i se atribuie valoarea null.</p>
+     <p class="paragraph">Dacă metoda nu este publică, pentru a obține metoda putem transmite flaguri în apelul GetMethod:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Reflection;<br><br>var&nbsp;myPrinter&nbsp;=&nbsp;new&nbsp;Printer("Hello&nbsp;FDC.COM");<br><br>var&nbsp;print&nbsp;=&nbsp;typeof(Printer).GetMethod("Print",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BindingFlags.Instance&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BindingFlags.Public&nbsp;|<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BindingFlags.NonPublic);<br>print?.Invoke(myPrinter,&nbsp;parameters:&nbsp;null);&nbsp;//&nbsp;Hello&nbsp;FDC.COM<br><br>class&nbsp;Printer<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Text&nbsp;{&nbsp;get;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Printer(string&nbsp;text)&nbsp;=&gt;&nbsp;Text&nbsp;=&nbsp;text;<br>&nbsp;&nbsp;&nbsp;private&nbsp;void&nbsp;Print()&nbsp;=&gt;&nbsp;Console.WriteLine(Text);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Obținerea rezultatului:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Reflection;<br><br>var&nbsp;myPrinter&nbsp;=&nbsp;new&nbsp;Printer();<br>var&nbsp;createMessage&nbsp;=&nbsp;typeof(Printer).GetMethod("CreateMessage");<br>var&nbsp;result&nbsp;=&nbsp;createMessage?.Invoke(myPrinter,<br><br>parameters:&nbsp;null);<br>Console.WriteLine(result);&nbsp;&nbsp;//&nbsp;Hello&nbsp;FDC.com<br><br>class&nbsp;Printer<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;CreateMessage()&nbsp;=&gt;&nbsp;"Hello&nbsp;FDC.com";<br>}</code></pre>
+     </div>
+     <p class="paragraph">Trebuie menționat că rezultatul metodei reprezintă tipul object?, prin urmare, dacă este necesar, poate fi necesar să se efectueze o conversie de tipuri.</p>
+     <p class="paragraph">Transmiterea parametrilor:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Reflection;<br><br>var&nbsp;myPrinter&nbsp;=&nbsp;new&nbsp;Printer();<br>var&nbsp;printMessage&nbsp;=&nbsp;typeof(Printer).GetMethod("PrintMessage");<br>printMessage?.Invoke(myPrinter,&nbsp;new&nbsp;object[]&nbsp;{"Hi&nbsp;world",&nbsp;3});<br><br>class&nbsp;Printer<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;PrintMessage(string&nbsp;message,&nbsp;int&nbsp;times)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while&nbsp;(times--&nbsp;&gt;&nbsp;0)&nbsp;Console.WriteLine(message);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici metoda PrintMessage are doi parametri - message (un anumit mesaj) și times (de câte ori trebuie să fie afișat mesajul în consolă). Și pentru acești parametri transmitem o matrice de argumente new object[] {"Hi world", 3}. Astfel, metoda va afișa de trei ori mesajul "Hi world".</p>
+     <p class="paragraph">Apelarea metodei generice:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Reflection;<br><br>var&nbsp;myPrinter&nbsp;=&nbsp;new&nbsp;Printer();<br>var&nbsp;printValue&nbsp;=&nbsp;typeof(Printer).GetMethod("PrintValue");<br>var&nbsp;printStringValue&nbsp;=&nbsp;printValue?.MakeGenericMethod(typeof(string));<br>printStringValue?.Invoke(myPrinter,&nbsp;new&nbsp;object[]&nbsp;{"Hello&nbsp;world"});<br><br>class&nbsp;Printer<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;PrintValue&lt;T&gt;(T&nbsp;value)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(value);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Pentru a obține versiunea generică a metodei, care este tipizată cu un anumit tip, se apelează metoda MakeGenericMethod pe obiectul MethodInfo - în aceasta se transmite tipul cu care este tipizată metoda.</p>
+     <h2 class="subtitle">Obținerea constructorilor</h2>
+     <p class="paragraph">Pentru a obține constructorii, se folosește metoda GetConstructors(), care returnează o matrice de obiecte de clasă ConstructorInfo. Această clasă este în mare parte similară cu MethodInfo și are o serie de funcționalități comune. Câteva dintre proprietățile și metodele principale:</p>
+     <ul class="enumeration">
+      <li>Proprietatea IsFamily: returnează true dacă constructorul are modificatorul de acces protected</li>
+      <li>Proprietatea IsFamilyAndAssembly: returnează true dacă constructorul are modificatorul de acces private protected</li>
+      <li>Proprietatea IsFamilyOrAssembly: returnează true dacă constructorul are modificatorul de acces protected internal</li>
+      <li>Proprietatea IsAssembly: returnează true dacă constructorul are modificatorul de acces internal</li>
+      <li>Proprietatea IsPrivate: returnează true dacă constructorul are modificatorul de acces private</li>
+      <li>Proprietatea IsPublic: returnează true dacă constructorul are modificatorul de acces public</li>
+      <li>Metoda GetMethodBody(): returnează corpul constructorului sub formă de obiect MethodBody</li>
+      <li>Metoda GetParameters(): returnează o matrice de parametri, unde fiecare parametru este reprezentat de un obiect de tip ParameterInfo</li>
+      <li>Metoda Invoke(): apelează constructorul</li>
+     </ul>
+     <h2 class="subtitle">Cercetarea constructorilor</h2>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Reflection;<br><br>Type&nbsp;myType&nbsp;=&nbsp;typeof(Person);<br><br>Console.WriteLine("Constructori:");<br>foreach&nbsp;(ConstructorInfo&nbsp;ctor&nbsp;in&nbsp;myType.GetConstructors(<br>&nbsp;&nbsp;&nbsp;BindingFlags.Instance&nbsp;|&nbsp;BindingFlags.NonPublic&nbsp;|&nbsp;BindingFlags.Public))<br>{<br>&nbsp;&nbsp;&nbsp;string&nbsp;modificator&nbsp;=&nbsp;"";<br><br>&nbsp;&nbsp;&nbsp;if&nbsp;(ctor.IsPublic)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;modificator&nbsp;+=&nbsp;"public";<br>&nbsp;&nbsp;&nbsp;else&nbsp;if&nbsp;(ctor.IsPrivate)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;modificator&nbsp;+=&nbsp;"private";<br>&nbsp;&nbsp;&nbsp;else&nbsp;if&nbsp;(ctor.IsAssembly)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;modificator&nbsp;+=&nbsp;"internal";<br>&nbsp;&nbsp;&nbsp;else&nbsp;if&nbsp;(ctor.IsFamily)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;modificator&nbsp;+=&nbsp;"protected";<br>&nbsp;&nbsp;&nbsp;else&nbsp;if&nbsp;(ctor.IsFamilyAndAssembly)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;modificator&nbsp;+=&nbsp;"private&nbsp;protected";<br>&nbsp;&nbsp;&nbsp;else&nbsp;if&nbsp;(ctor.IsFamilyOrAssembly)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;modificator&nbsp;+=&nbsp;"protected&nbsp;internal";<br><br>&nbsp;&nbsp;&nbsp;Console.Write($"{modificator}&nbsp;{myType.Name}(");<br>&nbsp;&nbsp;&nbsp;ParameterInfo[]&nbsp;parameters&nbsp;=&nbsp;ctor.GetParameters();<br>&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;parameters.Length;&nbsp;i++)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;param&nbsp;=&nbsp;parameters[i];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.Write($"{param.ParameterType.Name}&nbsp;{param.Name}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(i&nbsp;&lt;&nbsp;parameters.Length&nbsp;-&nbsp;1)&nbsp;Console.Write(",&nbsp;");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(")");<br>}<br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Age&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name,&nbsp;int&nbsp;age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;&nbsp;Age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name)&nbsp;:&nbsp;this(name,&nbsp;1)&nbsp;{&nbsp;}<br>&nbsp;&nbsp;&nbsp;private&nbsp;Person()&nbsp;:&nbsp;this("Tom")&nbsp;{&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, cercetăm constructorii clasei Person, dintre care unul este privat. Ieșirea consolei:</p>
+     <div class="code-inline">
+      <pre><code>Constructori:<br><br>public&nbsp;Person(String&nbsp;name,&nbsp;Int32&nbsp;age)<br><br>public&nbsp;Person(String&nbsp;name)<br><br>private&nbsp;Person()</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

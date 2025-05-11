@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='23.Canvas API', activeLesson='11.Desenarea cu mouse-ul'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Desenarea cu mouse-ul</h1>
+     <p class="paragraph">Până acum am discutat în principal despre grafica statică pe canvas. Dar putem, de asemenea, să creăm figuri dinamic, pur și simplu desenând cu cursorul mouse-ului.</p>
+     <p class="paragraph">Pentru aceasta, vom defini următoarea pagină:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;canvas&nbsp;id="canvas"&nbsp;width="400"&nbsp;height="250"<br>&nbsp;&nbsp;&nbsp;style="background-color:#eee;&nbsp;border:&nbsp;1px&nbsp;solid&nbsp;#ccc;&nbsp;margin:10px;"&gt;&lt;/canvas&gt;<br>&lt;script&gt;<br>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>const&nbsp;w&nbsp;=&nbsp;canvas.width;<br>const&nbsp;h&nbsp;=&nbsp;canvas.height;<br><br>const&nbsp;mouse&nbsp;=&nbsp;{&nbsp;x:0,&nbsp;y:0&nbsp;};&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;coordonatele&nbsp;mouse-ului<br>let&nbsp;draw&nbsp;=&nbsp;false;<br><br>//&nbsp;apăsarea&nbsp;mouse-ului<br>canvas.addEventListener("mousedown",&nbsp;function(e){<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;mouse.x&nbsp;=&nbsp;e.pageX&nbsp;-&nbsp;this.offsetLeft;<br>&nbsp;&nbsp;&nbsp;mouse.y&nbsp;=&nbsp;e.pageY&nbsp;-&nbsp;this.offsetTop;<br>&nbsp;&nbsp;&nbsp;draw&nbsp;=&nbsp;true;<br>&nbsp;&nbsp;&nbsp;context.beginPath();<br>&nbsp;&nbsp;&nbsp;context.moveTo(mouse.x,&nbsp;mouse.y);<br>});<br><br>//&nbsp;mișcarea&nbsp;mouse-ului<br>canvas.addEventListener("mousemove",&nbsp;function(e){<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;if(draw&nbsp;==&nbsp;true){<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mouse.x&nbsp;=&nbsp;e.pageX&nbsp;-&nbsp;this.offsetLeft;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mouse.y&nbsp;=&nbsp;e.pageY&nbsp;-&nbsp;this.offsetTop;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;context.lineTo(mouse.x,&nbsp;mouse.y);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;context.stroke();<br>&nbsp;&nbsp;&nbsp;}<br>});<br><br>//&nbsp;eliberarea&nbsp;mouse-ului<br>canvas.addEventListener("mouseup",&nbsp;function(e){<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;mouse.x&nbsp;=&nbsp;e.pageX&nbsp;-&nbsp;this.offsetLeft;<br>&nbsp;&nbsp;&nbsp;mouse.y&nbsp;=&nbsp;e.pageY&nbsp;-&nbsp;this.offsetTop;<br>&nbsp;&nbsp;&nbsp;context.lineTo(mouse.x,&nbsp;mouse.y);<br>&nbsp;&nbsp;&nbsp;context.stroke();<br>&nbsp;&nbsp;&nbsp;context.closePath();<br>&nbsp;&nbsp;&nbsp;draw&nbsp;=&nbsp;false;<br>});<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Pentru a gestiona mișcarea mouse-ului pentru elementul canvas sunt definite trei manipulatoare - pentru apăsarea mouse-ului, pentru mișcarea acestuia și pentru eliberarea butonului mouse-ului. La apăsarea mouse-ului, setăm variabila draw ca fiind true. Adică începe desenul. De asemenea, la apăsare fixăm punctul de unde va începe desenul.</p>
+     <p class="paragraph">La mișcarea mouse-ului, obținem punctul în care s-a mutat cursorul și desenăm o linie. La eliberarea butonului mouse-ului, închidem calea grafică folosind metoda context.closePath() și resetăm variabila draw la false.</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/11.Desenarea%20cu%20mouse-ul/images/image1.png}" alt="" class="responsive-image">
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

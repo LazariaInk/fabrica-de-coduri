@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='22.Lucrul cu sistemul de fisiere', activeLesson='1.Lucrul cu sistemul de fisiere'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Lucrul cu sistemul de fișiere</h1>
+     <p class="paragraph">Majoritatea sarcinilor în programare, într-un fel sau altul, sunt legate de lucrul cu fișiere și directoare. Este posibil să avem nevoie să citim textul dintr-un fișier sau, dimpotrivă, să efectuăm o scriere, să ștergem un fișier sau un întreg director, fără a mai menționa sarcinile mai complexe, cum ar fi crearea unui editor de text și alte sarcini similare.</p>
+     <p class="paragraph">Framework-ul .NET oferă posibilități extinse pentru gestionarea și manipularea fișierelor și directoarelor, care sunt concentrate în mare parte în spațiul de nume System.IO. Clasele situate în acest spațiu de nume (cum ar fi Stream, StreamWriter, FileStream și altele) permit gestionarea intrării-ieșirii de fișiere.</p>
+     <h2 class="subtitle">Lucrul cu discuri</h2>
+     <p class="paragraph">Începem lucrul cu sistemul de fișiere de la cel mai înalt nivel - discurile. Pentru reprezentarea discului în spațiul de nume System.IO, există clasa DriveInfo.</p>
+     <p class="paragraph">Această clasă are o metodă statică GetDrives(), care returnează numele tuturor discurilor logice ale computerului. De asemenea, oferă o serie de proprietăți utile:</p>
+     <ul class="enumeration">
+      <li>AvailableFreeSpace: indică volumul spațiului liber disponibil pe disc în bytes</li>
+      <li>DriveFormat: obține numele sistemului de fișiere</li>
+      <li>DriveType: reprezintă tipul discului</li>
+      <li>IsReady: dacă discul este gata (de exemplu, un disc DVD poate să nu fie introdus în unitate)</li>
+      <li>Name: obține numele discului</li>
+      <li>RootDirectory: returnează directorul rădăcină al discului</li>
+      <li>TotalFreeSpace: obține volumul total de spațiu liber pe disc în bytes</li>
+      <li>TotalSize: dimensiunea totală a discului în bytes</li>
+      <li>VolumeLabel: obține sau setează eticheta volumului</li>
+     </ul>
+     <p class="paragraph">Obținem numele și proprietățile tuturor discurilor de pe calculator:</p>
+     <div class="code-inline">
+      <pre><code>DriveInfo[]&nbsp;drives&nbsp;=&nbsp;DriveInfo.GetDrives();<br><br>foreach&nbsp;(DriveInfo&nbsp;drive&nbsp;in&nbsp;drives)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Nume:&nbsp;{drive.Name}");<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Tip:&nbsp;{drive.DriveType}");<br>&nbsp;&nbsp;&nbsp;if&nbsp;(drive.IsReady)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Dimensiunea&nbsp;discului:&nbsp;{drive.TotalSize}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Spațiu&nbsp;liber:&nbsp;{drive.TotalFreeSpace}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Etichetă&nbsp;disc:&nbsp;{drive.VolumeLabel}");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;Console.WriteLine();<br>}</code></pre>
+     </div>
+     <p class="paragraph">Ieșirea în consolă în cazul meu:</p>
+     <div class="code-inline">
+      <pre><code>Nume:&nbsp;C:\&nbsp;&nbsp;<br>Tip:&nbsp;Fixed&nbsp;&nbsp;<br>Dimensiunea&nbsp;discului:&nbsp;624823205888&nbsp;<br>Spațiu&nbsp;liber:&nbsp;58199781376&nbsp;<br>Etichetă&nbsp;disc:<br><br>Nume:&nbsp;D:\&nbsp;&nbsp;<br>Tip:&nbsp;Fixed&nbsp;&nbsp;<br>Dimensiunea&nbsp;discului:&nbsp;105372446720&nbsp;<br>Spațiu&nbsp;liber:&nbsp;3887951872&nbsp;<br>Etichetă&nbsp;disc:&nbsp;Windows10<br><br>Nume:&nbsp;E:\&nbsp;&nbsp;<br>Tip:&nbsp;Fixed&nbsp;&nbsp;<br>Dimensiunea&nbsp;discului:&nbsp;17809010688&nbsp;<br>Spațiu&nbsp;liber:&nbsp;463650816&nbsp;<br>Etichetă&nbsp;disc:&nbsp;RECOVERY<br><br>Nume:&nbsp;G:\&nbsp;&nbsp;<br>Tip:&nbsp;Fixed&nbsp;&nbsp;<br>Dimensiunea&nbsp;discului:&nbsp;954200064&nbsp;<br>Spațiu&nbsp;liber:&nbsp;275193856&nbsp;<br>Etichetă&nbsp;disc:</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

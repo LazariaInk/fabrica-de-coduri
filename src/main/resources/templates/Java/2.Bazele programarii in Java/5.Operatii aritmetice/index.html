@@ -1,216 +1,206 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Java', activeChapter='2.Bazele programarii in Java', activeLesson='5.Operatii aritmetice'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Operații aritmetice</h1>
- <p class="paragraph">Majoritatea operațiilor din Java sunt similare cu cele folosite în alte limbaje de tip C. Există operații unare (efectuate asupra unui operand), binare - asupra a doi operanzi, și terțiare - efectuate asupra a trei operanzi. Operandul poate fi o variabilă sau o valoare (de exemplu, un număr) implicată în operație. Să examinăm toate tipurile de operații.</p>
- <p class="paragraph">În operațiile aritmetice sunt implicate numere. În Java există operații aritmetice binare (efectuate asupra a doi operanzi) și unare (efectuate asupra unui singur operand). Operațiile binare includ următoarele:</p>
- <ul class="enumeration">
-  <li>+ operația de adunare a două numere:</li>
- </ul>
- <div class="code-inline">
-  <pre><code>int&nbsp;a&nbsp;=&nbsp;10;<br>int&nbsp;b&nbsp;=&nbsp;7;<br>int&nbsp;c&nbsp;=&nbsp;a&nbsp;+&nbsp;b;&nbsp;&nbsp;//&nbsp;17<br>int&nbsp;d&nbsp;=&nbsp;4&nbsp;+&nbsp;b;&nbsp;&nbsp;//&nbsp;11</code></pre>
- </div>
- <ul class="enumeration">
-  <li>- operația de scădere a două numere:</li>
- </ul>
- <div class="code-inline">
-  <pre><code>int&nbsp;a&nbsp;=&nbsp;10;<br>int&nbsp;b&nbsp;=&nbsp;7;<br>int&nbsp;c&nbsp;=&nbsp;a&nbsp;-&nbsp;b;&nbsp;&nbsp;//&nbsp;3<br>int&nbsp;d&nbsp;=&nbsp;4&nbsp;-&nbsp;a;&nbsp;&nbsp;//&nbsp;-6</code></pre>
- </div>
- <ul class="enumeration">
-  <li>* operația de înmulțire a două numere:</li>
- </ul>
- <div class="code-inline">
-  <pre><code>int&nbsp;a&nbsp;=&nbsp;10;<br>int&nbsp;b&nbsp;=&nbsp;7;<br>int&nbsp;c&nbsp;=&nbsp;a&nbsp;*&nbsp;b;&nbsp;&nbsp;//&nbsp;70<br>int&nbsp;d&nbsp;=&nbsp;b&nbsp;*&nbsp;5;&nbsp;&nbsp;//&nbsp;35</code></pre>
- </div>
- <ul class="enumeration">
-  <li>/ operația de împărțire a două numere:</li>
- </ul>
- <div class="code-inline">
-  <pre><code>int&nbsp;a&nbsp;=&nbsp;20;<br>int&nbsp;b&nbsp;=&nbsp;5;<br>int&nbsp;c&nbsp;=&nbsp;a&nbsp;/&nbsp;b;&nbsp;&nbsp;//&nbsp;4<br>double&nbsp;d&nbsp;=&nbsp;22.5&nbsp;/&nbsp;4.5;&nbsp;&nbsp;//&nbsp;5.0</code></pre>
- </div>
- <p class="paragraph">La împărțire, trebuie să ținem cont că dacă în operație sunt implicate două numere întregi, rezultatul împărțirii va fi rotunjit la un număr întreg, chiar dacă rezultatul este atribuit unei variabile de tip float sau double:</p>
- <div class="code-inline">
-  <pre><code>double&nbsp;k&nbsp;=&nbsp;10&nbsp;/&nbsp;4;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;2<br>System.out.println(k);</code></pre>
- </div>
- <p class="paragraph">Pentru ca rezultatul să fie un număr cu virgulă mobilă, unul dintre operanzi trebuie să fie un număr cu virgulă mobilă:</p>
- <div class="code-inline">
-  <pre><code>double&nbsp;k&nbsp;=&nbsp;10.0&nbsp;/&nbsp;4;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;2.5<br>System.out.println(k);</code></pre>
- </div>
- <ul class="enumeration">
-  <li>% obținerea restului împărțirii a două numere:</li>
- </ul>
- <div class="code-inline">
-  <pre><code>int&nbsp;a&nbsp;=&nbsp;33;<br>int&nbsp;b&nbsp;=&nbsp;5;<br>int&nbsp;c&nbsp;=&nbsp;a&nbsp;%&nbsp;b;&nbsp;&nbsp;//&nbsp;3<br>int&nbsp;d&nbsp;=&nbsp;22&nbsp;%&nbsp;4;&nbsp;//&nbsp;2&nbsp;(22&nbsp;-&nbsp;4*5&nbsp;=&nbsp;2)</code></pre>
- </div>
- <p class="paragraph">De asemenea, există două operații aritmetice unare care se efectuează asupra unui singur număr: ++ (incrementare) și -- (decrementare). Fiecare dintre aceste operații are două forme: prefixată și postfixată:</p>
- <ul class="enumeration">
-  <li>++ (incrementare prefixată) Presupune creșterea variabilei cu unul, de exemplu, z=++y (mai întâi valoarea variabilei y crește cu 1, iar apoi această valoare este atribuită variabilei z)</li>
- </ul>
- <div class="code-inline">
-  <pre><code>int&nbsp;a&nbsp;=&nbsp;8;<br>int&nbsp;b&nbsp;=&nbsp;++a;<br>System.out.println(a);&nbsp;&nbsp;//&nbsp;9<br>System.out.println(b);&nbsp;&nbsp;//&nbsp;9</code></pre>
- </div>
- <ul class="enumeration">
-  <li>++ (incrementare postfixată) Reprezintă, de asemenea, creșterea variabilei cu unul, de exemplu, z=y++ (mai întâi valoarea variabilei y este atribuită variabilei z, iar apoi valoarea variabilei y crește cu 1)</li>
- </ul>
- <div class="code-inline">
-  <pre><code>int&nbsp;a&nbsp;=&nbsp;8;<br>int&nbsp;b&nbsp;=&nbsp;a++;<br>System.out.println(a);&nbsp;&nbsp;//&nbsp;9<br>System.out.println(b);&nbsp;&nbsp;//&nbsp;8</code></pre>
- </div>
- <ul class="enumeration">
-  <li>-- (decrementare prefixată) Scăderea variabilei cu unul, de exemplu, z=--y (mai întâi valoarea variabilei y scade cu 1, iar apoi această valoare este atribuită variabilei z)</li>
- </ul>
- <div class="code-inline">
-  <pre><code>int&nbsp;a&nbsp;=&nbsp;8;<br>int&nbsp;b&nbsp;=&nbsp;--a;<br>System.out.println(a);&nbsp;&nbsp;//&nbsp;7<br>System.out.println(b);&nbsp;&nbsp;//&nbsp;7</code></pre>
- </div>
- <ul class="enumeration">
-  <li>-- (decrementare postfixată) z=y-- (mai întâi valoarea variabilei y este atribuită variabilei z, iar apoi valoarea variabilei y scade cu 1)</li>
- </ul>
- <div class="code-inline">
-  <pre><code>int&nbsp;a&nbsp;=&nbsp;8;<br>int&nbsp;b&nbsp;=&nbsp;a--;<br>System.out.println(a);&nbsp;&nbsp;//&nbsp;7<br>System.out.println(b);&nbsp;&nbsp;//&nbsp;8</code></pre>
- </div>
- <h2 class="subtitle">Prioritatea operațiilor aritmetice</h2>
- <p class="paragraph">Unele operații au o prioritate mai mare decât altele și, prin urmare, sunt efectuate mai întâi. Operațiile în ordinea descrescătoare a priorității:</p>
- <ul class="enumeration">
-  <li>++ (incrementare postfixată), -- (decrementare postfixată)</li>
-  <li>++ (incrementare prefixată), -- (decrementare prefixată)</li>
-  <li>* (înmulțire), / (împărțire), % (restul împărțirii)</li>
-  <li>+ (adunare), - (scădere)</li>
- </ul>
- <p class="paragraph">Prioritatea operațiilor trebuie avută în vedere atunci când executăm un set de expresii aritmetice:</p>
- <div class="code-inline">
-  <pre><code>int&nbsp;a&nbsp;=&nbsp;8;<br>int&nbsp;b&nbsp;=&nbsp;7;<br>int&nbsp;c&nbsp;=&nbsp;a&nbsp;+&nbsp;5&nbsp;*&nbsp;++b;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>System.out.println(c);&nbsp;&nbsp;//&nbsp;48</code></pre>
- </div>
- <p class="paragraph">Mai întâi se va executa operația de incrementare ++b, care are o prioritate mai mare - va crește valoarea variabilei b și o va returna ca rezultat. Apoi se va executa înmulțirea 5 * ++b, iar abia la sfârșit se va executa adunarea a + 5 * ++b.</p>
- <p class="paragraph">Parantezele permit redefinirea ordinii de calcul:</p>
- <div class="code-inline">
-  <pre><code>int&nbsp;a&nbsp;=&nbsp;8;<br>int&nbsp;b&nbsp;=&nbsp;7;<br>int&nbsp;c&nbsp;=&nbsp;(a&nbsp;+&nbsp;5)&nbsp;*&nbsp;++b;&nbsp;&nbsp;&nbsp;&nbsp;<br>System.out.println(c);&nbsp;&nbsp;//&nbsp;104</code></pre>
- </div>
- <p class="paragraph">Deși operația de adunare are o prioritate mai mică, aceasta se va efectua mai întâi, deoarece operația de adunare este închisă între paranteze.</p>
- <h2 class="subtitle">Asociativitatea operațiilor</h2>
- <p class="paragraph">Pe lângă prioritate, operațiile diferă și prin asociativitate. Când operațiile au aceeași prioritate, ordinea calculului este determinată de asociativitatea operatorilor. În funcție de asociativitate, există două tipuri de operatori:</p>
- <ul class="enumeration">
-  <li>Operatori stânga-asociativi, care se execută de la stânga la dreapta</li>
-  <li>Operatori dreapta-asociativi, care se execută de la dreapta la stânga</li>
- </ul>
- <p class="paragraph">De exemplu, unele operații, cum ar fi operațiile de înmulțire și împărțire, au aceeași prioritate. Care va fi atunci rezultatul în expresia:</p>
- <div class="code-inline">
-  <pre><code>int&nbsp;x&nbsp;=&nbsp;10&nbsp;/&nbsp;5&nbsp;*&nbsp;2;</code></pre>
- </div>
- <p class="paragraph">Ar trebui să interpretăm această expresie ca (10 / 5) * 2 sau ca 10 / (5 * 2)? Deoarece interpretarea va produce rezultate diferite.</p>
- <p class="paragraph">Toți operatorii aritmetici (cu excepția incrementării și decrementării prefixate) sunt stânga-asociativi, adică se execută de la stânga la dreapta. Prin urmare, expresia 10 / 5 * 2 trebuie interpretată ca (10 / 5) * 2, rezultatul fiind 4.</p>
- <h2 class="subtitle">Operații cu numere în virgulă mobilă</h2>
- <p class="paragraph">Trebuie remarcat că numerele cu virgulă mobilă nu sunt potrivite pentru calcule financiare sau alte calcule în care erorile de rotunjire pot fi critice. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>double&nbsp;d&nbsp;=&nbsp;2.0&nbsp;-&nbsp;1.1;<br>System.out.println(d);</code></pre>
- </div>
- <p class="paragraph">În acest caz, variabila d nu va fi egală cu 0.9, așa cum s-ar putea presupune inițial, ci cu 0.8999999999999999.</p>
- <p class="paragraph">Astfel de erori de precizie apar din cauza faptului că, la nivel scăzut, pentru reprezentarea numerelor cu virgulă mobilă se folosește sistemul binar, însă pentru numărul 0.1 nu există o reprezentare binară, la fel cum nu există și pentru alte valori zecimale. De aceea, în astfel de cazuri se folosește, de obicei, clasa BigDecimal, care permite evitarea unor astfel de situații.</p>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Operații aritmetice</h1>
+     <p class="paragraph">Majoritatea operațiilor din Java sunt similare cu cele folosite în alte limbaje de tip C. Există operații unare (efectuate asupra unui operand), binare - asupra a doi operanzi, și terțiare - efectuate asupra a trei operanzi. Operandul poate fi o variabilă sau o valoare (de exemplu, un număr) implicată în operație. Să examinăm toate tipurile de operații.</p>
+     <p class="paragraph">În operațiile aritmetice sunt implicate numere. În Java există operații aritmetice binare (efectuate asupra a doi operanzi) și unare (efectuate asupra unui singur operand). Operațiile binare includ următoarele:</p>
+     <ul class="enumeration">
+      <li>+ operația de adunare a două numere:</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>int&nbsp;a&nbsp;=&nbsp;10;<br>int&nbsp;b&nbsp;=&nbsp;7;<br>int&nbsp;c&nbsp;=&nbsp;a&nbsp;+&nbsp;b;&nbsp;&nbsp;//&nbsp;17<br>int&nbsp;d&nbsp;=&nbsp;4&nbsp;+&nbsp;b;&nbsp;&nbsp;//&nbsp;11</code></pre>
+     </div>
+     <ul class="enumeration">
+      <li>- operația de scădere a două numere:</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>int&nbsp;a&nbsp;=&nbsp;10;<br>int&nbsp;b&nbsp;=&nbsp;7;<br>int&nbsp;c&nbsp;=&nbsp;a&nbsp;-&nbsp;b;&nbsp;&nbsp;//&nbsp;3<br>int&nbsp;d&nbsp;=&nbsp;4&nbsp;-&nbsp;a;&nbsp;&nbsp;//&nbsp;-6</code></pre>
+     </div>
+     <ul class="enumeration">
+      <li>* operația de înmulțire a două numere:</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>int&nbsp;a&nbsp;=&nbsp;10;<br>int&nbsp;b&nbsp;=&nbsp;7;<br>int&nbsp;c&nbsp;=&nbsp;a&nbsp;*&nbsp;b;&nbsp;&nbsp;//&nbsp;70<br>int&nbsp;d&nbsp;=&nbsp;b&nbsp;*&nbsp;5;&nbsp;&nbsp;//&nbsp;35</code></pre>
+     </div>
+     <ul class="enumeration">
+      <li>/ operația de împărțire a două numere:</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>int&nbsp;a&nbsp;=&nbsp;20;<br>int&nbsp;b&nbsp;=&nbsp;5;<br>int&nbsp;c&nbsp;=&nbsp;a&nbsp;/&nbsp;b;&nbsp;&nbsp;//&nbsp;4<br>double&nbsp;d&nbsp;=&nbsp;22.5&nbsp;/&nbsp;4.5;&nbsp;&nbsp;//&nbsp;5.0</code></pre>
+     </div>
+     <p class="paragraph">La împărțire, trebuie să ținem cont că dacă în operație sunt implicate două numere întregi, rezultatul împărțirii va fi rotunjit la un număr întreg, chiar dacă rezultatul este atribuit unei variabile de tip float sau double:</p>
+     <div class="code-inline">
+      <pre><code>double&nbsp;k&nbsp;=&nbsp;10&nbsp;/&nbsp;4;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;2<br>System.out.println(k);</code></pre>
+     </div>
+     <p class="paragraph">Pentru ca rezultatul să fie un număr cu virgulă mobilă, unul dintre operanzi trebuie să fie un număr cu virgulă mobilă:</p>
+     <div class="code-inline">
+      <pre><code>double&nbsp;k&nbsp;=&nbsp;10.0&nbsp;/&nbsp;4;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;2.5<br>System.out.println(k);</code></pre>
+     </div>
+     <ul class="enumeration">
+      <li>% obținerea restului împărțirii a două numere:</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>int&nbsp;a&nbsp;=&nbsp;33;<br>int&nbsp;b&nbsp;=&nbsp;5;<br>int&nbsp;c&nbsp;=&nbsp;a&nbsp;%&nbsp;b;&nbsp;&nbsp;//&nbsp;3<br>int&nbsp;d&nbsp;=&nbsp;22&nbsp;%&nbsp;4;&nbsp;//&nbsp;2&nbsp;(22&nbsp;-&nbsp;4*5&nbsp;=&nbsp;2)</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, există două operații aritmetice unare care se efectuează asupra unui singur număr: ++ (incrementare) și -- (decrementare). Fiecare dintre aceste operații are două forme: prefixată și postfixată:</p>
+     <ul class="enumeration">
+      <li>++ (incrementare prefixată) Presupune creșterea variabilei cu unul, de exemplu, z=++y (mai întâi valoarea variabilei y crește cu 1, iar apoi această valoare este atribuită variabilei z)</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>int&nbsp;a&nbsp;=&nbsp;8;<br>int&nbsp;b&nbsp;=&nbsp;++a;<br>System.out.println(a);&nbsp;&nbsp;//&nbsp;9<br>System.out.println(b);&nbsp;&nbsp;//&nbsp;9</code></pre>
+     </div>
+     <ul class="enumeration">
+      <li>++ (incrementare postfixată) Reprezintă, de asemenea, creșterea variabilei cu unul, de exemplu, z=y++ (mai întâi valoarea variabilei y este atribuită variabilei z, iar apoi valoarea variabilei y crește cu 1)</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>int&nbsp;a&nbsp;=&nbsp;8;<br>int&nbsp;b&nbsp;=&nbsp;a++;<br>System.out.println(a);&nbsp;&nbsp;//&nbsp;9<br>System.out.println(b);&nbsp;&nbsp;//&nbsp;8</code></pre>
+     </div>
+     <ul class="enumeration">
+      <li>-- (decrementare prefixată) Scăderea variabilei cu unul, de exemplu, z=--y (mai întâi valoarea variabilei y scade cu 1, iar apoi această valoare este atribuită variabilei z)</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>int&nbsp;a&nbsp;=&nbsp;8;<br>int&nbsp;b&nbsp;=&nbsp;--a;<br>System.out.println(a);&nbsp;&nbsp;//&nbsp;7<br>System.out.println(b);&nbsp;&nbsp;//&nbsp;7</code></pre>
+     </div>
+     <ul class="enumeration">
+      <li>-- (decrementare postfixată) z=y-- (mai întâi valoarea variabilei y este atribuită variabilei z, iar apoi valoarea variabilei y scade cu 1)</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>int&nbsp;a&nbsp;=&nbsp;8;<br>int&nbsp;b&nbsp;=&nbsp;a--;<br>System.out.println(a);&nbsp;&nbsp;//&nbsp;7<br>System.out.println(b);&nbsp;&nbsp;//&nbsp;8</code></pre>
+     </div>
+     <h2 class="subtitle">Prioritatea operațiilor aritmetice</h2>
+     <p class="paragraph">Unele operații au o prioritate mai mare decât altele și, prin urmare, sunt efectuate mai întâi. Operațiile în ordinea descrescătoare a priorității:</p>
+     <ul class="enumeration">
+      <li>++ (incrementare postfixată), -- (decrementare postfixată)</li>
+      <li>++ (incrementare prefixată), -- (decrementare prefixată)</li>
+      <li>* (înmulțire), / (împărțire), % (restul împărțirii)</li>
+      <li>+ (adunare), - (scădere)</li>
+     </ul>
+     <p class="paragraph">Prioritatea operațiilor trebuie avută în vedere atunci când executăm un set de expresii aritmetice:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;a&nbsp;=&nbsp;8;<br>int&nbsp;b&nbsp;=&nbsp;7;<br>int&nbsp;c&nbsp;=&nbsp;a&nbsp;+&nbsp;5&nbsp;*&nbsp;++b;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>System.out.println(c);&nbsp;&nbsp;//&nbsp;48</code></pre>
+     </div>
+     <p class="paragraph">Mai întâi se va executa operația de incrementare ++b, care are o prioritate mai mare - va crește valoarea variabilei b și o va returna ca rezultat. Apoi se va executa înmulțirea 5 * ++b, iar abia la sfârșit se va executa adunarea a + 5 * ++b.</p>
+     <p class="paragraph">Parantezele permit redefinirea ordinii de calcul:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;a&nbsp;=&nbsp;8;<br>int&nbsp;b&nbsp;=&nbsp;7;<br>int&nbsp;c&nbsp;=&nbsp;(a&nbsp;+&nbsp;5)&nbsp;*&nbsp;++b;&nbsp;&nbsp;&nbsp;&nbsp;<br>System.out.println(c);&nbsp;&nbsp;//&nbsp;104</code></pre>
+     </div>
+     <p class="paragraph">Deși operația de adunare are o prioritate mai mică, aceasta se va efectua mai întâi, deoarece operația de adunare este închisă între paranteze.</p>
+     <h2 class="subtitle">Asociativitatea operațiilor</h2>
+     <p class="paragraph">Pe lângă prioritate, operațiile diferă și prin asociativitate. Când operațiile au aceeași prioritate, ordinea calculului este determinată de asociativitatea operatorilor. În funcție de asociativitate, există două tipuri de operatori:</p>
+     <ul class="enumeration">
+      <li>Operatori stânga-asociativi, care se execută de la stânga la dreapta</li>
+      <li>Operatori dreapta-asociativi, care se execută de la dreapta la stânga</li>
+     </ul>
+     <p class="paragraph">De exemplu, unele operații, cum ar fi operațiile de înmulțire și împărțire, au aceeași prioritate. Care va fi atunci rezultatul în expresia:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;x&nbsp;=&nbsp;10&nbsp;/&nbsp;5&nbsp;*&nbsp;2;</code></pre>
+     </div>
+     <p class="paragraph">Ar trebui să interpretăm această expresie ca (10 / 5) * 2 sau ca 10 / (5 * 2)? Deoarece interpretarea va produce rezultate diferite.</p>
+     <p class="paragraph">Toți operatorii aritmetici (cu excepția incrementării și decrementării prefixate) sunt stânga-asociativi, adică se execută de la stânga la dreapta. Prin urmare, expresia 10 / 5 * 2 trebuie interpretată ca (10 / 5) * 2, rezultatul fiind 4.</p>
+     <h2 class="subtitle">Operații cu numere în virgulă mobilă</h2>
+     <p class="paragraph">Trebuie remarcat că numerele cu virgulă mobilă nu sunt potrivite pentru calcule financiare sau alte calcule în care erorile de rotunjire pot fi critice. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>double&nbsp;d&nbsp;=&nbsp;2.0&nbsp;-&nbsp;1.1;<br>System.out.println(d);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, variabila d nu va fi egală cu 0.9, așa cum s-ar putea presupune inițial, ci cu 0.8999999999999999.</p>
+     <p class="paragraph">Astfel de erori de precizie apar din cauza faptului că, la nivel scăzut, pentru reprezentarea numerelor cu virgulă mobilă se folosește sistemul binar, însă pentru numărul 0.1 nu există o reprezentare binară, la fel cum nu există și pentru alte valori zecimale. De aceea, în astfel de cazuri se folosește, de obicei, clasa BigDecimal, care permite evitarea unor astfel de situații.</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

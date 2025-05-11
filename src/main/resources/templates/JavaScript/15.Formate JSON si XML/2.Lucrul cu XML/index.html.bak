@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='15.Formate JSON si XML', activeLesson='2.Lucrul cu XML'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Lucrul cu XML</h1>
+     <p class="paragraph">Unul dintre formatele populare pentru descrierea datelor este formatul XML. Și limbajul JavaScript oferă unelte pentru lucrul cu XML.</p>
+     <h2 class="subtitle">Transformarea din șir în XML</h2>
+     <p class="paragraph">Pentru crearea obiectelor XML pe baza unui șir care conține date în format XML, se folosește obiectul DOMParser. Metodei parseFromString() i se poate transmite șirul corespunzător ca prim argument și tipul MIME (de obicei text/xml) ca al doilea argument. Dacă șirul transmis conține cod XML corect, atunci metoda va returna un obiect de tip Document, care va conține XML-ul analizat.</p>
+     <p class="paragraph">Și pentru a selecta date specifice din documentul XML obținut, se pot folosi metodele standard de selectare a elementelor DOM, de exemplu, querySelector().</p>
+     <p class="paragraph">De exemplu, să luăm în considerare următorul program:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;xmlString&nbsp;=&nbsp;`&lt;?xml&nbsp;version="1.0"&nbsp;encoding="UTF-8"&nbsp;?&gt;<br>&nbsp;&nbsp;&nbsp;&lt;users&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;user&nbsp;name="Tom"&nbsp;age="39"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;company&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;Microsoft&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/company&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/user&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;user&nbsp;name="Bob"&nbsp;age="43"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;company&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;Google&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/company&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/user&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/users&gt;`;<br><br>const&nbsp;domParser&nbsp;=&nbsp;new&nbsp;DOMParser();<br>const&nbsp;xmlDOM&nbsp;=&nbsp;domParser.parseFromString(xmlString,&nbsp;"text/xml");<br>//&nbsp;accesăm&nbsp;primul&nbsp;element&nbsp;user<br>const&nbsp;firstUser&nbsp;=&nbsp;xmlDOM.querySelector("user");<br>console.log(firstUser.getAttribute("name"));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Tom<br>console.log(firstUser.getAttribute("age"));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;39<br>console.log(firstUser.querySelector("title").textContent);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Microsoft</code></pre>
+     </div>
+     <p class="paragraph">Aici documentul xml este dat ca șir xmlString. Dar deocamdată este doar un șir, nu un document xml. Și pentru parsarea șirului în document xml se creează obiectul DOMParser și se execută metoda sa parseFromString(), în care se transmite șirul nostru:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;domParser&nbsp;=&nbsp;new&nbsp;DOMParser();<br>const&nbsp;xmlDOM&nbsp;=&nbsp;domParser.parseFromString(xmlString,&nbsp;"text/xml");</code></pre>
+     </div>
+     <p class="paragraph">După ce obținem documentul xml, selectăm primul element user cu ajutorul metodei querySelector:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;firstUser&nbsp;=&nbsp;xmlDOM.querySelector("user");</code></pre>
+     </div>
+     <p class="paragraph">Apoi putem accesa conținutul elementului user - la elementele și atributele încorporate:</p>
+     <div class="code-inline">
+      <pre><code>console.log(firstUser.getAttribute("name"));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Tom<br>console.log(firstUser.getAttribute("age"));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;39<br>console.log(firstUser.querySelector("title").textContent);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Microsoft</code></pre>
+     </div>
+     <h2 class="subtitle">Serializarea documentului XML în șir</h2>
+     <p class="paragraph">Pentru transformarea inversă - din document xml în șir, se folosește obiectul XMLSerializer. Acest obiect oferă metoda serializeToString(), care primește obiectul XML și returnează obiectul XML sub formă de șir. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;xmlString&nbsp;=&nbsp;`&lt;?xml&nbsp;version="1.0"&nbsp;encoding="UTF-8"&nbsp;?&gt;<br>&nbsp;&nbsp;&nbsp;&lt;users&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;user&nbsp;name="Tom"&nbsp;age="39"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;company&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;Microsoft&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/company&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/user&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;user&nbsp;name="Bob"&nbsp;age="43"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;company&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;Google&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/company&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/user&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/users&gt;`;<br><br>//&nbsp;transformăm&nbsp;șirul&nbsp;în&nbsp;XML<br>const&nbsp;domParser&nbsp;=&nbsp;new&nbsp;DOMParser();<br>const&nbsp;xmlDOM&nbsp;=&nbsp;domParser.parseFromString(xmlString,&nbsp;"text/xml");<br>//&nbsp;transformăm&nbsp;înapoi&nbsp;din&nbsp;XML&nbsp;în&nbsp;șir<br>const&nbsp;xmlSerializer&nbsp;=&nbsp;new&nbsp;XMLSerializer();<br>const&nbsp;xmlString2&nbsp;=&nbsp;xmlSerializer.serializeToString(xmlDOM);<br>console.log(xmlString2);</code></pre>
+     </div>
+     <p class="paragraph">În final, vom obține înapoi șirul inițial xmlString.</p>
+     <p class="paragraph">Deoarece documentul html este de fapt și el un document xml, putem serializa în șir și o pagină web sau o parte din ea. De exemplu, transformăm în șir pagina web curentă:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;xmlSerializer&nbsp;=&nbsp;new&nbsp;XMLSerializer();<br>const&nbsp;htmlString&nbsp;=&nbsp;xmlSerializer.serializeToString(document);<br>console.log(htmlString);</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

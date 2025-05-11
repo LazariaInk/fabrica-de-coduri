@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='17.LINQ', activeLesson='1.Elementele de baza ale LINQ'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Elementele de bază ale LINQ</h1>
+     <p class="paragraph">LINQ (Language-Integrated Query) reprezintă un limbaj simplu și convenabil de interogare a surselor de date. Ca sursă de date poate fi un obiect care implementează interfața IEnumerable (de exemplu, colecții standard, array-uri), un set de date DataSet, un document XML. Dar, indiferent de tipul sursei, LINQ permite aplicarea aceleiași abordări pentru selecția datelor.</p>
+     <p class="paragraph">Există mai multe tipuri de LINQ:</p>
+     <ul class="enumeration">
+      <li>LINQ to Objects: utilizat pentru lucrul cu array-uri și colecții</li>
+      <li>LINQ to Entities: folosit pentru accesarea bazelor de date prin tehnologia Entity Framework</li>
+      <li>LINQ to XML: aplicat la lucrul cu fișiere XML</li>
+      <li>LINQ to DataSet: utilizat pentru lucrul cu obiectul DataSet</li>
+      <li>Parallel LINQ (PLINQ): folosit pentru executarea interogărilor paralele</li>
+     </ul>
+     <p class="paragraph">În acest capitol vom discuta în primul rând despre LINQ to Objects, dar în materialele următoare vor fi abordate și alte tipuri de LINQ. Majoritatea funcționalităților LINQ sunt concentrate în spațiul de nume System.LINQ. În proiectele .NET 6, acest spațiu de nume este conectat implicit.</p>
+     <p class="paragraph">Care este avantajul LINQ? Să vedem un exemplu simplu. Vom selecta dintr-un array șiruri care încep cu o anumită literă, de exemplu litera "T", și vom sorta lista rezultată:</p>
+     <div class="code-inline">
+      <pre><code>string[]&nbsp;people&nbsp;=&nbsp;{&nbsp;"Tom",&nbsp;"Bob",&nbsp;"Sam",&nbsp;"Tim",&nbsp;"Tomas",&nbsp;"Bill"&nbsp;};<br><br>//&nbsp;creăm&nbsp;o&nbsp;listă&nbsp;nouă&nbsp;pentru&nbsp;rezultate<br>var&nbsp;selectedPeople&nbsp;=&nbsp;new&nbsp;List&lt;string&gt;();<br>//&nbsp;parcurgem&nbsp;array-ul<br>foreach&nbsp;(string&nbsp;person&nbsp;in&nbsp;people)<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;șirul&nbsp;începe&nbsp;cu&nbsp;litera&nbsp;T,&nbsp;îl&nbsp;adăugăm&nbsp;în&nbsp;listă<br>&nbsp;&nbsp;&nbsp;if&nbsp;(person.ToUpper().StartsWith("T"))<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;selectedPeople.Add(person);<br>}<br>//&nbsp;sortăm&nbsp;lista<br>selectedPeople.Sort();<br><br>foreach&nbsp;(string&nbsp;person&nbsp;in&nbsp;selectedPeople)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(person);</code></pre>
+     </div>
+     <p class="paragraph">string[] people = { "Tom", "Bob", "Sam", "Tim", "Tomas", "Bill" }; // creăm o listă nouă pentru rezultate var selectedPeople = new List&lt;string&gt;(); // parcurgem array-ul foreach (string person in people) { // dacă șirul începe cu litera T, îl adăugăm în listă if (person.ToUpper().StartsWith("T")) selectedPeople.Add(person); } // sortăm lista selectedPeople.Sort(); foreach (string person in selectedPeople) Console.WriteLine(person);</p>
+     <div class="code-inline">
+      <pre><code>Tim<br>Tom<br>Tomas</code></pre>
+     </div>
+     <p class="paragraph">Deși această abordare funcționează, LINQ permite reducerea semnificativă a codului folosind o sintaxă intuitivă și concisă.</p>
+     <p class="paragraph">Pentru lucrul cu colecțiile putem utiliza două metode:</p>
+     <ul class="enumeration">
+      <li>Operatori de interogare LINQ</li>
+      <li>Metode de extensie LINQ</li>
+     </ul>
+     <p class="paragraph">Vom analiza ambele metode.</p>
+     <h2 class="subtitle">Operatori de interogare LINQ</h2>
+     <p class="paragraph">Operatorii de interogare LINQ seamănă oarecum cu sintaxa interogărilor SQL, așa că, dacă ați lucrat vreodată cu interogări SQL, va fi mai ușor să înțelegeți conceptul general. Să modificăm exemplul anterior folosind operatorii de interogare LINQ:</p>
+     <div class="code-inline">
+      <pre><code>string[]&nbsp;people&nbsp;=&nbsp;{&nbsp;"Tom",&nbsp;"Bob",&nbsp;"Sam",&nbsp;"Tim",&nbsp;"Tomas",&nbsp;"Bill"&nbsp;};<br><br>//&nbsp;creăm&nbsp;o&nbsp;nouă&nbsp;listă&nbsp;pentru&nbsp;rezultate<br>var&nbsp;selectedPeople&nbsp;=&nbsp;from&nbsp;p&nbsp;in&nbsp;people&nbsp;//&nbsp;transmitem&nbsp;fiecare&nbsp;element&nbsp;din&nbsp;people&nbsp;în&nbsp;variabila&nbsp;p<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;where&nbsp;p.ToUpper().StartsWith("T")&nbsp;//&nbsp;filtrare&nbsp;după&nbsp;criteriu<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;orderby&nbsp;p&nbsp;&nbsp;//&nbsp;sortăm&nbsp;în&nbsp;ordine&nbsp;crescătoare<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select&nbsp;p;&nbsp;//&nbsp;selectăm&nbsp;obiectul&nbsp;în&nbsp;colecția&nbsp;creată<br><br>foreach&nbsp;(string&nbsp;person&nbsp;in&nbsp;selectedPeople)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(person);</code></pre>
+     </div>
+     <p class="paragraph">În primul rând, codul a devenit mai scurt și mai simplu, iar rezultatul va fi același. În principiu, întreaga expresie ar putea fi scrisă pe o singură linie:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;selectedPeople&nbsp;=&nbsp;from&nbsp;p&nbsp;in&nbsp;people&nbsp;where&nbsp;p.ToUpper().StartsWith("T")&nbsp;orderby&nbsp;p&nbsp;select&nbsp;p;</code></pre>
+     </div>
+     <p class="paragraph">Dar, pentru o mai bună claritate logică, am plasat fiecare subexpresie pe o linie separată.</p>
+     <p class="paragraph">Definiția simplă a unei interogări LINQ arată astfel:</p>
+     <div class="code-inline">
+      <pre><code>from&nbsp;variabila&nbsp;in&nbsp;colectie<br>select&nbsp;variabila;</code></pre>
+     </div>
+     <p class="paragraph">Ce face această interogare LINQ? Expresia from p in people parcurge toate elementele array-ului people și definește fiecare element ca p. Folosind variabila p, putem efectua diferite operațiuni asupra ei.</p>
+     <p class="paragraph">Deși nu specificăm tipul variabilei p, expresiile LINQ sunt puternic tipizate. Adică mediul de dezvoltare recunoaște automat că setul people constă din obiecte de tip string, astfel încât variabila p va fi tratată ca un șir de caractere.</p>
+     <p class="paragraph">Apoi, cu ajutorul operatorului where, se efectuează filtrarea obiectelor, iar dacă obiectul corespunde criteriului (în acest caz, litera inițială trebuie să fie "T"), acest obiect este transmis mai departe.</p>
+     <p class="paragraph">Operatorul orderby sortează în ordine crescătoare obiectele selectate.</p>
+     <p class="paragraph">Operatorul select transmite valorile selectate în selecția rezultată, care este returnată de expresia LINQ.</p>
+     <p class="paragraph">În acest caz, rezultatul expresiei LINQ este un obiect IEnumerable&lt;T&gt;. Adesea, selecția rezultată este definită folosind cuvântul cheie var, astfel încât compilatorul deduce automat tipul la timpul de compilare.</p>
+     <h2 class="subtitle">Metode de extensie LINQ</h2>
+     <p class="paragraph">În afară de sintaxa standard from .. in .. select pentru crearea unei interogări LINQ, putem folosi metode de extensie speciale, care sunt definite pentru interfața IEnumerable. De obicei, aceste metode implementează aceeași funcționalitate ca operatorii LINQ de tip where sau orderby.</p>
+     <p class="paragraph">De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>string[]&nbsp;people&nbsp;=&nbsp;{&nbsp;"Tom",&nbsp;"Bob",&nbsp;"Sam",&nbsp;"Tim",&nbsp;"Tomas",&nbsp;"Bill"&nbsp;};<br><br>var&nbsp;selectedPeople&nbsp;=&nbsp;people.Where(p&nbsp;=&gt;&nbsp;p.ToUpper().StartsWith("T")).OrderBy(p&nbsp;=&gt;&nbsp;p);<br><br>foreach&nbsp;(string&nbsp;person&nbsp;in&nbsp;selectedPeople)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(person);</code></pre>
+     </div>
+     <p class="paragraph">Interogarea people.Where(p =&gt; p.ToUpper().StartsWith("T")).OrderBy(p =&gt; p) este echivalentă cu cea precedentă. Ea constă dintr-un lanț de metode Where și OrderBy. Aceste metode acceptă ca argument un delegat sau o expresie lambda.</p>
+     <p class="paragraph">Deși unele acțiuni le putem implementa atât cu operatori de interogare LINQ, cât și cu metode de extensie LINQ, nu fiecare metodă de extensie are un echivalent între operatorii LINQ. În acest caz, putem combina ambele abordări. De exemplu, folosim sintaxa standard LINQ și metoda de extensie Count(), care returnează numărul de elemente din selecție:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;number&nbsp;=&nbsp;(from&nbsp;p&nbsp;in&nbsp;people&nbsp;where&nbsp;p.ToUpper().StartsWith("T")&nbsp;select&nbsp;p).Count();<br>Console.WriteLine(number);&nbsp;//&nbsp;3</code></pre>
+     </div>
+     <h2 class="subtitle">Lista metodelor de extensie LINQ utilizate</h2>
+     <ul class="enumeration">
+      <li>Select: definește proiecția valorilor selectate</li>
+      <li>Where: definește filtrul selecției</li>
+      <li>OrderBy: sortează elementele în ordine crescătoare</li>
+      <li>OrderByDescending: sortează elementele în ordine descrescătoare</li>
+      <li>ThenBy: stabilește criterii suplimentare pentru sortarea elementelor în ordine crescătoare</li>
+      <li>ThenByDescending: stabilește criterii suplimentare pentru sortarea elementelor în ordine descrescătoare</li>
+      <li>Join: combină două colecții după un anumit criteriu</li>
+      <li>Aggregate: aplică o funcție agregată asupra elementelor secvenței, reducându-le la un singur obiect</li>
+      <li>GroupBy: grupează elementele după cheie</li>
+      <li>ToLookup: grupează elementele după cheie, adăugând toate elementele într-un dicționar</li>
+      <li>GroupJoin: realizează simultan combinarea colecțiilor și gruparea elementelor după cheie</li>
+      <li>Reverse: dispune elementele în ordine inversă</li>
+      <li>All: determină dacă toate elementele colecției îndeplinesc o anumită condiție</li>
+      <li>Any: determină dacă cel puțin un element din colecție îndeplinește o anumită condiție</li>
+      <li>Contains: determină dacă colecția conține un anumit element</li>
+      <li>Distinct: elimină elementele duplicate din colecție</li>
+      <li>Except: returnează diferența a două colecții, adică elementele care există doar într-o colecție</li>
+      <li>Union: combină două colecții omogene</li>
+      <li>Intersect: returnează intersecția a două colecții, adică elementele care apar în ambele colecții</li>
+      <li>Count: numără elementele colecției care îndeplinesc o anumită condiție</li>
+      <li>Sum: calculează suma valorilor numerice din colecție</li>
+      <li>Average: calculează valoarea medie a valorilor numerice din colecție</li>
+      <li>Min: găsește valoarea minimă</li>
+      <li>Max: găsește valoarea maximă</li>
+      <li>Take: selectează un număr specificat de elemente</li>
+      <li>Skip: omite un număr specificat de elemente</li>
+      <li>TakeWhile: returnează o secvență de elemente cât timp condiția este adevărată</li>
+      <li>SkipWhile: omite elementele din secvență cât timp acestea îndeplinesc o condiție specificată și apoi returnează elementele rămase</li>
+      <li>Concat: combină două colecții</li>
+      <li>Zip: combină două colecții conform unei anumite condiții</li>
+      <li>First: selectează primul element din colecție</li>
+      <li>FirstOrDefault: selectează primul element din colecție sau returnează valoarea implicită</li>
+      <li>Single: selectează singurul element din colecție; dacă colecția conține mai mult sau mai puțin de un element, se generează o excepție</li>
+      <li>SingleOrDefault: selectează singurul element din colecție; dacă colecția este goală, returnează valoarea implicită; dacă în colecție sunt mai multe elemente, se generează o excepție</li>
+      <li>ElementAt: selectează un element din secvență după un anumit index</li>
+      <li>ElementAtOrDefault: selectează un element din colecție după un anumit index sau returnează valoarea implicită dacă indexul este în afara intervalului permis</li>
+      <li>Last: selectează ultimul element din colecție</li>
+      <li>LastOrDefault: selectează ultimul element din colecție sau returnează valoarea implicită</li>
+     </ul>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

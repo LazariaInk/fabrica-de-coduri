@@ -1,201 +1,191 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='PHP', activeChapter='5.Functionalitati de baza ale PHP', activeLesson='4.Lucrul cu siruri de caractere'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Lucrul cu șiruri de caractere</h1>
- <p class="paragraph">Șirurile de caractere joacă un rol important, iar sarcinile de parsare a șirurilor de caractere sunt destul de frecvente în PHP, așa că vom examina câteva funcții de bază pentru lucrul cu șiruri de caractere.</p>
- <p class="paragraph">Șirurile de caractere reprezintă un anumit text care este încadrat în ghilimele simple sau duble:</p>
- <div class="code-inline">
-  <pre><code>$str1&nbsp;=&nbsp;"Hello";<br>$str2&nbsp;=&nbsp;'Welcome';</code></pre>
- </div>
- <p class="paragraph">Dar, de asemenea, PHP permite definirea unui șir de caractere fără ghilimele, folosind operatorul &lt;&lt;&lt;, urmat de o etichetă de terminare a șirului:</p>
- <div class="code-inline">
-  <pre><code>$s&nbsp;=&nbsp;&lt;&lt;&lt;&nbsp;LABEL<br>Hello&nbsp;World!<br>Bye&nbsp;World..<br>LABEL;<br>echo&nbsp;$s;</code></pre>
- </div>
- <p class="paragraph">În acest caz, "LABEL" este numele etichetei care indică începutul și sfârșitul șirului. Numele etichetei este arbitrar. Adică tot ce este situat între &lt;&lt;&lt; LABEL și LABEL; va reprezenta șirul $s. În particular, browser-ul ne va afișa următoarele:</p>
- <div class="code-inline">
-  <pre><code>Hello&nbsp;World!&nbsp;Bye&nbsp;World..</code></pre>
- </div>
- <p class="paragraph">Și în acest caz, la fel ca într-un șir de caractere obișnuit, putem folosi variabile:</p>
- <div class="code-inline">
-  <pre><code>$name&nbsp;=&nbsp;"Tom";<br>$age&nbsp;=&nbsp;36;<br>$s&nbsp;=&nbsp;&lt;&lt;&lt;&nbsp;USER<br>Name&nbsp;=&nbsp;$name<br>Age&nbsp;=&nbsp;$age<br>USER;<br>echo&nbsp;$s;</code></pre>
- </div>
- <h2 class="subtitle">Accesarea caracterelor dintr-un șir</h2>
- <p class="paragraph">PHP permite accesarea caracterelor individuale dintr-un șir ca și cum ar fi elemente ale unui array prin index numeric:</p>
- <div class="code-inline">
-  <pre><code>$str&nbsp;=&nbsp;"Hello&nbsp;Tom";<br><br>echo&nbsp;$str[0];//&nbsp;vom&nbsp;obține&nbsp;primul&nbsp;caracter&nbsp;-&nbsp;H<br><br>$str[1]&nbsp;=&nbsp;"i";&nbsp;&nbsp;//&nbsp;schimbăm&nbsp;al&nbsp;doilea&nbsp;caracter<br>echo&nbsp;"&lt;br&gt;"&nbsp;.&nbsp;$str&nbsp;.&nbsp;"&lt;br&gt;";&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Hillo&nbsp;Tom</code></pre>
- </div>
- <p class="paragraph">Indexarea caracterelor, la fel ca în array-uri, începe de la zero.</p>
- <h2 class="subtitle">Funcții speciale și extensia mbstring</h2>
- <p class="paragraph">Pe lângă unele posibilități de bază pentru lucrul cu șiruri de caractere, PHP oferă și o serie de funcții speciale. Pentru unele dintre ele este necesară activarea extensiei speciale - mbstring.dll.</p>
- <p class="paragraph">Pentru a activa această extensie, deschidem fișierul de configurare PHP - php.ini și găsim următoarea linie:</p>
- <div class="code-inline">
-  <pre><code>;extension=mbstring</code></pre>
- </div>
- <p class="paragraph">O decomentăm, eliminând punctul și virgula.</p>
- <div class="code-inline">
-  <pre><code>extension=mbstring</code></pre>
- </div>
- <p class="paragraph">De asemenea, ne asigurăm că este indicat calea către folderul cu extensii.</p>
- <p class="paragraph">Găsim în fișierul php.ini linia:</p>
- <div class="code-inline">
-  <pre><code>;extension_dir&nbsp;=&nbsp;"ext"</code></pre>
- </div>
- <p class="paragraph">Această linie indică directorul cu extensii pentru PHP. Implicit, toate extensiile sunt situate în folderul ext. Decomentăm această linie, eliminând punctul și virgula, și indicăm calea completă către folderul ext.</p>
- <p class="paragraph">De exemplu, în cazul meu, folderul php este situat în rădăcina discului C (OS Windows), astfel indic calea "C:\php\ext":</p>
- <div class="code-inline">
-  <pre><code>extension_dir&nbsp;=&nbsp;"C:\php\ext"</code></pre>
- </div>
- <p class="paragraph">Și deoarece am modificat fișierul php.ini, repornim serverul web Apache.</p>
- <p class="paragraph">Activarea extensiei mbstring va permite utilizarea unor funcții suplimentare pentru lucrul cu șiruri de caractere, care nu sunt disponibile în setul standard PHP (aceste funcții încep de obicei cu prefixul mb_).</p>
- <h2 class="subtitle">Funcțiile strpos()</h2>
- <p class="paragraph">Funcția strpos($str, $search) returnează poziția subșirului sau caracterului $search în șirul $str sau valoarea false, dacă șirul $str nu conține subșirul $search:</p>
- <div class="code-inline">
-  <pre><code>$input&nbsp;=&nbsp;"This&nbsp;is&nbsp;the&nbsp;end";<br>$search&nbsp;=&nbsp;"is";<br>$position&nbsp;=&nbsp;strpos($input,&nbsp;$search);&nbsp;//&nbsp;2<br>if($position!==false)<br>{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Poziția&nbsp;subșirului&nbsp;'$search'&nbsp;în&nbsp;șirul&nbsp;'$input':&nbsp;$position";<br>}</code></pre>
- </div>
- <p class="paragraph">La utilizarea acestei funcții, trebuie de avut în vedere că indexarea caracterelor în șir începe de la zero, deci poziția caracterului "T" va fi egală cu 0.</p>
- <p class="paragraph">De aceea, comparația $position!=false va funcționa incorect, deoarece false și 0, la comparare și conversie la un tip comun, vor reprezenta aceeași valoare. De aceea, în acest caz este corect să se folosească doar operația de echivalență: $position!==false sau $position===false.</p>
- <p class="paragraph">Acum aplicăm funcția într-un alt exemplu:</p>
- <div class="code-inline">
-  <pre><code>$input&nbsp;=&nbsp;"Mama&nbsp;a&nbsp;spălat&nbsp;geamul";<br>$search&nbsp;=&nbsp;"spă";<br>$position&nbsp;=&nbsp;strpos($input,&nbsp;$search);&nbsp;//&nbsp;7</code></pre>
- </div>
- <h2 class="subtitle">Funcția strrpos()</h2>
- <p class="paragraph">Funcția strrpos() este similară funcției strpos(), doar că caută poziția ultimei apariții a subșirului în șir:</p>
- <div class="code-inline">
-  <pre><code>$input&nbsp;=&nbsp;"This&nbsp;is&nbsp;the&nbsp;end";<br>$search&nbsp;=&nbsp;"is";<br>$position&nbsp;=&nbsp;strrpos($input,&nbsp;$search);&nbsp;//&nbsp;7</code></pre>
- </div>
- <h2 class="subtitle">Funcția trim()</h2>
- <p class="paragraph">Funcția trim($str) elimină spațiile inițiale și finale, precum și caracterele de control \n, \r, \t:</p>
- <div class="code-inline">
-  <pre><code>$input&nbsp;=&nbsp;"&nbsp;&nbsp;Mama&nbsp;a&nbsp;spălat&nbsp;geamul&nbsp;&nbsp;";<br>$input&nbsp;=&nbsp;trim($input);</code></pre>
- </div>
- <h2 class="subtitle">Schimbarea registrului</h2>
- <p class="paragraph">Pentru a converti șirul în litere mici, se folosește funcția strtolower:</p>
- <div class="code-inline">
-  <pre><code>$input&nbsp;=&nbsp;"The&nbsp;World&nbsp;is&nbsp;Mine";<br>$input&nbsp;=&nbsp;strtolower($input);</code></pre>
- </div>
- <p class="paragraph">Pentru a converti șirul în litere mari, se folosesc funcțiile strtoupper(), care funcționează similar.</p>
- <h2 class="subtitle">Funcția strlen()</h2>
- <p class="paragraph">Funcția strlen() returnează lungimea șirului, adică numărul de caractere din el:</p>
- <div class="code-inline">
-  <pre><code>$input&nbsp;=&nbsp;"Hello&nbsp;world";<br>$num&nbsp;=&nbsp;strlen($input);<br>echo&nbsp;$num;</code></pre>
- </div>
- <h2 class="subtitle">Obținerea unui subșir</h2>
- <p class="paragraph">Aplicând funcția substr($str, $start [, $length]), putem obține dintr-un șir partea sa specificată. Această funcție taie șirul $str, începând de la caracterul din poziția $start până la sfârșitul șirului. Cu ajutorul unui parametru opțional $length, putem specifica numărul de caractere extrase.</p>
- <div class="code-inline">
-  <pre><code>$input&nbsp;=&nbsp;"The&nbsp;world&nbsp;is&nbsp;mine!";<br>$subinput1&nbsp;=&nbsp;substr($input,&nbsp;2);<br>$subinput2&nbsp;=&nbsp;substr($input,&nbsp;2,&nbsp;6);<br>echo&nbsp;$subinput1;<br>echo&nbsp;"&lt;br&gt;";<br>echo&nbsp;$subinput2;</code></pre>
- </div>
- <h2 class="subtitle">Înlocuirea subșirurilor</h2>
- <p class="paragraph">Pentru a înlocui o anumită parte a unui șir, se folosește funcția str_replace($old, $new, $input). Această funcție înlocuiește în șirul $input toate aparițiile subșirului $old cu subșirul $new, ținând cont de registru:</p>
- <div class="code-inline">
-  <pre><code>$input&nbsp;=&nbsp;"Mama&nbsp;a&nbsp;spălat&nbsp;geamul";<br>$input&nbsp;=&nbsp;str_replace("spăl",&nbsp;"stric",&nbsp;$input);<br>echo&nbsp;$input;</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Lucrul cu șiruri de caractere</h1>
+     <p class="paragraph">Șirurile de caractere joacă un rol important, iar sarcinile de parsare a șirurilor de caractere sunt destul de frecvente în PHP, așa că vom examina câteva funcții de bază pentru lucrul cu șiruri de caractere.</p>
+     <p class="paragraph">Șirurile de caractere reprezintă un anumit text care este încadrat în ghilimele simple sau duble:</p>
+     <div class="code-inline">
+      <pre><code>$str1&nbsp;=&nbsp;"Hello";<br>$str2&nbsp;=&nbsp;'Welcome';</code></pre>
+     </div>
+     <p class="paragraph">Dar, de asemenea, PHP permite definirea unui șir de caractere fără ghilimele, folosind operatorul &lt;&lt;&lt;, urmat de o etichetă de terminare a șirului:</p>
+     <div class="code-inline">
+      <pre><code>$s&nbsp;=&nbsp;&lt;&lt;&lt;&nbsp;LABEL<br>Hello&nbsp;World!<br>Bye&nbsp;World..<br>LABEL;<br>echo&nbsp;$s;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, "LABEL" este numele etichetei care indică începutul și sfârșitul șirului. Numele etichetei este arbitrar. Adică tot ce este situat între &lt;&lt;&lt; LABEL și LABEL; va reprezenta șirul $s. În particular, browser-ul ne va afișa următoarele:</p>
+     <div class="code-inline">
+      <pre><code>Hello&nbsp;World!&nbsp;Bye&nbsp;World..</code></pre>
+     </div>
+     <p class="paragraph">Și în acest caz, la fel ca într-un șir de caractere obișnuit, putem folosi variabile:</p>
+     <div class="code-inline">
+      <pre><code>$name&nbsp;=&nbsp;"Tom";<br>$age&nbsp;=&nbsp;36;<br>$s&nbsp;=&nbsp;&lt;&lt;&lt;&nbsp;USER<br>Name&nbsp;=&nbsp;$name<br>Age&nbsp;=&nbsp;$age<br>USER;<br>echo&nbsp;$s;</code></pre>
+     </div>
+     <h2 class="subtitle">Accesarea caracterelor dintr-un șir</h2>
+     <p class="paragraph">PHP permite accesarea caracterelor individuale dintr-un șir ca și cum ar fi elemente ale unui array prin index numeric:</p>
+     <div class="code-inline">
+      <pre><code>$str&nbsp;=&nbsp;"Hello&nbsp;Tom";<br><br>echo&nbsp;$str[0];//&nbsp;vom&nbsp;obține&nbsp;primul&nbsp;caracter&nbsp;-&nbsp;H<br><br>$str[1]&nbsp;=&nbsp;"i";&nbsp;&nbsp;//&nbsp;schimbăm&nbsp;al&nbsp;doilea&nbsp;caracter<br>echo&nbsp;"&lt;br&gt;"&nbsp;.&nbsp;$str&nbsp;.&nbsp;"&lt;br&gt;";&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Hillo&nbsp;Tom</code></pre>
+     </div>
+     <p class="paragraph">Indexarea caracterelor, la fel ca în array-uri, începe de la zero.</p>
+     <h2 class="subtitle">Funcții speciale și extensia mbstring</h2>
+     <p class="paragraph">Pe lângă unele posibilități de bază pentru lucrul cu șiruri de caractere, PHP oferă și o serie de funcții speciale. Pentru unele dintre ele este necesară activarea extensiei speciale - mbstring.dll.</p>
+     <p class="paragraph">Pentru a activa această extensie, deschidem fișierul de configurare PHP - php.ini și găsim următoarea linie:</p>
+     <div class="code-inline">
+      <pre><code>;extension=mbstring</code></pre>
+     </div>
+     <p class="paragraph">O decomentăm, eliminând punctul și virgula.</p>
+     <div class="code-inline">
+      <pre><code>extension=mbstring</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, ne asigurăm că este indicat calea către folderul cu extensii.</p>
+     <p class="paragraph">Găsim în fișierul php.ini linia:</p>
+     <div class="code-inline">
+      <pre><code>;extension_dir&nbsp;=&nbsp;"ext"</code></pre>
+     </div>
+     <p class="paragraph">Această linie indică directorul cu extensii pentru PHP. Implicit, toate extensiile sunt situate în folderul ext. Decomentăm această linie, eliminând punctul și virgula, și indicăm calea completă către folderul ext.</p>
+     <p class="paragraph">De exemplu, în cazul meu, folderul php este situat în rădăcina discului C (OS Windows), astfel indic calea "C:\php\ext":</p>
+     <div class="code-inline">
+      <pre><code>extension_dir&nbsp;=&nbsp;"C:\php\ext"</code></pre>
+     </div>
+     <p class="paragraph">Și deoarece am modificat fișierul php.ini, repornim serverul web Apache.</p>
+     <p class="paragraph">Activarea extensiei mbstring va permite utilizarea unor funcții suplimentare pentru lucrul cu șiruri de caractere, care nu sunt disponibile în setul standard PHP (aceste funcții încep de obicei cu prefixul mb_).</p>
+     <h2 class="subtitle">Funcțiile strpos()</h2>
+     <p class="paragraph">Funcția strpos($str, $search) returnează poziția subșirului sau caracterului $search în șirul $str sau valoarea false, dacă șirul $str nu conține subșirul $search:</p>
+     <div class="code-inline">
+      <pre><code>$input&nbsp;=&nbsp;"This&nbsp;is&nbsp;the&nbsp;end";<br>$search&nbsp;=&nbsp;"is";<br>$position&nbsp;=&nbsp;strpos($input,&nbsp;$search);&nbsp;//&nbsp;2<br>if($position!==false)<br>{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Poziția&nbsp;subșirului&nbsp;'$search'&nbsp;în&nbsp;șirul&nbsp;'$input':&nbsp;$position";<br>}</code></pre>
+     </div>
+     <p class="paragraph">La utilizarea acestei funcții, trebuie de avut în vedere că indexarea caracterelor în șir începe de la zero, deci poziția caracterului "T" va fi egală cu 0.</p>
+     <p class="paragraph">De aceea, comparația $position!=false va funcționa incorect, deoarece false și 0, la comparare și conversie la un tip comun, vor reprezenta aceeași valoare. De aceea, în acest caz este corect să se folosească doar operația de echivalență: $position!==false sau $position===false.</p>
+     <p class="paragraph">Acum aplicăm funcția într-un alt exemplu:</p>
+     <div class="code-inline">
+      <pre><code>$input&nbsp;=&nbsp;"Mama&nbsp;a&nbsp;spălat&nbsp;geamul";<br>$search&nbsp;=&nbsp;"spă";<br>$position&nbsp;=&nbsp;strpos($input,&nbsp;$search);&nbsp;//&nbsp;7</code></pre>
+     </div>
+     <h2 class="subtitle">Funcția strrpos()</h2>
+     <p class="paragraph">Funcția strrpos() este similară funcției strpos(), doar că caută poziția ultimei apariții a subșirului în șir:</p>
+     <div class="code-inline">
+      <pre><code>$input&nbsp;=&nbsp;"This&nbsp;is&nbsp;the&nbsp;end";<br>$search&nbsp;=&nbsp;"is";<br>$position&nbsp;=&nbsp;strrpos($input,&nbsp;$search);&nbsp;//&nbsp;7</code></pre>
+     </div>
+     <h2 class="subtitle">Funcția trim()</h2>
+     <p class="paragraph">Funcția trim($str) elimină spațiile inițiale și finale, precum și caracterele de control \n, \r, \t:</p>
+     <div class="code-inline">
+      <pre><code>$input&nbsp;=&nbsp;"&nbsp;&nbsp;Mama&nbsp;a&nbsp;spălat&nbsp;geamul&nbsp;&nbsp;";<br>$input&nbsp;=&nbsp;trim($input);</code></pre>
+     </div>
+     <h2 class="subtitle">Schimbarea registrului</h2>
+     <p class="paragraph">Pentru a converti șirul în litere mici, se folosește funcția strtolower:</p>
+     <div class="code-inline">
+      <pre><code>$input&nbsp;=&nbsp;"The&nbsp;World&nbsp;is&nbsp;Mine";<br>$input&nbsp;=&nbsp;strtolower($input);</code></pre>
+     </div>
+     <p class="paragraph">Pentru a converti șirul în litere mari, se folosesc funcțiile strtoupper(), care funcționează similar.</p>
+     <h2 class="subtitle">Funcția strlen()</h2>
+     <p class="paragraph">Funcția strlen() returnează lungimea șirului, adică numărul de caractere din el:</p>
+     <div class="code-inline">
+      <pre><code>$input&nbsp;=&nbsp;"Hello&nbsp;world";<br>$num&nbsp;=&nbsp;strlen($input);<br>echo&nbsp;$num;</code></pre>
+     </div>
+     <h2 class="subtitle">Obținerea unui subșir</h2>
+     <p class="paragraph">Aplicând funcția substr($str, $start [, $length]), putem obține dintr-un șir partea sa specificată. Această funcție taie șirul $str, începând de la caracterul din poziția $start până la sfârșitul șirului. Cu ajutorul unui parametru opțional $length, putem specifica numărul de caractere extrase.</p>
+     <div class="code-inline">
+      <pre><code>$input&nbsp;=&nbsp;"The&nbsp;world&nbsp;is&nbsp;mine!";<br>$subinput1&nbsp;=&nbsp;substr($input,&nbsp;2);<br>$subinput2&nbsp;=&nbsp;substr($input,&nbsp;2,&nbsp;6);<br>echo&nbsp;$subinput1;<br>echo&nbsp;"&lt;br&gt;";<br>echo&nbsp;$subinput2;</code></pre>
+     </div>
+     <h2 class="subtitle">Înlocuirea subșirurilor</h2>
+     <p class="paragraph">Pentru a înlocui o anumită parte a unui șir, se folosește funcția str_replace($old, $new, $input). Această funcție înlocuiește în șirul $input toate aparițiile subșirului $old cu subșirul $new, ținând cont de registru:</p>
+     <div class="code-inline">
+      <pre><code>$input&nbsp;=&nbsp;"Mama&nbsp;a&nbsp;spălat&nbsp;geamul";<br>$input&nbsp;=&nbsp;str_replace("spăl",&nbsp;"stric",&nbsp;$input);<br>echo&nbsp;$input;</code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

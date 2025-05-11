@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='21.Gestionarea memoriei, colectarea gunoiului si pointeri', activeLesson='3.Constructia using'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Construcția using</h1>
+     <p class="paragraph">În tema anterioară, unde am discutat despre implementarea metodei Dispose, s-a menționat că pentru a o apela putem folosi următoarea construcție try..finally:</p>
+     <div class="code-inline">
+      <pre><code>Test();<br><br>void&nbsp;Test()<br>{<br>&nbsp;&nbsp;&nbsp;Person?&nbsp;tom&nbsp;=&nbsp;null;<br>&nbsp;&nbsp;&nbsp;try<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;finally<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tom?.Dispose();<br>&nbsp;&nbsp;&nbsp;}<br>}<br>public&nbsp;class&nbsp;Person&nbsp;:&nbsp;IDisposable<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name)&nbsp;=&gt;&nbsp;Name&nbsp;=&nbsp;name;<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Dispose()&nbsp;=&gt;&nbsp;Console.WriteLine($"{Name}&nbsp;has&nbsp;been&nbsp;disposed");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Totuși, sintaxa C# oferă și o construcție sinonimică pentru apelarea automată a metodei Dispose - construcția using:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;(Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom"))<br>{<br>}</code></pre>
+     </div>
+     <p class="paragraph">Construcția using definește un bloc de cod și creează un obiect de un anumit tip, care implementează interfața IDisposable, în special metoda sa Dispose. La finalizarea blocului de cod, metoda Dispose este apelată automat pentru obiectul respectiv.</p>
+     <p class="paragraph">Este important de menționat că această construcție se aplică doar pentru tipurile care implementează interfața IDisposable.</p>
+     <p class="paragraph">Utilizarea construcției using:</p>
+     <div class="code-inline">
+      <pre><code>Test();<br><br>void&nbsp;Test()<br>{<br>&nbsp;&nbsp;&nbsp;using&nbsp;(Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom"))<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;variabila&nbsp;tom&nbsp;este&nbsp;disponibilă&nbsp;doar&nbsp;în&nbsp;blocul&nbsp;using<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;unele&nbsp;acțiuni&nbsp;cu&nbsp;obiectul&nbsp;Person<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Name:&nbsp;{tom.Name}");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Sfârșitul&nbsp;metodei&nbsp;Test");<br>}<br>public&nbsp;class&nbsp;Person&nbsp;:&nbsp;IDisposable<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name)&nbsp;=&gt;&nbsp;Name&nbsp;=&nbsp;name;<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Dispose()&nbsp;=&gt;&nbsp;Console.WriteLine($"{Name}&nbsp;has&nbsp;been&nbsp;disposed");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Output în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Name:&nbsp;Tom<br>Tom&nbsp;has&nbsp;been&nbsp;disposed<br>Sfârșitul&nbsp;metodei&nbsp;Test</code></pre>
+     </div>
+     <p class="paragraph">Aici observăm că la finalizarea blocului using, metoda Dispose este apelată pentru obiectul Person. În afara blocului de cod using, obiectul tom nu mai există.</p>
+     <p class="paragraph">Începând cu versiunea C# 8.0, putem seta ca domeniul de aplicare să fie întreaga zonă de vizibilitate, de exemplu, metoda:</p>
+     <div class="code-inline">
+      <pre><code>Test();<br><br>void&nbsp;Test()<br>{<br>&nbsp;&nbsp;&nbsp;using&nbsp;Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom");<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;//&nbsp;variabila&nbsp;tom&nbsp;este&nbsp;disponibilă&nbsp;doar&nbsp;în&nbsp;blocul&nbsp;using<br>&nbsp;&nbsp;&nbsp;//&nbsp;unele&nbsp;acțiuni&nbsp;cu&nbsp;obiectul&nbsp;Person<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Name:&nbsp;{tom.Name}");<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Sfârșitul&nbsp;metodei&nbsp;Test");<br>}<br>public&nbsp;class&nbsp;Person&nbsp;:&nbsp;IDisposable<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name)&nbsp;=&gt;&nbsp;Name&nbsp;=&nbsp;name;<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Dispose()&nbsp;=&gt;&nbsp;Console.WriteLine($"{Name}&nbsp;has&nbsp;been&nbsp;disposed");<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, using informează compilatorul că variabila declarată trebuie eliberată la sfârșitul domeniului de vizibilitate - adică la sfârșitul metodei Test. În consecință, output-ul în consolă va fi:</p>
+     <div class="code-inline">
+      <pre><code>Name:&nbsp;Tom<br>Sfârșitul&nbsp;metodei&nbsp;Test<br>Tom&nbsp;has&nbsp;been&nbsp;disposed</code></pre>
+     </div>
+     <h2 class="subtitle">Eliberarea mai multor resurse</h2>
+     <p class="paragraph">Pentru eliberarea mai multor resurse, putem folosi construcții using imbricate. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>void&nbsp;Test()<br>{<br>&nbsp;&nbsp;&nbsp;using&nbsp;(Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom"))<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;using&nbsp;(Person&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person("Bob"))<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Person1:&nbsp;{tom.Name}&nbsp;&nbsp;&nbsp;&nbsp;Person2:&nbsp;{bob.Name}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;//&nbsp;apelarea&nbsp;metodei&nbsp;Dispose&nbsp;pentru&nbsp;obiectul&nbsp;bob<br>&nbsp;&nbsp;&nbsp;}&nbsp;//&nbsp;apelarea&nbsp;metodei&nbsp;Dispose&nbsp;pentru&nbsp;obiectul&nbsp;tom<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Sfârșitul&nbsp;metodei&nbsp;Test");<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, ambele construcții using creează obiecte de același tip, dar pot fi și tipuri de date diferite, cu condiția ca acestea să implementeze interfața IDisposable.</p>
+     <p class="paragraph">Putem simplifica această definiție:</p>
+     <div class="code-inline">
+      <pre><code>void&nbsp;Test()<br>{<br>&nbsp;&nbsp;&nbsp;using&nbsp;(Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom"))<br>&nbsp;&nbsp;&nbsp;using(Person&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person("Bob"))<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Person1:&nbsp;{tom.Name}&nbsp;&nbsp;&nbsp;&nbsp;Person2:&nbsp;{bob.Name}");<br>&nbsp;&nbsp;&nbsp;}&nbsp;//&nbsp;apelarea&nbsp;metodei&nbsp;Dispose&nbsp;pentru&nbsp;obiectele&nbsp;bob&nbsp;și&nbsp;tom<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Sfârșitul&nbsp;metodei&nbsp;Test");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Și, așa cum s-a menționat anterior, în C# putem seta ca domeniul de aplicare pentru obiectele create în construcția using să fie întreaga metodă:</p>
+     <div class="code-inline">
+      <pre><code>private&nbsp;static&nbsp;void&nbsp;Test()<br>{<br>&nbsp;&nbsp;&nbsp;using&nbsp;Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person&nbsp;{&nbsp;Name&nbsp;=&nbsp;"Tom"&nbsp;};<br>&nbsp;&nbsp;&nbsp;using&nbsp;Person&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person&nbsp;{&nbsp;Name&nbsp;=&nbsp;"Bob"&nbsp;};<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Person1:&nbsp;{tom.Name}&nbsp;&nbsp;&nbsp;&nbsp;Person2:&nbsp;{bob.Name}");<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Sfârșitul&nbsp;metodei&nbsp;Test");<br>}&nbsp;//&nbsp;apelarea&nbsp;metodei&nbsp;Dispose&nbsp;pentru&nbsp;obiectele&nbsp;bob&nbsp;și&nbsp;tom</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

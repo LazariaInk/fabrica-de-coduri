@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='19.API-ul Fetch', activeLesson='2.Primirea raspunsului'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Primirea răspunsului - Obiectul Response și proprietățile sale</h1>
+     <p class="paragraph">Pentru reprezentarea răspunsului de la server în API-ul Fetch se utilizează interfața Response. Funcția fetch() returnează un obiect Promise, funcția callback din care primește ca parametru un obiect Response cu răspunsul primit de la server:</p>
+     <div class="code-inline">
+      <pre><code>fetch("/hello").then(response&nbsp;=&gt;&nbsp;/*&nbsp;acțiuni&nbsp;cu&nbsp;response&nbsp;*/&nbsp;)</code></pre>
+     </div>
+     <p class="paragraph">Sau se poate folosi async/await pentru a obține obiectul Response:</p>
+     <div class="code-inline">
+      <pre><code>async&nbsp;function&nbsp;getText()&nbsp;{<br>&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;obiectul&nbsp;răspuns<br>&nbsp;&nbsp;&nbsp;const&nbsp;response&nbsp;=&nbsp;await&nbsp;fetch("http://localhost:3000/hello");<br>&nbsp;&nbsp;&nbsp;//&nbsp;acțiuni&nbsp;cu&nbsp;obiectul&nbsp;response&nbsp;.......<br>}</code></pre>
+     </div>
+     <p class="paragraph">Cu ajutorul proprietăților obiectului Response se poate obține diverse informații din răspunsul primit. Obiectul Response are următoarele proprietăți:</p>
+     <ul class="enumeration">
+      <li>body: conținutul răspunsului sub formă de obiect ReadableStream</li>
+      <li>bodyUsed: păstrează o valoare booleană care indică dacă conținutul răspunsului a fost deja folosit sau nu</li>
+      <li>headers: setul de antete ale răspunsului sub formă de obiect Headers</li>
+      <li>ok: păstrează o valoare booleană care indică dacă solicitarea a fost finalizată cu succes (adică dacă codul de stare al răspunsului se află în intervalul 200-299)</li>
+      <li>redirected: păstrează o valoare booleană care indică dacă răspunsul este rezultatul unei redirecționări</li>
+      <li>status: păstrează codul de stare al răspunsului</li>
+      <li>statusText: păstrează mesajul de stare care corespunde codului de stare</li>
+      <li>type: păstrează tipul răspunsului</li>
+      <li>url: păstrează adresa URL. Dacă în procesul solicitării are loc o serie de redirecționări, atunci păstrează adresa URL finală după toate redirecționările</li>
+     </ul>
+     <p class="paragraph">Este de menționat că toate aceste proprietăți sunt doar pentru citire. De exemplu, utilizăm o serie de proprietăți pentru a obține informații despre răspunsul serverului. Pentru aceasta, definim următorul server pe Node.js, care procesează solicitările:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");<br><br>http.createServer(function(request,&nbsp;response){<br><br>&nbsp;&nbsp;&nbsp;if(request.url&nbsp;==&nbsp;"/hello"){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.end("Fetch&nbsp;pe&nbsp;FDC.COM");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fs.readFile("index.html",&nbsp;(error,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>&nbsp;&nbsp;&nbsp;}<br>}).listen(3000,&nbsp;()=&gt;console.log("Serverul&nbsp;a&nbsp;fost&nbsp;lansat&nbsp;la&nbsp;adresa&nbsp;http://localhost:3000"));</code></pre>
+     </div>
+     <p class="paragraph">Pe pagina index.html apelăm funcția fetch și obținem informații despre răspuns:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;script&gt;<br>fetch("/hello")<br>&nbsp;&nbsp;&nbsp;.then(response&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(response.status);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;200<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(response.statusText);&nbsp;&nbsp;&nbsp;//&nbsp;OK<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(response.url);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;http://localhost:3000/hello<br>&nbsp;&nbsp;&nbsp;});<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Exemplu similar cu async/await:</p>
+     <div class="code-inline">
+      <pre><code>getResponse();<br>async&nbsp;function&nbsp;getResponse()&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;const&nbsp;response&nbsp;=&nbsp;await&nbsp;fetch("/hello");<br>&nbsp;&nbsp;&nbsp;console.log(response.status);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;200<br>&nbsp;&nbsp;&nbsp;console.log(response.statusText);&nbsp;&nbsp;&nbsp;//&nbsp;OK<br>&nbsp;&nbsp;&nbsp;console.log(response.url);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;http://localhost:3000/hello<br>}</code></pre>
+     </div>
+     <p class="paragraph">Proprietatea ok returnează true dacă codul de stare al răspunsului se află în intervalul de la 200 la 299, ceea ce de obicei indică faptul că solicitarea a fost executată cu succes. Și putem verifica această proprietate înainte de a procesa răspunsul:</p>
+     <div class="code-inline">
+      <pre><code><br>fetch("/hello").then(response&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;if(response.ok){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;procesarea&nbsp;răspunsului<br>&nbsp;&nbsp;&nbsp;}<br>});</code></pre>
+     </div>
+     <h2 class="subtitle">Obținerea antetelor</h2>
+     <p class="paragraph">Cu ajutorul proprietății headers se pot obține antetele răspunsului, care reprezintă interfața Headers.</p>
+     <p class="paragraph">Pentru a obține date din antete, putem folosi unul dintre următoarele metode ale interfeței Headers:</p>
+     <ul class="enumeration">
+      <li>entries(): returnează un iterator, care permite să trecem prin toate antetele</li>
+      <li>forEach(): realizează parcurgerea antetelor</li>
+      <li>get(): returnează valoarea unui anumit antet</li>
+      <li>has(): returnează true, dacă este setat un anumit antet</li>
+      <li>keys(): obține toate numele antetelor setate</li>
+      <li>values(): obține toate valorile antetelor setate</li>
+     </ul>
+     <p class="paragraph">De exemplu, obținem toate antetele răspunsului:</p>
+     <div class="code-inline">
+      <pre><code>fetch("/hello").then(response&nbsp;=&gt;&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;for(header&nbsp;of&nbsp;response.headers){<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(header[0],":",header[1]);<br>&nbsp;&nbsp;&nbsp;}<br>});</code></pre>
+     </div>
+     <p class="paragraph">Fiecare antet reprezintă un array din două elemente, unde primul element este numele antetului, iar al doilea - valoarea sa.</p>
+     <p class="paragraph">Output-ul consolei browserului în cazul meu:</p>
+     <div class="code-inline">
+      <pre><code>connection&nbsp;:&nbsp;keep-alive<br>content-length&nbsp;:&nbsp;22<br>date&nbsp;:&nbsp;Fri,&nbsp;03&nbsp;Dec&nbsp;2021&nbsp;17:09:34&nbsp;GMT<br>keep-alive&nbsp;:&nbsp;timeout=5</code></pre>
+     </div>
+     <p class="paragraph">Alt exemplu - verificarea unui antet și la prezența sa afișarea valorii sale:</p>
+     <div class="code-inline">
+      <pre><code>fetch("/hello").then(response&nbsp;=&gt;&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;const&nbsp;headerTitle&nbsp;=&nbsp;"date";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;numele&nbsp;antetului<br>&nbsp;&nbsp;&nbsp;if(response.headers.has(headerTitle)){&nbsp;&nbsp;//&nbsp;dacă&nbsp;antetul&nbsp;există<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(response.headers.get(headerTitle));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;valoarea&nbsp;sa<br>&nbsp;&nbsp;&nbsp;}<br>});</code></pre>
+     </div>
+     <p class="paragraph">Astfel, putem obține și antetele personalizate, care sunt setate de către server. De exemplu, să presupunem că serverul node.js setează antetul "Secret-Code":</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");<br><br>http.createServer(function(request,&nbsp;response){<br><br>&nbsp;&nbsp;&nbsp;if(request.url&nbsp;==&nbsp;"/hello"){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.setHeader("Secret-Code",&nbsp;124);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.end("Fetch&nbsp;pe&nbsp;METANIT.COM");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fs.readFile("index.html",&nbsp;(error,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>&nbsp;&nbsp;&nbsp;}<br>}).listen(3000,&nbsp;()=&gt;console.log("Serverul&nbsp;a&nbsp;fost&nbsp;lansat&nbsp;la&nbsp;adresa&nbsp;http://localhost:3000"));</code></pre>
+     </div>
+     <p class="paragraph">Pentru setarea antetului în node.js se folosește metoda response.setHeader(), primul parametru al căreia este numele antetului, iar al doilea - valoarea sa.</p>
+     <p class="paragraph">Obținem acest antet pe pagina web:</p>
+     <div class="code-inline">
+      <pre><code>fetch("/hello").then(response&nbsp;=&gt;&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;console.log(response.headers.get("Content-Type"));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;null&nbsp;-&nbsp;antetul&nbsp;nu&nbsp;este&nbsp;setat<br>&nbsp;&nbsp;&nbsp;console.log(response.headers.get("Secret-Code"));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;124<br>});</code></pre>
+     </div>
+     <p class="paragraph">Dacă antetul nu este setat, atunci metoda response.headers.get() returnează null.</p>
+     <h2 class="subtitle">Redirecționarea</h2>
+     <p class="paragraph">Dacă în procesul solicitării a avut loc o redirecționare, atunci proprietatea redirected este egală cu true, iar proprietatea url păstrează adresa la care a avut loc redirecționarea. De exemplu, să presupunem că serverul pe node.js efectuează redirecționarea de la adresa "/hello" la adresa "/newpage":</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");<br><br>http.createServer(function(request,&nbsp;response){<br><br>&nbsp;&nbsp;&nbsp;if(request.url&nbsp;==&nbsp;"/hello"){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.statusCode&nbsp;=&nbsp;302;&nbsp;//&nbsp;302&nbsp;-&nbsp;codul&nbsp;de&nbsp;redirecționare&nbsp;temporară<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.setHeader("Location",&nbsp;"/newpage");&nbsp;//&nbsp;redirecționare&nbsp;la&nbsp;adresa&nbsp;localhost:3000/newpage<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.end();<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else&nbsp;if(request.url&nbsp;==&nbsp;"/newpage"){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.setHeader("Secret-Code",&nbsp;"New&nbsp;Page&nbsp;Code:&nbsp;567");&nbsp;//&nbsp;pentru&nbsp;test,&nbsp;setăm&nbsp;antetul<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.end("This&nbsp;is&nbsp;a&nbsp;new&nbsp;page");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fs.readFile("index.html",&nbsp;(error,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>&nbsp;&nbsp;&nbsp;}<br>}).listen(3000,&nbsp;()=&gt;console.log("Serverul&nbsp;a&nbsp;fost&nbsp;lansat&nbsp;la&nbsp;adresa&nbsp;http://localhost:3000"));</code></pre>
+     </div>
+     <p class="paragraph">Efectuăm o solicitare la adresa "/hello" pe pagina web:</p>
+     <div class="code-inline">
+      <pre><code>fetch("/hello").then(response&nbsp;=&gt;{<br><br>&nbsp;&nbsp;&nbsp;if&nbsp;(response.redirected)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("A&nbsp;avut&nbsp;loc&nbsp;redirecționarea&nbsp;la&nbsp;adresa",&nbsp;response.url);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(response.headers.get("Secret-Code"));<br>&nbsp;}<br>});</code></pre>
+     </div>
+     <p class="paragraph">Output-ul consolei browserului:</p>
+     <div class="code-inline">
+      <pre><code>A&nbsp;avut&nbsp;loc&nbsp;redirecționarea&nbsp;la&nbsp;adresa<br>http://localhost:3000/newpage<br>New&nbsp;Page&nbsp;Code:&nbsp;567</code></pre>
+     </div>
+     <p class="paragraph">Din output-ul consolei, și anume din antetul Secret-Code, vedem că funcția fetch a primit răspuns de la noua adresă - "/newpage".</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

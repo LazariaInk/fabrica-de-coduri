@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='6.Delegati, evenimente si lambda', activeLesson='4.Lambda'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Lambda</h1>
+     <p class="paragraph">Lambda-urile reprezintă o formă simplificată a metodelor anonime. Lambda-urile permit crearea unor metode concise, care pot returna o valoare și care pot fi transmise ca parametri în alte metode.</p>
+     <p class="paragraph">Lambda-urile au următorul sintaxă: în stânga operatorului lambda =&gt; se definește lista de parametri, iar în dreapta un bloc de expresii care utilizează acești parametri:</p>
+     <div class="code-inline">
+      <pre><code>(lista_parametri)&nbsp;=&gt;&nbsp;expresie</code></pre>
+     </div>
+     <p class="paragraph">Din punct de vedere al tipului de date, lambda-ul reprezintă un delegat. De exemplu, să definim un lambda simplu:</p>
+     <div class="code-inline">
+      <pre><code>Message&nbsp;hello&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;Console.WriteLine("Hello");<br>hello();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Hello<br>hello();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Hello<br>hello();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Hello<br><br>delegate&nbsp;void&nbsp;Message();</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, variabila hello reprezintă delegatul Message - adică o acțiune care nu returnează nimic și nu primește niciun parametru. Valoarea acestei variabile este un lambda.</p>
+     <p class="paragraph">Acest lambda trebuie să corespundă delegatului Message - nu primește niciun parametru, de aceea în stânga operatorului lambda sunt paranteze goale. În dreapta operatorului lambda se află expresia executată - Console.WriteLine("Hello").</p>
+     <p class="paragraph">Apoi, în program se poate apela această variabilă ca metodă.</p>
+     <p class="paragraph">Dacă lambda-ul conține mai multe acțiuni, acestea sunt plasate între acolade:</p>
+     <div class="code-inline">
+      <pre><code>Message&nbsp;hello&nbsp;=&nbsp;()&nbsp;=&gt;<br>{<br>&nbsp;&nbsp;&nbsp;Console.Write("Hello&nbsp;");<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("World");<br>};<br>hello();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Hello&nbsp;World</code></pre>
+     </div>
+     <p class="paragraph">Mai sus am definit variabila hello, care reprezintă delegatul Message. Dar începând cu versiunea C# 10, putem utiliza tipizarea implicită (definirea variabilei cu operatorul var) pentru lambda-uri:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;hello&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;Console.WriteLine("Hello");<br>hello();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Hello<br>hello();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Hello<br>hello();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Hello</code></pre>
+     </div>
+     <p class="paragraph">Dar ce tip reprezintă variabila hello în acest caz? La tipizarea implicită, compilatorul încearcă să potrivească lambda-ul cu un delegat. De exemplu, lambda-ul definit mai sus, hello, va fi tratat de compilator ca o variabilă de tipul delegatului încorporat Action, care nu primește niciun parametru și nu returnează nimic.</p>
+     <h2 class="subtitle">Parametrii lambda</h2>
+     <p class="paragraph">La definirea listei de parametri, putem să nu specificăm tipul datelor pentru aceștia:</p>
+     <div class="code-inline">
+      <pre><code>Operation&nbsp;sum&nbsp;=&nbsp;(x,&nbsp;y)&nbsp;=&gt;&nbsp;Console.WriteLine($"{x}&nbsp;+&nbsp;{y}&nbsp;=&nbsp;{x&nbsp;+&nbsp;y}");<br>sum(1,&nbsp;2);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;1&nbsp;+&nbsp;2&nbsp;=&nbsp;3<br>sum(22,&nbsp;14);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;22&nbsp;+&nbsp;14&nbsp;=&nbsp;36<br><br>delegate&nbsp;void&nbsp;Operation(int&nbsp;x,&nbsp;int&nbsp;y);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, compilatorul vede că lambda-ul sum reprezintă tipul Operation, deci ambii parametri ai lambda-ului sunt de tipul int. Nu va fi nicio problemă.</p>
+     <p class="paragraph">Totuși, dacă folosim tipizarea implicită, compilatorul poate întâmpina dificultăți în deducerea tipului delegatului pentru lambda-ul respectiv, de exemplu:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;sum&nbsp;=&nbsp;(x,&nbsp;y)&nbsp;=&gt;&nbsp;Console.WriteLine($"{x}&nbsp;+&nbsp;{y}&nbsp;=&nbsp;{x&nbsp;+&nbsp;y}");&nbsp;&nbsp;&nbsp;//&nbsp;!&nbsp;Eroare</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, putem specifica tipul parametrilor:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;sum&nbsp;=&nbsp;(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;=&gt;&nbsp;Console.WriteLine($"{x}&nbsp;+&nbsp;{y}&nbsp;=&nbsp;{x&nbsp;+&nbsp;y}");<br>sum(1,&nbsp;2);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;1&nbsp;+&nbsp;2&nbsp;=&nbsp;3<br>sum(22,&nbsp;14);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;22&nbsp;+&nbsp;14&nbsp;=&nbsp;36</code></pre>
+     </div>
+     <p class="paragraph">Dacă lambda-ul are un singur parametru pentru care nu trebuie specificat tipul datelor, parantezele pot fi omise:</p>
+     <div class="code-inline">
+      <pre><code>PrintHandler&nbsp;print&nbsp;=&nbsp;message&nbsp;=&gt;&nbsp;Console.WriteLine(message);<br>print("Hello");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Hello<br>print("Welcome");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Welcome<br><br>delegate&nbsp;void&nbsp;PrintHandler(string&nbsp;message);</code></pre>
+     </div>
+     <p class="paragraph">Începând cu C# 12, parametrii lambda-urilor pot avea valori implicite:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;welcome&nbsp;=&nbsp;(string&nbsp;message&nbsp;=&nbsp;"hello")&nbsp;=&gt;&nbsp;Console.WriteLine(message);<br><br>welcome("hello&nbsp;world");&nbsp;//&nbsp;hello&nbsp;world<br>welcome();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;hello</code></pre>
+     </div>
+     <h2 class="subtitle">Returnarea unui rezultat</h2>
+     <p class="paragraph">Lambda-ul poate returna un rezultat. Rezultatul returnat poate fi specificat după operatorul lambda:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;sum&nbsp;=&nbsp;(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;=&gt;&nbsp;x&nbsp;+&nbsp;y;<br>int&nbsp;sumResult&nbsp;=&nbsp;sum(4,&nbsp;5);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;9<br>Console.WriteLine(sumResult);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;9<br><br>Operation&nbsp;multiply&nbsp;=&nbsp;(x,&nbsp;y)&nbsp;=&gt;&nbsp;x&nbsp;*&nbsp;y;<br>int&nbsp;multiplyResult&nbsp;=&nbsp;multiply(4,&nbsp;5);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;20<br>Console.WriteLine(multiplyResult);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;20<br><br>delegate&nbsp;int&nbsp;Operation(int&nbsp;x,&nbsp;int&nbsp;y);</code></pre>
+     </div>
+     <p class="paragraph">Dacă lambda-ul conține mai multe expresii (sau o singură expresie între acolade), trebuie folosit operatorul return, ca în metodele obișnuite:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;subtract&nbsp;=&nbsp;(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;=&gt;<br>{<br>&nbsp;&nbsp;&nbsp;if&nbsp;(x&nbsp;&gt;&nbsp;y)&nbsp;return&nbsp;x&nbsp;-&nbsp;y;<br>&nbsp;&nbsp;&nbsp;else&nbsp;return&nbsp;y&nbsp;-&nbsp;x;<br>};<br>int&nbsp;result1&nbsp;=&nbsp;subtract(10,&nbsp;6);&nbsp;&nbsp;//&nbsp;4<br>Console.WriteLine(result1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;4<br><br>int&nbsp;result2&nbsp;=&nbsp;subtract(-10,&nbsp;6);&nbsp;&nbsp;//&nbsp;16<br>Console.WriteLine(result2);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;16</code></pre>
+     </div>
+     <h2 class="subtitle">Adăugarea și eliminarea acțiunilor în lambda</h2>
+     <p class="paragraph">Deoarece lambda-ul reprezintă un delegat, se pot adăuga metode și alte lambda-uri în variabila care reprezintă lambda-ul:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;hello&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;Console.WriteLine("FDC.COM");<br><br>var&nbsp;message&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;Console.Write("Hello&nbsp;");<br>message&nbsp;+=&nbsp;()&nbsp;=&gt;&nbsp;Console.WriteLine("World");&nbsp;//&nbsp;adăugăm&nbsp;un&nbsp;lambda&nbsp;anonim<br>message&nbsp;+=&nbsp;hello;&nbsp;&nbsp;&nbsp;//&nbsp;adăugăm&nbsp;lambda-ul&nbsp;din&nbsp;variabila&nbsp;hello<br>message&nbsp;+=&nbsp;Print;&nbsp;&nbsp;&nbsp;//&nbsp;adăugăm&nbsp;metoda<br><br>message();<br>Console.WriteLine("--------------");&nbsp;//&nbsp;pentru&nbsp;a&nbsp;separa&nbsp;ieșirea<br><br>message&nbsp;-=&nbsp;Print;&nbsp;&nbsp;&nbsp;//&nbsp;eliminăm&nbsp;metoda<br>message&nbsp;-=&nbsp;hello;&nbsp;&nbsp;&nbsp;//&nbsp;eliminăm&nbsp;lambda-ul&nbsp;din&nbsp;variabila&nbsp;hello<br><br>message?.Invoke();&nbsp;&nbsp;//&nbsp;în&nbsp;cazul&nbsp;în&nbsp;care&nbsp;în&nbsp;message&nbsp;nu&nbsp;mai&nbsp;există&nbsp;acțiuni<br><br>void&nbsp;Print()&nbsp;=&gt;&nbsp;Console.WriteLine("Welcome&nbsp;to&nbsp;C#");</code></pre>
+     </div>
+     <div class="code-inline">
+      <pre><code>Hello&nbsp;World<br>FDC.COM<br>Welcome&nbsp;to&nbsp;C#<br>--------------<br>Hello&nbsp;World</code></pre>
+     </div>
+     <h2 class="subtitle">Lambda-ul ca argument de metodă</h2>
+     <p class="paragraph">La fel ca delegații, lambda-urile pot fi transmise ca parametri în metode care reprezintă un delegat:</p>
+     <div class="code-inline">
+      <pre><code>int[]&nbsp;integers&nbsp;=&nbsp;{&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5,&nbsp;6,&nbsp;7,&nbsp;8,&nbsp;9&nbsp;};<br><br>//&nbsp;găsim&nbsp;suma&nbsp;numerelor&nbsp;mai&nbsp;mari&nbsp;de&nbsp;5<br>int&nbsp;result1&nbsp;=&nbsp;Sum(integers,&nbsp;x&nbsp;=&gt;&nbsp;x&nbsp;&gt;&nbsp;5);<br>Console.WriteLine(result1);&nbsp;//&nbsp;30<br><br>//&nbsp;găsim&nbsp;suma&nbsp;numerelor&nbsp;pare<br>int&nbsp;result2&nbsp;=&nbsp;Sum(integers,&nbsp;x&nbsp;=&gt;&nbsp;x&nbsp;%&nbsp;2&nbsp;==&nbsp;0);<br>Console.WriteLine(result2);&nbsp;&nbsp;//&nbsp;20<br><br>int&nbsp;Sum(int[]&nbsp;numbers,&nbsp;IsEqual&nbsp;func)<br>{<br>&nbsp;&nbsp;&nbsp;int&nbsp;result&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;foreach&nbsp;(int&nbsp;i&nbsp;in&nbsp;numbers)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(func(i))<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;+=&nbsp;i;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;return&nbsp;result;<br>}<br><br>delegate&nbsp;bool&nbsp;IsEqual(int&nbsp;x);</code></pre>
+     </div>
+     <p class="paragraph">Metoda Sum primește ca parametru un array de numere și un delegat IsEqual și returnează suma numerelor din array ca obiect int. În buclă, trecem prin toate numerele și le adunăm. Adunăm doar acele numere pentru care delegatul IsEqual func returnează true.</p>
+     <p class="paragraph">Adică delegatul IsEqual definește condiția pe care trebuie să o îndeplinească valorile array-ului. Dar la momentul scrierii metodei Sum, nu știm ce condiție este aceasta.</p>
+     <p class="paragraph">La apelul metodei Sum, îi transmitem array-ul și lambda-ul:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;result1&nbsp;=&nbsp;Sum(integers,&nbsp;x&nbsp;=&gt;&nbsp;x&nbsp;&gt;&nbsp;5);</code></pre>
+     </div>
+     <p class="paragraph">Parametrul x reprezintă numărul care este transmis delegatului:</p>
+     <div class="code-inline">
+      <pre><code>if&nbsp;(func(i))</code></pre>
+     </div>
+     <p class="paragraph">Expresia x &gt; 5 reprezintă condiția pe care trebuie să o îndeplinească numărul. Dacă numărul îndeplinește această condiție, lambda-ul returnează true, iar numărul transmis se adaugă la celelalte numere.</p>
+     <p class="paragraph">În mod similar funcționează al doilea apel al metodei Sum, doar că aici se verifică dacă numărul este par, adică dacă restul împărțirii la 2 este zero:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;result2&nbsp;=&nbsp;Sum(integers,&nbsp;x&nbsp;=&gt;&nbsp;x&nbsp;%&nbsp;2&nbsp;==&nbsp;0);</code></pre>
+     </div>
+     <h2 class="subtitle">Lambda-ul ca rezultat al metodei</h2>
+     <p class="paragraph">Metoda poate de asemenea returna un lambda. În acest caz, tipul returnat al metodei este delegatul căruia îi corespunde lambda-ul returnat. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>Operation&nbsp;operation&nbsp;=&nbsp;SelectOperation(OperationType.Add);<br>Console.WriteLine(operation(10,&nbsp;4));&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;14<br><br>operation&nbsp;=&nbsp;SelectOperation(OperationType.Subtract);<br>Console.WriteLine(operation(10,&nbsp;4));&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;6<br><br>operation&nbsp;=&nbsp;SelectOperation(OperationType.Multiply);<br>Console.WriteLine(operation(10,&nbsp;4));&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;40<br><br>Operation&nbsp;SelectOperation(OperationType&nbsp;opType)<br>{<br>&nbsp;&nbsp;&nbsp;switch&nbsp;(opType)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;OperationType.Add:&nbsp;return&nbsp;(x,&nbsp;y)&nbsp;=&gt;&nbsp;x&nbsp;+&nbsp;y;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;OperationType.Subtract:&nbsp;return&nbsp;(x,&nbsp;y)<br><br>=&gt;&nbsp;x&nbsp;-&nbsp;y;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;default:&nbsp;return&nbsp;(x,&nbsp;y)&nbsp;=&gt;&nbsp;x&nbsp;*&nbsp;y;<br>&nbsp;&nbsp;&nbsp;}<br>}<br>enum&nbsp;OperationType<br>{<br>&nbsp;&nbsp;&nbsp;Add,&nbsp;Subtract,&nbsp;Multiply<br>}<br>delegate&nbsp;int&nbsp;Operation(int&nbsp;x,&nbsp;int&nbsp;y);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, metoda SelectOperation() primește ca parametru o enumerare de tipul OperationType. Această enumerare conține trei constante, fiecare corespunzând unei operații aritmetice specifice. În metoda însăși, în funcție de valoarea parametrului, returnăm un lambda corespunzător.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

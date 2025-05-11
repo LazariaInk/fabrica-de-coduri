@@ -1,167 +1,157 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='28.Web API Adaugatoare', activeLesson='1.Web API Adaugatoare'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Web API Adăugătoare</h1>
- <h2 class="subtitle">API de Geolocalizare</h2>
- <p class="paragraph">Cu ajutorul API-ului de Geolocalizare putem obține în codul JavaScript date despre poziția geografică a utilizatorului. Pentru a lucra cu API-ul de Geolocalizare, obiectul navigator definește proprietatea geolocation, care reprezintă tipul Geolocation. Pentru a obține poziția, la obiectul Geolocation se aplică metoda getCurrentPosition():</p>
- <div class="code-inline">
-  <pre><code>getCurrentPosition(success)<br>getCurrentPosition(success,&nbsp;error)<br>getCurrentPosition(success,&nbsp;error,&nbsp;options)</code></pre>
- </div>
- <p class="paragraph">Metoda poate accepta până la trei parametri:</p>
- <ul class="enumeration">
-  <li>succes: funcția care este apelată la determinarea cu succes a coordonatelor utilizatorului</li>
-  <li>eroare: funcția care este apelată în cazul apariției unei erori</li>
-  <li>opțiuni: parametri suplimentari de configurare</li>
- </ul>
- <p class="paragraph">Deoarece poziția este determinată asincron, ca prim parametru succes în metoda este transmisă o funcție de callback, care este apelată de îndată ce poziția este determinată cu succes. Ca parametru în această funcție de callback este transmis obiectul GeolocationPosition. Proprietatea sa coords reprezintă tipul GeolocationCoordinates, proprietățile căruia de fapt stochează coordonatele utilizatorului:</p>
- <ul class="enumeration">
-  <li>latitude: latitudine geografică</li>
-  <li>longitude: longitudine geografică</li>
-  <li>altitude: altitudine deasupra nivelului mării în metri</li>
-  <li>speed: viteza cu care se deplasează utilizatorul (de exemplu, dacă merge pe jos sau se deplasează cu transportul)</li>
-  <li>accuracy: acuratețea determinării latitudinii și longitudinii în metri</li>
-  <li>altitudeAccuracy: acuratețea determinării altitudinii deasupra nivelului mării în metri</li>
-  <li>heading: direcția în care este orientat dispozitivul utilizatorului. 0 grade corespunde nordului, iar direcția este determinată în sensul acelor de ceasornic (aceasta înseamnă că estul este egal cu 90 de grade, iar vestul - 270 de grade). Dacă viteza (proprietatea speed) este egală cu 0, această proprietate este egală cu NaN. Dacă dispozitivul nu poate furniza informații despre direcție, această proprietate este egală cu zero.</li>
- </ul>
- <p class="paragraph">De exemplu, să obținem datele geografice ale utilizatorului:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;success(position)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Latitudine:&nbsp;",&nbsp;position.coords.latitude);<br>&nbsp;&nbsp;&nbsp;console.log("Longitudine:&nbsp;",&nbsp;position.coords.longitude);<br>&nbsp;&nbsp;&nbsp;console.log("Altitudine:&nbsp;",&nbsp;position.coords.altitude);<br>&nbsp;&nbsp;&nbsp;console.log("Viteza&nbsp;de&nbsp;deplasare:&nbsp;",&nbsp;position.coords.speed);<br>&nbsp;&nbsp;&nbsp;console.log("Acuratețe:&nbsp;",&nbsp;position.coords.accuracy);<br>&nbsp;&nbsp;&nbsp;console.log("Direcție:&nbsp;",&nbsp;position.coords.heading);<br>};<br>navigator.geolocation.getCurrentPosition(success);</code></pre>
- </div>
- <p class="paragraph">Trebuie să luăm în considerare că, în browsere, există o politică de securitate care, atunci când se apelează metoda geolocation.getCurrentPosition(), afișează un mesaj utilizatorului, în care acesta poate confirma trimiterea coordonatelor geografice.</p>
- <div class="image-container">
-  <img src="images/image1.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Obținerea informațiilor despre eroare</h2>
- <p class="paragraph">Dar dacă utilizatorul refuză să ofere acces la datele geografice în browser, va fi activată funcția de eroare, care este transmisă ca al doilea parametru. Această funcție primește informații despre eroare sub forma unui obiect GeolocationPositionError. Prin proprietatea message se poate obține mesajul de eroare. În plus, prin proprietatea code se poate obține codul erorii, care poate avea următoarele valori:</p>
- <ul class="enumeration">
-  <li>1 (PERMISSION_DENIED): lipsesc permisiunile pentru obținerea datelor geografice</li>
-  <li>2 (POSITION_UNAVAILABLE): nu s-a putut stabili poziția</li>
-  <li>3 (TIMEOUT): timpul permis a expirat înainte de obținerea poziției utilizatorului</li>
- </ul>
- <p class="paragraph">Aplicăm handlerul de eroare:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;successHandler(position)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Latitudine:&nbsp;",&nbsp;position.coords.latitude);<br>&nbsp;&nbsp;&nbsp;console.log("Longitudine:&nbsp;",&nbsp;position.coords.longitude);<br>};<br>function&nbsp;errorHandler(error)&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;console.log(error.message);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;afișăm&nbsp;mesajul&nbsp;de&nbsp;eroare<br>&nbsp;&nbsp;&nbsp;console.log(error.code);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;afișăm&nbsp;codul&nbsp;erorii<br>}<br>navigator.geolocation.getCurrentPosition(successHandler,&nbsp;errorHandler);</code></pre>
- </div>
- <p class="paragraph">Și în cazul în care permisiunea pentru obținerea datelor lipsește, vom obține următorul output în consolă:</p>
- <div class="code-inline">
-  <pre><code>User&nbsp;denied&nbsp;Geolocation<br>1</code></pre>
- </div>
- <h2 class="subtitle">Urmărirea schimbării poziției</h2>
- <p class="paragraph">Metoda watchPosition() a obiectului Geolocation permite înregistrarea unei funcții-handler, care va fi apelată automat de fiecare dată când se schimbă poziția dispozitivului. Această metodă acceptă aceleași parametri ca și getCurrentPosition():</p>
- <div class="code-inline">
-  <pre><code>watchPosition(success)<br>watchPosition(success,&nbsp;error)<br>watchPosition(success,&nbsp;error,&nbsp;options)</code></pre>
- </div>
- <p class="paragraph">Ca rezultat, metoda returnează un identificator, care poate fi transmis metodei clearWatch() a obiectului Geolocation pentru oprirea urmăririi. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;button&nbsp;id="btn"&gt;Stop&nbsp;watching&lt;/button&gt;<br>&lt;script&gt;<br><br>function&nbsp;successHandler(position)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("<br><br>Latitudine:&nbsp;",&nbsp;position.coords.latitude);<br>&nbsp;&nbsp;&nbsp;console.log("Longitudine:&nbsp;",&nbsp;position.coords.longitude);<br>};<br>function&nbsp;errorHandler(error)&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;console.log(error.message);<br>}<br><br>const&nbsp;geolocation&nbsp;=&nbsp;navigator.geolocation;<br>const&nbsp;watchID&nbsp;=&nbsp;geolocation.watchPosition(successHandler,&nbsp;errorHandler);<br>//&nbsp;la&nbsp;apăsarea&nbsp;butonului,&nbsp;oprim&nbsp;urmărirea&nbsp;poziției<br>document.getElementById("btn").addEventListener("click",&nbsp;()=&gt;geolocation.clearWatch(watchID));<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Web API Adăugătoare</h1>
+     <h2 class="subtitle">API de Geolocalizare</h2>
+     <p class="paragraph">Cu ajutorul API-ului de Geolocalizare putem obține în codul JavaScript date despre poziția geografică a utilizatorului. Pentru a lucra cu API-ul de Geolocalizare, obiectul navigator definește proprietatea geolocation, care reprezintă tipul Geolocation. Pentru a obține poziția, la obiectul Geolocation se aplică metoda getCurrentPosition():</p>
+     <div class="code-inline">
+      <pre><code>getCurrentPosition(success)<br>getCurrentPosition(success,&nbsp;error)<br>getCurrentPosition(success,&nbsp;error,&nbsp;options)</code></pre>
+     </div>
+     <p class="paragraph">Metoda poate accepta până la trei parametri:</p>
+     <ul class="enumeration">
+      <li>succes: funcția care este apelată la determinarea cu succes a coordonatelor utilizatorului</li>
+      <li>eroare: funcția care este apelată în cazul apariției unei erori</li>
+      <li>opțiuni: parametri suplimentari de configurare</li>
+     </ul>
+     <p class="paragraph">Deoarece poziția este determinată asincron, ca prim parametru succes în metoda este transmisă o funcție de callback, care este apelată de îndată ce poziția este determinată cu succes. Ca parametru în această funcție de callback este transmis obiectul GeolocationPosition. Proprietatea sa coords reprezintă tipul GeolocationCoordinates, proprietățile căruia de fapt stochează coordonatele utilizatorului:</p>
+     <ul class="enumeration">
+      <li>latitude: latitudine geografică</li>
+      <li>longitude: longitudine geografică</li>
+      <li>altitude: altitudine deasupra nivelului mării în metri</li>
+      <li>speed: viteza cu care se deplasează utilizatorul (de exemplu, dacă merge pe jos sau se deplasează cu transportul)</li>
+      <li>accuracy: acuratețea determinării latitudinii și longitudinii în metri</li>
+      <li>altitudeAccuracy: acuratețea determinării altitudinii deasupra nivelului mării în metri</li>
+      <li>heading: direcția în care este orientat dispozitivul utilizatorului. 0 grade corespunde nordului, iar direcția este determinată în sensul acelor de ceasornic (aceasta înseamnă că estul este egal cu 90 de grade, iar vestul - 270 de grade). Dacă viteza (proprietatea speed) este egală cu 0, această proprietate este egală cu NaN. Dacă dispozitivul nu poate furniza informații despre direcție, această proprietate este egală cu zero.</li>
+     </ul>
+     <p class="paragraph">De exemplu, să obținem datele geografice ale utilizatorului:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;success(position)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Latitudine:&nbsp;",&nbsp;position.coords.latitude);<br>&nbsp;&nbsp;&nbsp;console.log("Longitudine:&nbsp;",&nbsp;position.coords.longitude);<br>&nbsp;&nbsp;&nbsp;console.log("Altitudine:&nbsp;",&nbsp;position.coords.altitude);<br>&nbsp;&nbsp;&nbsp;console.log("Viteza&nbsp;de&nbsp;deplasare:&nbsp;",&nbsp;position.coords.speed);<br>&nbsp;&nbsp;&nbsp;console.log("Acuratețe:&nbsp;",&nbsp;position.coords.accuracy);<br>&nbsp;&nbsp;&nbsp;console.log("Direcție:&nbsp;",&nbsp;position.coords.heading);<br>};<br>navigator.geolocation.getCurrentPosition(success);</code></pre>
+     </div>
+     <p class="paragraph">Trebuie să luăm în considerare că, în browsere, există o politică de securitate care, atunci când se apelează metoda geolocation.getCurrentPosition(), afișează un mesaj utilizatorului, în care acesta poate confirma trimiterea coordonatelor geografice.</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/28.Web%20API%20Adaugatoare/1.Web%20API%20Adaugatoare/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Obținerea informațiilor despre eroare</h2>
+     <p class="paragraph">Dar dacă utilizatorul refuză să ofere acces la datele geografice în browser, va fi activată funcția de eroare, care este transmisă ca al doilea parametru. Această funcție primește informații despre eroare sub forma unui obiect GeolocationPositionError. Prin proprietatea message se poate obține mesajul de eroare. În plus, prin proprietatea code se poate obține codul erorii, care poate avea următoarele valori:</p>
+     <ul class="enumeration">
+      <li>1 (PERMISSION_DENIED): lipsesc permisiunile pentru obținerea datelor geografice</li>
+      <li>2 (POSITION_UNAVAILABLE): nu s-a putut stabili poziția</li>
+      <li>3 (TIMEOUT): timpul permis a expirat înainte de obținerea poziției utilizatorului</li>
+     </ul>
+     <p class="paragraph">Aplicăm handlerul de eroare:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;successHandler(position)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Latitudine:&nbsp;",&nbsp;position.coords.latitude);<br>&nbsp;&nbsp;&nbsp;console.log("Longitudine:&nbsp;",&nbsp;position.coords.longitude);<br>};<br>function&nbsp;errorHandler(error)&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;console.log(error.message);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;afișăm&nbsp;mesajul&nbsp;de&nbsp;eroare<br>&nbsp;&nbsp;&nbsp;console.log(error.code);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;afișăm&nbsp;codul&nbsp;erorii<br>}<br>navigator.geolocation.getCurrentPosition(successHandler,&nbsp;errorHandler);</code></pre>
+     </div>
+     <p class="paragraph">Și în cazul în care permisiunea pentru obținerea datelor lipsește, vom obține următorul output în consolă:</p>
+     <div class="code-inline">
+      <pre><code>User&nbsp;denied&nbsp;Geolocation<br>1</code></pre>
+     </div>
+     <h2 class="subtitle">Urmărirea schimbării poziției</h2>
+     <p class="paragraph">Metoda watchPosition() a obiectului Geolocation permite înregistrarea unei funcții-handler, care va fi apelată automat de fiecare dată când se schimbă poziția dispozitivului. Această metodă acceptă aceleași parametri ca și getCurrentPosition():</p>
+     <div class="code-inline">
+      <pre><code>watchPosition(success)<br>watchPosition(success,&nbsp;error)<br>watchPosition(success,&nbsp;error,&nbsp;options)</code></pre>
+     </div>
+     <p class="paragraph">Ca rezultat, metoda returnează un identificator, care poate fi transmis metodei clearWatch() a obiectului Geolocation pentru oprirea urmăririi. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;button&nbsp;id="btn"&gt;Stop&nbsp;watching&lt;/button&gt;<br>&lt;script&gt;<br><br>function&nbsp;successHandler(position)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("<br><br>Latitudine:&nbsp;",&nbsp;position.coords.latitude);<br>&nbsp;&nbsp;&nbsp;console.log("Longitudine:&nbsp;",&nbsp;position.coords.longitude);<br>};<br>function&nbsp;errorHandler(error)&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;console.log(error.message);<br>}<br><br>const&nbsp;geolocation&nbsp;=&nbsp;navigator.geolocation;<br>const&nbsp;watchID&nbsp;=&nbsp;geolocation.watchPosition(successHandler,&nbsp;errorHandler);<br>//&nbsp;la&nbsp;apăsarea&nbsp;butonului,&nbsp;oprim&nbsp;urmărirea&nbsp;poziției<br>document.getElementById("btn").addEventListener("click",&nbsp;()=&gt;geolocation.clearWatch(watchID));<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

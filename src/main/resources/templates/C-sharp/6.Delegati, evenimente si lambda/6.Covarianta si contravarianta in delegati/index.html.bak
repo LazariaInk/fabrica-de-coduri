@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='6.Delegati, evenimente si lambda', activeLesson='6.Covarianta si contravarianta in delegati'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Covarianță și contravarianță în delegați</h1>
+     <p class="paragraph">Înțelegem cum funcționează rețelele neuronale și creăm una pentru căutarea știrilor.</p>
+     <p class="paragraph">Delegații pot fi covarianți și contravarianți. Covarianța unui delegat presupune că tipul returnat poate fi un tip derivat. Contravarianța unui delegat presupune că tipul parametrului poate fi un tip mai general.</p>
+     <p class="paragraph">Să analizăm covarianța și contravarianța pe exemplul următoarelor clase:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Message<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Text&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Message(string&nbsp;text)&nbsp;=&gt;&nbsp;Text&nbsp;=&nbsp;text;<br>&nbsp;&nbsp;&nbsp;public&nbsp;virtual&nbsp;void&nbsp;Print()&nbsp;=&gt;&nbsp;Console.WriteLine($"Message:&nbsp;{Text}");<br>}<br>class&nbsp;EmailMessage&nbsp;:&nbsp;Message<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;EmailMessage(string&nbsp;text)&nbsp;:&nbsp;base(text)&nbsp;{&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;override&nbsp;void&nbsp;Print()&nbsp;=&gt;&nbsp;Console.WriteLine($"Email:&nbsp;{Text}");<br>}<br>class&nbsp;SmsMessage&nbsp;:&nbsp;Message<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;SmsMessage(string&nbsp;text)&nbsp;:&nbsp;base(text)&nbsp;{&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;override&nbsp;void&nbsp;Print()&nbsp;=&gt;&nbsp;Console.WriteLine($"Sms:&nbsp;{Text}");<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, clasa Message reprezintă un mesaj și definește proprietatea Text pentru stocarea textului mesajului, care este setat prin constructor. În metoda Print, mesajul este afișat pe consolă. Clasa EmailMessage reprezintă un mesaj email, iar SmsMessage - un mesaj SMS, și ambele clase sunt derivate din Message.</p>
+     <h2 class="subtitle">Covarianță</h2>
+     <p class="paragraph">Covarianța permite atribuirea unui delegat unui metod care returnează un tip derivat din tipul returnat de delegat. Adică, dacă tipul returnat de delegat este Message, atunci metoda poate avea ca tip returnat clasa EmailMessage:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;delegatului&nbsp;cu&nbsp;tip&nbsp;de&nbsp;bază&nbsp;îi&nbsp;atribuim&nbsp;o&nbsp;metodă&nbsp;cu&nbsp;tip&nbsp;derivat<br>MessageBuilder&nbsp;messageBuilder&nbsp;=&nbsp;WriteEmailMessage;&nbsp;//&nbsp;covarianță<br>Message&nbsp;message&nbsp;=&nbsp;messageBuilder("Hello");<br>message.Print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Email:&nbsp;Hello<br><br>EmailMessage&nbsp;WriteEmailMessage(string&nbsp;text)&nbsp;=&gt;&nbsp;new&nbsp;EmailMessage(text);<br><br>delegate&nbsp;Message&nbsp;MessageBuilder(string&nbsp;text);</code></pre>
+     </div>
+     <p class="paragraph">Aici delegatul MessageBuilder returnează un obiect Message. Cu toate acestea, datorită covarianței, acest delegat poate indica spre o metodă care returnează un obiect de tip derivat, de exemplu, metoda WriteEmailMessage.</p>
+     <h2 class="subtitle">Contravarianță</h2>
+     <p class="paragraph">Contravarianța permite atribuirea unui delegat unei metode al cărei tip de parametru este mai general în raport cu tipul parametrului delegatului. De exemplu, să luăm clasele definite mai sus Message și EmailMessage și să le folosim în următorul exemplu:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;delegatului&nbsp;cu&nbsp;tip&nbsp;derivat&nbsp;îi&nbsp;atribuim&nbsp;o&nbsp;metodă&nbsp;cu&nbsp;tip&nbsp;de&nbsp;bază<br>EmailReceiver&nbsp;emailBox&nbsp;=&nbsp;ReceiveMessage;&nbsp;//&nbsp;contravarianță<br>emailBox(new&nbsp;EmailMessage("Welcome"));&nbsp;&nbsp;//&nbsp;Email:&nbsp;Welcome<br><br>void&nbsp;ReceiveMessage(Message&nbsp;message)&nbsp;=&gt;&nbsp;message.Print();<br><br>delegate&nbsp;void&nbsp;EmailReceiver(EmailMessage&nbsp;message);</code></pre>
+     </div>
+     <p class="paragraph">Deși delegatul primește ca parametru un obiect EmailMessage, îi putem atribui o metodă al cărui parametru este de tipul de bază Message. Ar putea părea, la prima vedere, că aici există o contradicție, adică utilizarea unui tip mai general în loc de unul derivat.</p>
+     <p class="paragraph">Cu toate acestea, în realitate, în delegat, la apelare, putem transmite doar obiecte de tip EmailMessage, iar orice obiect de tip EmailMessage este un obiect de tip Message, utilizat în metodă.</p>
+     <h2 class="subtitle">Covarianță și contravarianță în delegați generici</h2>
+     <p class="paragraph">Delegații generici pot fi, de asemenea, covarianți și contravarianți, oferindu-ne mai multă flexibilitate în utilizarea lor.</p>
+     <h2 class="subtitle">Covarianță</h2>
+     <p class="paragraph">De exemplu, să declarăm și să utilizăm un delegat generic covariant:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;returnează&nbsp;EmailMessage&nbsp;-&nbsp;tip&nbsp;mai&nbsp;specific<br>MessageBuilder&lt;EmailMessage&gt;&nbsp;EmailMessageWriter&nbsp;=&nbsp;(string&nbsp;text)&nbsp;=&gt;&nbsp;new&nbsp;EmailMessage(text);<br>//&nbsp;returnează&nbsp;tipul&nbsp;mai&nbsp;general&nbsp;Message<br>MessageBuilder&lt;Message&gt;&nbsp;messageBuilder&nbsp;=&nbsp;EmailMessageWriter;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;covarianță<br>Message&nbsp;message&nbsp;=&nbsp;messageBuilder("hello&nbsp;Tom");&nbsp;//&nbsp;apelul&nbsp;delegatului<br>message.Print();&nbsp;//&nbsp;Email:&nbsp;hello&nbsp;Tom<br><br>delegate&nbsp;T&nbsp;MessageBuilder&lt;out&nbsp;T&gt;(string&nbsp;text);</code></pre>
+     </div>
+     <p class="paragraph">Datorită utilizării cuvântului cheie out, putem atribui delegatului de tip MessageBuilder&lt;Message&gt; (tip mai general) delegatul de tip MessageBuilder&lt;EmailMessage&gt; (tip mai specific).</p>
+     <h2 class="subtitle">Contravarianță</h2>
+     <p class="paragraph">Să analizăm un delegat generic contravariant:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;primește&nbsp;un&nbsp;obiect&nbsp;de&nbsp;tip&nbsp;mai&nbsp;general<br>MessageReceiver&lt;Message&gt;&nbsp;messageReceiver&nbsp;=&nbsp;(Message&nbsp;message)&nbsp;=&gt;&nbsp;message.Print();<br>//&nbsp;primește&nbsp;un&nbsp;obiect&nbsp;de&nbsp;tip&nbsp;mai&nbsp;specific<br>MessageReceiver&lt;EmailMessage&gt;&nbsp;emailMessageReceiver&nbsp;=&nbsp;messageReceiver;&nbsp;//&nbsp;contravarianță<br><br>messageReceiver(new&nbsp;Message("Hello&nbsp;World!"));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Message:&nbsp;Hello&nbsp;World!<br>messageReceiver(new&nbsp;EmailMessage("Hello&nbsp;World!"));&nbsp;&nbsp;//&nbsp;Email:&nbsp;Hello&nbsp;World!<br><br>delegate&nbsp;void&nbsp;MessageReceiver&lt;in&nbsp;T&gt;(T&nbsp;message);</code></pre>
+     </div>
+     <p class="paragraph">Utilizarea cuvântului cheie in permite atribuirea delegatului cu tip derivat (MessageReceiver&lt;EmailMessage&gt;) unui delegat cu tip de bază (MessageReceiver&lt;Message&gt;).</p>
+     <p class="paragraph">Ca și în cazul interfețelor generice, parametrul de tip covariant se aplică doar tipului de valoare returnat de delegat. Iar parametrul de tip contravariant se aplică doar parametrilor delegatului.</p>
+     <p class="paragraph">Adică, dacă generalizăm grosier, covarianța este de la un tip derivat la un tip mai general (EmailMessage -&gt; Message), iar contravarianța este de la un tip mai general la un tip derivat (Message -&gt; EmailMessage).</p>
+     <h2 class="subtitle">Combinarea covarianței și contravarianței</h2>
+     <p class="paragraph">Un delegat poate folosi simultan ambii operatori: in și out. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>MessageConverter&lt;Message,&nbsp;EmailMessage&gt;&nbsp;toEmailConverter&nbsp;=&nbsp;(Message&nbsp;message)&nbsp;=&gt;&nbsp;new&nbsp;EmailMessage(message.Text);<br><br>MessageConverter&lt;SmsMessage,&nbsp;Message&gt;&nbsp;converter&nbsp;=&nbsp;toEmailConverter;<br>Message&nbsp;message&nbsp;=&nbsp;converter(new&nbsp;SmsMessage("Hello&nbsp;work"));<br>message.Print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Email:&nbsp;Hello&nbsp;work<br><br>delegate&nbsp;E&nbsp;MessageConverter&lt;in&nbsp;M,&nbsp;out&nbsp;E&gt;(M&nbsp;message);</code></pre>
+     </div>
+     <p class="paragraph">Aici delegatul MessageConverter reprezintă o acțiune condiționată, care convertește un obiect de tip M într-un tip E.</p>
+     <p class="paragraph">În program, este definită variabila converter, care reprezintă tipul MessageConverter&lt;SmsMessage, Message&gt; - adică un convertor din tipul SmsMessage în orice tip Message, grosier vorbind, convertește SMS-ul în orice alt tip de mesaj.</p>
+     <p class="paragraph">Această variabilă poate primi acțiunea - toEmailConverter, care creează un obiect de tip EmailMessage din orice tip de mesaj. Aici se aplică contravarianța: pentru parametru, în loc de tipul derivat SmsMessage, se folosește tipul de bază Message. Și de asemenea, există covarianță: în loc de tipul returnat Message se folosește tipul derivat EmailMessage.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

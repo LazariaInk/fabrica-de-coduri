@@ -1,207 +1,197 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='18.Cereri AJAX si XMLHttpRequest', activeLesson='4.Incarcarea JSON folosind XMLHttpRequest'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Încărcarea JSON folosind XMLHttpRequest</h1>
- <p class="paragraph">JSON reprezintă unul dintre cele mai populare formate de stocare și transmitere a datelor. În special, JSON este adesea utilizat la transmiterea datelor prin solicitări ajax. Pentru a primi JSON folosind XMLHttpRequest, trebuie să efectuați două setări:</p>
- <ul class="enumeration">
-  <li>Pentru ca răspunsul serverului să fie tratat ca un obiect JSON, proprietății responseType i se atribuie valoarea "json". Browserele care suportă această valoare garantează că răspunsul poate fi citit direct ca un obiect JavaScript</li>
- </ul>
- <div class="code-inline">
-  <pre><code>xhr.responseType&nbsp;=&nbsp;"json";</code></pre>
- </div>
- <ul class="enumeration">
-  <li>De asemenea, la trimiterea solicitării, pentru antetul Accept trebuie să se specifice valoarea "application/json":</li>
- </ul>
- <div class="code-inline">
-  <pre><code>xhr.setRequestHeader("Accept",&nbsp;"application/json");</code></pre>
- </div>
- <p class="paragraph">Ca server, la fel ca în articolul anterior, vom utiliza Node.js ca cea mai simplă opțiune, dar, desigur, dacă doriți, puteți utiliza orice altă tehnologie de nivel server sau un server web.</p>
- <p class="paragraph">Astfel, să definim pentru proiect un folder pe discul dur, în care vom crea trei fișiere:</p>
- <ul class="enumeration">
-  <li>index.html: pagina principală a aplicației</li>
-  <li>data.json: fișierul cu date în format JSON</li>
-  <li>app.js: fișierul aplicației server, care va utiliza Node.js</li>
- </ul>
- <h2 class="subtitle">Definirea datelor</h2>
- <p class="paragraph">Fișierul data.json va reprezenta datele încărcate și să aibă următorul conținut:</p>
- <div class="code-inline">
-  <pre><code>{<br>&nbsp;&nbsp;&nbsp;"users":&nbsp;[<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name":&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"age":&nbsp;39,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"contacts":&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"email":&nbsp;"tom@smail.com",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"phone":&nbsp;"+1234567890"<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name":&nbsp;"Bob",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"age":&nbsp;43,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"contacts":&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"email":&nbsp;"bob@tmail.com",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"phone":&nbsp;"+1334567181"<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name":&nbsp;"Sam",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"age":&nbsp;28,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"contacts":&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"email":&nbsp;"sam@xmail.com",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"phone":&nbsp;"+1434567782"<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;]<br>}</code></pre>
- </div>
- <p class="paragraph">Aici elementul users reprezintă un set de utilizatori, fiecare dintre aceștia fiind reprezentat de elementul user. Pentru fiecare astfel de element sunt definite două atribute: name (numele utilizatorului) și age (vârsta utilizatorului). Și, de asemenea, elementul user are un element încorporat contacts, care reprezintă datele de contact ale utilizatorului sub forma elementelor încorporate phone și email.</p>
- <h2 class="subtitle">Definirea serverului</h2>
- <p class="paragraph">Fișierul app.js va reprezenta codul serverului Node.js. Să definim în acesta următorul cod:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");<br><br>http.createServer((request,&nbsp;response)=&gt;{<br>&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;sunt&nbsp;solicitate&nbsp;datele&nbsp;JSON<br>&nbsp;&nbsp;&nbsp;if(request.url&nbsp;==&nbsp;"/data"){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fs.readFile("data.json",&nbsp;(_,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fs.readFile("index.html",&nbsp;(_,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>&nbsp;&nbsp;&nbsp;}<br>}).listen(3000,&nbsp;()=&gt;console.log("Serverul&nbsp;a&nbsp;fost&nbsp;lansat&nbsp;la&nbsp;adresa&nbsp;http://localhost:3000"));</code></pre>
- </div>
- <p class="paragraph">Să trecem rapid prin cod. La început, se conectează pachetele cu funcționalitatea pe care intenționăm să o utilizăm:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");&nbsp;&nbsp;&nbsp;//&nbsp;pentru&nbsp;prelucrarea&nbsp;cererilor&nbsp;de&nbsp;intrare<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;pentru&nbsp;citirea&nbsp;fișierelor&nbsp;de&nbsp;pe&nbsp;discul&nbsp;dur</code></pre>
- </div>
- <p class="paragraph">Pentru crearea serverului se folosește funcția http.createServer(). În această funcție se transmite o funcție-handler, care este apelată de fiecare dată când la server sosește o solicitare. Această funcție are doi parametri: request (conține datele solicitării) și response (gestionează trimiterea răspunsului).</p>
- <p class="paragraph">În funcția-handler, folosind proprietatea request.url putem obține calea resursei către care a fost trimisă solicitarea. Astfel, în acest caz, dacă a venit o solicitare pe calea "/data", atunci trimitem data.json:</p>
- <div class="code-inline">
-  <pre><code>if(request.url&nbsp;==&nbsp;"/data"){<br>&nbsp;&nbsp;&nbsp;fs.readFile("data.json",&nbsp;(_,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>}</code></pre>
- </div>
- <p class="paragraph">Pentru citirea fișierului se utilizează funcția fs.readFile. Primul parametru al funcției - adresa fișierului (în acest caz se presupune că fișierul se află în același folder cu fișierul serverului server.js). Al doilea parametru - o funcție care este apelată după citirea fișierului și primește conținutul său prin al doilea său parametru data.</p>
- <p class="paragraph">Pentru toate celelalte solicitări se trimite în răspuns fișierul index.html:</p>
- <div class="code-inline">
-  <pre><code>else{<br>&nbsp;&nbsp;&nbsp;fs.readFile("index.html",&nbsp;(_,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>}</code></pre>
- </div>
- <p class="paragraph">La sfârșit, cu ajutorul funcției listen() lansăm serverul web pe portul 3000. Adică serverul va fi lansat la adresa http://localhost:3000/</p>
- <h2 class="subtitle">Încărcarea JSON pe pagina web</h2>
- <p class="paragraph">Pentru a obține fișierul "data.json" de pe server, să definim în fișierul index.html următorul cod:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;script&gt;<br>const&nbsp;xhr&nbsp;=&nbsp;new&nbsp;XMLHttpRequest();<br>xhr.onload&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;if&nbsp;(xhr.status&nbsp;==&nbsp;200)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;json&nbsp;=&nbsp;xhr.response;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(json);<br>&nbsp;&nbsp;&nbsp;}<br>};<br>xhr.open("GET",&nbsp;"/data");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;cerere&nbsp;GET&nbsp;către&nbsp;/data<br>xhr.responseType&nbsp;=&nbsp;"json";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;stabilim&nbsp;tipul&nbsp;de&nbsp;răspuns<br>xhr.setRequestHeader("Accept",&nbsp;"application/json");&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;acceptăm&nbsp;doar&nbsp;json<br>xhr.send();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;executăm&nbsp;solicitarea<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">Pentru a obține datele se trimite o solicitare la adresa "/data". Pentru ca datele obținute să fie automat interpretate ca un document JSON, proprietății responseType i se atribuie valoarea "json".</p>
- <div class="code-inline">
-  <pre><code>xhr.responseType&nbsp;=&nbsp;"json";</code></pre>
- </div>
- <p class="paragraph">În plus, ar trebui să setăm pentru antetul Accept valoarea "application/json":</p>
- <div class="code-inline">
-  <pre><code>xhr.setRequestHeader("Accept",&nbsp;"application/json");</code></pre>
- </div>
- <p class="paragraph">În handlerul evenimentului onload, obiectul JSON este disponibil prin proprietatea response, care în acest caz este pur și simplu afișat în consolă:</p>
- <div class="code-inline">
-  <pre><code>xhr.onload&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;if&nbsp;(xhr.status&nbsp;==&nbsp;200)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;json&nbsp;=&nbsp;xhr.response;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(json);<br>&nbsp;&nbsp;&nbsp;}<br>};</code></pre>
- </div>
- <p class="paragraph">După definirea tuturor fișierelor, în consolă ne vom deplasa la folderul serverului folosind comanda cd și vom lansa serverul folosind comanda node app.js.</p>
- <div class="image-container">
-  <img src="images/image1.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">După lansarea serverului, putem accesa în browser adresa http://localhost:3000, unde ne va fi afișată pagina, în codul JavaScript al căreia va avea loc o solicitare la adresa "/data". Serverul va trimite în răspuns conținutul fișierului data.json, iar consola browserului va afișa acest conținut:</p>
- <div class="image-container">
-  <img src="images/image2.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Afișarea datelor JSON pe pagina</h2>
- <p class="paragraph">În obiectul JSON obținut în exemplul de mai sus, putem accesa proprietățile, extrăgând din obiect datele de care avem nevoie. De exemplu, să presupunem că dorim să afișăm datele despre utilizatori din JSON într-un tabel pe pagina web. Pentru aceasta, să modificăm codul index.html în modul următor:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8<br><br>"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;div&nbsp;id="content"&gt;&lt;/div&gt;<br>&lt;script&gt;<br>const&nbsp;contentDiv&nbsp;=&nbsp;document.getElementById("content");<br><br>const&nbsp;xhr&nbsp;=&nbsp;new&nbsp;XMLHttpRequest();<br>xhr.onload&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;if&nbsp;(xhr.status&nbsp;==&nbsp;200)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;json&nbsp;=&nbsp;xhr.response;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;table&nbsp;=&nbsp;createTable();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;selectăm&nbsp;toți&nbsp;utilizatorii&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;users&nbsp;=&nbsp;json.users;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(let&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;users.length;&nbsp;i++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;user&nbsp;=&nbsp;users[i];&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;row&nbsp;=&nbsp;createRow(user.name,&nbsp;user.age,&nbsp;user.contacts.email);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;table.appendChild(row);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contentDiv.appendChild(table);<br>&nbsp;&nbsp;&nbsp;}<br>};<br>xhr.open("GET",&nbsp;"/data");<br>xhr.responseType&nbsp;=&nbsp;"json";<br>xhr.setRequestHeader("Accept",&nbsp;"application/json");<br>xhr.send();<br><br>//&nbsp;creăm&nbsp;un&nbsp;tabel<br>function&nbsp;createTable()&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;table&nbsp;=&nbsp;document.createElement("table");&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;headerRow&nbsp;=&nbsp;document.createElement("tr");&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;nameColumnHeader&nbsp;=&nbsp;document.createElement("th");&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;ageColumnHeader&nbsp;=&nbsp;document.createElement("th");&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;contactColumnHeader&nbsp;=&nbsp;document.createElement("th");<br>&nbsp;&nbsp;&nbsp;nameColumnHeader.appendChild(document.createTextNode("Nume"));&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;ageColumnHeader.appendChild(document.createTextNode("Vârstă"));&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;contactColumnHeader.appendChild(document.createTextNode("Contacte"));&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;headerRow.appendChild(nameColumnHeader);&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;headerRow.appendChild(ageColumnHeader);&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;headerRow.appendChild(contactColumnHeader);<br>&nbsp;&nbsp;&nbsp;table.appendChild(headerRow);<br>&nbsp;&nbsp;&nbsp;return&nbsp;table;<br>}<br>//&nbsp;creăm&nbsp;o&nbsp;singură&nbsp;linie&nbsp;pentru&nbsp;tabel<br>function&nbsp;createRow(userName,&nbsp;userAge,&nbsp;userContact)&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;row&nbsp;=&nbsp;document.createElement("tr");&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;nameColumn&nbsp;=&nbsp;document.createElement("td");&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;ageColumn&nbsp;=&nbsp;document.createElement("td");&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;contactColumn&nbsp;=&nbsp;document.createElement("td");&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;nameColumn.appendChild(document.createTextNode(userName));&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;ageColumn.appendChild(document.createTextNode(userAge));&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;contactColumn.appendChild(document.createTextNode(userContact));&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;row.appendChild(nameColumn);&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;row.appendChild(ageColumn);&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;row.appendChild(contactColumn);&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;return&nbsp;row;<br>}<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">În acest caz, încărcăm tabelul pe pagina în elementul cu identificatorul "content", pe care îl obținem în codul JavaScript în elementul contentDiv.</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;contentDiv&nbsp;=&nbsp;document.getElementById("content");</code></pre>
- </div>
- <p class="paragraph">Pentru crearea tabelului sunt definite două funcții auxiliare. Funcția createTable creează un element table cu un singur rând - antetele coloanelor. Funcția createRow acceptă ca parametri numele, vârsta și contactele utilizatorului și pentru aceștia creează un rând.</p>
- <p class="paragraph">În partea principală a codului, efectuăm o solicitare către server. După ce primim datele JSON, selectăm array-ul de obiecte user:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;json&nbsp;=&nbsp;xhr.response;<br>const&nbsp;table&nbsp;=&nbsp;createTable();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>//&nbsp;selectăm&nbsp;toate&nbsp;obiectele&nbsp;user&nbsp;&nbsp;&nbsp;&nbsp;<br>const&nbsp;users&nbsp;=&nbsp;json.users;&nbsp;&nbsp;&nbsp;&nbsp;</code></pre>
- </div>
- <p class="paragraph">Apoi, parcurgem toate obiectele user, selectăm proprietățile name, age și contacts.email ale fiecărui obiect și creăm un rând în tabel în baza acestor date:</p>
- <div class="code-inline">
-  <pre><code>for&nbsp;(let&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;users.length;&nbsp;i++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;user&nbsp;=&nbsp;users[i];&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;row&nbsp;=&nbsp;createRow(user.name,&nbsp;user.age,&nbsp;user.contacts.email);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;table.appendChild(row);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>}</code></pre>
- </div>
- <p class="paragraph">Astfel, la accesarea paginii index.html, datele în format JSON vor fi încărcate, și pe baza lor va fi creat un tabel.</p>
- <div class="image-container">
-  <img src="images/image3.png" alt="" class="responsive-image">
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Încărcarea JSON folosind XMLHttpRequest</h1>
+     <p class="paragraph">JSON reprezintă unul dintre cele mai populare formate de stocare și transmitere a datelor. În special, JSON este adesea utilizat la transmiterea datelor prin solicitări ajax. Pentru a primi JSON folosind XMLHttpRequest, trebuie să efectuați două setări:</p>
+     <ul class="enumeration">
+      <li>Pentru ca răspunsul serverului să fie tratat ca un obiect JSON, proprietății responseType i se atribuie valoarea "json". Browserele care suportă această valoare garantează că răspunsul poate fi citit direct ca un obiect JavaScript</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>xhr.responseType&nbsp;=&nbsp;"json";</code></pre>
+     </div>
+     <ul class="enumeration">
+      <li>De asemenea, la trimiterea solicitării, pentru antetul Accept trebuie să se specifice valoarea "application/json":</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>xhr.setRequestHeader("Accept",&nbsp;"application/json");</code></pre>
+     </div>
+     <p class="paragraph">Ca server, la fel ca în articolul anterior, vom utiliza Node.js ca cea mai simplă opțiune, dar, desigur, dacă doriți, puteți utiliza orice altă tehnologie de nivel server sau un server web.</p>
+     <p class="paragraph">Astfel, să definim pentru proiect un folder pe discul dur, în care vom crea trei fișiere:</p>
+     <ul class="enumeration">
+      <li>index.html: pagina principală a aplicației</li>
+      <li>data.json: fișierul cu date în format JSON</li>
+      <li>app.js: fișierul aplicației server, care va utiliza Node.js</li>
+     </ul>
+     <h2 class="subtitle">Definirea datelor</h2>
+     <p class="paragraph">Fișierul data.json va reprezenta datele încărcate și să aibă următorul conținut:</p>
+     <div class="code-inline">
+      <pre><code>{<br>&nbsp;&nbsp;&nbsp;"users":&nbsp;[<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name":&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"age":&nbsp;39,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"contacts":&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"email":&nbsp;"tom@smail.com",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"phone":&nbsp;"+1234567890"<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name":&nbsp;"Bob",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"age":&nbsp;43,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"contacts":&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"email":&nbsp;"bob@tmail.com",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"phone":&nbsp;"+1334567181"<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name":&nbsp;"Sam",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"age":&nbsp;28,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"contacts":&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"email":&nbsp;"sam@xmail.com",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"phone":&nbsp;"+1434567782"<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;]<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici elementul users reprezintă un set de utilizatori, fiecare dintre aceștia fiind reprezentat de elementul user. Pentru fiecare astfel de element sunt definite două atribute: name (numele utilizatorului) și age (vârsta utilizatorului). Și, de asemenea, elementul user are un element încorporat contacts, care reprezintă datele de contact ale utilizatorului sub forma elementelor încorporate phone și email.</p>
+     <h2 class="subtitle">Definirea serverului</h2>
+     <p class="paragraph">Fișierul app.js va reprezenta codul serverului Node.js. Să definim în acesta următorul cod:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");<br><br>http.createServer((request,&nbsp;response)=&gt;{<br>&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;sunt&nbsp;solicitate&nbsp;datele&nbsp;JSON<br>&nbsp;&nbsp;&nbsp;if(request.url&nbsp;==&nbsp;"/data"){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fs.readFile("data.json",&nbsp;(_,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fs.readFile("index.html",&nbsp;(_,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>&nbsp;&nbsp;&nbsp;}<br>}).listen(3000,&nbsp;()=&gt;console.log("Serverul&nbsp;a&nbsp;fost&nbsp;lansat&nbsp;la&nbsp;adresa&nbsp;http://localhost:3000"));</code></pre>
+     </div>
+     <p class="paragraph">Să trecem rapid prin cod. La început, se conectează pachetele cu funcționalitatea pe care intenționăm să o utilizăm:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");&nbsp;&nbsp;&nbsp;//&nbsp;pentru&nbsp;prelucrarea&nbsp;cererilor&nbsp;de&nbsp;intrare<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;pentru&nbsp;citirea&nbsp;fișierelor&nbsp;de&nbsp;pe&nbsp;discul&nbsp;dur</code></pre>
+     </div>
+     <p class="paragraph">Pentru crearea serverului se folosește funcția http.createServer(). În această funcție se transmite o funcție-handler, care este apelată de fiecare dată când la server sosește o solicitare. Această funcție are doi parametri: request (conține datele solicitării) și response (gestionează trimiterea răspunsului).</p>
+     <p class="paragraph">În funcția-handler, folosind proprietatea request.url putem obține calea resursei către care a fost trimisă solicitarea. Astfel, în acest caz, dacă a venit o solicitare pe calea "/data", atunci trimitem data.json:</p>
+     <div class="code-inline">
+      <pre><code>if(request.url&nbsp;==&nbsp;"/data"){<br>&nbsp;&nbsp;&nbsp;fs.readFile("data.json",&nbsp;(_,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>}</code></pre>
+     </div>
+     <p class="paragraph">Pentru citirea fișierului se utilizează funcția fs.readFile. Primul parametru al funcției - adresa fișierului (în acest caz se presupune că fișierul se află în același folder cu fișierul serverului server.js). Al doilea parametru - o funcție care este apelată după citirea fișierului și primește conținutul său prin al doilea său parametru data.</p>
+     <p class="paragraph">Pentru toate celelalte solicitări se trimite în răspuns fișierul index.html:</p>
+     <div class="code-inline">
+      <pre><code>else{<br>&nbsp;&nbsp;&nbsp;fs.readFile("index.html",&nbsp;(_,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>}</code></pre>
+     </div>
+     <p class="paragraph">La sfârșit, cu ajutorul funcției listen() lansăm serverul web pe portul 3000. Adică serverul va fi lansat la adresa http://localhost:3000/</p>
+     <h2 class="subtitle">Încărcarea JSON pe pagina web</h2>
+     <p class="paragraph">Pentru a obține fișierul "data.json" de pe server, să definim în fișierul index.html următorul cod:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;script&gt;<br>const&nbsp;xhr&nbsp;=&nbsp;new&nbsp;XMLHttpRequest();<br>xhr.onload&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;if&nbsp;(xhr.status&nbsp;==&nbsp;200)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;json&nbsp;=&nbsp;xhr.response;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(json);<br>&nbsp;&nbsp;&nbsp;}<br>};<br>xhr.open("GET",&nbsp;"/data");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;cerere&nbsp;GET&nbsp;către&nbsp;/data<br>xhr.responseType&nbsp;=&nbsp;"json";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;stabilim&nbsp;tipul&nbsp;de&nbsp;răspuns<br>xhr.setRequestHeader("Accept",&nbsp;"application/json");&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;acceptăm&nbsp;doar&nbsp;json<br>xhr.send();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;executăm&nbsp;solicitarea<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Pentru a obține datele se trimite o solicitare la adresa "/data". Pentru ca datele obținute să fie automat interpretate ca un document JSON, proprietății responseType i se atribuie valoarea "json".</p>
+     <div class="code-inline">
+      <pre><code>xhr.responseType&nbsp;=&nbsp;"json";</code></pre>
+     </div>
+     <p class="paragraph">În plus, ar trebui să setăm pentru antetul Accept valoarea "application/json":</p>
+     <div class="code-inline">
+      <pre><code>xhr.setRequestHeader("Accept",&nbsp;"application/json");</code></pre>
+     </div>
+     <p class="paragraph">În handlerul evenimentului onload, obiectul JSON este disponibil prin proprietatea response, care în acest caz este pur și simplu afișat în consolă:</p>
+     <div class="code-inline">
+      <pre><code>xhr.onload&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;if&nbsp;(xhr.status&nbsp;==&nbsp;200)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;json&nbsp;=&nbsp;xhr.response;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(json);<br>&nbsp;&nbsp;&nbsp;}<br>};</code></pre>
+     </div>
+     <p class="paragraph">După definirea tuturor fișierelor, în consolă ne vom deplasa la folderul serverului folosind comanda cd și vom lansa serverul folosind comanda node app.js.</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/18.Cereri%20AJAX%20si%20XMLHttpRequest/4.Incarcarea%20JSON%20folosind%20XMLHttpRequest/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">După lansarea serverului, putem accesa în browser adresa http://localhost:3000, unde ne va fi afișată pagina, în codul JavaScript al căreia va avea loc o solicitare la adresa "/data". Serverul va trimite în răspuns conținutul fișierului data.json, iar consola browserului va afișa acest conținut:</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/18.Cereri%20AJAX%20si%20XMLHttpRequest/4.Incarcarea%20JSON%20folosind%20XMLHttpRequest/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Afișarea datelor JSON pe pagina</h2>
+     <p class="paragraph">În obiectul JSON obținut în exemplul de mai sus, putem accesa proprietățile, extrăgând din obiect datele de care avem nevoie. De exemplu, să presupunem că dorim să afișăm datele despre utilizatori din JSON într-un tabel pe pagina web. Pentru aceasta, să modificăm codul index.html în modul următor:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8<br><br>"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;div&nbsp;id="content"&gt;&lt;/div&gt;<br>&lt;script&gt;<br>const&nbsp;contentDiv&nbsp;=&nbsp;document.getElementById("content");<br><br>const&nbsp;xhr&nbsp;=&nbsp;new&nbsp;XMLHttpRequest();<br>xhr.onload&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;if&nbsp;(xhr.status&nbsp;==&nbsp;200)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;json&nbsp;=&nbsp;xhr.response;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;table&nbsp;=&nbsp;createTable();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;selectăm&nbsp;toți&nbsp;utilizatorii&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;users&nbsp;=&nbsp;json.users;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(let&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;users.length;&nbsp;i++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;user&nbsp;=&nbsp;users[i];&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;row&nbsp;=&nbsp;createRow(user.name,&nbsp;user.age,&nbsp;user.contacts.email);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;table.appendChild(row);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contentDiv.appendChild(table);<br>&nbsp;&nbsp;&nbsp;}<br>};<br>xhr.open("GET",&nbsp;"/data");<br>xhr.responseType&nbsp;=&nbsp;"json";<br>xhr.setRequestHeader("Accept",&nbsp;"application/json");<br>xhr.send();<br><br>//&nbsp;creăm&nbsp;un&nbsp;tabel<br>function&nbsp;createTable()&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;table&nbsp;=&nbsp;document.createElement("table");&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;headerRow&nbsp;=&nbsp;document.createElement("tr");&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;nameColumnHeader&nbsp;=&nbsp;document.createElement("th");&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;ageColumnHeader&nbsp;=&nbsp;document.createElement("th");&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;contactColumnHeader&nbsp;=&nbsp;document.createElement("th");<br>&nbsp;&nbsp;&nbsp;nameColumnHeader.appendChild(document.createTextNode("Nume"));&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;ageColumnHeader.appendChild(document.createTextNode("Vârstă"));&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;contactColumnHeader.appendChild(document.createTextNode("Contacte"));&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;headerRow.appendChild(nameColumnHeader);&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;headerRow.appendChild(ageColumnHeader);&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;headerRow.appendChild(contactColumnHeader);<br>&nbsp;&nbsp;&nbsp;table.appendChild(headerRow);<br>&nbsp;&nbsp;&nbsp;return&nbsp;table;<br>}<br>//&nbsp;creăm&nbsp;o&nbsp;singură&nbsp;linie&nbsp;pentru&nbsp;tabel<br>function&nbsp;createRow(userName,&nbsp;userAge,&nbsp;userContact)&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;row&nbsp;=&nbsp;document.createElement("tr");&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;nameColumn&nbsp;=&nbsp;document.createElement("td");&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;ageColumn&nbsp;=&nbsp;document.createElement("td");&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;contactColumn&nbsp;=&nbsp;document.createElement("td");&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;nameColumn.appendChild(document.createTextNode(userName));&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;ageColumn.appendChild(document.createTextNode(userAge));&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;contactColumn.appendChild(document.createTextNode(userContact));&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;row.appendChild(nameColumn);&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;row.appendChild(ageColumn);&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;row.appendChild(contactColumn);&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;return&nbsp;row;<br>}<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, încărcăm tabelul pe pagina în elementul cu identificatorul "content", pe care îl obținem în codul JavaScript în elementul contentDiv.</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;contentDiv&nbsp;=&nbsp;document.getElementById("content");</code></pre>
+     </div>
+     <p class="paragraph">Pentru crearea tabelului sunt definite două funcții auxiliare. Funcția createTable creează un element table cu un singur rând - antetele coloanelor. Funcția createRow acceptă ca parametri numele, vârsta și contactele utilizatorului și pentru aceștia creează un rând.</p>
+     <p class="paragraph">În partea principală a codului, efectuăm o solicitare către server. După ce primim datele JSON, selectăm array-ul de obiecte user:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;json&nbsp;=&nbsp;xhr.response;<br>const&nbsp;table&nbsp;=&nbsp;createTable();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>//&nbsp;selectăm&nbsp;toate&nbsp;obiectele&nbsp;user&nbsp;&nbsp;&nbsp;&nbsp;<br>const&nbsp;users&nbsp;=&nbsp;json.users;&nbsp;&nbsp;&nbsp;&nbsp;</code></pre>
+     </div>
+     <p class="paragraph">Apoi, parcurgem toate obiectele user, selectăm proprietățile name, age și contacts.email ale fiecărui obiect și creăm un rând în tabel în baza acestor date:</p>
+     <div class="code-inline">
+      <pre><code>for&nbsp;(let&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;users.length;&nbsp;i++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;user&nbsp;=&nbsp;users[i];&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;row&nbsp;=&nbsp;createRow(user.name,&nbsp;user.age,&nbsp;user.contacts.email);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;table.appendChild(row);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Astfel, la accesarea paginii index.html, datele în format JSON vor fi încărcate, și pe baza lor va fi creat un tabel.</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/18.Cereri%20AJAX%20si%20XMLHttpRequest/4.Incarcarea%20JSON%20folosind%20XMLHttpRequest/images/image3.png}" alt="" class="responsive-image">
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

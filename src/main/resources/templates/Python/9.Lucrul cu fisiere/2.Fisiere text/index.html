@@ -1,210 +1,200 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Python', activeChapter='9.Lucrul cu fisiere', activeLesson='2.Fisiere text'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Fișiere text</h1>
- <h2 class="subtitle">Scrierea într-un fișier text</h2>
- <p class="paragraph">Pentru a deschide un fișier text pentru scriere, este necesar să se aplice modul w (rescriere), a (adăugare) sau r+/w+ (citire și scriere). Apoi, pentru scriere, se utilizează metoda write(str), căreia i se transmite șirul ce urmează să fie scris. Este de menționat că se scrie un șir, astfel că, dacă trebuie să scrieți numere sau date de alte tipuri, acestea trebuie convertite în prealabil în șiruri.</p>
- <p class="paragraph">Să scriem câteva informații în fișierul "hello.txt":</p>
- <div class="code-inline">
-  <pre><code>with&nbsp;open("hello.txt",&nbsp;"w")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;file.write("hello&nbsp;world")<br><br>print("Fișierul&nbsp;a&nbsp;fost&nbsp;scris")</code></pre>
- </div>
- <p class="paragraph">Dacă deschidem folderul în care se află scriptul Python curent, vom vedea acolo fișierul "hello.txt". Acest fișier poate fi deschis în orice editor de text și modificat, dacă se dorește.</p>
- <p class="paragraph">Acum, să adăugăm încă un șir în acest fișier:</p>
- <div class="code-inline">
-  <pre><code>with&nbsp;open("hello.txt",&nbsp;"a")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;file.write("\nhello&nbsp;work")<br><br>print("Fișierul&nbsp;a&nbsp;fost&nbsp;modificat")</code></pre>
- </div>
- <p class="paragraph">Adăugarea unui șir apare ca adăugarea de text la ultimul caracter din fișier, astfel că, dacă este necesar să se facă o scriere pe un nou rând, se poate utiliza secvența de escape "\n". În final, fișierul "hello.txt" va avea următorul conținut:</p>
- <div class="code-inline">
-  <pre><code>hello&nbsp;world<br>hello&nbsp;work</code></pre>
- </div>
- <p class="paragraph">Pentru a scrie o listă de șiruri, există metoda writelines(). Ca parametru, aceasta acceptă o listă de șiruri:</p>
- <div class="code-inline">
-  <pre><code>lines&nbsp;=&nbsp;["Hello&nbsp;Word\n",&nbsp;"Hello&nbsp;Work\n",&nbsp;"Hello&nbsp;World\n"]<br>with&nbsp;open("hello2.txt",&nbsp;"a")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;file.writelines(lines)<br>&nbsp;&nbsp;&nbsp;<br>print("Lista&nbsp;de&nbsp;șiruri&nbsp;a&nbsp;fost&nbsp;scrisă&nbsp;în&nbsp;fișier")</code></pre>
- </div>
- <p class="paragraph">Este important de reținut că, dacă dorim ca fiecare șir din listă să fie plasat pe o linie separată în fișier, șirul din listă trebuie să se termine cu simbolul "\n".</p>
- <p class="paragraph">Un alt mod de a scrie în fișier este folosind metoda standard print(), care este utilizată pentru afișarea datelor pe consolă:</p>
- <div class="code-inline">
-  <pre><code>with&nbsp;open("hello.txt",&nbsp;"a")&nbsp;as&nbsp;myfile:<br>&nbsp;&nbsp;&nbsp;print("\nhello&nbsp;FDC.com",&nbsp;file=myfile)</code></pre>
- </div>
- <p class="paragraph">Pentru a afișa datele în fișier, metoda print primește ca al doilea parametru numele fișierului prin parametrul file. Primul parametru reprezintă șirul ce urmează să fie scris în fișier.</p>
- <h2 class="subtitle">Citirea fișierului</h2>
- <p class="paragraph">Pentru a citi un fișier, acesta este deschis în modul r (Read), iar apoi conținutul său poate fi citit folosind diverse metode:</p>
- <ul class="enumeration">
-  <li>readline(): citește un șir din fișier</li>
-  <li>read(): citește tot conținutul fișierului într-un singur șir</li>
-  <li>readlines(): citește toate liniile din fișier într-o listă</li>
- </ul>
- <p class="paragraph">De exemplu, să citim fișierul de mai sus linie cu linie:</p>
- <div class="code-inline">
-  <pre><code>with&nbsp;open("hello.txt",&nbsp;"r")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;for&nbsp;line&nbsp;in&nbsp;file:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(line)</code></pre>
- </div>
- <p class="paragraph">Deși nu aplicăm explicit metoda readline() pentru a citi fiecare linie, în timpul parcurgerii fișierului, această metodă este automat apelată pentru a obține fiecare linie nouă. Prin urmare, în buclă, nu este necesar să apelăm manual metoda readline(). Ieșirea pe consolă:</p>
- <div class="code-inline">
-  <pre><code>hello&nbsp;world<br><br>hello&nbsp;work<br><br>hello&nbsp;FDC.com</code></pre>
- </div>
- <p class="paragraph">Cu toate acestea, deoarece funcția print adaugă implicit un caracter de final de linie "\n" la fiecare șir, iar liniile din fișierul scris sunt, de asemenea, separate de simbolul "\n", rezultă că fiecare linie se termină cu un dublu "\n". Pentru a exclude transferul excesiv pe altă linie, în funcția print se poate transmite valoarea end="".</p>
- <div class="code-inline">
-  <pre><code>with&nbsp;open("hello.txt",&nbsp;"r")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;for&nbsp;line&nbsp;in&nbsp;file:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(line,&nbsp;end="")</code></pre>
- </div>
- <p class="paragraph">Acum vom apela explicit metoda readline() pentru a citi linii individuale:</p>
- <div class="code-inline">
-  <pre><code>with&nbsp;open("hello.txt",&nbsp;"r")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;str1&nbsp;=&nbsp;file.readline()&nbsp;&nbsp;#&nbsp;citim&nbsp;prima&nbsp;linie<br>&nbsp;&nbsp;&nbsp;print(str1,&nbsp;end="")<br>&nbsp;&nbsp;&nbsp;str2&nbsp;=&nbsp;file.readline()&nbsp;&nbsp;#&nbsp;citim&nbsp;a&nbsp;doua&nbsp;linie<br>&nbsp;&nbsp;&nbsp;print(str2)</code></pre>
- </div>
- <p class="paragraph">Ieșirea pe consolă:</p>
- <div class="code-inline">
-  <pre><code>hello&nbsp;world<br>hello&nbsp;work</code></pre>
- </div>
- <p class="paragraph">Metoda readline() poate fi utilizată pentru citirea linie cu linie a fișierului într-o buclă while:</p>
- <div class="code-inline">
-  <pre><code>with&nbsp;open("hello.txt",&nbsp;"r")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;line&nbsp;=&nbsp;file.readline()<br>&nbsp;&nbsp;&nbsp;while&nbsp;line:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(line,&nbsp;end="")<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;line&nbsp;=&nbsp;file.readline()</code></pre>
- </div>
- <p class="paragraph">Dacă fișierul este mic, poate fi citit deodată folosind metoda read():</p>
- <div class="code-inline">
-  <pre><code>with&nbsp;open("hello.txt",&nbsp;"r")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;content&nbsp;=&nbsp;file.read()<br>&nbsp;&nbsp;&nbsp;print(content)</code></pre>
- </div>
- <p class="paragraph">De asemenea, putem folosi metoda readlines() pentru a citi întregul fișier într-o listă de șiruri:</p>
- <div class="code-inline">
-  <pre><code>with&nbsp;open("hello.txt",&nbsp;"r")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;contents&nbsp;=&nbsp;file.readlines()<br>&nbsp;&nbsp;&nbsp;str1&nbsp;=&nbsp;contents[0]<br>&nbsp;&nbsp;&nbsp;str2&nbsp;=&nbsp;contents[1]<br>&nbsp;&nbsp;&nbsp;print(str1,&nbsp;end="")<br>&nbsp;&nbsp;&nbsp;print(str2)</code></pre>
- </div>
- <p class="paragraph">Când citim un fișier, putem întâmpina situația în care codificarea sa nu corespunde cu ASCII. În acest caz, putem specifica în mod explicit codificarea folosind parametrul encoding:</p>
- <div class="code-inline">
-  <pre><code>filename&nbsp;=&nbsp;"hello.txt"<br>with&nbsp;open(filename,&nbsp;encoding="utf8")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;text&nbsp;=&nbsp;file.read()</code></pre>
- </div>
- <h2 class="subtitle">Citirea și scrierea</h2>
- <p class="paragraph">Pentru a deschide un fișier atât pentru citire, cât și pentru scriere, se utilizează flagurile:</p>
- <ul class="enumeration">
-  <li>r+: dacă fișierul nu este găsit, se generează excepția FileNotFoundError</li>
-  <li>w+: dacă fișierul nu există, acesta este creat automat. Dacă fișierul există, acesta este rescris</li>
- </ul>
- <p class="paragraph">De exemplu, să scriem și să citim date dintr-un fișier:</p>
- <div class="code-inline">
-  <pre><code>with&nbsp;open("hello.txt",&nbsp;"w+")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;file.write("Hello&nbsp;world\nHello&nbsp;work\n")&nbsp;&nbsp;#&nbsp;mai&nbsp;întâi&nbsp;scriem&nbsp;datele<br>&nbsp;&nbsp;&nbsp;file.seek(0)&nbsp;&nbsp;#&nbsp;ne&nbsp;mutăm&nbsp;la&nbsp;primul&nbsp;octet&nbsp;din&nbsp;fișier<br>&nbsp;&nbsp;&nbsp;content&nbsp;=&nbsp;file.read()&nbsp;&nbsp;#&nbsp;citim&nbsp;datele<br>&nbsp;&nbsp;&nbsp;print(content)</code></pre>
- </div>
- <h2 class="subtitle">Deplasarea în fișier</h2>
- <p class="paragraph">Pentru a vă deplasa în fișier după ce a fost deschis, se folosește metoda seek(). Aceasta primește indexul octetului la care trebuie mutat pointerul în fișier. De exemplu, în exemplul de mai sus, după scriere, pointerul în fișier se setează automat la sfârșitul fișierului. Iar citirea datelor începe de la poziția pe care este plasat pointerul. Și pentru a-l muta la început, se aplică apelul:</p>
- <div class="code-inline">
-  <pre><code>file.seek(0)</code></pre>
- </div>
- <p class="paragraph">În mod similar, ne putem deplasa în fișier la poziția dorită. De exemplu, să citim datele începând de la al 6-lea simbol:</p>
- <div class="code-inline">
-  <pre><code>with&nbsp;open("hello.txt",&nbsp;"w+")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;file.write("Hello&nbsp;world\n")&nbsp;&nbsp;#&nbsp;mai&nbsp;întâi&nbsp;scriem&nbsp;datele<br>&nbsp;&nbsp;&nbsp;file.seek(6)&nbsp;&nbsp;#&nbsp;ne&nbsp;mutăm&nbsp;la&nbsp;al&nbsp;șaselea&nbsp;octet&nbsp;din&nbsp;fișier<br>&nbsp;&nbsp;&nbsp;content&nbsp;=&nbsp;file.read()&nbsp;&nbsp;#&nbsp;citim&nbsp;datele<br>&nbsp;&nbsp;&nbsp;print(content)&nbsp;&nbsp;#&nbsp;world</code></pre>
- </div>
- <h2 class="subtitle">Exemplu de lucru cu fișiere</h2>
- <p class="paragraph">Acum, să scriem un script mic, în care se va înregistra un array de șiruri introdus de utilizator și se va citi înapoi din fișier pe consolă:</p>
- <div class="code-inline">
-  <pre><code>#&nbsp;numele&nbsp;fișierului<br>FILENAME&nbsp;=&nbsp;"messages.txt"<br><br>#&nbsp;scrierea&nbsp;unui&nbsp;șir&nbsp;în&nbsp;fișier<br>def&nbsp;write():<br>&nbsp;&nbsp;&nbsp;message&nbsp;=&nbsp;input("Introduceți&nbsp;un&nbsp;șir:&nbsp;")<br>&nbsp;&nbsp;&nbsp;with&nbsp;open(FILENAME,&nbsp;"a")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;file.write(message&nbsp;+&nbsp;"\n")<br><br>#&nbsp;citirea&nbsp;fișierului<br>def&nbsp;read():<br>&nbsp;&nbsp;&nbsp;with&nbsp;open(FILENAME,&nbsp;"r")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;message&nbsp;in&nbsp;file:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(message,&nbsp;end="")<br>&nbsp;&nbsp;&nbsp;print()&nbsp;&nbsp;#&nbsp;salt&nbsp;de&nbsp;linie&nbsp;pentru&nbsp;a&nbsp;separa&nbsp;meniul&nbsp;de&nbsp;ieșirea&nbsp;pe&nbsp;consolă<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>while&nbsp;True:<br>&nbsp;&nbsp;&nbsp;selection&nbsp;=&nbsp;int(input("1.Scriere&nbsp;în&nbsp;fișier\t\t2.Citire&nbsp;fișier\t\t3.Ieșire\nAlegeți&nbsp;acțiunea:&nbsp;"))<br>&nbsp;&nbsp;&nbsp;match&nbsp;selection:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;1:&nbsp;write()<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;2:&nbsp;read()<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;3:&nbsp;break<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;_:&nbsp;print("Input&nbsp;incorect")<br>&nbsp;&nbsp;&nbsp;<br>print("Programul&nbsp;s-a&nbsp;încheiat")</code></pre>
- </div>
- <p class="paragraph">Exemplu de rulare a programului:</p>
- <div class="code-inline">
-  <pre><code>1.Scriere&nbsp;în&nbsp;fișier&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.Citire&nbsp;fișier&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.Ieșire<br>Alegeți&nbsp;acțiunea:&nbsp;1<br>Introduceți&nbsp;un&nbsp;șir:&nbsp;Hello&nbsp;World<br><br>1.Scriere&nbsp;în&nbsp;fișier&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.Citire&nbsp;fișier&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.Ieșire<br>Alegeți&nbsp;acțiunea:&nbsp;1<br>Introduceți&nbsp;un&nbsp;șir:&nbsp;Hello&nbsp;FDC.COM<br><br>1.Scriere&nbsp;în&nbsp;fișier&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.Citire&nbsp;fișier&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.Ieșire<br>Alegeți&nbsp;acțiunea:&nbsp;2<br>Hello&nbsp;World<br>Hello&nbsp;FDC.COM<br><br>1.Scriere&nbsp;în&nbsp;fișier&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.Citire&nbsp;fișier&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.Ieșire<br>Alegeți&nbsp;acțiunea:&nbsp;3<br>Programul&nbsp;s-a&nbsp;încheiat</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Fișiere text</h1>
+     <h2 class="subtitle">Scrierea într-un fișier text</h2>
+     <p class="paragraph">Pentru a deschide un fișier text pentru scriere, este necesar să se aplice modul w (rescriere), a (adăugare) sau r+/w+ (citire și scriere). Apoi, pentru scriere, se utilizează metoda write(str), căreia i se transmite șirul ce urmează să fie scris. Este de menționat că se scrie un șir, astfel că, dacă trebuie să scrieți numere sau date de alte tipuri, acestea trebuie convertite în prealabil în șiruri.</p>
+     <p class="paragraph">Să scriem câteva informații în fișierul "hello.txt":</p>
+     <div class="code-inline">
+      <pre><code>with&nbsp;open("hello.txt",&nbsp;"w")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;file.write("hello&nbsp;world")<br><br>print("Fișierul&nbsp;a&nbsp;fost&nbsp;scris")</code></pre>
+     </div>
+     <p class="paragraph">Dacă deschidem folderul în care se află scriptul Python curent, vom vedea acolo fișierul "hello.txt". Acest fișier poate fi deschis în orice editor de text și modificat, dacă se dorește.</p>
+     <p class="paragraph">Acum, să adăugăm încă un șir în acest fișier:</p>
+     <div class="code-inline">
+      <pre><code>with&nbsp;open("hello.txt",&nbsp;"a")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;file.write("\nhello&nbsp;work")<br><br>print("Fișierul&nbsp;a&nbsp;fost&nbsp;modificat")</code></pre>
+     </div>
+     <p class="paragraph">Adăugarea unui șir apare ca adăugarea de text la ultimul caracter din fișier, astfel că, dacă este necesar să se facă o scriere pe un nou rând, se poate utiliza secvența de escape "\n". În final, fișierul "hello.txt" va avea următorul conținut:</p>
+     <div class="code-inline">
+      <pre><code>hello&nbsp;world<br>hello&nbsp;work</code></pre>
+     </div>
+     <p class="paragraph">Pentru a scrie o listă de șiruri, există metoda writelines(). Ca parametru, aceasta acceptă o listă de șiruri:</p>
+     <div class="code-inline">
+      <pre><code>lines&nbsp;=&nbsp;["Hello&nbsp;Word\n",&nbsp;"Hello&nbsp;Work\n",&nbsp;"Hello&nbsp;World\n"]<br>with&nbsp;open("hello2.txt",&nbsp;"a")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;file.writelines(lines)<br>&nbsp;&nbsp;&nbsp;<br>print("Lista&nbsp;de&nbsp;șiruri&nbsp;a&nbsp;fost&nbsp;scrisă&nbsp;în&nbsp;fișier")</code></pre>
+     </div>
+     <p class="paragraph">Este important de reținut că, dacă dorim ca fiecare șir din listă să fie plasat pe o linie separată în fișier, șirul din listă trebuie să se termine cu simbolul "\n".</p>
+     <p class="paragraph">Un alt mod de a scrie în fișier este folosind metoda standard print(), care este utilizată pentru afișarea datelor pe consolă:</p>
+     <div class="code-inline">
+      <pre><code>with&nbsp;open("hello.txt",&nbsp;"a")&nbsp;as&nbsp;myfile:<br>&nbsp;&nbsp;&nbsp;print("\nhello&nbsp;FDC.com",&nbsp;file=myfile)</code></pre>
+     </div>
+     <p class="paragraph">Pentru a afișa datele în fișier, metoda print primește ca al doilea parametru numele fișierului prin parametrul file. Primul parametru reprezintă șirul ce urmează să fie scris în fișier.</p>
+     <h2 class="subtitle">Citirea fișierului</h2>
+     <p class="paragraph">Pentru a citi un fișier, acesta este deschis în modul r (Read), iar apoi conținutul său poate fi citit folosind diverse metode:</p>
+     <ul class="enumeration">
+      <li>readline(): citește un șir din fișier</li>
+      <li>read(): citește tot conținutul fișierului într-un singur șir</li>
+      <li>readlines(): citește toate liniile din fișier într-o listă</li>
+     </ul>
+     <p class="paragraph">De exemplu, să citim fișierul de mai sus linie cu linie:</p>
+     <div class="code-inline">
+      <pre><code>with&nbsp;open("hello.txt",&nbsp;"r")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;for&nbsp;line&nbsp;in&nbsp;file:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(line)</code></pre>
+     </div>
+     <p class="paragraph">Deși nu aplicăm explicit metoda readline() pentru a citi fiecare linie, în timpul parcurgerii fișierului, această metodă este automat apelată pentru a obține fiecare linie nouă. Prin urmare, în buclă, nu este necesar să apelăm manual metoda readline(). Ieșirea pe consolă:</p>
+     <div class="code-inline">
+      <pre><code>hello&nbsp;world<br><br>hello&nbsp;work<br><br>hello&nbsp;FDC.com</code></pre>
+     </div>
+     <p class="paragraph">Cu toate acestea, deoarece funcția print adaugă implicit un caracter de final de linie "\n" la fiecare șir, iar liniile din fișierul scris sunt, de asemenea, separate de simbolul "\n", rezultă că fiecare linie se termină cu un dublu "\n". Pentru a exclude transferul excesiv pe altă linie, în funcția print se poate transmite valoarea end="".</p>
+     <div class="code-inline">
+      <pre><code>with&nbsp;open("hello.txt",&nbsp;"r")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;for&nbsp;line&nbsp;in&nbsp;file:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(line,&nbsp;end="")</code></pre>
+     </div>
+     <p class="paragraph">Acum vom apela explicit metoda readline() pentru a citi linii individuale:</p>
+     <div class="code-inline">
+      <pre><code>with&nbsp;open("hello.txt",&nbsp;"r")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;str1&nbsp;=&nbsp;file.readline()&nbsp;&nbsp;#&nbsp;citim&nbsp;prima&nbsp;linie<br>&nbsp;&nbsp;&nbsp;print(str1,&nbsp;end="")<br>&nbsp;&nbsp;&nbsp;str2&nbsp;=&nbsp;file.readline()&nbsp;&nbsp;#&nbsp;citim&nbsp;a&nbsp;doua&nbsp;linie<br>&nbsp;&nbsp;&nbsp;print(str2)</code></pre>
+     </div>
+     <p class="paragraph">Ieșirea pe consolă:</p>
+     <div class="code-inline">
+      <pre><code>hello&nbsp;world<br>hello&nbsp;work</code></pre>
+     </div>
+     <p class="paragraph">Metoda readline() poate fi utilizată pentru citirea linie cu linie a fișierului într-o buclă while:</p>
+     <div class="code-inline">
+      <pre><code>with&nbsp;open("hello.txt",&nbsp;"r")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;line&nbsp;=&nbsp;file.readline()<br>&nbsp;&nbsp;&nbsp;while&nbsp;line:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(line,&nbsp;end="")<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;line&nbsp;=&nbsp;file.readline()</code></pre>
+     </div>
+     <p class="paragraph">Dacă fișierul este mic, poate fi citit deodată folosind metoda read():</p>
+     <div class="code-inline">
+      <pre><code>with&nbsp;open("hello.txt",&nbsp;"r")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;content&nbsp;=&nbsp;file.read()<br>&nbsp;&nbsp;&nbsp;print(content)</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, putem folosi metoda readlines() pentru a citi întregul fișier într-o listă de șiruri:</p>
+     <div class="code-inline">
+      <pre><code>with&nbsp;open("hello.txt",&nbsp;"r")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;contents&nbsp;=&nbsp;file.readlines()<br>&nbsp;&nbsp;&nbsp;str1&nbsp;=&nbsp;contents[0]<br>&nbsp;&nbsp;&nbsp;str2&nbsp;=&nbsp;contents[1]<br>&nbsp;&nbsp;&nbsp;print(str1,&nbsp;end="")<br>&nbsp;&nbsp;&nbsp;print(str2)</code></pre>
+     </div>
+     <p class="paragraph">Când citim un fișier, putem întâmpina situația în care codificarea sa nu corespunde cu ASCII. În acest caz, putem specifica în mod explicit codificarea folosind parametrul encoding:</p>
+     <div class="code-inline">
+      <pre><code>filename&nbsp;=&nbsp;"hello.txt"<br>with&nbsp;open(filename,&nbsp;encoding="utf8")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;text&nbsp;=&nbsp;file.read()</code></pre>
+     </div>
+     <h2 class="subtitle">Citirea și scrierea</h2>
+     <p class="paragraph">Pentru a deschide un fișier atât pentru citire, cât și pentru scriere, se utilizează flagurile:</p>
+     <ul class="enumeration">
+      <li>r+: dacă fișierul nu este găsit, se generează excepția FileNotFoundError</li>
+      <li>w+: dacă fișierul nu există, acesta este creat automat. Dacă fișierul există, acesta este rescris</li>
+     </ul>
+     <p class="paragraph">De exemplu, să scriem și să citim date dintr-un fișier:</p>
+     <div class="code-inline">
+      <pre><code>with&nbsp;open("hello.txt",&nbsp;"w+")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;file.write("Hello&nbsp;world\nHello&nbsp;work\n")&nbsp;&nbsp;#&nbsp;mai&nbsp;întâi&nbsp;scriem&nbsp;datele<br>&nbsp;&nbsp;&nbsp;file.seek(0)&nbsp;&nbsp;#&nbsp;ne&nbsp;mutăm&nbsp;la&nbsp;primul&nbsp;octet&nbsp;din&nbsp;fișier<br>&nbsp;&nbsp;&nbsp;content&nbsp;=&nbsp;file.read()&nbsp;&nbsp;#&nbsp;citim&nbsp;datele<br>&nbsp;&nbsp;&nbsp;print(content)</code></pre>
+     </div>
+     <h2 class="subtitle">Deplasarea în fișier</h2>
+     <p class="paragraph">Pentru a vă deplasa în fișier după ce a fost deschis, se folosește metoda seek(). Aceasta primește indexul octetului la care trebuie mutat pointerul în fișier. De exemplu, în exemplul de mai sus, după scriere, pointerul în fișier se setează automat la sfârșitul fișierului. Iar citirea datelor începe de la poziția pe care este plasat pointerul. Și pentru a-l muta la început, se aplică apelul:</p>
+     <div class="code-inline">
+      <pre><code>file.seek(0)</code></pre>
+     </div>
+     <p class="paragraph">În mod similar, ne putem deplasa în fișier la poziția dorită. De exemplu, să citim datele începând de la al 6-lea simbol:</p>
+     <div class="code-inline">
+      <pre><code>with&nbsp;open("hello.txt",&nbsp;"w+")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;file.write("Hello&nbsp;world\n")&nbsp;&nbsp;#&nbsp;mai&nbsp;întâi&nbsp;scriem&nbsp;datele<br>&nbsp;&nbsp;&nbsp;file.seek(6)&nbsp;&nbsp;#&nbsp;ne&nbsp;mutăm&nbsp;la&nbsp;al&nbsp;șaselea&nbsp;octet&nbsp;din&nbsp;fișier<br>&nbsp;&nbsp;&nbsp;content&nbsp;=&nbsp;file.read()&nbsp;&nbsp;#&nbsp;citim&nbsp;datele<br>&nbsp;&nbsp;&nbsp;print(content)&nbsp;&nbsp;#&nbsp;world</code></pre>
+     </div>
+     <h2 class="subtitle">Exemplu de lucru cu fișiere</h2>
+     <p class="paragraph">Acum, să scriem un script mic, în care se va înregistra un array de șiruri introdus de utilizator și se va citi înapoi din fișier pe consolă:</p>
+     <div class="code-inline">
+      <pre><code>#&nbsp;numele&nbsp;fișierului<br>FILENAME&nbsp;=&nbsp;"messages.txt"<br><br>#&nbsp;scrierea&nbsp;unui&nbsp;șir&nbsp;în&nbsp;fișier<br>def&nbsp;write():<br>&nbsp;&nbsp;&nbsp;message&nbsp;=&nbsp;input("Introduceți&nbsp;un&nbsp;șir:&nbsp;")<br>&nbsp;&nbsp;&nbsp;with&nbsp;open(FILENAME,&nbsp;"a")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;file.write(message&nbsp;+&nbsp;"\n")<br><br>#&nbsp;citirea&nbsp;fișierului<br>def&nbsp;read():<br>&nbsp;&nbsp;&nbsp;with&nbsp;open(FILENAME,&nbsp;"r")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;message&nbsp;in&nbsp;file:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(message,&nbsp;end="")<br>&nbsp;&nbsp;&nbsp;print()&nbsp;&nbsp;#&nbsp;salt&nbsp;de&nbsp;linie&nbsp;pentru&nbsp;a&nbsp;separa&nbsp;meniul&nbsp;de&nbsp;ieșirea&nbsp;pe&nbsp;consolă<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>while&nbsp;True:<br>&nbsp;&nbsp;&nbsp;selection&nbsp;=&nbsp;int(input("1.Scriere&nbsp;în&nbsp;fișier\t\t2.Citire&nbsp;fișier\t\t3.Ieșire\nAlegeți&nbsp;acțiunea:&nbsp;"))<br>&nbsp;&nbsp;&nbsp;match&nbsp;selection:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;1:&nbsp;write()<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;2:&nbsp;read()<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;3:&nbsp;break<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;_:&nbsp;print("Input&nbsp;incorect")<br>&nbsp;&nbsp;&nbsp;<br>print("Programul&nbsp;s-a&nbsp;încheiat")</code></pre>
+     </div>
+     <p class="paragraph">Exemplu de rulare a programului:</p>
+     <div class="code-inline">
+      <pre><code>1.Scriere&nbsp;în&nbsp;fișier&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.Citire&nbsp;fișier&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.Ieșire<br>Alegeți&nbsp;acțiunea:&nbsp;1<br>Introduceți&nbsp;un&nbsp;șir:&nbsp;Hello&nbsp;World<br><br>1.Scriere&nbsp;în&nbsp;fișier&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.Citire&nbsp;fișier&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.Ieșire<br>Alegeți&nbsp;acțiunea:&nbsp;1<br>Introduceți&nbsp;un&nbsp;șir:&nbsp;Hello&nbsp;FDC.COM<br><br>1.Scriere&nbsp;în&nbsp;fișier&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.Citire&nbsp;fișier&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.Ieșire<br>Alegeți&nbsp;acțiunea:&nbsp;2<br>Hello&nbsp;World<br>Hello&nbsp;FDC.COM<br><br>1.Scriere&nbsp;în&nbsp;fișier&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.Citire&nbsp;fișier&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.Ieșire<br>Alegeți&nbsp;acțiunea:&nbsp;3<br>Programul&nbsp;s-a&nbsp;încheiat</code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

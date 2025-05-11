@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='PHP', activeChapter='5.Functionalitati de baza ale PHP', activeLesson='2.Spatii de nume'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Spații de nume</h1>
+     <p class="paragraph">Spațiile de nume permit evitarea conflictelor de nume și gruparea funcționalității. În interiorul unui spațiu de nume pot fi plasate clase, interfețe, funcții și constante.</p>
+     <p class="paragraph">Dacă o construcție (de exemplu, o clasă sau o funcție) este definită în afara oricărui spațiu de nume, se consideră că este localizată în spațiul de nume global.</p>
+     <h2 class="subtitle">Definirea spațiilor de nume</h2>
+     <p class="paragraph">Pentru a crea un spațiu de nume se folosește directiva namespace, urmată de numele spațiului de nume:</p>
+     <div class="code-inline">
+      <pre><code>namespace&nbsp;base;<br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;private&nbsp;$name;<br>&nbsp;&nbsp;&nbsp;function&nbsp;__construct($name)&nbsp;{&nbsp;$this-&gt;name&nbsp;=&nbsp;$name;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, este definit spațiul de nume "base". De obicei, numele spațiilor de nume sunt indicate cu litere mici. Tot ce este situat sub această directivă aparține spațiului de nume "base". Astfel, clasa Person aparține spațiului de nume base.</p>
+     <p class="paragraph">Trebuie menționat că definiția spațiului de nume trebuie să fie plasată deasupra oricărui alt cod sau markup HTML. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>namespace&nbsp;base;<br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;$name;<br>&nbsp;&nbsp;&nbsp;function&nbsp;__construct($name)&nbsp;{&nbsp;$this-&gt;name&nbsp;=&nbsp;$name;&nbsp;}<br>}<br>?&gt;<br>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;?php<br>$tom&nbsp;=&nbsp;new&nbsp;Person("Tom");<br>echo&nbsp;$tom-&gt;name;<br>?&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <h2 class="subtitle">Accesarea spațiului de nume</h2>
+     <p class="paragraph">Pentru a accesa construcțiile dintr-un spațiu de nume, înaintea numelui construcției, se specifică spațiul de nume folosind o bară oblică inversă (backslash). De exemplu, avem un fișier Person.php:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>namespace&nbsp;base;<br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;$name;<br>&nbsp;&nbsp;&nbsp;function&nbsp;__construct($name)&nbsp;{&nbsp;$this-&gt;name&nbsp;=&nbsp;$name;&nbsp;}<br>}<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Acum, într-un alt fișier, includem acest fișier și accesăm clasa Person:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>namespace&nbsp;work;<br>include&nbsp;"Person.php";<br>$tom&nbsp;=&nbsp;new&nbsp;\base\Person("Tom");<br>echo&nbsp;$tom-&gt;name;<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici este definit un alt spațiu de nume - "work". Mai întâi, în acesta se include fișierul Person.php. Apoi, creăm un obiect al clasei Person.</p>
+     <p class="paragraph">Dacă construcțiile unui spațiu de nume sunt utilizate în alt spațiu de nume (inclusiv în spațiul de nume global), atunci înaintea numelui construcției se specifică spațiul de nume complet:</p>
+     <div class="code-inline">
+      <pre><code>$tom&nbsp;=&nbsp;new&nbsp;\base\Person("Tom");</code></pre>
+     </div>
+     <p class="paragraph">Observați că mai întâi vine o bară oblică inversă, apoi numele spațiului de nume și apoi, prin bară oblică inversă, numele clasei (\base\Person).</p>
+     <p class="paragraph">Fără specificarea spațiului de nume, putem folosi construcția doar în același spațiu de nume în care este definită.</p>
+     <h2 class="subtitle">Spații de nume imbricate</h2>
+     <p class="paragraph">Unele spații de nume pot conține altele. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>namespace&nbsp;base\classes;<br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;$name;<br>&nbsp;&nbsp;&nbsp;function&nbsp;__construct($name)&nbsp;{&nbsp;$this-&gt;name&nbsp;=&nbsp;$name;&nbsp;}<br>}<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici, clasa Person este definită în spațiul de nume base\classes. Astfel, pentru a accesa clasa Person dintr-un alt spațiu de nume, trebuie să specificăm \base\classes\Person:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>namespace&nbsp;work;<br>include&nbsp;"Person.php";<br>$tom&nbsp;=&nbsp;new&nbsp;\base\classes\Person("Tom");<br>echo&nbsp;$tom-&gt;name;<br>?&gt;</code></pre>
+     </div>
+     <h2 class="subtitle">Pseudonime</h2>
+     <p class="paragraph">Dacă într-un spațiu de nume este utilizată o clasă din alt spațiu de nume, scrierea fiecărei referințe la clasa respectivă cu spațiul de nume complet poate deveni obositoare și supraîncarcă codul. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>namespace&nbsp;work;<br>include&nbsp;"Person.php";<br>$tom&nbsp;=&nbsp;new&nbsp;\base\classes\Person("Tom");<br>echo&nbsp;$tom-&gt;name&nbsp;.&nbsp;"&lt;br&gt;";<br>$bob&nbsp;=&nbsp;new&nbsp;\base\classes\Person("Bob");<br>echo&nbsp;$bob-&gt;name;<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, putem folosi pseudonime, care sunt stabilite în forma:</p>
+     <div class="code-inline">
+      <pre><code>use&nbsp;nume_complet_clasă&nbsp;as&nbsp;pseudonim;</code></pre>
+     </div>
+     <p class="paragraph">Construcția use importă clasa din alt spațiu de nume, iar operatorul as stabilește un pseudonim pentru aceasta.</p>
+     <p class="paragraph">Astfel, putem simplifica codul anterior folosind pseudonime:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>namespace&nbsp;work;<br>include&nbsp;"Person.php";<br><br>//&nbsp;stabilirea&nbsp;unui&nbsp;pseudonim<br>use&nbsp;\base\classes\Person&nbsp;as&nbsp;User;<br><br>$tom&nbsp;=&nbsp;new&nbsp;User("Tom");<br>echo&nbsp;$tom-&gt;name&nbsp;.&nbsp;"&lt;br&gt;";<br>$bob&nbsp;=&nbsp;new&nbsp;User("Bob");<br>echo&nbsp;$bob-&gt;name;<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, pentru clasa \base\classes\Person este stabilit pseudonimul User, astfel încât acum putem folosi pseudonimul User pentru a ne referi la clasa Person. Rezultatul este același, dar codul este mai scurt.</p>
+     <p class="paragraph">Putem folosi doar construcția use fără a specifica un pseudonim. În acest caz, clasa poate fi utilizată cu numele său direct:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>namespace&nbsp;work;<br>include&nbsp;"Person.php";<br><br>use&nbsp;\base\classes\Person;<br><br>$tom&nbsp;=&nbsp;new&nbsp;Person("Tom");<br>echo&nbsp;$tom-&gt;name&nbsp;.&nbsp;"&lt;br&gt;";<br>$bob&nbsp;=&nbsp;new&nbsp;Person("Bob");<br>echo&nbsp;$bob-&gt;name;<br>?&gt;</code></pre>
+     </div>
+     <h2 class="subtitle">Includerea mai multor clase</h2>
+     <p class="paragraph">În mod similar, putem include mai multe clase deodată. De exemplu, să presupunem că în fișierul Person.php avem următoarele clase:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>namespace&nbsp;base\classes;<br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;$name;<br>&nbsp;&nbsp;&nbsp;function&nbsp;__construct($name)&nbsp;{&nbsp;$this-&gt;name&nbsp;=&nbsp;$name;&nbsp;}<br>}<br>class&nbsp;Employee&nbsp;extends&nbsp;Person&nbsp;{&nbsp;}<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Includerea claselor Person și Employee:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>namespace&nbsp;work;<br>include&nbsp;"Person.php";<br><br>use&nbsp;\base\classes\Person&nbsp;as&nbsp;User,&nbsp;\base\classes\Employee&nbsp;as&nbsp;Employee;<br><br>$tom&nbsp;=&nbsp;new&nbsp;User("Tom");<br>echo&nbsp;$tom-&gt;name&nbsp;.&nbsp;"&lt;br&gt;";<br>$sam&nbsp;=&nbsp;new&nbsp;Employee("Sam");<br>echo&nbsp;$sam-&gt;name;<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Definirea pseudonimelor poate fi scurtată:</p>
+     <div class="code-inline">
+      <pre><code>use&nbsp;\base\classes\{Person&nbsp;as&nbsp;User,&nbsp;Employee&nbsp;as&nbsp;Employee};</code></pre>
+     </div>
+     <h2 class="subtitle">Includerea constantelor și funcțiilor</h2>
+     <p class="paragraph">Pentru a include constante, se folosește instrucțiunea use const, iar pentru a include funcții, se folosește use function.</p>
+     <p class="paragraph">De exemplu, definiția fișierului Person.php:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>namespace&nbsp;base\classes;<br>const&nbsp;adminName&nbsp;=&nbsp;"Odmen";<br>function&nbsp;printPerson($person){<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$person-&gt;name&nbsp;.&nbsp;"&lt;br&gt;";<br>}<br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;$name;<br>&nbsp;&nbsp;&nbsp;function&nbsp;__construct($name)&nbsp;{&nbsp;$this-&gt;name&nbsp;=&nbsp;$name;&nbsp;}<br>}<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Includem clasa Person împreună cu constanta adminName și funcția printPerson:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>namespace&nbsp;work;<br>include&nbsp;"Person.php";<br><br>use&nbsp;\base\classes\Person;<br>use&nbsp;const&nbsp;\base\classes\adminName;<br>use&nbsp;function&nbsp;\base\classes\printPerson;<br><br>$tom&nbsp;=&nbsp;new&nbsp;Person(adminName);<br>printPerson($tom);&nbsp;&nbsp;//&nbsp;Odmen<br>?&gt;</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

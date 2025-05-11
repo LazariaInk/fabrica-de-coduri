@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='7.Interfete', activeLesson='1.Interfete'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Interfețe</h1>
+     <p class="paragraph">Interfața reprezintă un tip de referință care poate defini o anumită funcționalitate - un set de metode și proprietăți fără implementare. Apoi această funcționalitate este implementată de clase și structuri care aplică aceste interfețe.</p>
+     <h2 class="subtitle">Definirea interfeței</h2>
+     <p class="paragraph">Pentru definirea unei interfețe se folosește cuvântul cheie interface. De obicei, denumirile interfețelor în C# încep cu litera mare I, de exemplu, IComparable, IEnumerable (așa-numita notație maghiară), însă acesta nu este un cerință obligatorie, ci mai mult un stil de programare.</p>
+     <p class="paragraph">Ce poate defini o interfață? În general, interfețele pot defini următoarele entități:</p>
+     <ul class="enumeration">
+      <li>Metode</li>
+      <li>Proprietăți</li>
+      <li>Indexatori</li>
+      <li>Evenimente</li>
+      <li>Câmpuri și constante statice (începând cu versiunea C# 8.0)</li>
+     </ul>
+     <p class="paragraph">Cu toate acestea, interfețele nu pot defini variabile nestatice. De exemplu, o interfață simplă care definește toate aceste componente:</p>
+     <div class="code-inline">
+      <pre><code>interface&nbsp;IMovable<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;constantă<br>&nbsp;&nbsp;&nbsp;const&nbsp;int&nbsp;minSpeed&nbsp;=&nbsp;0;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;viteza&nbsp;minimă<br>&nbsp;&nbsp;&nbsp;//&nbsp;variabilă&nbsp;statică<br>&nbsp;&nbsp;&nbsp;static&nbsp;int&nbsp;maxSpeed&nbsp;=&nbsp;60;&nbsp;&nbsp;&nbsp;//&nbsp;viteza&nbsp;maximă<br>&nbsp;&nbsp;&nbsp;//&nbsp;metodă<br>&nbsp;&nbsp;&nbsp;void&nbsp;Move();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;mișcare<br>&nbsp;&nbsp;&nbsp;//&nbsp;proprietate<br>&nbsp;&nbsp;&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}&nbsp;&nbsp;&nbsp;//&nbsp;denumire<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;delegate&nbsp;void&nbsp;MoveHandler(string&nbsp;message);&nbsp;&nbsp;//&nbsp;definirea&nbsp;delegatului&nbsp;pentru&nbsp;eveniment<br>&nbsp;&nbsp;&nbsp;//&nbsp;eveniment<br>&nbsp;&nbsp;&nbsp;event&nbsp;MoveHandler&nbsp;MoveEvent;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;evenimentul&nbsp;de&nbsp;mișcare<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, este definită interfața IMovable, care reprezintă un obiect mobil. Această interfață conține diverse componente care descriu capabilitățile obiectului mobil. Adică, interfața descrie o anumită funcționalitate care ar trebui să existe la un obiect mobil.</p>
+     <p class="paragraph">Metodele și proprietățile interfeței pot să nu aibă implementare, în acest aspect se aseamănă cu metodele și proprietățile abstracte ale claselor abstracte. În acest caz, interfața definește metoda Move, care va reprezenta o anumită deplasare. Aceasta nu are implementare, nu acceptă niciun parametru și nu returnează nimic.</p>
+     <p class="paragraph">Același lucru este valabil și pentru proprietatea Name. La prima vedere, aceasta pare a fi o proprietate automată. Dar, în realitate, aceasta este o definiție a unei proprietăți într-o interfață, care nu are implementare, nu o proprietate automată.</p>
+     <h2 class="subtitle">Modificatori de acces</h2>
+     <p class="paragraph">Un alt aspect în declararea unei interfețe: dacă membrii săi - metodele și proprietățile - nu au modificatori de acces, atunci de fapt, implicit, accesul este public, deoarece scopul interfeței este definirea funcționalității pentru implementarea ei de către o clasă.</p>
+     <p class="paragraph">Acest lucru se aplică și constantelor și variabilelor statice, care în clase și structuri, implicit, au modificatorul private. În interfețe, acestea au implicit modificatorul public. De exemplu, am putea accesa constanta minSpeed și variabila maxSpeed a interfeței IMovable:</p>
+     <div class="code-inline">
+      <pre><code>Console.WriteLine(IMovable.maxSpeed);&nbsp;&nbsp;&nbsp;//&nbsp;60<br>Console.WriteLine(IMovable.minSpeed);&nbsp;&nbsp;&nbsp;//&nbsp;0</code></pre>
+     </div>
+     <p class="paragraph">Dar, de asemenea, începând cu versiunea C# 8.0, putem specifica explicit modificatorii de acces ai componentelor interfeței:</p>
+     <div class="code-inline">
+      <pre><code>interface&nbsp;IMovable<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;const&nbsp;int&nbsp;minSpeed&nbsp;=&nbsp;0;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;viteza&nbsp;minimă<br>&nbsp;&nbsp;&nbsp;private&nbsp;static&nbsp;int&nbsp;maxSpeed&nbsp;=&nbsp;60;&nbsp;&nbsp;&nbsp;//&nbsp;viteza&nbsp;maximă<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Move();<br>&nbsp;&nbsp;&nbsp;protected&nbsp;internal&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;denumire<br>&nbsp;&nbsp;&nbsp;public&nbsp;delegate&nbsp;void&nbsp;MoveHandler(string&nbsp;message);&nbsp;&nbsp;//&nbsp;definirea&nbsp;delegatului&nbsp;pentru&nbsp;eveniment<br>&nbsp;&nbsp;&nbsp;public&nbsp;event&nbsp;MoveHandler&nbsp;MoveEvent;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;evenimentul&nbsp;de&nbsp;mișcare<br>}</code></pre>
+     </div>
+     <p class="paragraph">La fel ca și clasele, interfețele implicit au nivelul de acces internal, adică o astfel de interfață este accesibilă doar în cadrul proiectului curent. Dar cu ajutorul modificatorului public putem face interfața accesibilă public:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;interface&nbsp;IMovable<br>{<br>&nbsp;&nbsp;&nbsp;void&nbsp;Move();<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Implementarea implicită</h2>
+     <p class="paragraph">De asemenea, începând cu versiunea C# 8.0, interfețele suportă implementarea implicită a metodelor și proprietăților. Aceasta înseamnă că putem defini în interfețe metode și proprietăți complete, care au implementare ca în clasele și structurile obișnuite. De exemplu, să definim implementarea implicită a metodei Move:</p>
+     <div class="code-inline">
+      <pre><code>interface&nbsp;IMovable<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;implementarea&nbsp;implicită&nbsp;a&nbsp;metodei<br>&nbsp;&nbsp;&nbsp;void&nbsp;Move()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Walking");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Cu implementarea implicită a proprietăților în interfețe este puțin mai complicat, deoarece nu putem defini variabile nestatice în interfețe, astfel încât în proprietățile interfeței nu putem manipula starea obiectului. Totuși, putem defini și implementarea implicită pentru proprietăți:</p>
+     <div class="code-inline">
+      <pre><code>interface&nbsp;IMovable<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;implementarea&nbsp;implicită&nbsp;a&nbsp;metodei<br>&nbsp;&nbsp;&nbsp;void&nbsp;Move()&nbsp;=&gt;&nbsp;Console.WriteLine("Walking");<br>&nbsp;&nbsp;&nbsp;//&nbsp;implementarea&nbsp;implicită&nbsp;a&nbsp;proprietății<br>&nbsp;&nbsp;&nbsp;//&nbsp;proprietate&nbsp;doar&nbsp;pentru&nbsp;citire<br>&nbsp;&nbsp;&nbsp;int&nbsp;MaxSpeed&nbsp;{&nbsp;get&nbsp;{&nbsp;return&nbsp;0;&nbsp;}&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Este de remarcat că, dacă interfața are metode și proprietăți private (adică cu modificatorul private), acestea trebuie să aibă implementare implicită. Același lucru se aplică și metodelor statice (nu neapărat private):</p>
+     <div class="code-inline">
+      <pre><code>Console.WriteLine(IMovable.MaxSpeed);&nbsp;&nbsp;&nbsp;//&nbsp;60<br>IMovable.MaxSpeed&nbsp;=&nbsp;65;<br>Console.WriteLine(IMovable.MaxSpeed);&nbsp;&nbsp;&nbsp;//&nbsp;65<br>double&nbsp;time&nbsp;=&nbsp;IMovable.GetTime(500,&nbsp;10);<br>Console.WriteLine(time);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;50<br><br>interface&nbsp;IMovable<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;const&nbsp;int&nbsp;minSpeed&nbsp;=&nbsp;0;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;viteza&nbsp;minimă<br>&nbsp;&nbsp;&nbsp;private&nbsp;static&nbsp;int&nbsp;maxSpeed&nbsp;=&nbsp;60;&nbsp;&nbsp;&nbsp;//&nbsp;viteza&nbsp;maximă<br>&nbsp;&nbsp;&nbsp;//&nbsp;calculăm&nbsp;timpul&nbsp;necesar&nbsp;pentru&nbsp;a&nbsp;parcurge&nbsp;distanța&nbsp;distance&nbsp;cu&nbsp;viteza&nbsp;speed<br>&nbsp;&nbsp;&nbsp;static&nbsp;double&nbsp;GetTime(double&nbsp;distance,&nbsp;double&nbsp;speed)&nbsp;=&gt;&nbsp;distance&nbsp;/&nbsp;speed;<br>&nbsp;&nbsp;&nbsp;static&nbsp;int&nbsp;MaxSpeed<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get&nbsp;=&gt;&nbsp;maxSpeed;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(value&nbsp;&gt;&nbsp;0)&nbsp;maxSpeed&nbsp;=&nbsp;value;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Adăugarea unei interfețe</h2>
+     <p class="paragraph">Este de menționat că în Visual Studio există un component special pentru adăugarea unei noi interfețe într-un fișier separat. Pentru a adăuga o interfață în proiect, putem face click dreapta pe proiect și în meniul contextual care apare, selectăm Add -&gt; New Item... și în fereastra de dialog pentru adăugarea unui nou component selectăm opțiunea Interface:</p>
+     <div class="image-container">
+      <img th:src="@{/images/7.Interfete/1.Interfete/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Deși putem adăuga, de asemenea, un fișier standard de clasă sau orice alt fișier de cod C# și în el să definim interfața.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

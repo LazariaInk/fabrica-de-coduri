@@ -1,174 +1,164 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='4.Programarea orientata pe obiect (OOP)', activeLesson='12.Mostenirea prototipurilor in cazul constructorilor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Moștenirea prototipurilor în cazul constructorilor</h1>
- <p class="paragraph">În tema anterioară, am discutat despre moștenirea obiectelor sau, mai exact, a prototipurilor lor. Utilizarea funcțiilor constructor face un pas înainte în acest sens, permițând moștenirea prototipurilor într-un stil pseudo-clasă, similar moștenirii de tipuri.</p>
- <p class="paragraph">De exemplu, putem avea un obiect "Person", care reprezintă un utilizator individual. De asemenea, putem avea un obiect "Employee", care reprezintă un angajat. Dar un angajat poate, de asemenea, să fie un utilizator, și, prin urmare, ar trebui să aibă toate proprietățile și metodele acestuia. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>//&nbsp;Constructorul&nbsp;pentru&nbsp;utilizator<br>function&nbsp;Person(name,&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;this.sayHello&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Person&nbsp;${this.name}&nbsp;says&nbsp;"Hello"`);<br>&nbsp;&nbsp;&nbsp;};<br>}<br>//&nbsp;Adăugăm&nbsp;prototipul&nbsp;în&nbsp;funcție<br>Person.prototype.print&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>};<br><br>//&nbsp;Constructorul&nbsp;pentru&nbsp;angajat<br>function&nbsp;Employee(name,&nbsp;age,&nbsp;comp)&nbsp;{<br>&nbsp;&nbsp;&nbsp;Person.call(this,&nbsp;name,&nbsp;age);&nbsp;//&nbsp;Aplicăm&nbsp;constructorul&nbsp;Person<br>&nbsp;&nbsp;&nbsp;this.company&nbsp;=&nbsp;comp;<br>&nbsp;&nbsp;&nbsp;this.work&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`${this.name}&nbsp;&nbsp;works&nbsp;at&nbsp;${this.company}`);<br>&nbsp;&nbsp;&nbsp;};<br>}<br>//&nbsp;Moștenim&nbsp;prototipul&nbsp;de&nbsp;la&nbsp;Person<br>Employee.prototype&nbsp;=&nbsp;Object.create(Person.prototype);<br>//&nbsp;Setăm&nbsp;constructorul<br>Employee.prototype.constructor&nbsp;=&nbsp;Employee;</code></pre>
- </div>
- <p class="paragraph">Aici, la început, este definită funcția constructor pentru "Person", care reprezintă un utilizator. În "Person", sunt definite două proprietăți și două metode. Unul dintre metode, "sayHello", este definit în interiorul constructorului, în timp ce celălalt, "print", este definit direct în prototip.</p>
- <p class="paragraph">Apoi, este definită funcția constructor pentru "Employee", care reprezintă un angajat.</p>
- <p class="paragraph">În constructorul "Employee", se apelează constructorul "Person" folosind "call":</p>
- <div class="code-inline">
-  <pre><code>Person.call(this,&nbsp;name,&nbsp;age);</code></pre>
- </div>
- <p class="paragraph">Prin transmiterea primului parametru, se permite apelul funcției constructor "Person" pentru obiectul creat de constructorul "Employee". Datorită acestui lucru, toate proprietățile și metodele definite în constructorul "Person" sunt, de asemenea, transferate la obiectul "Employee". În plus, este definită o proprietate suplimentară, "company", care reprezintă compania angajatului, și o metodă numită "work".</p>
- <p class="paragraph">De asemenea, este necesar să se moștenească și prototipul "Person" și, implicit, toate funcțiile definite prin intermediul prototipului (de exemplu, în exemplul de mai sus, este funcția "Person.prototype.print"). Aceasta se realizează prin apelul:</p>
- <div class="code-inline">
-  <pre><code>Employee.prototype&nbsp;=&nbsp;Object.create(Person.prototype);</code></pre>
- </div>
- <p class="paragraph">Metoda Object.create() permite crearea unui obiect cu prototipul "Person", care este ulterior atribuit prototipului "Employee".</p>
- <p class="paragraph">Adesea, în loc să se folosească apelul metodei Object.create() pentru a stabili prototipul, se utilizează apelul constructorului moștenit, de exemplu:</p>
- <div class="code-inline">
-  <pre><code>Employee.prototype&nbsp;=&nbsp;new&nbsp;Person();</code></pre>
- </div>
- <p class="paragraph">Ca rezultat, va fi creat un obiect ale cărui proprietăți prototipale (Employee.prototype.__proto__) vor indica către prototipul lui "Person".</p>
- <p class="paragraph">Totuși, merită de menționat că obiectul creat va indica către constructorul "Person". De aceea, este important să setăm constructorul corespunzător:</p>
- <div class="code-inline">
-  <pre><code>Employee.prototype.constructor&nbsp;=&nbsp;Employee;</code></pre>
- </div>
- <p class="paragraph">Constructorul este rar utilizat în mod izolat, iar absența setării constructorului poate să nu aibă nicio influență asupra funcționării programului. Cu toate acestea, să examinăm următoarea situație.</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;obj&nbsp;=&nbsp;new&nbsp;Employee.prototype.constructor("Bob",&nbsp;23,&nbsp;"Google");<br>console.log(obj);&nbsp;//&nbsp;Employee&nbsp;sau&nbsp;Person&nbsp;în&nbsp;funcție&nbsp;de&nbsp;tipul&nbsp;constructorului<br>obj.work();&nbsp;//&nbsp;Dacă&nbsp;obj&nbsp;este&nbsp;de&nbsp;tipul&nbsp;Person,&nbsp;atunci&nbsp;va&nbsp;apărea&nbsp;o&nbsp;eroare</code></pre>
- </div>
- <p class="paragraph">Aici, constructorul este apelat direct pentru a crea obiectul "obj". Tipul obiectului "obj" depinde de constructorul setat pentru "Employee.prototype.constructor".</p>
- <p class="paragraph">Hai să testăm funcțiile constructor definite mai sus:</p>
- <div class="code-inline">
-  <pre><code>//&nbsp;Constructor&nbsp;pentru&nbsp;utilizator<br>function&nbsp;Person(name,&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;this.sayHello&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Person&nbsp;${this.name}&nbsp;says&nbsp;"Hello"`);<br>&nbsp;&nbsp;&nbsp;};<br>}<br>Person.prototype.print&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>};<br><br>//&nbsp;Constructor&nbsp;pentru&nbsp;angajat<br>function&nbsp;Employee(name,&nbsp;age,&nbsp;comp)&nbsp;{<br>&nbsp;&nbsp;&nbsp;Person.call(this,&nbsp;name,&nbsp;age);&nbsp;//&nbsp;Aplicăm&nbsp;constructorul&nbsp;Person<br>&nbsp;&nbsp;&nbsp;this.company&nbsp;=&nbsp;comp;<br>&nbsp;&nbsp;&nbsp;this.work&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`${this.name}&nbsp;&nbsp;works&nbsp;at&nbsp;${this.company}`);<br>&nbsp;&nbsp;&nbsp;};<br>}<br>//&nbsp;Moștenim&nbsp;prototipul&nbsp;de&nbsp;la&nbsp;Person<br>Employee.prototype&nbsp;=&nbsp;Object.create(Person.prototype);<br><br>//&nbsp;Setăm&nbsp;constructorul<br>Employee.prototype.constructor&nbsp;=&nbsp;Employee;<br><br>//&nbsp;Creăm&nbsp;obiectul&nbsp;Employee<br>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Employee("Tom",&nbsp;39,&nbsp;"Google");<br>//&nbsp;Accesarea&nbsp;proprietății&nbsp;moștenite<br>console.log("Age:",&nbsp;tom.age);<br>//&nbsp;Accesarea&nbsp;metodei&nbsp;moștenite<br>tom.sayHello();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Person&nbsp;Tom&nbsp;says&nbsp;"Hello"<br>//&nbsp;Accesarea&nbsp;metodei&nbsp;moștenite&nbsp;din&nbsp;prototip<br>tom.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;Age:&nbsp;39<br>//&nbsp;Accesarea&nbsp;metodei&nbsp;proprii<br>tom.work();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Tom&nbsp;works&nbsp;at&nbsp;Google</code></pre>
- </div>
- <h2 class="subtitle">Suprascrierea funcțiilor</h2>
- <p class="paragraph">În timpul moștenirii, putem suprascrie funcționalitățile moștenite. De exemplu, în exemplul anterior pentru clasa "Person" sunt definite două metode: "sayHello" (în constructor) și "print" (în prototip). Însă, să presupunem că pentru clasa "Employee" dorim să modificăm logica acestora, de exemplu, în metoda "print" să afișăm și compania angajatului. În acest caz, putem defini pentru clasa "Employee" metode cu aceleași nume.</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;Person(name,&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;this.sayHello&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Person&nbsp;${this.name}&nbsp;says&nbsp;"Hello"`);<br>&nbsp;&nbsp;&nbsp;};<br>}<br>Person.prototype.print&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>};<br><br>function&nbsp;Employee(name,&nbsp;age,&nbsp;comp)&nbsp;{<br>&nbsp;&nbsp;&nbsp;Person.call(this,&nbsp;name,&nbsp;age);<br>&nbsp;&nbsp;&nbsp;this.company&nbsp;=&nbsp;comp;<br>&nbsp;&nbsp;&nbsp;//&nbsp;Suprascriem&nbsp;metoda&nbsp;sayHello<br>&nbsp;&nbsp;&nbsp;this.sayHello&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Employee&nbsp;${this.name}&nbsp;says&nbsp;"Hello"`);<br>&nbsp;&nbsp;&nbsp;};<br>}<br>Employee.prototype&nbsp;=&nbsp;Object.create(Person.prototype);<br>Employee.prototype.constructor&nbsp;=&nbsp;Employee;<br><br>//&nbsp;Suprascriem&nbsp;metoda&nbsp;print<br>Employee.prototype.print&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}&nbsp;&nbsp;Company:&nbsp;${this.company}`);<br>};<br><br>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Employee("Tom",&nbsp;39,&nbsp;"Google");<br>tom.sayHello();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Employee&nbsp;Tom&nbsp;says&nbsp;"Hello"<br>tom.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;Age:&nbsp;39&nbsp;&nbsp;Company:&nbsp;Google</code></pre>
- </div>
- <p class="paragraph">Metoda sayHello() este definită în interiorul constructorului Person, astfel că această metodă este suprascrisă în interiorul constructorului Employee. Metoda print() este definită ca metodă a prototipului Person, astfel încât poate fi suprascrisă în prototipul Employee.</p>
- <h2 class="subtitle">Apelarea metodei din prototipul părinte</h2>
- <p class="paragraph">Într-un prototip copil, poate fi necesar să se apeleze o metodă din prototipul părinte. De exemplu, acest lucru poate fi necesar pentru a reduce duplicarea logicii codului, în special atunci când logica metodei din prototipul copil se repetă în mod similar cu logica metodei din prototipul părinte. În acest caz, pentru a accesa metodele prototipului părinte, se folosește funcția call():</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;Person(name,&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>}<br>Person.prototype.print&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>};<br><br>function&nbsp;Employee(name,&nbsp;age,&nbsp;comp)&nbsp;{<br>&nbsp;&nbsp;&nbsp;Person.call(this,&nbsp;name,&nbsp;age);<br>&nbsp;&nbsp;&nbsp;this.company&nbsp;=&nbsp;comp;<br>}<br>Employee.prototype&nbsp;=&nbsp;Object.create(Person.prototype);<br>Employee.prototype.constructor&nbsp;=&nbsp;Employee;<br><br>//&nbsp;Suprascriem&nbsp;metoda&nbsp;print<br>Employee.prototype.print&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;Person.prototype.print.call(this);&nbsp;//&nbsp;Apelăm&nbsp;metoda&nbsp;print&nbsp;din&nbsp;Person<br>&nbsp;&nbsp;&nbsp;console.log(`Company:&nbsp;${this.company}`);<br>};<br><br>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Employee("Tom",&nbsp;39,&nbsp;"Google");<br>tom.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;Age:&nbsp;39&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Company:&nbsp;Google</code></pre>
- </div>
- <p class="paragraph">În acest caz, în momentul suprascrierii metodei print în prototipul Employee, se apelează metoda print din prototipul Person.</p>
- <div class="code-inline">
-  <pre><code>Employee.prototype.print&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;Person.prototype.print.call(this);&nbsp;//&nbsp;Apelăm&nbsp;metoda&nbsp;print&nbsp;din&nbsp;Person<br>&nbsp;&nbsp;&nbsp;console.log(`Company:&nbsp;${this.company}`);<br>};</code></pre>
- </div>
- <h2 class="subtitle">Problemele cu ereditatea prototipală</h2>
- <p class="paragraph">Este important să observăm că tipul Employee nu moștenește doar toate proprietățile și metodele actuale din prototipul Person, ci și pe cele care vor fi adăugate ulterior în mod dinamic. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Employee("Tom",&nbsp;39,&nbsp;"Google");<br>Person.prototype.sleep&nbsp;=&nbsp;function()&nbsp;{console.log(${this.name}&nbsp;sleeps);}<br>tom.sleep();</code></pre>
- </div>
- <p class="paragraph">Aici, în prototipul Person, se adaugă metoda sleep. Notați că aceasta este adăugată după ce obiectul tom a fost deja creat, reprezentând tipul Employee. Cu toate acestea, chiar și pentru acest obiect, putem apela metoda sleep.</p>
- <p class="paragraph">Un alt aspect important de luat în considerare este că, prin intermediul prototipului constructorului-copil, putem schimba prototipul constructorului-părinte. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;Person(name,&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;this.sayHello&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Person&nbsp;${this.name}&nbsp;says&nbsp;"Hello"`);<br>&nbsp;&nbsp;&nbsp;};<br>}<br><br>Person.prototype.print&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>};<br><br>function&nbsp;Employee(name,&nbsp;age,&nbsp;comp)&nbsp;{<br>&nbsp;&nbsp;&nbsp;Person.call(this,&nbsp;name,&nbsp;age);<br>&nbsp;&nbsp;&nbsp;this.company&nbsp;=&nbsp;comp;<br>}<br><br>//&nbsp;Moștenim&nbsp;prototipul&nbsp;de&nbsp;la&nbsp;Person<br>Employee.prototype&nbsp;=&nbsp;Object.create(Person.prototype);<br>Employee.prototype.constructor&nbsp;=&nbsp;Employee;<br><br>//&nbsp;Modificăm&nbsp;metoda&nbsp;print&nbsp;în&nbsp;prototipul&nbsp;de&nbsp;bază&nbsp;Person<br>Employee.prototype.__proto__.print&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Person&nbsp;prototype&nbsp;hacked");<br>};<br><br>//&nbsp;Creăm&nbsp;un&nbsp;obiect&nbsp;Person<br>const&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person("Bob",&nbsp;43);<br>bob.print();&nbsp;//&nbsp;Person&nbsp;prototype&nbsp;hacked</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Moștenirea prototipurilor în cazul constructorilor</h1>
+     <p class="paragraph">În tema anterioară, am discutat despre moștenirea obiectelor sau, mai exact, a prototipurilor lor. Utilizarea funcțiilor constructor face un pas înainte în acest sens, permițând moștenirea prototipurilor într-un stil pseudo-clasă, similar moștenirii de tipuri.</p>
+     <p class="paragraph">De exemplu, putem avea un obiect "Person", care reprezintă un utilizator individual. De asemenea, putem avea un obiect "Employee", care reprezintă un angajat. Dar un angajat poate, de asemenea, să fie un utilizator, și, prin urmare, ar trebui să aibă toate proprietățile și metodele acestuia. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;Constructorul&nbsp;pentru&nbsp;utilizator<br>function&nbsp;Person(name,&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;this.sayHello&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Person&nbsp;${this.name}&nbsp;says&nbsp;"Hello"`);<br>&nbsp;&nbsp;&nbsp;};<br>}<br>//&nbsp;Adăugăm&nbsp;prototipul&nbsp;în&nbsp;funcție<br>Person.prototype.print&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>};<br><br>//&nbsp;Constructorul&nbsp;pentru&nbsp;angajat<br>function&nbsp;Employee(name,&nbsp;age,&nbsp;comp)&nbsp;{<br>&nbsp;&nbsp;&nbsp;Person.call(this,&nbsp;name,&nbsp;age);&nbsp;//&nbsp;Aplicăm&nbsp;constructorul&nbsp;Person<br>&nbsp;&nbsp;&nbsp;this.company&nbsp;=&nbsp;comp;<br>&nbsp;&nbsp;&nbsp;this.work&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`${this.name}&nbsp;&nbsp;works&nbsp;at&nbsp;${this.company}`);<br>&nbsp;&nbsp;&nbsp;};<br>}<br>//&nbsp;Moștenim&nbsp;prototipul&nbsp;de&nbsp;la&nbsp;Person<br>Employee.prototype&nbsp;=&nbsp;Object.create(Person.prototype);<br>//&nbsp;Setăm&nbsp;constructorul<br>Employee.prototype.constructor&nbsp;=&nbsp;Employee;</code></pre>
+     </div>
+     <p class="paragraph">Aici, la început, este definită funcția constructor pentru "Person", care reprezintă un utilizator. În "Person", sunt definite două proprietăți și două metode. Unul dintre metode, "sayHello", este definit în interiorul constructorului, în timp ce celălalt, "print", este definit direct în prototip.</p>
+     <p class="paragraph">Apoi, este definită funcția constructor pentru "Employee", care reprezintă un angajat.</p>
+     <p class="paragraph">În constructorul "Employee", se apelează constructorul "Person" folosind "call":</p>
+     <div class="code-inline">
+      <pre><code>Person.call(this,&nbsp;name,&nbsp;age);</code></pre>
+     </div>
+     <p class="paragraph">Prin transmiterea primului parametru, se permite apelul funcției constructor "Person" pentru obiectul creat de constructorul "Employee". Datorită acestui lucru, toate proprietățile și metodele definite în constructorul "Person" sunt, de asemenea, transferate la obiectul "Employee". În plus, este definită o proprietate suplimentară, "company", care reprezintă compania angajatului, și o metodă numită "work".</p>
+     <p class="paragraph">De asemenea, este necesar să se moștenească și prototipul "Person" și, implicit, toate funcțiile definite prin intermediul prototipului (de exemplu, în exemplul de mai sus, este funcția "Person.prototype.print"). Aceasta se realizează prin apelul:</p>
+     <div class="code-inline">
+      <pre><code>Employee.prototype&nbsp;=&nbsp;Object.create(Person.prototype);</code></pre>
+     </div>
+     <p class="paragraph">Metoda Object.create() permite crearea unui obiect cu prototipul "Person", care este ulterior atribuit prototipului "Employee".</p>
+     <p class="paragraph">Adesea, în loc să se folosească apelul metodei Object.create() pentru a stabili prototipul, se utilizează apelul constructorului moștenit, de exemplu:</p>
+     <div class="code-inline">
+      <pre><code>Employee.prototype&nbsp;=&nbsp;new&nbsp;Person();</code></pre>
+     </div>
+     <p class="paragraph">Ca rezultat, va fi creat un obiect ale cărui proprietăți prototipale (Employee.prototype.__proto__) vor indica către prototipul lui "Person".</p>
+     <p class="paragraph">Totuși, merită de menționat că obiectul creat va indica către constructorul "Person". De aceea, este important să setăm constructorul corespunzător:</p>
+     <div class="code-inline">
+      <pre><code>Employee.prototype.constructor&nbsp;=&nbsp;Employee;</code></pre>
+     </div>
+     <p class="paragraph">Constructorul este rar utilizat în mod izolat, iar absența setării constructorului poate să nu aibă nicio influență asupra funcționării programului. Cu toate acestea, să examinăm următoarea situație.</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;obj&nbsp;=&nbsp;new&nbsp;Employee.prototype.constructor("Bob",&nbsp;23,&nbsp;"Google");<br>console.log(obj);&nbsp;//&nbsp;Employee&nbsp;sau&nbsp;Person&nbsp;în&nbsp;funcție&nbsp;de&nbsp;tipul&nbsp;constructorului<br>obj.work();&nbsp;//&nbsp;Dacă&nbsp;obj&nbsp;este&nbsp;de&nbsp;tipul&nbsp;Person,&nbsp;atunci&nbsp;va&nbsp;apărea&nbsp;o&nbsp;eroare</code></pre>
+     </div>
+     <p class="paragraph">Aici, constructorul este apelat direct pentru a crea obiectul "obj". Tipul obiectului "obj" depinde de constructorul setat pentru "Employee.prototype.constructor".</p>
+     <p class="paragraph">Hai să testăm funcțiile constructor definite mai sus:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;Constructor&nbsp;pentru&nbsp;utilizator<br>function&nbsp;Person(name,&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;this.sayHello&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Person&nbsp;${this.name}&nbsp;says&nbsp;"Hello"`);<br>&nbsp;&nbsp;&nbsp;};<br>}<br>Person.prototype.print&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>};<br><br>//&nbsp;Constructor&nbsp;pentru&nbsp;angajat<br>function&nbsp;Employee(name,&nbsp;age,&nbsp;comp)&nbsp;{<br>&nbsp;&nbsp;&nbsp;Person.call(this,&nbsp;name,&nbsp;age);&nbsp;//&nbsp;Aplicăm&nbsp;constructorul&nbsp;Person<br>&nbsp;&nbsp;&nbsp;this.company&nbsp;=&nbsp;comp;<br>&nbsp;&nbsp;&nbsp;this.work&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`${this.name}&nbsp;&nbsp;works&nbsp;at&nbsp;${this.company}`);<br>&nbsp;&nbsp;&nbsp;};<br>}<br>//&nbsp;Moștenim&nbsp;prototipul&nbsp;de&nbsp;la&nbsp;Person<br>Employee.prototype&nbsp;=&nbsp;Object.create(Person.prototype);<br><br>//&nbsp;Setăm&nbsp;constructorul<br>Employee.prototype.constructor&nbsp;=&nbsp;Employee;<br><br>//&nbsp;Creăm&nbsp;obiectul&nbsp;Employee<br>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Employee("Tom",&nbsp;39,&nbsp;"Google");<br>//&nbsp;Accesarea&nbsp;proprietății&nbsp;moștenite<br>console.log("Age:",&nbsp;tom.age);<br>//&nbsp;Accesarea&nbsp;metodei&nbsp;moștenite<br>tom.sayHello();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Person&nbsp;Tom&nbsp;says&nbsp;"Hello"<br>//&nbsp;Accesarea&nbsp;metodei&nbsp;moștenite&nbsp;din&nbsp;prototip<br>tom.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;Age:&nbsp;39<br>//&nbsp;Accesarea&nbsp;metodei&nbsp;proprii<br>tom.work();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Tom&nbsp;works&nbsp;at&nbsp;Google</code></pre>
+     </div>
+     <h2 class="subtitle">Suprascrierea funcțiilor</h2>
+     <p class="paragraph">În timpul moștenirii, putem suprascrie funcționalitățile moștenite. De exemplu, în exemplul anterior pentru clasa "Person" sunt definite două metode: "sayHello" (în constructor) și "print" (în prototip). Însă, să presupunem că pentru clasa "Employee" dorim să modificăm logica acestora, de exemplu, în metoda "print" să afișăm și compania angajatului. În acest caz, putem defini pentru clasa "Employee" metode cu aceleași nume.</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;Person(name,&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;this.sayHello&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Person&nbsp;${this.name}&nbsp;says&nbsp;"Hello"`);<br>&nbsp;&nbsp;&nbsp;};<br>}<br>Person.prototype.print&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>};<br><br>function&nbsp;Employee(name,&nbsp;age,&nbsp;comp)&nbsp;{<br>&nbsp;&nbsp;&nbsp;Person.call(this,&nbsp;name,&nbsp;age);<br>&nbsp;&nbsp;&nbsp;this.company&nbsp;=&nbsp;comp;<br>&nbsp;&nbsp;&nbsp;//&nbsp;Suprascriem&nbsp;metoda&nbsp;sayHello<br>&nbsp;&nbsp;&nbsp;this.sayHello&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Employee&nbsp;${this.name}&nbsp;says&nbsp;"Hello"`);<br>&nbsp;&nbsp;&nbsp;};<br>}<br>Employee.prototype&nbsp;=&nbsp;Object.create(Person.prototype);<br>Employee.prototype.constructor&nbsp;=&nbsp;Employee;<br><br>//&nbsp;Suprascriem&nbsp;metoda&nbsp;print<br>Employee.prototype.print&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}&nbsp;&nbsp;Company:&nbsp;${this.company}`);<br>};<br><br>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Employee("Tom",&nbsp;39,&nbsp;"Google");<br>tom.sayHello();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Employee&nbsp;Tom&nbsp;says&nbsp;"Hello"<br>tom.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;Age:&nbsp;39&nbsp;&nbsp;Company:&nbsp;Google</code></pre>
+     </div>
+     <p class="paragraph">Metoda sayHello() este definită în interiorul constructorului Person, astfel că această metodă este suprascrisă în interiorul constructorului Employee. Metoda print() este definită ca metodă a prototipului Person, astfel încât poate fi suprascrisă în prototipul Employee.</p>
+     <h2 class="subtitle">Apelarea metodei din prototipul părinte</h2>
+     <p class="paragraph">Într-un prototip copil, poate fi necesar să se apeleze o metodă din prototipul părinte. De exemplu, acest lucru poate fi necesar pentru a reduce duplicarea logicii codului, în special atunci când logica metodei din prototipul copil se repetă în mod similar cu logica metodei din prototipul părinte. În acest caz, pentru a accesa metodele prototipului părinte, se folosește funcția call():</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;Person(name,&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>}<br>Person.prototype.print&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>};<br><br>function&nbsp;Employee(name,&nbsp;age,&nbsp;comp)&nbsp;{<br>&nbsp;&nbsp;&nbsp;Person.call(this,&nbsp;name,&nbsp;age);<br>&nbsp;&nbsp;&nbsp;this.company&nbsp;=&nbsp;comp;<br>}<br>Employee.prototype&nbsp;=&nbsp;Object.create(Person.prototype);<br>Employee.prototype.constructor&nbsp;=&nbsp;Employee;<br><br>//&nbsp;Suprascriem&nbsp;metoda&nbsp;print<br>Employee.prototype.print&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;Person.prototype.print.call(this);&nbsp;//&nbsp;Apelăm&nbsp;metoda&nbsp;print&nbsp;din&nbsp;Person<br>&nbsp;&nbsp;&nbsp;console.log(`Company:&nbsp;${this.company}`);<br>};<br><br>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Employee("Tom",&nbsp;39,&nbsp;"Google");<br>tom.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;Age:&nbsp;39&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Company:&nbsp;Google</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, în momentul suprascrierii metodei print în prototipul Employee, se apelează metoda print din prototipul Person.</p>
+     <div class="code-inline">
+      <pre><code>Employee.prototype.print&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;Person.prototype.print.call(this);&nbsp;//&nbsp;Apelăm&nbsp;metoda&nbsp;print&nbsp;din&nbsp;Person<br>&nbsp;&nbsp;&nbsp;console.log(`Company:&nbsp;${this.company}`);<br>};</code></pre>
+     </div>
+     <h2 class="subtitle">Problemele cu ereditatea prototipală</h2>
+     <p class="paragraph">Este important să observăm că tipul Employee nu moștenește doar toate proprietățile și metodele actuale din prototipul Person, ci și pe cele care vor fi adăugate ulterior în mod dinamic. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Employee("Tom",&nbsp;39,&nbsp;"Google");<br>Person.prototype.sleep&nbsp;=&nbsp;function()&nbsp;{console.log(${this.name}&nbsp;sleeps);}<br>tom.sleep();</code></pre>
+     </div>
+     <p class="paragraph">Aici, în prototipul Person, se adaugă metoda sleep. Notați că aceasta este adăugată după ce obiectul tom a fost deja creat, reprezentând tipul Employee. Cu toate acestea, chiar și pentru acest obiect, putem apela metoda sleep.</p>
+     <p class="paragraph">Un alt aspect important de luat în considerare este că, prin intermediul prototipului constructorului-copil, putem schimba prototipul constructorului-părinte. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;Person(name,&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;this.sayHello&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Person&nbsp;${this.name}&nbsp;says&nbsp;"Hello"`);<br>&nbsp;&nbsp;&nbsp;};<br>}<br><br>Person.prototype.print&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>};<br><br>function&nbsp;Employee(name,&nbsp;age,&nbsp;comp)&nbsp;{<br>&nbsp;&nbsp;&nbsp;Person.call(this,&nbsp;name,&nbsp;age);<br>&nbsp;&nbsp;&nbsp;this.company&nbsp;=&nbsp;comp;<br>}<br><br>//&nbsp;Moștenim&nbsp;prototipul&nbsp;de&nbsp;la&nbsp;Person<br>Employee.prototype&nbsp;=&nbsp;Object.create(Person.prototype);<br>Employee.prototype.constructor&nbsp;=&nbsp;Employee;<br><br>//&nbsp;Modificăm&nbsp;metoda&nbsp;print&nbsp;în&nbsp;prototipul&nbsp;de&nbsp;bază&nbsp;Person<br>Employee.prototype.__proto__.print&nbsp;=&nbsp;function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Person&nbsp;prototype&nbsp;hacked");<br>};<br><br>//&nbsp;Creăm&nbsp;un&nbsp;obiect&nbsp;Person<br>const&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person("Bob",&nbsp;43);<br>bob.print();&nbsp;//&nbsp;Person&nbsp;prototype&nbsp;hacked</code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

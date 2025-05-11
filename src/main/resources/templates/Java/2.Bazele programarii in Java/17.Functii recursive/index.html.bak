@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Java', activeChapter='2.Bazele programarii in Java', activeLesson='17.Functii recursive'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Funcții recursive</h1>
+     <p class="paragraph">Să analizăm separat funcțiile recursive. Principala diferență între funcțiile recursive și metodele obișnuite constă în faptul că o funcție recursivă se poate apela pe sine.</p>
+     <p class="paragraph">De exemplu, să analizăm o funcție care calculează factorialul unui număr:</p>
+     <div class="code-inline">
+      <pre><code>static&nbsp;int&nbsp;factorial(int&nbsp;x){&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;if&nbsp;(x&nbsp;==&nbsp;1){&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;1;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;return&nbsp;x&nbsp;*&nbsp;factorial(x&nbsp;-&nbsp;1);&nbsp;&nbsp;<br>}</code></pre>
+     </div>
+     <p class="paragraph">La început, este verificată condiția: dacă numărul introdus este diferit de 1, înmulțim acest număr cu rezultatul aceleiași funcții, în care se transmite ca parametru numărul x-1. Astfel, se produce o coborâre recursivă. Procesul continuă până ajungem la momentul în care valoarea parametrului este egală cu unu.</p>
+     <p class="paragraph">O funcție recursivă trebuie să aibă neapărat o variantă de bază, care utilizează operatorul return și care este plasată la începutul funcției. În cazul factorialului, aceasta este: if (x == 1) return 1;.</p>
+     <p class="paragraph">oate apelurile recursive trebuie să facă referire la subfuncții care, în cele din urmă, converg spre varianta de bază. Astfel, atunci când transmitem în funcție un număr pozitiv, la fiecare apel recursiv se transmite un număr cu o unitate mai mic. În final, ajungem la situația în care numărul devine 1, iar varianta de bază este utilizată.</p>
+     <p class="paragraph">Cu toate acestea, trebuie menționat că pentru calculul factorialului există soluții mai eficiente bazate pe cicluri:</p>
+     <div class="code-inline">
+      <pre><code>static&nbsp;int&nbsp;factorial(int&nbsp;x){&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;int&nbsp;result&nbsp;=&nbsp;1;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;=&nbsp;x;&nbsp;i++)&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;*=&nbsp;i;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;return&nbsp;result;&nbsp;&nbsp;<br>}<br><br></code></pre>
+     </div>
+     <p class="paragraph">Un alt exemplu obișnuit de funcție recursivă este funcția care calculează numerele Fibonacci. În teorie, al n-lea termen din șirul Fibonacci este definit prin formula: f(n) = f(n-1) + f(n-2), unde f(0) = 0 și f(1) = 1.</p>
+     <div class="code-inline">
+      <pre><code>static&nbsp;int&nbsp;fibonachi(int&nbsp;n){&nbsp;&nbsp;<br><br>&nbsp;&nbsp;&nbsp;if&nbsp;(n&nbsp;==&nbsp;0){&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;if&nbsp;(n&nbsp;==&nbsp;1){&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;1;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;else{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;fibonachi(n&nbsp;-&nbsp;1)&nbsp;+&nbsp;fibonachi(n&nbsp;-&nbsp;2);&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Acest exemplu utilizează recursivitatea pentru a calcula numărul Fibonacci corespunzător valorii n transmise ca parametru.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

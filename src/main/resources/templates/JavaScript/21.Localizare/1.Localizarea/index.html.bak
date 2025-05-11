@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='21.Localizare', activeLesson='1.Localizarea'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Localizarea</h1>
+     <h2 class="subtitle">Introducere în Internationalization API</h2>
+     <p class="paragraph">Implementarea ultimelor standarde a adăugat în limbajul JavaScript capacități încorporate de localizare sau ceea ce reprezintă Internationalization API. Deși browserele populare au implementat deja acest API, dacă lucrăm cu versiuni vechi ale browserelor, ne putem confrunta cu situația în care acest API nu este suportat. În acest caz, putem verifica disponibilitatea obiectului window.Intl:</p>
+     <div class="code-inline">
+      <pre><code>if&nbsp;(window.Intl&nbsp;&amp;&amp;&nbsp;typeof&nbsp;window.Intl&nbsp;===&nbsp;"object"){&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;console.log("Internationalization&nbsp;API&nbsp;este&nbsp;suportat");<br>}<br>else&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;console.log("Internationalization&nbsp;API&nbsp;nu&nbsp;este&nbsp;suportat");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Capacitățile Internationalization API sunt reprezentate în principal de următoarele obiecte:</p>
+     <ul class="enumeration">
+      <li>Intl.ListFormat: aplicat pentru formatarea listelor</li>
+      <li>Intl.DisplayNames: aplicat pentru formatarea anumitor denumiri</li>
+      <li>Intl.DateTimeFormat: aplicat pentru formatarea datei și timpului</li>
+      <li>Intl.NumberFormat: aplicat pentru formatarea numerelor</li>
+      <li>Intl.Collator: aplicat pentru compararea șirurilor de caractere</li>
+     </ul>
+     <p class="paragraph">Pentru crearea obiectelor acestor tipuri se folosesc funcții-constructor corespunzătoare, care acceptă până la 3 parametri (exemplu pentru constructorul Intl.Collator()):</p>
+     <div class="code-inline">
+      <pre><code>new&nbsp;Intl.Collator()<br>new&nbsp;Intl.Collator(locales)<br>new&nbsp;Intl.Collator(locales,&nbsp;options)</code></pre>
+     </div>
+     <p class="paragraph">Ca prim parametru se transmit localele utilizate. Dacă acest parametru nu este specificat, se utilizează locala implicită. În plus, în toate funcțiile-constructor se poate transmite un obiect de configurare opțional, care depinde de tipul specific al constructorului.</p>
+     <p class="paragraph">Locala reprezintă codul limbii în formatul BCP 47 sau un set de coduri lingvistice. Se poate folosi codul principal al localei. De exemplu, limba engleză este reprezentată de codul "en". Totuși, pot exista diferite variații ale limbii, și pentru a le reflecta, la codul principal se poate adăuga codul regiunii, de exemplu, "en-GB" (engleză britanică) sau "en-US" (engleză americană). Similar, limba română este definită de codul "ro" (sau variațiile regionale de tip "ro-RO"), germana - de codul "de", etc.</p>
+     <p class="paragraph">Exemplu de creare a obiectelor pentru locala română:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;locale&nbsp;=&nbsp;"ro";<br>const&nbsp;roDateTimeFormat&nbsp;=&nbsp;new&nbsp;Intl.DateTimeFormat(locale);<br>const&nbsp;roNumberFormat&nbsp;=&nbsp;new&nbsp;Intl.NumberFormat(locale);<br>const&nbsp;roCollator&nbsp;=&nbsp;new&nbsp;Intl.Collator(locale);</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, se poate transmite un set de locale:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;locales&nbsp;=&nbsp;[&nbsp;"ro-RO",&nbsp;"en-US",&nbsp;"de-DE"];<br>const&nbsp;dateTimeFormat&nbsp;=&nbsp;new&nbsp;Intl.DateTimeFormat(locales);<br>const&nbsp;numberFormat&nbsp;=&nbsp;new&nbsp;Intl.NumberFormat(locales);<br>const&nbsp;collator&nbsp;=&nbsp;new&nbsp;Intl.Collator(locales);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, localizarea va folosi prima locală suportată. Astfel, în lista [ "ro-RO", "en-US", "de-DE"] prima este locala "ro-RO", care reprezintă varianta română din România. Dacă această locală nu este suportată, atunci browserul verifică suportul pentru limba din codul principal al localei, adică în acest caz "ro" (limba română fără legătură cu regiunea).</p>
+     <p class="paragraph">Dacă nici aceasta nu este suportată, atunci browserul verifică suportul pentru a doua locală din listă - în acest caz "en-US". Dacă nici această locală nu este suportată, atunci se verifică locala codului principal - "en", și așa mai departe. În final, browserul va aplica prima locală suportată.</p>
+     <p class="paragraph">Dacă niciuna din localele din listă nu este suportată de browser, atunci se aplică locala implicită.</p>
+     <p class="paragraph">Pentru a verifica dacă o anumită locală este suportată de browserul curent se poate folosi metoda statică supportedLocalesOf()</p>
+     <div class="code-inline">
+      <pre><code>Intl.Collator.supportedLocalesOf()<br>Intl.DateTimeFormat.supportedLocalesOf()<br>Intl.NumberFormat.supportedLocalesOf()</code></pre>
+     </div>
+     <p class="paragraph">În această metodă se transmite locala sau un array de locale ale căror suport trebuie verificat. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>console.log(Intl.NumberFormat.supportedLocalesOf("ro"));&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;română<br>console.log(Intl.NumberFormat.supportedLocalesOf("ar"));&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;arabă<br>console.log(Intl.NumberFormat.supportedLocalesOf(["de",&nbsp;"bo"]));&nbsp;//&nbsp;germană&nbsp;și&nbsp;tibetană</code></pre>
+     </div>
+     <p class="paragraph">Această metodă returnează un array de locale suportate, care corespund localelor verificate. De exemplu, în cazul meu, outputul va fi următorul:</p>
+     <div class="code-inline">
+      <pre><code>["ro"]<br>["ar"]<br>["de"]</code></pre>
+     </div>
+     <p class="paragraph">Cum se observă din output, tibetana nu se suportă.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

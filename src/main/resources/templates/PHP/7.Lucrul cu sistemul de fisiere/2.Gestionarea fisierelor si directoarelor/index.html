@@ -1,155 +1,145 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='PHP', activeChapter='7.Lucrul cu sistemul de fisiere', activeLesson='2.Gestionarea fisierelor si directoarelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Gestionarea fișierelor și directoarelor</h1>
- <h2 class="subtitle">Mutarea unui fișier</h2>
- <p class="paragraph">Pentru mutarea unui fișier se folosește funcția rename():</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>if&nbsp;(!rename("hello.txt",&nbsp;"subdir/hello.txt"))<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Eroare&nbsp;la&nbsp;mutarea&nbsp;fișierului";<br>else&nbsp;echo&nbsp;"Fișierul&nbsp;a&nbsp;fost&nbsp;mutat";<br>?&gt;</code></pre>
- </div>
- <p class="paragraph">Dacă în directorul fișierului hello.txt există subdirectorul subdir, fișierul va fi mutat în acesta. Dacă fișierul a fost mutat cu succes, funcția va returna valoarea true.</p>
- <h2 class="subtitle">Copierea unui fișier</h2>
- <p class="paragraph">Pentru copierea unui fișier se folosește funcția copy(). Ea primește numele fișierului de copiat și numele copiei fișierului. Și dacă copierea a reușit, returnează valoarea true:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>if&nbsp;(copy("hello.txt",&nbsp;"hello_copy.txt"))<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Copia&nbsp;fișierului&nbsp;a&nbsp;fost&nbsp;creată";<br>else&nbsp;echo&nbsp;"Eroare&nbsp;la&nbsp;copierea&nbsp;fișierului";<br>?&gt;</code></pre>
- </div>
- <h2 class="subtitle">Ștergerea unui fișier</h2>
- <p class="paragraph">Pentru ștergerea unui fișier se folosește funcția unlink, care primește numele fișierului și returnează valoarea true la ștergerea cu succes a fișierului:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>if&nbsp;(unlink("hello_copy.txt"))<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Fișierul&nbsp;a&nbsp;fost&nbsp;șters";<br>else&nbsp;echo&nbsp;"Eroare&nbsp;la&nbsp;ștergerea&nbsp;fișierului";<br>?&gt;</code></pre>
- </div>
- <h2 class="subtitle">Crearea unui director</h2>
- <p class="paragraph">Pentru crearea unui director se folosește funcția mkdir():</p>
- <div class="code-inline">
-  <pre><code>if(mkdir("newdir"))<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Directorul&nbsp;a&nbsp;fost&nbsp;creat";<br>else<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Eroare&nbsp;la&nbsp;crearea&nbsp;directorului";</code></pre>
- </div>
- <p class="paragraph">În acest caz, mkdir creează un nou director "newdir" în directorul curent. Dacă crearea reușește, funcția returnează valoarea true, altfel - false.</p>
- <p class="paragraph">Pentru a crea un nou director în directorul rădăcină se poate folosi expresia mkdir("/newdir").</p>
- <h2 class="subtitle">Ștergerea unui director</h2>
- <p class="paragraph">Pentru ștergerea unui director se folosește funcția rmdir(). Utilizarea ei este similară cu mkdir():</p>
- <div class="code-inline">
-  <pre><code>if(rmdir("newdir"))<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Directorul&nbsp;a&nbsp;fost&nbsp;șters";<br>else<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Eroare&nbsp;la&nbsp;ștergerea&nbsp;directorului";</code></pre>
- </div>
- <h2 class="subtitle">Operațiuni cu directoare</h2>
- <p class="paragraph">Pentru a obține calea absolută către directorul curent se folosește funcția getcwd(), care returnează calea sub formă de șir de caractere:</p>
- <div class="code-inline">
-  <pre><code>$path&nbsp;=&nbsp;getcwd();<br>echo&nbsp;$path;&nbsp;//&nbsp;C:\localhost</code></pre>
- </div>
- <p class="paragraph">uncția opendir() deschide un anumit director pentru a citi informații despre fișiere și directoare din acesta. La deschiderea cu succes a directorului, funcția returnează descriptorul directorului deschis.</p>
- <p class="paragraph">După terminarea lucrului cu directorul, acesta trebuie închis cu funcția closedir().</p>
- <p class="paragraph">Pentru citirea numelui unui fișier individual din directorul deschis se folosește funcția readdir().</p>
- <p class="paragraph">Acum combinăm aceste funcții și afișăm pe pagină toate fișierele și subdirectoarele din directorul curent:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>$dir&nbsp;=&nbsp;getcwd();&nbsp;//&nbsp;obținem&nbsp;directorul&nbsp;curent<br><br>if&nbsp;(is_dir($dir))&nbsp;//&nbsp;verificăm&nbsp;dacă&nbsp;calea&nbsp;este&nbsp;un&nbsp;director<br>{<br>&nbsp;&nbsp;&nbsp;if&nbsp;($dh&nbsp;=&nbsp;opendir($dir))&nbsp;//&nbsp;deschidem&nbsp;directorul<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;citim&nbsp;câte&nbsp;un&nbsp;fișier&nbsp;sau&nbsp;subdirector<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;până&nbsp;ajungem&nbsp;la&nbsp;sfârșit<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while&nbsp;(($file&nbsp;=&nbsp;readdir($dh))&nbsp;!==&nbsp;false)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;sărim&nbsp;peste&nbsp;simbolurile&nbsp;.&nbsp;și&nbsp;..<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if($file=='.'&nbsp;||&nbsp;$file=='..')&nbsp;continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;verificăm&nbsp;dacă&nbsp;este&nbsp;director&nbsp;sau&nbsp;fișier<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(is_dir($file))&nbsp;echo&nbsp;"director:&nbsp;$file&nbsp;&lt;br&gt;";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;echo&nbsp;"fișier:&nbsp;&nbsp;&nbsp;&nbsp;$file&nbsp;&lt;br&gt;";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;closedir($dh);&nbsp;//&nbsp;închidem&nbsp;directorul<br>&nbsp;&nbsp;&nbsp;}<br>}<br>?&gt;</code></pre>
- </div>
- <p class="paragraph">Acest script va lista toate fișierele și directoarele din directorul curent, excluzând punctele "." și "..", care reprezintă directorul curent și cel părinte.</p>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Gestionarea fișierelor și directoarelor</h1>
+     <h2 class="subtitle">Mutarea unui fișier</h2>
+     <p class="paragraph">Pentru mutarea unui fișier se folosește funcția rename():</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>if&nbsp;(!rename("hello.txt",&nbsp;"subdir/hello.txt"))<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Eroare&nbsp;la&nbsp;mutarea&nbsp;fișierului";<br>else&nbsp;echo&nbsp;"Fișierul&nbsp;a&nbsp;fost&nbsp;mutat";<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Dacă în directorul fișierului hello.txt există subdirectorul subdir, fișierul va fi mutat în acesta. Dacă fișierul a fost mutat cu succes, funcția va returna valoarea true.</p>
+     <h2 class="subtitle">Copierea unui fișier</h2>
+     <p class="paragraph">Pentru copierea unui fișier se folosește funcția copy(). Ea primește numele fișierului de copiat și numele copiei fișierului. Și dacă copierea a reușit, returnează valoarea true:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>if&nbsp;(copy("hello.txt",&nbsp;"hello_copy.txt"))<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Copia&nbsp;fișierului&nbsp;a&nbsp;fost&nbsp;creată";<br>else&nbsp;echo&nbsp;"Eroare&nbsp;la&nbsp;copierea&nbsp;fișierului";<br>?&gt;</code></pre>
+     </div>
+     <h2 class="subtitle">Ștergerea unui fișier</h2>
+     <p class="paragraph">Pentru ștergerea unui fișier se folosește funcția unlink, care primește numele fișierului și returnează valoarea true la ștergerea cu succes a fișierului:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>if&nbsp;(unlink("hello_copy.txt"))<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Fișierul&nbsp;a&nbsp;fost&nbsp;șters";<br>else&nbsp;echo&nbsp;"Eroare&nbsp;la&nbsp;ștergerea&nbsp;fișierului";<br>?&gt;</code></pre>
+     </div>
+     <h2 class="subtitle">Crearea unui director</h2>
+     <p class="paragraph">Pentru crearea unui director se folosește funcția mkdir():</p>
+     <div class="code-inline">
+      <pre><code>if(mkdir("newdir"))<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Directorul&nbsp;a&nbsp;fost&nbsp;creat";<br>else<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Eroare&nbsp;la&nbsp;crearea&nbsp;directorului";</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, mkdir creează un nou director "newdir" în directorul curent. Dacă crearea reușește, funcția returnează valoarea true, altfel - false.</p>
+     <p class="paragraph">Pentru a crea un nou director în directorul rădăcină se poate folosi expresia mkdir("/newdir").</p>
+     <h2 class="subtitle">Ștergerea unui director</h2>
+     <p class="paragraph">Pentru ștergerea unui director se folosește funcția rmdir(). Utilizarea ei este similară cu mkdir():</p>
+     <div class="code-inline">
+      <pre><code>if(rmdir("newdir"))<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Directorul&nbsp;a&nbsp;fost&nbsp;șters";<br>else<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Eroare&nbsp;la&nbsp;ștergerea&nbsp;directorului";</code></pre>
+     </div>
+     <h2 class="subtitle">Operațiuni cu directoare</h2>
+     <p class="paragraph">Pentru a obține calea absolută către directorul curent se folosește funcția getcwd(), care returnează calea sub formă de șir de caractere:</p>
+     <div class="code-inline">
+      <pre><code>$path&nbsp;=&nbsp;getcwd();<br>echo&nbsp;$path;&nbsp;//&nbsp;C:\localhost</code></pre>
+     </div>
+     <p class="paragraph">uncția opendir() deschide un anumit director pentru a citi informații despre fișiere și directoare din acesta. La deschiderea cu succes a directorului, funcția returnează descriptorul directorului deschis.</p>
+     <p class="paragraph">După terminarea lucrului cu directorul, acesta trebuie închis cu funcția closedir().</p>
+     <p class="paragraph">Pentru citirea numelui unui fișier individual din directorul deschis se folosește funcția readdir().</p>
+     <p class="paragraph">Acum combinăm aceste funcții și afișăm pe pagină toate fișierele și subdirectoarele din directorul curent:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$dir&nbsp;=&nbsp;getcwd();&nbsp;//&nbsp;obținem&nbsp;directorul&nbsp;curent<br><br>if&nbsp;(is_dir($dir))&nbsp;//&nbsp;verificăm&nbsp;dacă&nbsp;calea&nbsp;este&nbsp;un&nbsp;director<br>{<br>&nbsp;&nbsp;&nbsp;if&nbsp;($dh&nbsp;=&nbsp;opendir($dir))&nbsp;//&nbsp;deschidem&nbsp;directorul<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;citim&nbsp;câte&nbsp;un&nbsp;fișier&nbsp;sau&nbsp;subdirector<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;până&nbsp;ajungem&nbsp;la&nbsp;sfârșit<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while&nbsp;(($file&nbsp;=&nbsp;readdir($dh))&nbsp;!==&nbsp;false)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;sărim&nbsp;peste&nbsp;simbolurile&nbsp;.&nbsp;și&nbsp;..<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if($file=='.'&nbsp;||&nbsp;$file=='..')&nbsp;continue;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;verificăm&nbsp;dacă&nbsp;este&nbsp;director&nbsp;sau&nbsp;fișier<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(is_dir($file))&nbsp;echo&nbsp;"director:&nbsp;$file&nbsp;&lt;br&gt;";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;echo&nbsp;"fișier:&nbsp;&nbsp;&nbsp;&nbsp;$file&nbsp;&lt;br&gt;";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;closedir($dh);&nbsp;//&nbsp;închidem&nbsp;directorul<br>&nbsp;&nbsp;&nbsp;}<br>}<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Acest script va lista toate fișierele și directoarele din directorul curent, excluzând punctele "." și "..", care reprezintă directorul curent și cel părinte.</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

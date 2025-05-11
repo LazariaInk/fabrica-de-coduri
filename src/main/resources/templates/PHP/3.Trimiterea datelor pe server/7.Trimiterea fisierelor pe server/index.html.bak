@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='PHP', activeChapter='3.Trimiterea datelor pe server', activeLesson='7.Trimiterea fisierelor pe server'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Trimiterea fișierelor pe server</h1>
+     <p class="paragraph">Pentru a încărca un fișier pe server, trebuie să folosim un formular cu parametrul enctype="multipart/form-data" și array-ul $_FILES. Așadar, vom crea fișierul upload.php cu următorul conținut:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;?php<br>if&nbsp;($_FILES&nbsp;&amp;&amp;&nbsp;$_FILES["filename"]["error"]==&nbsp;UPLOAD_ERR_OK)<br>{<br>&nbsp;&nbsp;&nbsp;$name&nbsp;=&nbsp;$_FILES["filename"]["name"];<br>&nbsp;&nbsp;&nbsp;move_uploaded_file($_FILES["filename"]["tmp_name"],&nbsp;$name);<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Fișier&nbsp;încărcat";<br>}<br>?&gt;<br>&lt;h2&gt;Încărcare&nbsp;fișier&lt;/h2&gt;<br>&lt;form&nbsp;method="post"&nbsp;enctype="multipart/form-data"&gt;<br>Selectați&nbsp;fișierul:&nbsp;&lt;input&nbsp;type="file"&nbsp;name="filename"&nbsp;size="10"&nbsp;/&gt;&lt;br&nbsp;/&gt;&lt;br&nbsp;/&gt;<br>&lt;input&nbsp;type="submit"&nbsp;value="Încărcați"&nbsp;/&gt;<br>&lt;/form&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici este definit un formular cu atributul enctype="multipart/form-data". Formularul conține un câmp special pentru selectarea fișierului.</p>
+     <p class="paragraph">Toate fișierele încărcate ajung în array-ul asociativ $_FILES. Pentru a determina dacă există fișiere încărcate, putem folosi construcția if: if ($_FILES).</p>
+     <p class="paragraph">Array-ul $_FILES este bidimensional. Putem încărca un set de fișiere, iar fiecare fișier încărcat poate fi obținut prin cheia care corespunde valorii atributului name.</p>
+     <p class="paragraph">Deoarece elementul pentru încărcarea fișierului în formular are name="filename", putem obține acest fișier cu expresia $_FILES["filename"].</p>
+     <p class="paragraph">Fiecare obiect fișier are propriile sale parametri, pe care îi putem obține:</p>
+     <ul class="enumeration">
+      <li>$_FILES["file"]["name"]: numele fișierului</li>
+      <li>$_FILES["file"]["type"]: tipul conținutului fișierului, de exemplu, image/jpeg</li>
+      <li>$_FILES["file"]["size"]: dimensiunea fișierului în octeți</li>
+      <li>$_FILES["file"]["tmp_name"]: numele fișierului temporar salvat pe server</li>
+      <li>$_FILES["file"]["error"]: codul de eroare la încărcare</li>
+     </ul>
+     <p class="paragraph">De asemenea, putem verifica prezența erorilor la încărcare. Dacă nu există eroare, câmpul $_FILES["filename"]["error"] conține valoarea UPLOAD_ERR_OK.</p>
+     <p class="paragraph">La trimiterea fișierului pe server, acesta este mai întâi încărcat într-un loc temporar, de unde apoi, cu ajutorul funcției move_uploaded_file(), este mutat în directorul serverului unde se află scriptul "upload.php".</p>
+     <div class="image-container">
+      <img th:src="@{/images/PHP/3.Trimiterea%20datelor%20pe%20server/7.Trimiterea%20fisierelor%20pe%20server/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">De asemenea, putem specifica un alt traseu. De exemplu, să presupunem că pe server există un folder "upload". Pentru a încărca fișiere în acest folder, trebuie să specificăm calea corespunzătoare:</p>
+     <div class="code-inline">
+      <pre><code>if&nbsp;($_FILES&nbsp;&amp;&amp;&nbsp;$_FILES["filename"]["error"]==&nbsp;UPLOAD_ERR_OK)<br>{<br>&nbsp;&nbsp;&nbsp;$name&nbsp;=&nbsp;"upload/"&nbsp;.&nbsp;$_FILES["filename"]["name"];<br>&nbsp;&nbsp;&nbsp;move_uploaded_file($_FILES["filename"]["tmp_name"],&nbsp;$name);<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Fișier&nbsp;încărcat";<br>}</code></pre>
+     </div>
+     <p class="paragraph">Funcția move_uploaded_file() primește doi parametri: calea către fișierul temporar încărcat și calea unde trebuie plasat fișierul încărcat.</p>
+     <h2 class="subtitle">Limitări și configurarea încărcării</h2>
+     <p class="paragraph">În mod implicit, dimensiunea fișierelor încărcate este limitată la 2 MB. Totuși, putem configura această valoare în fișierul de configurare. Să modificăm această valoare, de exemplu, la 10 MB. Pentru aceasta, vom găsi în fișierul php.ini următoarea linie:</p>
+     <div class="code-inline">
+      <pre><code>upload_max_filesize&nbsp;=&nbsp;2M</code></pre>
+     </div>
+     <p class="paragraph">O vom modifica la:</p>
+     <div class="code-inline">
+      <pre><code>upload_max_filesize&nbsp;=&nbsp;10M</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, putem configura folderul pentru fișierele încărcate temporar. Pentru aceasta, în fișierul php.ini vom găsi următoarea linie:</p>
+     <div class="code-inline">
+      <pre><code>;upload_tmp_dir&nbsp;=</code></pre>
+     </div>
+     <p class="paragraph">O vom modifica la:</p>
+     <div class="code-inline">
+      <pre><code>upload_tmp_dir&nbsp;=&nbsp;"C:/php/upload"</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, în directorul php trebuie să creăm folderul upload.</p>
+     <h2 class="subtitle">Încărcare multiplă</h2>
+     <p class="paragraph">Vom modifica scriptul upload.php astfel încât să suporte încărcarea multiplă:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;?php<br>if($_FILES)<br>{<br>&nbsp;&nbsp;&nbsp;foreach&nbsp;($_FILES["uploads"]["error"]&nbsp;as&nbsp;$key&nbsp;=&gt;&nbsp;$error)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;($error&nbsp;==&nbsp;UPLOAD_ERR_OK)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$tmp_name&nbsp;=&nbsp;$_FILES["uploads"]["tmp_name"][$key];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$name&nbsp;=&nbsp;$_FILES["uploads"]["name"][$key];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;move_uploaded_file($tmp_name,&nbsp;"$name");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Fișiere&nbsp;încărcate";<br>}<br>?&gt;<br>&lt;h2&gt;Încărcare&nbsp;fișier&lt;/h2&gt;<br>&lt;form&nbsp;method="post"&nbsp;enctype="multipart/form-data"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="file"&nbsp;name="uploads[]"&nbsp;/&gt;&lt;br&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="file"&nbsp;name="uploads[]"&nbsp;/&gt;&lt;br&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="file"&nbsp;name="uploads[]"&nbsp;/&gt;&lt;br&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="submit"&nbsp;value="Încărcați"&nbsp;/&gt;<br>&lt;/form&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Fiecare câmp de selectare a fișierului are atributul name="uploads[]", astfel încât serverul va trata setul de fișiere trimise ca pe un singur array.</p>
+     <p class="paragraph">Apoi, folosind un ciclu foreach, trecem prin toate fișierele și le salvăm în directorul web-site-ului.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

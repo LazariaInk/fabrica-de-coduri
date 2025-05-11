@@ -1,166 +1,156 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='MySQL', activeChapter='4.Cereri', activeLesson='6.Gruparea'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Gruparea</h1>
- <p class="paragraph">Operatorii GROUP BY și HAVING permit gruparea datelor. Aceștia sunt utilizați în cadrul comenzii SELECT:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;coloane<br>FROM&nbsp;tabela<br>[WHERE&nbsp;conditie_filtrare_randuri]<br>[GROUP&nbsp;BY&nbsp;coloane_pentru_grupare]<br>[HAVING&nbsp;conditie_filtrare_grupuri]<br>[ORDER&nbsp;BY&nbsp;coloane_pentru_sortare]</code></pre>
- </div>
- <h2 class="subtitle">GROUP BY</h2>
- <p class="paragraph">Operatorul GROUP BY determină modul în care rândurile vor fi grupate.</p>
- <p class="paragraph">De exemplu, să grupăm produsele în funcție de producător.</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;Manufacturer,&nbsp;COUNT(*)&nbsp;AS&nbsp;ModelsCount<br>FROM&nbsp;Products<br>GROUP&nbsp;BY&nbsp;Manufacturer</code></pre>
- </div>
- <p class="paragraph">Prima coloană în expresia SELECT - Manufacturer reprezintă numele grupului, iar al doilea coloană - ModelsCount reprezintă rezultatul funcției Count, care calculează numărul de rânduri din grup.</p>
- <div class="image-container">
-  <img src="images/image1.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Și dacă în expresia SELECT se fac selecții pe unul sau mai multe coloane și se utilizează funcții de agregare, atunci este necesar să se utilizeze expresia GROUP BY. Astfel, următorul exemplu nu va funcționa, deoarece nu conține o expresie de grupare:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;Manufacturer,&nbsp;COUNT(*)&nbsp;AS&nbsp;ModelsCount<br>FROM&nbsp;Products</code></pre>
- </div>
- <p class="paragraph">Operatorul GROUP BY poate realiza gruparea după mai multe coloane. Astfel, să adăugăm o grupare după cantitatea de produse:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;Manufacturer,&nbsp;ProductCount,&nbsp;COUNT(*)&nbsp;AS&nbsp;ModelsCount<br>FROM&nbsp;Products<br>GROUP&nbsp;BY&nbsp;Manufacturer,&nbsp;ProductCount</code></pre>
- </div>
- <p class="paragraph">Trebuie să luați în considerare că expresia GROUP BY trebuie să urmeze după expresia WHERE, dar înainte de expresia ORDER BY:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;Manufacturer,&nbsp;COUNT(*)&nbsp;AS&nbsp;ModelsCount<br>FROM&nbsp;Products<br>WHERE&nbsp;Price&nbsp;&gt;&nbsp;30000<br>GROUP&nbsp;BY&nbsp;Manufacturer<br>ORDER&nbsp;BY&nbsp;ModelsCount&nbsp;DESC</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image2.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Filtrarea grupurilor - HAVING</h2>
- <p class="paragraph">Operatorul HAVING permite filtrarea grupurilor, adică determină care grupuri vor fi incluse în rezultatul final.</p>
- <p class="paragraph">Utilizarea HAVING este în mare măsură similară cu aplicarea WHERE. Diferența constă în faptul că, în timp ce WHERE este folosit pentru filtrarea rândurilor, HAVING este folosit pentru filtrarea grupurilor.</p>
- <p class="paragraph">De exemplu, să găsim toate grupurile de produse în funcție de producători, pentru care sunt definite mai mult de 1 model:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;Manufacturer,&nbsp;COUNT(*)&nbsp;AS&nbsp;ModelsCount<br>FROM&nbsp;Products<br>GROUP&nbsp;BY&nbsp;Manufacturer<br>HAVING&nbsp;COUNT(*)&nbsp;&gt;&nbsp;1</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image3.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Într-o singură comandă, puteți combina și expresiile WHERE și HAVING:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;Manufacturer,&nbsp;COUNT(*)&nbsp;AS&nbsp;ModelsCount<br>FROM&nbsp;Products<br>WHERE&nbsp;Price&nbsp;*&nbsp;ProductCount&nbsp;&gt;&nbsp;80000<br>GROUP&nbsp;BY&nbsp;Manufacturer<br>HAVING&nbsp;COUNT(*)&nbsp;&gt;&nbsp;1;</code></pre>
- </div>
- <p class="paragraph">Adică, în acest caz, mai întâi se filtrează rândurile: se selectează produsele ale căror valoare totală este mai mare de 80000. Apoi, produsele selectate sunt grupate în funcție de producători. În continuare, grupurile în sine sunt filtrate - sunt selectate acele grupuri care conțin mai mult de 1 model.</p>
- <p class="paragraph">Dacă este necesar să se efectueze o sortare, atunci expresia ORDER BY urmează după expresia HAVING:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;Manufacturer,&nbsp;COUNT(*)&nbsp;AS&nbsp;Models,&nbsp;SUM(ProductCount)&nbsp;AS&nbsp;Units<br>FROM&nbsp;Products<br>WHERE&nbsp;Price&nbsp;*&nbsp;ProductCount&nbsp;&gt;&nbsp;80000<br>GROUP&nbsp;BY&nbsp;Manufacturer<br>HAVING&nbsp;SUM(ProductCount)&nbsp;&gt;&nbsp;2<br>ORDER&nbsp;BY&nbsp;Units&nbsp;DESC;</code></pre>
- </div>
- <p class="paragraph">Aici, gruparea se face în funcție de producători, se selectează numărul de modele pentru fiecare producător (Models) și numărul total de toate produsele pentru toate aceste modele (Units). La final, grupurile sunt sortate în funcție de numărul de produse în ordine descrescătoare.</p>
- <div class="image-container">
-  <img src="images/image4.png" alt="" class="responsive-image">
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Gruparea</h1>
+     <p class="paragraph">Operatorii GROUP BY și HAVING permit gruparea datelor. Aceștia sunt utilizați în cadrul comenzii SELECT:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;coloane<br>FROM&nbsp;tabela<br>[WHERE&nbsp;conditie_filtrare_randuri]<br>[GROUP&nbsp;BY&nbsp;coloane_pentru_grupare]<br>[HAVING&nbsp;conditie_filtrare_grupuri]<br>[ORDER&nbsp;BY&nbsp;coloane_pentru_sortare]</code></pre>
+     </div>
+     <h2 class="subtitle">GROUP BY</h2>
+     <p class="paragraph">Operatorul GROUP BY determină modul în care rândurile vor fi grupate.</p>
+     <p class="paragraph">De exemplu, să grupăm produsele în funcție de producător.</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;Manufacturer,&nbsp;COUNT(*)&nbsp;AS&nbsp;ModelsCount<br>FROM&nbsp;Products<br>GROUP&nbsp;BY&nbsp;Manufacturer</code></pre>
+     </div>
+     <p class="paragraph">Prima coloană în expresia SELECT - Manufacturer reprezintă numele grupului, iar al doilea coloană - ModelsCount reprezintă rezultatul funcției Count, care calculează numărul de rânduri din grup.</p>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/4.Cereri/6.Gruparea/images/interogare-grupare-simpla-mysql.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Și dacă în expresia SELECT se fac selecții pe unul sau mai multe coloane și se utilizează funcții de agregare, atunci este necesar să se utilizeze expresia GROUP BY. Astfel, următorul exemplu nu va funcționa, deoarece nu conține o expresie de grupare:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;Manufacturer,&nbsp;COUNT(*)&nbsp;AS&nbsp;ModelsCount<br>FROM&nbsp;Products</code></pre>
+     </div>
+     <p class="paragraph">Operatorul GROUP BY poate realiza gruparea după mai multe coloane. Astfel, să adăugăm o grupare după cantitatea de produse:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;Manufacturer,&nbsp;ProductCount,&nbsp;COUNT(*)&nbsp;AS&nbsp;ModelsCount<br>FROM&nbsp;Products<br>GROUP&nbsp;BY&nbsp;Manufacturer,&nbsp;ProductCount</code></pre>
+     </div>
+     <p class="paragraph">Trebuie să luați în considerare că expresia GROUP BY trebuie să urmeze după expresia WHERE, dar înainte de expresia ORDER BY:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;Manufacturer,&nbsp;COUNT(*)&nbsp;AS&nbsp;ModelsCount<br>FROM&nbsp;Products<br>WHERE&nbsp;Price&nbsp;&gt;&nbsp;30000<br>GROUP&nbsp;BY&nbsp;Manufacturer<br>ORDER&nbsp;BY&nbsp;ModelsCount&nbsp;DESC</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/4.Cereri/6.Gruparea/images/interogare-conditie-pret-mysql.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Filtrarea grupurilor - HAVING</h2>
+     <p class="paragraph">Operatorul HAVING permite filtrarea grupurilor, adică determină care grupuri vor fi incluse în rezultatul final.</p>
+     <p class="paragraph">Utilizarea HAVING este în mare măsură similară cu aplicarea WHERE. Diferența constă în faptul că, în timp ce WHERE este folosit pentru filtrarea rândurilor, HAVING este folosit pentru filtrarea grupurilor.</p>
+     <p class="paragraph">De exemplu, să găsim toate grupurile de produse în funcție de producători, pentru care sunt definite mai mult de 1 model:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;Manufacturer,&nbsp;COUNT(*)&nbsp;AS&nbsp;ModelsCount<br>FROM&nbsp;Products<br>GROUP&nbsp;BY&nbsp;Manufacturer<br>HAVING&nbsp;COUNT(*)&nbsp;&gt;&nbsp;1</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/4.Cereri/6.Gruparea/images/interogare-having-filtrare-grupuri-mysql.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Într-o singură comandă, puteți combina și expresiile WHERE și HAVING:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;Manufacturer,&nbsp;COUNT(*)&nbsp;AS&nbsp;ModelsCount<br>FROM&nbsp;Products<br>WHERE&nbsp;Price&nbsp;*&nbsp;ProductCount&nbsp;&gt;&nbsp;80000<br>GROUP&nbsp;BY&nbsp;Manufacturer<br>HAVING&nbsp;COUNT(*)&nbsp;&gt;&nbsp;1;</code></pre>
+     </div>
+     <p class="paragraph">Adică, în acest caz, mai întâi se filtrează rândurile: se selectează produsele ale căror valoare totală este mai mare de 80000. Apoi, produsele selectate sunt grupate în funcție de producători. În continuare, grupurile în sine sunt filtrate - sunt selectate acele grupuri care conțin mai mult de 1 model.</p>
+     <p class="paragraph">Dacă este necesar să se efectueze o sortare, atunci expresia ORDER BY urmează după expresia HAVING:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;Manufacturer,&nbsp;COUNT(*)&nbsp;AS&nbsp;Models,&nbsp;SUM(ProductCount)&nbsp;AS&nbsp;Units<br>FROM&nbsp;Products<br>WHERE&nbsp;Price&nbsp;*&nbsp;ProductCount&nbsp;&gt;&nbsp;80000<br>GROUP&nbsp;BY&nbsp;Manufacturer<br>HAVING&nbsp;SUM(ProductCount)&nbsp;&gt;&nbsp;2<br>ORDER&nbsp;BY&nbsp;Units&nbsp;DESC;</code></pre>
+     </div>
+     <p class="paragraph">Aici, gruparea se face în funcție de producători, se selectează numărul de modele pentru fiecare producător (Models) și numărul total de toate produsele pentru toate aceste modele (Units). La final, grupurile sunt sortate în funcție de numărul de produse în ordine descrescătoare.</p>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/4.Cereri/6.Gruparea/images/interogare-agregare-avansata-mysql.png}" alt="" class="responsive-image">
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

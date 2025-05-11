@@ -1,172 +1,162 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='16.Stocarea Datelor', activeLesson='2.Web Storage'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Web Storage</h1>
- <p class="paragraph">Pentru stocarea datelor în HTML5 se utilizează un API special - Web Storage API, care oferă acces la stocarea internă a browserului (web storage). Acest stocaj este compus din două componente: session storage și local storage.</p>
- <p class="paragraph">Session storage reprezintă un depozit temporar de informații, care este șters după închiderea filei browserului.</p>
- <p class="paragraph">Local storage reprezintă un depozit pentru date pe o bază permanentă. Datele din local storage nu sunt șterse automat și nu au o perioadă de expirare. Aceste date nu sunt transmise la server în cadrul cererii HTTP. În plus, capacitatea local storage în Chrome și Firefox este de 5 MB pe domeniu.</p>
- <p class="paragraph">Toate datele în web storage sunt reprezentate sub formă de perechi cheie-valoare. Adică, fiecare obiect are un nume unic, cheia, și o valoare specifică.</p>
- <p class="paragraph">Pentru lucrul cu local storage în JavaScript se utilizează obiectul localStorage, iar pentru session storage - obiectul sessionStorage. Ambele obiecte, din punct de vedere al API, sunt similare și oferă proprietăți și metode asemănătoare:</p>
- <ul class="enumeration">
-  <li>length: conține numărul de elemente din stocare</li>
-  <li>clear(): șterge toate elementele din stocare</li>
-  <li>getItem(key): returnează un anumit element care are cheia key</li>
-  <li>key(index): returnează cheia elementului care are indexul index</li>
-  <li>removeItem(key): șterge elementul cu cheia key</li>
-  <li>setItem(key, value): stabilește pentru elementul cu cheia key valoarea value</li>
- </ul>
- <p class="paragraph">Dacă un element cu cheia key există deja în stocare, valoarea acestuia este rescrisă. Dacă elementul nu există, este adăugat.</p>
- <h2 class="subtitle">Salvarea datelor</h2>
- <p class="paragraph">Pentru salvarea datelor în stocare se utilizează metoda setItem(key, value), în care se transmite cheia și valoarea elementului. Este important de ținut cont de faptul că doar șirurile de caractere pot fi salvate ca valori. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>localStorage.setItem("email",&nbsp;"tom32@gmail.com");<br>sessionStorage.setItem("username",&nbsp;"Tom&nbsp;Smith");</code></pre>
- </div>
- <p class="paragraph">În acest caz, în localStorage este salvat elementul cu cheia "email" și valoarea "tom32@gmail.com", iar în sessionStorage este salvat elementul cu cheia "username" și valoarea "Tom Smith".</p>
- <p class="paragraph">În unele browsere, folosind unelte speciale, putem vedea obiectele salvate în local storage și session storage. De exemplu, în Google Chrome putem deschide uneltele pentru dezvoltatori și naviga la tab-ul Application. Și apoi, în partea stângă, selectăm opțiunea Storage-&gt;Local storage sau Session storage.</p>
- <p class="paragraph">Dacă valoarea salvată nu este un șir de caractere, ci un alt tip, această valoare este convertită într-un șir de caractere folosind metoda toString(). De exemplu:</p>
- <div class="code-inline">
-  <pre><code>localStorage.setItem("age",&nbsp;39);</code></pre>
- </div>
- <p class="paragraph">Aici, valoarea este un număr, care înainte de salvare este convertit într-un șir de caractere.</p>
- <p class="paragraph">Pot apărea dificultăți în salvarea obiectelor complexe:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;user&nbsp;={<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;age:&nbsp;23,<br>&nbsp;&nbsp;&nbsp;isMarried:&nbsp;false<br>};<br><br>localStorage.setItem("user",&nbsp;user);&nbsp;//&nbsp;user&nbsp;=&nbsp;[object&nbsp;Object]</code></pre>
- </div>
- <p class="paragraph">Aici încercăm să salvăm obiectul user. Cu toate acestea, când obiectul este convertit într-un șir de caractere, obținem [object Object].</p>
- <p class="paragraph">În acest caz, pentru salvare, putem serializa obiectul în format JSON:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;user&nbsp;={<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;age:&nbsp;23,<br>&nbsp;&nbsp;&nbsp;isMarried:&nbsp;false<br>};<br><br>localStorage.setItem("user",&nbsp;JSON.stringify(user));</code></pre>
- </div>
- <h2 class="subtitle">Obținerea datelor</h2>
- <p class="paragraph">Pentru a obține datele salvate, trebuie să apelăm metoda getItem(), în care se transmite cheia obiectului:</p>
- <div class="code-inline">
-  <pre><code>//&nbsp;salvăm&nbsp;în&nbsp;local&nbsp;storage<br>localStorage.setItem("email",&nbsp;"tom32@gmail.com");<br>//&nbsp;obținem&nbsp;înapoi&nbsp;din&nbsp;local&nbsp;storage<br>const&nbsp;login&nbsp;=&nbsp;localStorage.getItem("login");&nbsp;//&nbsp;tom32@gmail.com</code></pre>
- </div>
- <p class="paragraph">Dacă au fost salvate date care nu sunt șiruri de caractere, atunci poate fi necesară conversia lor din șiruri de caractere în tipul original:</p>
- <div class="code-inline">
-  <pre><code>localStorage.setItem("age",&nbsp;23);<br>//&nbsp;convertim&nbsp;în&nbsp;număr<br>let&nbsp;age&nbsp;=&nbsp;parseInt(localStorage.getItem("age"));<br>age&nbsp;+=&nbsp;1;<br>console.log(age);&nbsp;//&nbsp;24</code></pre>
- </div>
- <p class="paragraph">Dacă în acest caz nu convertim valoarea într-un număr folosind parseInt(), atunci age va acționa ca un șir de caractere.</p>
- <p class="paragraph">Dacă obiectul reprezintă un obiect care înainte de salvare a fost convertit în json, atunci când este obținut înapoi poate fi parsat folosind metoda JSON.parse():</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;tom&nbsp;={<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;age:&nbsp;23,<br>&nbsp;&nbsp;&nbsp;isMarried:&nbsp;false<br>};<br><br>localStorage.setItem("user",&nbsp;JSON.stringify(tom));<br><br>//&nbsp;convertim&nbsp;în&nbsp;obiect<br>const&nbsp;user&nbsp;=&nbsp;JSON.parse(localStorage.getItem("user"));<br>console.log(user.name);&nbsp;&nbsp;//&nbsp;Tom<br>console.log(user.age);&nbsp;&nbsp;//&nbsp;23<br>console.log(user.isMarried);&nbsp;//&nbsp;false</code></pre>
- </div>
- <h2 class="subtitle">Ștergerea</h2>
- <p class="paragraph">Pentru a șterge un obiect, se folosește metoda removeItem(), care primește cheia obiectului ce trebuie șters:</p>
- <div class="code-inline">
-  <pre><code>localStorage.removeItem("email");</code></pre>
- </div>
- <p class="paragraph">Și pentru ștergerea completă a tuturor obiectelor din localStorage se poate folosi metoda clear():</p>
- <div class="code-inline">
-  <pre><code>localStorage.clear();</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Web Storage</h1>
+     <p class="paragraph">Pentru stocarea datelor în HTML5 se utilizează un API special - Web Storage API, care oferă acces la stocarea internă a browserului (web storage). Acest stocaj este compus din două componente: session storage și local storage.</p>
+     <p class="paragraph">Session storage reprezintă un depozit temporar de informații, care este șters după închiderea filei browserului.</p>
+     <p class="paragraph">Local storage reprezintă un depozit pentru date pe o bază permanentă. Datele din local storage nu sunt șterse automat și nu au o perioadă de expirare. Aceste date nu sunt transmise la server în cadrul cererii HTTP. În plus, capacitatea local storage în Chrome și Firefox este de 5 MB pe domeniu.</p>
+     <p class="paragraph">Toate datele în web storage sunt reprezentate sub formă de perechi cheie-valoare. Adică, fiecare obiect are un nume unic, cheia, și o valoare specifică.</p>
+     <p class="paragraph">Pentru lucrul cu local storage în JavaScript se utilizează obiectul localStorage, iar pentru session storage - obiectul sessionStorage. Ambele obiecte, din punct de vedere al API, sunt similare și oferă proprietăți și metode asemănătoare:</p>
+     <ul class="enumeration">
+      <li>length: conține numărul de elemente din stocare</li>
+      <li>clear(): șterge toate elementele din stocare</li>
+      <li>getItem(key): returnează un anumit element care are cheia key</li>
+      <li>key(index): returnează cheia elementului care are indexul index</li>
+      <li>removeItem(key): șterge elementul cu cheia key</li>
+      <li>setItem(key, value): stabilește pentru elementul cu cheia key valoarea value</li>
+     </ul>
+     <p class="paragraph">Dacă un element cu cheia key există deja în stocare, valoarea acestuia este rescrisă. Dacă elementul nu există, este adăugat.</p>
+     <h2 class="subtitle">Salvarea datelor</h2>
+     <p class="paragraph">Pentru salvarea datelor în stocare se utilizează metoda setItem(key, value), în care se transmite cheia și valoarea elementului. Este important de ținut cont de faptul că doar șirurile de caractere pot fi salvate ca valori. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>localStorage.setItem("email",&nbsp;"tom32@gmail.com");<br>sessionStorage.setItem("username",&nbsp;"Tom&nbsp;Smith");</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, în localStorage este salvat elementul cu cheia "email" și valoarea "tom32@gmail.com", iar în sessionStorage este salvat elementul cu cheia "username" și valoarea "Tom Smith".</p>
+     <p class="paragraph">În unele browsere, folosind unelte speciale, putem vedea obiectele salvate în local storage și session storage. De exemplu, în Google Chrome putem deschide uneltele pentru dezvoltatori și naviga la tab-ul Application. Și apoi, în partea stângă, selectăm opțiunea Storage-&gt;Local storage sau Session storage.</p>
+     <p class="paragraph">Dacă valoarea salvată nu este un șir de caractere, ci un alt tip, această valoare este convertită într-un șir de caractere folosind metoda toString(). De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>localStorage.setItem("age",&nbsp;39);</code></pre>
+     </div>
+     <p class="paragraph">Aici, valoarea este un număr, care înainte de salvare este convertit într-un șir de caractere.</p>
+     <p class="paragraph">Pot apărea dificultăți în salvarea obiectelor complexe:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;user&nbsp;={<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;age:&nbsp;23,<br>&nbsp;&nbsp;&nbsp;isMarried:&nbsp;false<br>};<br><br>localStorage.setItem("user",&nbsp;user);&nbsp;//&nbsp;user&nbsp;=&nbsp;[object&nbsp;Object]</code></pre>
+     </div>
+     <p class="paragraph">Aici încercăm să salvăm obiectul user. Cu toate acestea, când obiectul este convertit într-un șir de caractere, obținem [object Object].</p>
+     <p class="paragraph">În acest caz, pentru salvare, putem serializa obiectul în format JSON:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;user&nbsp;={<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;age:&nbsp;23,<br>&nbsp;&nbsp;&nbsp;isMarried:&nbsp;false<br>};<br><br>localStorage.setItem("user",&nbsp;JSON.stringify(user));</code></pre>
+     </div>
+     <h2 class="subtitle">Obținerea datelor</h2>
+     <p class="paragraph">Pentru a obține datele salvate, trebuie să apelăm metoda getItem(), în care se transmite cheia obiectului:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;salvăm&nbsp;în&nbsp;local&nbsp;storage<br>localStorage.setItem("email",&nbsp;"tom32@gmail.com");<br>//&nbsp;obținem&nbsp;înapoi&nbsp;din&nbsp;local&nbsp;storage<br>const&nbsp;login&nbsp;=&nbsp;localStorage.getItem("login");&nbsp;//&nbsp;tom32@gmail.com</code></pre>
+     </div>
+     <p class="paragraph">Dacă au fost salvate date care nu sunt șiruri de caractere, atunci poate fi necesară conversia lor din șiruri de caractere în tipul original:</p>
+     <div class="code-inline">
+      <pre><code>localStorage.setItem("age",&nbsp;23);<br>//&nbsp;convertim&nbsp;în&nbsp;număr<br>let&nbsp;age&nbsp;=&nbsp;parseInt(localStorage.getItem("age"));<br>age&nbsp;+=&nbsp;1;<br>console.log(age);&nbsp;//&nbsp;24</code></pre>
+     </div>
+     <p class="paragraph">Dacă în acest caz nu convertim valoarea într-un număr folosind parseInt(), atunci age va acționa ca un șir de caractere.</p>
+     <p class="paragraph">Dacă obiectul reprezintă un obiect care înainte de salvare a fost convertit în json, atunci când este obținut înapoi poate fi parsat folosind metoda JSON.parse():</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;tom&nbsp;={<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;age:&nbsp;23,<br>&nbsp;&nbsp;&nbsp;isMarried:&nbsp;false<br>};<br><br>localStorage.setItem("user",&nbsp;JSON.stringify(tom));<br><br>//&nbsp;convertim&nbsp;în&nbsp;obiect<br>const&nbsp;user&nbsp;=&nbsp;JSON.parse(localStorage.getItem("user"));<br>console.log(user.name);&nbsp;&nbsp;//&nbsp;Tom<br>console.log(user.age);&nbsp;&nbsp;//&nbsp;23<br>console.log(user.isMarried);&nbsp;//&nbsp;false</code></pre>
+     </div>
+     <h2 class="subtitle">Ștergerea</h2>
+     <p class="paragraph">Pentru a șterge un obiect, se folosește metoda removeItem(), care primește cheia obiectului ce trebuie șters:</p>
+     <div class="code-inline">
+      <pre><code>localStorage.removeItem("email");</code></pre>
+     </div>
+     <p class="paragraph">Și pentru ștergerea completă a tuturor obiectelor din localStorage se poate folosi metoda clear():</p>
+     <div class="code-inline">
+      <pre><code>localStorage.clear();</code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='12.Evenimente', activeLesson='4.Raspandirea evenimentelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Răspândirea evenimentelor</h1>
+     <p class="paragraph">Când apăsăm pe un anumit element pe pagină și se generează un eveniment de apăsare, acest eveniment se poate răspândi de la un element la altul. De exemplu, dacă apăsăm pe un bloc div, de asemenea apăsăm și pe elementul body în care blocul div se află. Adică are loc răspândirea evenimentului.</p>
+     <p class="paragraph">Există mai multe forme de răspândire a evenimentelor:</p>
+     <ul class="enumeration">
+      <li>Ascendente: evenimentul se răspândește în sus prin arborele DOM de la nodurile copil către cele părinte</li>
+      <li>Descendente: evenimentul se răspândește în jos prin arborele DOM de la nodurile părinte către cele copil, până când ajunge la elementul pe care a fost generat evenimentul</li>
+     </ul>
+     <h2 class="subtitle">Evenimente ascendente</h2>
+     <p class="paragraph">Să considerăm evenimentele ascendente (bubbling), care se răspândesc în sus prin arborele DOM. Să presupunem că avem următoarea pagină web:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;#blueRect{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:100px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:100px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:blue;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;#redRect{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:50px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:50px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:red;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;id="blueRect"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;id="redRect"&gt;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;const&nbsp;redRect&nbsp;=&nbsp;document.getElementById("redRect");<br>&nbsp;&nbsp;&nbsp;redRect.addEventListener("click",&nbsp;()&nbsp;=&gt;&nbsp;console.log("Eveniment&nbsp;pe&nbsp;redRect"));<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;blueRect&nbsp;=&nbsp;document.getElementById("blueRect");<br>&nbsp;&nbsp;&nbsp;blueRect.addEventListener("click",&nbsp;()&nbsp;=&gt;&nbsp;console.log("Eveniment&nbsp;pe&nbsp;blueRect"));<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;document.body.addEventListener("click",&nbsp;()&nbsp;=&gt;&nbsp;console.log("Eveniment&nbsp;pe&nbsp;body"));<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Dacă apăsăm pe div-ul încastrat (roșu), evenimentul va merge către elementul părinte div și apoi către elementul body.</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/12.Evenimente/4.Raspandirea%20evenimentelor/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Trebuie să spunem că acest comportament nu este întotdeauna dorit. În acest caz, putem opri răspândirea evenimentului folosind metoda stopPropagation() a obiectului Event:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;redRect&nbsp;=&nbsp;document.getElementById("redRect");<br>redRect.addEventListener("click",&nbsp;function(e){<br>&nbsp;&nbsp;&nbsp;console.log("Eveniment&nbsp;pe&nbsp;redRect");<br>&nbsp;&nbsp;&nbsp;e.stopPropagation();<br>});</code></pre>
+     </div>
+     <p class="paragraph">Și ca rezultat, evenimentul va fi procesat doar de handlerul pentru redRect.</p>
+     <p class="paragraph">Adevărul este că stopPropagation() are o problemă - oprește executarea ulterioară a handlerului curent. Totuși, dacă pentru același eveniment al unui element sunt atașate mai multe handlere de evenimente, celelalte handlere vor continua să se execute.</p>
+     <p class="paragraph">Și pentru a opri de asemenea executarea tuturor celorlalte handlere, putem apela metoda stopImmediatePropagation:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;redRect&nbsp;=&nbsp;document.getElementById("redRect");<br>function&nbsp;handler1(e){<br>&nbsp;&nbsp;&nbsp;console.log("handler1:&nbsp;Eveniment&nbsp;pe&nbsp;redRect");<br>&nbsp;&nbsp;&nbsp;e.stopImmediatePropagation();&nbsp;&nbsp;&nbsp;//&nbsp;oprim&nbsp;de&nbsp;asemenea&nbsp;executarea&nbsp;handler2<br>}<br>function&nbsp;handler2(e){<br>&nbsp;&nbsp;&nbsp;console.log("handler2:&nbsp;Eveniment&nbsp;pe&nbsp;redRect");<br>}<br>redRect.addEventListener("click",&nbsp;handler1);<br>redRect.addEventListener("click",&nbsp;handler2);</code></pre>
+     </div>
+     <h2 class="subtitle">Evenimente descendente</h2>
+     <p class="paragraph">Evenimentele pot fi de asemenea descendente (capturing). Pentru utilizarea lor, în metoda addEventListener() se transmite ca al treilea parametru opțional valoarea logică true sau false.</p>
+     <p class="paragraph">Valoarea true indică faptul că evenimentul este descendent. În mod implicit, toate evenimentele sunt ascendente.</p>
+     <p class="paragraph">Luăm aceeași pagină web, doar schimbăm codul JavaScript al acesteia:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;redRect&nbsp;=&nbsp;document.getElementById("redRect");<br>redRect.addEventListener("click",&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;console.log("Eveniment&nbsp;pe&nbsp;redRect");<br>},&nbsp;true);<br><br>const&nbsp;blueRect&nbsp;=&nbsp;document.getElementById("blueRect");<br>blueRect.addEventListener("click",&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;console.log("Eveniment&nbsp;pe&nbsp;blueRect");<br>},&nbsp;true);<br><br>document.body.addEventListener("click",&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;console.log("Eveniment&nbsp;pe&nbsp;body");<br>},&nbsp;true);</code></pre>
+     </div>
+     <p class="paragraph">Acum evenimentele se vor răspândi în ordine inversă:</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/12.Evenimente/4.Raspandirea%20evenimentelor/images/image2.png}" alt="" class="responsive-image">
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

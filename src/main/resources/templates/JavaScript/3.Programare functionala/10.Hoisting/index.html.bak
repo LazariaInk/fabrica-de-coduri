@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='3.Programare functionala', activeLesson='10.Hoisting'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Hoisting</h1>
+     <p class="paragraph">Hoisting reprezintă procesul de accesare a variabilelor înainte de a fi definite. Această conceptie poate părea puțin ciudată, dar este legată de modul în care funcționează compilatorul JavaScript. Compilarea codului are loc în două treceri.</p>
+     <p class="paragraph">În prima trecere, compilatorul obține toate declarațiile de variabile, toți identificatorii. În acest moment, niciun cod nu este executat, metodele nu sunt apelate. În a doua trecere, se realizează efectiv execuția. Chiar dacă variabila este definită după utilizarea sa directă, nu va apărea nicio eroare, deoarece în prima trecere, compilatorul deja știe toate variabilele.</p>
+     <p class="paragraph">Cu alte cuvinte, este ca și cum codul este "ridicat" cu definițiile variabilelor și funcțiilor înainte de utilizarea lor directă. Termenul "hoisting" este un cuvânt în limba engleză și se referă la acest proces.</p>
+     <h2 class="subtitle">Variabilele var</h2>
+     <p class="paragraph">Variabilele var, care cad sub hoisting, primesc implicit valoarea undefined. De exemplu, să luăm următorul cod simplu:</p>
+     <div class="code-inline">
+      <pre><code>console.log(foo);</code></pre>
+     </div>
+     <p class="paragraph">Apelarea lui va genera o eroare ReferenceError: foo is not defined.</p>
+     <p class="paragraph">Adăugăm definiția variabilei:</p>
+     <div class="code-inline">
+      <pre><code>console.log(foo);&nbsp;&nbsp;&nbsp;//&nbsp;undefined<br>var&nbsp;foo&nbsp;=&nbsp;"Tom";</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, consola va afișa valoarea "undefined". La prima trecere, compilatorul află despre existența variabilei foo. Aceasta primește valoarea undefined. La a doua trecere, este apelată metoda console.log(foo).</p>
+     <p class="paragraph">Să luăm un alt exemplu:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;c&nbsp;=&nbsp;a&nbsp;*&nbsp;b;<br>var&nbsp;a&nbsp;=&nbsp;7;<br>var&nbsp;b&nbsp;=&nbsp;3;<br>console.log(c);&nbsp;//&nbsp;NaN</code></pre>
+     </div>
+     <p class="paragraph">Aici, avem aceeași situație. Variabilele a și b sunt utilizate înainte de a fi definite. Implicit, li se atribuie valoarea undefined. Dacă se multiplică undefined cu undefined, rezultatul va fi Not a Number (NaN).</p>
+     <p class="paragraph">Aceeași logică se aplică și în cazul utilizării funcțiilor. Putem apela mai întâi o funcție, iar apoi să o definim:</p>
+     <div class="code-inline">
+      <pre><code>display();<br><br>function&nbsp;display(){<br>&nbsp;&nbsp;&nbsp;console.log("Hello&nbsp;Hoisting");<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, funcția display va funcționa fără probleme, în ciuda faptului că este definită după apel.</p>
+     <p class="paragraph">Cu toate acestea, trebuie să facem distincția între această situație și cazul în care funcția este definită ca o variabilă:</p>
+     <div class="code-inline">
+      <pre><code>display();<br><br>var&nbsp;display&nbsp;=&nbsp;function&nbsp;(){<br>&nbsp;&nbsp;&nbsp;console.log("Hello&nbsp;Hoisting");<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, vom obține o eroare TypeError: display is not a function. La prima trecere, compilatorul obține, de asemenea, variabila display și îi atribuie valoarea undefined. La a doua trecere, când trebuie să apelăm funcția căreia această variabilă face referire, compilatorul observă că nu există nimic de apelat încă: variabila display este încă egală cu undefined. Și va fi generată o eroare.</p>
+     <h2 class="subtitle">Variabilele let și const</h2>
+     <p class="paragraph">Procesul de hoisting pentru variabilele let și const va fi diferit: spre deosebire de variabilele var, nu li se atribuie o valoare inițială la hoisting. Așadar, am văzut mai devreme că, dacă folosim variabilele var înainte de a le declara, acestea primesc implicit valoarea undefined. Acum să vedem cum se comportă o variabilă let:</p>
+     <div class="code-inline">
+      <pre><code>console.log(foo);&nbsp;&nbsp;&nbsp;//&nbsp;Uncaught&nbsp;ReferenceError:&nbsp;Cannot&nbsp;access&nbsp;'foo'&nbsp;before&nbsp;initialization<br>let&nbsp;foo&nbsp;=&nbsp;"Tom";<br>console.log(foo);&nbsp;&nbsp;&nbsp;//&nbsp;nu&nbsp;se&nbsp;va&nbsp;executa</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, la prima linie vom obține o eroare:</p>
+     <p class="paragraph">Uncaught ReferenceError: Cannot access 'foo' before initialization</p>
+     <p class="paragraph">Trebuie să facem distincția între această situație și momentul când variabila let este declarată, dar nu este inițializată:</p>
+     <div class="code-inline">
+      <pre><code>let&nbsp;foo;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;implicit,&nbsp;foo&nbsp;=&nbsp;undefined<br>console.log(foo);&nbsp;&nbsp;&nbsp;//&nbsp;undefined<br>foo&nbsp;=&nbsp;"Tom";<br>console.log(foo);&nbsp;&nbsp;&nbsp;//&nbsp;Tom</code></pre>
+     </div>
+     <p class="paragraph">Variabila let neinițializată implicit va avea valoarea undefined, și în acest caz, nu vom obține eroare.</p>
+     <p class="paragraph">Același principiu se aplică și în cazul constantelor:</p>
+     <div class="code-inline">
+      <pre><code>console.log(foo);&nbsp;&nbsp;&nbsp;//&nbsp;Uncaught&nbsp;ReferenceError:&nbsp;Cannot&nbsp;access&nbsp;'foo'&nbsp;before&nbsp;initialization<br>const&nbsp;foo&nbsp;=&nbsp;"Tom";<br>console.log(foo);&nbsp;&nbsp;&nbsp;//&nbsp;nu&nbsp;va&nbsp;genera&nbsp;eroare</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

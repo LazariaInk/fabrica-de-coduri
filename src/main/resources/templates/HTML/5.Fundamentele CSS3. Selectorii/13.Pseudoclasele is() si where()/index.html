@@ -1,170 +1,160 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='HTML', activeChapter='5.Fundamentele CSS3. Selectorii', activeLesson='13.Pseudoclasele is() si where()'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Pseudoclasele :is() și :where()</h1>
- <h2 class="subtitle">Pseudoclasa :is()</h2>
- <p class="paragraph">Pseudoclasa :is() este utilizată pentru a simplifica selectorii lungi. Funcția pseudoclasei :is() acceptă o listă de selectori pentru a alege elemente HTML.</p>
- <p class="paragraph">De exemplu, dorim să aplicăm un stil paragrafelor care sunt la primul nivel de încorporare în elementele header, main, footer:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;header&nbsp;&gt;&nbsp;p,&nbsp;main&nbsp;&gt;&nbsp;p,&nbsp;footer&nbsp;&gt;&nbsp;p&nbsp;{font-size:&nbsp;18px;&nbsp;font-family:&nbsp;Verdana;}varianta&nbsp;alternativa&nbsp;fara&nbsp;:is*/<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:is(header,&nbsp;main,&nbsp;footer)&nbsp;&gt;&nbsp;p&nbsp;&nbsp;{font-size:&nbsp;18px;&nbsp;font-family:&nbsp;Verdana;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;header&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;in&nbsp;Header&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&gt;&lt;p&gt;Text&nbsp;in&nbsp;Header&nbsp;Div&lt;/p&gt;&lt;/div&gt;<br>&lt;/header&gt;<br>&lt;main&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;in&nbsp;Main&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&gt;&lt;p&gt;Text&nbsp;in&nbsp;Main&nbsp;Div&lt;/p&gt;&lt;/div&gt;<br>&lt;/main&gt;<br>&lt;footer&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;in&nbsp;Footer&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&gt;&lt;p&gt;Text&nbsp;in&nbsp;Footer&nbsp;Div&lt;/p&gt;&lt;/div&gt;<br>&lt;/footer&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">În acest caz, pentru paragrafe se setează fontul Verdana de dimensiunea 18px:</p>
- <div class="image-container">
-  <img src="images/image1.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Fără utilizarea pseudoclasei :is, ar fi trebuit să scriem:</p>
- <div class="code-inline">
-  <pre><code>header&nbsp;&gt;&nbsp;p,&nbsp;main&nbsp;&gt;&nbsp;p,&nbsp;footer&nbsp;&gt;&nbsp;p&nbsp;{font-size:&nbsp;18px;&nbsp;font-family:&nbsp;Verdana;}</code></pre>
- </div>
- <p class="paragraph">Pseudoclasa :is permite să reducem semnificativ această înregistrare:</p>
- <div class="code-inline">
-  <pre><code>:is(header,&nbsp;main,&nbsp;footer)&nbsp;&gt;&nbsp;p&nbsp;{font-size:&nbsp;18px;&nbsp;font-family:&nbsp;Verdana;}</code></pre>
- </div>
- <p class="paragraph">Adică, în acest caz, expresia :is(header, main, footer) selectează toate elementele header, main și footer și le combină cu selectorii următori.</p>
- <p class="paragraph">Pseudoclasa :is poate fi încastrată, de exemplu, luăm exemplul de mai sus, doar că acum vom selecta doar acele paragrafe care se află în elementele div:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:is(:is(header,&nbsp;main,&nbsp;footer)&nbsp;div)&nbsp;&gt;&nbsp;p&nbsp;{font-size:&nbsp;18px;&nbsp;font-family:&nbsp;Verdana;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;header&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;în&nbsp;Antet&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&gt;&lt;p&gt;Text&nbsp;în&nbsp;Div-ul&nbsp;din&nbsp;Antet&lt;/p&gt;&lt;/div&gt;<br>&lt;/header&gt;<br>&lt;main&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;în&nbsp;Principal&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&gt;&lt;p&gt;Text&nbsp;în&nbsp;Div-ul&nbsp;din&nbsp;Principal&lt;/p&gt;&lt;/div&gt;<br>&lt;/main&gt;<br>&lt;footer&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;în&nbsp;Subsol&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&gt;&lt;p&gt;Text&nbsp;în&nbsp;Div-ul&nbsp;din&nbsp;Subsol&lt;/p&gt;&lt;/div&gt;<br>&lt;/footer&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image2.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Pseudoclasa :where</h2>
- <p class="paragraph">Pseudoclasa :where() funcționează asemănător cu :is(), acceptând de asemenea un set de selectori și selectând toate elementele care corespund selectorilor. De exemplu, același prim exemplu, doar că în loc de :is() acum folosim :where:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:where(header,&nbsp;main,&nbsp;footer)&nbsp;&gt;&nbsp;p&nbsp;{font-size:&nbsp;18px;&nbsp;font-family:&nbsp;Verdana;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;header&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;în&nbsp;Antet&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&gt;&lt;p&gt;Text&nbsp;în&nbsp;div-ul&nbsp;din&nbsp;Antet&lt;/p&gt;&lt;/div&gt;<br>&lt;/header&gt;<br>&lt;main&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;în&nbsp;Principal&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&gt;&lt;p&gt;Text&nbsp;în&nbsp;div-ul&nbsp;din&nbsp;Principal&lt;/p&gt;&lt;/div&gt;<br>&lt;/main&gt;<br>&lt;footer&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;în&nbsp;Subsol&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&gt;&lt;p&gt;Text&nbsp;în&nbsp;div-ul&nbsp;din&nbsp;Subsol&lt;/p&gt;&lt;/div&gt;<br>&lt;/footer&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">Și vom obține același rezultat ca și pentru :is().</p>
- <div class="image-container">
-  <img src="images/image3.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Diferența dintre :is() și :where()</h2>
- <p class="paragraph">Care este diferența dintre :is() și :where()? Pseudoclasa :is() aplică specificitatea stilurilor (selector specificity), care este determinată de selectorul cu cel mai mare rang. Pentru stilurile pseudoclasei :where(), rangul selectorilor este întotdeauna egal cu 0.</p>
- <p class="paragraph">Să examinăm un exemplu asemănător. Aplicarea :is():</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div&nbsp;&gt;&nbsp;:is(h2,&nbsp;#content)&nbsp;{&nbsp;background:&nbsp;red;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div&nbsp;&gt;&nbsp;h2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div&nbsp;&gt;&nbsp;#content&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background:&nbsp;white;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;h2&gt;Titlu&lt;/h2&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;id="content"&gt;Conținut&nbsp;principal&lt;/div&gt;<br>&lt;/div&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">Aici, rangul selectorilor în expresia :is(h2, #content) va fi calculat după cel mai mare selector - în acest caz, identificatorul #content. Astfel, rangul selectorilor în pseudoclasa :is() va fi de 100 de puncte (selectorii de taguri sunt evaluați la 1 punct).</p>
- <p class="paragraph">Apoi urmează selectorul div &gt; h2, care redefinește culoarea de fundal. Dar deoarece rangul său este mai mic decât cel al div &gt; :is(h2, #content), acest stil nu va fi aplicat.</p>
- <p class="paragraph">Al treilea selector div &gt; #content are același rang ca și div &gt; :is(h2, #content), deci stilul său va funcționa.</p>
- <p class="paragraph">În final, pentru elementul &lt;h2&gt; redefinirea culorii de fundal nu va funcționa.</p>
- <div class="image-container">
-  <img src="images/image4.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Acum schimbăm pe :where():</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div&nbsp;&gt;&nbsp;:where(h2,&nbsp;#content)&nbsp;{&nbsp;background:&nbsp;red;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div&nbsp;&gt;&nbsp;h2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div&nbsp;&gt;&nbsp;#content&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background:&nbsp;white;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;h2&gt;Titlu&lt;/h2&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;id="content"&gt;Conținut&nbsp;principal&lt;/div&gt;<br>&lt;/div&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">Rangul selectorului :where(h2, #content) va fi egal cu 0, astfel că stilul definit de selectorul div &gt; :where(h2, #content) va fi suprascris de stilurile ulterioare.</p>
- <div class="image-container">
-  <img src="images/image5.png" alt="" class="responsive-image">
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Pseudoclasele :is() și :where()</h1>
+     <h2 class="subtitle">Pseudoclasa :is()</h2>
+     <p class="paragraph">Pseudoclasa :is() este utilizată pentru a simplifica selectorii lungi. Funcția pseudoclasei :is() acceptă o listă de selectori pentru a alege elemente HTML.</p>
+     <p class="paragraph">De exemplu, dorim să aplicăm un stil paragrafelor care sunt la primul nivel de încorporare în elementele header, main, footer:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;header&nbsp;&gt;&nbsp;p,&nbsp;main&nbsp;&gt;&nbsp;p,&nbsp;footer&nbsp;&gt;&nbsp;p&nbsp;{font-size:&nbsp;18px;&nbsp;font-family:&nbsp;Verdana;}varianta&nbsp;alternativa&nbsp;fara&nbsp;:is*/<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:is(header,&nbsp;main,&nbsp;footer)&nbsp;&gt;&nbsp;p&nbsp;&nbsp;{font-size:&nbsp;18px;&nbsp;font-family:&nbsp;Verdana;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;header&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;in&nbsp;Header&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&gt;&lt;p&gt;Text&nbsp;in&nbsp;Header&nbsp;Div&lt;/p&gt;&lt;/div&gt;<br>&lt;/header&gt;<br>&lt;main&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;in&nbsp;Main&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&gt;&lt;p&gt;Text&nbsp;in&nbsp;Main&nbsp;Div&lt;/p&gt;&lt;/div&gt;<br>&lt;/main&gt;<br>&lt;footer&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;in&nbsp;Footer&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&gt;&lt;p&gt;Text&nbsp;in&nbsp;Footer&nbsp;Div&lt;/p&gt;&lt;/div&gt;<br>&lt;/footer&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, pentru paragrafe se setează fontul Verdana de dimensiunea 18px:</p>
+     <div class="image-container">
+      <img th:src="@{/images/HTML/5.Fundamentele%20CSS3.%20Selectorii/13.Pseudoclasele%20is()%20si%20where()/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Fără utilizarea pseudoclasei :is, ar fi trebuit să scriem:</p>
+     <div class="code-inline">
+      <pre><code>header&nbsp;&gt;&nbsp;p,&nbsp;main&nbsp;&gt;&nbsp;p,&nbsp;footer&nbsp;&gt;&nbsp;p&nbsp;{font-size:&nbsp;18px;&nbsp;font-family:&nbsp;Verdana;}</code></pre>
+     </div>
+     <p class="paragraph">Pseudoclasa :is permite să reducem semnificativ această înregistrare:</p>
+     <div class="code-inline">
+      <pre><code>:is(header,&nbsp;main,&nbsp;footer)&nbsp;&gt;&nbsp;p&nbsp;{font-size:&nbsp;18px;&nbsp;font-family:&nbsp;Verdana;}</code></pre>
+     </div>
+     <p class="paragraph">Adică, în acest caz, expresia :is(header, main, footer) selectează toate elementele header, main și footer și le combină cu selectorii următori.</p>
+     <p class="paragraph">Pseudoclasa :is poate fi încastrată, de exemplu, luăm exemplul de mai sus, doar că acum vom selecta doar acele paragrafe care se află în elementele div:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:is(:is(header,&nbsp;main,&nbsp;footer)&nbsp;div)&nbsp;&gt;&nbsp;p&nbsp;{font-size:&nbsp;18px;&nbsp;font-family:&nbsp;Verdana;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;header&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;în&nbsp;Antet&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&gt;&lt;p&gt;Text&nbsp;în&nbsp;Div-ul&nbsp;din&nbsp;Antet&lt;/p&gt;&lt;/div&gt;<br>&lt;/header&gt;<br>&lt;main&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;în&nbsp;Principal&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&gt;&lt;p&gt;Text&nbsp;în&nbsp;Div-ul&nbsp;din&nbsp;Principal&lt;/p&gt;&lt;/div&gt;<br>&lt;/main&gt;<br>&lt;footer&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;în&nbsp;Subsol&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&gt;&lt;p&gt;Text&nbsp;în&nbsp;Div-ul&nbsp;din&nbsp;Subsol&lt;/p&gt;&lt;/div&gt;<br>&lt;/footer&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/HTML/5.Fundamentele%20CSS3.%20Selectorii/13.Pseudoclasele%20is()%20si%20where()/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Pseudoclasa :where</h2>
+     <p class="paragraph">Pseudoclasa :where() funcționează asemănător cu :is(), acceptând de asemenea un set de selectori și selectând toate elementele care corespund selectorilor. De exemplu, același prim exemplu, doar că în loc de :is() acum folosim :where:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:where(header,&nbsp;main,&nbsp;footer)&nbsp;&gt;&nbsp;p&nbsp;{font-size:&nbsp;18px;&nbsp;font-family:&nbsp;Verdana;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;header&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;în&nbsp;Antet&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&gt;&lt;p&gt;Text&nbsp;în&nbsp;div-ul&nbsp;din&nbsp;Antet&lt;/p&gt;&lt;/div&gt;<br>&lt;/header&gt;<br>&lt;main&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;în&nbsp;Principal&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&gt;&lt;p&gt;Text&nbsp;în&nbsp;div-ul&nbsp;din&nbsp;Principal&lt;/p&gt;&lt;/div&gt;<br>&lt;/main&gt;<br>&lt;footer&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;în&nbsp;Subsol&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&gt;&lt;p&gt;Text&nbsp;în&nbsp;div-ul&nbsp;din&nbsp;Subsol&lt;/p&gt;&lt;/div&gt;<br>&lt;/footer&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Și vom obține același rezultat ca și pentru :is().</p>
+     <div class="image-container">
+      <img th:src="@{/images/HTML/5.Fundamentele%20CSS3.%20Selectorii/13.Pseudoclasele%20is()%20si%20where()/images/image3.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Diferența dintre :is() și :where()</h2>
+     <p class="paragraph">Care este diferența dintre :is() și :where()? Pseudoclasa :is() aplică specificitatea stilurilor (selector specificity), care este determinată de selectorul cu cel mai mare rang. Pentru stilurile pseudoclasei :where(), rangul selectorilor este întotdeauna egal cu 0.</p>
+     <p class="paragraph">Să examinăm un exemplu asemănător. Aplicarea :is():</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div&nbsp;&gt;&nbsp;:is(h2,&nbsp;#content)&nbsp;{&nbsp;background:&nbsp;red;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div&nbsp;&gt;&nbsp;h2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div&nbsp;&gt;&nbsp;#content&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background:&nbsp;white;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;h2&gt;Titlu&lt;/h2&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;id="content"&gt;Conținut&nbsp;principal&lt;/div&gt;<br>&lt;/div&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici, rangul selectorilor în expresia :is(h2, #content) va fi calculat după cel mai mare selector - în acest caz, identificatorul #content. Astfel, rangul selectorilor în pseudoclasa :is() va fi de 100 de puncte (selectorii de taguri sunt evaluați la 1 punct).</p>
+     <p class="paragraph">Apoi urmează selectorul div &gt; h2, care redefinește culoarea de fundal. Dar deoarece rangul său este mai mic decât cel al div &gt; :is(h2, #content), acest stil nu va fi aplicat.</p>
+     <p class="paragraph">Al treilea selector div &gt; #content are același rang ca și div &gt; :is(h2, #content), deci stilul său va funcționa.</p>
+     <p class="paragraph">În final, pentru elementul &lt;h2&gt; redefinirea culorii de fundal nu va funcționa.</p>
+     <div class="image-container">
+      <img th:src="@{/images/HTML/5.Fundamentele%20CSS3.%20Selectorii/13.Pseudoclasele%20is()%20si%20where()/images/image4.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Acum schimbăm pe :where():</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div&nbsp;&gt;&nbsp;:where(h2,&nbsp;#content)&nbsp;{&nbsp;background:&nbsp;red;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div&nbsp;&gt;&nbsp;h2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div&nbsp;&gt;&nbsp;#content&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background:&nbsp;white;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;h2&gt;Titlu&lt;/h2&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;id="content"&gt;Conținut&nbsp;principal&lt;/div&gt;<br>&lt;/div&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Rangul selectorului :where(h2, #content) va fi egal cu 0, astfel că stilul definit de selectorul div &gt; :where(h2, #content) va fi suprascris de stilurile ulterioare.</p>
+     <div class="image-container">
+      <img th:src="@{/images/HTML/5.Fundamentele%20CSS3.%20Selectorii/13.Pseudoclasele%20is()%20si%20where()/images/image5.png}" alt="" class="responsive-image">
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

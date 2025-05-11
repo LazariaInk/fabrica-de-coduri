@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Python', activeChapter='4.Tratamentul erorilor si exceptiilor', activeLesson='1.Constructia try'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Construcția try...except...finally.</h1>
+     <p class="paragraph">În programarea cu Python, ne putem confrunta cu două tipuri de erori. Primul tip este reprezentat de erorile de sintaxă (syntax error). Acestea apar atunci când sintaxa limbajului de programare este încălcată în timpul scrierii codului sursă. În cadrul unor medii de dezvoltare, cum ar fi PyCharm, IDE-ul poate detecta automat erorile de sintaxă și le poate evidenția în vreun fel.</p>
+     <p class="paragraph">Al doilea tip de erori este reprezentat de erorile de execuție (runtime error). Acestea apar în timpul rulării programului. Aceste erori sunt numite și excepții. De exemplu, în lecțiile anterioare am discutat despre conversia unui șir de caractere într-un număr:</p>
+     <div class="code-inline">
+      <pre><code>string&nbsp;=&nbsp;"5"<br>number&nbsp;=&nbsp;int(string)<br>print(number)</code></pre>
+     </div>
+     <p class="paragraph">Acest script va rula cu succes, deoarece șirul "5" poate fi convertit într-un număr. Însă să luăm un alt exemplu:</p>
+     <div class="code-inline">
+      <pre><code>string&nbsp;=&nbsp;"hello"<br>number&nbsp;=&nbsp;int(string)<br>print(number)</code></pre>
+     </div>
+     <p class="paragraph">La rularea acestui script, va fi generată o excepție ValueError, deoarece șirul "hello" nu poate fi transformat într-un număr:</p>
+     <div class="code-inline">
+      <pre><code>ValueError:&nbsp;invalid&nbsp;literal&nbsp;for&nbsp;int()&nbsp;with&nbsp;base&nbsp;10:&nbsp;'hello'</code></pre>
+     </div>
+     <p class="paragraph">Pe de o parte, este evident că șirul nu reprezintă un număr, dar putem avea de-a face cu introducerea utilizatorului, care poate introduce și altceva decât ne așteptăm:</p>
+     <div class="code-inline">
+      <pre><code>string&nbsp;=&nbsp;input("Introduceți&nbsp;un&nbsp;număr:&nbsp;")<br>number&nbsp;=&nbsp;int(string)<br>print(number)</code></pre>
+     </div>
+     <p class="paragraph">Când apare o excepție, execuția programului este întreruptă, iar pentru a evita acest comportament și a gestiona excepțiile în Python, se folosește construcția try..except.</p>
+     <h2 class="subtitle">try..except</h2>
+     <p class="paragraph">Construcția try..except are următoarea definiție formală:</p>
+     <div class="code-inline">
+      <pre><code>try:<br>&nbsp;&nbsp;&nbsp;instrucțiuni<br>except&nbsp;[Tip_excepție]:<br>&nbsp;&nbsp;&nbsp;instrucțiuni</code></pre>
+     </div>
+     <p class="paragraph">Întregul cod principal, în care potențial poate apărea o excepție, este plasat după cuvântul-cheie try. Dacă în acest cod se generează o excepție, execuția codului din blocul try este întreruptă, iar execuția trece la blocul except.</p>
+     <p class="paragraph">După cuvântul-cheie except, opțional, se poate specifica ce tip de excepție va fi tratată (de exemplu, ValueError sau KeyError). După cuvântul except, pe linia următoare se află instrucțiunile blocului except, care se execută în caz de apariție a excepției.</p>
+     <p class="paragraph">Să analizăm tratarea unei excepții pe exemplul conversiei unui șir într-un număr:</p>
+     <div class="code-inline">
+      <pre><code>try:<br>&nbsp;&nbsp;&nbsp;number&nbsp;=&nbsp;int(input("Introduceți&nbsp;un&nbsp;număr:&nbsp;"))<br>&nbsp;&nbsp;&nbsp;print("Numărul&nbsp;introdus:",&nbsp;number)<br>except:<br>&nbsp;&nbsp;&nbsp;print("Conversia&nbsp;a&nbsp;eșuat")<br>print("Finalizarea&nbsp;programului")</code></pre>
+     </div>
+     <p class="paragraph">Introducând un șir:</p>
+     <div class="code-inline">
+      <pre><code>plaintext<br>Introduceți&nbsp;un&nbsp;număr:&nbsp;hello<br>Conversia&nbsp;a&nbsp;eșuat<br>Finalizarea&nbsp;programului</code></pre>
+     </div>
+     <p class="paragraph">După cum se poate vedea din afișarea pe consolă, la introducerea unui șir, afișarea numărului pe consolă nu are loc, iar execuția programului trece la blocul except.</p>
+     <p class="paragraph">Introducând un număr corect:</p>
+     <div class="code-inline">
+      <pre><code>Introduceți&nbsp;un&nbsp;număr:&nbsp;22<br>Numărul&nbsp;introdus:&nbsp;22<br>Finalizarea&nbsp;programului</code></pre>
+     </div>
+     <p class="paragraph">Acum totul se execută normal, excepția nu apare, iar blocul except nu este executat.</p>
+     <h2 class="subtitle">Blocul finally</h2>
+     <p class="paragraph">La tratarea excepțiilor, se poate folosi și blocul opțional finally. Particularitatea acestui bloc este că se execută indiferent dacă a fost generată sau nu o excepție:</p>
+     <div class="code-inline">
+      <pre><code>try:<br>&nbsp;&nbsp;&nbsp;number&nbsp;=&nbsp;int(input("Introduceți&nbsp;un&nbsp;număr:&nbsp;"))<br>&nbsp;&nbsp;&nbsp;print("Numărul&nbsp;introdus:",&nbsp;number)<br>except:<br>&nbsp;&nbsp;&nbsp;print("Conversia&nbsp;a&nbsp;eșuat")<br>finally:<br>&nbsp;&nbsp;&nbsp;print("Blocul&nbsp;try&nbsp;a&nbsp;finalizat&nbsp;execuția")<br>print("Finalizarea&nbsp;programului")</code></pre>
+     </div>
+     <p class="paragraph">De obicei, blocul finally este utilizat pentru eliberarea resurselor utilizate, de exemplu, pentru închiderea fișierelor.</p>
+     <p class="paragraph">Este important de menționat că blocul finally nu tratează excepțiile, și dacă folosim acest bloc fără blocul except, atunci când apare o eroare, aplicația se va închide brusc, cum ar fi în cazul următor la împărțirea unui număr la zero:</p>
+     <div class="code-inline">
+      <pre><code>try:<br>&nbsp;&nbsp;&nbsp;number&nbsp;=&nbsp;3&nbsp;/&nbsp;0&nbsp;&nbsp;#&nbsp;generează&nbsp;excepția&nbsp;ZeroDivisionError<br>&nbsp;&nbsp;&nbsp;print(number)<br>finally:<br>&nbsp;&nbsp;&nbsp;print("Blocul&nbsp;try&nbsp;a&nbsp;finalizat&nbsp;execuția")<br>print("Finalizarea&nbsp;programului")</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

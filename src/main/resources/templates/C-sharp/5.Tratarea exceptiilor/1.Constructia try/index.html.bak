@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='5.Tratarea exceptiilor', activeLesson='1.Constructia try'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Construcția try...catch...finally</h1>
+     <p class="paragraph">Uneori, în timpul execuției programului apar erori care sunt greu de prevăzut sau chiar imposibil de anticipat. De exemplu, la trimiterea unui fișier prin rețea, conexiunea de rețea se poate întrerupe brusc. Aceste situații se numesc excepții.</p>
+     <p class="paragraph">Limbajul C# oferă dezvoltatorilor posibilitatea de a trata astfel de situații. Pentru acest lucru, în C# există construcția try...catch...finally.</p>
+     <div class="code-inline">
+      <pre><code>try<br>{<br>&nbsp;&nbsp;&nbsp;<br>}<br>catch<br>{<br>&nbsp;&nbsp;&nbsp;<br>}<br>finally<br>{<br>&nbsp;&nbsp;&nbsp;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Când se utilizează blocul try...catch...finally, toate instrucțiunile din blocul try sunt executate mai întâi. Dacă în acest bloc nu apar excepții, după execuția lui se execută blocul finally. Apoi construcția try...catch...finally își încheie execuția.</p>
+     <p class="paragraph">Dacă în blocul try apare o excepție, ordinea obișnuită de execuție se oprește, iar mediul CLR începe să caute un bloc catch care poate trata excepția respectivă. Dacă blocul catch corespunzător este găsit, acesta se execută, iar după finalizarea lui se execută blocul finally.</p>
+     <p class="paragraph">Dacă blocul catch corespunzător nu este găsit, programul se închide brusc când apare excepția.</p>
+     <p class="paragraph">Să considerăm următorul exemplu:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;x&nbsp;=&nbsp;5;<br>int&nbsp;y&nbsp;=&nbsp;x&nbsp;/&nbsp;0;<br>Console.WriteLine($"Rezultatul:&nbsp;{y}");<br>Console.WriteLine("Sfârșitul&nbsp;programului");</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, are loc împărțirea unui număr la 0, ceea ce va genera o excepție. La rularea aplicației în modul de depanare, vom vedea în Visual Studio o fereastră care informează despre excepție:</p>
+     <div class="image-container">
+      <img th:src="@{/images/5.Tratarea%20exceptiilor/1.Constructia%20try/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">În această fereastră vedem că a apărut o excepție de tip System.DivideByZeroException, adică o încercare de împărțire la zero.</p>
+     <p class="paragraph">Pentru a evita astfel de închideri bruște ale programului, ar trebui să folosim construcția try...catch...finally pentru tratarea excepțiilor. Astfel, vom rescrie exemplul în felul următor:</p>
+     <div class="code-inline">
+      <pre><code>try<br>{<br>&nbsp;&nbsp;&nbsp;int&nbsp;x&nbsp;=&nbsp;5;<br>&nbsp;&nbsp;&nbsp;int&nbsp;y&nbsp;=&nbsp;x&nbsp;/&nbsp;0;<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Rezultatul:&nbsp;{y}");<br>}<br>catch<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("A&nbsp;apărut&nbsp;o&nbsp;excepție!");<br>}<br>finally<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Bloc&nbsp;finally");<br>}<br>Console.WriteLine("Sfârșitul&nbsp;programului");</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, din nou va apărea o excepție în blocul try, deoarece încercăm să împărțim la zero. Ajungând la linia:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;y&nbsp;=&nbsp;x&nbsp;/&nbsp;0;</code></pre>
+     </div>
+     <p class="paragraph">Execuția programului se va opri. CLR va găsi blocul catch și va transfera controlul către acest bloc.</p>
+     <p class="paragraph">După blocul catch, se va executa blocul finally.</p>
+     <div class="code-inline">
+      <pre><code>A&nbsp;apărut&nbsp;o&nbsp;excepție!<br>Bloc&nbsp;finally<br>Sfârșitul&nbsp;programului</code></pre>
+     </div>
+     <p class="paragraph">Astfel, programul nu va executa împărțirea la zero și, prin urmare, nu va afișa rezultatul acestei împărțiri, dar acum nu se va închide brusc, iar excepția va fi tratată în blocul catch.</p>
+     <p class="paragraph">Trebuie menționat că în această construcție blocul try este obligatoriu. Dacă avem blocul catch, putem omite blocul finally:</p>
+     <div class="code-inline">
+      <pre><code>try<br>{<br>&nbsp;&nbsp;&nbsp;int&nbsp;x&nbsp;=&nbsp;5;<br>&nbsp;&nbsp;&nbsp;int&nbsp;y&nbsp;=&nbsp;x&nbsp;/&nbsp;0;<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Rezultatul:&nbsp;{y}");<br>}<br>catch<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("A&nbsp;apărut&nbsp;o&nbsp;excepție!");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Și, invers, dacă avem blocul finally, putem omite blocul catch și să nu tratăm excepția:</p>
+     <div class="code-inline">
+      <pre><code>try<br>{<br>&nbsp;&nbsp;&nbsp;int&nbsp;x&nbsp;=&nbsp;5;<br>&nbsp;&nbsp;&nbsp;int&nbsp;y&nbsp;=&nbsp;x&nbsp;/&nbsp;0;<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Rezultatul:&nbsp;{y}");<br>}<br>finally<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Bloc&nbsp;finally");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Cu toate acestea, deși din punct de vedere sintactic această construcție este corectă, deoarece CLR nu va putea găsi un bloc catch corespunzător, excepția nu va fi tratată, iar programul se va închide brusc.</p>
+     <h2 class="subtitle">Tratarea excepțiilor și construcțiile condiționale</h2>
+     <p class="paragraph">Unele situații excepționale pot fi prevăzute de către dezvoltator. De exemplu, să presupunem că în program există o metodă care primește un șir de caractere, îl convertește într-un număr și calculează pătratul acestuia:</p>
+     <div class="code-inline">
+      <pre><code>Square("12");&nbsp;//&nbsp;Pătratul&nbsp;numărului&nbsp;12:&nbsp;144<br>Square("ab");&nbsp;//&nbsp;!Excepție<br><br>void&nbsp;Square(string&nbsp;data)<br>{<br>&nbsp;&nbsp;&nbsp;int&nbsp;x&nbsp;=&nbsp;int.Parse(data);<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Pătratul&nbsp;numărului&nbsp;{x}:&nbsp;{x&nbsp;*&nbsp;x}");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Dacă utilizatorul transmite metodei un șir de caractere care nu este un număr, programul va genera o eroare. Pe de o parte, aceasta este exact situația în care se poate aplica blocul try...catch pentru a trata eroarea posibilă. Cu toate acestea, ar fi mult mai optim să verificăm posibilitatea conversiei:</p>
+     <div class="code-inline">
+      <pre><code>Square("12");&nbsp;//&nbsp;Pătratul&nbsp;numărului&nbsp;12:&nbsp;144<br>Square("ab");&nbsp;//&nbsp;Intrare&nbsp;incorectă<br><br>void&nbsp;Square(string&nbsp;data)<br>{<br>&nbsp;&nbsp;&nbsp;if&nbsp;(int.TryParse(data,&nbsp;out&nbsp;var&nbsp;x))<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Pătratul&nbsp;numărului&nbsp;{x}:&nbsp;{x&nbsp;*&nbsp;x}");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Intrare&nbsp;incorectă");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Metoda int.TryParse() returnează true dacă conversia poate fi realizată și false dacă nu poate fi realizată. Dacă conversia este posibilă, variabila x va conține numărul introdus. Astfel, fără a folosi try...catch, putem trata o situație excepțională posibilă.</p>
+     <p class="paragraph">Din punct de vedere al performanței, utilizarea blocurilor try...catch este mai costisitoare decât utilizarea construcțiilor condiționale. Prin urmare, dacă este posibil, este mai bine să folosiți construcții condiționale pentru a verifica situațiile excepționale în locul blocurilor try...catch.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

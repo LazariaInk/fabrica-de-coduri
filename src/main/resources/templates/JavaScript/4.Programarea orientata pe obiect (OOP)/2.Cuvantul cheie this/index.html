@@ -1,217 +1,207 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='4.Programarea orientata pe obiect (OOP)', activeLesson='2.Cuvantul cheie this'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Cuvântul cheie "this"</h1>
- <p class="paragraph">Comportamentul cuvântului cheie "this" depinde de contextul în care este utilizat și de modul în care este utilizat - strict sau non-strict.</p>
- <h2 class="subtitle">Contextul global și obiectul globalThis</h2>
- <p class="paragraph">În contextul global, "this" se referă la obiectul global. Ce reprezintă "obiectul global" în JavaScript? Acest lucru depinde de mediul în care se execută codul.</p>
- <p class="paragraph">Astfel, într-un browser web, "this" reprezintă obiectul window - obiectul care reprezintă fereastra browserului. În mediul Node.js, "this" reprezintă obiectul global. În cazul lucrătorilor web, "this" reprezintă obiectul self.</p>
- <p class="paragraph">De exemplu, într-un browser web, la executarea următorului cod:</p>
- <div class="code-inline">
-  <pre><code>console.log(this);</code></pre>
- </div>
- <p class="paragraph">vom obține o ieșire în consolă similară cu următoarea:</p>
- <p class="paragraph">Window {window: Window, self: Window, document: document, name: "", location: Location, …}</p>
- <p class="paragraph">În standardul ES2020, a fost adăugată definiția obiectului globalThis, care permite referirea la contextul global indiferent de mediu sau situație în care se execută codul:</p>
- <div class="code-inline">
-  <pre><code>console.log(globalThis);</code></pre>
- </div>
- <h2 class="subtitle">Contextul funcției</h2>
- <p class="paragraph">În cadrul unei funcții, "this" se referă la contextul extern. Pentru funcțiile definite în contextul global, acesta este obiectul globalThis. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;foo(){<br>&nbsp;&nbsp;&nbsp;var&nbsp;bar&nbsp;=&nbsp;"local";<br>&nbsp;&nbsp;&nbsp;console.log(this.bar);<br>}<br><br>var&nbsp;bar&nbsp;=&nbsp;"global";<br><br>foo();&nbsp;&nbsp;//&nbsp;global<br><br></code></pre>
- </div>
- <p class="paragraph">Dacă nu am folosi "this", atunci referirea ar merge către o variabilă locală definită în interiorul funcției.</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;foo(){<br>&nbsp;&nbsp;&nbsp;var&nbsp;bar&nbsp;=&nbsp;"local";<br>&nbsp;&nbsp;&nbsp;console.log(bar);<br>}<br><br>var&nbsp;bar&nbsp;=&nbsp;"global";<br><br>foo();&nbsp;&nbsp;//&nbsp;local</code></pre>
- </div>
- <p class="paragraph">Dar dacă am folosi modul strict (strict mode), atunci "this" în acest caz ar avea valoarea "undefined":</p>
- <div class="code-inline">
-  <pre><code>"use&nbsp;strict";<br>function&nbsp;foo(){<br>&nbsp;&nbsp;&nbsp;var&nbsp;bar&nbsp;=&nbsp;"local";<br>&nbsp;&nbsp;&nbsp;console.log(this.bar);<br>}<br><br>var&nbsp;bar&nbsp;=&nbsp;"global";<br><br>foo();&nbsp;&nbsp;//&nbsp;eroare-&nbsp;this&nbsp;-&nbsp;undefined</code></pre>
- </div>
- <h2 class="subtitle">Contextul obiectului</h2>
- <p class="paragraph">În contextul unui obiect, inclusiv în metodele sale, cuvântul cheie "this" se referă la același obiect:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;obj&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;bar:&nbsp;"object",<br>&nbsp;&nbsp;&nbsp;foo:&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(this.bar);<br>&nbsp;&nbsp;&nbsp;}<br>}<br>var&nbsp;bar&nbsp;=&nbsp;"global";<br>obj.foo();&nbsp;&nbsp;//&nbsp;object</code></pre>
- </div>
- <h2 class="subtitle">Determinarea dinamică a contextului</h2>
- <p class="paragraph">Codul unei funcții întotdeauna folosește ca "this" contextul extern în care este apelat acest cod (exact apelat, nu definit). Să analizăm un exemplu mai complex:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;foo(){<br>&nbsp;&nbsp;&nbsp;var&nbsp;bar&nbsp;=&nbsp;"foo_bar";<br>&nbsp;&nbsp;&nbsp;console.log(this.bar);<br>}<br>&nbsp;<br>const&nbsp;obj1&nbsp;=&nbsp;{bar:"obj1_bar",&nbsp;foo:&nbsp;foo};<br>const&nbsp;obj2&nbsp;=&nbsp;{bar:"obj2_bar",&nbsp;foo:&nbsp;foo};<br>&nbsp;<br>var&nbsp;bar&nbsp;=&nbsp;"global_bar";<br>&nbsp;<br>foo();&nbsp;&nbsp;//&nbsp;global_bar<br>obj1.foo();&nbsp;&nbsp;&nbsp;//&nbsp;obj1_bar<br>obj2.foo();&nbsp;&nbsp;&nbsp;//&nbsp;obj2_bar</code></pre>
- </div>
- <p class="paragraph">Aici este definită variabila globală bar ("global_bar"). De asemenea, în funcția foo este definită variabila locală bar ("foo_bar"). Care va fi valoarea afișată în funcția foo? Funcția foo utilizează definiția variabilei stabilită în contextul extern. Pentru funcția foo, acesta este implicit contextul global, așadar afișează valoarea variabilei globale (deoarece acest script rulează în modul non-strict, iar cuvântul cheie "this" în funcția foo se referă la contextul extern).</p>
- <p class="paragraph">Cu obiectele, situația este diferită. Ele definesc propriul lor context în care există proprietatea lor bar. La apelul metodei foo, contextul extern față de funcție va fi contextul obiectelor obj1 și obj2.</p>
- <p class="paragraph">Un astfel de comportament poate duce la unele neînțelegeri în anumite situații. Spre exemplu, să examinăm o altă situație:</p>
- <div class="code-inline">
-  <pre><code>var&nbsp;bar&nbsp;=&nbsp;"global_bar";<br><br>const&nbsp;obj1&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;bar:&nbsp;"obj1_bar",<br>&nbsp;&nbsp;&nbsp;foo:&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(this.bar);&nbsp;&nbsp;//&nbsp;bar&nbsp;=&nbsp;"obj1_bar"<br>&nbsp;&nbsp;&nbsp;}<br>}<br>const&nbsp;obj2&nbsp;=&nbsp;{bar:&nbsp;"obj2_bar",&nbsp;foo:&nbsp;obj1.foo};&nbsp;//&nbsp;bar&nbsp;=&nbsp;"obj2_bar"<br><br>const&nbsp;foo&nbsp;=&nbsp;obj1.foo;&nbsp;&nbsp;&nbsp;//&nbsp;bar&nbsp;=&nbsp;"global_bar"<br><br>obj1.foo();&nbsp;//&nbsp;obj1_bar<br>obj2.foo();&nbsp;//&nbsp;obj2_bar<br>foo();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;global_bar</code></pre>
- </div>
- <p class="paragraph">În acest exemplu, în obiectul obj1 este definită funcția foo:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;obj1&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;bar:&nbsp;"obj1_bar",<br>&nbsp;&nbsp;&nbsp;foo:&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(this.bar);&nbsp;&nbsp;//&nbsp;bar&nbsp;=&nbsp;"obj1_bar"<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
- </div>
- <p class="paragraph">Această funcție foo va prelua valoarea pentru "this.bar" din contextul extern - din obiectul obj1, prin urmare, "this.bar = "obj1_bar"".</p>
- <p class="paragraph">Obiectul obj2 folosește funcția foo din obiectul obj1:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;obj2&nbsp;=&nbsp;{bar:&nbsp;"obj2_bar",&nbsp;foo:&nbsp;obj1.foo};</code></pre>
- </div>
- <p class="paragraph">Cu toate acestea, funcția obj1.foo va căuta, de asemenea, valoarea pentru this.bar din nou în contextul extern, iar în acest caz, acesta este obiectul obj2. În obiectul obj2, această valoare este "obj2_bar".</p>
- <p class="paragraph">Același lucru este valabil și pentru variabila globală foo, care face referire la aceeași funcție ca și metoda obj1.foo:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;foo&nbsp;=&nbsp;obj1.foo;</code></pre>
- </div>
- <p class="paragraph">În acest caz, va avea loc căutarea valorii pentru this.bar, dar acum în contextul funcției foo. Acesta este contextul global, unde este definită variabila var bar = "global_bar".</p>
- <h2 class="subtitle">Contextul în funcții înglobate</h2>
- <p class="paragraph">Dacă apelăm o funcție dintr-o altă funcție, funcția apelată va folosi, de asemenea, contextul extern:</p>
- <div class="code-inline">
-  <pre><code>var&nbsp;bar&nbsp;=&nbsp;"global&nbsp;bar";<br>&nbsp;<br>function&nbsp;foo(){<br>&nbsp;&nbsp;&nbsp;var&nbsp;bar&nbsp;=&nbsp;"foo&nbsp;bar";<br>&nbsp;&nbsp;&nbsp;function&nbsp;moo(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(this.bar);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;moo();<br>}<br>foo();&nbsp;&nbsp;//&nbsp;global&nbsp;bar</code></pre>
- </div>
- <p class="paragraph">Aici, funcția foo() utilizează valoarea variabilei bar din contextul extern ca this.bar, adică valoarea variabilei globale bar. Funcția moo() de asemenea, utilizează valoarea variabilei bar din contextul extern, adică this.bar pentru funcția externă foo, care la rândul său reprezintă valoarea variabilei globale bar. Prin urmare, consola va afișa în final "global bar", nu "foo bar".</p>
- <h2 class="subtitle">Legarea explicită</h2>
- <p class="paragraph">Cu ajutorul metodelor call() și apply(), putem specifica o legare explicită a funcției la un anumit context:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;foo(){<br>&nbsp;&nbsp;&nbsp;console.log(this.bar);<br>}<br><br>var&nbsp;obj&nbsp;=&nbsp;{bar:&nbsp;"obj_bar"}<br>var&nbsp;bar&nbsp;=&nbsp;"global_bar";<br>foo();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;global_bar<br>foo.apply(obj);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obj_bar<br>//&nbsp;или<br>//&nbsp;foo.call(obj);</code></pre>
- </div>
- <p class="paragraph">În al doilea caz, funcția foo este legată la obiectul obj, care determină contextul său. Prin urmare, în al doilea caz, consola va afișa "obj_bar".</p>
- <h2 class="subtitle">Metoda bind</h2>
- <p class="paragraph">Metoda bind() permite crearea unei noi funcții cu același corp și domeniu de vizibilitate ca și funcția f, dar cu o legare la obiectul o:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;foo(){<br>&nbsp;&nbsp;&nbsp;console.log(this.bar);<br>}<br><br>const&nbsp;obj&nbsp;=&nbsp;{bar:&nbsp;"object"}<br>var&nbsp;bar&nbsp;=&nbsp;"global";<br>foo();&nbsp;&nbsp;//&nbsp;global<br>const&nbsp;func&nbsp;=&nbsp;foo.bind(obj);<br>func();&nbsp;//&nbsp;object</code></pre>
- </div>
- <h2 class="subtitle">this și funcțiile săgeată</h2>
- <p class="paragraph">În funcțiile săgeată, this folosește contextul de mediu, nu mediul în care este definită funcția săgeată. Să analizăm următorul exemplu:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;person&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;say:()=&gt;&nbsp;console.log(`Mă&nbsp;numesc&nbsp;${this.name}`)<br>}<br>person.say();&nbsp;&nbsp;&nbsp;//&nbsp;Mă&nbsp;numesc</code></pre>
- </div>
- <p class="paragraph">Aici, funcția săgeată say() accesează o proprietate this.name, dar ce reprezintă aici this? Pentru contextul extern în care este definită funcția săgeată - adică pentru contextul obiectului person, this reprezintă obiectul global (obiectul fereastră a browserului). Cu toate acestea, variabila globală name nu este definită, așa că va fi afișat în consolă:</p>
- <h2 class="subtitle">Mă numesc</h2>
- <p class="paragraph">Acum să modificăm puțin exemplul:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;person&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;hello(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Salut");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;let&nbsp;say&nbsp;=&nbsp;()=&gt;&nbsp;console.log(`Mă&nbsp;numesc&nbsp;${this.name}`);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;say();<br>&nbsp;&nbsp;&nbsp;}<br>}<br>person.hello();</code></pre>
- </div>
- <p class="paragraph">Acum, funcția săgeată este definită în metoda hello(). Pentru această metodă, this reprezintă obiectul person în care este definită această metodă. Prin urmare, în funcția săgeată, this va reprezenta obiectul person, iar this.name va fi proprietatea name a acestui obiect. Astfel, la executarea programului vom obține:</p>
- <p class="paragraph">Salut! Mă numesc Tom</p>
- <p class="paragraph">Deși funcțiile săgeată pot adăuga complexitate atunci când vine vorba de gestionarea this, totuși, ele pot rezolva anumite probleme. De exemplu, la lucrul cu mai multe contexte, trebuie să fim atenți la modul în care este definită variabila în respectivul context. Spre exemplu, să luăm în considerare următorul cod:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;school&nbsp;={<br>&nbsp;&nbsp;&nbsp;title:&nbsp;"Oxford",<br>&nbsp;&nbsp;&nbsp;courses:&nbsp;["JavaScript",&nbsp;"TypeScript",&nbsp;"Java",&nbsp;"Go"],<br>&nbsp;&nbsp;&nbsp;printCourses(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.courses.forEach(function(course){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(this.title,&nbsp;course);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;})<br>&nbsp;&nbsp;&nbsp;}<br>}<br>school.printCourses();</code></pre>
- </div>
- <p class="paragraph">Funcția printCourses parcurge toate cursurile din array și, la afișarea lor, le precede cu valoarea proprietății title. Cu toate acestea, pe consolă, la rularea programului, vom vedea următoarele:</p>
- <p class="paragraph">undefined "JavaScript" undefined "TypeScript" undefined "Java" undefined "Go"</p>
- <p class="paragraph">Observăm că valoarea this.title nu este definită, deoarece this ca context al obiectului este înlocuit cu contextul global. În acest caz, trebuie să transmitem o astfel de valoare this.title sau întregul context al obiectului.</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;school&nbsp;={<br>&nbsp;&nbsp;&nbsp;title:&nbsp;"Oxford",<br>&nbsp;&nbsp;&nbsp;courses:&nbsp;["JavaScript",&nbsp;"TypeScript",&nbsp;"Java",&nbsp;"Go"],<br>&nbsp;&nbsp;&nbsp;printCourses(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;that&nbsp;=&nbsp;this;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.courses.forEach(function(course){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(that.title,&nbsp;course);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;})<br>&nbsp;&nbsp;&nbsp;}<br>}<br>school.printCourses();</code></pre>
- </div>
- <p class="paragraph">Funcțiile săgeată, de asemenea, permit rezolvarea acestei probleme:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;school&nbsp;={<br>&nbsp;&nbsp;&nbsp;title:&nbsp;"Oxford",<br>&nbsp;&nbsp;&nbsp;courses:&nbsp;["JavaScript",&nbsp;"TypeScript",&nbsp;"Java",&nbsp;"Go"],<br>&nbsp;&nbsp;&nbsp;printCourses(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.courses.forEach((course)=&gt;console.log(this.title,&nbsp;course))<br>&nbsp;&nbsp;&nbsp;}<br>}<br>school.printCourses();</code></pre>
- </div>
- <p class="paragraph">Contextul pentru funcția săgeată în acest caz va fi contextul obiectului school. Prin urmare, nu este necesar să definim variabile suplimentare pentru a transmite date către funcție.</p>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Cuvântul cheie "this"</h1>
+     <p class="paragraph">Comportamentul cuvântului cheie "this" depinde de contextul în care este utilizat și de modul în care este utilizat - strict sau non-strict.</p>
+     <h2 class="subtitle">Contextul global și obiectul globalThis</h2>
+     <p class="paragraph">În contextul global, "this" se referă la obiectul global. Ce reprezintă "obiectul global" în JavaScript? Acest lucru depinde de mediul în care se execută codul.</p>
+     <p class="paragraph">Astfel, într-un browser web, "this" reprezintă obiectul window - obiectul care reprezintă fereastra browserului. În mediul Node.js, "this" reprezintă obiectul global. În cazul lucrătorilor web, "this" reprezintă obiectul self.</p>
+     <p class="paragraph">De exemplu, într-un browser web, la executarea următorului cod:</p>
+     <div class="code-inline">
+      <pre><code>console.log(this);</code></pre>
+     </div>
+     <p class="paragraph">vom obține o ieșire în consolă similară cu următoarea:</p>
+     <p class="paragraph">Window {window: Window, self: Window, document: document, name: "", location: Location, …}</p>
+     <p class="paragraph">În standardul ES2020, a fost adăugată definiția obiectului globalThis, care permite referirea la contextul global indiferent de mediu sau situație în care se execută codul:</p>
+     <div class="code-inline">
+      <pre><code>console.log(globalThis);</code></pre>
+     </div>
+     <h2 class="subtitle">Contextul funcției</h2>
+     <p class="paragraph">În cadrul unei funcții, "this" se referă la contextul extern. Pentru funcțiile definite în contextul global, acesta este obiectul globalThis. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;foo(){<br>&nbsp;&nbsp;&nbsp;var&nbsp;bar&nbsp;=&nbsp;"local";<br>&nbsp;&nbsp;&nbsp;console.log(this.bar);<br>}<br><br>var&nbsp;bar&nbsp;=&nbsp;"global";<br><br>foo();&nbsp;&nbsp;//&nbsp;global<br><br></code></pre>
+     </div>
+     <p class="paragraph">Dacă nu am folosi "this", atunci referirea ar merge către o variabilă locală definită în interiorul funcției.</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;foo(){<br>&nbsp;&nbsp;&nbsp;var&nbsp;bar&nbsp;=&nbsp;"local";<br>&nbsp;&nbsp;&nbsp;console.log(bar);<br>}<br><br>var&nbsp;bar&nbsp;=&nbsp;"global";<br><br>foo();&nbsp;&nbsp;//&nbsp;local</code></pre>
+     </div>
+     <p class="paragraph">Dar dacă am folosi modul strict (strict mode), atunci "this" în acest caz ar avea valoarea "undefined":</p>
+     <div class="code-inline">
+      <pre><code>"use&nbsp;strict";<br>function&nbsp;foo(){<br>&nbsp;&nbsp;&nbsp;var&nbsp;bar&nbsp;=&nbsp;"local";<br>&nbsp;&nbsp;&nbsp;console.log(this.bar);<br>}<br><br>var&nbsp;bar&nbsp;=&nbsp;"global";<br><br>foo();&nbsp;&nbsp;//&nbsp;eroare-&nbsp;this&nbsp;-&nbsp;undefined</code></pre>
+     </div>
+     <h2 class="subtitle">Contextul obiectului</h2>
+     <p class="paragraph">În contextul unui obiect, inclusiv în metodele sale, cuvântul cheie "this" se referă la același obiect:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;obj&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;bar:&nbsp;"object",<br>&nbsp;&nbsp;&nbsp;foo:&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(this.bar);<br>&nbsp;&nbsp;&nbsp;}<br>}<br>var&nbsp;bar&nbsp;=&nbsp;"global";<br>obj.foo();&nbsp;&nbsp;//&nbsp;object</code></pre>
+     </div>
+     <h2 class="subtitle">Determinarea dinamică a contextului</h2>
+     <p class="paragraph">Codul unei funcții întotdeauna folosește ca "this" contextul extern în care este apelat acest cod (exact apelat, nu definit). Să analizăm un exemplu mai complex:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;foo(){<br>&nbsp;&nbsp;&nbsp;var&nbsp;bar&nbsp;=&nbsp;"foo_bar";<br>&nbsp;&nbsp;&nbsp;console.log(this.bar);<br>}<br>&nbsp;<br>const&nbsp;obj1&nbsp;=&nbsp;{bar:"obj1_bar",&nbsp;foo:&nbsp;foo};<br>const&nbsp;obj2&nbsp;=&nbsp;{bar:"obj2_bar",&nbsp;foo:&nbsp;foo};<br>&nbsp;<br>var&nbsp;bar&nbsp;=&nbsp;"global_bar";<br>&nbsp;<br>foo();&nbsp;&nbsp;//&nbsp;global_bar<br>obj1.foo();&nbsp;&nbsp;&nbsp;//&nbsp;obj1_bar<br>obj2.foo();&nbsp;&nbsp;&nbsp;//&nbsp;obj2_bar</code></pre>
+     </div>
+     <p class="paragraph">Aici este definită variabila globală bar ("global_bar"). De asemenea, în funcția foo este definită variabila locală bar ("foo_bar"). Care va fi valoarea afișată în funcția foo? Funcția foo utilizează definiția variabilei stabilită în contextul extern. Pentru funcția foo, acesta este implicit contextul global, așadar afișează valoarea variabilei globale (deoarece acest script rulează în modul non-strict, iar cuvântul cheie "this" în funcția foo se referă la contextul extern).</p>
+     <p class="paragraph">Cu obiectele, situația este diferită. Ele definesc propriul lor context în care există proprietatea lor bar. La apelul metodei foo, contextul extern față de funcție va fi contextul obiectelor obj1 și obj2.</p>
+     <p class="paragraph">Un astfel de comportament poate duce la unele neînțelegeri în anumite situații. Spre exemplu, să examinăm o altă situație:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;bar&nbsp;=&nbsp;"global_bar";<br><br>const&nbsp;obj1&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;bar:&nbsp;"obj1_bar",<br>&nbsp;&nbsp;&nbsp;foo:&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(this.bar);&nbsp;&nbsp;//&nbsp;bar&nbsp;=&nbsp;"obj1_bar"<br>&nbsp;&nbsp;&nbsp;}<br>}<br>const&nbsp;obj2&nbsp;=&nbsp;{bar:&nbsp;"obj2_bar",&nbsp;foo:&nbsp;obj1.foo};&nbsp;//&nbsp;bar&nbsp;=&nbsp;"obj2_bar"<br><br>const&nbsp;foo&nbsp;=&nbsp;obj1.foo;&nbsp;&nbsp;&nbsp;//&nbsp;bar&nbsp;=&nbsp;"global_bar"<br><br>obj1.foo();&nbsp;//&nbsp;obj1_bar<br>obj2.foo();&nbsp;//&nbsp;obj2_bar<br>foo();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;global_bar</code></pre>
+     </div>
+     <p class="paragraph">În acest exemplu, în obiectul obj1 este definită funcția foo:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;obj1&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;bar:&nbsp;"obj1_bar",<br>&nbsp;&nbsp;&nbsp;foo:&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(this.bar);&nbsp;&nbsp;//&nbsp;bar&nbsp;=&nbsp;"obj1_bar"<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Această funcție foo va prelua valoarea pentru "this.bar" din contextul extern - din obiectul obj1, prin urmare, "this.bar = "obj1_bar"".</p>
+     <p class="paragraph">Obiectul obj2 folosește funcția foo din obiectul obj1:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;obj2&nbsp;=&nbsp;{bar:&nbsp;"obj2_bar",&nbsp;foo:&nbsp;obj1.foo};</code></pre>
+     </div>
+     <p class="paragraph">Cu toate acestea, funcția obj1.foo va căuta, de asemenea, valoarea pentru this.bar din nou în contextul extern, iar în acest caz, acesta este obiectul obj2. În obiectul obj2, această valoare este "obj2_bar".</p>
+     <p class="paragraph">Același lucru este valabil și pentru variabila globală foo, care face referire la aceeași funcție ca și metoda obj1.foo:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;foo&nbsp;=&nbsp;obj1.foo;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, va avea loc căutarea valorii pentru this.bar, dar acum în contextul funcției foo. Acesta este contextul global, unde este definită variabila var bar = "global_bar".</p>
+     <h2 class="subtitle">Contextul în funcții înglobate</h2>
+     <p class="paragraph">Dacă apelăm o funcție dintr-o altă funcție, funcția apelată va folosi, de asemenea, contextul extern:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;bar&nbsp;=&nbsp;"global&nbsp;bar";<br>&nbsp;<br>function&nbsp;foo(){<br>&nbsp;&nbsp;&nbsp;var&nbsp;bar&nbsp;=&nbsp;"foo&nbsp;bar";<br>&nbsp;&nbsp;&nbsp;function&nbsp;moo(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(this.bar);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;moo();<br>}<br>foo();&nbsp;&nbsp;//&nbsp;global&nbsp;bar</code></pre>
+     </div>
+     <p class="paragraph">Aici, funcția foo() utilizează valoarea variabilei bar din contextul extern ca this.bar, adică valoarea variabilei globale bar. Funcția moo() de asemenea, utilizează valoarea variabilei bar din contextul extern, adică this.bar pentru funcția externă foo, care la rândul său reprezintă valoarea variabilei globale bar. Prin urmare, consola va afișa în final "global bar", nu "foo bar".</p>
+     <h2 class="subtitle">Legarea explicită</h2>
+     <p class="paragraph">Cu ajutorul metodelor call() și apply(), putem specifica o legare explicită a funcției la un anumit context:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;foo(){<br>&nbsp;&nbsp;&nbsp;console.log(this.bar);<br>}<br><br>var&nbsp;obj&nbsp;=&nbsp;{bar:&nbsp;"obj_bar"}<br>var&nbsp;bar&nbsp;=&nbsp;"global_bar";<br>foo();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;global_bar<br>foo.apply(obj);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obj_bar<br>//&nbsp;или<br>//&nbsp;foo.call(obj);</code></pre>
+     </div>
+     <p class="paragraph">În al doilea caz, funcția foo este legată la obiectul obj, care determină contextul său. Prin urmare, în al doilea caz, consola va afișa "obj_bar".</p>
+     <h2 class="subtitle">Metoda bind</h2>
+     <p class="paragraph">Metoda bind() permite crearea unei noi funcții cu același corp și domeniu de vizibilitate ca și funcția f, dar cu o legare la obiectul o:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;foo(){<br>&nbsp;&nbsp;&nbsp;console.log(this.bar);<br>}<br><br>const&nbsp;obj&nbsp;=&nbsp;{bar:&nbsp;"object"}<br>var&nbsp;bar&nbsp;=&nbsp;"global";<br>foo();&nbsp;&nbsp;//&nbsp;global<br>const&nbsp;func&nbsp;=&nbsp;foo.bind(obj);<br>func();&nbsp;//&nbsp;object</code></pre>
+     </div>
+     <h2 class="subtitle">this și funcțiile săgeată</h2>
+     <p class="paragraph">În funcțiile săgeată, this folosește contextul de mediu, nu mediul în care este definită funcția săgeată. Să analizăm următorul exemplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;person&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;say:()=&gt;&nbsp;console.log(`Mă&nbsp;numesc&nbsp;${this.name}`)<br>}<br>person.say();&nbsp;&nbsp;&nbsp;//&nbsp;Mă&nbsp;numesc</code></pre>
+     </div>
+     <p class="paragraph">Aici, funcția săgeată say() accesează o proprietate this.name, dar ce reprezintă aici this? Pentru contextul extern în care este definită funcția săgeată - adică pentru contextul obiectului person, this reprezintă obiectul global (obiectul fereastră a browserului). Cu toate acestea, variabila globală name nu este definită, așa că va fi afișat în consolă:</p>
+     <h2 class="subtitle">Mă numesc</h2>
+     <p class="paragraph">Acum să modificăm puțin exemplul:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;person&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;hello(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Salut");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;let&nbsp;say&nbsp;=&nbsp;()=&gt;&nbsp;console.log(`Mă&nbsp;numesc&nbsp;${this.name}`);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;say();<br>&nbsp;&nbsp;&nbsp;}<br>}<br>person.hello();</code></pre>
+     </div>
+     <p class="paragraph">Acum, funcția săgeată este definită în metoda hello(). Pentru această metodă, this reprezintă obiectul person în care este definită această metodă. Prin urmare, în funcția săgeată, this va reprezenta obiectul person, iar this.name va fi proprietatea name a acestui obiect. Astfel, la executarea programului vom obține:</p>
+     <p class="paragraph">Salut! Mă numesc Tom</p>
+     <p class="paragraph">Deși funcțiile săgeată pot adăuga complexitate atunci când vine vorba de gestionarea this, totuși, ele pot rezolva anumite probleme. De exemplu, la lucrul cu mai multe contexte, trebuie să fim atenți la modul în care este definită variabila în respectivul context. Spre exemplu, să luăm în considerare următorul cod:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;school&nbsp;={<br>&nbsp;&nbsp;&nbsp;title:&nbsp;"Oxford",<br>&nbsp;&nbsp;&nbsp;courses:&nbsp;["JavaScript",&nbsp;"TypeScript",&nbsp;"Java",&nbsp;"Go"],<br>&nbsp;&nbsp;&nbsp;printCourses(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.courses.forEach(function(course){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(this.title,&nbsp;course);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;})<br>&nbsp;&nbsp;&nbsp;}<br>}<br>school.printCourses();</code></pre>
+     </div>
+     <p class="paragraph">Funcția printCourses parcurge toate cursurile din array și, la afișarea lor, le precede cu valoarea proprietății title. Cu toate acestea, pe consolă, la rularea programului, vom vedea următoarele:</p>
+     <p class="paragraph">undefined "JavaScript" undefined "TypeScript" undefined "Java" undefined "Go"</p>
+     <p class="paragraph">Observăm că valoarea this.title nu este definită, deoarece this ca context al obiectului este înlocuit cu contextul global. În acest caz, trebuie să transmitem o astfel de valoare this.title sau întregul context al obiectului.</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;school&nbsp;={<br>&nbsp;&nbsp;&nbsp;title:&nbsp;"Oxford",<br>&nbsp;&nbsp;&nbsp;courses:&nbsp;["JavaScript",&nbsp;"TypeScript",&nbsp;"Java",&nbsp;"Go"],<br>&nbsp;&nbsp;&nbsp;printCourses(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;that&nbsp;=&nbsp;this;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.courses.forEach(function(course){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(that.title,&nbsp;course);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;})<br>&nbsp;&nbsp;&nbsp;}<br>}<br>school.printCourses();</code></pre>
+     </div>
+     <p class="paragraph">Funcțiile săgeată, de asemenea, permit rezolvarea acestei probleme:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;school&nbsp;={<br>&nbsp;&nbsp;&nbsp;title:&nbsp;"Oxford",<br>&nbsp;&nbsp;&nbsp;courses:&nbsp;["JavaScript",&nbsp;"TypeScript",&nbsp;"Java",&nbsp;"Go"],<br>&nbsp;&nbsp;&nbsp;printCourses(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.courses.forEach((course)=&gt;console.log(this.title,&nbsp;course))<br>&nbsp;&nbsp;&nbsp;}<br>}<br>school.printCourses();</code></pre>
+     </div>
+     <p class="paragraph">Contextul pentru funcția săgeată în acest caz va fi contextul obiectului school. Prin urmare, nu este necesar să definim variabile suplimentare pentru a transmite date către funcție.</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

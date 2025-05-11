@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='12.Lucrul cu timp si date', activeLesson='3.DateOnly si TimeOnly'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">DateOnly și TimeOnly</h1>
+     <p class="paragraph">Pentru a simplifica lucrul cu datele și timpul în .NET 6 au fost adăugate două structuri suplimentare - DateOnly și TimeOnly.</p>
+     <h2 class="subtitle">DateOnly</h2>
+     <p class="paragraph">Structura DateOnly reprezintă data. Pentru crearea structurii se poate folosi o serie de constructori.</p>
+     <div class="code-inline">
+      <pre><code>DateOnly()<br>DateOnly(int&nbsp;year,&nbsp;int&nbsp;month,&nbsp;int&nbsp;day)<br>DateOnly(int&nbsp;year,&nbsp;int&nbsp;month,&nbsp;int&nbsp;day,&nbsp;System.Globalization.Calendar&nbsp;calendar)</code></pre>
+     </div>
+     <p class="paragraph">La utilizarea constructorului fără parametri structura este inițializată cu data 01.01.0001:</p>
+     <div class="code-inline">
+      <pre><code>DateOnly&nbsp;someDate&nbsp;=&nbsp;new&nbsp;DateOnly();<br>Console.WriteLine(someDate);&nbsp;//&nbsp;01.01.0001</code></pre>
+     </div>
+     <p class="paragraph">A doua versiune a constructorului acceptă anul, luna și ziua cu care se inițializează structura:</p>
+     <div class="code-inline">
+      <pre><code>DateOnly&nbsp;someDate&nbsp;=&nbsp;new&nbsp;DateOnly(2022,1,6);&nbsp;//&nbsp;6&nbsp;ianuarie&nbsp;2022<br>Console.WriteLine(someDate);&nbsp;//&nbsp;06.01.2022</code></pre>
+     </div>
+     <p class="paragraph">A treia versiune a constructorului, pe lângă an, lună și zi, acceptă și un obiect calendar - un obiect System.Globalization.Calendar, față de care se va calcula data.</p>
+     <p class="paragraph">Clasa Calendar este abstractă, dar .NET oferă o serie de tipuri de calendare încorporate. De exemplu, să calculăm data relativ la calendarul iulian:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Globalization;<br><br>DateOnly&nbsp;julianDate&nbsp;=&nbsp;new&nbsp;DateOnly(2022,1,6,&nbsp;new&nbsp;JulianCalendar());<br>Console.WriteLine(julianDate);&nbsp;//&nbsp;19.01.2022</code></pre>
+     </div>
+     <p class="paragraph">În acest caz pentru .NET data transmisă în constructor - 06.01.2022 este considerată ca fiind data calendarului iulian. La afișarea în consolă vedem aceeași zi, dar relativ la calendarul gregorian.</p>
+     <h2 class="subtitle">Proprietățile DateOnly</h2>
+     <p class="paragraph">Cu ajutorul proprietăților structurii putem obține componentele individuale ale datei:</p>
+     <ul class="enumeration">
+      <li>Day: returnează ziua datei</li>
+      <li>DayNumber: returnează numărul de zile trecute de la 1 ianuarie 0001 relativ la calendarul gregorian</li>
+      <li>DayOfWeek: returnează ziua săptămânii</li>
+      <li>DayOfYear: returnează ziua anului</li>
+      <li>MaxValue: returnează data maximă posibilă (proprietate statică)</li>
+      <li>MinValue: returnează cea mai timpurie dată posibilă (proprietate statică)</li>
+      <li>Month: returnează luna</li>
+      <li>Year: returnează anul</li>
+     </ul>
+     <p class="paragraph">Aplicarea proprietăților:</p>
+     <div class="code-inline">
+      <pre><code>DateOnly&nbsp;now&nbsp;=&nbsp;new&nbsp;DateOnly(2022,1,6);<br>Console.WriteLine(now.Day);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;6<br>Console.WriteLine(now.DayNumber);&nbsp;&nbsp;&nbsp;//&nbsp;738160<br>Console.WriteLine(now.DayOfWeek);&nbsp;&nbsp;&nbsp;//&nbsp;Thursday<br>Console.WriteLine(now.DayOfYear);&nbsp;&nbsp;&nbsp;//&nbsp;6<br>Console.WriteLine(now.Month);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;1<br>Console.WriteLine(now.Year);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;2022</code></pre>
+     </div>
+     <h2 class="subtitle">Metodele DateOnly</h2>
+     <p class="paragraph">Cu ajutorul metodelor DateOnly se pot efectua anumite operații cu datele. Unele dintre ele:</p>
+     <ul class="enumeration">
+      <li>AddDays(int days): adaugă un număr de zile la dată</li>
+      <li>AddMonths(int months): adaugă un număr de luni la dată</li>
+      <li>AddYears(int years): adaugă un număr de ani la dată</li>
+      <li>ToDateTime(TimeOnly): returnează un obiect DateTime care folosește ca dată obiectul curent DateOnly și ca timp valoarea parametrului sub forma TimeOnly</li>
+      <li>ToLongDateString(): afișează obiectul curent DateOnly sub forma unei date detaliate</li>
+      <li>ToShortDateString(): afișează obiectul curent DateOnly sub forma unei date scurte</li>
+     </ul>
+     <p class="paragraph">De asemenea, clasa are o serie de metode statice. Unele dintre ele:</p>
+     <ul class="enumeration">
+      <li>FromDateTime(DateTime dateTime): pe baza valorii DateTime transmisă prin parametru, creează și returnează un obiect DateOnly</li>
+      <li>FromDayNumber(int days): pe baza numărului de zile creează și returnează un obiect DateOnly</li>
+      <li>Parse(string date): convertește reprezentarea string a unei date într-un obiect DateOnly</li>
+      <li>ParseExact(string date, string format): convertește reprezentarea string a unei date într-un obiect DateOnly aplicând un format specific</li>
+      <li>TryParse(String, DateOnly): convertește reprezentarea string a unei date într-un obiect DateOnly. La conversia reușită returnează true, iar parametrul de tip DateOnly conține data creată</li>
+      <li>TryParseExact(String, String, DateOnly): convertește reprezentarea string a unei date într-un obiect DateOnly aplicând un format specific. La conversia reușită returnează true, iar parametrul de tip DateOnly conține data creată</li>
+     </ul>
+     <p class="paragraph">Exemplu de operații:</p>
+     <div class="code-inline">
+      <pre><code>DateOnly&nbsp;now&nbsp;=&nbsp;DateOnly.Parse("06.01.2022");&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;pe&nbsp;un&nbsp;sistem&nbsp;de&nbsp;operare&nbsp;localizat&nbsp;în&nbsp;limba&nbsp;rusă<br><br>Console.WriteLine(now);&nbsp;//&nbsp;06.01.2022<br>now&nbsp;=&nbsp;now.AddDays(1);&nbsp;&nbsp;&nbsp;//&nbsp;07.01.2022<br>now&nbsp;=&nbsp;now.AddMonths(4);&nbsp;//&nbsp;07.05.2022<br>now&nbsp;=&nbsp;now.AddYears(-1);&nbsp;//&nbsp;07.05.2021<br>Console.WriteLine(now.ToShortDateString());&nbsp;&nbsp;//&nbsp;07.05.2021<br>Console.WriteLine(now.ToLongDateString());&nbsp;&nbsp;&nbsp;//&nbsp;7&nbsp;mai&nbsp;2021</code></pre>
+     </div>
+     <h2 class="subtitle">TimeOnly</h2>
+     <p class="paragraph">Structura TimeOnly reprezintă timpul în intervalul de la 00:00:00 la 23:59:59.9999999. Pentru crearea structurii se poate folosi o serie de constructori.</p>
+     <div class="code-inline">
+      <pre><code>TimeOnly()<br>TimeOnly(long&nbsp;ticks)<br>TimeOnly(int&nbsp;hour,&nbsp;int&nbsp;minute)<br>TimeOnly(int&nbsp;hour,&nbsp;int&nbsp;minute,&nbsp;int&nbsp;second)<br>TimeOnly(int&nbsp;hour,&nbsp;int&nbsp;minute,&nbsp;int&nbsp;second,&nbsp;int&nbsp;millisecond)</code></pre>
+     </div>
+     <p class="paragraph">La utilizarea constructorului fără parametri structura este inițializată cu timpul 0.00:</p>
+     <div class="code-inline">
+      <pre><code>TimeOnly&nbsp;time&nbsp;=&nbsp;new&nbsp;TimeOnly();<br>Console.WriteLine(time);&nbsp;//&nbsp;0:00</code></pre>
+     </div>
+     <p class="paragraph">În plus, cu ajutorul altor versiuni ale constructorului se poate stabili numărul de ore, minute, secunde și milisecunde:</p>
+     <div class="code-inline">
+      <pre><code>TimeOnly&nbsp;time1&nbsp;=&nbsp;new&nbsp;TimeOnly(4,&nbsp;30);<br>Console.WriteLine(time1);&nbsp;&nbsp;&nbsp;//&nbsp;4:30<br><br>TimeOnly&nbsp;time2&nbsp;=&nbsp;new&nbsp;TimeOnly(14,&nbsp;23,&nbsp;30);<br>Console.WriteLine(time2);&nbsp;&nbsp;&nbsp;//&nbsp;14:23</code></pre>
+     </div>
+     <h2 class="subtitle">Proprietățile TimeOnly</h2>
+     <p class="paragraph">Cu ajutorul proprietăților structurii putem obține componentele individuale ale timpului:</p>
+     <ul class="enumeration">
+      <li>Hour: returnează numărul de ore</li>
+      <li>Minute: returnează numărul de minute</li>
+      <li>Second: returnează numărul de secunde</li>
+      <li>Millisecond: returnează numărul de milisecunde</li>
+      <li>Ticks: returnează numărul de tichete</li>
+      <li>MaxValue: returnează timpul maxim posibil (proprietate statică)</li>
+      <li>MinValue: returnează timpul minim posibil (proprietate statică)</li>
+     </ul>
+     <p class="paragraph">Aplicarea proprietăților:</p>
+     <div class="code-inline">
+      <pre><code>TimeOnly&nbsp;time&nbsp;=&nbsp;new&nbsp;TimeOnly(14,&nbsp;23,&nbsp;30);<br>Console.WriteLine(time.Hour);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;14<br>Console.WriteLine(time.Minute);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;23<br>Console.WriteLine(time.Second);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;30</code></pre>
+     </div>
+     <h2 class="subtitle">Metodele TimeOnly</h2>
+     <p class="paragraph">Cu ajutorul metodelor TimeOnly se pot efectua anumite operații cu timpul. Unele dintre ele:</p>
+     <ul class="enumeration">
+      <li>AddHours(double hours): adaugă un număr de ore la timp</li>
+      <li>AddMinutes(double minutes): adaugă un număr de minute la timp</li>
+      <li>Add(TimeSpan value): adaugă timp din obiectul TimeSpan</li>
+      <li>ToLongTimeString(): afișează obiectul curent TimeOnly sub forma unui timp detaliat</li>
+      <li>ToShortTimeString(): afișează obiectul curent TimeOnly sub forma unui timp scurt</li>
+     </ul>
+     <p class="paragraph">De asemenea, clasa are o serie de metode statice. Unele dintre ele:</p>
+     <ul class="enumeration">
+      <li>FromDateTime(DateTime dateTime): pe baza valorii DateTime transmisă prin parametru, creează și returnează un obiect TimeOnly</li>
+      <li>FromTimeSpan(TimeSpan value): pe baza obiectului TimeSpan creează și returnează un obiect TimeOnly</li>
+      <li>Parse(string time): convertește reprezentarea string a timpului într-un obiect TimeOnly</li>
+      <li>ParseExact(string time, string format): convertește reprezentarea string a timpului într-un obiect TimeOnly aplicând un format specific</li>
+      <li>TryParse(string time, TimeOnly result): convertește reprezentarea string a timpului într-un obiect TimeOnly. La conversia reușită returnează true, iar parametrul de tip TimeOnly conține timpul creat</li>
+      <li>TryParseExact(string time, string format, TimeOnly result): convertește reprezentarea string a timpului într-un obiect TimeOnly aplicând un format specific. La conversia reușită returnează true, iar parametrul de tip TimeOnly conține timpul creat</li>
+     </ul>
+     <p class="paragraph">Exemplu de operații:</p>
+     <div class="code-inline">
+      <pre><code>TimeOnly&nbsp;time&nbsp;=&nbsp;TimeOnly.Parse("06:33:22");<br>Console.WriteLine(time);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;6:33<br>time&nbsp;=&nbsp;time.AddHours(1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;7:33<br>time&nbsp;=&nbsp;time.AddMinutes(-23);&nbsp;&nbsp;&nbsp;//&nbsp;7:10<br><br>Console.WriteLine(time.ToShortTimeString());&nbsp;&nbsp;//&nbsp;7:10<br>Console.WriteLine(time.ToLongTimeString());&nbsp;&nbsp;&nbsp;//&nbsp;7:10:22</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

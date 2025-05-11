@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Python', activeChapter='9.Lucrul cu fisiere', activeLesson='3.Fisiere CSV'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Fișiere CSV</h1>
+     <p class="paragraph">Unul dintre formatele de fișiere frecvent utilizate pentru stocarea informațiilor într-un mod convenabil este formatul CSV. Fiecare linie dintr-un fișier CSV reprezintă o înregistrare sau un rând separat, care constă din coloane individuale, separate prin virgule. De aceea, formatul este numit Comma Separated Values. Deși formatul CSV este un format de fișiere text, Python, pentru a facilita lucrul cu acesta, oferă un modul încorporat special numit csv.</p>
+     <p class="paragraph">Să analizăm utilizarea acestui modul printr-un exemplu:</p>
+     <div class="code-inline">
+      <pre><code>import&nbsp;csv<br><br>FILENAME&nbsp;=&nbsp;"users.csv"<br><br>users&nbsp;=&nbsp;[<br>&nbsp;&nbsp;&nbsp;["Tom",&nbsp;28],<br>&nbsp;&nbsp;&nbsp;["Alice",&nbsp;23],<br>&nbsp;&nbsp;&nbsp;["Bob",&nbsp;34]<br>]<br><br>with&nbsp;open(FILENAME,&nbsp;"w",&nbsp;newline="")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;writer&nbsp;=&nbsp;csv.writer(file)<br>&nbsp;&nbsp;&nbsp;writer.writerows(users)<br>&nbsp;&nbsp;&nbsp;<br>with&nbsp;open(FILENAME,&nbsp;"a",&nbsp;newline="")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;user&nbsp;=&nbsp;["Sam",&nbsp;31]<br>&nbsp;&nbsp;&nbsp;writer&nbsp;=&nbsp;csv.writer(file)<br>&nbsp;&nbsp;&nbsp;writer.writerow(user)</code></pre>
+     </div>
+     <p class="paragraph">În fișier se înregistrează o listă bidimensională - practic un tabel, unde fiecare rând reprezintă un utilizator. Fiecare utilizator conține două câmpuri: nume și vârstă. Deci, practic, avem un tabel format din trei rânduri și două coloane.</p>
+     <p class="paragraph">La deschiderea fișierului pentru scriere, ca al treilea parametru, se specifică valoarea newline="" - un șir gol care permite citirea corectă a rândurilor din fișier, indiferent de sistemul de operare.</p>
+     <p class="paragraph">Pentru a scrie, trebuie să obținem un obiect writer, care este returnat de funcția csv.writer(file). În această funcție se transmite fișierul deschis. Scrierea propriu-zisă se face prin metoda writer.writerows(users). Această metodă primește un set de rânduri. În cazul nostru, este vorba de o listă bidimensională.</p>
+     <p class="paragraph">Dacă trebuie să adăugăm un singur rând, care reprezintă o listă unidimensională, de exemplu, ["Sam", 31], putem apela metoda writer.writerow(user).</p>
+     <p class="paragraph">În final, după rularea scriptului, în același director va apărea fișierul users.csv, care va avea următorul conținut:</p>
+     <div class="code-inline">
+      <pre><code>Tom,28<br>Alice,23<br>Bob,34<br>Sam,31</code></pre>
+     </div>
+     <p class="paragraph">Pentru citirea din fișier, trebuie să creăm un obiect reader:</p>
+     <div class="code-inline">
+      <pre><code>import&nbsp;csv<br><br>FILENAME&nbsp;=&nbsp;"users.csv"<br><br>with&nbsp;open(FILENAME,&nbsp;"r",&nbsp;newline="")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;reader&nbsp;=&nbsp;csv.reader(file)<br>&nbsp;&nbsp;&nbsp;for&nbsp;row&nbsp;in&nbsp;reader:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(row[0],&nbsp;"&nbsp;-&nbsp;",&nbsp;row[1])</code></pre>
+     </div>
+     <p class="paragraph">După obținerea obiectului reader, putem itera prin toate rândurile sale:</p>
+     <div class="code-inline">
+      <pre><code>Tom&nbsp;&nbsp;-&nbsp;&nbsp;28<br>Alice&nbsp;&nbsp;-&nbsp;&nbsp;23<br>Bob&nbsp;&nbsp;-&nbsp;&nbsp;34<br>Sam&nbsp;-&nbsp;31</code></pre>
+     </div>
+     <h2 class="subtitle">Lucrul cu dicționare</h2>
+     <p class="paragraph">În exemplul de mai sus, fiecare înregistrare sau rând reprezenta o listă separată, de exemplu, ["Sam", 31]. Cu toate acestea, modulul csv oferă funcționalități suplimentare pentru lucrul cu dicționare. În special, funcția csv.DictWriter() returnează un obiect writer care permite scrierea în fișier, iar funcția csv.DictReader() returnează un obiect reader pentru citirea din fișier. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>import&nbsp;csv<br><br>FILENAME&nbsp;=&nbsp;"users2.csv"<br><br>users&nbsp;=&nbsp;[<br>&nbsp;&nbsp;&nbsp;{"name":&nbsp;"Tom",&nbsp;"age":&nbsp;28},<br>&nbsp;&nbsp;&nbsp;{"name":&nbsp;"Alice",&nbsp;"age":&nbsp;23},<br>&nbsp;&nbsp;&nbsp;{"name":&nbsp;"Bob",&nbsp;"age":&nbsp;34}<br>]<br><br>with&nbsp;open(FILENAME,&nbsp;"w",&nbsp;newline="")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;columns&nbsp;=&nbsp;["name",&nbsp;"age"]<br>&nbsp;&nbsp;&nbsp;writer&nbsp;=&nbsp;csv.DictWriter(file,&nbsp;fieldnames=columns)<br>&nbsp;&nbsp;&nbsp;writer.writeheader()<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;#&nbsp;scrierea&nbsp;mai&nbsp;multor&nbsp;rânduri<br>&nbsp;&nbsp;&nbsp;writer.writerows(users)<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;user&nbsp;=&nbsp;{"name"&nbsp;:&nbsp;"Sam",&nbsp;"age":&nbsp;41}<br>&nbsp;&nbsp;&nbsp;#&nbsp;scrierea&nbsp;unui&nbsp;singur&nbsp;rând<br>&nbsp;&nbsp;&nbsp;writer.writerow(user)<br><br>with&nbsp;open(FILENAME,&nbsp;"r",&nbsp;newline="")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;reader&nbsp;=&nbsp;csv.DictReader(file)<br>&nbsp;&nbsp;&nbsp;for&nbsp;row&nbsp;in&nbsp;reader:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(row["name"],&nbsp;"-",&nbsp;row["age"])</code></pre>
+     </div>
+     <p class="paragraph">Scrierea rândurilor se face tot prin metodele writerow() și writerows(). Dar acum, fiecare rând reprezintă un dicționar separat și, în plus, se scriu și anteturile coloanelor cu ajutorul metodei writeheader(), iar în metoda csv.DictWriter se transmite ca al doilea parametru setul de coloane.</p>
+     <p class="paragraph">La citirea rândurilor, folosind numele coloanelor, putem accesa valorile individuale dintr-un rând: row["name"].</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

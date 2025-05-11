@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='17.LINQ', activeLesson='2.Proiectia datelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Proiecția datelor</h1>
+     <p class="paragraph">Proiecția permite transformarea unui obiect de un anumit tip într-un obiect de alt tip. Pentru proiecție se folosește operatorul select. Să presupunem că avem un set de obiecte ale următoarei clase, care reprezintă un utilizator:</p>
+     <div class="code-inline">
+      <pre><code>record&nbsp;class&nbsp;Person(string&nbsp;Name,&nbsp;int&nbsp;Age);</code></pre>
+     </div>
+     <p class="paragraph">Dar, să presupunem că avem nevoie doar de proprietatea Name a obiectului:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;people&nbsp;=&nbsp;new&nbsp;List&lt;Person&gt;<br>{<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person&nbsp;("Tom",&nbsp;23),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person&nbsp;("Bob",&nbsp;27),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person&nbsp;("Sam",&nbsp;29),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person&nbsp;("Alice",&nbsp;24)<br>};<br><br>var&nbsp;names&nbsp;=&nbsp;from&nbsp;p&nbsp;in&nbsp;people&nbsp;select&nbsp;p.Name;<br><br>foreach&nbsp;(string&nbsp;n&nbsp;in&nbsp;names)<br>&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(n);</code></pre>
+     </div>
+     <p class="paragraph">Rezultatul expresiei LINQ va reprezenta un set de șiruri, deoarece expresia select p.Name alege în selecția rezultată doar valorile proprietății Name.</p>
+     <div class="code-inline">
+      <pre><code>Tom<br>Bob<br>Sam<br>Alice</code></pre>
+     </div>
+     <p class="paragraph">Alternativ, am putea folosi metoda de extensie Select():</p>
+     <div class="code-inline">
+      <pre><code>Select(Func&lt;TSource,TResult&gt;&nbsp;selector)</code></pre>
+     </div>
+     <p class="paragraph">Această metodă primește o funcție de transformare sub forma unui delegat Func&lt;TSource,TResult&gt;. Funcția de transformare primește fiecare obiect din selecția de tip TSource și cu ajutorul acestuia creează un obiect TResult. Metoda Select returnează o colecție de obiecte transformate.</p>
+     <p class="paragraph">Rescriem exemplul anterior folosind metoda Select:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;people&nbsp;=&nbsp;new&nbsp;List&lt;Person&gt;<br>{<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person&nbsp;("Tom",&nbsp;23),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person&nbsp;("Bob",&nbsp;27),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person&nbsp;("Sam",&nbsp;29),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person&nbsp;("Alice",&nbsp;24)<br>};<br>var&nbsp;names&nbsp;=&nbsp;people.Select(u&nbsp;=&gt;&nbsp;u.Name);<br><br>foreach&nbsp;(string&nbsp;n&nbsp;in&nbsp;names)<br>&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(n);</code></pre>
+     </div>
+     <p class="paragraph">În mod similar, putem crea obiecte de alt tip, inclusiv anonim:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;people&nbsp;=&nbsp;new&nbsp;List&lt;Person&gt;<br>{<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person&nbsp;("Tom",&nbsp;23),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person&nbsp;("Bob",&nbsp;27)<br>};<br><br>var&nbsp;personel&nbsp;=&nbsp;from&nbsp;p&nbsp;in&nbsp;people<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select&nbsp;new<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FirstName&nbsp;=&nbsp;p.Name,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Year&nbsp;=&nbsp;DateTime.Now.Year&nbsp;-&nbsp;p.Age<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};<br><br>foreach&nbsp;(var&nbsp;p&nbsp;in&nbsp;personel)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"{p.FirstName}&nbsp;-&nbsp;{p.Year}");<br><br>record&nbsp;class&nbsp;Person(string&nbsp;Name,&nbsp;int&nbsp;Age);</code></pre>
+     </div>
+     <p class="paragraph">Aici, operatorul select creează un obiect de tip anonim, folosind obiectul curent Person. Și acum, rezultatul va conține un set de obiecte de tip anonim, în care sunt definite două proprietăți: FirstName și Year (anul nașterii). Afișarea pe consolă a programului:</p>
+     <div class="code-inline">
+      <pre><code>Tom&nbsp;-&nbsp;1999<br>Bob&nbsp;-&nbsp;1995</code></pre>
+     </div>
+     <p class="paragraph">Alternativ, am putea folosi metoda de extensie Select():</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;proiecția&nbsp;pe&nbsp;obiecte&nbsp;de&nbsp;tip&nbsp;anonim<br>var&nbsp;personel&nbsp;=&nbsp;people.Select(p&nbsp;=&gt;&nbsp;new<br>{<br>&nbsp;&nbsp;&nbsp;FirstName&nbsp;=&nbsp;p.Name,<br>&nbsp;&nbsp;&nbsp;Year&nbsp;=&nbsp;DateTime.Now.Year&nbsp;-&nbsp;p.Age<br>});</code></pre>
+     </div>
+     <h2 class="subtitle">Variabile în interogări și operatorul let</h2>
+     <p class="paragraph">Uneori apare necesitatea de a efectua calcule intermediare suplimentare în interogările LINQ. Pentru aceste scopuri, putem defini variabilele noastre în interogări folosind operatorul let:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;people&nbsp;=&nbsp;new&nbsp;List&lt;Person&gt;<br>{<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person&nbsp;("Tom",&nbsp;23),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person&nbsp;("Bob",&nbsp;27)<br>};<br><br>var&nbsp;personnel&nbsp;=&nbsp;from&nbsp;p&nbsp;in&nbsp;people<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;let&nbsp;name&nbsp;=&nbsp;$"Mr.&nbsp;{p.Name}"<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;let&nbsp;year&nbsp;=&nbsp;DateTime.Now.Year&nbsp;-&nbsp;p.Age<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select&nbsp;new<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Year&nbsp;=&nbsp;year<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};<br><br>foreach&nbsp;(var&nbsp;p&nbsp;in&nbsp;personnel)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"{p.Name}&nbsp;-&nbsp;{p.Year}");<br><br>record&nbsp;class&nbsp;Person(string&nbsp;Name,&nbsp;int&nbsp;Age);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, se creează două variabile. Variabila name, a cărei valoare este Mr. {p.Name}.</p>
+     <p class="paragraph">Posibilitatea de a defini variabile este probabil unul dintre principalele avantaje ale operatorilor LINQ în comparație cu metodele de extensie.</p>
+     <h2 class="subtitle">Selecție din mai multe surse</h2>
+     <p class="paragraph">În LINQ putem selecta obiecte nu doar dintr-o singură sursă, ci și din mai multe surse. De exemplu, să luăm clasele:</p>
+     <div class="code-inline">
+      <pre><code>record&nbsp;class&nbsp;Course(string&nbsp;Title);&nbsp;&nbsp;//&nbsp;curs&nbsp;de&nbsp;studiu<br>record&nbsp;class&nbsp;Student(string&nbsp;Name);&nbsp;&nbsp;//&nbsp;student</code></pre>
+     </div>
+     <p class="paragraph">Clasa Course reprezintă un curs de studiu și stochează titlul acestuia. Clasa Student reprezintă un student și stochează numele acestuia.</p>
+     <p class="paragraph">Să presupunem că trebuie să obținem dintr-o listă de cursuri și o listă de studenți un set de perechi student-curs (să zicem entitatea care reprezintă studiul studentului la cursul respectiv):</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;courses&nbsp;=&nbsp;new&nbsp;List&lt;Course&gt;&nbsp;{&nbsp;new&nbsp;Course("C#"),&nbsp;new&nbsp;Course("Java")&nbsp;};<br>var&nbsp;students&nbsp;=&nbsp;new&nbsp;List&lt;Student&gt;&nbsp;{&nbsp;new&nbsp;Student("Tom"),&nbsp;new&nbsp;Student("Bob")&nbsp;};<br><br>var&nbsp;enrollments&nbsp;=&nbsp;from&nbsp;course&nbsp;in&nbsp;courses&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;selectăm&nbsp;câte&nbsp;un&nbsp;curs<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;from&nbsp;student&nbsp;in&nbsp;students&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;selectăm&nbsp;câte&nbsp;un&nbsp;student<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select&nbsp;new&nbsp;{&nbsp;Student&nbsp;=&nbsp;student.Name,&nbsp;Course&nbsp;=&nbsp;course.Title};&nbsp;&nbsp;&nbsp;//&nbsp;combinăm&nbsp;fiecare&nbsp;student&nbsp;cu&nbsp;fiecare&nbsp;curs<br><br>foreach&nbsp;(var&nbsp;enrollment&nbsp;in&nbsp;enrollments)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"{enrollment.Student}&nbsp;-&nbsp;{enrollment.Course}");<br><br>record&nbsp;class&nbsp;Course(string&nbsp;Title);&nbsp;&nbsp;//&nbsp;curs&nbsp;de&nbsp;studiu<br>record&nbsp;class&nbsp;Student(string&nbsp;Name);&nbsp;&nbsp;//&nbsp;student</code></pre>
+     </div>
+     <p class="paragraph">Afișarea pe consolă:</p>
+     <div class="code-inline">
+      <pre><code>Tom&nbsp;-&nbsp;C#<br>Bob&nbsp;-&nbsp;C#<br>Tom&nbsp;-&nbsp;Java<br>Bob&nbsp;-&nbsp;Java</code></pre>
+     </div>
+     <p class="paragraph">Astfel, la selecția din două surse, fiecare element din prima sursă va fi combinat cu fiecare element din a doua sursă. Adică, vom obține 4 perechi.</p>
+     <h2 class="subtitle">SelectMany și unificarea obiectelor</h2>
+     <p class="paragraph">Metoda SelectMany permite unificarea unui set de colecții într-o singură colecție. Are mai multe versiuni suprascrise. Să luăm una dintre ele:</p>
+     <div class="code-inline">
+      <pre><code>SelectMany(Func&lt;TSource,&nbsp;IEnumerable&lt;TResult&gt;&gt;&nbsp;selector);<br>SelectMany(Func&lt;TSource,&nbsp;IEnumerable&lt;TCollection&gt;&gt;&nbsp;collectionSelector,&nbsp;Func&lt;TSource,TCollection,TResult&gt;&nbsp;resultSelector);</code></pre>
+     </div>
+     <p class="paragraph">Prima versiune a metodei primește o funcție de transformare sub forma unui delegat Func&lt;TSource,IEnumerable&lt;TResult&gt;&gt;. Funcția de transformare primește fiecare obiect din selecție de tip TSource și cu ajutorul acestuia creează un set de obiecte TResult. Metoda SelectMany returnează o colecție de obiecte transformate.</p>
+     <p class="paragraph">A doua versiune primește o funcție de transformare sub forma unui delegat Func&lt;TSource,IEnumerable&lt;TResult&gt;&gt;. Funcția de transformare primește fiecare obiect din selecție de tip TSource și returnează o colecție intermediară de tip TCollection.</p>
+     <p class="paragraph">Al doilea parametru este tot o funcție de transformare sub forma unui delegat Func&lt;TSource,TCollection,TResult&gt;, care primește doi parametri - fiecare element al selecției curente și fiecare element al colecției intermediare și pe baza acestora creează un obiect de tip TResult.</p>
+     <p class="paragraph">Să analizăm următorul exemplu:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;companies&nbsp;=&nbsp;new&nbsp;List&lt;Company&gt;<br>{<br>&nbsp;&nbsp;&nbsp;new&nbsp;Company("Microsoft",&nbsp;new&nbsp;List&lt;Person&gt;&nbsp;{new&nbsp;Person("Tom"),&nbsp;new&nbsp;Person("Bob")}),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Company("Google",&nbsp;new&nbsp;List&lt;Person&gt;&nbsp;{new&nbsp;Person("Sam"),&nbsp;new&nbsp;Person("Mike")}),<br>};<br>var&nbsp;employees&nbsp;=&nbsp;companies.SelectMany(c&nbsp;=&gt;&nbsp;c.Staff);<br><br>foreach&nbsp;(var&nbsp;emp&nbsp;in&nbsp;employees)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"{emp.Name}");<br><br>record&nbsp;class&nbsp;Company(string&nbsp;Name,&nbsp;List&lt;Person&gt;&nbsp;Staff);<br>record&nbsp;class&nbsp;Person(string&nbsp;Name);</code></pre>
+     </div>
+     <p class="paragraph">Aici avem o listă de companii, fiecare companie având un set de angajați sub forma unei liste de obiecte Person. Și la ieșire obținem o listă de angajați din toate companiile, adică, de fapt, o colecție de obiecte Person. Afișarea pe consolă:</p>
+     <div class="code-inline">
+      <pre><code>Tom<br>Bob<br>Sam<br>Mike</code></pre>
+     </div>
+     <p class="paragraph">Un exemplu similar folosind operatori LINQ:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;companies&nbsp;=&nbsp;new&nbsp;List&lt;Company&gt;<br>{<br>&nbsp;&nbsp;&nbsp;new&nbsp;Company("Microsoft",&nbsp;new&nbsp;List&lt;Person&gt;&nbsp;{new&nbsp;Person("Tom"),&nbsp;new&nbsp;Person("Bob")}),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Company("Google",&nbsp;new&nbsp;List&lt;Person&gt;&nbsp;{new&nbsp;Person("Sam"),&nbsp;new&nbsp;Person("Mike")}),<br>};<br>var&nbsp;employees&nbsp;=&nbsp;from&nbsp;c&nbsp;in&nbsp;companies<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;from&nbsp;emp&nbsp;in&nbsp;c.Staff<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select&nbsp;emp;<br><br>foreach&nbsp;(var&nbsp;emp&nbsp;in&nbsp;employees)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"{emp.Name}");<br><br>record&nbsp;class&nbsp;Company(string&nbsp;Name,&nbsp;List&lt;Person&gt;&nbsp;Staff);<br>record&nbsp;class&nbsp;Person(string&nbsp;Name);</code></pre>
+     </div>
+     <p class="paragraph">Acum să adăugăm la angajați și compania lor:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;companies&nbsp;=&nbsp;new&nbsp;List&lt;Company&gt;<br>{<br>&nbsp;&nbsp;&nbsp;new&nbsp;Company<br><br>("Microsoft",&nbsp;new&nbsp;List&lt;Person&gt;&nbsp;{new&nbsp;Person("Tom"),&nbsp;new&nbsp;Person("Bob")}),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Company("Google",&nbsp;new&nbsp;List&lt;Person&gt;&nbsp;{new&nbsp;Person("Sam"),&nbsp;new&nbsp;Person("Mike")}),<br>};<br><br>var&nbsp;employees&nbsp;=&nbsp;companies.SelectMany(c&nbsp;=&gt;&nbsp;c.Staff,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(c,&nbsp;emp)=&gt;&nbsp;new&nbsp;{&nbsp;Name&nbsp;=&nbsp;emp.Name,&nbsp;Company&nbsp;=&nbsp;c.Name&nbsp;});<br><br>foreach&nbsp;(var&nbsp;emp&nbsp;in&nbsp;employees)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"{emp.Name}&nbsp;-&nbsp;{emp.Company}");<br><br>record&nbsp;class&nbsp;Company(string&nbsp;Name,&nbsp;List&lt;Person&gt;&nbsp;Staff);<br>record&nbsp;class&nbsp;Person(string&nbsp;Name);</code></pre>
+     </div>
+     <p class="paragraph">Aici se folosește o altă versiune a metodei SelectMany. Primul delegat sub forma c =&gt; c.Staff creează o colecție intermediară - de fapt, doar returnează setul de angajați ai fiecărei companii.</p>
+     <p class="paragraph">Al doilea delegat - (c, emp) =&gt; new { Name = emp.Name, Company = c.Name } primește fiecare companie și fiecare element al colecției intermediare - obiectul Person și pe baza acestora creează un obiect anonim cu două proprietăți Name și Company. Afișarea pe consolă a programului:</p>
+     <div class="code-inline">
+      <pre><code>Tom&nbsp;-&nbsp;Microsoft<br>Bob&nbsp;-&nbsp;Microsoft<br>Sam&nbsp;-&nbsp;Google<br>Mike&nbsp;-&nbsp;Google</code></pre>
+     </div>
+     <p class="paragraph">Un exemplu similar folosind operatori de interogare:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;companies&nbsp;=&nbsp;new&nbsp;List&lt;Company&gt;<br>{<br>&nbsp;&nbsp;&nbsp;new&nbsp;Company("Microsoft",&nbsp;new&nbsp;List&lt;Person&gt;&nbsp;{new&nbsp;Person("Tom"),&nbsp;new&nbsp;Person("Bob")}),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Company("Google",&nbsp;new&nbsp;List&lt;Person&gt;&nbsp;{new&nbsp;Person("Sam"),&nbsp;new&nbsp;Person("Mike")}),<br>};<br>var&nbsp;employees&nbsp;=&nbsp;from&nbsp;c&nbsp;in&nbsp;companies<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;from&nbsp;emp&nbsp;in&nbsp;c.Staff<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select&nbsp;new&nbsp;{&nbsp;Name&nbsp;=&nbsp;emp.Name,&nbsp;Company&nbsp;=&nbsp;c.Name&nbsp;};<br><br>foreach&nbsp;(var&nbsp;emp&nbsp;in&nbsp;employees)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"{emp.Name}&nbsp;-&nbsp;{emp.Company}");<br><br>record&nbsp;class&nbsp;Company(string&nbsp;Name,&nbsp;List&lt;Person&gt;&nbsp;Staff);<br>record&nbsp;class&nbsp;Person(string&nbsp;Name);</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

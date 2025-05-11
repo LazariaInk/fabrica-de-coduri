@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='7.Interfete', activeLesson='2.Aplicarea interfetelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Aplicarea interfețelor</h1>
+     <p class="paragraph">Înțelegem cum funcționează rețelele neuronale și creăm una pentru căutarea știrilor.</p>
+     <p class="paragraph">O interfață reprezintă o descriere a unui tip, un set de componente pe care trebuie să le aibă un tip de date. Și, propriu-zis, nu putem crea obiecte de tip interfață direct cu ajutorul unui constructor, așa cum facem în cazul claselor:</p>
+     <div class="code-inline">
+      <pre><code>IMovable&nbsp;m&nbsp;=&nbsp;new&nbsp;IMovable();&nbsp;//&nbsp;!&nbsp;Eroare,&nbsp;acest&nbsp;lucru&nbsp;nu&nbsp;este&nbsp;permis<br><br>interface&nbsp;IMovable<br>{<br>&nbsp;&nbsp;&nbsp;void&nbsp;Move();<br>}</code></pre>
+     </div>
+     <p class="paragraph">În cele din urmă, interfața este destinată implementării în clase și structuri. De exemplu, să implementăm interfața IMovable definită mai sus:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;aplicarea&nbsp;interfeței&nbsp;într-o&nbsp;clasă<br>class&nbsp;Person&nbsp;:&nbsp;IMovable<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Move()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Omul&nbsp;merge");<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>//&nbsp;aplicarea&nbsp;interfeței&nbsp;într-o&nbsp;structură<br>struct&nbsp;Car&nbsp;:&nbsp;IMovable<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Move()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Mașina&nbsp;se&nbsp;deplasează");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">La aplicarea interfeței, la fel ca la moștenire, după numele clasei sau structurii se indică două puncte și apoi urmează denumirile interfețelor aplicate. În acest caz, clasa trebuie să implementeze toate metodele și proprietățile interfețelor aplicate, dacă aceste metode și proprietăți nu au implementare implicită.</p>
+     <p class="paragraph">Dacă metodele și proprietățile interfeței nu au modificator de acces, implicit ele sunt publice; la implementarea acestor metode și proprietăți în clasă și structură, putem folosi doar modificatorul public.</p>
+     <p class="paragraph">Aplicarea interfeței într-un program:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;person&nbsp;=&nbsp;new&nbsp;Person();<br>Car&nbsp;car&nbsp;=&nbsp;new&nbsp;Car();<br>DoAction(person);<br>DoAction(car);<br><br>void&nbsp;DoAction(IMovable&nbsp;movable)&nbsp;=&gt;&nbsp;movable.Move();<br><br>interface&nbsp;IMovable<br>{<br>&nbsp;&nbsp;&nbsp;void&nbsp;Move();<br>}<br><br>class&nbsp;Person&nbsp;:&nbsp;IMovable<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Move()&nbsp;=&gt;&nbsp;Console.WriteLine("Omul&nbsp;merge");<br>}<br><br>struct&nbsp;Car&nbsp;:&nbsp;IMovable<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Move()&nbsp;=&gt;&nbsp;Console.WriteLine("Mașina&nbsp;se&nbsp;deplasează");<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest program este definită metoda DoAction(), care acceptă ca parametru un obiect de tip interfață IMovable. La momentul scrierii codului, este posibil să nu știm ce va fi acest obiect - o clasă sau o structură anume. Singurul lucru de care putem fi siguri este că acest obiect va implementa neapărat metoda Move, iar noi putem apela această metodă.</p>
+     <p class="paragraph">Cu alte cuvinte, interfața este un contract care specifică faptul că un anumit tip va implementa o anumită funcționalitate.</p>
+     <p class="paragraph">Ieșirea în consolă a programului:</p>
+     <div class="code-inline">
+      <pre><code>Omul&nbsp;merge<br>Mașina&nbsp;se&nbsp;deplasează</code></pre>
+     </div>
+     <h2 class="subtitle">Implementarea implicită a interfețelor</h2>
+     <p class="paragraph">Începând cu versiunea C# 8.0, interfețele suportă implementarea implicită a metodelor și proprietăților. De ce este necesar acest lucru? Să presupunem că avem multe clase care implementează o anumită interfață. Dacă adăugăm o nouă metodă în această interfață, vom fi obligați să implementăm această metodă în toate clasele care aplică interfața respectivă.</p>
+     <p class="paragraph">În caz contrar, aceste clase nu vor fi compilate. Acum, în loc să implementăm metoda în toate clasele, putem defini implementarea sa implicită în interfață. Dacă o clasă nu implementează metoda, se va aplica implementarea implicită.</p>
+     <div class="code-inline">
+      <pre><code>IMovable&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person();<br>Car&nbsp;tesla&nbsp;=&nbsp;new&nbsp;Car();<br>tom.Move();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Walking<br>tesla.Move();&nbsp;&nbsp;&nbsp;//&nbsp;Driving<br><br>interface&nbsp;IMovable<br>{<br>&nbsp;&nbsp;&nbsp;void&nbsp;Move()&nbsp;=&gt;&nbsp;Console.WriteLine("Walking");<br>}<br><br>class&nbsp;Person&nbsp;:&nbsp;IMovable&nbsp;{&nbsp;}<br><br>class&nbsp;Car&nbsp;:&nbsp;IMovable<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Move()&nbsp;=&gt;&nbsp;Console.WriteLine("Driving");<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, interfața IMovable definește implementarea implicită pentru metoda Move. Clasa Person nu implementează această metodă, așa că folosește implementarea implicită, spre deosebire de clasa Car, care definește propria sa implementare pentru metoda Move.</p>
+     <p class="paragraph">Este de remarcat faptul că, deși pentru obiectul clasei Person putem apela metoda Move - deoarece clasa Person aplică interfața IMovable, nu putem scrie astfel:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person();<br>tom.Move();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Eroare&nbsp;-&nbsp;metoda&nbsp;Move&nbsp;nu&nbsp;este&nbsp;definită&nbsp;în&nbsp;clasa&nbsp;Person</code></pre>
+     </div>
+     <h2 class="subtitle">Implementarea multiplă a interfețelor</h2>
+     <p class="paragraph">Interfețele au încă o funcție importantă: în C# nu se suportă moștenirea multiplă, adică putem moșteni o clasă doar dintr-o singură clasă, spre deosebire de limbajul C++, unde moștenirea multiplă poate fi folosită.</p>
+     <p class="paragraph">Interfețele permit să ocolim parțial această limitare, deoarece în C# clasele și structurile pot implementa mai multe interfețe simultan. Toate interfețele implementate sunt indicate prin virgulă:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;MyClass&nbsp;:&nbsp;IMyInterface1,&nbsp;IMyInterface2,&nbsp;IMyInterface3<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;Implementare&nbsp;interfețe<br>}</code></pre>
+     </div>
+     <p class="paragraph">Să analizăm un exemplu:</p>
+     <div class="code-inline">
+      <pre><code>Message&nbsp;hello&nbsp;=&nbsp;new&nbsp;Message("Hello&nbsp;World");<br>hello.Print();&nbsp;&nbsp;//&nbsp;Hello&nbsp;World<br><br>interface&nbsp;IMessage<br>{<br>&nbsp;&nbsp;&nbsp;string&nbsp;Text&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>}<br><br>interface&nbsp;IPrintable<br>{<br>&nbsp;&nbsp;&nbsp;void&nbsp;Print();<br>}<br><br>class&nbsp;Message&nbsp;:&nbsp;IMessage,&nbsp;IPrintable<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Text&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Message(string&nbsp;text)&nbsp;=&gt;&nbsp;Text&nbsp;=&nbsp;text;<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Print()&nbsp;=&gt;&nbsp;Console.WriteLine(Text);<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, sunt definite două interfețe. Interfața IMessage definește proprietatea Text, care reprezintă textul mesajului. Iar interfața IPrintable definește metoda Print.</p>
+     <p class="paragraph">Clasa Message implementează ambele interfețe și apoi este utilizată în program.</p>
+     <h2 class="subtitle">Interfețe în conversiile de tipuri</h2>
+     <p class="paragraph">Tot ce s-a spus despre conversiile de tipuri este valabil și pentru interfețe. Deoarece clasa Message implementează interfața IMessage, variabila de tip IMessage poate stoca o referință la un obiect de tip Message:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;Toate&nbsp;obiectele&nbsp;Message&nbsp;sunt&nbsp;obiecte&nbsp;IMessage<br>IMessage&nbsp;hello&nbsp;=&nbsp;new&nbsp;Message("Hello&nbsp;METANIT.COM");<br>Console.WriteLine(hello.Text);&nbsp;//&nbsp;Hello&nbsp;METANIT.COM<br><br>//&nbsp;Nu&nbsp;toate&nbsp;obiectele&nbsp;IMessage&nbsp;sunt&nbsp;obiecte&nbsp;Message,&nbsp;este&nbsp;necesară&nbsp;conversia&nbsp;explicită<br>//&nbsp;Message&nbsp;someMessage&nbsp;=&nbsp;hello;&nbsp;//&nbsp;!&nbsp;Eroare<br><br>//&nbsp;Interfața&nbsp;IMessage&nbsp;nu&nbsp;are&nbsp;metoda&nbsp;Print,&nbsp;este&nbsp;necesară&nbsp;conversia&nbsp;explicită<br>//&nbsp;hello.Print();&nbsp;&nbsp;//&nbsp;!&nbsp;Eroare<br><br>//&nbsp;Dacă&nbsp;hello&nbsp;reprezintă&nbsp;clasa&nbsp;Message,&nbsp;realizăm&nbsp;conversia<br>if&nbsp;(hello&nbsp;is&nbsp;Message&nbsp;someMessage)&nbsp;someMessage.Print();</code></pre>
+     </div>
+     <p class="paragraph">Conversia de la o clasă la interfața sa, la fel ca și conversia de la un tip derivat la un tip de bază, se realizează automat. Deoarece orice obiect Message implementează interfața IMessage.</p>
+     <p class="paragraph">Conversia inversă - de la o interfață la clasa care o implementează - va fi similară conversiei de la o clasă de bază la una derivată. Deoarece nu orice obiect IMessage este un obiect Message (deoarece interfața IMessage poate fi implementată și de alte clase), pentru această conversie este necesară o operație de casting.</p>
+     <p class="paragraph">Și dacă dorim să accesăm metodele clasei Message, care nu sunt definite în interfața IMessage, dar fac parte din clasa Message, trebuie să realizăm explicit conversia tipurilor:</p>
+     <div class="code-inline">
+      <pre><code>if&nbsp;(hello&nbsp;is&nbsp;Message&nbsp;someMessage)&nbsp;someMessage.Print();</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

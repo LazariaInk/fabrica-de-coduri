@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='17.LINQ', activeLesson='4.Sortare in LINQ'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Sortare în LINQ</h1>
+     <h2 class="subtitle">Operatorul orderby și metoda OrderBy</h2>
+     <p class="paragraph">Pentru sortarea unui set de date în LINQ, se poate utiliza operatorul orderby:</p>
+     <div class="code-inline">
+      <pre><code>int[]&nbsp;numbers&nbsp;=&nbsp;{&nbsp;3,&nbsp;12,&nbsp;4,&nbsp;10&nbsp;};<br>var&nbsp;orderedNumbers&nbsp;=&nbsp;from&nbsp;i&nbsp;in&nbsp;numbers<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;orderby&nbsp;i<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select&nbsp;i;<br>foreach&nbsp;(int&nbsp;i&nbsp;in&nbsp;orderedNumbers)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(i);</code></pre>
+     </div>
+     <p class="paragraph">Operatorul orderby acceptă un criteriu de sortare. În acest caz, criteriul este însăși numărul. Rezultatul execuției programului:</p>
+     <div class="code-inline">
+      <pre><code>3<br>4<br>10<br>12</code></pre>
+     </div>
+     <p class="paragraph">Dacă numerele sunt sortate în mod standard, cum este acceptat în matematică, atunci șirurile sunt sortate în ordine alfabetică:</p>
+     <div class="code-inline">
+      <pre><code>string[]&nbsp;people&nbsp;=&nbsp;{&nbsp;"Tom",&nbsp;"Bob",&nbsp;"Sam"&nbsp;};<br>var&nbsp;orderedPeople&nbsp;=&nbsp;from&nbsp;p&nbsp;in&nbsp;people&nbsp;orderby&nbsp;p&nbsp;select&nbsp;p;<br>foreach&nbsp;(var&nbsp;p&nbsp;in&nbsp;orderedPeople)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(p);&nbsp;&nbsp;//&nbsp;Bob&nbsp;Sam&nbsp;Tom</code></pre>
+     </div>
+     <p class="paragraph">În locul operatorului orderby, se poate utiliza metoda de extensie OrderBy():</p>
+     <div class="code-inline">
+      <pre><code>OrderBy&nbsp;(Func&lt;TSource,TKey&gt;&nbsp;keySelector)<br>OrderBy&nbsp;(Func&lt;TSource,TKey&gt;&nbsp;keySelector,&nbsp;IComparer&lt;TKey&gt;?&nbsp;comparer);</code></pre>
+     </div>
+     <p class="paragraph">Prima versiune a metodei primește un delegat care, prin parametrul său, primește un element al colecției și returnează valoarea utilizată pentru sortare. A doua versiune permite, de asemenea, specificarea principiului de sortare prin implementarea interfeței IComparer.</p>
+     <p class="paragraph">Rescriem exemplele anterioare folosind metoda OrderBy:</p>
+     <div class="code-inline">
+      <pre><code>int[]&nbsp;numbers&nbsp;=&nbsp;{&nbsp;3,&nbsp;12,&nbsp;4,&nbsp;10&nbsp;};<br>var&nbsp;orderedNumbers&nbsp;=&nbsp;numbers.OrderBy(n&nbsp;=&gt;&nbsp;n);<br>foreach&nbsp;(int&nbsp;i&nbsp;in&nbsp;orderedNumbers)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(i);<br><br>string[]&nbsp;people&nbsp;=&nbsp;{&nbsp;"Tom",&nbsp;"Bob",&nbsp;"Sam"&nbsp;};<br>var&nbsp;orderedPeople&nbsp;=&nbsp;people.OrderBy(p&nbsp;=&gt;&nbsp;p);<br>foreach&nbsp;(var&nbsp;p&nbsp;in&nbsp;orderedPeople)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(p);</code></pre>
+     </div>
+     <h2 class="subtitle">Sortarea obiectelor complexe</h2>
+     <p class="paragraph">Să luăm un exemplu mai complex. Să presupunem că trebuie să sortăm un set de obiecte complexe. Atunci, ca și criteriu, putem specifica o proprietate a clasei obiectului:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;people&nbsp;=&nbsp;new&nbsp;List&lt;Person&gt;<br>{<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person("Tom",&nbsp;37),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person("Sam",&nbsp;28),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person("Tom",&nbsp;22),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person("Bob",&nbsp;41),<br>};<br><br>//&nbsp;folosind&nbsp;operatorul&nbsp;orderby<br>var&nbsp;sortedPeople1&nbsp;=&nbsp;from&nbsp;p&nbsp;in&nbsp;people<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;orderby&nbsp;p.Name<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select&nbsp;p;<br>foreach&nbsp;(var&nbsp;p&nbsp;in&nbsp;sortedPeople1)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"{p.Name}&nbsp;-&nbsp;{p.Age}");<br><br>//&nbsp;folosind&nbsp;metoda&nbsp;OrderBy<br>var&nbsp;sortedPeople2&nbsp;=&nbsp;people.OrderBy(p&nbsp;=&gt;&nbsp;p.Name);<br>foreach&nbsp;(var&nbsp;p&nbsp;in&nbsp;sortedPeople2)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"{p.Name}&nbsp;-&nbsp;{p.Age}");<br><br>record&nbsp;class&nbsp;Person(string&nbsp;Name,&nbsp;int&nbsp;Age);</code></pre>
+     </div>
+     <h2 class="subtitle">Sortarea în ordine crescătoare și descrescătoare</h2>
+     <p class="paragraph">Implicit, operatorul orderby și metoda OrderBy sortează în ordine crescătoare. Cu ajutorul cuvintelor cheie ascending (sortare crescătoare) și descending (sortare descrescătoare) pentru operatorul orderby se poate specifica explicit direcția de sortare. De exemplu, să sortăm un array de numere în ordine descrescătoare:</p>
+     <div class="code-inline">
+      <pre><code>int[]&nbsp;numbers&nbsp;=&nbsp;{&nbsp;3,&nbsp;12,&nbsp;4,&nbsp;10&nbsp;};<br>var&nbsp;orderedNumbers&nbsp;=&nbsp;from&nbsp;i&nbsp;in&nbsp;numbers<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;orderby&nbsp;i&nbsp;descending<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select&nbsp;i;<br>foreach&nbsp;(int&nbsp;i&nbsp;in&nbsp;orderedNumbers)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(i);&nbsp;&nbsp;//&nbsp;12&nbsp;10&nbsp;4&nbsp;3</code></pre>
+     </div>
+     <p class="paragraph">Pentru sortarea în ordine descrescătoare se poate folosi metoda OrderByDescending(), care funcționează similar cu OrderBy, cu excepția direcției de sortare:</p>
+     <div class="code-inline">
+      <pre><code>int[]&nbsp;numbers&nbsp;=&nbsp;{&nbsp;3,&nbsp;12,&nbsp;4,&nbsp;10&nbsp;};<br>var&nbsp;orderedNumbers&nbsp;=&nbsp;numbers.OrderByDescending(n&nbsp;=&gt;&nbsp;n);<br>foreach&nbsp;(int&nbsp;i&nbsp;in&nbsp;orderedNumbers)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(i);&nbsp;&nbsp;//&nbsp;12&nbsp;10&nbsp;4&nbsp;3</code></pre>
+     </div>
+     <h2 class="subtitle">Criterii multiple de sortare</h2>
+     <p class="paragraph">În seturile de obiecte complexe apare uneori situația în care trebuie să sortăm nu doar după un câmp, ci după mai multe câmpuri simultan. Pentru aceasta, în interogarea LINQ, toate criteriile se specifică în ordinea priorității, separate prin virgulă:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;people&nbsp;=&nbsp;new&nbsp;List&lt;Person&gt;<br>{<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person("Tom",&nbsp;37),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person("Sam",&nbsp;28),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person("Tom",&nbsp;22),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person("Bob",&nbsp;41),<br>};<br><br>//&nbsp;folosind&nbsp;operatorul&nbsp;orderby<br>var&nbsp;sortedPeople1&nbsp;=&nbsp;from&nbsp;p&nbsp;in&nbsp;people<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;orderby&nbsp;p.Name,&nbsp;p.Age<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select&nbsp;p;<br>foreach&nbsp;(var&nbsp;p&nbsp;in&nbsp;sortedPeople1)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"{p.Name}&nbsp;-&nbsp;{p.Age}");</code></pre>
+     </div>
+     <p class="paragraph">Rezultatul programului:</p>
+     <div class="code-inline">
+      <pre><code>Bob&nbsp;-&nbsp;41<br>Sam&nbsp;-&nbsp;28<br>Tom&nbsp;-&nbsp;22<br>Tom&nbsp;-&nbsp;37</code></pre>
+     </div>
+     <p class="paragraph">Pentru criterii de sortare diferite, se poate stabili direcția:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;folosind&nbsp;operatorul&nbsp;orderby<br>var&nbsp;sortedPeople1&nbsp;=&nbsp;from&nbsp;p&nbsp;in&nbsp;people<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;orderby&nbsp;p.Name,&nbsp;p.Age&nbsp;descending&nbsp;&nbsp;//&nbsp;sortare&nbsp;descrescătoare&nbsp;după&nbsp;vârstă<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select&nbsp;p;</code></pre>
+     </div>
+     <p class="paragraph">Cu ajutorul metodelor de extensie, același lucru se poate face folosind metoda ThenBy() (pentru sortare crescătoare) și ThenByDescending() (pentru sortare descrescătoare):</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;sortedPeople2&nbsp;=&nbsp;people.OrderBy(p&nbsp;=&gt;&nbsp;p.Name).ThenByDescending(p&nbsp;=&gt;&nbsp;p.Age);</code></pre>
+     </div>
+     <p class="paragraph">Rezultatul va fi similar cu cel anterior.</p>
+     <h2 class="subtitle">Suprascrierea criteriului de sortare</h2>
+     <p class="paragraph">Cu ajutorul implementării IComparer se pot suprascrie criteriile de sortare dacă acestea nu ne satisfac. De exemplu, șirurile sunt sortate implicit în ordine alfabetică. Dar ce facem dacă vrem să sortăm șirurile în funcție de lungimea lor? Să rezolvăm această problemă:</p>
+     <div class="code-inline">
+      <pre><code>string[]&nbsp;people&nbsp;=&nbsp;new[]&nbsp;{&nbsp;"Kate",&nbsp;"Tom",&nbsp;"Sam",&nbsp;"Mike",&nbsp;"Alice"&nbsp;};<br>var&nbsp;sortedPeople&nbsp;=&nbsp;people.OrderBy(p&nbsp;=&gt;&nbsp;p,&nbsp;new&nbsp;CustomStringComparer());<br><br>foreach&nbsp;(var&nbsp;p&nbsp;in&nbsp;sortedPeople)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(p);<br><br>//&nbsp;comparare&nbsp;după&nbsp;lungimea&nbsp;șirului<br>class&nbsp;CustomStringComparer&nbsp;:&nbsp;IComparer&lt;string&gt;<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Compare(string?&nbsp;x,&nbsp;string?&nbsp;y)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;xLength&nbsp;=&nbsp;x?.Length&nbsp;??&nbsp;0;&nbsp;//&nbsp;dacă&nbsp;x&nbsp;este&nbsp;null,&nbsp;atunci&nbsp;lungimea&nbsp;este&nbsp;0<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;yLength&nbsp;=&nbsp;y?.Length&nbsp;??&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;xLength&nbsp;-&nbsp;yLength;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Interfața IComparer este tipizată cu tipul datelor sortate (în acest caz, tipul string). Pentru a implementa această interfață, trebuie să definim metoda Compare. Aceasta returnează un număr: dacă primul parametru este mai mare decât al doilea, numărul este mai mare de 0; dacă este mai mic, numărul este mai mic de 0.</p>
+     <p class="paragraph">Dacă ambii parametri sunt egali, se returnează 0.</p>
+     <p class="paragraph">În acest caz, dacă parametrul este null, vom considera că lungimea șirului este 0. Și cu ajutorul diferenței dintre lungimile șirurilor din ambii parametri determinăm care dintre ele este mai mare.</p>
+     <p class="paragraph">Rezultatul programului:</p>
+     <div class="code-inline">
+      <pre><code>Tom<br>Sam<br>Kate<br>Mike<br>Alice</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

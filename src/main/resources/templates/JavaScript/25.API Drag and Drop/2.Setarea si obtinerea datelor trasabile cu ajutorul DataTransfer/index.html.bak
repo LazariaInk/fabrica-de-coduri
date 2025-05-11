@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='25.API Drag and Drop', activeLesson='2.Setarea si obtinerea datelor trasabile cu ajutorul DataTransfer'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Setarea și obținerea datelor trasabile cu ajutorul DataTransfe</h1>
+     <p class="paragraph">Când tragem elemente, în manipulatorul evenimentului de tragere este transmis un obiect de tip DragEvent. Acest tip moștenește proprietățile de la MouseEvent și, corespunzător, de la tipul Event, dar, în plus față de acestea, definește și proprietatea dataTransfer. Această proprietate reprezintă datele trasabile sub formă de obiect DataTransfer.</p>
+     <p class="paragraph">Tipul DataTransfer definește o serie de proprietăți care permit obținerea informațiilor despre datele primite sau configurarea tragerii lor:</p>
+     <ul class="enumeration">
+      <li>dropEffect: obține sau setează tipul operației de tragere poate avea valorile:</li>
+     </ul>
+     <p class="paragraph">1) copy: se creează o copie a datelor trasabile iar această copie este plasată într-o nouă poziție 2) move: datele sunt complet mutate într-o nouă poziție 3) link: se creează un link către sursa datelor 4) none: datele nu sunt trase</p>
+     <ul class="enumeration">
+      <li>effectAllowed: setează tipurile posibile de operațiuni poate avea următoarele valori</li>
+     </ul>
+     <p class="paragraph">1) none: elementul nu este trasabil 2) copy: elementul poate fi copiat într-o nouă poziție 3) copyLink: este permisă copierea elementului sau crearea unui link către acesta 4) copyMove: este permisă copierea sau mutarea elementului 5) link: este permisă crearea unui link către elementul trasabil 6) linkMove: este permisă mutarea elementului sau crearea unui link către acesta 7) move: este permisă mutarea elementului într-o nouă poziție 8) all: toate operațiile sunt permise 9) uninitialized: valoarea implicită, dacă această proprietate nu este setată este echivalent cu all</p>
+     <ul class="enumeration">
+      <li>files: conține lista tuturor fișierelor locale disponibile pentru transferul de date Dacă operația de tragere nu presupune tragerea fișierelor, această proprietate reprezintă o listă goală</li>
+      <li>items: oferă un obiect DataTransferItemList, care reprezintă o listă a tuturor datelor de tragere</li>
+      <li>types: un array de șiruri care specifică formatele definite în evenimentul de tragere</li>
+     </ul>
+     <p class="paragraph">Pentru gestionarea datelor în timpul tragerii, tipul DataTransfer definește următoarele metode:</p>
+     <ul class="enumeration">
+      <li>clearData() șterge datele asociate cu obiectul DataTransfer</li>
+      <li>getData() format extrage datele obiectului DataTransfer Ca parametru se transmite formatul datelor Returnează datele în formatul specificat Dacă datele în formatul specificat nu sunt setate, returnează un șir gol</li>
+      <li>setData() format, data setează pentru obiectul DataTransfer datele data, care corespund formatului format Dacă în DataTransfer există deja date în formatul specificat, atunci noile date înlocuiesc cele existente anterior</li>
+      <li>setDragImage (imgElement, xOffset, yOffset) setează imaginea utilizată în timpul tragerii</li>
+     </ul>
+     <p class="paragraph">Primul parametru - imgElement reprezintă elementul &lt;img&gt; utilizat ca sursă de imagine. Parametrii xOffset, yOffset specifică deplasările în interiorul imaginii pe axa x și y, respectiv.</p>
+     <p class="paragraph">În special, metodele setData()/getData() ne permit să setăm și să obținem ușor datele necesare în timpul tragerii elementelor. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;#target&nbsp;{width:&nbsp;200px;height:&nbsp;150px;&nbsp;border:&nbsp;#ccc&nbsp;1px&nbsp;dashed;}<br>&nbsp;&nbsp;&nbsp;#target.dragover&nbsp;{border-color:#000;}<br>&nbsp;&nbsp;&nbsp;.item&nbsp;{width:50px;height:50px;&nbsp;display:&nbsp;inline-block;&nbsp;margin:5px;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;div&nbsp;class="item"&nbsp;style="background-color:&nbsp;red;"&nbsp;draggable="true"&gt;&lt;/div&gt;<br>&lt;div&nbsp;class="item"&nbsp;style<br><br>="background-color:&nbsp;blue;"&nbsp;draggable="true"&gt;&lt;/div&gt;<br>&lt;div&nbsp;id="target"&gt;&lt;/div&gt;<br>&lt;script&gt;<br>const&nbsp;items&nbsp;=&nbsp;document.getElementsByClassName("item");<br>//&nbsp;setăm&nbsp;manipulatorul&nbsp;pentru&nbsp;evenimentul&nbsp;de&nbsp;tragere&nbsp;a&nbsp;elementului<br>for&nbsp;(item&nbsp;of&nbsp;items)&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;item.addEventListener("dragstart",&nbsp;(e)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;ca&nbsp;date&nbsp;trasabile&nbsp;setăm&nbsp;codul&nbsp;HTML&nbsp;al&nbsp;elementului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;e.dataTransfer.setData("text/html",&nbsp;e.target.outerHTML);&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;});<br>}<br>const&nbsp;target&nbsp;=&nbsp;document.getElementById("target");<br>target.addEventListener("dragover",&nbsp;(e)&nbsp;=&gt;&nbsp;e.preventDefault());<br>//&nbsp;la&nbsp;intrarea&nbsp;și&nbsp;ieșirea&nbsp;din&nbsp;zona&nbsp;țintă&nbsp;schimbăm&nbsp;clasa<br>target.addEventListener("dragenter",&nbsp;(e)&nbsp;=&gt;&nbsp;e.target.classList.add("dragover"));<br>target.addEventListener("dragleave",&nbsp;(e)&nbsp;=&gt;&nbsp;e.target.classList.remove("dragover"));<br>//&nbsp;la&nbsp;eliberarea&nbsp;elementului&nbsp;adăugăm&nbsp;acesta&nbsp;în&nbsp;zona&nbsp;țintă<br>target.addEventListener("drop",&nbsp;(e)&nbsp;=&gt;&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;e.srcElement.innerHTML&nbsp;+=&nbsp;e.dataTransfer.getData("text/html");&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;e.target.classList.remove("dragover");<br>});<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Elementele trasabile sunt definite cu clasa item - acestea sunt pătratele roșu și albastru. Tragerea se face către elementul &lt;div id="target"&gt;.</p>
+     <p class="paragraph">La început, se înregistrează manipulatorul evenimentului dragstart pentru toate elementele item trasabile. În acest manipulator, prin parametrul său și proprietatea sa dataTransfer, se poate obține obiectul DataTransfer:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;items&nbsp;=&nbsp;document.getElementsByClassName("item");<br>//&nbsp;setăm&nbsp;manipulatorul&nbsp;pentru&nbsp;evenimentul&nbsp;de&nbsp;tragere&nbsp;a&nbsp;elementului<br>for&nbsp;(item&nbsp;of&nbsp;items)&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;item.addEventListener("dragstart",&nbsp;(e)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;ca&nbsp;date&nbsp;trasabile&nbsp;setăm&nbsp;codul&nbsp;HTML&nbsp;al&nbsp;elementului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;e.dataTransfer.setData("text/html",&nbsp;e.target.outerHTML);&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;});<br>}</code></pre>
+     </div>
+     <p class="paragraph">Obiectul DataTransfer reprezintă datele care sunt trase. Aceste date pot fi definite cu ajutorul metodei setData():</p>
+     <div class="code-inline">
+      <pre><code>e.dataTransfer.setData("text/html",&nbsp;e.target.outerHTML);</code></pre>
+     </div>
+     <p class="paragraph">Aici, e.target reprezintă elementul care se mută (cel cu atributul draggable setat), iar e.target.outerHTML reprezintă codul HTML al acestui element. Adică, în acest mod, vom muta codul HTML, iar conținutul mutat va avea tipul "text/html".</p>
+     <p class="paragraph">În zona țintă a tragerii (în elementul target), aceste date pot fi apoi obținute cu ajutorul metodei getData(). În exemplul de mai sus, acest lucru se face în manipulatorul evenimentului drop, când utilizatorul a eliberat elementul trasabil în zona țintă:</p>
+     <div class="code-inline">
+      <pre><code>target.addEventListener("drop",&nbsp;(e)&nbsp;=&gt;&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;e.srcElement.innerHTML&nbsp;+=&nbsp;e.dataTransfer.getData("text/html");&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;e.target.classList.remove("dragover");<br>});</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, preluăm datele trasabile (codul HTML al elementului) și le adăugăm în elementul target.</p>
+     <p class="paragraph">De asemenea, pentru un efect vizual, când elementul trasabil trece peste granița zonei țintă, comutăm clasa dragover:</p>
+     <div class="code-inline">
+      <pre><code>target.addEventListener("dragenter",&nbsp;(e)&nbsp;=&gt;&nbsp;e.target.classList.add("dragover"));<br>target.addEventListener("dragleave",&nbsp;(e)&nbsp;=&gt;&nbsp;e.target.classList.remove("dragover"));</code></pre>
+     </div>
+     <p class="paragraph">Astfel, putem muta elementele item în elementul target.</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/25.API%20Drag%20and%20Drop/2.Setarea%20si%20obtinerea%20datelor%20trasabile%20cu%20ajutorul%20DataTransfer/images/image1.png}" alt="" class="responsive-image">
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

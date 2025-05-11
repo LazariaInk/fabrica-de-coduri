@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='5.OOP si clase', activeLesson='5.Mostenire'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Moștenire</h1>
+     <p class="paragraph">Unele clase pot moșteni de la altele. Moștenirea permite reducerea volumului de cod în clasele derivate. De exemplu, să luăm următoarele clase:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;name;<br>&nbsp;&nbsp;&nbsp;age;<br>&nbsp;&nbsp;&nbsp;print(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;}<br>}<br>class&nbsp;Employee{<br>&nbsp;&nbsp;&nbsp;name;<br>&nbsp;&nbsp;&nbsp;age;<br>&nbsp;&nbsp;&nbsp;company;<br>&nbsp;&nbsp;&nbsp;print(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;work(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`${this.name}&nbsp;works&nbsp;in&nbsp;${this.company}`);<br>&nbsp;&nbsp;&nbsp;}<br>}<br>&nbsp;<br>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person();<br>tom.name&nbsp;=&nbsp;"Tom";<br>tom.age=&nbsp;34;<br>const&nbsp;bob&nbsp;=&nbsp;new&nbsp;Employee();<br>bob.name&nbsp;=&nbsp;"Bob";<br>bob.age&nbsp;=&nbsp;36;<br>bob.company&nbsp;=&nbsp;"Google";<br>tom.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;Age:&nbsp;34<br>bob.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Bob&nbsp;&nbsp;Age:&nbsp;36<br>bob.work();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Bob&nbsp;works&nbsp;in&nbsp;Google</code></pre>
+     </div>
+     <p class="paragraph">Aici sunt definite două clase - Person, care reprezintă o persoană, și Employee, care reprezintă un angajat al unei întreprinderi. Ambele clase funcționează bine, putem crea obiecte pentru ele, dar observăm că clasa Employee repetă funcționalitatea clasei Person, deoarece un angajat este, de asemenea, o persoană, pentru care se pot defini proprietățile name și age și metoda print.</p>
+     <p class="paragraph">Moștenirea permite ca unele clase să obțină automat funcționalitatea altor clase, astfel reducând volumul de cod. Pentru a realiza moștenirea unei clase de la alta, se utilizează cuvântul cheie extends:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Base{}<br>class&nbsp;Derived&nbsp;extends&nbsp;Base{}</code></pre>
+     </div>
+     <p class="paragraph">După numele clasei-derivat se adaugă cuvântul cheie extends, urmat de numele clasei de la care dorim să moștenim funcționalitatea.</p>
+     <p class="paragraph">Astfel, să modificăm clasele Person și Employee, aplicând moștenirea:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;name;<br>&nbsp;&nbsp;&nbsp;age;<br>&nbsp;&nbsp;&nbsp;print(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;}<br>}<br>class&nbsp;Employee&nbsp;extends&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;company;<br>&nbsp;&nbsp;&nbsp;work(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`${this.name}&nbsp;works&nbsp;in&nbsp;${this.company}`);<br>&nbsp;&nbsp;&nbsp;}<br>}<br>&nbsp;<br>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person();<br>tom.name&nbsp;=&nbsp;"Tom";<br>tom.age=&nbsp;34;<br>const&nbsp;bob&nbsp;=&nbsp;new&nbsp;Employee();<br>bob.name&nbsp;=&nbsp;"Bob";<br>bob.age&nbsp;=&nbsp;36;<br>bob.company&nbsp;=&nbsp;"Google";<br>tom.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;Age:&nbsp;34<br>bob.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Bob&nbsp;&nbsp;Age:&nbsp;36<br>bob.work();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Bob&nbsp;works&nbsp;in&nbsp;Google</code></pre>
+     </div>
+     <p class="paragraph">Acum, clasa Employee moștenește de la clasa Person. În acest context, clasa Person mai este numită și clasă de bază sau părinte, în timp ce clasa Employee este clasă derivată sau clasă-copil. Deoarece clasa Employee moștenește funcționalitatea de la Person, nu este nevoie să redefinim proprietățile name, age și metoda print în clasa Employee. Astfel, codul clasei Employee a devenit mai scurt, dar rezultatul programului rămâne același.</p>
+     <h2 class="subtitle">Moștenirea unei clase cu constructor</h2>
+     <p class="paragraph">Împreună cu întregul funcțional, clasa derivată moștenește și constructorul clasei de bază. De exemplu, să definim un constructor în clasa de bază Person:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;constructor(name,&nbsp;age){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;print(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;}<br>}<br>class&nbsp;Employee&nbsp;extends&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;company;<br>&nbsp;&nbsp;&nbsp;work(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`${this.name}&nbsp;works&nbsp;in&nbsp;${this.company}`);<br>&nbsp;&nbsp;&nbsp;}<br>}<br>&nbsp;<br>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;34);<br>tom.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;Age:&nbsp;34<br><br>const&nbsp;sam&nbsp;=&nbsp;new&nbsp;Employee("Sam",&nbsp;25);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;constructor&nbsp;moștenit<br>sam.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Sam&nbsp;&nbsp;Age:&nbsp;25</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, clasa Person definește un constructor cu doi parametri. În acest scenariu, clasa Employee moștenește acest constructor și îl utilizează pentru a crea un obiect Employee.</p>
+     <h2 class="subtitle">Definirea unui constructor într-o clasă derivată și cuvântul cheie super</h2>
+     <p class="paragraph">O clasă derivată poate, de asemenea, să-și definească propriul constructor. Dacă o clasă derivată definește un constructor, acesta trebuie să apeleze constructorul clasei de bază. Pentru a accesa funcționalitatea clasei de bază, inclusiv pentru a apela constructorul clasei de bază, în clasa derivată se folosește cuvântul cheie super.</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;constructor(name,&nbsp;age){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;print(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;}<br>}<br>class&nbsp;Employee&nbsp;extends&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;constructor(name,&nbsp;age,&nbsp;company){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super(name,&nbsp;age);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.company&nbsp;=&nbsp;company;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;work(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`${this.name}&nbsp;works&nbsp;in&nbsp;${this.company}`);<br>&nbsp;&nbsp;&nbsp;}<br>}<br>&nbsp;<br>const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;34);<br>tom.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;Age:&nbsp;34<br><br>const&nbsp;sam&nbsp;=&nbsp;new&nbsp;Employee("Sam",&nbsp;25,&nbsp;"Google");<br>sam.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Sam&nbsp;&nbsp;Age:&nbsp;25<br>sam.work();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Sam&nbsp;works&nbsp;in&nbsp;Google</code></pre>
+     </div>
+     <p class="paragraph">Clasa Employee definește propriul constructor cu trei parametri, iar prima linie din acesta face referire la constructorul clasei de bază Person:</p>
+     <div class="code-inline">
+      <pre><code>super(name,&nbsp;age);</code></pre>
+     </div>
+     <p class="paragraph">Deoarece constructorul clasei Person are doi parametri, trebuie să-i fie furnizate două valori. În plus, constructorul clasei de bază trebuie să fie apelat înainte de a face referire la proprietățile obiectului curent prin intermediul cuvântului cheie this.</p>
+     <h2 class="subtitle">Suprascrierea metodelor clasei de bază</h2>
+     <p class="paragraph">O clasă derivată, la fel ca și în cazul constructorului, poate să suprascrie metodele clasei de bază. În exemplul de mai sus, metoda print() a clasei Person afișează numele și vârsta persoanei. Dar ce facem dacă vrem ca, pentru un angajat, metoda print() să afișeze și compania la care lucrează? În acest caz, putem defini în clasa Employee propria sa metodă print():</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;constructor(name,&nbsp;age){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;print(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;}<br>}<br>class&nbsp;Employee&nbsp;extends&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;constructor(name,&nbsp;age,&nbsp;company){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super(name,&nbsp;age);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.company&nbsp;=&nbsp;company;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;print(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Company:&nbsp;${this.company}`);<br>&nbsp;&nbsp;&nbsp;}<br>}<br>const&nbsp;sam&nbsp;=&nbsp;new&nbsp;Employee("Sam",&nbsp;25,&nbsp;"Google");<br>sam.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Sam&nbsp;&nbsp;Age:&nbsp;25<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Company:&nbsp;Google</code></pre>
+     </div>
+     <p class="paragraph">Cu toate acestea, în codul de mai sus observăm că prima linie a metodei print() în clasa Employee practic repetă codul metodei print() din clasa Person. În acest caz, este doar o singură linie, dar în alte situații, codul repetitiv ar putea fi mai extins. Pentru a evita repetarea, putem, din nou, să accesăm implementarea metodei print() din clasa părinte Person utilizând super:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;constructor(name,&nbsp;age){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;print(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;}<br>}<br>class&nbsp;Employee&nbsp;extends&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;constructor(name,&nbsp;age,&nbsp;company){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super(name,&nbsp;age);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.company&nbsp;=&nbsp;company;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;print(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super.print();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Company:&nbsp;${this.company}`);<br>&nbsp;&nbsp;&nbsp;}<br>}<br>const&nbsp;sam&nbsp;=&nbsp;new&nbsp;Employee("Sam",&nbsp;25,&nbsp;"Google");<br>sam.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Sam&nbsp;&nbsp;Age:&nbsp;25<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Company:&nbsp;Google</code></pre>
+     </div>
+     <p class="paragraph">Deci, în acest caz, apelul:</p>
+     <div class="code-inline">
+      <pre><code>super.print();</code></pre>
+     </div>
+     <p class="paragraph">Reprezintă o apelare a implementării metodei din clasa de bază. Astfel, utilizând this și super, putem distinge între accesarea funcționalității clasei curente sau a clasei de bază.</p>
+     <h2 class="subtitle">Moștenirea și câmpurile și metodele private</h2>
+     <p class="paragraph">La moștenire, trebuie să avem în vedere că clasa derivată poate accesa orice funcționalitate a clasei de bază, cu excepția câmpurilor și metodelor private. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;#name;<br>&nbsp;&nbsp;&nbsp;constructor(name,&nbsp;age){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.#name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;print(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.#name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;}<br>}<br>class&nbsp;Employee&nbsp;extends&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;constructor(name,&nbsp;age,&nbsp;company){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super(name,&nbsp;age);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.company&nbsp;=&nbsp;company;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;print(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super.print();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Company:&nbsp;${this.company}`);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;work(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`${this.#name}&nbsp;works&nbsp;in&nbsp;${this.company}`);&nbsp;&nbsp;//!&nbsp;Eroare&nbsp;-&nbsp;câmpul&nbsp;#name&nbsp;nu&nbsp;este&nbsp;accesibil&nbsp;din&nbsp;clasa&nbsp;Employee<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, câmpul #name în clasa Person este definit ca privat, astfel că este accesibil doar în interiorul acelei clase. Încercarea de a accesa acest câmp în clasa derivată Employee va duce la o eroare, indiferent dacă se face referire prin this.#name sau super.#name. Dacă este necesar, în clasa de bază se pot defini getteri și setteri care să acceseze câmpurile private. Apoi, în clasele derivate, se poate accesa câmpurile private ale clasei de bază prin intermediul acestor getteri și setteri.</p>
+     <h2 class="subtitle">Verificarea apartenenței unui obiect la o clasă</h2>
+     <p class="paragraph">Faptul că o clasă derivată este moștenită de la o anumită clasă de bază indică faptul că obiectul clasei derivate este, de asemenea, un obiect al clasei de bază. Se poate verifica clasa obiectului utilizând operatorul instanceof:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;constructor(name,&nbsp;age){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;print(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;}<br>}<br>class&nbsp;Employee&nbsp;extends&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;constructor(name,&nbsp;age,&nbsp;company){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super(name,&nbsp;age);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.company&nbsp;=&nbsp;company;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;print(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super.print();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Works&nbsp;in&nbsp;${this.company}`);<br>&nbsp;&nbsp;&nbsp;}<br>}<br>class&nbsp;Manager&nbsp;extends&nbsp;Person{<br><br>&nbsp;&nbsp;&nbsp;constructor(name,&nbsp;age,&nbsp;company){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super(name,&nbsp;age);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.company&nbsp;=&nbsp;company;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;print(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super.print();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Manager&nbsp;in&nbsp;${this.company}`);<br>&nbsp;&nbsp;&nbsp;}<br>}<br>const&nbsp;sam&nbsp;=&nbsp;new&nbsp;Employee("Sam",&nbsp;25,&nbsp;"Google");<br>console.log(sam&nbsp;instanceof&nbsp;Person);&nbsp;//&nbsp;true<br>console.log(sam&nbsp;instanceof&nbsp;Employee);&nbsp;//&nbsp;true<br>console.log(sam&nbsp;instanceof&nbsp;Manager);&nbsp;//&nbsp;false</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, constanta `sam` reprezintă un obiect al clasei Employee, care este moștenită de la Person. Prin urmare, expresiile `sam instanceof Person` și `sam instanceof Employee` vor returna true. Cu toate acestea, obiectul nu este un obiect al clasei Manager, așa că expresia `sam instanceof Manager` va returna false.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

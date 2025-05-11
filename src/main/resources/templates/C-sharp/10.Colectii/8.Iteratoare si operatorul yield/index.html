@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='10.Colectii', activeLesson='8.Iteratoare si operatorul yield'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Iteratoare și operatorul yield</h1>
+     <p class="paragraph">Un iterativ reprezintă un bloc de cod care utilizează operatorul yield pentru a parcurge un set de valori. Acest bloc de cod poate reprezenta corpul unei metode, al unui operator sau blocul get al unei proprietăți.</p>
+     <p class="paragraph">Un iterativ utilizează două instrucțiuni speciale:</p>
+     <ul class="enumeration">
+      <li>yield return: definește elementul returnat</li>
+      <li>yield break: indică faptul că secvența nu mai are elemente</li>
+     </ul>
+     <p class="paragraph">Să vedem un mic exemplu:</p>
+     <div class="code-inline">
+      <pre><code>Numbers&nbsp;numbers&nbsp;=&nbsp;new&nbsp;Numbers();<br>foreach&nbsp;(int&nbsp;n&nbsp;in&nbsp;numbers)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(n);<br>}<br><br>class&nbsp;Numbers<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;IEnumerator&lt;int&gt;&nbsp;GetEnumerator()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;6;&nbsp;i++)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yield&nbsp;return&nbsp;i&nbsp;*&nbsp;i;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În clasa Numbers, metoda GetEnumerator() reprezintă de fapt un iterativ. Cu ajutorul operatorului yield return se returnează o valoare (în acest caz, pătratul numărului).</p>
+     <p class="paragraph">În program, cu ajutorul ciclului foreach, putem parcurge obiectul Numbers ca o colecție obișnuită. La obținerea fiecărui element în ciclul foreach, va fi declanșat operatorul yield return, care va returna un element și va memora poziția curentă.</p>
+     <p class="paragraph">Datorită iteratoarelor, putem merge mai departe și implementa cu ușurință parcurgerea unui număr în ciclul foreach:</p>
+     <div class="code-inline">
+      <pre><code>foreach(var&nbsp;n&nbsp;in&nbsp;5)&nbsp;Console.WriteLine(n);<br>foreach&nbsp;(var&nbsp;n&nbsp;in&nbsp;-5)&nbsp;Console.WriteLine(n);<br><br>static&nbsp;class&nbsp;Int32Extension<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;IEnumerator&lt;int&gt;&nbsp;GetEnumerator(this&nbsp;int&nbsp;number)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;k&nbsp;=&nbsp;(number&nbsp;&gt;&nbsp;0)&nbsp;?&nbsp;number&nbsp;:&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;number&nbsp;-&nbsp;k;&nbsp;i&nbsp;&lt;=&nbsp;k;&nbsp;i++)&nbsp;yield&nbsp;return&nbsp;i;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, iterativul este implementat ca o metodă de extensie pentru tipul int sau System.Int32. În metoda iterativului, returnăm de fapt toate valorile întregi de la 0 la numărul curent. Rezultatul în consolă:</p>
+     <div class="code-inline">
+      <pre><code>0<br>1<br>2<br>3<br>4<br>5<br>-5<br>-4<br>-3<br>-2<br>-1<br>0</code></pre>
+     </div>
+     <p class="paragraph">Un alt exemplu: să presupunem că avem o colecție Company, care reprezintă o companie și care stochează într-un array personnel personalul companiei - obiecte de tip Person. Folosim operatorul yield pentru a parcurge această colecție:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name)&nbsp;=&gt;&nbsp;Name&nbsp;=&nbsp;name;<br>}<br><br>class&nbsp;Company<br>{<br>&nbsp;&nbsp;&nbsp;Person[]&nbsp;personnel;<br>&nbsp;&nbsp;&nbsp;public&nbsp;Company(Person[]&nbsp;personnel)&nbsp;=&gt;&nbsp;this.personnel&nbsp;=&nbsp;personnel;<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Length&nbsp;=&gt;&nbsp;personnel.Length;<br>&nbsp;&nbsp;&nbsp;public&nbsp;IEnumerator&lt;Person&gt;&nbsp;GetEnumerator()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;personnel.Length;&nbsp;i++)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yield&nbsp;return&nbsp;personnel[i];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Metoda GetEnumerator() reprezintă un iterativ. Și când vom parcurge obiectul Company în ciclul foreach, va fi apelat yield return personnel[i]. La apelul operatorului yield return, se va memora poziția curentă.</p>
+     <p class="paragraph">Iar când ciclul foreach va trece la următoarea iterație pentru a obține un nou obiect, iterativul va începe execuția de la acea poziție.</p>
+     <p class="paragraph">În programul principal, în ciclul foreach, parcurgerea are loc datorită implementării iterativului:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;people&nbsp;=&nbsp;new&nbsp;Person[]<br>{<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person("Tom"),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person("Bob"),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person("Sam")<br>};<br>var&nbsp;microsoft&nbsp;=&nbsp;new&nbsp;Company(people);<br><br>foreach&nbsp;(Person&nbsp;employee&nbsp;in&nbsp;microsoft)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(employee.Name);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Deși în implementarea iterativului în metoda GetEnumerator() am folosit parcurgerea array-ului într-un ciclu for, nu este obligatoriu să facem asta. Putem pur și simplu să definim câteva apeluri ale operatorului yield return:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;IEnumerator&lt;Person&gt;&nbsp;GetEnumerator()<br>{<br>&nbsp;&nbsp;&nbsp;yield&nbsp;return&nbsp;personnel[0];<br>&nbsp;&nbsp;&nbsp;yield&nbsp;return&nbsp;personnel[1];<br>&nbsp;&nbsp;&nbsp;yield&nbsp;return&nbsp;personnel[2];<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, la fiecare apel al operatorului yield return, iterativul va memora și poziția curentă și, la apelurile ulterioare, va începe de la acea poziție.</p>
+     <h2 class="subtitle">Iterativ denumit</h2>
+     <p class="paragraph">Mai sus, pentru crearea iterativului am folosit metoda GetEnumerator. Dar operatorul yield poate fi folosit în orice metodă, doar că metoda respectivă trebuie să returneze un obiect al interfeței IEnumerable. Astfel de metode mai sunt numite iteratoare denumite.</p>
+     <p class="paragraph">Să creăm un astfel de iterativ denumit în clasa Company și să-l folosim:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name)&nbsp;=&gt;&nbsp;Name&nbsp;=&nbsp;name;<br>}<br><br>class&nbsp;Company<br>{<br>&nbsp;&nbsp;&nbsp;Person[]&nbsp;personnel;<br>&nbsp;&nbsp;&nbsp;public&nbsp;Company(Person[]&nbsp;personnel)&nbsp;=&gt;&nbsp;this.personnel&nbsp;=&nbsp;personnel;<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Length&nbsp;=&gt;&nbsp;personnel.Length;<br>&nbsp;&nbsp;&nbsp;public&nbsp;IEnumerable&lt;Person&gt;&nbsp;GetPersonnel(int&nbsp;max)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;max;&nbsp;i++)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(i&nbsp;==&nbsp;personnel.Length)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yield&nbsp;break;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yield&nbsp;return&nbsp;personnel[i];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Iterativul definit aici - metoda IEnumerable GetPersonnel(int max) - acceptă ca parametru numărul maxim de obiecte returnate. În timpul execuției programului, se poate întâmpla ca valoarea sa să fie mai mare decât lungimea array-ului personnel.</p>
+     <p class="paragraph">Pentru a evita o eroare, se folosește operatorul yield break. Acest operator întrerupe execuția iterativului.</p>
+     <p class="paragraph">Aplicarea iterativului:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;people&nbsp;=&nbsp;new&nbsp;Person[]<br>{<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person("Tom"),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person("Bob"),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person("Sam")<br>};<br>var&nbsp;microsoft&nbsp;=&nbsp;new&nbsp;Company(people);<br><br>foreach&nbsp;(Person&nbsp;employee&nbsp;in&nbsp;microsoft.GetPersonnel(5))<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(employee.Name);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Apelul microsoft.GetPersonnel(5) va returna un set de nu mai mult de 5 obiecte Person. Dar, deoarece avem doar trei astfel de obiecte, în metoda GetPersonnel, după trei operații, va fi apelat operatorul yield break.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

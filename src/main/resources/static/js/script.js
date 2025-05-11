@@ -1,125 +1,123 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Navbar solid on scroll
-    window.addEventListener('scroll', function () {
-        const nav = document.querySelector('nav');
-        if (window.scrollY > 50) {
-            nav.classList.add('solid');
-        } else {
-            nav.classList.remove('solid');
-        }
-    });
+    // Scroll navbar solid background
+    const navBar = document.querySelector('nav');
+    if (navBar) {
+        window.addEventListener('scroll', function () {
+            if (window.scrollY > 50) {
+                navBar.classList.add('solid');
+            } else {
+                navBar.classList.remove('solid');
+            }
+        });
+    }
 
     // Hamburger menu toggle
-    document.querySelector('.hamburger').onclick = function () {
-        document.querySelector('.menu').classList.toggle('active');
-    };
+    const hamburger = document.querySelector('.hamburger');
+    const menu = document.querySelector('.menu');
+    if (hamburger && menu) {
+        hamburger.onclick = function () {
+            menu.classList.toggle('active');
+        };
+    }
 
     // Parallax effect
-    document.addEventListener('mousemove', function (e) {
-        document.querySelectorAll('.parallax-banner img').forEach(layer => {
-            const speed = layer.getAttribute('data-speed');
-            const translateX = (window.innerWidth - e.clientX * 2) / 100 * speed;
-            const translateY = (window.innerHeight - e.clientY * 2) / 100 * speed;
-            const scale = 1 + (speed / 20);
-            layer.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+    const parallaxImages = document.querySelectorAll('.parallax-banner img');
+    if (parallaxImages.length > 0) {
+        document.addEventListener('mousemove', function (e) {
+            parallaxImages.forEach(layer => {
+                const speed = layer.getAttribute('data-speed');
+                const translateX = (window.innerWidth - e.clientX * 2) / 100 * speed;
+                const translateY = (window.innerHeight - e.clientY * 2) / 100 * speed;
+                const scale = 1 + (speed / 20);
+                layer.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+            });
         });
-    });
+    }
 
-    // Mobile sidebar auto-close
+    // Mobile sidebar close on link click
     const links = document.querySelectorAll('#mobileSidebar a');
     links.forEach(link => {
         link.addEventListener('click', () => {
-            document.getElementById('mobileSidebar').classList.remove('active');
+            const sidebar = document.getElementById('mobileSidebar');
+            if (sidebar) sidebar.classList.remove('active');
         });
     });
+});
 
-    // Show cookie banner if no decision made
-    const cookieBanner = document.getElementById("cookieConsentContainer");
-    if (!checkCookiesAccepted() && !checkCookiesDeclined() && cookieBanner) {
-        cookieBanner.style.display = "flex";
+// Scrollable .top-nav drag support (only if exists)
+const topNav = document.querySelector('.top-nav');
+if (topNav) {
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    topNav.addEventListener('mousedown', (e) => {
+        isDown = true;
+        topNav.classList.add('dragging');
+        startX = e.pageX - topNav.offsetLeft;
+        scrollLeft = topNav.scrollLeft;
+    });
+
+    topNav.addEventListener('mouseleave', () => {
+        isDown = false;
+        topNav.classList.remove('dragging');
+    });
+
+    topNav.addEventListener('mouseup', () => {
+        isDown = false;
+        topNav.classList.remove('dragging');
+    });
+
+    topNav.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - topNav.offsetLeft;
+        const walk = (x - startX) * 2;
+        topNav.scrollLeft = scrollLeft - walk;
+    });
+}
+
+// Sidebar height adjustment
+window.addEventListener('scroll', function () {
+    const sidebar = document.querySelector('.sidebar');
+    if (!sidebar) return;
+
+    const footerHeight = 406;
+    const scrollY = window.scrollY;
+    const documentHeight = document.body.scrollHeight;
+    const windowHeight = window.innerHeight;
+    const distanceFromBottom = documentHeight - (scrollY + windowHeight);
+
+    if (distanceFromBottom < footerHeight) {
+        const overlap = footerHeight - distanceFromBottom;
+        const newMaxHeight = windowHeight - overlap;
+        sidebar.style.maxHeight = `${newMaxHeight}px`;
+    } else {
+        sidebar.style.maxHeight = `${windowHeight}px`;
     }
 });
 
-// Cookie consent logic
-function checkCookiesAccepted() {
-    return localStorage.getItem("cookiesConsent") === "accepted";
-}
-
-function checkCookiesDeclined() {
-    return localStorage.getItem("cookiesConsent") === "declined";
-}
-
-function acceptCookies() {
-    localStorage.setItem("cookiesConsent", "accepted");
-    document.getElementById("cookieConsentContainer").style.display = "none";
-
-    // Aici poți încărca scripturi precum AdSense
-    // loadAdSense();
-}
-
-function declineCookies() {
-    localStorage.setItem("cookiesConsent", "declined");
-    document.getElementById("cookieConsentContainer").style.display = "none";
-}
-
-function resetCookieConsent() {
-    localStorage.removeItem("cookiesConsent");
-    location.reload();
-}
-
-// Draggable top nav
-const nav = document.querySelector('.top-nav');
-let isDown = false;
-let startX;
-let scrollLeft;
-
-nav.addEventListener('mousedown', (e) => {
-    isDown = true;
-    nav.classList.add('dragging');
-    startX = e.pageX - nav.offsetLeft;
-    scrollLeft = nav.scrollLeft;
-});
-
-nav.addEventListener('mouseleave', () => {
-    isDown = false;
-    nav.classList.remove('dragging');
-});
-
-nav.addEventListener('mouseup', () => {
-    isDown = false;
-    nav.classList.remove('dragging');
-});
-
-nav.addEventListener('mousemove', (e) => {
-    if (!isDown) return;
-    e.preventDefault();
-    const x = e.pageX - nav.offsetLeft;
-    const walk = (x - startX) * 2;
-    nav.scrollLeft = scrollLeft - walk;
-});
-
-// Sidebar toggles
+// Utility functions
 function toggleSidebar() {
     const sidebar = document.getElementById("mobileSidebar");
-    sidebar.classList.toggle("active");
+    if (sidebar) sidebar.classList.toggle("active");
 }
 
 function toggleMobileSidebar() {
-    document.getElementById('mobileSidebar').classList.toggle('active');
+    const sidebar = document.getElementById("mobileSidebar");
+    if (sidebar) sidebar.classList.toggle('active');
 }
 
-// Chapters
 function toggleChapter(el) {
     const chapterItem = el.parentElement;
-    chapterItem.classList.toggle("open");
+    if (chapterItem) chapterItem.classList.toggle("open");
 }
 
 function toggleLessons(element) {
     const chapterItem = element.closest('.chapter-item');
-    chapterItem.classList.toggle('open');
+    if (chapterItem) chapterItem.classList.toggle('open');
 }
 
-// Navigation to topic
 function goToTopic(element) {
     const url = element.getAttribute('data-topic-url');
     if (url) {
@@ -127,11 +125,69 @@ function goToTopic(element) {
     }
 }
 
-// Donation popup
 function openPopup() {
-    document.getElementById("donationOverlay").style.display = "flex";
+    const overlay = document.getElementById("donationOverlay");
+    if (overlay) overlay.style.display = "flex";
 }
 
 function closePopup() {
-    document.getElementById("donationOverlay").style.display = "none";
+    const overlay = document.getElementById("donationOverlay");
+    if (overlay) overlay.style.display = "none";
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+  const bannerHTML = `
+    <div id="cookieConsentBanner">
+      <div class="cookie-box">
+        <h3>Respectăm intimitatea ta</h3>
+        <p class="cookie-text">
+          Folosim cookie-uri pentru a personaliza conținutul și reclamele, pentru a oferi funcționalități media sociale și pentru a analiza traficul nostru.
+          <br><br>
+          <a href="/politica-confidentialitate" target="_blank">Află mai multe</a>
+        </p>
+        <div class="cookie-actions">
+          <button id="acceptCookies">Accept</button>
+          <button id="rejectCookies">Refuz</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', bannerHTML);
+
+  const saved = localStorage.getItem('cookieConsent');
+  if (saved === 'granted') {
+    acceptConsent();
+  } else if (saved === 'denied') {
+    rejectConsent();
+  } else {
+    document.getElementById('cookieConsentBanner').style.display = 'block';
+  }
+
+  document.getElementById('acceptCookies').addEventListener('click', acceptConsent);
+  document.getElementById('rejectCookies').addEventListener('click', rejectConsent);
+});
+
+function acceptConsent() {
+  gtag('consent', 'update', {
+    'ad_storage': 'granted',
+    'analytics_storage': 'granted',
+    'ad_user_data': 'granted',
+    'ad_personalization': 'granted'
+  });
+  localStorage.setItem('cookieConsent', 'granted');
+  const banner = document.getElementById('cookieConsentBanner');
+  if (banner) banner.style.display = 'none';
+}
+
+function rejectConsent() {
+  gtag('consent', 'update', {
+    'ad_storage': 'denied',
+    'analytics_storage': 'denied',
+    'ad_user_data': 'denied',
+    'ad_personalization': 'denied'
+  });
+  localStorage.setItem('cookieConsent', 'denied');
+  const banner = document.getElementById('cookieConsentBanner');
+  if (banner) banner.style.display = 'none';
+}
+

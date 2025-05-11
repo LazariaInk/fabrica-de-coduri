@@ -1,173 +1,163 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='3.Programare functionala', activeLesson='1.Programare functionala'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Programare funcțională</h1>
- <h2 class="subtitle">Funcții</h2>
- <p class="paragraph">Funcțiile reprezintă un set de instrucțiuni care pot fi apelate repetat în diferite părți ale programului prin numele funcției. În general, sintaxa de definire a unei funcții arată astfel:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;nume_funcție(parametri){<br>&nbsp;&nbsp;&nbsp;//&nbsp;Instrucțiuni<br>}</code></pre>
- </div>
- <p class="paragraph">Definirea funcției începe cu cuvântul cheie function, urmat de numele funcției. Numele funcției respectă aceleași reguli ca și numele variabilelor: poate conține doar cifre, litere, caractere de subliniere și dolar ($) și trebuie să înceapă cu o literă, caracter de subliniere sau dolar.</p>
- <p class="paragraph">După numele funcției, în paranteze, urmează o listă de parametri. Chiar dacă funcția nu are parametri, se folosesc tot parantezele goale. Apoi, în acolade, se află corpul funcției, care conține setul de instrucțiuni.</p>
- <p class="paragraph">Să definim o funcție simplă:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;salut(){<br>&nbsp;&nbsp;&nbsp;console.log("Salut,&nbsp;FDC.com");<br>}</code></pre>
- </div>
- <p class="paragraph">Această funcție se numește salut(). Ea nu primește niciun parametru și tot ce face este să afișeze în consolă șirul de caractere "Salut, FDC.com".</p>
- <p class="paragraph">Pentru ca funcția să-și facă treaba, trebuie să o apelăm. Sintaxa generală de apelare a unei funcții este:</p>
- <div class="code-inline">
-  <pre><code>nume_funcție(parametri)</code></pre>
- </div>
- <p class="paragraph">La apel, după numele funcției, în paranteze, se specifică lista de parametri. Dacă funcția nu are parametri, se folosesc parantezele goale.</p>
- <p class="paragraph">De exemplu, să definim și să apelăm o funcție simplă:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;script&gt;<br>//&nbsp;Definirea&nbsp;funcției<br>function&nbsp;hello(){<br>&nbsp;&nbsp;&nbsp;console.log("Salut,&nbsp;FDC.com");<br>}<br><br>//&nbsp;Apelarea&nbsp;funcției<br>hello();<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">În acest caz, funcția "hello" nu primește niciun parametru, așadar la apelul său se specifică paranteze goale:</p>
- <div class="image-container">
-  <img src="images/image1.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">O caracteristică distinctivă a funcțiilor este că pot fi apelate de mai multe ori în diferite locuri ale programului:</p>
- <div class="code-inline">
-  <pre><code>//&nbsp;definirea&nbsp;funcției<br>function&nbsp;hello(){<br>&nbsp;&nbsp;&nbsp;console.log("Salut&nbsp;Metanit.com");<br>}<br>//&nbsp;apelarea&nbsp;funcției<br>hello();<br>hello();<br>hello();</code></pre>
- </div>
- <h2 class="subtitle">Variabilele și constantele ca funcții</h2>
- <p class="paragraph">Asemenea variabilelor și constantelor cărora li se atribuie valori simple (numere, șiruri etc.), le putem atribui și funcții. Apoi, prin intermediul unei astfel de variabile sau constante, putem apela funcția atribuită:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;METANIT.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;script&gt;<br>//&nbsp;definirea&nbsp;funcției<br>function&nbsp;hello(){<br>&nbsp;&nbsp;&nbsp;console.log("Salut&nbsp;de&nbsp;la&nbsp;Metanit.com");<br>}<br>//&nbsp;atribuirea&nbsp;constantei&nbsp;message&nbsp;referința&nbsp;la&nbsp;funcția&nbsp;hello<br>const&nbsp;message&nbsp;=&nbsp;hello;<br>message();&nbsp;&nbsp;//&nbsp;apelăm&nbsp;funcția,&nbsp;referința&nbsp;către&nbsp;care&nbsp;este&nbsp;stocată&nbsp;în&nbsp;constanta&nbsp;message<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">Atribuind unei constante sau variabile o funcție:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;message&nbsp;=&nbsp;hello;</code></pre>
- </div>
- <p class="paragraph">Apoi putem apela această funcție prin numele constantei/variabilei:</p>
- <div class="code-inline">
-  <pre><code>message();</code></pre>
- </div>
- <p class="paragraph">De asemenea, putem schimba dinamic funcțiile care sunt stocate într-o variabilă:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;goodMorning(){<br>&nbsp;&nbsp;&nbsp;console.log("Bună&nbsp;dimineața");<br>}<br>function&nbsp;goodEvening(){<br>&nbsp;&nbsp;&nbsp;console.log("Bună&nbsp;seara");<br>}<br>let&nbsp;message&nbsp;=&nbsp;goodMorning;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;atribuim&nbsp;variabilei&nbsp;message&nbsp;funcția&nbsp;goodMorning<br>message();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Bună&nbsp;dimineața<br>message&nbsp;=&nbsp;goodEvening;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;schimbăm&nbsp;funcția&nbsp;în&nbsp;variabila&nbsp;message<br>message();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Bună&nbsp;seara</code></pre>
- </div>
- <h2 class="subtitle">Funcții exprimate și funcții anonime</h2>
- <p class="paragraph">Nu este neapărat să atribuim nume funcțiilor. Putem utiliza funcții anonime. Aceste funcții, atunci când sunt definite, sunt atribuite unei constante sau variabile. Aceste funcții mai sunt numite funcții exprimate (function expression):</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;message&nbsp;=&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;console.log("Salut&nbsp;JavaScript");<br>}<br>message();<br></code></pre>
- </div>
- <p class="paragraph">Folosind numele constantei sau variabilei căreia i s-a atribuită funcția, putem apela această funcție.</p>
- <h2 class="subtitle">Funcții locale</h2>
- <p class="paragraph">JavaScript permite definirea funcțiilor locale - funcții în interiorul altor funcții. Funcțiile locale sunt vizibile doar în cadrul funcției externe în care sunt definite. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;print(){<br>&nbsp;&nbsp;&nbsp;printHello();<br>&nbsp;&nbsp;&nbsp;printHello();<br>&nbsp;&nbsp;&nbsp;printHello();<br><br>&nbsp;&nbsp;&nbsp;function&nbsp;printHello(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Salut");<br>&nbsp;&nbsp;&nbsp;}<br>}<br>print();<br>printHello();&nbsp;&nbsp;&nbsp;//&nbsp;Uncaught&nbsp;ReferenceError:&nbsp;printHello&nbsp;is&nbsp;not&nbsp;defined&nbsp;-&nbsp;funcția&nbsp;locală&nbsp;poate&nbsp;fi&nbsp;apelată&nbsp;doar&nbsp;din&nbsp;funcția&nbsp;înconjurătoare</code></pre>
- </div>
- <p class="paragraph">Aici, în interiorul funcției print, este definită funcția locală printHello, care afișează doar șirul "Salut". În interiorul funcției print, putem apela funcția locală printHello, însă în afara funcției înconjurătoare, funcția locală nu poate fi apelată.</p>
- <p class="paragraph">Acest exemplu este destul de simplu și nu are un mare sens. Cu toate acestea, de obicei, funcțiile locale sunt definite pentru acțiuni care sunt aplicate de mai multe ori doar în cadrul unei anumite funcții și nicăieri altundeva. Un dezavantaj al funcțiilor locale poate fi că acestea sunt create de fiecare dată când este efectuată apelarea funcției externe.</p>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Programare funcțională</h1>
+     <h2 class="subtitle">Funcții</h2>
+     <p class="paragraph">Funcțiile reprezintă un set de instrucțiuni care pot fi apelate repetat în diferite părți ale programului prin numele funcției. În general, sintaxa de definire a unei funcții arată astfel:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;nume_funcție(parametri){<br>&nbsp;&nbsp;&nbsp;//&nbsp;Instrucțiuni<br>}</code></pre>
+     </div>
+     <p class="paragraph">Definirea funcției începe cu cuvântul cheie function, urmat de numele funcției. Numele funcției respectă aceleași reguli ca și numele variabilelor: poate conține doar cifre, litere, caractere de subliniere și dolar ($) și trebuie să înceapă cu o literă, caracter de subliniere sau dolar.</p>
+     <p class="paragraph">După numele funcției, în paranteze, urmează o listă de parametri. Chiar dacă funcția nu are parametri, se folosesc tot parantezele goale. Apoi, în acolade, se află corpul funcției, care conține setul de instrucțiuni.</p>
+     <p class="paragraph">Să definim o funcție simplă:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;salut(){<br>&nbsp;&nbsp;&nbsp;console.log("Salut,&nbsp;FDC.com");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Această funcție se numește salut(). Ea nu primește niciun parametru și tot ce face este să afișeze în consolă șirul de caractere "Salut, FDC.com".</p>
+     <p class="paragraph">Pentru ca funcția să-și facă treaba, trebuie să o apelăm. Sintaxa generală de apelare a unei funcții este:</p>
+     <div class="code-inline">
+      <pre><code>nume_funcție(parametri)</code></pre>
+     </div>
+     <p class="paragraph">La apel, după numele funcției, în paranteze, se specifică lista de parametri. Dacă funcția nu are parametri, se folosesc parantezele goale.</p>
+     <p class="paragraph">De exemplu, să definim și să apelăm o funcție simplă:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;script&gt;<br>//&nbsp;Definirea&nbsp;funcției<br>function&nbsp;hello(){<br>&nbsp;&nbsp;&nbsp;console.log("Salut,&nbsp;FDC.com");<br>}<br><br>//&nbsp;Apelarea&nbsp;funcției<br>hello();<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, funcția "hello" nu primește niciun parametru, așadar la apelul său se specifică paranteze goale:</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/3.Programare%20functionala/1.Programare%20functionala/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">O caracteristică distinctivă a funcțiilor este că pot fi apelate de mai multe ori în diferite locuri ale programului:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;definirea&nbsp;funcției<br>function&nbsp;hello(){<br>&nbsp;&nbsp;&nbsp;console.log("Salut&nbsp;Metanit.com");<br>}<br>//&nbsp;apelarea&nbsp;funcției<br>hello();<br>hello();<br>hello();</code></pre>
+     </div>
+     <h2 class="subtitle">Variabilele și constantele ca funcții</h2>
+     <p class="paragraph">Asemenea variabilelor și constantelor cărora li se atribuie valori simple (numere, șiruri etc.), le putem atribui și funcții. Apoi, prin intermediul unei astfel de variabile sau constante, putem apela funcția atribuită:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;METANIT.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;script&gt;<br>//&nbsp;definirea&nbsp;funcției<br>function&nbsp;hello(){<br>&nbsp;&nbsp;&nbsp;console.log("Salut&nbsp;de&nbsp;la&nbsp;Metanit.com");<br>}<br>//&nbsp;atribuirea&nbsp;constantei&nbsp;message&nbsp;referința&nbsp;la&nbsp;funcția&nbsp;hello<br>const&nbsp;message&nbsp;=&nbsp;hello;<br>message();&nbsp;&nbsp;//&nbsp;apelăm&nbsp;funcția,&nbsp;referința&nbsp;către&nbsp;care&nbsp;este&nbsp;stocată&nbsp;în&nbsp;constanta&nbsp;message<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Atribuind unei constante sau variabile o funcție:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;message&nbsp;=&nbsp;hello;</code></pre>
+     </div>
+     <p class="paragraph">Apoi putem apela această funcție prin numele constantei/variabilei:</p>
+     <div class="code-inline">
+      <pre><code>message();</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, putem schimba dinamic funcțiile care sunt stocate într-o variabilă:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;goodMorning(){<br>&nbsp;&nbsp;&nbsp;console.log("Bună&nbsp;dimineața");<br>}<br>function&nbsp;goodEvening(){<br>&nbsp;&nbsp;&nbsp;console.log("Bună&nbsp;seara");<br>}<br>let&nbsp;message&nbsp;=&nbsp;goodMorning;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;atribuim&nbsp;variabilei&nbsp;message&nbsp;funcția&nbsp;goodMorning<br>message();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Bună&nbsp;dimineața<br>message&nbsp;=&nbsp;goodEvening;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;schimbăm&nbsp;funcția&nbsp;în&nbsp;variabila&nbsp;message<br>message();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Bună&nbsp;seara</code></pre>
+     </div>
+     <h2 class="subtitle">Funcții exprimate și funcții anonime</h2>
+     <p class="paragraph">Nu este neapărat să atribuim nume funcțiilor. Putem utiliza funcții anonime. Aceste funcții, atunci când sunt definite, sunt atribuite unei constante sau variabile. Aceste funcții mai sunt numite funcții exprimate (function expression):</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;message&nbsp;=&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;console.log("Salut&nbsp;JavaScript");<br>}<br>message();<br></code></pre>
+     </div>
+     <p class="paragraph">Folosind numele constantei sau variabilei căreia i s-a atribuită funcția, putem apela această funcție.</p>
+     <h2 class="subtitle">Funcții locale</h2>
+     <p class="paragraph">JavaScript permite definirea funcțiilor locale - funcții în interiorul altor funcții. Funcțiile locale sunt vizibile doar în cadrul funcției externe în care sunt definite. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;print(){<br>&nbsp;&nbsp;&nbsp;printHello();<br>&nbsp;&nbsp;&nbsp;printHello();<br>&nbsp;&nbsp;&nbsp;printHello();<br><br>&nbsp;&nbsp;&nbsp;function&nbsp;printHello(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Salut");<br>&nbsp;&nbsp;&nbsp;}<br>}<br>print();<br>printHello();&nbsp;&nbsp;&nbsp;//&nbsp;Uncaught&nbsp;ReferenceError:&nbsp;printHello&nbsp;is&nbsp;not&nbsp;defined&nbsp;-&nbsp;funcția&nbsp;locală&nbsp;poate&nbsp;fi&nbsp;apelată&nbsp;doar&nbsp;din&nbsp;funcția&nbsp;înconjurătoare</code></pre>
+     </div>
+     <p class="paragraph">Aici, în interiorul funcției print, este definită funcția locală printHello, care afișează doar șirul "Salut". În interiorul funcției print, putem apela funcția locală printHello, însă în afara funcției înconjurătoare, funcția locală nu poate fi apelată.</p>
+     <p class="paragraph">Acest exemplu este destul de simplu și nu are un mare sens. Cu toate acestea, de obicei, funcțiile locale sunt definite pentru acțiuni care sunt aplicate de mai multe ori doar în cadrul unei anumite funcții și nicăieri altundeva. Un dezavantaj al funcțiilor locale poate fi că acestea sunt create de fiecare dată când este efectuată apelarea funcției externe.</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

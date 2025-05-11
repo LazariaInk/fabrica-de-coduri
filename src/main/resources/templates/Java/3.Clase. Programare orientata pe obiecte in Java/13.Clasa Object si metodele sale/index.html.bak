@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Java', activeChapter='3.Clase. Programare orientata pe obiecte in Java', activeLesson='13.Clasa Object si metodele sale'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Clasa Object și metodele sale</h1>
+     <p class="paragraph">Deși putem crea o clasă obișnuită care nu moștenește explicit alte clase, toate clasele din Java moștenesc implicit clasa Object. Toate celelalte clase, inclusiv cele pe care le adăugăm noi în proiectele noastre, sunt derivate implicit din Object. Prin urmare, toate tipurile și clasele pot implementa metodele definite în clasa Object. Să analizăm aceste metode.</p>
+     <h2 class="subtitle">Metoda toString</h2>
+     <p class="paragraph">Metoda toString este utilizată pentru a obține o reprezentare a obiectului curent sub forma unui șir de caractere. În mod implicit, când încercăm să afișăm un obiect, de obicei va fi afișat numele complet al clasei urmat de un hash unic. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;class&nbsp;Program&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(tom.toString());&nbsp;&nbsp;//&nbsp;Afișează&nbsp;ceva&nbsp;de&nbsp;genul&nbsp;Person@7960847b<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;Person&nbsp;{<br>&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;name;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(String&nbsp;name)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Valoarea obținută (în acest caz, Person@7960847b) nu este foarte utilă pentru o descriere a obiectului. De aceea, metoda toString() este adesea suprascrisă. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;class&nbsp;Program&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(tom.toString());&nbsp;&nbsp;//&nbsp;Person&nbsp;Tom<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;Person&nbsp;{<br>&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;name;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(String&nbsp;name)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;@Override<br>&nbsp;&nbsp;&nbsp;public&nbsp;String&nbsp;toString()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;"Person&nbsp;"&nbsp;+&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Metoda hashCode</h2>
+     <p class="paragraph">Metoda hashCode permite generarea unui cod numeric asociat obiectului respectiv, cunoscut sub numele de cod hash. Acest cod poate fi folosit pentru a compara obiecte.</p>
+     <p class="paragraph">De exemplu, putem afișa hash-ul unui obiect:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom");<br>System.out.println(tom.hashCode());&nbsp;&nbsp;//&nbsp;2036368507</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, putem defini propriul algoritm de calcul al codului hash:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person&nbsp;{<br>&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;name;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(String&nbsp;name)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;@Override<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;hashCode()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;10&nbsp;*&nbsp;name.hashCode()&nbsp;+&nbsp;20456;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Obținerea tipului obiectului și metoda getClass</h2>
+     <p class="paragraph">Metoda getClass permite obținerea tipului obiectului:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom");<br>System.out.println(tom.getClass());&nbsp;&nbsp;//&nbsp;class&nbsp;Person</code></pre>
+     </div>
+     <h2 class="subtitle">Metoda equals</h2>
+     <p class="paragraph">Metoda equals compară două obiecte pentru a verifica egalitatea lor:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;class&nbsp;Program&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person("Bob");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(tom.equals(bob));&nbsp;&nbsp;//&nbsp;false<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;tom2&nbsp;=&nbsp;new&nbsp;Person("Tom");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(tom.equals(tom2));&nbsp;&nbsp;//&nbsp;true<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;Person&nbsp;{<br>&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;name;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(String&nbsp;name)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;@Override<br>&nbsp;&nbsp;&nbsp;public&nbsp;boolean&nbsp;equals(Object&nbsp;obj)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(!(obj&nbsp;instanceof&nbsp;Person))&nbsp;return&nbsp;false;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;p&nbsp;=&nbsp;(Person)&nbsp;obj;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;this.name.equals(p.name);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Metoda equals primește ca parametru un obiect de orice tip. Apoi încercăm să convertim obiectul primit la tipul curent, în cazul în care cele două obiecte sunt din aceeași clasă. Operatorul instanceof verifică dacă obiectul transmis ca parametru este de tipul Person. Dacă obiectele sunt de clase diferite, compararea lor nu are sens, iar metoda returnează false.</p>
+     <p class="paragraph">Ulterior, comparăm obiectele pe baza numelui. Dacă numele coincid, metoda returnează true, indicând că obiectele sunt egale.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

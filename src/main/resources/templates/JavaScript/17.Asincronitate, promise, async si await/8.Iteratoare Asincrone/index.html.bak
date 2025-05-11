@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='17.Asincronitate, promise, async si await', activeLesson='8.Iteratoare Asincrone'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Iteratoare Asincrone</h1>
+     <p class="paragraph">Iteratoarele asincrone combină capacitățile iteratoarelor și ale operatorilor async și await. Iteratoarele asincrone sunt destinate în principal accesării surselor de date care folosesc API-uri asincrone. Acestea pot fi, de exemplu, date care se încarcă pe părți, cum ar fi datele de pe rețea, din sistemul de fișiere sau din baza de date.</p>
+     <p class="paragraph">Din articolul despre iteratoare, trebuie să ne amintim că un iterator oferă metoda next(), care returnează un obiect cu două proprietăți: { value, done }. Proprietatea value stochează o anumită valoare, pe care, de exemplu, o putem obține într-un ciclu for..of atunci când iterăm un obiect. Proprietatea done indică dacă iterarea obiectelor este finalizată.</p>
+     <p class="paragraph">Dacă această proprietate este false, înseamnă că iteratorul încă nu a finalizat iterarea obiectelor și sunt încă obiecte disponibile. Dacă proprietatea este true, atunci iterarea este finalizată, și în set nu mai sunt obiecte disponibile pentru iterare.</p>
+     <p class="paragraph">Un iterator asincron este similar cu un iterator sincron cu excepția faptului că metoda sa next() returnează un obiect Promise. Iar din acel promise, la rândul său, este returnat un obiect { value, done }.</p>
+     <h2 class="subtitle">Ciclul for-await-of</h2>
+     <p class="paragraph">Pentru obținerea datelor cu ajutorul iteratoarelor asincrone se folosește ciclul for-await-of:</p>
+     <div class="code-inline">
+      <pre><code>for&nbsp;await&nbsp;(variabila&nbsp;of&nbsp;iterabil)&nbsp;{<br>&nbsp;//&nbsp;acțiuni<br>}</code></pre>
+     </div>
+     <p class="paragraph">În ciclul for-await-of, după operatorul of urmează un anumit set de date, care poate fi iterat element cu element. Acesta poate fi o sursă de date asincronă, dar poate fi și o sursă de date sincronă, cum ar fi array-uri sau, de exemplu, obiecte încorporate String, Map, Set etc.</p>
+     <p class="paragraph">Trebuie să notăm că această formă de ciclu poate fi utilizată doar în funcții definite cu operatorul async.</p>
+     <p class="paragraph">Să examinăm cel mai simplu exemplu, unde sursa de date este un array obișnuit:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;dataSource&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"];<br>async&nbsp;function&nbsp;readData(){<br>&nbsp;&nbsp;&nbsp;for&nbsp;await&nbsp;(const&nbsp;item&nbsp;of&nbsp;dataSource)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(item);<br>&nbsp;&nbsp;&nbsp;}<br>}<br>readData();<br>//&nbsp;Tom<br>//&nbsp;Sam<br>//&nbsp;Bob</code></pre>
+     </div>
+     <p class="paragraph">Aici, în ciclu are loc iterarea array-ului dataSource. La executarea ciclului, pentru sursa de date (în acest caz, pentru array) se creează implicit un iterator asincron cu ajutorul metodei [Symbol.asyncIterator]().</p>
+     <p class="paragraph">Și la fiecare accesare a următorului element în această sursă de date, din iterator se returnează implicit un obiect Promise, din care obținem elementul curent al array-ului.</p>
+     <h2 class="subtitle">Crearea unui Iterator Asincron</h2>
+     <p class="paragraph">În exemplul de mai sus, iteratorul asincron a fost creat implicit. Dar putem, de asemenea, să-l definim în mod explicit. De exemplu, să definim un iterator asincron care returnează elementele unui array:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;generatePerson&nbsp;=&nbsp;{<br>&nbsp;[Symbol.asyncIterator]()&nbsp;{<br>&nbsp;&nbsp;&nbsp;return&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;index:&nbsp;0,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;people:&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"],<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;next()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(this.index&nbsp;&lt;&nbsp;this.people.length)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;Promise.resolve({&nbsp;value:&nbsp;this.people[this.index++],&nbsp;done:&nbsp;false&nbsp;});<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;Promise.resolve({&nbsp;done:&nbsp;true&nbsp;});<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;};<br>&nbsp;}<br>};</code></pre>
+     </div>
+     <p class="paragraph">Aici este definit obiectul generatePerson, în care este implementat doar o singură metodă - [Symbol.asyncIterator](), care practic reprezintă iteratorul asincron. Implementarea iteratorului asincron (la fel ca și în cazul unui iterator sincron) permite să facem obiectul generatePerson iterabil.</p>
+     <p class="paragraph">Puncte principale ale iteratorului asincron:</p>
+     <ul class="enumeration">
+      <li>Iteratorul asincron este implementat prin metoda [Symbol.asyncIterator](), care returnează un obiect</li>
+      <li>Obiectul returnat de iterator are metoda next(), care returnează un obiect Promise</li>
+      <li>Obiectul Promise, la rândul său, returnează un obiect cu două proprietăți { value, done }. Proprietatea value stochează o anumită valoare. Proprietatea done indică dacă iterarea este finalizată și, corespunzător, dacă în set mai sunt obiecte disponibile pentru iterare. Dacă proprietatea done este true (iterarea este finalizată și nu mai sunt obiecte disponibile), atunci nu este necesar să specificăm proprietatea value</li>
+     </ul>
+     <p class="paragraph">În acest caz, iteratorul realizează o sarcină simplă - returnează următorul utilizator. Pentru stocarea utilizatorilor în obiectul iteratorului este definit array-ul people, iar pentru stocarea indexului elementului curent al array-ului este definită variabila index.</p>
+     <div class="code-inline">
+      <pre><code>index:&nbsp;0,<br>people:&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"],</code></pre>
+     </div>
+     <p class="paragraph">În metoda next() returnăm un obiect Promise. Dacă indexul curent este mai mic decât lungimea array-ului (adică în array mai sunt elemente disponibile pentru iterare), atunci returnăm un Promise în care returnăm elementul array-ului la indexul curent:</p>
+     <div class="code-inline">
+      <pre><code>return&nbsp;Promise.resolve({&nbsp;value:&nbsp;this.people[this.index++],&nbsp;done:&nbsp;false&nbsp;});</code></pre>
+     </div>
+     <p class="paragraph">Dacă toate elementele array-ului au fost deja obținute, atunci returnăm un Promise cu obiectul { done: true }:</p>
+     <div class="code-inline">
+      <pre><code>return&nbsp;Promise.resolve({&nbsp;done:&nbsp;true&nbsp;});</code></pre>
+     </div>
+     <p class="paragraph">Unde valoarea done: true va indica codului extern că toate valorile iteratorului au fost deja obținute.</p>
+     <p class="paragraph">Acum să vedem cum putem obține date din iterator:</p>
+     <p class="paragraph">La fel ca și cu un iterator obișnuit, ne putem adresa direct la iteratorul asincron în sine:</p>
+     <div class="code-inline">
+      <pre><code>generatePerson[Symbol.asyncIterator]();&nbsp;//&nbsp;obținem&nbsp;iteratorul&nbsp;asincron</code></pre>
+     </div>
+     <p class="paragraph">Și să apelăm în mod explicit metoda sa next():</p>
+     <div class="code-inline">
+      <pre><code>generatePerson[Symbol.asyncIterator]().next();&nbsp;//&nbsp;Promise</code></pre>
+     </div>
+     <p class="paragraph">Această metodă returnează un Promise, al cărui metodă then() poate fi apelată pentru a procesa valoarea sa:</p>
+     <div class="code-inline">
+      <pre><code>generatePerson[Symbol.asyncIterator]()<br>&nbsp;&nbsp;&nbsp;.next()<br>&nbsp;&nbsp;&nbsp;.then((data)=&gt;console.log(data));&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;{value:&nbsp;"Tom",&nbsp;done:&nbsp;false}</code></pre>
+     </div>
+     <p class="paragraph">Obiectul obținut din promise reprezintă un obiect {value, done}, iar prin proprietatea value se poate obține valoarea efectivă:</p>
+     <div class="code-inline">
+      <pre><code>generatePerson[Symbol.asyncIterator]()<br>&nbsp;&nbsp;&nbsp;.next()<br>&nbsp;&nbsp;&nbsp;.then((data)=&gt;console.log(data.value));&nbsp;&nbsp;//&nbsp;Tom</code></pre>
+     </div>
+     <p class="paragraph">Deoarece metoda next() returnează un Promise, putem folosi operatorul await pentru a obține valorile:</p>
+     <div class="code-inline">
+      <pre><code>async&nbsp;function&nbsp;printPeople(){<br>&nbsp;&nbsp;&nbsp;const&nbsp;peopleIterator&nbsp;=&nbsp;generatePerson[Symbol.asyncIterator]();<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;while(!(personData&nbsp;=&nbsp;await&nbsp;peopleIterator.next()).done){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(personData.value);<br>&nbsp;&nbsp;&nbsp;}<br>}<br>printPeople();</code></pre>
+     </div>
+     <p class="paragraph">Aici, într-o funcție asincronă, într-un ciclu while obținem în mod secvențial, folosind operatorul await, obiecte Promise de la iterator, din care extragem date, până când ajungem la sfârșitul datelor iteratorului.</p>
+     <p class="paragraph">Totuși, pentru a itera un obiect cu iterator asincron este mult mai simplu să folosim ciclul for-await-of discutat mai sus:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;generatePerson&nbsp;=&nbsp;{<br>&nbsp;[Symbol.asyncIterator]()&nbsp;{<br>&nbsp;&nbsp;&nbsp;return&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;index:&nbsp;0,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;people:&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"],<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;next()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(this.index&nbsp;&lt;&nbsp;this.people.length)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;Promise.resolve({&nbsp;value:&nbsp;this.people[this.index++],&nbsp;done:&nbsp;false&nbsp;});<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;Promise.resolve({&nbsp;done:&nbsp;true&nbsp;});<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;};<br>&nbsp;}<br>};<br>async&nbsp;function&nbsp;printPeople(){<br>&nbsp;&nbsp;&nbsp;for&nbsp;await&nbsp;(const&nbsp;person&nbsp;of&nbsp;generatePerson)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(person);<br>&nbsp;&nbsp;}<br>}<br>printPeople();</code></pre>
+     </div>
+     <p class="paragraph">Deoarece obiectul generatePerson implementează metoda [Symbol.asyncIterator](), îl putem itera folosind ciclul for-await-of. Astfel, la fiecare accesare în ciclu, metoda next() va returna un promise cu următorul element din array-ul people. Și, în final, vom obține următorul output în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Tom<br>Sam<br>Bob</code></pre>
+     </div>
+     <p class="paragraph">Trebuie să notăm că NU putem folosi un ciclu for-of obișnuit pentru a itera un obiect cu iterator asincron.</p>
+     <p class="paragraph">Un alt exemplu simplu - obținerea numerelor:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;generateNumber&nbsp;=&nbsp;{<br>&nbsp;[Symbol.asyncIterator]()&nbsp;{<br>&nbsp;&nbsp;&nbsp;return&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;current:&nbsp;0,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;end:&nbsp;10,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;next()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(this.current&nbsp;&lt;=&nbsp;this.end)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;Promise.resolve({&nbsp;value:&nbsp;this.current++,&nbsp;done:&nbsp;false&nbsp;});<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;Promise.resolve({&nbsp;done:&nbsp;true&nbsp;});<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;};<br>&nbsp;}<br>};<br>async&nbsp;function&nbsp;printNumbers(){<br>&nbsp;&nbsp;&nbsp;for&nbsp;await&nbsp;(const&nbsp;n&nbsp;of&nbsp;generateNumber)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(n);<br>&nbsp;&nbsp;}<br>}<br>printNumbers();</code></pre>
+     </div>
+     <p class="paragraph">Aici, iteratorul asincron al obiectului generateNumber returnează numerele de la 0 la 10.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

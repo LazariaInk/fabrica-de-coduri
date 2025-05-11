@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='24.Lucrul cu XML in C sharp', activeLesson='1.Documente XML'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Documente XML</h1>
+     <p class="paragraph">Astăzi, XML este unul dintre standardele răspândite pentru documente, care permite păstrarea datelor complexe ca structură într-o formă convenabilă. De aceea, dezvoltatorii platformei .NET au inclus în framework capacități largi pentru a lucra cu XML.</p>
+     <p class="paragraph">Înainte de a trece direct la lucrul cu fișierele XML, să vedem mai întâi ce reprezintă un document XML și cum poate el să păstreze obiectele utilizate într-un program în C#.</p>
+     <p class="paragraph">De exemplu, avem următoarea clasă:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Age&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Company&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name,&nbsp;int&nbsp;age,&nbsp;string&nbsp;company)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Company&nbsp;=&nbsp;company;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Într-un program în C#, putem crea o listă de obiecte ale clasei Person:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;employees&nbsp;=&nbsp;new&nbsp;List&lt;Person&gt;<br>{<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person&nbsp;("Tom",&nbsp;37,&nbsp;"Microsoft"),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person&nbsp;("Bob",&nbsp;41,&nbsp;"Google")<br>};</code></pre>
+     </div>
+     <p class="paragraph">Pentru a salva lista în format XML, am putea folosi următorul fișier XML:</p>
+     <div class="code-inline">
+      <pre><code>xml<br>&lt;?xml&nbsp;version="1.0"&nbsp;encoding="utf-8"&nbsp;?&gt;<br>&lt;people&gt;<br>&nbsp;&lt;person&nbsp;name="Tom"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;company&gt;Microsoft&lt;/company&gt;<br>&nbsp;&nbsp;&nbsp;&lt;age&gt;37&lt;/age&gt;<br>&nbsp;&lt;/person&gt;<br>&nbsp;&lt;person&nbsp;name="Bob"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;company&gt;Google&lt;/company&gt;<br>&nbsp;&nbsp;&nbsp;&lt;age&gt;41&lt;/age&gt;<br>&nbsp;&lt;/person&gt;<br>&lt;/people&gt;</code></pre>
+     </div>
+     <p class="paragraph">Documentul XML este declarat prin linia &lt;?xml version="1.0" encoding="utf-8" ?&gt;. Aceasta specifică versiunea (1.0) și codificarea (utf-8) a XML-ului. Apoi urmează conținutul propriu-zis al documentului.</p>
+     <p class="paragraph">Documentul XML trebuie să aibă un singur element rădăcină, în care sunt plasate toate celelalte elemente. În acest caz, acest element este &lt;people&gt;. În interiorul elementului rădăcină &lt;people&gt; este definit un set de elemente &lt;person&gt;. În afara elementului rădăcină nu putem plasa elemente person.</p>
+     <p class="paragraph">Fiecare element este definit prin intermediul tagurilor de deschidere și închidere, de exemplu, &lt;person&gt; și &lt;/person&gt;, în interiorul cărora este plasată valoarea sau conținutul elementelor. De asemenea, un element poate avea o declarație scurtă: &lt;person /&gt; - la sfârșitul elementului este plasată o bară oblică.</p>
+     <p class="paragraph">Un element poate avea elemente și atribute încorporate. În acest caz, fiecare element person are două elemente încorporate company și age și un atribut name.</p>
+     <p class="paragraph">Atributele sunt definite în corpul elementului și au următoarea formă: nume="valoare". De exemplu, &lt;person name="Bill Gates"&gt;, în acest caz, atributul se numește name și are valoarea Bill Gates.</p>
+     <p class="paragraph">În interiorul elementelor simple este plasată valoarea lor. De exemplu, &lt;company&gt;Google&lt;/company&gt; - elementul company are valoarea Google.</p>
+     <p class="paragraph">Numele elementelor sunt sensibile la majuscule și minuscule, astfel &lt;company&gt; și &lt;COMPANY&gt; vor reprezenta elemente diferite.</p>
+     <p class="paragraph">Astfel, întreaga listă Users din codul C# corespunde elementului rădăcină &lt;people&gt;, fiecare obiect Person corespunde unui element &lt;person&gt;, iar fiecare proprietate a obiectului Person corespunde unui atribut sau unui element încorporat al elementului &lt;person&gt;.</p>
+     <p class="paragraph">Ce să folosești pentru proprietăți - elemente încorporate sau atribute? Aceasta este o chestiune de preferință - putem folosi fie atribute, fie elemente încorporate. Astfel, în exemplul anterior, putem folosi în locul unui atribut un element încorporat:</p>
+     <div class="code-inline">
+      <pre><code>xml<br>&lt;?xml&nbsp;version="1.0"&nbsp;encoding="utf-8"&nbsp;?&gt;<br>&lt;people&gt;<br>&nbsp;&lt;person&gt;<br>&nbsp;&nbsp;&nbsp;&lt;name&gt;Tom&lt;/name&gt;<br>&nbsp;&nbsp;&nbsp;&lt;company&gt;Microsoft&lt;/company&gt;<br>&nbsp;&nbsp;&nbsp;&lt;age&gt;37&lt;/age&gt;<br>&nbsp;&lt;/person&gt;<br>&nbsp;&lt;person&gt;<br>&nbsp;&nbsp;&nbsp;&lt;name&gt;Bob&lt;/name&gt;<br>&nbsp;&nbsp;&nbsp;&lt;company&gt;Google&lt;/company&gt;<br>&nbsp;&nbsp;&nbsp;&lt;age&gt;41&lt;/age&gt;<br>&nbsp;&lt;/person&gt;<br>&lt;/people&gt;</code></pre>
+     </div>
+     <p class="paragraph">Acum să analizăm principalele abordări pentru a lucra cu XML în C#.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

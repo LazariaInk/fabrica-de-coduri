@@ -1,293 +1,283 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='23.Canvas API', activeLesson='6.Desenarea formelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Desenarea formelor</h1>
- <p class="paragraph">Pe lângă dreptunghiuri, canvas permite desenarea și formelor mai complexe. Pentru configurarea formelor complexe se utilizează conceptul de căi geometrice, care reprezintă un set de linii, cercuri, dreptunghiuri și alte detalii mai mici necesare pentru construirea unei forme complexe.</p>
- <p class="paragraph">Pentru a crea o nouă cale, trebuie apelată metoda beginPath():</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>context.beginPath();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;începem&nbsp;desenarea&nbsp;formei</code></pre>
- </div>
- <p class="paragraph">După metoda beginPath(), sunt apelate metodele care creează efectiv diferite segmente ale căii.</p>
- <h2 class="subtitle">Metodele moveTo() și lineTo()</h2>
- <p class="paragraph">Pentru a începe desenarea unei căi, trebuie să stabilim punctul de început al acestei căi. Acest lucru se poate face cu ajutorul metodei moveTo(), care are următoarea definiție:</p>
- <div class="code-inline">
-  <pre><code>moveTo(x,&nbsp;y)</code></pre>
- </div>
- <p class="paragraph">Metoda ne mută la punctul cu coordonatele x și y.</p>
- <p class="paragraph">Metoda lineTo() desenează o linie. Are o definiție similară:</p>
- <div class="code-inline">
-  <pre><code>lineTo(x,&nbsp;y)</code></pre>
- </div>
- <p class="paragraph">Metoda desenează o linie de la poziția curentă la punctul cu coordonatele x și y.</p>
- <p class="paragraph">Acum să desenăm câteva linii:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>context.beginPath();<br>context.moveTo(20,&nbsp;100);<br>context.lineTo(140,&nbsp;10);<br>context.lineTo(260,&nbsp;100);</code></pre>
- </div>
- <p class="paragraph">Aici stabilim începutul căii la punctul (20, 100), apoi desenăm o linie până la punctul (140, 10) (linie în sus) și continuăm cu încă o linie până la punctul (260, 100).</p>
- <h2 class="subtitle">Afișarea căii</h2>
- <p class="paragraph">Deși am desenat câteva linii, încă nu le vom vedea pe ecran, deoarece trebuie să le afișăm. Pentru afișarea căii trebuie utilizată metoda stroke():</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;canvas&nbsp;id="canvas"&nbsp;width="500"&nbsp;height="250"&gt;&lt;/canvas&gt;<br>&lt;script&gt;<br>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>context.beginPath();<br>context.moveTo(20,&nbsp;100);<br>context.lineTo(140,&nbsp;10);<br>context.lineTo(260,&nbsp;100);<br>context.stroke();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;afișăm&nbsp;calea<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image1.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Implicit, pentru desenare se utilizează culoarea neagră, dar cu proprietatea strokeStyle se poate schimba culoarea:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br><br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br><br>context.beginPath();<br><br>context.moveTo(20,&nbsp;100);<br><br>context.lineTo(140,&nbsp;10);<br><br>context.lineTo(260,&nbsp;100);<br><br>context.strokeStyle&nbsp;=&nbsp;"red";&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;culoare&nbsp;roșie<br><br>context.stroke();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;afișăm&nbsp;calea</code></pre>
- </div>
- <h2 class="subtitle">Închiderea căii</h2>
- <p class="paragraph">Am desenat două linii și, presupunând că dorim să le conectăm pentru a închide forma - în acest caz, un triunghi. Deși am putea desena o altă linie pentru a forma un triunghi, pentru simplificare, API-ul Canvas oferă o metodă specială - context.closePath(), care permite închiderea automată a căii, conectând primul și ultimul punct al căii, formând astfel figura:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>context.beginPath();<br>context.moveTo(20,&nbsp;100);<br>context.lineTo(140,&nbsp;10);<br>context.lineTo(260,&nbsp;100);<br>context.closePath();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;închidem&nbsp;calea<br>context.stroke();</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image2.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Obiecte Path2D</h2>
- <p class="paragraph">Lucrând cu multe căi poate deveni confuz. În acest caz, pentru a diferenția căile separate se pot folosi obiecte Path2D. Acest obiect oferă metode similare cu metodele obiectului context în ceea ce privește crearea unei căi. De exemplu:</p>
- <div class="code-inline">
-  <pre><code><br>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>const&nbsp;path1&nbsp;=&nbsp;new<br><br>Path2D();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;prima&nbsp;cale<br>path1.moveTo(20,&nbsp;100);<br>path1.lineTo(140,&nbsp;10);<br>path1.lineTo(260,&nbsp;100);<br>path1.closePath();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;închidem&nbsp;calea<br>context.strokeStyle&nbsp;=&nbsp;"blue";<br>context.stroke(path1);<br><br>const&nbsp;path2&nbsp;=&nbsp;new&nbsp;Path2D();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;a&nbsp;doua&nbsp;cale<br>path2.moveTo(20,&nbsp;110);<br>path2.lineTo(140,&nbsp;200);<br>path2.lineTo(260,&nbsp;110);<br>path2.closePath();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;închidem&nbsp;calea<br>context.strokeStyle&nbsp;=&nbsp;"red";<br>context.stroke(path2);</code></pre>
- </div>
- <p class="paragraph">Aici se creează două căi, fiecare reprezentând un triunghi. Pentru desenarea fiecărei căi se apelează metoda context.stroke(), în care se transmite calea respectivă.</p>
- <div class="image-container">
-  <img src="images/image3.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Metoda rect</h2>
- <p class="paragraph">Metoda rect() creează un dreptunghi. Are următoarea definiție:</p>
- <div class="code-inline">
-  <pre><code>rect(x,&nbsp;y,&nbsp;width,&nbsp;height)</code></pre>
- </div>
- <p class="paragraph">Unde x și y sunt coordonatele colțului superior stâng al dreptunghiului relativ la canvas, iar width și height sunt, respectiv, lățimea și înălțimea dreptunghiului. Să desenăm, de exemplu, următorul dreptunghi:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>context.beginPath();<br>context.rect(30,&nbsp;20,&nbsp;100,&nbsp;90);<br>context.closePath();<br>context.stroke();</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image4.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Este bine de menționat că un dreptunghi similar am fi putut crea folosind linii:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>&nbsp;<br>context.beginPath();<br>context.moveTo(30,&nbsp;20);<br>context.lineTo(130,&nbsp;20);<br>context.lineTo(130,&nbsp;110);<br>context.lineTo(30,&nbsp;110);<br>context.closePath();<br>context.stroke();</code></pre>
- </div>
- <h2 class="subtitle">Metoda fill()</h2>
- <p class="paragraph">Metoda fill() umple cu culoare tot spațiul interior al căii desenate:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>context.beginPath();<br>context.moveTo(20,&nbsp;100);<br>context.lineTo(140,&nbsp;10);<br>context.lineTo(260,&nbsp;100);<br>context.closePath();<br><br>context.strokeStyle&nbsp;=&nbsp;"#2e86de";<br>context.fillStyle&nbsp;=&nbsp;"#4bcffa";<br>context.fill();<br>context.stroke();</code></pre>
- </div>
- <p class="paragraph">Cu ajutorul proprietății fillStyle se poate seta culoarea de umplere a formei. În acest caz, culoarea este "#4bcffa".</p>
- <div class="image-container">
-  <img src="images/image5.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Metoda clip()</h2>
- <p class="paragraph">Metoda clip() permite decuparea unei anumite zone din canvas, iar tot ceea ce se află în afara acestei zone va fi ignorat la desenarea ulterioară.</p>
- <p class="paragraph">Pentru a înțelege această metodă, să desenăm mai întâi două dreptunghiuri:</p>
- <div class="code-inline">
-  <pre><code><br>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>//&nbsp;desenăm&nbsp;primul&nbsp;dreptunghi&nbsp;roșu<br>context.beginPath();<br>context.moveTo(10,&nbsp;20);<br>context.lineTo(130,&nbsp;20);<br>context.lineTo(130,&nbsp;110);<br>context.lineTo(10,&nbsp;110);<br>context.closePath();<br>context.strokeStyle&nbsp;=&nbsp;"red";<br>context.stroke();<br><br>//&nbsp;desenăm&nbsp;al&nbsp;doilea&nbsp;dreptunghi&nbsp;verde<br>context.beginPath();<br>context.rect(30,&nbsp;50,&nbsp;180,&nbsp;70);<br>context.closePath();<br>context.strokeStyle&nbsp;=&nbsp;"green";<br>context.stroke();</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image6.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Acum să aplicăm metoda clip() pentru a limita zona de desenare doar la primul dreptunghi:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>//&nbsp;desenăm&nbsp;primul&nbsp;dreptunghi&nbsp;roșu<br>context.beginPath();<br>context.moveTo(10,&nbsp;20);<br>context.lineTo(130,&nbsp;20);<br>context.lineTo(130,&nbsp;110);<br>context.lineTo(10,&nbsp;110);<br>context.closePath();<br>context.strokeStyle&nbsp;=&nbsp;"red";<br>context.stroke();<br><br>context.clip();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;tăiem&nbsp;zona&nbsp;de&nbsp;desenare&nbsp;după&nbsp;primul&nbsp;traseu<br><br>//&nbsp;desenăm&nbsp;al&nbsp;doilea&nbsp;dreptunghi&nbsp;verde<br>context.beginPath();<br>context.rect(30,&nbsp;50,&nbsp;180,&nbsp;70);<br>context.closePath();<br>context.strokeStyle&nbsp;=&nbsp;"green";<br>context.stroke();</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image7.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">După apelul metodei clip() după primul dreptunghi, doar partea a doua a dreptunghiului verde care se suprapune peste primul dreptunghi va fi desenată.</p>
- <h2 class="subtitle">Metoda arc()</h2>
- <p class="paragraph">Metoda arc() adaugă la traseu un segment de cerc sau arc. Are următoarea definiție:</p>
- <div class="code-inline">
-  <pre><code>arc(x,&nbsp;y,&nbsp;radius,&nbsp;startAngle,&nbsp;endAngle,&nbsp;anticlockwise)</code></pre>
- </div>
- <p class="paragraph">Parametrii utilizați sunt:</p>
- <ul class="enumeration">
-  <li>x și y: coordonatele x și y unde începe arcul</li>
-  <li>radius: raza cercului de-a lungul căruia se creează arcul</li>
-  <li>startAngle și endAngle: unghiul de început și unghiul de sfârșit care taie cercul într-un arc. Unghiurile sunt măsurate în radiani. De exemplu, un cerc complet este 2π radiani. Dacă trebuie să desenăm un cerc complet, atunci pentru parametrul endAngle se poate specifica valoarea 2π. În JavaScript, această valoare se poate obține prin expresia Math.PI * 2</li>
-  <li>anticlockwise: direcția de mișcare pe cerc atunci când se taie o porțiune a acestuia, delimitată de unghiurile de început și de sfârșit. Când valoarea este true, direcția este în sens invers acelor de ceasornic, iar când este false, direcția este în sensul acelor de ceasornic</li>
- </ul>
- <div class="image-container">
-  <img src="images/image8.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Exemple de desenare a arcurilor și cercilor pe canvas în JavaScript sunt prezentate mai jos.</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>context.strokeStyle&nbsp;=&nbsp;"red";<br><br>context.beginPath();<br>context.moveTo(20,&nbsp;90);<br>context.arc(20,&nbsp;90,&nbsp;50,&nbsp;0,&nbsp;Math.PI/2,&nbsp;false);<br>context.closePath();<br>context.stroke();<br><br>context.beginPath();<br>context.moveTo(130,&nbsp;90);<br>context.arc(130,&nbsp;90,&nbsp;50,&nbsp;0,&nbsp;Math.PI,&nbsp;false);<br>context.closePath();<br>context.stroke();<br><br>context.beginPath();<br>context.moveTo(240,&nbsp;90);<br>context.arc(240,&nbsp;90,&nbsp;50,&nbsp;0,&nbsp;Math.PI&nbsp;*&nbsp;3&nbsp;/&nbsp;2,&nbsp;false);<br>context.closePath();<br>context.stroke();<br><br>context.beginPath();<br>context.arc(350,&nbsp;90,&nbsp;50,&nbsp;0,&nbsp;Math.PI*2,&nbsp;false);<br>context.closePath();<br>context.stroke();</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image9.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Ultimul parametru, anticlockwise, joacă un rol important, deoarece determină mișcarea pe cerc, iar în cazul schimbării din true în false și invers, putem obține figuri complet diferite:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>context.strokeStyle&nbsp;=&nbsp;"red";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>context.beginPath();<br>context.moveTo(80,&nbsp;90);<br>context.arc(80,&nbsp;90,&nbsp;50,&nbsp;0,&nbsp;Math.PI/2,&nbsp;false);<br>context.closePath();<br>context.stroke();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>context.beginPath();<br>context.moveTo(240,&nbsp;90);<br>context.arc(240,&nbsp;90,&nbsp;50,&nbsp;0,&nbsp;Math.PI/2,&nbsp;true);<br>context.closePath();<br>context.stroke();</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image10.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Metoda arcTo()</h2>
- <p class="paragraph">Metoda arcTo() desenează, de asemenea, un arc. Are următoarea definiție:</p>
- <div class="code-inline">
-  <pre><code>arcTo(x1,&nbsp;y1,&nbsp;x2,&nbsp;y2,&nbsp;radius)</code></pre>
- </div>
- <p class="paragraph">Unde x1 și y1 sunt coordonatele primului punct de control, x2 și y2 sunt coordonatele celui de-al doilea punct de control, iar radius este raza arcului.</p>
- <div class="image-container">
-  <img src="images/image11.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Exemplu de desenare a arcurilor cu ajutorul arcTo():</p>
- <div class="code-inline">
-  <pre><code><br>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>context.strokeStyle&nbsp;=&nbsp;"red";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>context.beginPath();<br>context.moveTo(0,&nbsp;150);<br>context.arcTo(0,&nbsp;0,&nbsp;150,&nbsp;0,&nbsp;140)<br>context.closePath();<br>context.stroke();</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image12.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Aici ne mutăm mai întâi la punctul (0, 150), și de la acest punct la primul punct de control (0, 0) va trece prima tangentă. Apoi, de la primul punct de control (0, 0) la al doilea (150, 0) va trece a doua tangentă. Aceste două tangente formează un arc, iar 140 servește drept raza cercului pe care este secționat arcul.</p>
- <h2 class="subtitle">Metoda quadraticCurveTo()</h2>
- <p class="paragraph">Metoda quadraticCurveTo() creează o curbă pătratică. Are următoarea definiție:</p>
- <div class="code-inline">
-  <pre><code>quadraticCurveTo(x1,&nbsp;y1,&nbsp;x2,&nbsp;y2)</code></pre>
- </div>
- <p class="paragraph">Unde x1 și y1 sunt coordonatele primului punct de sprijin, iar x2 și y2 sunt coordonatele celui de-al doilea punct de sprijin.</p>
- <div class="image-container">
-  <img src="images/image13.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Exemplu de curbă pătratică Bézier:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>context.strokeStyle&nbsp;=&nbsp;"red";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>context.beginPath();<br>context.moveTo(20,&nbsp;90);<br>context.quadraticCurveTo(130,&nbsp;0,&nbsp;280,&nbsp;90)<br>context.closePath();<br>context.stroke();</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image14.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Metoda bezierCurveTo(). Curba Bézier</h2>
- <p class="paragraph">Metoda bezierCurveTo() desenează o curbă Bézier. Are următoarea definiție:</p>
- <div class="code-inline">
-  <pre><code>bezierCurveTo(x1,&nbsp;y1,&nbsp;x2,&nbsp;y2,&nbsp;x3,&nbsp;y3)</code></pre>
- </div>
- <p class="paragraph">Unde x1 și y1 sunt coordonatele primului punct de sprijin, x2 și y2 sunt coordonatele celui de-al doilea punct de sprijin, iar x3 și y3 sunt coordonatele celui de-al treilea punct de sprijin.</p>
- <div class="image-container">
-  <img src="images/image15.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Exemplu de curbă Bézier:</p>
- <div class="code-inline">
-  <pre><code><br>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>context.strokeStyle&nbsp;=&nbsp;"red";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>context.beginPath();<br>context.moveTo(30,&nbsp;100);<br>context.bezierCurveTo(110,&nbsp;0,&nbsp;190,&nbsp;200,&nbsp;270,&nbsp;100);<br>context.closePath();<br>context.stroke();</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image16.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Figuri complexe</h2>
- <p class="paragraph">Vom combina mai multe figuri împreună și vom desena o scenă bidimensională mai complexă:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;canvas&nbsp;id="canvas"&nbsp;width="400"&nbsp;height="250"&gt;&lt;/canvas&gt;<br>&lt;script&gt;<br>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>context.beginPath();<br>context.fill();<br>context.fillStyle&nbsp;=&nbsp;"yellow";<br>context.beginPath();<br>context.arc(160,&nbsp;130,&nbsp;100,&nbsp;0,&nbsp;2&nbsp;*&nbsp;Math.PI);<br>context.fill();<br>&nbsp;<br>//&nbsp;gura<br>context.beginPath();<br>context.moveTo(100,&nbsp;160);<br>context.quadraticCurveTo(160,&nbsp;250,&nbsp;220,&nbsp;160);<br>context.closePath();<br>context.fillStyle&nbsp;=&nbsp;"red";<br>context.fill();<br>context.lineWidth&nbsp;=&nbsp;2;<br>context.strokeStyle&nbsp;=&nbsp;"black";<br>context.stroke();<br>&nbsp;<br>//&nbsp;dinții<br>context.fillStyle&nbsp;=&nbsp;"#FFFFFF";<br>context.fillRect(140,&nbsp;160,&nbsp;15,&nbsp;15);<br>context.fillRect(170,&nbsp;160,&nbsp;15,&nbsp;15);<br>&nbsp;<br>//&nbsp;ochii<br>context.beginPath();<br>context.arc(130,&nbsp;90,&nbsp;20,&nbsp;0,&nbsp;2&nbsp;*&nbsp;Math.PI);<br>context.fillStyle&nbsp;=&nbsp;"#333333";<br>context.fill();<br>context.closePath();<br>&nbsp;<br>context.beginPath();<br>context.arc(190,&nbsp;90,&nbsp;20,&nbsp;0,&nbsp;2&nbsp;*&nbsp;Math.PI);<br>context.fillStyle&nbsp;=&nbsp;"#333333";<br>context.fill();<br>context.closePath();<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image17.png" alt="" class="responsive-image">
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Desenarea formelor</h1>
+     <p class="paragraph">Pe lângă dreptunghiuri, canvas permite desenarea și formelor mai complexe. Pentru configurarea formelor complexe se utilizează conceptul de căi geometrice, care reprezintă un set de linii, cercuri, dreptunghiuri și alte detalii mai mici necesare pentru construirea unei forme complexe.</p>
+     <p class="paragraph">Pentru a crea o nouă cale, trebuie apelată metoda beginPath():</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>context.beginPath();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;începem&nbsp;desenarea&nbsp;formei</code></pre>
+     </div>
+     <p class="paragraph">După metoda beginPath(), sunt apelate metodele care creează efectiv diferite segmente ale căii.</p>
+     <h2 class="subtitle">Metodele moveTo() și lineTo()</h2>
+     <p class="paragraph">Pentru a începe desenarea unei căi, trebuie să stabilim punctul de început al acestei căi. Acest lucru se poate face cu ajutorul metodei moveTo(), care are următoarea definiție:</p>
+     <div class="code-inline">
+      <pre><code>moveTo(x,&nbsp;y)</code></pre>
+     </div>
+     <p class="paragraph">Metoda ne mută la punctul cu coordonatele x și y.</p>
+     <p class="paragraph">Metoda lineTo() desenează o linie. Are o definiție similară:</p>
+     <div class="code-inline">
+      <pre><code>lineTo(x,&nbsp;y)</code></pre>
+     </div>
+     <p class="paragraph">Metoda desenează o linie de la poziția curentă la punctul cu coordonatele x și y.</p>
+     <p class="paragraph">Acum să desenăm câteva linii:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>context.beginPath();<br>context.moveTo(20,&nbsp;100);<br>context.lineTo(140,&nbsp;10);<br>context.lineTo(260,&nbsp;100);</code></pre>
+     </div>
+     <p class="paragraph">Aici stabilim începutul căii la punctul (20, 100), apoi desenăm o linie până la punctul (140, 10) (linie în sus) și continuăm cu încă o linie până la punctul (260, 100).</p>
+     <h2 class="subtitle">Afișarea căii</h2>
+     <p class="paragraph">Deși am desenat câteva linii, încă nu le vom vedea pe ecran, deoarece trebuie să le afișăm. Pentru afișarea căii trebuie utilizată metoda stroke():</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;canvas&nbsp;id="canvas"&nbsp;width="500"&nbsp;height="250"&gt;&lt;/canvas&gt;<br>&lt;script&gt;<br>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>context.beginPath();<br>context.moveTo(20,&nbsp;100);<br>context.lineTo(140,&nbsp;10);<br>context.lineTo(260,&nbsp;100);<br>context.stroke();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;afișăm&nbsp;calea<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/6.Desenarea%20formelor/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Implicit, pentru desenare se utilizează culoarea neagră, dar cu proprietatea strokeStyle se poate schimba culoarea:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br><br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br><br>context.beginPath();<br><br>context.moveTo(20,&nbsp;100);<br><br>context.lineTo(140,&nbsp;10);<br><br>context.lineTo(260,&nbsp;100);<br><br>context.strokeStyle&nbsp;=&nbsp;"red";&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;culoare&nbsp;roșie<br><br>context.stroke();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;afișăm&nbsp;calea</code></pre>
+     </div>
+     <h2 class="subtitle">Închiderea căii</h2>
+     <p class="paragraph">Am desenat două linii și, presupunând că dorim să le conectăm pentru a închide forma - în acest caz, un triunghi. Deși am putea desena o altă linie pentru a forma un triunghi, pentru simplificare, API-ul Canvas oferă o metodă specială - context.closePath(), care permite închiderea automată a căii, conectând primul și ultimul punct al căii, formând astfel figura:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>context.beginPath();<br>context.moveTo(20,&nbsp;100);<br>context.lineTo(140,&nbsp;10);<br>context.lineTo(260,&nbsp;100);<br>context.closePath();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;închidem&nbsp;calea<br>context.stroke();</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/6.Desenarea%20formelor/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Obiecte Path2D</h2>
+     <p class="paragraph">Lucrând cu multe căi poate deveni confuz. În acest caz, pentru a diferenția căile separate se pot folosi obiecte Path2D. Acest obiect oferă metode similare cu metodele obiectului context în ceea ce privește crearea unei căi. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code><br>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>const&nbsp;path1&nbsp;=&nbsp;new<br><br>Path2D();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;prima&nbsp;cale<br>path1.moveTo(20,&nbsp;100);<br>path1.lineTo(140,&nbsp;10);<br>path1.lineTo(260,&nbsp;100);<br>path1.closePath();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;închidem&nbsp;calea<br>context.strokeStyle&nbsp;=&nbsp;"blue";<br>context.stroke(path1);<br><br>const&nbsp;path2&nbsp;=&nbsp;new&nbsp;Path2D();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;a&nbsp;doua&nbsp;cale<br>path2.moveTo(20,&nbsp;110);<br>path2.lineTo(140,&nbsp;200);<br>path2.lineTo(260,&nbsp;110);<br>path2.closePath();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;închidem&nbsp;calea<br>context.strokeStyle&nbsp;=&nbsp;"red";<br>context.stroke(path2);</code></pre>
+     </div>
+     <p class="paragraph">Aici se creează două căi, fiecare reprezentând un triunghi. Pentru desenarea fiecărei căi se apelează metoda context.stroke(), în care se transmite calea respectivă.</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/6.Desenarea%20formelor/images/image3.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Metoda rect</h2>
+     <p class="paragraph">Metoda rect() creează un dreptunghi. Are următoarea definiție:</p>
+     <div class="code-inline">
+      <pre><code>rect(x,&nbsp;y,&nbsp;width,&nbsp;height)</code></pre>
+     </div>
+     <p class="paragraph">Unde x și y sunt coordonatele colțului superior stâng al dreptunghiului relativ la canvas, iar width și height sunt, respectiv, lățimea și înălțimea dreptunghiului. Să desenăm, de exemplu, următorul dreptunghi:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>context.beginPath();<br>context.rect(30,&nbsp;20,&nbsp;100,&nbsp;90);<br>context.closePath();<br>context.stroke();</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/6.Desenarea%20formelor/images/image4.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Este bine de menționat că un dreptunghi similar am fi putut crea folosind linii:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>&nbsp;<br>context.beginPath();<br>context.moveTo(30,&nbsp;20);<br>context.lineTo(130,&nbsp;20);<br>context.lineTo(130,&nbsp;110);<br>context.lineTo(30,&nbsp;110);<br>context.closePath();<br>context.stroke();</code></pre>
+     </div>
+     <h2 class="subtitle">Metoda fill()</h2>
+     <p class="paragraph">Metoda fill() umple cu culoare tot spațiul interior al căii desenate:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>context.beginPath();<br>context.moveTo(20,&nbsp;100);<br>context.lineTo(140,&nbsp;10);<br>context.lineTo(260,&nbsp;100);<br>context.closePath();<br><br>context.strokeStyle&nbsp;=&nbsp;"#2e86de";<br>context.fillStyle&nbsp;=&nbsp;"#4bcffa";<br>context.fill();<br>context.stroke();</code></pre>
+     </div>
+     <p class="paragraph">Cu ajutorul proprietății fillStyle se poate seta culoarea de umplere a formei. În acest caz, culoarea este "#4bcffa".</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/6.Desenarea%20formelor/images/image5.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Metoda clip()</h2>
+     <p class="paragraph">Metoda clip() permite decuparea unei anumite zone din canvas, iar tot ceea ce se află în afara acestei zone va fi ignorat la desenarea ulterioară.</p>
+     <p class="paragraph">Pentru a înțelege această metodă, să desenăm mai întâi două dreptunghiuri:</p>
+     <div class="code-inline">
+      <pre><code><br>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>//&nbsp;desenăm&nbsp;primul&nbsp;dreptunghi&nbsp;roșu<br>context.beginPath();<br>context.moveTo(10,&nbsp;20);<br>context.lineTo(130,&nbsp;20);<br>context.lineTo(130,&nbsp;110);<br>context.lineTo(10,&nbsp;110);<br>context.closePath();<br>context.strokeStyle&nbsp;=&nbsp;"red";<br>context.stroke();<br><br>//&nbsp;desenăm&nbsp;al&nbsp;doilea&nbsp;dreptunghi&nbsp;verde<br>context.beginPath();<br>context.rect(30,&nbsp;50,&nbsp;180,&nbsp;70);<br>context.closePath();<br>context.strokeStyle&nbsp;=&nbsp;"green";<br>context.stroke();</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/6.Desenarea%20formelor/images/image6.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Acum să aplicăm metoda clip() pentru a limita zona de desenare doar la primul dreptunghi:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>//&nbsp;desenăm&nbsp;primul&nbsp;dreptunghi&nbsp;roșu<br>context.beginPath();<br>context.moveTo(10,&nbsp;20);<br>context.lineTo(130,&nbsp;20);<br>context.lineTo(130,&nbsp;110);<br>context.lineTo(10,&nbsp;110);<br>context.closePath();<br>context.strokeStyle&nbsp;=&nbsp;"red";<br>context.stroke();<br><br>context.clip();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;tăiem&nbsp;zona&nbsp;de&nbsp;desenare&nbsp;după&nbsp;primul&nbsp;traseu<br><br>//&nbsp;desenăm&nbsp;al&nbsp;doilea&nbsp;dreptunghi&nbsp;verde<br>context.beginPath();<br>context.rect(30,&nbsp;50,&nbsp;180,&nbsp;70);<br>context.closePath();<br>context.strokeStyle&nbsp;=&nbsp;"green";<br>context.stroke();</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/6.Desenarea%20formelor/images/image7.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">După apelul metodei clip() după primul dreptunghi, doar partea a doua a dreptunghiului verde care se suprapune peste primul dreptunghi va fi desenată.</p>
+     <h2 class="subtitle">Metoda arc()</h2>
+     <p class="paragraph">Metoda arc() adaugă la traseu un segment de cerc sau arc. Are următoarea definiție:</p>
+     <div class="code-inline">
+      <pre><code>arc(x,&nbsp;y,&nbsp;radius,&nbsp;startAngle,&nbsp;endAngle,&nbsp;anticlockwise)</code></pre>
+     </div>
+     <p class="paragraph">Parametrii utilizați sunt:</p>
+     <ul class="enumeration">
+      <li>x și y: coordonatele x și y unde începe arcul</li>
+      <li>radius: raza cercului de-a lungul căruia se creează arcul</li>
+      <li>startAngle și endAngle: unghiul de început și unghiul de sfârșit care taie cercul într-un arc. Unghiurile sunt măsurate în radiani. De exemplu, un cerc complet este 2π radiani. Dacă trebuie să desenăm un cerc complet, atunci pentru parametrul endAngle se poate specifica valoarea 2π. În JavaScript, această valoare se poate obține prin expresia Math.PI * 2</li>
+      <li>anticlockwise: direcția de mișcare pe cerc atunci când se taie o porțiune a acestuia, delimitată de unghiurile de început și de sfârșit. Când valoarea este true, direcția este în sens invers acelor de ceasornic, iar când este false, direcția este în sensul acelor de ceasornic</li>
+     </ul>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/6.Desenarea%20formelor/images/image8.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Exemple de desenare a arcurilor și cercilor pe canvas în JavaScript sunt prezentate mai jos.</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>context.strokeStyle&nbsp;=&nbsp;"red";<br><br>context.beginPath();<br>context.moveTo(20,&nbsp;90);<br>context.arc(20,&nbsp;90,&nbsp;50,&nbsp;0,&nbsp;Math.PI/2,&nbsp;false);<br>context.closePath();<br>context.stroke();<br><br>context.beginPath();<br>context.moveTo(130,&nbsp;90);<br>context.arc(130,&nbsp;90,&nbsp;50,&nbsp;0,&nbsp;Math.PI,&nbsp;false);<br>context.closePath();<br>context.stroke();<br><br>context.beginPath();<br>context.moveTo(240,&nbsp;90);<br>context.arc(240,&nbsp;90,&nbsp;50,&nbsp;0,&nbsp;Math.PI&nbsp;*&nbsp;3&nbsp;/&nbsp;2,&nbsp;false);<br>context.closePath();<br>context.stroke();<br><br>context.beginPath();<br>context.arc(350,&nbsp;90,&nbsp;50,&nbsp;0,&nbsp;Math.PI*2,&nbsp;false);<br>context.closePath();<br>context.stroke();</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/6.Desenarea%20formelor/images/image9.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Ultimul parametru, anticlockwise, joacă un rol important, deoarece determină mișcarea pe cerc, iar în cazul schimbării din true în false și invers, putem obține figuri complet diferite:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>context.strokeStyle&nbsp;=&nbsp;"red";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>context.beginPath();<br>context.moveTo(80,&nbsp;90);<br>context.arc(80,&nbsp;90,&nbsp;50,&nbsp;0,&nbsp;Math.PI/2,&nbsp;false);<br>context.closePath();<br>context.stroke();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>context.beginPath();<br>context.moveTo(240,&nbsp;90);<br>context.arc(240,&nbsp;90,&nbsp;50,&nbsp;0,&nbsp;Math.PI/2,&nbsp;true);<br>context.closePath();<br>context.stroke();</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/6.Desenarea%20formelor/images/image10.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Metoda arcTo()</h2>
+     <p class="paragraph">Metoda arcTo() desenează, de asemenea, un arc. Are următoarea definiție:</p>
+     <div class="code-inline">
+      <pre><code>arcTo(x1,&nbsp;y1,&nbsp;x2,&nbsp;y2,&nbsp;radius)</code></pre>
+     </div>
+     <p class="paragraph">Unde x1 și y1 sunt coordonatele primului punct de control, x2 și y2 sunt coordonatele celui de-al doilea punct de control, iar radius este raza arcului.</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/6.Desenarea%20formelor/images/image11.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Exemplu de desenare a arcurilor cu ajutorul arcTo():</p>
+     <div class="code-inline">
+      <pre><code><br>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>context.strokeStyle&nbsp;=&nbsp;"red";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>context.beginPath();<br>context.moveTo(0,&nbsp;150);<br>context.arcTo(0,&nbsp;0,&nbsp;150,&nbsp;0,&nbsp;140)<br>context.closePath();<br>context.stroke();</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/6.Desenarea%20formelor/images/image12.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Aici ne mutăm mai întâi la punctul (0, 150), și de la acest punct la primul punct de control (0, 0) va trece prima tangentă. Apoi, de la primul punct de control (0, 0) la al doilea (150, 0) va trece a doua tangentă. Aceste două tangente formează un arc, iar 140 servește drept raza cercului pe care este secționat arcul.</p>
+     <h2 class="subtitle">Metoda quadraticCurveTo()</h2>
+     <p class="paragraph">Metoda quadraticCurveTo() creează o curbă pătratică. Are următoarea definiție:</p>
+     <div class="code-inline">
+      <pre><code>quadraticCurveTo(x1,&nbsp;y1,&nbsp;x2,&nbsp;y2)</code></pre>
+     </div>
+     <p class="paragraph">Unde x1 și y1 sunt coordonatele primului punct de sprijin, iar x2 și y2 sunt coordonatele celui de-al doilea punct de sprijin.</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/6.Desenarea%20formelor/images/image13.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Exemplu de curbă pătratică Bézier:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>context.strokeStyle&nbsp;=&nbsp;"red";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>context.beginPath();<br>context.moveTo(20,&nbsp;90);<br>context.quadraticCurveTo(130,&nbsp;0,&nbsp;280,&nbsp;90)<br>context.closePath();<br>context.stroke();</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/6.Desenarea%20formelor/images/image14.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Metoda bezierCurveTo(). Curba Bézier</h2>
+     <p class="paragraph">Metoda bezierCurveTo() desenează o curbă Bézier. Are următoarea definiție:</p>
+     <div class="code-inline">
+      <pre><code>bezierCurveTo(x1,&nbsp;y1,&nbsp;x2,&nbsp;y2,&nbsp;x3,&nbsp;y3)</code></pre>
+     </div>
+     <p class="paragraph">Unde x1 și y1 sunt coordonatele primului punct de sprijin, x2 și y2 sunt coordonatele celui de-al doilea punct de sprijin, iar x3 și y3 sunt coordonatele celui de-al treilea punct de sprijin.</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/6.Desenarea%20formelor/images/image15.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Exemplu de curbă Bézier:</p>
+     <div class="code-inline">
+      <pre><code><br>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>context.strokeStyle&nbsp;=&nbsp;"red";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>context.beginPath();<br>context.moveTo(30,&nbsp;100);<br>context.bezierCurveTo(110,&nbsp;0,&nbsp;190,&nbsp;200,&nbsp;270,&nbsp;100);<br>context.closePath();<br>context.stroke();</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/6.Desenarea%20formelor/images/image16.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Figuri complexe</h2>
+     <p class="paragraph">Vom combina mai multe figuri împreună și vom desena o scenă bidimensională mai complexă:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;canvas&nbsp;id="canvas"&nbsp;width="400"&nbsp;height="250"&gt;&lt;/canvas&gt;<br>&lt;script&gt;<br>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>context.beginPath();<br>context.fill();<br>context.fillStyle&nbsp;=&nbsp;"yellow";<br>context.beginPath();<br>context.arc(160,&nbsp;130,&nbsp;100,&nbsp;0,&nbsp;2&nbsp;*&nbsp;Math.PI);<br>context.fill();<br>&nbsp;<br>//&nbsp;gura<br>context.beginPath();<br>context.moveTo(100,&nbsp;160);<br>context.quadraticCurveTo(160,&nbsp;250,&nbsp;220,&nbsp;160);<br>context.closePath();<br>context.fillStyle&nbsp;=&nbsp;"red";<br>context.fill();<br>context.lineWidth&nbsp;=&nbsp;2;<br>context.strokeStyle&nbsp;=&nbsp;"black";<br>context.stroke();<br>&nbsp;<br>//&nbsp;dinții<br>context.fillStyle&nbsp;=&nbsp;"#FFFFFF";<br>context.fillRect(140,&nbsp;160,&nbsp;15,&nbsp;15);<br>context.fillRect(170,&nbsp;160,&nbsp;15,&nbsp;15);<br>&nbsp;<br>//&nbsp;ochii<br>context.beginPath();<br>context.arc(130,&nbsp;90,&nbsp;20,&nbsp;0,&nbsp;2&nbsp;*&nbsp;Math.PI);<br>context.fillStyle&nbsp;=&nbsp;"#333333";<br>context.fill();<br>context.closePath();<br>&nbsp;<br>context.beginPath();<br>context.arc(190,&nbsp;90,&nbsp;20,&nbsp;0,&nbsp;2&nbsp;*&nbsp;Math.PI);<br>context.fillStyle&nbsp;=&nbsp;"#333333";<br>context.fill();<br>context.closePath();<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/6.Desenarea%20formelor/images/image17.png}" alt="" class="responsive-image">
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

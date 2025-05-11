@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='3.Clase, structuri si spatii de nume in C-sharp', activeLesson='8.Spatii de nume globale'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Spații de nume globale</h1>
+     <p class="paragraph">Dacă dorim să folosim un anumit spațiu de nume în fișierele de cod din proiect, implicit trebuie să-l conectăm în toate fișierele în care planificăm să-l folosim.</p>
+     <p class="paragraph">De exemplu, să presupunem că avem trei fișiere de cod în proiect:</p>
+     <div class="image-container">
+      <img th:src="@{/images/C-sharp/3.Clase,%20structuri%20si%20spatii%20de%20nume%20in%20C-sharp/8.Spatii%20de%20nume%20globale/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">În fișierul Base.cs este definită clasa Company în spațiul de nume Base:</p>
+     <div class="code-inline">
+      <pre><code>namespace&nbsp;Base;<br>class&nbsp;Company<br>{<br>&nbsp;&nbsp;&nbsp;string&nbsp;title;<br>&nbsp;&nbsp;&nbsp;public&nbsp;Company(string&nbsp;title)&nbsp;=&gt;&nbsp;this.title&nbsp;=&nbsp;title;<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Print()&nbsp;=&gt;&nbsp;Console.WriteLine($"Compania:&nbsp;{title}");<br>}</code></pre>
+     </div>
+     <p class="paragraph">În fișierul Person.cs este definită clasa Person, care folosește clasa Company:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;Base;<br><br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;string&nbsp;name;<br>&nbsp;&nbsp;&nbsp;Company&nbsp;company;<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name,&nbsp;Company&nbsp;company)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.company&nbsp;=&nbsp;company;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Print()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Nume:&nbsp;{name}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;company.Print();<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Pentru a folosi clasa Company, conectăm spațiul de nume: using Base;.</p>
+     <p class="paragraph">În fișierul Program.cs sunt folosite clasele Person și Company:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;Base;<br><br>Company&nbsp;microsoft&nbsp;=&nbsp;new("Microsoft");<br>Person&nbsp;tom&nbsp;=&nbsp;new("Tom",&nbsp;microsoft);<br>tom.Print();</code></pre>
+     </div>
+     <p class="paragraph">Din nou, pentru a folosi clasa Company, conectăm spațiul de nume: using Base;.</p>
+     <p class="paragraph">Și pot exista multe astfel de fișiere în care trebuie să conectăm spațiul de nume Base (sau altul). Acest lucru nu este foarte convenabil. În .NET 6 a fost introdusă conceptul de spații de nume globale, care se conectează o singură dată și imediat în toate fișierele de cod din proiect. Pentru aceasta, este suficient să scriem într-un fișier directiva:</p>
+     <div class="code-inline">
+      <pre><code>global&nbsp;using&nbsp;conectat_spatiu_de_nume;</code></pre>
+     </div>
+     <p class="paragraph">De exemplu, să modificăm fișierul Program.cs astfel:</p>
+     <div class="code-inline">
+      <pre><code>global&nbsp;using&nbsp;Base;<br><br>Company&nbsp;microsoft&nbsp;=&nbsp;new("Microsoft");<br>Person&nbsp;tom&nbsp;=&nbsp;new("Tom",&nbsp;microsoft);<br>tom.Print();</code></pre>
+     </div>
+     <p class="paragraph">Acum, spațiul de nume Base este conectat în toate fișierele de cod din proiect. Și din fișierul Person.cs putem elimina linia:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;Base;</code></pre>
+     </div>
+     <h2 class="subtitle">Definirea spațiilor de nume globale într-un fișier separat</h2>
+     <p class="paragraph">Totuși, abordarea de mai sus poate să nu fie foarte convenabilă, deoarece este mai simplu să definim spațiile de nume globale care se conectează în tot proiectul într-un singur loc. Pentru aceasta, în Visual Studio 2022 putem adăuga în proiect un nou fișier cu cod C# și în acesta putem defini un set de spații de nume conectate.</p>
+     <p class="paragraph">De exemplu, să adăugăm în proiect un fișier pe care îl numim GlobalUsings.cs și în care definim următorul conținut:</p>
+     <div class="code-inline">
+      <pre><code>global&nbsp;using&nbsp;System.Text;<br>global&nbsp;using&nbsp;System.Reflection;<br>global&nbsp;using&nbsp;Base;</code></pre>
+     </div>
+     <p class="paragraph">Și acest set de spații de nume va fi conectat automat în toate fișierele de cod din proiect.</p>
+     <div class="image-container">
+      <img th:src="@{/images/C-sharp/3.Clase,%20structuri%20si%20spatii%20de%20nume%20in%20C-sharp/8.Spatii%20de%20nume%20globale/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/C-sharp/3.Clase,%20structuri%20si%20spatii%20de%20nume%20in%20C-sharp/8.Spatii%20de%20nume%20globale/images/image3.png}" alt="" class="responsive-image">
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

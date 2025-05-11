@@ -1,174 +1,164 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='28.Web API Adaugatoare', activeLesson='3.API-ul Web Speech pentru Sinteza Vocala'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">API-ul Web Speech pentru Sinteza Vocală</h1>
- <p class="paragraph">Web Speech API permite dezvoltatorilor web să genereze și să recunoască vocea pe o pagină web în mod programatic. Acesta definește două interfețe: SpeechRecognition (pentru recunoașterea vocii) și SpeechSynthesis (pentru sinteza vocii). Acest API (la momentul scrierii acestui articol) încă nu este un standard oficial W3C, iar suportul său în diferite browsere poate varia. Să examinăm mai întâi sinteza vocii.</p>
- <p class="paragraph">La nivelul browserului, sinteza vocii este accesibilă prin proprietatea speechSynthesis a obiectului window, care reprezintă SpeechSynthesis și prin care se poate verifica suportul browserului pentru sinteza vocii:</p>
- <div class="code-inline">
-  <pre><code>if(window.speechSynthesis)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Sinteza&nbsp;vocii&nbsp;este&nbsp;suportată");<br>}<br>else&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Sinteza&nbsp;vocii&nbsp;NU&nbsp;este&nbsp;suportată");<br>}<br>//&nbsp;O&nbsp;metodă&nbsp;alternativă&nbsp;de&nbsp;verificare<br>if("speechSynthesis"&nbsp;in&nbsp;window)&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;console.log("Sinteza&nbsp;vocii&nbsp;este&nbsp;suportată");<br>}<br>else&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Sinteza&nbsp;vocii&nbsp;NU&nbsp;este&nbsp;suportată");<br>}</code></pre>
- </div>
- <p class="paragraph">Pentru sinteza vocii se utilizează obiectul de tip SpeechSynthesisUtterance, care reprezintă o expresie vocală distinctă și permite configurarea sintezei prin intermediul mai multor proprietăți:</p>
- <ul class="enumeration">
-  <li>lang: obține și setează limba expresiei</li>
-  <li>pitch: obține și setează înălțimea tonului cu care va fi rostită expresia</li>
-  <li>rate: obține și setează viteza de rostire a expresiei</li>
-  <li>text: obține și setează textul care va fi sintetizat și rostit</li>
-  <li>voice: obține și setează vocea care va fi folosită pentru rostirea expresiei</li>
-  <li>volume: obține și setează volumul rostirii expresiei</li>
- </ul>
- <p class="paragraph">În general, este suficient să setăm proprietatea text:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;utterance&nbsp;=&nbsp;new&nbsp;SpeechSynthesisUtterance();<br>utterance.text&nbsp;=&nbsp;"Hello&nbsp;World";</code></pre>
- </div>
- <p class="paragraph">Pentru sinteza vocii și gestionarea acesteia se apelează una dintre metodele de tip SpeechSynthesis:</p>
- <ul class="enumeration">
-  <li>cancel(): elimină toate expresiile din coada de așteptare</li>
-  <li>getVoices(): returnează o listă de obiecte SpeechSynthesisVoice, reprezentând toate vocile disponibile pe dispozitivul curent</li>
-  <li>pause(): suspendă sinteza vocii</li>
-  <li>resume(): reia sinteza vocii (dacă anterior a fost suspendată)</li>
-  <li>speak(): adaugă o expresie în coada de așteptare pentru a fi rostită</li>
- </ul>
- <p class="paragraph">De exemplu, să sintetizăm vocea pentru un text simplu:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;input&nbsp;id="text"&nbsp;value="Hello&nbsp;World"&nbsp;/&gt;<br>&lt;button&nbsp;id="btn"&gt;Speak&lt;/button&gt;<br>&lt;script&gt;<br>document.getElementById("btn").addEventListener("click",&nbsp;speak);<br>function&nbsp;speak(){<br>&nbsp;&nbsp;&nbsp;if(window.speechSynthesis)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;utterance&nbsp;=&nbsp;new&nbsp;SpeechSynthesisUtterance();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;utterance.text&nbsp;=&nbsp;document.getElementById("text").value;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;window.speechSynthesis.speak(utterance);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Funcția&nbsp;nu&nbsp;este&nbsp;suportată");<br>&nbsp;&nbsp;&nbsp;}<br>}<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">În acest caz, apăsând pe buton se va sintetiza vocea pentru textul introdus în câmpul text. Este de menționat că browserele pot impune restricții asupra inițierii sintezei, de exemplu, în Google Chrome este necesar ca utilizatorul să activeze acțiunea. De aceea, aici sinteza este executată la apăsarea butonului, nu imediat la încărcarea paginii.</p>
- <p class="paragraph">Se pot configura și alte setări ale vocii:</p>
- <div class="code-inline">
-  <pre><code>document.getElementById("btn").addEventListener("click",&nbsp;speak);<br>function&nbsp;speak(){<br>&nbsp;&nbsp;&nbsp;if(window.speechSynthesis)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;utterance&nbsp;=&nbsp;new&nbsp;SpeechSynthesisUtterance();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;utterance.text&nbsp;=&nbsp;"Salut";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;utterance.lang&nbsp;=&nbsp;"ro";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;abrevierea&nbsp;limbii<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;utterance.volume&nbsp;=&nbsp;0.5;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;volumul<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;utterance.rate&nbsp;=&nbsp;0.5;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;viteza<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;utterance.pitch&nbsp;=&nbsp;0.5;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;înălțimea&nbsp;tonului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;window.speechSynthesis.speak(utterance);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
- </div>
- <h2 class="subtitle">Alegerea vocii</h2>
- <p class="paragraph">Dacă browserul suportă mai multe voci, acestea pot fi selectate cu ajutorul metodei getVoices() a obiectului SpeechSynthesis. Fiecare voce are diferite proprietăți, inclusiv numele și abrevierea asociată țării sau limbii. Și le putem parcurge pe toate într-un ciclu:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;voices&nbsp;=&nbsp;window.speechSynthesis.getVoices();<br>voices.forEach(function(voice)&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;console.log(voice.lang);<br>&nbsp;&nbsp;&nbsp;console.log(voice.name);<br>});</code></pre>
- </div>
- <p class="paragraph">Alegând vocea dorită, aceasta poate fi setată folosind proprietatea voices a obiectului SpeechSynthesisUtterance</p>
- <div class="code-inline">
-  <pre><code>document.getElementById("btn").addEventListener("click",&nbsp;speak);<br>function&nbsp;speak(){<br>&nbsp;&nbsp;&nbsp;if(window.speechSynthesis)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;utterance&nbsp;=&nbsp;new&nbsp;SpeechSynthesisUtterance();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;utterance.text&nbsp;=&nbsp;"Salut";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;voices&nbsp;=&nbsp;window.speechSynthesis.getVoices();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;selectedVoice&nbsp;=&nbsp;voices[0];&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;selectăm&nbsp;prima&nbsp;voce<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;window.speechSynthesis.speak(utterance);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
- </div>
- <p class="paragraph">Este de menționat că, în cazul meu, deși lista oferea trei voci în limba română, toate erau identice cu prima.</p>
- <h2 class="subtitle">Evenimente de sinteză a vocii</h2>
- <p class="paragraph">În procesul de sinteză a vocii pot apărea diferite evenimente (pe obiectul SpeechSynthesisUtterance):</p>
- <ul class="enumeration">
-  <li>boundary: apare la atingerea graniței unui cuvânt sau fraze. Handlerul este setat prin proprietatea onboundary</li>
-  <li>end: apare la finalizarea vocii. Handlerul este setat prin proprietatea onend</li>
-  <li>error: apare în caz de eroare. Handlerul este setat prin proprietatea onerror</li>
-  <li>mark: apare când vocea atinge un tag numit "marca" SSML. Handlerul este setat prin proprietatea onmark</li>
-  <li>pause: apare când vocea este suspendată. Handlerul este setat prin proprietatea onpause</li>
-  <li>resume: apare când vocea este reluată. Handlerul este setat prin proprietatea onresume</li>
-  <li>start: apare la începutul vocii. Handlerul este setat prin proprietatea onstart</li>
- </ul>
- <p class="paragraph">Pentru demonstrație, să procesăm câteva evenimente:</p>
- <div class="code-inline">
-  <pre><code>document.getElementById("btn").addEventListener("click",&nbsp;speak);<br>function&nbsp;speak(){<br>&nbsp;&nbsp;&nbsp;if(window.speechSynthesis)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;utterance&nbsp;=&nbsp;new&nbsp;SpeechSynthesisUtterance();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;utterance.onstart&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;console.log("Începutul&nbsp;vocii");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;utterance.onend&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;console.log("Sfârșitul&nbsp;vocii");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;utterance.text&nbsp;=&nbsp;"Salut";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;window.speechSynthesis.speak(utterance);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">API-ul Web Speech pentru Sinteza Vocală</h1>
+     <p class="paragraph">Web Speech API permite dezvoltatorilor web să genereze și să recunoască vocea pe o pagină web în mod programatic. Acesta definește două interfețe: SpeechRecognition (pentru recunoașterea vocii) și SpeechSynthesis (pentru sinteza vocii). Acest API (la momentul scrierii acestui articol) încă nu este un standard oficial W3C, iar suportul său în diferite browsere poate varia. Să examinăm mai întâi sinteza vocii.</p>
+     <p class="paragraph">La nivelul browserului, sinteza vocii este accesibilă prin proprietatea speechSynthesis a obiectului window, care reprezintă SpeechSynthesis și prin care se poate verifica suportul browserului pentru sinteza vocii:</p>
+     <div class="code-inline">
+      <pre><code>if(window.speechSynthesis)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Sinteza&nbsp;vocii&nbsp;este&nbsp;suportată");<br>}<br>else&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Sinteza&nbsp;vocii&nbsp;NU&nbsp;este&nbsp;suportată");<br>}<br>//&nbsp;O&nbsp;metodă&nbsp;alternativă&nbsp;de&nbsp;verificare<br>if("speechSynthesis"&nbsp;in&nbsp;window)&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;console.log("Sinteza&nbsp;vocii&nbsp;este&nbsp;suportată");<br>}<br>else&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Sinteza&nbsp;vocii&nbsp;NU&nbsp;este&nbsp;suportată");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Pentru sinteza vocii se utilizează obiectul de tip SpeechSynthesisUtterance, care reprezintă o expresie vocală distinctă și permite configurarea sintezei prin intermediul mai multor proprietăți:</p>
+     <ul class="enumeration">
+      <li>lang: obține și setează limba expresiei</li>
+      <li>pitch: obține și setează înălțimea tonului cu care va fi rostită expresia</li>
+      <li>rate: obține și setează viteza de rostire a expresiei</li>
+      <li>text: obține și setează textul care va fi sintetizat și rostit</li>
+      <li>voice: obține și setează vocea care va fi folosită pentru rostirea expresiei</li>
+      <li>volume: obține și setează volumul rostirii expresiei</li>
+     </ul>
+     <p class="paragraph">În general, este suficient să setăm proprietatea text:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;utterance&nbsp;=&nbsp;new&nbsp;SpeechSynthesisUtterance();<br>utterance.text&nbsp;=&nbsp;"Hello&nbsp;World";</code></pre>
+     </div>
+     <p class="paragraph">Pentru sinteza vocii și gestionarea acesteia se apelează una dintre metodele de tip SpeechSynthesis:</p>
+     <ul class="enumeration">
+      <li>cancel(): elimină toate expresiile din coada de așteptare</li>
+      <li>getVoices(): returnează o listă de obiecte SpeechSynthesisVoice, reprezentând toate vocile disponibile pe dispozitivul curent</li>
+      <li>pause(): suspendă sinteza vocii</li>
+      <li>resume(): reia sinteza vocii (dacă anterior a fost suspendată)</li>
+      <li>speak(): adaugă o expresie în coada de așteptare pentru a fi rostită</li>
+     </ul>
+     <p class="paragraph">De exemplu, să sintetizăm vocea pentru un text simplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;input&nbsp;id="text"&nbsp;value="Hello&nbsp;World"&nbsp;/&gt;<br>&lt;button&nbsp;id="btn"&gt;Speak&lt;/button&gt;<br>&lt;script&gt;<br>document.getElementById("btn").addEventListener("click",&nbsp;speak);<br>function&nbsp;speak(){<br>&nbsp;&nbsp;&nbsp;if(window.speechSynthesis)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;utterance&nbsp;=&nbsp;new&nbsp;SpeechSynthesisUtterance();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;utterance.text&nbsp;=&nbsp;document.getElementById("text").value;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;window.speechSynthesis.speak(utterance);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Funcția&nbsp;nu&nbsp;este&nbsp;suportată");<br>&nbsp;&nbsp;&nbsp;}<br>}<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, apăsând pe buton se va sintetiza vocea pentru textul introdus în câmpul text. Este de menționat că browserele pot impune restricții asupra inițierii sintezei, de exemplu, în Google Chrome este necesar ca utilizatorul să activeze acțiunea. De aceea, aici sinteza este executată la apăsarea butonului, nu imediat la încărcarea paginii.</p>
+     <p class="paragraph">Se pot configura și alte setări ale vocii:</p>
+     <div class="code-inline">
+      <pre><code>document.getElementById("btn").addEventListener("click",&nbsp;speak);<br>function&nbsp;speak(){<br>&nbsp;&nbsp;&nbsp;if(window.speechSynthesis)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;utterance&nbsp;=&nbsp;new&nbsp;SpeechSynthesisUtterance();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;utterance.text&nbsp;=&nbsp;"Salut";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;utterance.lang&nbsp;=&nbsp;"ro";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;abrevierea&nbsp;limbii<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;utterance.volume&nbsp;=&nbsp;0.5;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;volumul<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;utterance.rate&nbsp;=&nbsp;0.5;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;viteza<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;utterance.pitch&nbsp;=&nbsp;0.5;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;înălțimea&nbsp;tonului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;window.speechSynthesis.speak(utterance);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Alegerea vocii</h2>
+     <p class="paragraph">Dacă browserul suportă mai multe voci, acestea pot fi selectate cu ajutorul metodei getVoices() a obiectului SpeechSynthesis. Fiecare voce are diferite proprietăți, inclusiv numele și abrevierea asociată țării sau limbii. Și le putem parcurge pe toate într-un ciclu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;voices&nbsp;=&nbsp;window.speechSynthesis.getVoices();<br>voices.forEach(function(voice)&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;console.log(voice.lang);<br>&nbsp;&nbsp;&nbsp;console.log(voice.name);<br>});</code></pre>
+     </div>
+     <p class="paragraph">Alegând vocea dorită, aceasta poate fi setată folosind proprietatea voices a obiectului SpeechSynthesisUtterance</p>
+     <div class="code-inline">
+      <pre><code>document.getElementById("btn").addEventListener("click",&nbsp;speak);<br>function&nbsp;speak(){<br>&nbsp;&nbsp;&nbsp;if(window.speechSynthesis)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;utterance&nbsp;=&nbsp;new&nbsp;SpeechSynthesisUtterance();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;utterance.text&nbsp;=&nbsp;"Salut";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;voices&nbsp;=&nbsp;window.speechSynthesis.getVoices();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;selectedVoice&nbsp;=&nbsp;voices[0];&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;selectăm&nbsp;prima&nbsp;voce<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;window.speechSynthesis.speak(utterance);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Este de menționat că, în cazul meu, deși lista oferea trei voci în limba română, toate erau identice cu prima.</p>
+     <h2 class="subtitle">Evenimente de sinteză a vocii</h2>
+     <p class="paragraph">În procesul de sinteză a vocii pot apărea diferite evenimente (pe obiectul SpeechSynthesisUtterance):</p>
+     <ul class="enumeration">
+      <li>boundary: apare la atingerea graniței unui cuvânt sau fraze. Handlerul este setat prin proprietatea onboundary</li>
+      <li>end: apare la finalizarea vocii. Handlerul este setat prin proprietatea onend</li>
+      <li>error: apare în caz de eroare. Handlerul este setat prin proprietatea onerror</li>
+      <li>mark: apare când vocea atinge un tag numit "marca" SSML. Handlerul este setat prin proprietatea onmark</li>
+      <li>pause: apare când vocea este suspendată. Handlerul este setat prin proprietatea onpause</li>
+      <li>resume: apare când vocea este reluată. Handlerul este setat prin proprietatea onresume</li>
+      <li>start: apare la începutul vocii. Handlerul este setat prin proprietatea onstart</li>
+     </ul>
+     <p class="paragraph">Pentru demonstrație, să procesăm câteva evenimente:</p>
+     <div class="code-inline">
+      <pre><code>document.getElementById("btn").addEventListener("click",&nbsp;speak);<br>function&nbsp;speak(){<br>&nbsp;&nbsp;&nbsp;if(window.speechSynthesis)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;utterance&nbsp;=&nbsp;new&nbsp;SpeechSynthesisUtterance();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;utterance.onstart&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;console.log("Începutul&nbsp;vocii");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;utterance.onend&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;console.log("Sfârșitul&nbsp;vocii");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;utterance.text&nbsp;=&nbsp;"Salut";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;window.speechSynthesis.speak(utterance);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

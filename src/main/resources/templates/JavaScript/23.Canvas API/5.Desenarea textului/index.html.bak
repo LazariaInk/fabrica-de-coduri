@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='23.Canvas API', activeLesson='5.Desenarea textului'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Desenarea textului</h1>
+     <p class="paragraph">Împreună cu formele geometrice și imaginile, canvas permite și afișarea textului. Pentru aceasta, mai întâi trebuie să setăm proprietatea font a contextului canvas:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>context.font&nbsp;=&nbsp;"22px&nbsp;Verdana";</code></pre>
+     </div>
+     <p class="paragraph">Proprietatea font acceptă ca valoare definiția fontului. În acest caz, este fontul Verdana cu înălțimea de 22 de pixeli. Se folosesc fonturile standard.</p>
+     <p class="paragraph">Pentru afișarea textului se utilizează două metode:</p>
+     <ul class="enumeration">
+      <li>fillText(text, x, y): acceptă trei parametri: textul care va fi afișat (parametrul text) și coordonatele punctului de unde începe afișarea textului (parametrii x și y)</li>
+      <li>strokeText(text, x, y): acceptă parametri similari</li>
+     </ul>
+     <p class="paragraph">Diferența dintre cele două metode constă în faptul că fillText() utilizează culoarea de umplere a formei (din proprietatea fillStyle) pentru a umple caracterele textului. Metoda strokeText() utilizează culoarea conturului formei (setată prin proprietatea strokeStyle) pentru a desena conturul caracterelor.</p>
+     <p class="paragraph">De exemplu, să afișăm un text folosind metoda fillText():</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;canvas&nbsp;id="canvas"&nbsp;width="400"&nbsp;height="250"&gt;&lt;/canvas&gt;<br>&lt;script&gt;<br>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>context.font&nbsp;=&nbsp;"30px&nbsp;Verdana";<br>context.fillStyle&nbsp;=&nbsp;"navy";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;setăm&nbsp;culoarea&nbsp;textului<br>context.fillText("Hello&nbsp;FDC.COM",&nbsp;20,&nbsp;50);<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/5.Desenarea%20textului/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Metoda fillText(text, x, y) acceptă trei parametri: textul care va fi afișat și coordonatele x și y ale punctului de unde începe afișarea textului.</p>
+     <p class="paragraph">Afișarea unui text similar folosind metoda strokeText():</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>context.font&nbsp;=&nbsp;"30px&nbsp;Verdana";<br>context.strokeStyle&nbsp;=&nbsp;"navy";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;setăm&nbsp;culoarea&nbsp;textului<br>context.strokeText("Hello&nbsp;FDC.COM",&nbsp;20,&nbsp;50);</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/5.Desenarea%20textului/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Proprietatea textAlign</h2>
+     <p class="paragraph">Proprietatea textAlign permite alinierea textului față de una dintre laturi. Această proprietate poate lua următoarele valori:</p>
+     <ul class="enumeration">
+      <li>left: textul începe de la poziția specificată</li>
+      <li>right: textul se termină înainte de poziția specificată</li>
+      <li>center: textul este centrat față de poziția specificată</li>
+      <li>start: valoarea implicită, textul începe de la poziția specificată</li>
+      <li>end: textul se termină înainte de poziția specificată</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>context.font&nbsp;=&nbsp;"22px&nbsp;Verdana";<br>context.textAlign&nbsp;=&nbsp;"right";<br>context.fillText("Right&nbsp;Text",&nbsp;120,&nbsp;30);<br>context.textAlign&nbsp;=&nbsp;"left";<br>context.fillText("Left&nbsp;Text",&nbsp;120,&nbsp;60);<br>context.textAlign&nbsp;=&nbsp;"center";<br>context.fillText("Center&nbsp;Text",&nbsp;120,&nbsp;90);<br>context.textAlign&nbsp;=&nbsp;"start";<br>context.fillText("Start&nbsp;Text",&nbsp;120,&nbsp;120);<br>context.textAlign&nbsp;=&nbsp;"end";<br>context.fillText("End&nbsp;Text",&nbsp;120,&nbsp;150);</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/5.Desenarea%20textului/images/image3.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Proprietatea textBaseline</h2>
+     <p class="paragraph">Proprietatea textBaseline stabilește alinierea textului față de linia de bază. Poate lua următoarele valori:</p>
+     <ul class="enumeration">
+      <li>top</li>
+      <li>middle</li>
+      <li>bottom</li>
+      <li>alphabetic</li>
+      <li>hanging</li>
+      <li>ideographic</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;canvas&nbsp;id="canvas"&nbsp;width="500"&nbsp;height="250"&gt;&lt;/canvas&gt;<br>&lt;script&gt;<br>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>context.font&nbsp;=&nbsp;"22px&nbsp;Verdana";<br>context.textBaseline="top";<br>context.fillText("Top",10,100);<br>context.textBaseline="bottom";<br>context.fillText("Bottom",45,100);<br>context.textBaseline="middle";<br>context.fillText("Middle",130,100);<br>context.textBaseline="alphabetic";<br>context.fillText("Alphabetic",205,100);<br>context.textBaseline="hanging";<br>context.fillText("Hanging",320,100);<br><br><br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/5.Desenarea%20textului/images/image4.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Determinarea lățimii textului</h2>
+     <p class="paragraph">Cu ajutorul metodei measureText() se poate determina lățimea textului pe canvas:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>context.font&nbsp;=&nbsp;"18px&nbsp;Verdana";<br>const&nbsp;text&nbsp;=&nbsp;context.measureText("Hello&nbsp;JavaScript");<br>console.log(text.width);</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

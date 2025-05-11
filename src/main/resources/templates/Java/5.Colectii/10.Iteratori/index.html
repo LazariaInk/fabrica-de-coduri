@@ -1,151 +1,143 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+            body {
+                background: #ffffff;
+            }
+        </style>
+ </head>
+ <body th:with="activeTopic='Java', activeChapter='5.Colectii', activeLesson='10.Iteratori'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Iteratori</h1>
- <p class="paragraph">Unul dintre metodele cheie ale interfeței Collection este metoda Iterator&lt;E&gt; iterator(), care returnează un iterator – un obiect care implementează interfața Iterator.</p>
- <p class="paragraph">Interfața Iterator are următoarea structură:</p>
- <div class="code-inline">
-  <pre><code>public&nbsp;interface&nbsp;Iterator&lt;E&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;E&nbsp;next();<br>&nbsp;&nbsp;&nbsp;boolean&nbsp;hasNext();<br>&nbsp;&nbsp;&nbsp;void&nbsp;remove();<br>}</code></pre>
- </div>
- <p class="paragraph">Implementarea interfeței Iterator presupune următoarele:</p>
- <ul class="enumeration">
-  <li>Metoda next() returnează următorul element din colecție</li>
-  <li>Metoda hasNext() verifică dacă există un alt element în colecție și returnează true dacă există, sau false dacă am ajuns la finalul colecției</li>
-  <li>Metoda remove() șterge ultimul element returnat de next()</li>
- </ul>
- <p class="paragraph">Metoda hasNext() trebuie apelată înainte de next(), deoarece dacă se ajunge la finalul colecției și se apelează next() fără a verifica, se va arunca o excepție NoSuchElementException. De asemenea, remove() poate fi apelată doar după next().</p>
- <p class="paragraph">Exemplu de utilizare a unui iterator pentru a parcurge o colecție ArrayList:</p>
- <div class="code-inline">
-  <pre><code>import&nbsp;java.util.*;<br><br>public&nbsp;class&nbsp;Program&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ArrayList&lt;String&gt;&nbsp;states&nbsp;=&nbsp;new&nbsp;ArrayList&lt;String&gt;();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;states.add("Germany");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;states.add("France");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;states.add("Italy");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;states.add("Spain");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Iterator&lt;String&gt;&nbsp;iter&nbsp;=&nbsp;states.iterator();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(iter.hasNext()){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(iter.next());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
- </div>
- <h2 class="subtitle">Interfața ListIterator</h2>
- <p class="paragraph">Interfața Iterator oferă un set limitat de funcționalități. O interfață mai avansată este ListIterator, utilizată de clase care implementează interfața List, precum LinkedList sau ArrayList. ListIterator extinde Iterator și adaugă metode suplimentare:</p>
- <ul class="enumeration">
-  <li>void add(E obj): inserează obiectul obj înaintea următorului element returnat de next()</li>
-  <li>boolean hasNext(): verifică dacă există un element următor și returnează true dacă există</li>
-  <li>boolean hasPrevious(): verifică dacă există un element anterior și returnează true dacă există</li>
-  <li>E next(): returnează elementul curent și trece la următorul</li>
-  <li>E previous(): returnează elementul curent și trece la anteriorul</li>
-  <li>int nextIndex(): returnează indexul următorului element. Dacă nu există un astfel de element, returnează dimensiunea listei</li>
-  <li>int previousIndex(): returnează indexul elementului anterior. Dacă nu există un astfel de element, returnează -1</li>
-  <li>void remove(): șterge elementul curent din listă (poate fi apelată doar după next() sau previous())</li>
-  <li>void set(E obj): înlocuiește elementul curent cu obiectul obj</li>
- </ul>
- <p class="paragraph">Exemplu de utilizare a unui ListIterator:</p>
- <div class="code-inline">
-  <pre><code>import&nbsp;java.util.*;<br><br>public&nbsp;class&nbsp;Program&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ArrayList&lt;String&gt;&nbsp;states&nbsp;=&nbsp;new&nbsp;ArrayList&lt;String&gt;();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;states.add("Germany");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;states.add("France");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;states.add("Italy");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;states.add("Spain");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ListIterator&lt;String&gt;&nbsp;listIter&nbsp;=&nbsp;states.listIterator();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(listIter.hasNext()){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(listIter.next());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;acum&nbsp;elementul&nbsp;curent&nbsp;este&nbsp;"Spain"<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;modificăm&nbsp;valoarea&nbsp;acestui&nbsp;element<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;listIter.set("Portugal");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;parcurgem&nbsp;elementele&nbsp;în&nbsp;ordine&nbsp;inversă<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(listIter.hasPrevious()){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(listIter.previous());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
- </div>
- <p class="paragraph">Explicații:</p>
- <div class="code-inline">
-  <pre><code>Iterator&nbsp;este&nbsp;utilizat&nbsp;pentru&nbsp;a&nbsp;parcurge&nbsp;colecții&nbsp;și&nbsp;oferă&nbsp;metode&nbsp;de&nbsp;bază,&nbsp;cum&nbsp;ar&nbsp;fi&nbsp;next(),&nbsp;hasNext()&nbsp;și&nbsp;remove().&nbsp;ListIterator&nbsp;extinde&nbsp;Iterator&nbsp;și&nbsp;permite&nbsp;atât&nbsp;navigarea&nbsp;înainte,&nbsp;cât&nbsp;și&nbsp;înapoi&nbsp;prin&nbsp;listă,&nbsp;modificarea&nbsp;și&nbsp;adăugarea&nbsp;de&nbsp;elemente&nbsp;la&nbsp;poziții&nbsp;specifice.</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Iteratori</h1>
+     <p class="paragraph">Unul dintre metodele cheie ale interfeței Collection este metoda Iterator&lt;E&gt; iterator(), care returnează un iterator – un obiect care implementează interfața Iterator.</p>
+     <p class="paragraph">Interfața Iterator are următoarea structură:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;interface&nbsp;Iterator&lt;E&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;E&nbsp;next();<br>&nbsp;&nbsp;&nbsp;boolean&nbsp;hasNext();<br>&nbsp;&nbsp;&nbsp;void&nbsp;remove();<br>}</code></pre>
+     </div>
+     <p class="paragraph">Implementarea interfeței Iterator presupune următoarele:</p>
+     <ul class="enumeration">
+      <li>Metoda next() returnează următorul element din colecție</li>
+      <li>Metoda hasNext() verifică dacă există un alt element în colecție și returnează true dacă există, sau false dacă am ajuns la finalul colecției</li>
+      <li>Metoda remove() șterge ultimul element returnat de next()</li>
+     </ul>
+     <p class="paragraph">Metoda hasNext() trebuie apelată înainte de next(), deoarece dacă se ajunge la finalul colecției și se apelează next() fără a verifica, se va arunca o excepție NoSuchElementException. De asemenea, remove() poate fi apelată doar după next().</p>
+     <p class="paragraph">Exemplu de utilizare a unui iterator pentru a parcurge o colecție ArrayList:</p>
+     <div class="code-inline">
+      <pre><code>import&nbsp;java.util.*;<br><br>public&nbsp;class&nbsp;Program&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ArrayList&lt;String&gt;&nbsp;states&nbsp;=&nbsp;new&nbsp;ArrayList&lt;String&gt;();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;states.add("Germany");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;states.add("France");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;states.add("Italy");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;states.add("Spain");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Iterator&lt;String&gt;&nbsp;iter&nbsp;=&nbsp;states.iterator();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(iter.hasNext()){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(iter.next());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Interfața ListIterator</h2>
+     <p class="paragraph">Interfața Iterator oferă un set limitat de funcționalități. O interfață mai avansată este ListIterator, utilizată de clase care implementează interfața List, precum LinkedList sau ArrayList. ListIterator extinde Iterator și adaugă metode suplimentare:</p>
+     <ul class="enumeration">
+      <li>void add(E obj): inserează obiectul obj înaintea următorului element returnat de next()</li>
+      <li>boolean hasNext(): verifică dacă există un element următor și returnează true dacă există</li>
+      <li>boolean hasPrevious(): verifică dacă există un element anterior și returnează true dacă există</li>
+      <li>E next(): returnează elementul curent și trece la următorul</li>
+      <li>E previous(): returnează elementul curent și trece la anteriorul</li>
+      <li>int nextIndex(): returnează indexul următorului element. Dacă nu există un astfel de element, returnează dimensiunea listei</li>
+      <li>int previousIndex(): returnează indexul elementului anterior. Dacă nu există un astfel de element, returnează -1</li>
+      <li>void remove(): șterge elementul curent din listă (poate fi apelată doar după next() sau previous())</li>
+      <li>void set(E obj): înlocuiește elementul curent cu obiectul obj</li>
+     </ul>
+     <p class="paragraph">Exemplu de utilizare a unui ListIterator:</p>
+     <div class="code-inline">
+      <pre><code>import&nbsp;java.util.*;<br><br>public&nbsp;class&nbsp;Program&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ArrayList&lt;String&gt;&nbsp;states&nbsp;=&nbsp;new&nbsp;ArrayList&lt;String&gt;();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;states.add("Germany");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;states.add("France");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;states.add("Italy");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;states.add("Spain");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ListIterator&lt;String&gt;&nbsp;listIter&nbsp;=&nbsp;states.listIterator();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(listIter.hasNext()){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(listIter.next());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;acum&nbsp;elementul&nbsp;curent&nbsp;este&nbsp;"Spain"<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;modificăm&nbsp;valoarea&nbsp;acestui&nbsp;element<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;listIter.set("Portugal");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;parcurgem&nbsp;elementele&nbsp;în&nbsp;ordine&nbsp;inversă<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(listIter.hasPrevious()){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(listIter.previous());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Explicații:</p>
+     <p class="paragraph">Iterator este utilizat pentru a parcurge colecții și oferă metode de bază, cum ar fi next(), hasNext() și remove(). ListIterator extinde Iterator și permite atât navigarea înainte, cât și înapoi prin listă, modificarea și adăugarea de elemente la poziții specifice.</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

@@ -1,133 +1,123 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='HTML', activeChapter='11.Flexbox', activeLesson='4.flex-flow'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">flex-flow - Ordinea elementelor</h1>
- <p class="paragraph">Proprietatea flex-flow permite setarea simultană a valorilor pentru ambele proprietăți flex-direction și flex-wrap. Aceasta are următoarea sintaxă formală:</p>
- <div class="code-inline">
-  <pre><code>flex-flow:&nbsp;[flex-direction]&nbsp;[flex-wrap]</code></pre>
- </div>
- <p class="paragraph">De fapt, a doua proprietate - flex-wrap poate fi omisă, iar în acest caz va fi folosită valoarea implicită - nowrap.</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&lt;meta&nbsp;charset="utf-8"&gt;<br>&lt;title&gt;Flexbox&nbsp;în&nbsp;CSS3&lt;/title&gt;<br>&lt;style&gt;<br>.flex-container&nbsp;{<br>display:&nbsp;flex;<br>border:&nbsp;solid&nbsp;0.25em&nbsp;#000;<br>height:8.25em;<br>flex-flow:&nbsp;row&nbsp;wrap;<br>}<br>.flex-item&nbsp;{<br>text-align:center;<br>font-size:&nbsp;1em;<br>padding:&nbsp;1.5em;<br>color:&nbsp;white;<br>opacity:&nbsp;0.8;<br>}<br>.color1&nbsp;{background-color:&nbsp;#675BA7;}<br>.color2&nbsp;{background-color:&nbsp;#9BC850;}<br>.color3&nbsp;{background-color:&nbsp;#A62E5C;}<br>.color4&nbsp;{background-color:&nbsp;#2A9FBC;}<br>.color5&nbsp;{background-color:&nbsp;#F15B2A;}<br>&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;div&nbsp;class="flex-container"&gt;<br>&lt;div&nbsp;class="flex-item&nbsp;color1"&gt;Flex&nbsp;Item&nbsp;1&lt;/div&gt;<br>&lt;div&nbsp;class="flex-item&nbsp;color2"&gt;Flex&nbsp;Item&nbsp;2&lt;/div&gt;<br>&lt;div&nbsp;class="flex-item&nbsp;color3"&gt;Flex&nbsp;Item&nbsp;3&lt;/div&gt;<br>&lt;div&nbsp;class="flex-item&nbsp;color4"&gt;Flex&nbsp;Item&nbsp;4&lt;/div&gt;<br>&lt;div&nbsp;class="flex-item&nbsp;color5"&gt;Flex&nbsp;Item&nbsp;5&lt;/div&gt;<br>&lt;/div&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <h2 class="subtitle">Proprietatea order</h2>
- <p class="paragraph">Proprietatea order permite setarea unei grupe pentru un flex-element, permițând astfel redefinirea poziției sale în cadrul flex-containerului. Ca valoare, proprietatea acceptă un ordin numeric al grupei. La o grupă pot aparține mai multe elemente.</p>
- <p class="paragraph">De exemplu, elementele din grupa 0 sunt plasate înaintea elementelor din grupa 1, iar elementele din grupa 1 sunt plasate înaintea elementelor din grupa 2 și așa mai departe.</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&lt;meta&nbsp;charset="utf-8"&gt;<br>&lt;title&gt;Flexbox&nbsp;în&nbsp;CSS3&lt;/title&gt;<br>&lt;style&gt;<br>.flex-container&nbsp;{<br>display:&nbsp;flex;<br>flex-flow:&nbsp;row&nbsp;wrap;<br>}<br>.flex-item&nbsp;{<br>text-align:center;<br>font-size:&nbsp;1em;<br>padding:&nbsp;1.5em;<br>color:&nbsp;white;<br>opacity:&nbsp;0.8;<br>}<br>.group1{<br>order:-1;<br>}<br>.group2{<br>order:1;<br>}<br>.color1&nbsp;{background-color:&nbsp;#675BA7;}<br>.color2&nbsp;{background-color:&nbsp;#9BC850;}<br>.color3&nbsp;{background-color:&nbsp;#A62E5C;}<br>.color4&nbsp;{background-color:&nbsp;#2A9FBC;}<br>.color5&nbsp;{background-color:&nbsp;#F15B2A;}<br>&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;div&nbsp;class="flex-container"&gt;<br>&lt;div&nbsp;class="flex-item&nbsp;color1"&gt;Flex&nbsp;Item&nbsp;1&lt;/div&gt;<br>&lt;div&nbsp;class="flex-item&nbsp;color2&nbsp;group2"&gt;Flex&nbsp;Item&nbsp;2&lt;/div&gt;<br>&lt;div&nbsp;class="flex-item&nbsp;color3&nbsp;group2"&gt;Flex&nbsp;Item&nbsp;3&lt;/div&gt;<br>&lt;div&nbsp;class="flex-item&nbsp;color4"&gt;Flex&nbsp;Item&nbsp;4&lt;/div&gt;<br>&lt;div&nbsp;class="flex-item&nbsp;color5&nbsp;group1"&gt;Flex&nbsp;Item&nbsp;5&lt;/div&gt;<br>&lt;/div&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">În acest caz, sunt definite 3 grupe. Primul este afișat ultimul element, deoarece acesta are grupa -1:</p>
- <div class="image-container">
-  <img src="images/image1.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Implicit, dacă elementele nu au proprietatea order specificată explicit, aceasta are valoarea 0. Iar ultimele în acest caz sunt afișate elementele al doilea și al treilea, deoarece au proprietatea order egală cu 1.</p>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">flex-flow - Ordinea elementelor</h1>
+     <p class="paragraph">Proprietatea flex-flow permite setarea simultană a valorilor pentru ambele proprietăți flex-direction și flex-wrap. Aceasta are următoarea sintaxă formală:</p>
+     <div class="code-inline">
+      <pre><code>flex-flow:&nbsp;[flex-direction]&nbsp;[flex-wrap]</code></pre>
+     </div>
+     <p class="paragraph">De fapt, a doua proprietate - flex-wrap poate fi omisă, iar în acest caz va fi folosită valoarea implicită - nowrap.</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&lt;meta&nbsp;charset="utf-8"&gt;<br>&lt;title&gt;Flexbox&nbsp;în&nbsp;CSS3&lt;/title&gt;<br>&lt;style&gt;<br>.flex-container&nbsp;{<br>display:&nbsp;flex;<br>border:&nbsp;solid&nbsp;0.25em&nbsp;#000;<br>height:8.25em;<br>flex-flow:&nbsp;row&nbsp;wrap;<br>}<br>.flex-item&nbsp;{<br>text-align:center;<br>font-size:&nbsp;1em;<br>padding:&nbsp;1.5em;<br>color:&nbsp;white;<br>opacity:&nbsp;0.8;<br>}<br>.color1&nbsp;{background-color:&nbsp;#675BA7;}<br>.color2&nbsp;{background-color:&nbsp;#9BC850;}<br>.color3&nbsp;{background-color:&nbsp;#A62E5C;}<br>.color4&nbsp;{background-color:&nbsp;#2A9FBC;}<br>.color5&nbsp;{background-color:&nbsp;#F15B2A;}<br>&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;div&nbsp;class="flex-container"&gt;<br>&lt;div&nbsp;class="flex-item&nbsp;color1"&gt;Flex&nbsp;Item&nbsp;1&lt;/div&gt;<br>&lt;div&nbsp;class="flex-item&nbsp;color2"&gt;Flex&nbsp;Item&nbsp;2&lt;/div&gt;<br>&lt;div&nbsp;class="flex-item&nbsp;color3"&gt;Flex&nbsp;Item&nbsp;3&lt;/div&gt;<br>&lt;div&nbsp;class="flex-item&nbsp;color4"&gt;Flex&nbsp;Item&nbsp;4&lt;/div&gt;<br>&lt;div&nbsp;class="flex-item&nbsp;color5"&gt;Flex&nbsp;Item&nbsp;5&lt;/div&gt;<br>&lt;/div&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <h2 class="subtitle">Proprietatea order</h2>
+     <p class="paragraph">Proprietatea order permite setarea unei grupe pentru un flex-element, permițând astfel redefinirea poziției sale în cadrul flex-containerului. Ca valoare, proprietatea acceptă un ordin numeric al grupei. La o grupă pot aparține mai multe elemente.</p>
+     <p class="paragraph">De exemplu, elementele din grupa 0 sunt plasate înaintea elementelor din grupa 1, iar elementele din grupa 1 sunt plasate înaintea elementelor din grupa 2 și așa mai departe.</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&lt;meta&nbsp;charset="utf-8"&gt;<br>&lt;title&gt;Flexbox&nbsp;în&nbsp;CSS3&lt;/title&gt;<br>&lt;style&gt;<br>.flex-container&nbsp;{<br>display:&nbsp;flex;<br>flex-flow:&nbsp;row&nbsp;wrap;<br>}<br>.flex-item&nbsp;{<br>text-align:center;<br>font-size:&nbsp;1em;<br>padding:&nbsp;1.5em;<br>color:&nbsp;white;<br>opacity:&nbsp;0.8;<br>}<br>.group1{<br>order:-1;<br>}<br>.group2{<br>order:1;<br>}<br>.color1&nbsp;{background-color:&nbsp;#675BA7;}<br>.color2&nbsp;{background-color:&nbsp;#9BC850;}<br>.color3&nbsp;{background-color:&nbsp;#A62E5C;}<br>.color4&nbsp;{background-color:&nbsp;#2A9FBC;}<br>.color5&nbsp;{background-color:&nbsp;#F15B2A;}<br>&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;div&nbsp;class="flex-container"&gt;<br>&lt;div&nbsp;class="flex-item&nbsp;color1"&gt;Flex&nbsp;Item&nbsp;1&lt;/div&gt;<br>&lt;div&nbsp;class="flex-item&nbsp;color2&nbsp;group2"&gt;Flex&nbsp;Item&nbsp;2&lt;/div&gt;<br>&lt;div&nbsp;class="flex-item&nbsp;color3&nbsp;group2"&gt;Flex&nbsp;Item&nbsp;3&lt;/div&gt;<br>&lt;div&nbsp;class="flex-item&nbsp;color4"&gt;Flex&nbsp;Item&nbsp;4&lt;/div&gt;<br>&lt;div&nbsp;class="flex-item&nbsp;color5&nbsp;group1"&gt;Flex&nbsp;Item&nbsp;5&lt;/div&gt;<br>&lt;/div&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, sunt definite 3 grupe. Primul este afișat ultimul element, deoarece acesta are grupa -1:</p>
+     <div class="image-container">
+      <img th:src="@{/images/HTML/11.Flexbox/4.flex-flow/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Implicit, dacă elementele nu au proprietatea order specificată explicit, aceasta are valoarea 0. Iar ultimele în acest caz sunt afișate elementele al doilea și al treilea, deoarece au proprietatea order egală cu 1.</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

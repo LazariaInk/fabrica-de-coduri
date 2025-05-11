@@ -1,195 +1,185 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='11.Lucrul cu DOM', activeLesson='6.Crearea, adaugarea, inlocuirea si stergerea elementelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Crearea, adăugarea, înlocuirea şi ștergerea elementelor.</h1>
- <h2 class="subtitle">Crearea elementelor</h2>
- <p class="paragraph">Pentru a crea elemente, obiectul document are următoarele metode:</p>
- <ul class="enumeration">
-  <li>createElement(elementName): Creează un element HTML, a cărui etichetă este transmisă ca parametru. Returnează elementul creat</li>
-  <li>createTextNode(text): Creează și returnează un nod text. Textul nodului este transmis ca parametru</li>
- </ul>
- <p class="paragraph">Creem un element folosind createElement:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;header&nbsp;=&nbsp;document.createElement("h1");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;cream&nbsp;un&nbsp;titlu&nbsp;&lt;h1&gt;<br>console.log(header);&nbsp;&nbsp;//&nbsp;&lt;h1&gt;&lt;/h1&gt;</code></pre>
- </div>
- <p class="paragraph">Astfel, variabila header va stoca o referință la elementul h1.</p>
- <p class="paragraph">Creem un nod text folosind createTextNode:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;headerText&nbsp;=&nbsp;document.createTextNode("Hello&nbsp;World");&nbsp;//&nbsp;cream&nbsp;un&nbsp;nod&nbsp;text<br>console.log(headerText);&nbsp;&nbsp;//&nbsp;"Hello&nbsp;World"</code></pre>
- </div>
- <h2 class="subtitle">Adăugarea elementelor</h2>
- <p class="paragraph">Dar nu este suficient să creăm elemente, acestea trebuie adăugate și pe pagină.</p>
- <p class="paragraph">Pentru adăugarea elementelor putem folosi una dintre metodele obiectului Node:</p>
- <ul class="enumeration">
-  <li>appendChild(newNode): Adaugă un nou nod newNode la sfârșitul colecției de noduri copil</li>
-  <li>insertBefore(newNode, referenceNode): Adaugă un nou nod newNode înaintea nodului referenceNode</li>
- </ul>
- <p class="paragraph">Folosim metoda appendChild():</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;header&nbsp;=&nbsp;document.createElement("h1");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;cream&nbsp;un&nbsp;titlu&nbsp;&lt;h1&gt;<br>const&nbsp;headerText&nbsp;=&nbsp;document.createTextNode("Hello&nbsp;World");&nbsp;//&nbsp;cream&nbsp;un&nbsp;nod&nbsp;text<br>header.appendChild(headerText);&nbsp;//&nbsp;adaugam&nbsp;in&nbsp;elementul&nbsp;h1&nbsp;nodul&nbsp;text<br>console.log(header);<br><br>&nbsp;//&nbsp;&lt;h1&gt;Hello&nbsp;World&lt;/h1&gt;</code></pre>
- </div>
- <p class="paragraph">Și pentru a adăuga elementul creat pe pagină, trebuie să îl adăugăm într-un element existent deja pe pagină.</p>
- <p class="paragraph">Desigur, iată traducerea comentariilor din rusă în română în codul tău HTML:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;const&nbsp;header&nbsp;=&nbsp;document.createElement("h1");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;cream&nbsp;un&nbsp;titlu&nbsp;&lt;h1&gt;<br>&nbsp;&nbsp;&nbsp;const&nbsp;headerText&nbsp;=&nbsp;document.createTextNode("Hello&nbsp;World");&nbsp;&nbsp;//&nbsp;cream&nbsp;un&nbsp;nod&nbsp;text<br>&nbsp;&nbsp;&nbsp;header.appendChild(headerText);&nbsp;//&nbsp;adaugam&nbsp;nodul&nbsp;text&nbsp;în&nbsp;elementul&nbsp;h1<br>&nbsp;&nbsp;&nbsp;document.body.appendChild(header);&nbsp;&nbsp;//&nbsp;adaugam&nbsp;elementul&nbsp;h1&nbsp;pe&nbsp;pagina,&nbsp;în&nbsp;elementul&nbsp;body<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">Mai întâi, creăm un element de titlu obișnuit h2 și un nod text. Apoi, adăugăm nodul text în elementul de titlu. Apoi, adăugăm titlul în elementul body:</p>
- <div class="image-container">
-  <img src="images/image1.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Trebuie menționat că nu este obligatoriu să creăm un nod text suplimentar pentru definirea textului în interiorul unui element, deoarece putem folosi proprietatea textContent și să-i atribuim direct textul:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;header&nbsp;=&nbsp;document.createElement("h1");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;creăm&nbsp;un&nbsp;titlu&nbsp;&lt;h1&gt;<br>header.textContent&nbsp;=&nbsp;"Hello&nbsp;World";&nbsp;//&nbsp;definim&nbsp;textul&nbsp;elementului</code></pre>
- </div>
- <p class="paragraph">În acest caz, nodul text va fi creat implicit la stabilirea textului.</p>
- <h2 class="subtitle">Metoda insertBefore</h2>
- <p class="paragraph">Metoda appendChild() adaugă un element la sfârșitul containerului. Pentru a specifica mai exact locul adăugării, se poate folosi o altă metodă - insertBefore(), care adaugă un element înaintea unui alt element. De exemplu, avem următoarea pagină:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;1&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;2&lt;/p&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">Să presupunem că trebuie să adăugăm în elementul body, înaintea primului paragraf, un titlu. Putem face acest lucru astfel:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;1&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;2&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;const&nbsp;header&nbsp;=&nbsp;document.createElement("h1");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;creăm&nbsp;un&nbsp;titlu&nbsp;&lt;h1&gt;<br>&nbsp;&nbsp;&nbsp;header.textContent&nbsp;=&nbsp;"Page&nbsp;Header";&nbsp;//&nbsp;definim&nbsp;textul&nbsp;elementului<br>&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;primul&nbsp;paragraf<br>&nbsp;&nbsp;&nbsp;const&nbsp;firstP&nbsp;=&nbsp;document.body.firstElementChild;<br>&nbsp;&nbsp;&nbsp;//&nbsp;adăugăm&nbsp;elementul&nbsp;h1&nbsp;înaintea&nbsp;paragrafului&nbsp;firstP<br>&nbsp;&nbsp;&nbsp;document.body.insertBefore(header,&nbsp;firstP);<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image2.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Dacă avem nevoie să inserăm un nod nou pe a doua, a treia sau orice altă poziție, trebuie să găsim nodul înaintea căruia trebuie să inserăm, folosind combinații ale proprietăților firstElementChild/lastElementChild și nextSibling/previousSibling.</p>
- <h2 class="subtitle">Copierea elementului</h2>
- <p class="paragraph">Uneori elementele pot fi destul de complexe în compoziție, și este mult mai simplu să le copiem decât să creăm conținutul lor cu apeluri separate. Pentru a copia nodurile deja existente, la obiectul Node se poate folosi metoda cloneNode():</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;id="article"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;h1&gt;Home&nbsp;Page&lt;/h1&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;1&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;2&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;const&nbsp;article&nbsp;=&nbsp;document.getElementById("article");<br>&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;ultimul&nbsp;paragraf<br>&nbsp;&nbsp;&nbsp;const&nbsp;lastP&nbsp;=&nbsp;article.lastElementChild;<br>&nbsp;&nbsp;&nbsp;//&nbsp;clonăm&nbsp;elementul&nbsp;lastP<br>&nbsp;&nbsp;&nbsp;const&nbsp;newLastP&nbsp;=&nbsp;lastP.cloneNode(true);<br>&nbsp;&nbsp;&nbsp;//&nbsp;modificăm&nbsp;textul<br>&nbsp;&nbsp;&nbsp;newLastP.textContent&nbsp;=&nbsp;"Data&nbsp;publicării:&nbsp;28/10/2023";<br>&nbsp;&nbsp;&nbsp;//&nbsp;adăugăm&nbsp;la&nbsp;sfârșitul&nbsp;elementului&nbsp;article<br>&nbsp;&nbsp;&nbsp;article.appendChild(newLastP);<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">În metoda cloneNode(), ca parametru se transmite o valoare logică: dacă se transmite true, atunci elementul va fi copiat cu toate nodurile sale fiice; dacă se transmite false - atunci se copiază fără nodurile fiice. Astfel, în acest caz, copiem nodul cu tot conținutul său și apoi îl adăugăm la sfârșitul elementului cu id="article".</p>
- <div class="image-container">
-  <img src="images/image3.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Pentru înlocuirea unui element se utilizează metoda replaceChild(newNode, oldNode) a obiectului Node. Această metodă, ca prim parametru, primește un element nou care înlocuiește elementul vechi oldNode, transmis ca al doilea parametru.</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;id="article"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Home&nbsp;Page&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;1&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;2&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;const&nbsp;article&nbsp;=&nbsp;document.getElementById("article");<br>&nbsp;&nbsp;&nbsp;//&nbsp;găsim&nbsp;nodul&nbsp;pe&nbsp;care&nbsp;îl&nbsp;vom&nbsp;înlocui<br>&nbsp;&nbsp;&nbsp;//&nbsp;să&nbsp;presupunem&nbsp;că&nbsp;este&nbsp;primul&nbsp;element<br>&nbsp;&nbsp;&nbsp;const&nbsp;oldNode&nbsp;=&nbsp;article.firstElementChild;<br>&nbsp;&nbsp;&nbsp;//&nbsp;creăm&nbsp;un&nbsp;element&nbsp;nou<br>&nbsp;&nbsp;&nbsp;const&nbsp;newNode&nbsp;=&nbsp;document.createElement("h2");<br>&nbsp;&nbsp;&nbsp;//&nbsp;definim&nbsp;textul&nbsp;pentru&nbsp;acesta<br>&nbsp;&nbsp;&nbsp;newNode.textContent&nbsp;=&nbsp;"Hello&nbsp;World";<br>&nbsp;&nbsp;&nbsp;//&nbsp;înlocuim&nbsp;nodul&nbsp;vechi&nbsp;cu&nbsp;cel&nbsp;nou<br>&nbsp;&nbsp;&nbsp;article.replaceChild(newNode,&nbsp;oldNode);<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">În acest caz, înlocuim primul element - primul paragraf, cu un titlu h2.</p>
- <div class="image-container">
-  <img src="images/image4.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Ștergerea elementului</h2>
- <p class="paragraph">Pentru ștergerea unui element se apelează metoda removeChild() a obiectului Node. Această metodă elimină unul dintre nodurile copil:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;id="article"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;h1&gt;Home&nbsp;Page&lt;/h1&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;1&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;2&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;const&nbsp;article&nbsp;=&nbsp;document.getElementById("article");<br>&nbsp;&nbsp;&nbsp;//&nbsp;găsim&nbsp;nodul&nbsp;pe&nbsp;care&nbsp;îl&nbsp;vom&nbsp;șterge&nbsp;-&nbsp;ultimul&nbsp;paragraf<br>&nbsp;&nbsp;&nbsp;const&nbsp;lastP&nbsp;=&nbsp;article.lastElementChild;<br>&nbsp;&nbsp;&nbsp;//&nbsp;ștergem&nbsp;nodul<br>&nbsp;&nbsp;&nbsp;article.removeChild(lastP);<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">În acest caz, se șterge ultimul paragraf din blocul div.</p>
- <h2 class="subtitle">Ștergerea tuturor elementelor</h2>
- <p class="paragraph">Uneori este necesar să eliminăm toate elementele. Pentru aceasta, parcurgem toate elementele containerului și le ștergem:</p>
- <div class="code-inline">
-  <pre><code>&lt;div&nbsp;id="article"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;h1&gt;Home&nbsp;Page&lt;/h1&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;1&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;2&lt;/p&gt;<br>&lt;/div&gt;<br>&lt;script&gt;<br>const&nbsp;article&nbsp;=&nbsp;document.getElementById("article");<br>while(article.firstChild){<br>&nbsp;&nbsp;&nbsp;article.removeChild(article.firstChild);<br>}</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Crearea, adăugarea, înlocuirea şi ștergerea elementelor.</h1>
+     <h2 class="subtitle">Crearea elementelor</h2>
+     <p class="paragraph">Pentru a crea elemente, obiectul document are următoarele metode:</p>
+     <ul class="enumeration">
+      <li>createElement(elementName): Creează un element HTML, a cărui etichetă este transmisă ca parametru. Returnează elementul creat</li>
+      <li>createTextNode(text): Creează și returnează un nod text. Textul nodului este transmis ca parametru</li>
+     </ul>
+     <p class="paragraph">Creem un element folosind createElement:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;header&nbsp;=&nbsp;document.createElement("h1");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;cream&nbsp;un&nbsp;titlu&nbsp;&lt;h1&gt;<br>console.log(header);&nbsp;&nbsp;//&nbsp;&lt;h1&gt;&lt;/h1&gt;</code></pre>
+     </div>
+     <p class="paragraph">Astfel, variabila header va stoca o referință la elementul h1.</p>
+     <p class="paragraph">Creem un nod text folosind createTextNode:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;headerText&nbsp;=&nbsp;document.createTextNode("Hello&nbsp;World");&nbsp;//&nbsp;cream&nbsp;un&nbsp;nod&nbsp;text<br>console.log(headerText);&nbsp;&nbsp;//&nbsp;"Hello&nbsp;World"</code></pre>
+     </div>
+     <h2 class="subtitle">Adăugarea elementelor</h2>
+     <p class="paragraph">Dar nu este suficient să creăm elemente, acestea trebuie adăugate și pe pagină.</p>
+     <p class="paragraph">Pentru adăugarea elementelor putem folosi una dintre metodele obiectului Node:</p>
+     <ul class="enumeration">
+      <li>appendChild(newNode): Adaugă un nou nod newNode la sfârșitul colecției de noduri copil</li>
+      <li>insertBefore(newNode, referenceNode): Adaugă un nou nod newNode înaintea nodului referenceNode</li>
+     </ul>
+     <p class="paragraph">Folosim metoda appendChild():</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;header&nbsp;=&nbsp;document.createElement("h1");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;cream&nbsp;un&nbsp;titlu&nbsp;&lt;h1&gt;<br>const&nbsp;headerText&nbsp;=&nbsp;document.createTextNode("Hello&nbsp;World");&nbsp;//&nbsp;cream&nbsp;un&nbsp;nod&nbsp;text<br>header.appendChild(headerText);&nbsp;//&nbsp;adaugam&nbsp;in&nbsp;elementul&nbsp;h1&nbsp;nodul&nbsp;text<br>console.log(header);<br><br>&nbsp;//&nbsp;&lt;h1&gt;Hello&nbsp;World&lt;/h1&gt;</code></pre>
+     </div>
+     <p class="paragraph">Și pentru a adăuga elementul creat pe pagină, trebuie să îl adăugăm într-un element existent deja pe pagină.</p>
+     <p class="paragraph">Desigur, iată traducerea comentariilor din rusă în română în codul tău HTML:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;const&nbsp;header&nbsp;=&nbsp;document.createElement("h1");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;cream&nbsp;un&nbsp;titlu&nbsp;&lt;h1&gt;<br>&nbsp;&nbsp;&nbsp;const&nbsp;headerText&nbsp;=&nbsp;document.createTextNode("Hello&nbsp;World");&nbsp;&nbsp;//&nbsp;cream&nbsp;un&nbsp;nod&nbsp;text<br>&nbsp;&nbsp;&nbsp;header.appendChild(headerText);&nbsp;//&nbsp;adaugam&nbsp;nodul&nbsp;text&nbsp;în&nbsp;elementul&nbsp;h1<br>&nbsp;&nbsp;&nbsp;document.body.appendChild(header);&nbsp;&nbsp;//&nbsp;adaugam&nbsp;elementul&nbsp;h1&nbsp;pe&nbsp;pagina,&nbsp;în&nbsp;elementul&nbsp;body<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Mai întâi, creăm un element de titlu obișnuit h2 și un nod text. Apoi, adăugăm nodul text în elementul de titlu. Apoi, adăugăm titlul în elementul body:</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/11.Lucrul%20cu%20DOM/6.Crearea,%20adaugarea,%20inlocuirea%20si%20stergerea%20elementelor/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Trebuie menționat că nu este obligatoriu să creăm un nod text suplimentar pentru definirea textului în interiorul unui element, deoarece putem folosi proprietatea textContent și să-i atribuim direct textul:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;header&nbsp;=&nbsp;document.createElement("h1");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;creăm&nbsp;un&nbsp;titlu&nbsp;&lt;h1&gt;<br>header.textContent&nbsp;=&nbsp;"Hello&nbsp;World";&nbsp;//&nbsp;definim&nbsp;textul&nbsp;elementului</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, nodul text va fi creat implicit la stabilirea textului.</p>
+     <h2 class="subtitle">Metoda insertBefore</h2>
+     <p class="paragraph">Metoda appendChild() adaugă un element la sfârșitul containerului. Pentru a specifica mai exact locul adăugării, se poate folosi o altă metodă - insertBefore(), care adaugă un element înaintea unui alt element. De exemplu, avem următoarea pagină:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;1&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;2&lt;/p&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Să presupunem că trebuie să adăugăm în elementul body, înaintea primului paragraf, un titlu. Putem face acest lucru astfel:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;1&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;2&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;const&nbsp;header&nbsp;=&nbsp;document.createElement("h1");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;creăm&nbsp;un&nbsp;titlu&nbsp;&lt;h1&gt;<br>&nbsp;&nbsp;&nbsp;header.textContent&nbsp;=&nbsp;"Page&nbsp;Header";&nbsp;//&nbsp;definim&nbsp;textul&nbsp;elementului<br>&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;primul&nbsp;paragraf<br>&nbsp;&nbsp;&nbsp;const&nbsp;firstP&nbsp;=&nbsp;document.body.firstElementChild;<br>&nbsp;&nbsp;&nbsp;//&nbsp;adăugăm&nbsp;elementul&nbsp;h1&nbsp;înaintea&nbsp;paragrafului&nbsp;firstP<br>&nbsp;&nbsp;&nbsp;document.body.insertBefore(header,&nbsp;firstP);<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/11.Lucrul%20cu%20DOM/6.Crearea,%20adaugarea,%20inlocuirea%20si%20stergerea%20elementelor/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Dacă avem nevoie să inserăm un nod nou pe a doua, a treia sau orice altă poziție, trebuie să găsim nodul înaintea căruia trebuie să inserăm, folosind combinații ale proprietăților firstElementChild/lastElementChild și nextSibling/previousSibling.</p>
+     <h2 class="subtitle">Copierea elementului</h2>
+     <p class="paragraph">Uneori elementele pot fi destul de complexe în compoziție, și este mult mai simplu să le copiem decât să creăm conținutul lor cu apeluri separate. Pentru a copia nodurile deja existente, la obiectul Node se poate folosi metoda cloneNode():</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;id="article"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;h1&gt;Home&nbsp;Page&lt;/h1&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;1&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;2&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;const&nbsp;article&nbsp;=&nbsp;document.getElementById("article");<br>&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;ultimul&nbsp;paragraf<br>&nbsp;&nbsp;&nbsp;const&nbsp;lastP&nbsp;=&nbsp;article.lastElementChild;<br>&nbsp;&nbsp;&nbsp;//&nbsp;clonăm&nbsp;elementul&nbsp;lastP<br>&nbsp;&nbsp;&nbsp;const&nbsp;newLastP&nbsp;=&nbsp;lastP.cloneNode(true);<br>&nbsp;&nbsp;&nbsp;//&nbsp;modificăm&nbsp;textul<br>&nbsp;&nbsp;&nbsp;newLastP.textContent&nbsp;=&nbsp;"Data&nbsp;publicării:&nbsp;28/10/2023";<br>&nbsp;&nbsp;&nbsp;//&nbsp;adăugăm&nbsp;la&nbsp;sfârșitul&nbsp;elementului&nbsp;article<br>&nbsp;&nbsp;&nbsp;article.appendChild(newLastP);<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">În metoda cloneNode(), ca parametru se transmite o valoare logică: dacă se transmite true, atunci elementul va fi copiat cu toate nodurile sale fiice; dacă se transmite false - atunci se copiază fără nodurile fiice. Astfel, în acest caz, copiem nodul cu tot conținutul său și apoi îl adăugăm la sfârșitul elementului cu id="article".</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/11.Lucrul%20cu%20DOM/6.Crearea,%20adaugarea,%20inlocuirea%20si%20stergerea%20elementelor/images/image3.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Pentru înlocuirea unui element se utilizează metoda replaceChild(newNode, oldNode) a obiectului Node. Această metodă, ca prim parametru, primește un element nou care înlocuiește elementul vechi oldNode, transmis ca al doilea parametru.</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;id="article"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Home&nbsp;Page&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;1&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;2&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;const&nbsp;article&nbsp;=&nbsp;document.getElementById("article");<br>&nbsp;&nbsp;&nbsp;//&nbsp;găsim&nbsp;nodul&nbsp;pe&nbsp;care&nbsp;îl&nbsp;vom&nbsp;înlocui<br>&nbsp;&nbsp;&nbsp;//&nbsp;să&nbsp;presupunem&nbsp;că&nbsp;este&nbsp;primul&nbsp;element<br>&nbsp;&nbsp;&nbsp;const&nbsp;oldNode&nbsp;=&nbsp;article.firstElementChild;<br>&nbsp;&nbsp;&nbsp;//&nbsp;creăm&nbsp;un&nbsp;element&nbsp;nou<br>&nbsp;&nbsp;&nbsp;const&nbsp;newNode&nbsp;=&nbsp;document.createElement("h2");<br>&nbsp;&nbsp;&nbsp;//&nbsp;definim&nbsp;textul&nbsp;pentru&nbsp;acesta<br>&nbsp;&nbsp;&nbsp;newNode.textContent&nbsp;=&nbsp;"Hello&nbsp;World";<br>&nbsp;&nbsp;&nbsp;//&nbsp;înlocuim&nbsp;nodul&nbsp;vechi&nbsp;cu&nbsp;cel&nbsp;nou<br>&nbsp;&nbsp;&nbsp;article.replaceChild(newNode,&nbsp;oldNode);<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, înlocuim primul element - primul paragraf, cu un titlu h2.</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/11.Lucrul%20cu%20DOM/6.Crearea,%20adaugarea,%20inlocuirea%20si%20stergerea%20elementelor/images/image4.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Ștergerea elementului</h2>
+     <p class="paragraph">Pentru ștergerea unui element se apelează metoda removeChild() a obiectului Node. Această metodă elimină unul dintre nodurile copil:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;id="article"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;h1&gt;Home&nbsp;Page&lt;/h1&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;1&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;2&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;const&nbsp;article&nbsp;=&nbsp;document.getElementById("article");<br>&nbsp;&nbsp;&nbsp;//&nbsp;găsim&nbsp;nodul&nbsp;pe&nbsp;care&nbsp;îl&nbsp;vom&nbsp;șterge&nbsp;-&nbsp;ultimul&nbsp;paragraf<br>&nbsp;&nbsp;&nbsp;const&nbsp;lastP&nbsp;=&nbsp;article.lastElementChild;<br>&nbsp;&nbsp;&nbsp;//&nbsp;ștergem&nbsp;nodul<br>&nbsp;&nbsp;&nbsp;article.removeChild(lastP);<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, se șterge ultimul paragraf din blocul div.</p>
+     <h2 class="subtitle">Ștergerea tuturor elementelor</h2>
+     <p class="paragraph">Uneori este necesar să eliminăm toate elementele. Pentru aceasta, parcurgem toate elementele containerului și le ștergem:</p>
+     <div class="code-inline">
+      <pre><code>&lt;div&nbsp;id="article"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;h1&gt;Home&nbsp;Page&lt;/h1&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;1&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Text&nbsp;2&lt;/p&gt;<br>&lt;/div&gt;<br>&lt;script&gt;<br>const&nbsp;article&nbsp;=&nbsp;document.getElementById("article");<br>while(article.firstChild){<br>&nbsp;&nbsp;&nbsp;article.removeChild(article.firstChild);<br>}</code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

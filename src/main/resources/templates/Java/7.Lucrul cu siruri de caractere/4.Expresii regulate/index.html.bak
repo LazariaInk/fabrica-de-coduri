@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Java', activeChapter='7.Lucrul cu siruri de caractere', activeLesson='4.Expresii regulate'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Expresii regulate</h1>
+     <p class="paragraph">Expresiile regulate reprezintă un instrument puternic pentru procesarea șirurilor de caractere. Ele permit definirea unui șablon la care trebuie să corespundă un șir sau un subșir.</p>
+     <p class="paragraph">Unele metode din clasa String acceptă expresii regulate și le folosesc pentru a efectua operațiuni pe șiruri.</p>
+     <h2 class="subtitle">Metoda split()</h2>
+     <p class="paragraph">Pentru a împărți un șir în subșiruri se folosește metoda split(). Aceasta poate accepta o expresie regulată ca parametru, care definește criteriul de împărțire a șirului.</p>
+     <p class="paragraph">De exemplu, împărțim o propoziție în cuvinte:</p>
+     <div class="code-inline">
+      <pre><code>String&nbsp;text&nbsp;=&nbsp;"FIFA&nbsp;will&nbsp;never&nbsp;regret&nbsp;it";<br>String[]&nbsp;words&nbsp;=&nbsp;text.split("\\s*(\\s|,|!|\\.)\\s*");<br>for(String&nbsp;word&nbsp;:&nbsp;words){<br>&nbsp;&nbsp;&nbsp;System.out.println(word);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Pentru împărțire se folosește expresia regulată \\s*(\\s|,|!|\\.)\\s*. Subexpresia \\s reprezintă un spațiu. Asteriscul indică faptul că simbolul poate apărea de la 0 până la un număr infinit de ori. Prin urmare, \\s* înseamnă un număr nedefinit de spații consecutive – adică nu contează câte spații sunt între cuvinte.</p>
+     <p class="paragraph">În plus, pot să nu existe deloc spații. În paranteze este indicat un grup de expresii care poate urma după un număr nedefinit de spații. Grupul ne permite să definim un set de valori separate printr-o bară verticală, și subșirul trebuie să corespundă uneia dintre aceste valori.</p>
+     <p class="paragraph">În grupul \\s|,|!|\\. subșirul poate fi un spațiu, o virgulă, un semn de exclamare sau un punct. Deoarece punctul are un sens special în expresiile regulate, trebuie să îl scăpăm cu ajutorul unei bare inverse.</p>
+     <h2 class="subtitle">Potrivirea unui șir. matches</h2>
+     <p class="paragraph">O altă metodă a clasei String, matches(), acceptă o expresie regulată și returnează true dacă șirul corespunde acesteia. În caz contrar, returnează false.</p>
+     <p class="paragraph">De exemplu, verificăm dacă un șir corespunde unui număr de telefon:</p>
+     <div class="code-inline">
+      <pre><code>String&nbsp;input&nbsp;=&nbsp;"+12343454556";<br>boolean&nbsp;result&nbsp;=&nbsp;input.matches("(\\+*)\\d{11}");<br>if(result){<br>&nbsp;&nbsp;&nbsp;System.out.println("Este&nbsp;un&nbsp;număr&nbsp;de&nbsp;telefon");<br>}<br>else{<br>&nbsp;&nbsp;&nbsp;System.out.println("Nu&nbsp;este&nbsp;un&nbsp;număr&nbsp;de&nbsp;telefon!");<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, expresia regulată definește mai întâi un grup (\\+*), adică șirul poate începe cu semnul plus, dar acesta poate lipsi. Apoi, verificăm dacă următoarele 11 caractere sunt cifre.</p>
+     <p class="paragraph">Expresia \\d reprezintă un caracter numeric, iar numărul din acolade {11} indică de câte ori trebuie să se repete acest tip de caractere. Astfel, căutăm un șir care poate începe cu semnul plus (sau nu) și urmat de 11 cifre.</p>
+     <h2 class="subtitle">Clasa Pattern</h2>
+     <p class="paragraph">Cea mai mare parte a funcționalității pentru lucrul cu expresii regulate în Java este concentrată în pachetul java.util.regex.</p>
+     <p class="paragraph">Expresia regulată în sine reprezintă un șablon pentru căutarea potrivirilor într-un șir. Pentru a defini un astfel de șablon și pentru a căuta subșiruri care corespund acestuia, în Java sunt definite clasele Pattern și Matcher.</p>
+     <p class="paragraph">Pentru o căutare simplă a potrivirilor, clasa Pattern definește metoda statică boolean matches(String pattern, CharSequence input). Aceasta returnează true dacă secvența de caractere input corespunde complet șablonului specificat:</p>
+     <div class="code-inline">
+      <pre><code>import&nbsp;java.util.regex.Pattern;<br><br>public&nbsp;class&nbsp;StringsApp&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;input&nbsp;=&nbsp;"Hello";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;boolean&nbsp;found&nbsp;=&nbsp;Pattern.matches("Hello",&nbsp;input);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(found)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Găsit");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Nu&nbsp;a&nbsp;fost&nbsp;găsit");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Totuși, de obicei, pentru căutarea potrivirilor se folosește clasa Matcher.</p>
+     <h2 class="subtitle">Clasa Matcher</h2>
+     <p class="paragraph">Principalele metode ale clasei Matcher sunt:</p>
+     <ul class="enumeration">
+      <li>boolean matches(): returnează true dacă întregul șir corespunde șablonului</li>
+      <li>boolean find(): returnează true dacă există un subșir care corespunde șablonului și trece la acest subșir</li>
+      <li>String group(): returnează subșirul care corespunde șablonului în urma apelării metodei find. Dacă nu există potriviri, metoda generează o excepție IllegalStateException</li>
+      <li>int start(): returnează indexul potrivirii curente</li>
+      <li>int end(): returnează indexul următor după potrivirea curentă</li>
+      <li>String replaceAll(String str): înlocuiește toate potrivirile cu subșirul specificat și returnează șirul modificat</li>
+     </ul>
+     <p class="paragraph">Să folosim clasa Matcher. Mai întâi trebuie să creăm un obiect Pattern folosind metoda statică compile(), care permite setarea șablonului:</p>
+     <div class="code-inline">
+      <pre><code>Pattern&nbsp;pattern&nbsp;=&nbsp;Pattern.compile("Hello");</code></pre>
+     </div>
+     <p class="paragraph">Ca șablon este folosit șirul "Hello". Metoda compile() returnează un obiect Pattern pe care îl putem folosi în program.</p>
+     <p class="paragraph">În clasa Pattern este definită și metoda matcher(String input), care primește șirul în care se caută potrivirea și returnează un obiect Matcher:</p>
+     <div class="code-inline">
+      <pre><code>String&nbsp;input&nbsp;=&nbsp;"Hello&nbsp;world!&nbsp;Hello&nbsp;Java!";<br>Pattern&nbsp;pattern&nbsp;=&nbsp;Pattern.compile("hello");<br>Matcher&nbsp;matcher&nbsp;=&nbsp;pattern.matcher(input);</code></pre>
+     </div>
+     <p class="paragraph">Apoi, pentru a căuta potriviri, se apelează metoda matches() a obiectului Matcher:</p>
+     <div class="code-inline">
+      <pre><code>import&nbsp;java.util.regex.Matcher;<br>import&nbsp;java.util.regex.Pattern;<br><br>public&nbsp;class&nbsp;StringsApp&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;input&nbsp;=&nbsp;"Hello";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pattern&nbsp;pattern&nbsp;=&nbsp;Pattern.compile("Hello");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Matcher&nbsp;matcher&nbsp;=&nbsp;pattern.matcher(input);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;boolean&nbsp;found&nbsp;=&nbsp;matcher.matches();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(found)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Găsit");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Nu&nbsp;a&nbsp;fost&nbsp;găsit");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Un exemplu mai funcțional, care caută potriviri parțiale într-un șir:</p>
+     <div class="code-inline">
+      <pre><code>import&nbsp;java.util.regex.Matcher;<br>import&nbsp;java.util.regex.Pattern;<br><br>public&nbsp;class&nbsp;StringsApp&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;input&nbsp;=&nbsp;"Hello&nbsp;Java!&nbsp;Hello&nbsp;JavaScript!&nbsp;JavaSE&nbsp;8.";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pattern&nbsp;pattern&nbsp;=&nbsp;Pattern.compile("Java(\\w*)");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Matcher&nbsp;matcher&nbsp;=&nbsp;pattern.matcher(input);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(matcher.find())<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(matcher.group());<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Să presupunem că dorim să găsim în șir toate aparițiile cuvântului "Java". În șirul sursă, aceste apariții sunt: "Java", "JavaScript" și "JavaSE". Pentru aceasta, folosim șablonul "Java(\\w*)". Acest șablon specifică faptul că toate potrivirile trebuie să înceapă cu "Java", iar expresia (\\w*) permite ca după "Java" să apară orice număr de caractere alfanumerice.</p>
+     <p class="paragraph">Expresia \\w reprezintă un caracter alfanumeric, iar asteriscul indică un număr indefinit de astfel de caractere. Pentru a ne asigura că Java nu interpretează \\w ca o secvență de escape, folosim o altă bară inversă pentru a o scăpa.</p>
+     <p class="paragraph">Apoi, folosim metoda find() a clasei Matcher pentru a trece la următoarea potrivire în șir. Fiecare apel al metodei va găsi următoarea potrivire. Cu ajutorul ciclului while(matcher.find()), putem parcurge toate potrivirile. Fiecare potrivire poate fi obținută cu metoda matcher.group(). Rezultatul va fi:</p>
+     <div class="code-inline">
+      <pre><code>Java<br>JavaScript<br>JavaSE</code></pre>
+     </div>
+     <h2 class="subtitle">Înlocuirea într-un șir</h2>
+     <p class="paragraph">Acum vom înlocui toate potrivirile folosind metoda replaceAll():</p>
+     <div class="code-inline">
+      <pre><code>String&nbsp;input&nbsp;=&nbsp;"Hello&nbsp;Java!&nbsp;Hello&nbsp;JavaScript!&nbsp;JavaSE&nbsp;8.";<br>Pattern&nbsp;pattern&nbsp;=&nbsp;Pattern.compile("Java(\\w*)");<br>Matcher&nbsp;matcher&nbsp;=&nbsp;pattern.matcher(input);<br>String&nbsp;newStr&nbsp;=&nbsp;matcher.replaceAll("HTML");<br>System.out.println(newStr);&nbsp;//&nbsp;Hello&nbsp;HTML!&nbsp;Hello&nbsp;HTML!&nbsp;HTML&nbsp;8.</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, clasa String are o metodă replaceAll() cu funcționalitate similară:</p>
+     <div class="code-inline">
+      <pre><code>String&nbsp;input&nbsp;=&nbsp;"Hello&nbsp;Java!&nbsp;Hello&nbsp;JavaScript!&nbsp;JavaSE&nbsp;8.";<br>String&nbsp;myStr&nbsp;=&nbsp;input.replaceAll("Java(\\w*)",&nbsp;"HTML");<br>System.out.println(myStr);&nbsp;//&nbsp;Hello&nbsp;HTML!&nbsp;Hello&nbsp;HTML!&nbsp;HTML&nbsp;8.</code></pre>
+     </div>
+     <h2 class="subtitle">Împărțirea șirului în lexeme</h2>
+     <p class="paragraph">Cu ajutorul metodei String[] split(CharSequence input) din clasa Pattern putem împărți un șir într-un tablou de subșiruri pe baza unui separator. De exemplu, putem extrage cuvintele dintr-un șir:</p>
+     <div class="code-inline">
+      <pre><code>import&nbsp;java.util.regex.Pattern;<br><br>public&nbsp;class&nbsp;StringsApp&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;input&nbsp;=&nbsp;"Hello&nbsp;Java!&nbsp;Hello&nbsp;JavaScript!&nbsp;JavaSE&nbsp;8.";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pattern&nbsp;pattern&nbsp;=&nbsp;Pattern.compile("[&nbsp;,.!?]");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String[]&nbsp;words&nbsp;=&nbsp;pattern.split(input);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(String&nbsp;word&nbsp;:&nbsp;words)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(word);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Și rezultatul va fi:</p>
+     <div class="code-inline">
+      <pre><code>Hello<br>Java<br><br>Hello<br>JavaScript<br><br>JavaSE<br>8</code></pre>
+     </div>
+     <p class="paragraph">În acest proces, toți separatorii sunt eliminați. Totuși, această metodă nu este perfectă, deoarece rămân unele spații care sunt considerate lexeme. Pentru o împărțire mai precisă, ar trebui să folosim elementele expresiilor regulate. Astfel, putem înlocui șablonul cu următorul:</p>
+     <div class="code-inline">
+      <pre><code>Pattern&nbsp;pattern&nbsp;=&nbsp;Pattern.compile("\\s*(\\s|,|!|\\.)\\s*");</code></pre>
+     </div>
+     <p class="paragraph">Acum vor rămâne doar cuvintele:</p>
+     <div class="code-inline">
+      <pre><code>Hello<br>Java<br>Hello<br>JavaScript<br>JavaSE<br>8</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

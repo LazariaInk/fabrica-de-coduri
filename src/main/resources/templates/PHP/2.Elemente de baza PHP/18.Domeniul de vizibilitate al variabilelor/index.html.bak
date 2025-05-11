@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='PHP', activeChapter='2.Elemente de baza PHP', activeLesson='18.Domeniul de vizibilitate al variabilelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Domeniul de vizibilitate al variabilelor</h1>
+     <p class="paragraph">Blocurile de cicluri și construcțiile condiționale nu formează un domeniu de vizibilitate separat, iar variabilele definite în aceste blocuri pot fi utilizate în afara lor:</p>
+     <div class="code-inline">
+      <pre><code>$condition&nbsp;=&nbsp;true;<br>if($condition){<br>&nbsp;&nbsp;&nbsp;$name&nbsp;=&nbsp;"Tom";<br>}<br>echo&nbsp;$name;&nbsp;//&nbsp;Tom</code></pre>
+     </div>
+     <p class="paragraph">sau</p>
+     <div class="code-inline">
+      <pre><code>$i&nbsp;=&nbsp;6;<br>switch($i){<br>&nbsp;&nbsp;&nbsp;case&nbsp;5:&nbsp;$name&nbsp;=&nbsp;"Tom";&nbsp;break;<br>&nbsp;&nbsp;&nbsp;case&nbsp;6:&nbsp;$name&nbsp;=&nbsp;"Bob";&nbsp;break;<br>&nbsp;&nbsp;&nbsp;default:&nbsp;$name&nbsp;=&nbsp;"Sam";&nbsp;break;<br>}<br>echo&nbsp;$name;&nbsp;//&nbsp;Bob</code></pre>
+     </div>
+     <h2 class="subtitle">Variabile locale</h2>
+     <p class="paragraph">Variabilele locale sunt create în interiorul unei funcții. Aceste variabile pot fi accesate doar din interiorul funcției respective. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>function&nbsp;showName(){<br>&nbsp;&nbsp;&nbsp;$name&nbsp;=&nbsp;"Tom";<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$name;<br>}<br><br>showName();<br>echo&nbsp;$name;&nbsp;//&nbsp;nu&nbsp;funcționează,&nbsp;deoarece<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;variabila&nbsp;$name&nbsp;există<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;doar&nbsp;în&nbsp;interiorul&nbsp;funcției&nbsp;showName()<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, în funcția showName() este definită variabila locală $name. Această variabilă poate fi accesată doar în interiorul funcției showName(), dar nu și în afara ei.</p>
+     <p class="paragraph">Aceeași regulă se aplică și parametrilor funcției: în afara funcției, parametrii ei nu există.</p>
+     <h2 class="subtitle">Variabile statice</h2>
+     <p class="paragraph">Variabilele statice sunt similare cu variabilele locale, dar au particularitatea că își păstrează valoarea după terminarea execuției funcției. La fiecare nou apel al funcției, variabila statică utilizează valoarea salvată anterior. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>function&nbsp;getCounter()<br>{<br>&nbsp;&nbsp;&nbsp;static&nbsp;$counter&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;$counter++;<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$counter;<br>}<br>getCounter();&nbsp;//&nbsp;counter=1<br>getCounter();&nbsp;//&nbsp;counter=2<br>getCounter();&nbsp;//&nbsp;counter=3<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Pentru a specifica că o variabilă este statică, se adaugă cuvântul cheie static. La cele trei apeluri consecutive ale funcției getCounter(), variabila $counter va fi incrementată cu unu.</p>
+     <p class="paragraph">Dacă variabila $counter ar fi fost o variabilă obișnuită (non-statică), atunci la fiecare apel al funcției getCounter(), ar fi afișat valoarea 1.</p>
+     <p class="paragraph">De obicei, variabilele statice sunt utilizate pentru a crea diferiți contori, ca în exemplul de mai sus.</p>
+     <h2 class="subtitle">Variabile globale</h2>
+     <p class="paragraph">Variabilele globale, în mod implicit, nu sunt accesibile în interiorul unei funcții. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$name&nbsp;=&nbsp;"Tom";<br>function&nbsp;hello()<br>{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Hello&nbsp;"&nbsp;.&nbsp;$name;<br>}<br>hello();<br>?&gt;<br><br></code></pre>
+     </div>
+     <p class="paragraph">Acest cod nu va funcționa, iar interpretatorul PHP ne va informa că variabila $name nu este definită.</p>
+     <p class="paragraph">Totuși, putem accesa variabilele globale în interiorul unei funcții folosind cuvântul cheie global:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$name&nbsp;=&nbsp;"Tom";<br>function&nbsp;hello()<br>{<br>&nbsp;&nbsp;&nbsp;global&nbsp;$name;<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Hello&nbsp;"&nbsp;.&nbsp;$name;<br>}<br>hello();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Hello&nbsp;Tom<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Pentru a accesa o variabilă globală într-o funcție, se declară variabila cu același nume folosind operatorul global:</p>
+     <div class="code-inline">
+      <pre><code>global&nbsp;$name;</code></pre>
+     </div>
+     <p class="paragraph">După aceasta, variabila globală $name poate fi accesată în interiorul funcției. Putem nu doar să îi obținem valoarea, ci și să o modificăm:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$name&nbsp;=&nbsp;"Tom";<br>function&nbsp;changeName()<br>{<br>&nbsp;&nbsp;&nbsp;global&nbsp;$name;<br>&nbsp;&nbsp;&nbsp;$name&nbsp;=&nbsp;"Tomas";<br>}<br>changeName();&nbsp;&nbsp;<br>echo&nbsp;$name;&nbsp;//&nbsp;Tomas<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Ca alternativă la operatorul global, putem folosi array-ul integrat $GLOBALS pentru a accesa variabilele globale:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$name&nbsp;=&nbsp;"Tom";<br>function&nbsp;changeName()<br>{<br>&nbsp;&nbsp;&nbsp;$username&nbsp;=&nbsp;$GLOBALS["name"];<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Nume&nbsp;vechi:&nbsp;$username&nbsp;&lt;br&gt;";<br>&nbsp;&nbsp;&nbsp;//&nbsp;modificăm&nbsp;valoarea&nbsp;variabilei&nbsp;$name<br>&nbsp;&nbsp;&nbsp;$GLOBALS["name"]&nbsp;=&nbsp;"Tomas";<br>}<br>changeName();&nbsp;&nbsp;<br>echo&nbsp;"Nume&nbsp;nou:&nbsp;"&nbsp;.&nbsp;$name;<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Pentru a accesa variabila globală $name, se folosește expresia $GLOBALS["name"] - în parantezele pătrate se transmite numele variabilei (fără semnul $). Rezultatul scriptului:</p>
+     <div class="code-inline">
+      <pre><code>Nume&nbsp;vechi:&nbsp;Tom<br>Nume&nbsp;nou:&nbsp;Tomas</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

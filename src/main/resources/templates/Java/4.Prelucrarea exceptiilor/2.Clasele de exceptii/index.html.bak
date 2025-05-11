@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Java', activeChapter='4.Prelucrarea exceptiilor', activeLesson='2.Clasele de exceptii'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Clasele de excepții</h1>
+     <p class="paragraph">Clasa de bază pentru toate excepțiile este Throwable. De la aceasta sunt derivate două clase principale: Error și Exception. Toate celelalte clase sunt derivate din aceste două clase.</p>
+     <p class="paragraph">Clasa Error descrie erorile interne ale mediului de execuție Java. Programatorul are posibilități foarte limitate de a gestiona astfel de erori.</p>
+     <p class="paragraph">Excepțiile propriu-zise derivă din clasa Exception. Dintre acestea, se remarcă clasa RuntimeException. RuntimeException este clasa de bază pentru grupul de excepții necontrolate (unchecked exceptions), excepții pe care compilatorul nu le verifică și care nu trebuie menționate cu operatorul throws în declarația unei metode.</p>
+     <p class="paragraph">Aceste excepții sunt, de obicei, rezultatul unor erori de programare, cum ar fi conversii incorecte de tipuri sau ieșirea din limitele unui tablou.</p>
+     <p class="paragraph">Unele dintre clasele de excepții necontrolate:</p>
+     <ul class="enumeration">
+      <li>ArithmeticException: excepție care apare la împărțirea la zero</li>
+      <li>IndexOutOfBoundException: index în afara limitelor tabloului</li>
+      <li>IllegalArgumentException: utilizarea unui argument invalid la apelul unei metode</li>
+      <li>NullPointerException: utilizarea unei referințe nule</li>
+      <li>NumberFormatException: eroare de conversie a unui șir în număr</li>
+     </ul>
+     <p class="paragraph">Toate celelalte clase derivate din Exception se numesc excepții controlate (checked exceptions).</p>
+     <p class="paragraph">Unele dintre clasele de excepții controlate:</p>
+     <ul class="enumeration">
+      <li>CloneNotSupportedException: clasa obiectului pentru care se solicită clonarea nu implementează interfața Cloneable</li>
+      <li>InterruptedException: un fir de execuție a fost întrerupt de alt fir</li>
+      <li>ClassNotFoundException: nu se poate găsi o anumită clasă</li>
+     </ul>
+     <p class="paragraph">Astfel de excepții sunt gestionate folosind construcția try..catch. Alternativ, gestionarea poate fi delegată metodei care va apela metoda curentă, specificând excepțiile după operatorul throws:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;Person&nbsp;clone()&nbsp;throws&nbsp;CloneNotSupportedException&nbsp;{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Person&nbsp;p&nbsp;=&nbsp;(Person)&nbsp;super.clone();<br>&nbsp;&nbsp;&nbsp;return&nbsp;p;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Astfel, se formează următoarea ierarhie a excepțiilor:</p>
+     <div class="image-container">
+      <img th:src="@{/images/Java/4.Prelucrarea%20exceptiilor/2.Clasele%20de%20exceptii/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Deoarece toate clasele de excepții derivă din clasa Exception, ele moștenesc o serie de metode care permit obținerea de informații despre natura excepției. Printre cele mai importante metode se numără:</p>
+     <ul class="enumeration">
+      <li>getMessage(): returnează mesajul despre excepție</li>
+      <li>getStackTrace(): returnează un tablou care conține trasarea stivei excepției</li>
+      <li>printStackTrace(): afișează trasarea stivei</li>
+     </ul>
+     <p class="paragraph">De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>try&nbsp;{<br>&nbsp;&nbsp;&nbsp;int&nbsp;x&nbsp;=&nbsp;6&nbsp;/&nbsp;0;<br>}<br>catch&nbsp;(Exception&nbsp;ex)&nbsp;{<br>&nbsp;&nbsp;&nbsp;ex.printStackTrace();<br>}</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

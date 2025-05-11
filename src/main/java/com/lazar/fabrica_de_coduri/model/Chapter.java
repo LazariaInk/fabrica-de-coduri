@@ -7,9 +7,10 @@ import java.util.List;
 @Entity
 public class Chapter {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
+    private int orderNumber;
 
     @ManyToOne
     private Topic topic;
@@ -20,11 +21,12 @@ public class Chapter {
     public Chapter() {
     }
 
-    public Chapter(Long id, String title, Topic topic, List<Lesson> lessons) {
+    public Chapter(Long id, String title, int orderNumber, Topic topic, List<Lesson> lessons) {
         this.id = id;
         this.title = title;
         this.topic = topic;
         this.lessons = lessons;
+        this.orderNumber = orderNumber;
     }
 
     public Long getId() {
@@ -41,6 +43,14 @@ public class Chapter {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public int getOrderNumber() {
+        return orderNumber;
+    }
+
+    public void setOrderNumber(int orderNumber) {
+        this.orderNumber = orderNumber;
     }
 
     public Topic getTopic() {

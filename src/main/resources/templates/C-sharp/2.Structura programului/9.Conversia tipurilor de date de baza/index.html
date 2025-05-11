@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='2.Structura programului', activeLesson='9.Conversia tipurilor de date de baza'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Conversia tipurilor de date de bază</h1>
+     <p class="paragraph">Atunci când discutăm despre tipurile de date, am menționat ce valori poate avea un anumit tip și cât spațiu de memorie poate ocupa. În tema anterioară am discutat despre operațiile aritmetice. Acum vom aplica operația de adunare la date de tipuri diferite:</p>
+     <div class="code-inline">
+      <pre><code>byte&nbsp;a&nbsp;=&nbsp;4;<br>int&nbsp;b&nbsp;=&nbsp;a&nbsp;+&nbsp;70;</code></pre>
+     </div>
+     <p class="paragraph">Rezultatul acestei operații este numărul 74, așa cum era de așteptat.</p>
+     <p class="paragraph">Dar acum vom încerca să aplicăm adunarea la două obiecte de tip byte:</p>
+     <div class="code-inline">
+      <pre><code>byte&nbsp;a&nbsp;=&nbsp;4;<br>byte&nbsp;b&nbsp;=&nbsp;a&nbsp;+&nbsp;70;&nbsp;&nbsp;//&nbsp;eroare</code></pre>
+     </div>
+     <p class="paragraph">Aici s-a schimbat doar tipul variabilei care primește rezultatul adunării - de la int la byte. Totuși, când încercăm să compilăm programul, vom primi o eroare la compilare. Dacă lucrăm în Visual Studio, mediul va sublinia a doua linie cu o linie ondulată roșie, indicând că există o eroare.</p>
+     <p class="paragraph">De ce apare eroarea?</p>
+     <p class="paragraph">În operațiile aritmetice trebuie să luăm în considerare intervalul de valori pe care le poate stoca un anumit tip. În acest caz, numărul 74, pe care ne așteptăm să-l obținem, se încadrează în intervalul de valori pentru tipul byte, totuși obținem o eroare.</p>
+     <p class="paragraph">Motivul este că operația de adunare (și scădere) returnează o valoare de tip int dacă în operație sunt implicate tipuri de date întregi cu dimensiuni mai mici sau egale cu int (adică tipuri byte, short, int).</p>
+     <p class="paragraph">Prin urmare, rezultatul operației a + 70 va fi un obiect care ocupă 4 octeți în memorie. Apoi încercăm să atribuim acest obiect variabilei b, care este de tip byte și ocupă 1 octet în memorie.</p>
+     <p class="paragraph">Pentru a rezolva această problemă, trebuie să aplicăm operația de conversie a tipurilor. Operația de conversie a tipurilor implică specificarea în paranteze a tipului la care trebuie convertită valoarea:</p>
+     <div class="code-inline">
+      <pre><code>(byte)(valoare_pentru_conversie);</code></pre>
+     </div>
+     <p class="paragraph">Să modificăm exemplul anterior, aplicând operația de conversie a tipurilor:</p>
+     <div class="code-inline">
+      <pre><code>byte&nbsp;a&nbsp;=&nbsp;4;<br>byte&nbsp;b&nbsp;=&nbsp;(byte)(a&nbsp;+&nbsp;70);</code></pre>
+     </div>
+     <h2 class="subtitle">Conversii de extindere și restrângere</h2>
+     <p class="paragraph">Conversiile pot fi de extindere (widening) și de restrângere (narrowing). Conversiile de extindere măresc dimensiunea obiectului în memorie. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>byte&nbsp;a&nbsp;=&nbsp;4;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;0000100<br>ushort&nbsp;b&nbsp;=&nbsp;a;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;0000000000000100</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, variabilei de tip ushort i se atribuie o valoare de tip byte. Tipul byte ocupă 1 octet (8 biți), iar valoarea variabilei a în formă binară poate fi reprezentată astfel:</p>
+     <div class="code-inline">
+      <pre><code>00000100</code></pre>
+     </div>
+     <p class="paragraph">Valoarea de tip ushort ocupă 2 octeți (16 biți). La atribuirea valorii variabilei b, valoarea variabilei a este extinsă la 2 octeți:</p>
+     <div class="code-inline">
+      <pre><code>0000000000000100</code></pre>
+     </div>
+     <h2 class="subtitle">Conversii de restrângere</h2>
+     <p class="paragraph">Conversiile de restrângere reduc dimensiunea valorii la un tip cu o dimensiune mai mică. În al doilea exemplu din articol am avut de-a face cu conversii de restrângere:</p>
+     <div class="code-inline">
+      <pre><code>ushort&nbsp;a&nbsp;=&nbsp;4;<br>byte&nbsp;b&nbsp;=&nbsp;(byte)a;</code></pre>
+     </div>
+     <p class="paragraph">Aici variabilei b, care ocupă 8 biți, i se atribuie o valoare ushort, care ocupă 16 biți. Astfel, din:</p>
+     <div class="code-inline">
+      <pre><code>0000000000000100</code></pre>
+     </div>
+     <p class="paragraph">obținem:</p>
+     <div class="code-inline">
+      <pre><code>00000100</code></pre>
+     </div>
+     <h2 class="subtitle">Conversii implicite și explicite</h2>
+     <h2 class="subtitle">Conversii implicite</h2>
+     <p class="paragraph">În cazul conversiilor de extindere, compilatorul efectuează automat conversiile, adică acestea sunt conversii implicite (implicit conversion). Aceste conversii nu cauzează probleme. Totuși, este important să înțelegem mecanismul general al acestor conversii.</p>
+     <p class="paragraph">Dacă se efectuează o conversie de la un tip fără semn cu dimensiuni mai mici la un tip fără semn cu dimensiuni mai mari, se adaugă biți suplimentari cu valoarea 0. Aceasta se numește extindere cu zerouri (zero extension).</p>
+     <div class="code-inline">
+      <pre><code>byte&nbsp;a&nbsp;=&nbsp;4;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;0000100<br>ushort&nbsp;b&nbsp;=&nbsp;a;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;0000000000000100</code></pre>
+     </div>
+     <p class="paragraph">Dacă se efectuează o conversie la un tip cu semn, reprezentarea binară este completată cu zerouri dacă numărul este pozitiv și cu unități dacă numărul este negativ. Ultimul bit al numărului conține bitul de semn - 0 pentru numere pozitive și 1 pentru numere negative. La extindere, bitul de semn este copiat în biții adăugați.</p>
+     <p class="paragraph">Conversie a unui număr pozitiv:</p>
+     <div class="code-inline">
+      <pre><code>sbyte&nbsp;a&nbsp;=&nbsp;4;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;0000100<br>short&nbsp;b&nbsp;=&nbsp;a;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;0000000000000100</code></pre>
+     </div>
+     <p class="paragraph">Conversie a unui număr negativ:</p>
+     <div class="code-inline">
+      <pre><code>sbyte&nbsp;a&nbsp;=&nbsp;-4;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;1111100<br>short&nbsp;b&nbsp;=&nbsp;a;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;1111111111111100</code></pre>
+     </div>
+     <h2 class="subtitle">Conversii explicite</h2>
+     <p class="paragraph">La conversiile explicite (explicit conversion) trebuie să aplicăm manual operația de conversie (operația ()). Esența operației de conversie constă în specificarea în paranteze a tipului la care trebuie convertită valoarea:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;a&nbsp;=&nbsp;4;<br>int&nbsp;b&nbsp;=&nbsp;6;<br>byte&nbsp;c&nbsp;=&nbsp;(byte)(a&nbsp;+&nbsp;b);</code></pre>
+     </div>
+     <p class="paragraph">Conversiile de extindere de la tipuri cu dimensiuni mai mici la tipuri cu dimensiuni mai mari sunt realizate implicit de către compilator. Acestea pot fi următoarele lanțuri de conversii:</p>
+     <ul class="enumeration">
+      <li>byte -&gt; short -&gt; int -&gt; long -&gt; decimal</li>
+      <li>int -&gt; double</li>
+      <li>short -&gt; float -&gt; double</li>
+      <li>char -&gt; int</li>
+     </ul>
+     <p class="paragraph">Toate conversiile automate sigure pot fi descrise în următorul tabel:</p>
+     <div class="image-container">
+      <img th:src="@{/images/2.Structura%20programului/9.Conversia%20tipurilor%20de%20date%20de%20baza/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/2.Structura%20programului/9.Conversia%20tipurilor%20de%20date%20de%20baza/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">În celelalte cazuri, trebuie să utilizăm conversii explicite.</p>
+     <p class="paragraph">De asemenea, este de remarcat faptul că, deși atât double cât și decimal pot stoca date fracționare, iar decimal are o precizie mai mare decât double, totuși valoarea double trebuie convertită explicit la tipul decimal:</p>
+     <div class="code-inline">
+      <pre><code>double&nbsp;a&nbsp;=&nbsp;4.0;<br>decimal&nbsp;b&nbsp;=&nbsp;(decimal)a;</code></pre>
+     </div>
+     <h2 class="subtitle">Pierderea preciziei datelor</h2>
+     <p class="paragraph">Să analizăm o altă situație, de exemplu, următoarea:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;a&nbsp;=&nbsp;33;<br>int&nbsp;b&nbsp;=&nbsp;600;<br>byte&nbsp;c&nbsp;=&nbsp;(byte)(a&nbsp;+&nbsp;b);<br>Console.WriteLine(c);&nbsp;&nbsp;&nbsp;//&nbsp;121</code></pre>
+     </div>
+     <p class="paragraph">Rezultatul va fi numărul 121, deoarece numărul 633 nu se încadrează în intervalul permis pentru tipul byte, iar biții superiori vor fi trunchiați. Astfel, obținem numărul 121. Prin urmare, la conversii trebuie să ținem cont de acest lucru. În acest caz, putem fie să folosim astfel de numere a și b, încât suma lor să fie mai mică sau egală cu 255, fie să alegem un alt tip de date în loc de byte, de exemplu, int.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

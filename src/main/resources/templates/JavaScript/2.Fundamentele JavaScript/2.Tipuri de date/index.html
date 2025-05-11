@@ -1,254 +1,244 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='2.Fundamentele JavaScript', activeLesson='2.Tipuri de date'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Tipuri de date</h1>
- <p class="paragraph">Toată informația utilizată în JavaScript are un tip specific. În JavaScript există opt tipuri de date:</p>
- <ul class="enumeration">
-  <li>String: reprezintă un șir de caractere</li>
-  <li>Number: reprezintă o valoare numerică</li>
-  <li>BigInt: este destinat reprezentării numerelor întregi foarte mari</li>
-  <li>Boolean: reprezintă o valoare logică true sau false</li>
-  <li>Undefined: reprezintă o valoare specială - undefined și indică că valoarea nu este setată</li>
-  <li>Null: reprezintă o valoare specială - null și indică absența unei valori</li>
-  <li>Symbol: reprezintă o valoare unică, adesea utilizată pentru a accesa proprietățile obiectelor complexe</li>
-  <li>Object: reprezintă un obiect complex</li>
- </ul>
- <p class="paragraph">Primele șapte tipuri reprezintă tipuri de date primitive. Ultimul tip - Object reprezintă un tip de date complex, care constă din valori de tipuri primitive sau alte obiecte. Să analizăm principalele tipuri de date primitive.</p>
- <h2 class="subtitle">Date numerice</h2>
- <p class="paragraph">Tipul Number reprezintă numere în JavaScript, care pot fi întregi sau zecimale:</p>
- <p class="paragraph">Numere întregi, de exemplu, 35. Putem utiliza atât numere pozitive, cât și negative. Intervalul de numere utilizate este de la -2^53 la 2^53.</p>
- <p class="paragraph">Numere zecimale (numere cu virgulă mobilă). Punctul este folosit ca separator între partea întreagă și partea zecimală, de exemplu, 3.5575. La fel, se pot utiliza numere pozitive și negative. Pentru numerele cu virgulă mobilă, se aplică același interval: de la -2^53 la 2^53.</p>
- <p class="paragraph">De exemplu:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;x&nbsp;=&nbsp;45;<br>const&nbsp;y&nbsp;=&nbsp;123.897;<br>const&nbsp;z&nbsp;=&nbsp;-0.123;</code></pre>
- </div>
- <p class="paragraph">JavaScript oferă posibilitatea de a defini numere în sistem binar, octal și hexazecimal, ceea ce este foarte util atunci când trebuie să efectuăm operații pe biți cu biții individuali ai unui număr. Pentru a defini un număr în sistemul binar, se adaugă un prefix "0b" în fața numărului:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;num1&nbsp;=&nbsp;0b1011;&nbsp;&nbsp;&nbsp;&nbsp;//cifra&nbsp;11&nbsp;în&nbsp;a&nbsp;sistemul&nbsp;zecimal<br>console.log(num1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;11</code></pre>
- </div>
- <p class="paragraph">În acest caz, constanta num1 este egală cu 0b1011, ceea ce în sistemul zecimal este echivalent cu 11.</p>
- <p class="paragraph">Pentru a defini un număr în sistemul octal, se adaugă un prefix "0o" în fața numărului:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;num1&nbsp;=&nbsp;0o11;&nbsp;&nbsp;&nbsp;&nbsp;//cifra&nbsp;9&nbsp;în&nbsp;sistemul&nbsp;zecimal<br>console.log(num1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;9</code></pre>
- </div>
- <p class="paragraph">Pentru a defini un număr în sistemul hexazecimal, se adaugă un prefix "0x" în fața numărului:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;num1&nbsp;=&nbsp;0xff;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;cifra&nbsp;255&nbsp;in&nbsp;sistemul&nbsp;zecimal<br>console.log(num1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;255<br>const&nbsp;num2&nbsp;=&nbsp;0x1A;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;cifra&nbsp;26&nbsp;in&nbsp;sistemul&nbsp;zecimal<br>console.log(num2);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;26</code></pre>
- </div>
- <p class="paragraph">Începând cu standardul ECMAScript 2021 în JavaScript, în scopul îmbunătățirii legibilității, se poate utiliza caracterul underscore _ ca separator între cifrele unui număr.</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;num1&nbsp;=&nbsp;1234567;<br>const&nbsp;num2&nbsp;=&nbsp;123_4567;&nbsp;&nbsp;//cifra&nbsp;egală&nbsp;cu&nbsp;num1<br><br>const&nbsp;num3&nbsp;=&nbsp;1234567890;<br>const&nbsp;num4&nbsp;=&nbsp;12_3456_7890;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;cifra&nbsp;egală&nbsp;cu&nbsp;num3</code></pre>
- </div>
- <h2 class="subtitle">Tipul BigInt</h2>
- <p class="paragraph">Tipul BigInt a fost introdus în ultimele standarde JavaScript pentru a reprezenta numere întregi foarte mari, care depășesc intervalul tipului number. Aceasta nu înseamnă că nu putem lucra deloc cu numere mari folosind tipul number, dar lucrul cu ele în cazul tipului number poate întâmpina probleme. Să luăm în considerare un mic exemplu:</p>
- <div class="code-inline">
-  <pre><code>let&nbsp;num&nbsp;=&nbsp;9007199254740991<br>console.log(num);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;9007199254740991<br>console.log(num&nbsp;+&nbsp;1);&nbsp;&nbsp;&nbsp;//&nbsp;9007199254740992<br>console.log(num&nbsp;+&nbsp;2);&nbsp;&nbsp;&nbsp;//&nbsp;9007199254740992</code></pre>
- </div>
- <p class="paragraph">Aici, variabilei num i se atribuie valoarea maximă. Apoi adăugăm la ea anumite valori și afișăm rezultatul pe consolă. Rezultatele pot fi confuze, în special în cazul adăugării valorii 2.</p>
- <p class="paragraph">Trebuie să menționăm că tipul Number este limitat, chiar dacă permite manipularea unui interval destul de mare de numere. În particular, putem utiliza constantele speciale Number.MIN_VALUE și Number.MAX_VALUE pentru a verifica valorile minime și maxime posibile pentru tipul Number:</p>
- <div class="code-inline">
-  <pre><code>console.log(Number.MIN_VALUE);&nbsp;&nbsp;&nbsp;//&nbsp;5e-324<br>console.log(Number.MAX_VALUE);&nbsp;&nbsp;//&nbsp;1.7976931348623157e+308</code></pre>
- </div>
- <p class="paragraph">În acest exemplu, să luăm în considerare următorul scenariu:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;num&nbsp;=&nbsp;9223372036854775801;<br>console.log(num);&nbsp;&nbsp;&nbsp;//&nbsp;9223372036854776000</code></pre>
- </div>
- <p class="paragraph">Datorită restricțiilor tipului Number, pe consolă vom vedea un număr ușor diferit față de cel atribuit constantei num. Acest lucru poate afecta negativ precizia în calcul. Și tocmai pentru astfel de scenarii este destinat tipul BigInt. Pentru a defini un număr ca valoare a tipului BigInt, la sfârșitul numărului se adaugă sufixul n:</p>
- <div class="code-inline">
-  <pre><code>let&nbsp;dimension&nbsp;=&nbsp;19007n;<br>const&nbsp;value&nbsp;=&nbsp;2545n;</code></pre>
- </div>
- <p class="paragraph">De exemplu, să schimbăm tipul de la number la bigint în exemplul anterior:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;num&nbsp;=&nbsp;9223372036854775801n;<br>console.log(num);&nbsp;&nbsp;&nbsp;//&nbsp;9223372036854775801n</code></pre>
- </div>
- <p class="paragraph">Acum consola afișează rezultatul corect.</p>
- <h2 class="subtitle">Tipul Boolean</h2>
- <p class="paragraph">Tipul Boolean reprezintă valori booleene sau logice: true (adevărat) și false (fals):</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;isAlive&nbsp;=&nbsp;true;<br>const&nbsp;isDead&nbsp;=&nbsp;false;</code></pre>
- </div>
- <h2 class="subtitle">Șirurile de caractere (String)</h2>
- <p class="paragraph">Tipul String reprezintă șiruri de caractere. Pentru a defini șiruri, se utilizează ghilimele, fie ele duble sau simple, sau ghilimele inversate. Singura restricție este că tipul ghilimelor de închidere trebuie să fie același cu tipul celor de deschidere, adică fie ambele ghilimele duble, fie ambele simple.</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;user&nbsp;=&nbsp;"Tom";<br>const&nbsp;company&nbsp;=&nbsp;'Microsoft';<br>const&nbsp;language&nbsp;=&nbsp;JavaScript;<br><br>console.log(user);<br>console.log(company);<br>console.log(language);</code></pre>
- </div>
- <p class="paragraph">Dacă în interiorul șirului apar ghilimele, trebuie să le escapați cu o bară inversă. De exemplu, să presupunem că avem textul "Birou "Coarne и Copite"". Acum vom escapa ghilimelele:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;company&nbsp;=&nbsp;"Biroul&nbsp;\"Coarne&nbsp;și&nbsp;Copite\"";</code></pre>
- </div>
- <p class="paragraph">De asemenea, putem utiliza un alt tip de ghilimele în interiorul șirului:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;company1&nbsp;=&nbsp;"Biroul&nbsp;'Coarne&nbsp;și&nbsp;Copite'";<br>const&nbsp;company2&nbsp;=&nbsp;'Biroul&nbsp;"Coarne&nbsp;și&nbsp;Copite"';</code></pre>
- </div>
- <p class="paragraph">De asemenea, un șir poate conține caractere speciale - secvențe de control care sunt interpretate într-un mod specific. Cele mai comune secvențe sunt "\n" (trecere la o nouă linie) și "\t" (tabulare). De exemplu:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;text&nbsp;=&nbsp;"Hello&nbsp;FDC.COM\nHello\tWorld";<br>console.log(text);</code></pre>
- </div>
- <p class="paragraph">Când se afișează textul din constanta text pe consolă, va fi interpretat în felul următor:</p>
- <div class="code-inline">
-  <pre><code>Hello&nbsp;FDC.COM<br>Hello&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;World</code></pre>
- </div>
- <h2 class="subtitle">Interpolare și multiline</h2>
- <p class="paragraph">Utilizarea ghilimelor inverse () permite interpolarea, adică incorporarea datelor într-un șir. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;user&nbsp;=&nbsp;"Tom";<br>const&nbsp;text&nbsp;=&nbsp;Nume:&nbsp;${user};<br>console.log(text);&nbsp;&nbsp;//&nbsp;Nume:&nbsp;Tom</code></pre>
- </div>
- <p class="paragraph">Pentru a încorpora valorile expresiilor (de exemplu, valorile altor variabile și constante) într-un șir, înaintea expresiei se pune simbolul dolar $, iar după acesta se specifică expresia între acolade. Astfel, în exemplul de mai sus, ${user} indică că la acest loc din șir trebuie încorporată valoarea variabilei user.</p>
- <p class="paragraph">În același mod, se pot încorpora și mai multe date:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;user&nbsp;=&nbsp;"Tom";<br>const&nbsp;age&nbsp;=&nbsp;37;<br>const&nbsp;isMarried&nbsp;=&nbsp;false;<br>const&nbsp;text&nbsp;=&nbsp;Name:&nbsp;${user}&nbsp;&nbsp;&nbsp;Age:&nbsp;${age}&nbsp;&nbsp;&nbsp;IsMarried:&nbsp;${isMarried};<br>console.log(text);&nbsp;&nbsp;//&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;&nbsp;Age:&nbsp;37&nbsp;&nbsp;&nbsp;IsMarried:&nbsp;false</code></pre>
- </div>
- <p class="paragraph">De asemenea, ghilimelele inverse permit definirea de texte multiline:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;multilineText&nbsp;=<br>S-a&nbsp;întors&nbsp;cercetătoarea<br>Să&nbsp;le&nbsp;spuie&nbsp;la&nbsp;surori<br>Că-i&nbsp;deschisă&nbsp;toată&nbsp;floarea<br>Şi&nbsp;câmpia,&nbsp;de&nbsp;cu&nbsp;zori.;<br><br>console.log(multilineText);</code></pre>
- </div>
- <p class="paragraph">Ieșirea în consolă a browser-ului.</p>
- <div class="code-inline">
-  <pre><code>S-a&nbsp;întors&nbsp;cercetătoarea<br>Să&nbsp;le&nbsp;spuie&nbsp;la&nbsp;surori<br>Că-i&nbsp;deschisă&nbsp;toată&nbsp;floarea<br>Şi&nbsp;câmpia,&nbsp;de&nbsp;cu&nbsp;zori.</code></pre>
- </div>
- <h2 class="subtitle">Tipul null și undefined</h2>
- <p class="paragraph">undefined indică că o valoare nu este definită sau nu este atribuită. Pe de altă parte, null indică că o variabilă nu are o valoare.</p>
- <div class="code-inline">
-  <pre><code>let&nbsp;email;<br>console.log(email);&nbsp;//&nbsp;afișat&nbsp;undefined</code></pre>
- </div>
- <p class="paragraph">Prin atribuirea valorii null, se indică că variabila nu are o valoare:</p>
- <div class="code-inline">
-  <pre><code>let&nbsp;email;<br>console.log(email);&nbsp;//&nbsp;undefined<br>email&nbsp;=&nbsp;null;<br>console.log(email);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;null</code></pre>
- </div>
- <p class="paragraph">Merită de menționat că, deși în principiu se poate atribui variabilei valoarea undefined, așa cum se arată în următorul caz:</p>
- <div class="code-inline">
-  <pre><code>let&nbsp;email&nbsp;=&nbsp;"tome@mimimail.com";<br>email&nbsp;=&nbsp;undefined;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;setăm&nbsp;tipul&nbsp;undefined<br>console.log(email);&nbsp;//&nbsp;undefined</code></pre>
- </div>
- <p class="paragraph">Dar semnificația principală a undefined constă în faptul că variabila nu este inițializată, ceea ce se întâmplă mai des înainte de a-i fi atribuită vreo valoare. De aceea, de obicei nu se presupune că unei variabile i se va atribui explicit valoarea undefined. În același timp, acest tip poate fi util - îl putem folosi pentru a verifica inițializarea variabilei. Dar dacă trebuie să indicăm că variabila nu are nicio valoare, atunci i se atribuie null, nu undefined.</p>
- <h2 class="subtitle">Tipul object</h2>
- <p class="paragraph">Tipul Object reprezintă un obiect complex cu diferite proprietăți și metode. Cel mai simplu mod de a defini un obiect este prin intermediul acoladelor:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;user&nbsp;=&nbsp;{};</code></pre>
- </div>
- <p class="paragraph">Un obiect poate avea diverse proprietăți și metode:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;user&nbsp;=&nbsp;{name:&nbsp;"Tom",&nbsp;age:24};<br>console.log(user.name);</code></pre>
- </div>
- <p class="paragraph">În acest caz, obiectul este denumit user și are două proprietăți: name și age, care au ca valori date de alte tipuri. Aceasta este o descriere succintă a obiectelor; vom explora mai în detaliu obiectele în articolele viitoare.</p>
- <h2 class="subtitle">Tipizarea slabă/dinamică</h2>
- <p class="paragraph">JavaScript are tipizare slabă și dinamică, ceea ce înseamnă că tipurile pot fi schimbate dinamic. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>let&nbsp;id;&nbsp;&nbsp;//tip&nbsp;undefined<br>console.log(id);<br>id&nbsp;=&nbsp;45;&nbsp;&nbsp;//&nbsp;tip&nbsp;number<br>console.log(id);<br>id&nbsp;=&nbsp;"45";&nbsp;//&nbsp;tip&nbsp;string<br>console.log(id);</code></pre>
- </div>
- <p class="paragraph">Chiar dacă în al doilea și al treilea caz consola va afișa numărul 45, în al doilea caz variabila id va reprezenta un număr, iar în al treilea caz va reprezenta un șir.</p>
- <h2 class="subtitle">Operatorul typeof</h2>
- <p class="paragraph">Cu ajutorul operatorului typeof putem obține tipul unei variabile, ceea ce poate fi util atunci când, în funcție de tipul variabilei, trebuie să efectuăm anumite acțiuni:</p>
- <div class="code-inline">
-  <pre><code><br>let&nbsp;id;<br>console.log(typeof&nbsp;id);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;va&nbsp;afișa&nbsp;"undefined"<br>id&nbsp;=&nbsp;45;<br>console.log(typeof&nbsp;id);&nbsp;&nbsp;&nbsp;//&nbsp;va&nbsp;afișa&nbsp;"number"<br>id&nbsp;=&nbsp;45n;<br>console.log(typeof&nbsp;id);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;va&nbsp;afișa&nbsp;"bigint"<br>id&nbsp;=&nbsp;"45";<br>console.log(typeof&nbsp;id);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;va&nbsp;afișa&nbsp;"string"</code></pre>
- </div>
- <p class="paragraph">Trebuie de menționat că pentru valoarea null, operatorul typeof returnează "object", deși în mod teoretic, null reprezintă un tip separat.</p>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Tipuri de date</h1>
+     <p class="paragraph">Toată informația utilizată în JavaScript are un tip specific. În JavaScript există opt tipuri de date:</p>
+     <ul class="enumeration">
+      <li>String: reprezintă un șir de caractere</li>
+      <li>Number: reprezintă o valoare numerică</li>
+      <li>BigInt: este destinat reprezentării numerelor întregi foarte mari</li>
+      <li>Boolean: reprezintă o valoare logică true sau false</li>
+      <li>Undefined: reprezintă o valoare specială - undefined și indică că valoarea nu este setată</li>
+      <li>Null: reprezintă o valoare specială - null și indică absența unei valori</li>
+      <li>Symbol: reprezintă o valoare unică, adesea utilizată pentru a accesa proprietățile obiectelor complexe</li>
+      <li>Object: reprezintă un obiect complex</li>
+     </ul>
+     <p class="paragraph">Primele șapte tipuri reprezintă tipuri de date primitive. Ultimul tip - Object reprezintă un tip de date complex, care constă din valori de tipuri primitive sau alte obiecte. Să analizăm principalele tipuri de date primitive.</p>
+     <h2 class="subtitle">Date numerice</h2>
+     <p class="paragraph">Tipul Number reprezintă numere în JavaScript, care pot fi întregi sau zecimale:</p>
+     <p class="paragraph">Numere întregi, de exemplu, 35. Putem utiliza atât numere pozitive, cât și negative. Intervalul de numere utilizate este de la -2^53 la 2^53.</p>
+     <p class="paragraph">Numere zecimale (numere cu virgulă mobilă). Punctul este folosit ca separator între partea întreagă și partea zecimală, de exemplu, 3.5575. La fel, se pot utiliza numere pozitive și negative. Pentru numerele cu virgulă mobilă, se aplică același interval: de la -2^53 la 2^53.</p>
+     <p class="paragraph">De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;x&nbsp;=&nbsp;45;<br>const&nbsp;y&nbsp;=&nbsp;123.897;<br>const&nbsp;z&nbsp;=&nbsp;-0.123;</code></pre>
+     </div>
+     <p class="paragraph">JavaScript oferă posibilitatea de a defini numere în sistem binar, octal și hexazecimal, ceea ce este foarte util atunci când trebuie să efectuăm operații pe biți cu biții individuali ai unui număr. Pentru a defini un număr în sistemul binar, se adaugă un prefix "0b" în fața numărului:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;num1&nbsp;=&nbsp;0b1011;&nbsp;&nbsp;&nbsp;&nbsp;//cifra&nbsp;11&nbsp;în&nbsp;a&nbsp;sistemul&nbsp;zecimal<br>console.log(num1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;11</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, constanta num1 este egală cu 0b1011, ceea ce în sistemul zecimal este echivalent cu 11.</p>
+     <p class="paragraph">Pentru a defini un număr în sistemul octal, se adaugă un prefix "0o" în fața numărului:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;num1&nbsp;=&nbsp;0o11;&nbsp;&nbsp;&nbsp;&nbsp;//cifra&nbsp;9&nbsp;în&nbsp;sistemul&nbsp;zecimal<br>console.log(num1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;9</code></pre>
+     </div>
+     <p class="paragraph">Pentru a defini un număr în sistemul hexazecimal, se adaugă un prefix "0x" în fața numărului:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;num1&nbsp;=&nbsp;0xff;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;cifra&nbsp;255&nbsp;in&nbsp;sistemul&nbsp;zecimal<br>console.log(num1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;255<br>const&nbsp;num2&nbsp;=&nbsp;0x1A;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;cifra&nbsp;26&nbsp;in&nbsp;sistemul&nbsp;zecimal<br>console.log(num2);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;26</code></pre>
+     </div>
+     <p class="paragraph">Începând cu standardul ECMAScript 2021 în JavaScript, în scopul îmbunătățirii legibilității, se poate utiliza caracterul underscore _ ca separator între cifrele unui număr.</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;num1&nbsp;=&nbsp;1234567;<br>const&nbsp;num2&nbsp;=&nbsp;123_4567;&nbsp;&nbsp;//cifra&nbsp;egală&nbsp;cu&nbsp;num1<br><br>const&nbsp;num3&nbsp;=&nbsp;1234567890;<br>const&nbsp;num4&nbsp;=&nbsp;12_3456_7890;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;cifra&nbsp;egală&nbsp;cu&nbsp;num3</code></pre>
+     </div>
+     <h2 class="subtitle">Tipul BigInt</h2>
+     <p class="paragraph">Tipul BigInt a fost introdus în ultimele standarde JavaScript pentru a reprezenta numere întregi foarte mari, care depășesc intervalul tipului number. Aceasta nu înseamnă că nu putem lucra deloc cu numere mari folosind tipul number, dar lucrul cu ele în cazul tipului number poate întâmpina probleme. Să luăm în considerare un mic exemplu:</p>
+     <div class="code-inline">
+      <pre><code>let&nbsp;num&nbsp;=&nbsp;9007199254740991<br>console.log(num);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;9007199254740991<br>console.log(num&nbsp;+&nbsp;1);&nbsp;&nbsp;&nbsp;//&nbsp;9007199254740992<br>console.log(num&nbsp;+&nbsp;2);&nbsp;&nbsp;&nbsp;//&nbsp;9007199254740992</code></pre>
+     </div>
+     <p class="paragraph">Aici, variabilei num i se atribuie valoarea maximă. Apoi adăugăm la ea anumite valori și afișăm rezultatul pe consolă. Rezultatele pot fi confuze, în special în cazul adăugării valorii 2.</p>
+     <p class="paragraph">Trebuie să menționăm că tipul Number este limitat, chiar dacă permite manipularea unui interval destul de mare de numere. În particular, putem utiliza constantele speciale Number.MIN_VALUE și Number.MAX_VALUE pentru a verifica valorile minime și maxime posibile pentru tipul Number:</p>
+     <div class="code-inline">
+      <pre><code>console.log(Number.MIN_VALUE);&nbsp;&nbsp;&nbsp;//&nbsp;5e-324<br>console.log(Number.MAX_VALUE);&nbsp;&nbsp;//&nbsp;1.7976931348623157e+308</code></pre>
+     </div>
+     <p class="paragraph">În acest exemplu, să luăm în considerare următorul scenariu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;num&nbsp;=&nbsp;9223372036854775801;<br>console.log(num);&nbsp;&nbsp;&nbsp;//&nbsp;9223372036854776000</code></pre>
+     </div>
+     <p class="paragraph">Datorită restricțiilor tipului Number, pe consolă vom vedea un număr ușor diferit față de cel atribuit constantei num. Acest lucru poate afecta negativ precizia în calcul. Și tocmai pentru astfel de scenarii este destinat tipul BigInt. Pentru a defini un număr ca valoare a tipului BigInt, la sfârșitul numărului se adaugă sufixul n:</p>
+     <div class="code-inline">
+      <pre><code>let&nbsp;dimension&nbsp;=&nbsp;19007n;<br>const&nbsp;value&nbsp;=&nbsp;2545n;</code></pre>
+     </div>
+     <p class="paragraph">De exemplu, să schimbăm tipul de la number la bigint în exemplul anterior:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;num&nbsp;=&nbsp;9223372036854775801n;<br>console.log(num);&nbsp;&nbsp;&nbsp;//&nbsp;9223372036854775801n</code></pre>
+     </div>
+     <p class="paragraph">Acum consola afișează rezultatul corect.</p>
+     <h2 class="subtitle">Tipul Boolean</h2>
+     <p class="paragraph">Tipul Boolean reprezintă valori booleene sau logice: true (adevărat) și false (fals):</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;isAlive&nbsp;=&nbsp;true;<br>const&nbsp;isDead&nbsp;=&nbsp;false;</code></pre>
+     </div>
+     <h2 class="subtitle">Șirurile de caractere (String)</h2>
+     <p class="paragraph">Tipul String reprezintă șiruri de caractere. Pentru a defini șiruri, se utilizează ghilimele, fie ele duble sau simple, sau ghilimele inversate. Singura restricție este că tipul ghilimelor de închidere trebuie să fie același cu tipul celor de deschidere, adică fie ambele ghilimele duble, fie ambele simple.</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;user&nbsp;=&nbsp;"Tom";<br>const&nbsp;company&nbsp;=&nbsp;'Microsoft';<br>const&nbsp;language&nbsp;=&nbsp;JavaScript;<br><br>console.log(user);<br>console.log(company);<br>console.log(language);</code></pre>
+     </div>
+     <p class="paragraph">Dacă în interiorul șirului apar ghilimele, trebuie să le escapați cu o bară inversă. De exemplu, să presupunem că avem textul "Birou "Coarne и Copite"". Acum vom escapa ghilimelele:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;company&nbsp;=&nbsp;"Biroul&nbsp;\"Coarne&nbsp;și&nbsp;Copite\"";</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, putem utiliza un alt tip de ghilimele în interiorul șirului:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;company1&nbsp;=&nbsp;"Biroul&nbsp;'Coarne&nbsp;și&nbsp;Copite'";<br>const&nbsp;company2&nbsp;=&nbsp;'Biroul&nbsp;"Coarne&nbsp;și&nbsp;Copite"';</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, un șir poate conține caractere speciale - secvențe de control care sunt interpretate într-un mod specific. Cele mai comune secvențe sunt "\n" (trecere la o nouă linie) și "\t" (tabulare). De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;text&nbsp;=&nbsp;"Hello&nbsp;FDC.COM\nHello\tWorld";<br>console.log(text);</code></pre>
+     </div>
+     <p class="paragraph">Când se afișează textul din constanta text pe consolă, va fi interpretat în felul următor:</p>
+     <div class="code-inline">
+      <pre><code>Hello&nbsp;FDC.COM<br>Hello&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;World</code></pre>
+     </div>
+     <h2 class="subtitle">Interpolare și multiline</h2>
+     <p class="paragraph">Utilizarea ghilimelor inverse () permite interpolarea, adică incorporarea datelor într-un șir. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;user&nbsp;=&nbsp;"Tom";<br>const&nbsp;text&nbsp;=&nbsp;Nume:&nbsp;${user};<br>console.log(text);&nbsp;&nbsp;//&nbsp;Nume:&nbsp;Tom</code></pre>
+     </div>
+     <p class="paragraph">Pentru a încorpora valorile expresiilor (de exemplu, valorile altor variabile și constante) într-un șir, înaintea expresiei se pune simbolul dolar $, iar după acesta se specifică expresia între acolade. Astfel, în exemplul de mai sus, ${user} indică că la acest loc din șir trebuie încorporată valoarea variabilei user.</p>
+     <p class="paragraph">În același mod, se pot încorpora și mai multe date:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;user&nbsp;=&nbsp;"Tom";<br>const&nbsp;age&nbsp;=&nbsp;37;<br>const&nbsp;isMarried&nbsp;=&nbsp;false;<br>const&nbsp;text&nbsp;=&nbsp;Name:&nbsp;${user}&nbsp;&nbsp;&nbsp;Age:&nbsp;${age}&nbsp;&nbsp;&nbsp;IsMarried:&nbsp;${isMarried};<br>console.log(text);&nbsp;&nbsp;//&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;&nbsp;Age:&nbsp;37&nbsp;&nbsp;&nbsp;IsMarried:&nbsp;false</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, ghilimelele inverse permit definirea de texte multiline:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;multilineText&nbsp;=<br>S-a&nbsp;întors&nbsp;cercetătoarea<br>Să&nbsp;le&nbsp;spuie&nbsp;la&nbsp;surori<br>Că-i&nbsp;deschisă&nbsp;toată&nbsp;floarea<br>Şi&nbsp;câmpia,&nbsp;de&nbsp;cu&nbsp;zori.;<br><br>console.log(multilineText);</code></pre>
+     </div>
+     <p class="paragraph">Ieșirea în consolă a browser-ului.</p>
+     <div class="code-inline">
+      <pre><code>S-a&nbsp;întors&nbsp;cercetătoarea<br>Să&nbsp;le&nbsp;spuie&nbsp;la&nbsp;surori<br>Că-i&nbsp;deschisă&nbsp;toată&nbsp;floarea<br>Şi&nbsp;câmpia,&nbsp;de&nbsp;cu&nbsp;zori.</code></pre>
+     </div>
+     <h2 class="subtitle">Tipul null și undefined</h2>
+     <p class="paragraph">undefined indică că o valoare nu este definită sau nu este atribuită. Pe de altă parte, null indică că o variabilă nu are o valoare.</p>
+     <div class="code-inline">
+      <pre><code>let&nbsp;email;<br>console.log(email);&nbsp;//&nbsp;afișat&nbsp;undefined</code></pre>
+     </div>
+     <p class="paragraph">Prin atribuirea valorii null, se indică că variabila nu are o valoare:</p>
+     <div class="code-inline">
+      <pre><code>let&nbsp;email;<br>console.log(email);&nbsp;//&nbsp;undefined<br>email&nbsp;=&nbsp;null;<br>console.log(email);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;null</code></pre>
+     </div>
+     <p class="paragraph">Merită de menționat că, deși în principiu se poate atribui variabilei valoarea undefined, așa cum se arată în următorul caz:</p>
+     <div class="code-inline">
+      <pre><code>let&nbsp;email&nbsp;=&nbsp;"tome@mimimail.com";<br>email&nbsp;=&nbsp;undefined;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;setăm&nbsp;tipul&nbsp;undefined<br>console.log(email);&nbsp;//&nbsp;undefined</code></pre>
+     </div>
+     <p class="paragraph">Dar semnificația principală a undefined constă în faptul că variabila nu este inițializată, ceea ce se întâmplă mai des înainte de a-i fi atribuită vreo valoare. De aceea, de obicei nu se presupune că unei variabile i se va atribui explicit valoarea undefined. În același timp, acest tip poate fi util - îl putem folosi pentru a verifica inițializarea variabilei. Dar dacă trebuie să indicăm că variabila nu are nicio valoare, atunci i se atribuie null, nu undefined.</p>
+     <h2 class="subtitle">Tipul object</h2>
+     <p class="paragraph">Tipul Object reprezintă un obiect complex cu diferite proprietăți și metode. Cel mai simplu mod de a defini un obiect este prin intermediul acoladelor:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;user&nbsp;=&nbsp;{};</code></pre>
+     </div>
+     <p class="paragraph">Un obiect poate avea diverse proprietăți și metode:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;user&nbsp;=&nbsp;{name:&nbsp;"Tom",&nbsp;age:24};<br>console.log(user.name);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, obiectul este denumit user și are două proprietăți: name și age, care au ca valori date de alte tipuri. Aceasta este o descriere succintă a obiectelor; vom explora mai în detaliu obiectele în articolele viitoare.</p>
+     <h2 class="subtitle">Tipizarea slabă/dinamică</h2>
+     <p class="paragraph">JavaScript are tipizare slabă și dinamică, ceea ce înseamnă că tipurile pot fi schimbate dinamic. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>let&nbsp;id;&nbsp;&nbsp;//tip&nbsp;undefined<br>console.log(id);<br>id&nbsp;=&nbsp;45;&nbsp;&nbsp;//&nbsp;tip&nbsp;number<br>console.log(id);<br>id&nbsp;=&nbsp;"45";&nbsp;//&nbsp;tip&nbsp;string<br>console.log(id);</code></pre>
+     </div>
+     <p class="paragraph">Chiar dacă în al doilea și al treilea caz consola va afișa numărul 45, în al doilea caz variabila id va reprezenta un număr, iar în al treilea caz va reprezenta un șir.</p>
+     <h2 class="subtitle">Operatorul typeof</h2>
+     <p class="paragraph">Cu ajutorul operatorului typeof putem obține tipul unei variabile, ceea ce poate fi util atunci când, în funcție de tipul variabilei, trebuie să efectuăm anumite acțiuni:</p>
+     <div class="code-inline">
+      <pre><code><br>let&nbsp;id;<br>console.log(typeof&nbsp;id);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;va&nbsp;afișa&nbsp;"undefined"<br>id&nbsp;=&nbsp;45;<br>console.log(typeof&nbsp;id);&nbsp;&nbsp;&nbsp;//&nbsp;va&nbsp;afișa&nbsp;"number"<br>id&nbsp;=&nbsp;45n;<br>console.log(typeof&nbsp;id);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;va&nbsp;afișa&nbsp;"bigint"<br>id&nbsp;=&nbsp;"45";<br>console.log(typeof&nbsp;id);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;va&nbsp;afișa&nbsp;"string"</code></pre>
+     </div>
+     <p class="paragraph">Trebuie de menționat că pentru valoarea null, operatorul typeof returnează "object", deși în mod teoretic, null reprezintă un tip separat.</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

@@ -13,7 +13,7 @@ public class SEOHashTagService {
     public SEOHashTagService(SEOHashTagRepository seoHashTagRepository) {
         this.seoHashTagRepository = seoHashTagRepository;
     }
-    
+
     public List<SEOHashTag> getAllHashTags(Long platformInfoId) {
         return seoHashTagRepository.findByPlatformInfoId(platformInfoId);
     }

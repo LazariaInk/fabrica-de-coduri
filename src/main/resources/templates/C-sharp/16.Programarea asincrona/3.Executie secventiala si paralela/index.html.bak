@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='16.Programarea asincrona', activeLesson='3.Executie secventiala si paralela'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Execuție secvențială și paralelă - Task.WhenAll și Task.WhenAny</h1>
+     <p class="paragraph">O metodă asincronă poate conține multe expresii await. Când sistemul întâlnește operatorul await într-un bloc de cod, execuția în metoda asincronă se oprește până când sarcina asincronă se finalizează. După finalizarea sarcinii, controlul trece la următorul operator await și așa mai departe. Acest lucru permite apelarea sarcinilor asincrone în mod secvențial, într-o anumită ordine. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>await&nbsp;PrintAsync("Hello&nbsp;C#");<br>await&nbsp;PrintAsync("Hello&nbsp;World");<br>await&nbsp;PrintAsync("Hello&nbsp;FDC.COM");<br><br>async&nbsp;Task&nbsp;PrintAsync(string&nbsp;message)<br>{<br>&nbsp;&nbsp;&nbsp;await&nbsp;Task.Delay(2000);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;imitația&nbsp;unei&nbsp;operații&nbsp;de&nbsp;lungă&nbsp;durată<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(message);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Afișarea pe consolă a acestui program:</p>
+     <div class="code-inline">
+      <pre><code>Hello&nbsp;C#<br>Hello&nbsp;World<br>Hello&nbsp;FDC.COM</code></pre>
+     </div>
+     <p class="paragraph">Adică, vedem că apelurile PrintAsync se execută secvențial în ordinea în care sunt definite în cod. Fiecare sarcină se execută cel puțin 2 secunde, astfel timpul total de execuție al celor trei sarcini va fi de cel puțin 6 secunde. Și în acest caz, afișarea este strict deterministă.</p>
+     <p class="paragraph">Deseori, această secvență este necesară dacă o sarcină depinde de rezultatele altei sarcini.</p>
+     <p class="paragraph">Totuși, acest lucru nu este întotdeauna necesar. În astfel de cazuri, putem lansa toate sarcinile în paralel și aplica operatorul await acolo unde este necesar să garantăm finalizarea unei sarcini, de exemplu, la sfârșitul programului.</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;definim&nbsp;și&nbsp;lansăm&nbsp;sarcinile<br>var&nbsp;task1&nbsp;=&nbsp;PrintAsync("Hello&nbsp;C#");<br>var&nbsp;task2&nbsp;=&nbsp;PrintAsync("Hello&nbsp;World");<br>var&nbsp;task3&nbsp;=&nbsp;PrintAsync("Hello&nbsp;FDC.COM");<br><br>//&nbsp;așteptăm&nbsp;finalizarea&nbsp;sarcinilor<br>await&nbsp;task1;<br>await&nbsp;task2;<br>await&nbsp;task3;<br><br>async&nbsp;Task&nbsp;PrintAsync(string&nbsp;message)<br>{<br>&nbsp;&nbsp;&nbsp;await&nbsp;Task.Delay(2000);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;imitația&nbsp;unei&nbsp;operații&nbsp;de&nbsp;lungă&nbsp;durată<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(message);<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, toate sarcinile se lansează și se execută în paralel, astfel timpul total de execuție va fi mai mic de 6 secunde, iar afișarea pe consolă a programului este nedeterministă. De exemplu, poate fi următoarea:</p>
+     <div class="code-inline">
+      <pre><code>Hello&nbsp;FDC.COM<br>Hello&nbsp;C#<br>Hello&nbsp;World</code></pre>
+     </div>
+     <p class="paragraph">Totuși, .NET permite simplificarea monitorizării execuției unui set de sarcini cu ajutorul metodei Task.WhenAll. Această metodă primește un set de sarcini asincrone și așteaptă finalizarea tuturor acestor sarcini. Aceasta este echivalentul metodei statice Task.WaitAll(), dar destinată în mod special metodelor asincrone și permite aplicarea operatorului await:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;definim&nbsp;și&nbsp;lansăm&nbsp;sarcinile<br>var&nbsp;task1&nbsp;=&nbsp;PrintAsync("Hello&nbsp;C#");<br>var&nbsp;task2&nbsp;=&nbsp;PrintAsync("Hello&nbsp;World");<br>var&nbsp;task3&nbsp;=&nbsp;PrintAsync("Hello&nbsp;FDC.COM");<br><br>//&nbsp;așteptăm&nbsp;finalizarea&nbsp;tuturor&nbsp;sarcinilor<br>await&nbsp;Task.WhenAll(task1,&nbsp;task2,&nbsp;task3);<br><br>async&nbsp;Task&nbsp;PrintAsync(string&nbsp;message)<br>{<br>&nbsp;&nbsp;&nbsp;await&nbsp;Task.Delay(2000);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;imitația&nbsp;unei&nbsp;operații&nbsp;de&nbsp;lungă&nbsp;durată<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(message);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Începutul programului lansează trei sarcini. Apoi Task.WhenAll creează o nouă sarcină, care va fi executată automat după finalizarea tuturor sarcinilor furnizate, adică sarcinile task1, task2, task3. Și cu ajutorul operatorului await așteptăm finalizarea acesteia.</p>
+     <p class="paragraph">Dacă trebuie să așteptăm finalizarea a cel puțin unei sarcini dintr-un set de sarcini, putem folosi metoda Task.WhenAny(). Aceasta este echivalentul metodei Task.WaitAny() - se finalizează când se finalizează cel puțin o sarcină. Dar pentru a aștepta finalizarea, la Task.WhenAny() se aplică operatorul await:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;definim&nbsp;și&nbsp;lansăm&nbsp;sarcinile<br>var&nbsp;task1&nbsp;=&nbsp;PrintAsync("Hello&nbsp;C#");<br>var&nbsp;task2&nbsp;=&nbsp;PrintAsync("Hello&nbsp;World");<br>var&nbsp;task3&nbsp;=&nbsp;PrintAsync("Hello&nbsp;FDC.COM");<br><br>//&nbsp;așteptăm&nbsp;finalizarea&nbsp;a&nbsp;cel&nbsp;puțin&nbsp;unei&nbsp;sarcini<br>await&nbsp;Task.WhenAny(task1,&nbsp;task2,&nbsp;task3);<br><br>async&nbsp;Task&nbsp;PrintAsync(string&nbsp;message)<br>{<br>&nbsp;&nbsp;&nbsp;await&nbsp;Task.Delay(new&nbsp;Random().Next(1000,&nbsp;2000));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;imitația&nbsp;unei&nbsp;operații&nbsp;de&nbsp;lungă&nbsp;durată<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(message);<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Obținerea rezultatului</h2>
+     <p class="paragraph">Sarcinile transmise la Task.WhenAll și Task.WhenAny pot returna o anumită valoare. În acest caz, din metodele Task.WhenAll și Task.WhenAny putem obține un array care va conține rezultatele sarcinilor:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;definim&nbsp;și&nbsp;lansăm&nbsp;sarcinile<br>var&nbsp;task1&nbsp;=&nbsp;SquareAsync(4);<br>var&nbsp;task2&nbsp;=&nbsp;SquareAsync(5);<br>var&nbsp;task3&nbsp;=&nbsp;SquareAsync(6);<br><br>//&nbsp;așteptăm&nbsp;finalizarea&nbsp;tuturor&nbsp;sarcinilor<br>int[]&nbsp;results&nbsp;=&nbsp;await&nbsp;Task.WhenAll(task1,&nbsp;task2,&nbsp;task3);<br>//&nbsp;obținem&nbsp;rezultatele:<br>foreach&nbsp;(int&nbsp;result&nbsp;in&nbsp;results)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(result);<br><br>async&nbsp;Task&lt;int&gt;&nbsp;SquareAsync(int&nbsp;n)<br>{<br>&nbsp;&nbsp;&nbsp;await&nbsp;Task.Delay(1000);<br>&nbsp;&nbsp;&nbsp;return&nbsp;n&nbsp;*&nbsp;n;<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, metoda Square returnează un număr de tip int - pătratul numărului transmis metodei. Și variabila results va conține rezultatul apelului Task.WhenAll - de fapt rezultatele celor trei sarcini lansate. Deoarece toate sarcinile transmise la Task.WhenAll returnează int, rezultatul Task.WhenAll va fi un array de valori int.</p>
+     <p class="paragraph">De asemenea, după finalizarea unei sarcini, rezultatul acesteia poate fi obținut în mod standard prin proprietatea Result:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;definim&nbsp;și&nbsp;lansăm&nbsp;sarcinile<br>var&nbsp;task1&nbsp;=&nbsp;SquareAsync(4);<br>var&nbsp;task2&nbsp;=&nbsp;SquareAsync(5);<br>var&nbsp;task3&nbsp;=&nbsp;SquareAsync(6);<br><br>await&nbsp;Task.WhenAll(task1,&nbsp;task2,&nbsp;task3);<br>//&nbsp;obținem&nbsp;rezultatul&nbsp;sarcinii&nbsp;task2<br>Console.WriteLine($"task2&nbsp;result:&nbsp;{task2.Result}");&nbsp;//&nbsp;task2&nbsp;result:&nbsp;25<br><br>async&nbsp;Task&lt;int&gt;&nbsp;SquareAsync(int&nbsp;n)<br>{<br>&nbsp;&nbsp;&nbsp;await&nbsp;Task.Delay(1000);<br>&nbsp;&nbsp;&nbsp;return&nbsp;n&nbsp;*&nbsp;n;<br>}</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

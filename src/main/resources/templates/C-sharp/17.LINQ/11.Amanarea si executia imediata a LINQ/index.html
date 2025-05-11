@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='17.LINQ', activeLesson='11.Amanarea si executia imediata a LINQ'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Amânarea și execuția imediată a LINQ</h1>
+     <p class="paragraph">Există două moduri de executare a interogării LINQ: amânată (deferred) și imediată (immediate).</p>
+     <p class="paragraph">În cazul execuției amânate, expresia LINQ nu este executată până când nu este efectuată o iterație sau o parcurgere a selecției, de exemplu, într-un ciclu foreach. De obicei, astfel de operații returnează un obiect IEnumerable&lt;T&gt; sau IOrderedEnumerable&lt;T&gt;. Lista completă a operațiunilor LINQ amânate:</p>
+     <ul class="enumeration">
+      <li>AsEnumerable</li>
+      <li>Cast</li>
+      <li>Concat</li>
+      <li>DefaultIfEmpty</li>
+      <li>Distinct</li>
+      <li>Except</li>
+      <li>GroupBy</li>
+      <li>GroupJoin</li>
+      <li>Intersect</li>
+      <li>Join</li>
+      <li>OfType</li>
+      <li>OrderBy</li>
+      <li>OrderByDescending</li>
+      <li>Range</li>
+      <li>Repeat</li>
+      <li>Reverse</li>
+      <li>Select</li>
+      <li>SelectMany</li>
+      <li>Skip</li>
+      <li>SkipWhile</li>
+      <li>Take</li>
+      <li>TakeWhile</li>
+      <li>ThenBy</li>
+      <li>ThenByDescending</li>
+      <li>Union</li>
+      <li>Where</li>
+     </ul>
+     <p class="paragraph">Să examinăm execuția amânată:</p>
+     <div class="code-inline">
+      <pre><code>string[]&nbsp;people&nbsp;=&nbsp;{&nbsp;"Tom",&nbsp;"Sam",&nbsp;"Bob"&nbsp;};<br><br>var&nbsp;selectedPeople&nbsp;=&nbsp;people.Where(s=&gt;s.Length&nbsp;==&nbsp;3).OrderBy(s=&gt;s);<br><br>//&nbsp;execuția&nbsp;interogării&nbsp;LINQ<br>foreach&nbsp;(string&nbsp;s&nbsp;in&nbsp;selectedPeople)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(s);</code></pre>
+     </div>
+     <p class="paragraph">Deci, execuția efectivă a interogării nu are loc în linia de definire: var selectedPeople = people.Where..., ci în timpul parcurgerii în ciclul foreach.</p>
+     <p class="paragraph">De fapt, interogarea LINQ se împarte în trei etape:</p>
+     <p class="paragraph">1. Obținerea sursei de date:</p>
+     <div class="code-inline">
+      <pre><code>string[]&nbsp;people&nbsp;=&nbsp;{&nbsp;"Tom",&nbsp;"Sam",&nbsp;"Bob"&nbsp;};</code></pre>
+     </div>
+     <p class="paragraph">2. Crearea interogării - definirea variabilei selectedPeople:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;selectedPeople&nbsp;=&nbsp;people.Where(s=&gt;s.Length&nbsp;==&nbsp;3).OrderBy(s=&gt;s);</code></pre>
+     </div>
+     <p class="paragraph">3. Execuția interogării și obținerea rezultatelor:</p>
+     <div class="code-inline">
+      <pre><code>foreach&nbsp;(string&nbsp;s&nbsp;in&nbsp;selectedPeople)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(s);</code></pre>
+     </div>
+     <p class="paragraph">După definirea interogării, aceasta poate fi executată de mai multe ori. Și până la execuția interogării, sursa de date poate fi modificată. Pentru a vedea mai clar acest lucru, putem modifica un element înainte de parcurgerea selecției:</p>
+     <div class="code-inline">
+      <pre><code>string[]&nbsp;people&nbsp;=&nbsp;{&nbsp;"Tom",&nbsp;"Sam",&nbsp;"Bob"&nbsp;};<br><br>var&nbsp;selectedPeople&nbsp;=&nbsp;people.Where(s=&gt;s.Length&nbsp;==&nbsp;3).OrderBy(s=&gt;s);<br><br>people[2]&nbsp;=&nbsp;"Mike";<br>//&nbsp;execuția&nbsp;interogării&nbsp;LINQ<br>foreach&nbsp;(string&nbsp;s&nbsp;in&nbsp;selectedPeople)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(s);</code></pre>
+     </div>
+     <p class="paragraph">Acum, selecția va conține două elemente, nu trei, deoarece ultimul element după modificare nu va corespunde condiției.</p>
+     <p class="paragraph">Este important de înțeles că variabila interogării nu execută niciun fel de acțiuni și nu returnează niciun fel de date. Ea doar stochează un set de comenzi necesare pentru obținerea rezultatelor. Deci, execuția interogării după crearea sa este amânată. Obținerea rezultatelor are loc la parcurgerea în ciclul foreach.</p>
+     <h2 class="subtitle">Execuția imediată a interogării</h2>
+     <p class="paragraph">Cu ajutorul unor metode, putem aplica execuția imediată a interogării. Acestea sunt metode care returnează o valoare atomică sau un singur element sau date de tipurile Array, List și Dictionary. Lista completă a acestor operații în LINQ:</p>
+     <ul class="enumeration">
+      <li>Aggregate</li>
+      <li>All</li>
+      <li>Any</li>
+      <li>Average</li>
+      <li>Contains</li>
+      <li>Count</li>
+      <li>ElementAt</li>
+      <li>ElementAtOrDefault</li>
+      <li>Empty</li>
+      <li>First</li>
+      <li>FirstOrDefault</li>
+      <li>Last</li>
+      <li>LastOrDefault</li>
+      <li>LongCount</li>
+      <li>Max</li>
+      <li>Min</li>
+      <li>SequenceEqual</li>
+      <li>Single</li>
+      <li>SingleOrDefault</li>
+      <li>Sum</li>
+      <li>ToArray</li>
+      <li>ToDictionary</li>
+      <li>ToList</li>
+      <li>ToLookup</li>
+     </ul>
+     <p class="paragraph">Să examinăm un exemplu cu metoda Count(), care returnează numărul de elemente din secvență:</p>
+     <div class="code-inline">
+      <pre><code>string[]&nbsp;people&nbsp;=&nbsp;{&nbsp;"Tom",&nbsp;"Sam",&nbsp;"Bob"&nbsp;};<br>//&nbsp;definirea&nbsp;și&nbsp;execuția&nbsp;interogării&nbsp;LINQ<br>var&nbsp;count&nbsp;=&nbsp;people.Where(s=&gt;s.Length&nbsp;==&nbsp;3).OrderBy(s=&gt;s).Count();<br><br>Console.WriteLine(count);&nbsp;&nbsp;&nbsp;//&nbsp;3&nbsp;-&nbsp;înainte&nbsp;de&nbsp;modificarea&nbsp;colecției<br><br>people[2]&nbsp;=&nbsp;"Mike";<br>Console.WriteLine(count);&nbsp;&nbsp;&nbsp;//&nbsp;3&nbsp;-&nbsp;după&nbsp;modificarea&nbsp;colecției</code></pre>
+     </div>
+     <p class="paragraph">Rezultatul metodei Count va fi un obiect int, deci se va executa imediat.</p>
+     <p class="paragraph">Mai întâi se creează interogarea: people.Where(s=&gt;s.Length == 3).OrderBy(s=&gt;s). Apoi i se aplică metoda Count(), care execută interogarea, parcurge implicit secvența de elemente generată de această interogare și returnează numărul de elemente din această secvență.</p>
+     <p class="paragraph">De asemenea, putem modifica codul astfel încât metoda Count() să țină cont de modificări și să fie executată separat de definirea interogării:</p>
+     <div class="code-inline">
+      <pre><code>string[]&nbsp;people&nbsp;=&nbsp;{&nbsp;"Tom",&nbsp;"Sam",&nbsp;"Bob"&nbsp;};<br>//&nbsp;definirea&nbsp;interogării&nbsp;LINQ<br>var&nbsp;selectedPeople&nbsp;=&nbsp;people.Where(s=&gt;s.Length&nbsp;==&nbsp;3).OrderBy(s=&gt;s);<br>//&nbsp;execuția&nbsp;interogării<br>Console.WriteLine(selectedPeople.Count());&nbsp;&nbsp;&nbsp;//&nbsp;3&nbsp;-&nbsp;înainte&nbsp;de&nbsp;modificarea&nbsp;colecției<br><br>people[2]&nbsp;=&nbsp;"Mike";<br>//&nbsp;execuția&nbsp;interogării<br>Console.WriteLine(selectedPeople.Count());&nbsp;&nbsp;&nbsp;//&nbsp;2&nbsp;-&nbsp;după&nbsp;modificarea&nbsp;colecției</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, pentru execuția imediată a interogării LINQ și stocarea rezultatelor sale putem aplica metodele de conversie ToArray&lt;T&gt;(), ToList&lt;T&gt;(), ToDictionary() etc. Aceste metode obțin rezultatul interogării sub formă de obiecte Array, List și Dictionary respectiv. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>string[]&nbsp;people&nbsp;=&nbsp;{&nbsp;"Tom",&nbsp;"Sam",&nbsp;"Bob"&nbsp;};<br><br>//&nbsp;definirea&nbsp;și&nbsp;execuția&nbsp;interogării&nbsp;LINQ<br>var&nbsp;selectedPeople&nbsp;=&nbsp;people.Where(s=&gt;s.Length&nbsp;==&nbsp;3).OrderBy(s=&gt;s).ToList();<br><br>//&nbsp;modificarea&nbsp;array-ului&nbsp;nu&nbsp;va&nbsp;afecta&nbsp;lista&nbsp;selectedPeople<br>people[2]&nbsp;=&nbsp;"Mike";<br><br>//&nbsp;execuția&nbsp;interogării<br>foreach&nbsp;(string&nbsp;s&nbsp;in&nbsp;selectedPeople)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(s);</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

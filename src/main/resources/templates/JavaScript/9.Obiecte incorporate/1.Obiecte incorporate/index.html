@@ -1,162 +1,184 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='9.Obiecte incorporate', activeLesson='1.Obiecte incorporate'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Obiecte încorporate</h1>
- <h2 class="subtitle">Obiectul Date - Lucrul cu datele</h2>
- <p class="paragraph">Obiectul Date permite lucrul cu datele și timpul în JavaScript.</p>
- <h2 class="subtitle">Definirea datelor</h2>
- <p class="paragraph">Există diferite modalități de a crea un obiect Date:</p>
- <ul class="enumeration">
-  <li>Cu ajutorul constructorului Date gol, fără parametri. În acest caz, obiectul creat conține data și ora curente.</li>
- </ul>
- <div class="code-inline">
-  <pre><code>const&nbsp;currentDate&nbsp;=&nbsp;new&nbsp;Date();<br>console.log(currentDate);&nbsp;&nbsp;&nbsp;//&nbsp;Thu&nbsp;Oct&nbsp;26&nbsp;2023&nbsp;13:17:53&nbsp;GMT+0100</code></pre>
- </div>
- <ul class="enumeration">
-  <li>În constructorul Date se transmit milisecunde care au trecut de la începutul erei Unix, adică de la 1 ianuarie 1970, 00:00:00 GMT:</li>
- </ul>
- <div class="code-inline">
-  <pre><code>const&nbsp;myDate&nbsp;=&nbsp;new&nbsp;Date(1359270000000);<br>console.log(myDate);&nbsp;//&nbsp;Dum&nbsp;Ian&nbsp;27&nbsp;2013&nbsp;11:00:00&nbsp;GMT+0200&nbsp;(Ora&nbsp;Europei&nbsp;de&nbsp;Est)</code></pre>
- </div>
- <ul class="enumeration">
-  <li>În constructorul Date se transmit ziua, luna și anul:</li>
- </ul>
- <div class="code-inline">
-  <pre><code>const&nbsp;date1&nbsp;=&nbsp;new&nbsp;Date("27&nbsp;Martie&nbsp;2008");<br>console.log(date1);&nbsp;//&nbsp;Joi&nbsp;Mar&nbsp;27&nbsp;2008&nbsp;00:00:00&nbsp;GMT+0200&nbsp;(Ora&nbsp;Europei&nbsp;de&nbsp;Est)<br>//&nbsp;sau<br>const&nbsp;date2&nbsp;=&nbsp;new&nbsp;Date("3/27/2008");<br>console.log(date2);&nbsp;//&nbsp;Joi&nbsp;Mar&nbsp;27&nbsp;2008&nbsp;00:00:00&nbsp;GMT+0200&nbsp;(Ora&nbsp;Europei&nbsp;de&nbsp;Est)<br>//&nbsp;sau<br>const&nbsp;date3&nbsp;=&nbsp;new&nbsp;Date("3&nbsp;27&nbsp;2008");<br>console.log(date3);&nbsp;//&nbsp;Joi&nbsp;Mar&nbsp;27&nbsp;2008&nbsp;00:00:00&nbsp;GMT+0200&nbsp;(Ora&nbsp;Europei&nbsp;de&nbsp;Est)</code></pre>
- </div>
- <p class="paragraph">Dacă utilizăm numele complet al lunii, acesta este scris în engleză. Dacă folosim varianta prescurtată, atunci se utilizează formatul "lună/zi/an" sau "lună zi an".</p>
- <ul class="enumeration">
-  <li>Al patrulea mod constă în transmiterea tuturor parametrilor pentru dată și timp în constructorul Date:</li>
- </ul>
- <div class="code-inline">
-  <pre><code>const&nbsp;myDate&nbsp;=&nbsp;new&nbsp;Date(2012,&nbsp;11,&nbsp;25,&nbsp;18,&nbsp;30,&nbsp;20,&nbsp;10);<br>console.log(myDate);&nbsp;//&nbsp;Mar&nbsp;Dec&nbsp;25&nbsp;2012&nbsp;18:30:20&nbsp;GMT+0200&nbsp;(Ora&nbsp;Europei&nbsp;de&nbsp;Est)</code></pre>
- </div>
- <p class="paragraph">În acest caz, se utilizează următorii parametri în ordine: new Date(An, Luna, Zi, Oră, Minute, Secunde, Milisecunde). Trebuie să ținem cont că numărarea lunilor începe de la zero, adică ianuarie - 0, iar decembrie - 11.</p>
- <h2 class="subtitle">Obținerea datei și timpului</h2>
- <p class="paragraph">Pentru a obține diferite componente ale datei, se aplică o serie de metode:</p>
- <ul class="enumeration">
-  <li>getDate(): returnează ziua lunii</li>
-  <li>getDay(): returnează ziua săptămânii (numărarea începe de la 0 - duminică, iar ultima zi - 6 - sâmbătă)</li>
-  <li>getMonth(): returnează numărul lunii (numărarea începe de la zero, deci luna cu numărul 0 este ianuarie)</li>
-  <li>getFullYear(): returnează anul</li>
-  <li>toDateString(): returnează data completă sub formă de șir de caractere</li>
-  <li>getHours(): returnează ora (de la 0 la 23)</li>
-  <li>getMinutes(): returnează minutele (de la 0 la 59)</li>
-  <li>getSeconds(): returnează secundele (de la 0 la 59)</li>
-  <li>getMilliseconds(): returnează milisecundele (de la 0 la 999)</li>
-  <li>toTimeString(): returnează timpul complet sub formă de șir de caractere</li>
- </ul>
- <p class="paragraph">Vom obține data și ora curentă:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;today&nbsp;=&nbsp;new&nbsp;Date();<br>console.log(today.getDate());&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;26<br>console.log(today.getDay());&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;4<br>console.log(today.getMonth());&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;9<br>console.log(today.getFullYear());&nbsp;&nbsp;&nbsp;//&nbsp;2023<br><br>const&nbsp;days&nbsp;=&nbsp;["Duminică",&nbsp;"Luni",&nbsp;"Marți",&nbsp;"Miercuri",&nbsp;"Joi",&nbsp;"Vineri",&nbsp;"Sâmbătă"];<br>const&nbsp;months&nbsp;=&nbsp;["Ianuarie",&nbsp;"Februarie",&nbsp;"Martie",&nbsp;"Aprilie",&nbsp;"Mai",&nbsp;"Iunie",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Iulie",&nbsp;"August",&nbsp;"Septembrie",&nbsp;"Octombrie",&nbsp;"Noiembrie",&nbsp;"Decembrie"];<br><br>const&nbsp;today&nbsp;=&nbsp;new&nbsp;Date();<br>console.log(`Astăzi:&nbsp;${today.getDate()}&nbsp;${months[today.getMonth()]}&nbsp;${today.getFullYear()},&nbsp;${days[today.getDay()]}`);<br>//&nbsp;Astăzi:&nbsp;26&nbsp;Octombrie&nbsp;2023,&nbsp;Joi<br>&lt;/pre&gt;<br>&lt;p&gt;Pentru&nbsp;a&nbsp;traduce&nbsp;valorile&nbsp;numerice&nbsp;în&nbsp;denumiri&nbsp;mai&nbsp;familiare&nbsp;pentru&nbsp;zilele&nbsp;săptămânii&nbsp;și&nbsp;lunile&nbsp;anului,&nbsp;se&nbsp;folosesc&nbsp;array-uri.&nbsp;Obținând&nbsp;indexul&nbsp;zilei&nbsp;săptămânii&nbsp;(&lt;code&gt;today.getDay()&lt;/code&gt;)&nbsp;și&nbsp;indexul&nbsp;lunii&nbsp;(&lt;code&gt;today.getMonth()&lt;/code&gt;),&nbsp;putem&nbsp;obține&nbsp;elementul&nbsp;corespunzător&nbsp;din&nbsp;array-uri.&lt;/p&gt;<br>&lt;p&gt;Acum&nbsp;vom&nbsp;obține&nbsp;ora&nbsp;curentă:&lt;/p&gt;<br><br>&lt;pre&nbsp;class="brush:js;"&gt;var&nbsp;welcome;<br>const&nbsp;myDate&nbsp;=&nbsp;new&nbsp;Date();<br>const&nbsp;hour&nbsp;=&nbsp;myDate.getHours();<br>const&nbsp;minute&nbsp;=&nbsp;myDate.getMinutes();<br>const&nbsp;second&nbsp;=&nbsp;myDate.getSeconds();<br>console.log(`Тimpul&nbsp;curent:&nbsp;${hour}:${minute}:${second}`);&nbsp;//&nbsp;Timpul&nbsp;curent:&nbsp;13:38:26<br>&lt;/pre&gt;<br>&lt;h3&gt;Setarea&nbsp;datei&nbsp;și&nbsp;orei&lt;/h3&gt;<br>&lt;p&gt;În&nbsp;afară&nbsp;de&nbsp;specificarea&nbsp;parametrilor&nbsp;datei&nbsp;în&nbsp;constructor,&nbsp;pentru&nbsp;setarea&nbsp;acestora,&nbsp;putem&nbsp;utiliza&nbsp;și&nbsp;metode&nbsp;suplimentare&nbsp;ale&nbsp;obiectului&nbsp;Date:&lt;/p&gt;<br>&lt;ul&gt;<br>&lt;li&gt;&lt;p&gt;&lt;span&nbsp;class="b"&gt;setDate()&lt;/span&gt;:&nbsp;setează&nbsp;ziua&nbsp;în&nbsp;dată&lt;/p&gt;&lt;/li&gt;<br>&lt;li&gt;&lt;p&gt;&lt;span&nbsp;class="b"&gt;setMonth()&lt;/span&gt;:&nbsp;setează&nbsp;luna&nbsp;(numărarea&nbsp;începe&nbsp;de&nbsp;la&nbsp;zero,&nbsp;deci&nbsp;luna&nbsp;cu&nbsp;numărul&nbsp;0&nbsp;este&nbsp;ianuarie)&lt;/p&gt;&lt;/li&gt;<br>&lt;li&gt;&lt;p&gt;&lt;span&nbsp;class="b"&gt;setFullYear()&lt;/span&gt;:&nbsp;setează&nbsp;anul&lt;/p&gt;&lt;/li&gt;<br>&lt;li&gt;&lt;p&gt;&lt;span&nbsp;class="b"&gt;setHours()&lt;/span&gt;:&nbsp;setează&nbsp;ora&lt;/p&gt;&lt;/li&gt;<br>&lt;li&gt;&lt;p&gt;&lt;span&nbsp;class="b"&gt;setMinutes()&lt;/span&gt;:&nbsp;setează&nbsp;minutele&lt;/p&gt;&lt;/li&gt;<br>&lt;li&gt;&lt;p&gt;&lt;span&nbsp;class="b"&gt;setSeconds()&lt;/span&gt;:&nbsp;setează&nbsp;secundele&lt;/p&gt;&lt;/li&gt;<br>&lt;li&gt;&lt;p&gt;&lt;span&nbsp;class="b"&gt;setMilliseconds()&lt;/span&gt;:&nbsp;setează&nbsp;milisecundele&lt;/p&gt;&lt;/li&gt;<br>&lt;/ul&gt;<br>&lt;p&gt;Setăm&nbsp;data:&lt;/p&gt;<br><br>&lt;pre&nbsp;class="brush:js;"&gt;const&nbsp;myDate&nbsp;=&nbsp;new&nbsp;Date();<br>myDate.setDate(14);<br>myDate.setMonth(10);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;noiembrie<br>myDate.setFullYear(2023);<br>console.log(myDate);&nbsp;//&nbsp;Mar&nbsp;Nov&nbsp;14&nbsp;2023&nbsp;13:41:20&nbsp;GMT+0200&nbsp;(Ora&nbsp;Europei&nbsp;de&nbsp;Est)<br>&lt;/pre&gt;<br>&lt;p&gt;La&nbsp;setarea&nbsp;valorilor,&nbsp;putem&nbsp;transmite&nbsp;o&nbsp;valoare&nbsp;mai&nbsp;mare&nbsp;decât&nbsp;valoarea&nbsp;maximă&nbsp;permisă.&nbsp;De&nbsp;exemplu,&nbsp;să&nbsp;setăm&nbsp;ora&nbsp;la&nbsp;54:&lt;/p&gt;<br>&lt;pre&nbsp;class="brush:js;"&gt;myDate.setHours(54);<br>&lt;/pre&gt;<br>&lt;p&gt;În&nbsp;acest&nbsp;caz,&nbsp;valoarea&nbsp;orei&nbsp;va&nbsp;fi&nbsp;54&nbsp;-&nbsp;24&nbsp;*&nbsp;2&nbsp;=&nbsp;6,&nbsp;iar&nbsp;orele&nbsp;rămase&nbsp;vor&nbsp;reprezenta&nbsp;două&nbsp;zile&nbsp;(24&nbsp;*&nbsp;2),&nbsp;ceea&nbsp;ce&nbsp;va&nbsp;adăuga&nbsp;la&nbsp;dată&nbsp;două&nbsp;zile.&nbsp;Același&nbsp;lucru&nbsp;se&nbsp;aplică&nbsp;și<br>pentru&nbsp;zile,&nbsp;minute,&nbsp;secunde,&nbsp;milisecunde&nbsp;și&nbsp;luni.&lt;/p&gt;<br>&lt;div&nbsp;style="margin-top:25px;"&gt;<br>&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;#yandex_rtb_R-A-201190-3{&nbsp;width:&nbsp;100%;&nbsp;height:&nbsp;300px;overflow:hidden;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;@media(min-width:&nbsp;760px)&nbsp;{&nbsp;#yandex_rtb_R-A-201190-3{&nbsp;max-width:&nbsp;728px;&nbsp;&nbsp;}&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@media(min-width:&nbsp;1100px)&nbsp;{&nbsp;#yandex_rtb_R-A-201190-3{&nbsp;max-width:&nbsp;728px;&nbsp;}&nbsp;}<br>&nbsp;&nbsp;&nbsp;@media(min-width:&nbsp;1400px)&nbsp;{&nbsp;#yandex_rtb_R-A-201190-3{&nbsp;max-width:&nbsp;970px;}&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;id="yandex_rtb_R-A-201190-3"&gt;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>&lt;div&nbsp;class="nav"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;&lt;a&nbsp;href="./16.4.php"&gt;Înapoi&lt;/a&gt;&lt;a&nbsp;href="./"&gt;Cuprins&lt;/a&gt;&lt;a&nbsp;href="./5.2.php"&gt;Înainte&lt;/a&gt;&lt;/p&gt;<br>&lt;/div&gt;<br><br>&lt;div&nbsp;class="socBlock"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="share&nbsp;soctop"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;ul&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;li&gt;&lt;a&nbsp;title="Partajează&nbsp;pe&nbsp;Vkontakte"&nbsp;rel="nofollow"&nbsp;class="fa&nbsp;fa-lg&nbsp;fa-vk"&gt;&lt;/a&gt;&lt;/li&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;li&gt;&lt;a&nbsp;title="Partajează&nbsp;pe&nbsp;Telegram"&nbsp;rel="nofollow"&nbsp;class="fa&nbsp;fa-lg&nbsp;fa-telegram"&gt;&lt;/a&gt;&lt;/li&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;li&gt;&lt;a&nbsp;title="Partajează&nbsp;pe&nbsp;Twitter"&nbsp;rel="nofollow"&nbsp;class="fa&nbsp;fa-lg&nbsp;fa-twitter"&gt;&lt;/a&gt;&lt;/li&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;li&gt;&lt;a&nbsp;rel="nofollow"&nbsp;class="fa&nbsp;fa-lg&nbsp;fa-facebook"&gt;&lt;/a&gt;&lt;/li&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/ul&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>&lt;/div&gt;<br>&lt;div&nbsp;class="commentABl"&nbsp;style="clear:both;margin:&nbsp;25px&nbsp;5px&nbsp;15px&nbsp;5px;"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;#yandex_rtb_R-A-201190-8{&nbsp;width:&nbsp;100%;&nbsp;height:&nbsp;250px;&nbsp;overflow:hidden;}<br>&nbsp;&nbsp;&nbsp;@media(min-width:&nbsp;500px)&nbsp;{&nbsp;#yandex_rtb_R-A-201190-8{&nbsp;max-width:&nbsp;336px;&nbsp;height:&nbsp;280px;&nbsp;}&nbsp;}<br>&nbsp;&nbsp;&nbsp;@media(min-width:&nbsp;760px)&nbsp;{&nbsp;#yandex_rtb_R-A-201190-8{&nbsp;max-width:&nbsp;728px;&nbsp;height:&nbsp;90px;&nbsp;&nbsp;}&nbsp;}<br>&nbsp;&nbsp;&nbsp;@media(min-width:&nbsp;900px)&nbsp;{&nbsp;#yandex_rtb_R-A-201190-8{&nbsp;max-width:&nbsp;336px;&nbsp;height:&nbsp;280px;&nbsp;&nbsp;}&nbsp;}<br>&nbsp;&nbsp;&nbsp;@media(min-width:&nbsp;1100px)&nbsp;{&nbsp;#yandex_rtb_R-A-201190-8{&nbsp;max-width:&nbsp;728px;&nbsp;height:&nbsp;90px;}&nbsp;}<br>&nbsp;&nbsp;&nbsp;@media(min-width:&nbsp;1400px)&nbsp;{&nbsp;#yandex_rtb_R-A-201190-8{&nbsp;max-width:&nbsp;970px;&nbsp;height:&nbsp;90px;}&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;id="yandex_rtb_R-A-201190-8"&gt;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br><br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;id="disqus_recommendations"&nbsp;style="margin-bottom:&nbsp;12px;"&gt;&lt;iframe&nbsp;id="dsq-app2797"&nbsp;name="dsq-app2797"&nbsp;allowtransparency="true"&nbsp;frameborder="0"&nbsp;scrolling="no"&nbsp;tabindex="0"&nbsp;title="Disqus"&nbsp;width="100%"&nbsp;src="https://disqus.com/recommendations/?base=default&amp;f=metanitcom&amp;t_u=https%3A%2F%2Fmetanit.com%2Fweb%2Fjavascript%2F5.1.php&amp;t_d=JavaScript%20%7C%20%D0%9E%D0%B1%D1%8A%D0%B5%D0%BA%D1%82%20Date.%20%D0%A0%D0%B0%D0%B1%D0%BE%D1%82%D0%B0%20%D1%81%20%D0%B4%D0%B0%D1%82%D0%B0%D0%BC%D0%B8&amp;t_t=JavaScript%20%7C%20%D0%9E%D0%B1%D1%8A%D0%B5%D0%BA%D1%82%20Date.%20%D0%A0%D0%B0%D0%B1%D0%BE%D1%82%D0%B0%20%D1%81%20%D0%B4%D0%B0%D1%82%D0%B0%D0%BC%D0%B8#version=951a38b2848de5e250e80346106bc490"&nbsp;style="width:&nbsp;100%&nbsp;!important;&nbsp;border:&nbsp;none&nbsp;!important;&nbsp;overflow:&nbsp;hidden&nbsp;!important;&nbsp;height:&nbsp;0px&nbsp;!important;&nbsp;display:&nbsp;inline&nbsp;!important;&nbsp;box-sizing:&nbsp;border-box&nbsp;!important;"&nbsp;horizontalscrolling="no"&nbsp;verticalscrolling="no"&gt;&lt;/iframe&gt;&lt;/div&gt;&lt;div&nbsp;id="disqus_thread"&nbsp;style="margin-left:8px;margin-right:8px;clear:both;"&gt;&lt;iframe&nbsp;id="dsq-app721"&nbsp;name="dsq-app721"&nbsp;allowtransparency="true"&nbsp;frameborder="0"&nbsp;scrolling="no"&nbsp;tabindex="0"&nbsp;title="Disqus"&nbsp;width="100%"&nbsp;src="https://disqus.com/embed/comments/?base=default&amp;f=metanitcom&amp;t_u=https%3A%2F%2Fmetanit.com%2Fweb%2Fjavascript%2F5.1.php&amp;t_d=JavaScript%20%7C%20%D0%9E%D0%B1%D1%8A%D0%B5%D0%BA%D1%82%20Date.%20%D0%A0%D0%B0%D0%B1%D0%BE%D1%82%D0%B0%20%D1%81%20%D0%B4%D0%B0%D1%82%D0%B0%D0%BC%D0%B8&amp;t_t=JavaScript%20%7C%20%D0%9E%D0%B1%D1%8A%D0%B5%D0%BA%D1%82%20Date.%20%D0%A0%D0%B0%D0%B1%D0%BE%D1%82%D0%B0%20%D1%81%20%D0%B4%D0%B0%D1%82%D0%B0%D0%BC%D0%B8&amp;s_o=default#version=cb3f36bfade5c758ef967a494d077f95"&nbsp;style="width:&nbsp;1px&nbsp;!important;&nbsp;min-width:&nbsp;100%&nbsp;!important;&nbsp;border:&nbsp;none&nbsp;!important;&nbsp;overflow:&nbsp;hidden&nbsp;!important;&nbsp;height:&nbsp;0px&nbsp;!important;"&nbsp;horizontalscrolling="no"&nbsp;verticalscrolling="no"&gt;&lt;/iframe&gt;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&nbsp;type="text/javascript"&gt;<br>&nbsp;var&nbsp;disqus_shortname&nbsp;=&nbsp;fdccom;<br>(function()&nbsp;{<br>&nbsp;&nbsp;&nbsp;var&nbsp;dsq&nbsp;=&nbsp;document.createElement('script');&nbsp;dsq.type&nbsp;=&nbsp;'text/javascript';&nbsp;dsq.async&nbsp;=&nbsp;true;<br>&nbsp;&nbsp;&nbsp;dsq.src&nbsp;=&nbsp;'//'&nbsp;+&nbsp;disqus_shortname&nbsp;+&nbsp;'.disqus.com/embed.js';<br>&nbsp;&nbsp;&nbsp;(document.getElementsByTagName('head')[0]&nbsp;||&nbsp;document.getElementsByTagName('body')[0]).appendChild(dsq);<br>&nbsp;&nbsp;&nbsp;})();<br><br>&nbsp;&nbsp;&nbsp;const&nbsp;body&nbsp;=&nbsp;document.querySelector("body");<br><br>&nbsp;&nbsp;&nbsp;const&nbsp;config&nbsp;=&nbsp;{&nbsp;attributes:&nbsp;false,&nbsp;childList:&nbsp;true,&nbsp;subtree:&nbsp;true&nbsp;};<br>&nbsp;&nbsp;&nbsp;const&nbsp;callback&nbsp;=&nbsp;(mutationList,&nbsp;observer)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;for&nbsp;(const&nbsp;mutation&nbsp;of&nbsp;mutationList)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(mutation.type&nbsp;===&nbsp;"childList")&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(const&nbsp;node&nbsp;of&nbsp;mutation.addedNodes){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(node.tagName&nbsp;===&nbsp;"IFRAME"&nbsp;&amp;&amp;&nbsp;node.src.includes("tempest.services.disqus.com"))&nbsp;node.remove();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;};<br>&nbsp;&nbsp;&nbsp;const&nbsp;observer&nbsp;=&nbsp;new&nbsp;MutationObserver(callback);<br>&nbsp;&nbsp;&nbsp;observer.observe(body,&nbsp;config);<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br><br>&nbsp;&lt;/pre&gt;</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Obiecte încorporate</h1>
+     <h2 class="subtitle">Obiectul Date - Lucrul cu datele</h2>
+     <p class="paragraph">Obiectul Date permite lucrul cu datele și timpul în JavaScript.</p>
+     <h2 class="subtitle">Definirea datelor</h2>
+     <p class="paragraph">Există diferite modalități de a crea un obiect Date:</p>
+     <ul class="enumeration">
+      <li>Cu ajutorul constructorului Date gol, fără parametri. În acest caz, obiectul creat conține data și ora curente.</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>const&nbsp;currentDate&nbsp;=&nbsp;new&nbsp;Date();<br>console.log(currentDate);&nbsp;&nbsp;&nbsp;//&nbsp;Thu&nbsp;Oct&nbsp;26&nbsp;2023&nbsp;13:17:53&nbsp;GMT+0100</code></pre>
+     </div>
+     <ul class="enumeration">
+      <li>În constructorul Date se transmit milisecunde care au trecut de la începutul erei Unix, adică de la 1 ianuarie 1970, 00:00:00 GMT:</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>const&nbsp;myDate&nbsp;=&nbsp;new&nbsp;Date(1359270000000);<br>console.log(myDate);&nbsp;//&nbsp;Dum&nbsp;Ian&nbsp;27&nbsp;2013&nbsp;11:00:00&nbsp;GMT+0200&nbsp;(Ora&nbsp;Europei&nbsp;de&nbsp;Est)</code></pre>
+     </div>
+     <ul class="enumeration">
+      <li>În constructorul Date se transmit ziua, luna și anul:</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>const&nbsp;date1&nbsp;=&nbsp;new&nbsp;Date("27&nbsp;Martie&nbsp;2008");<br>console.log(date1);&nbsp;//&nbsp;Joi&nbsp;Mar&nbsp;27&nbsp;2008&nbsp;00:00:00&nbsp;GMT+0200&nbsp;(Ora&nbsp;Europei&nbsp;de&nbsp;Est)<br>//&nbsp;sau<br>const&nbsp;date2&nbsp;=&nbsp;new&nbsp;Date("3/27/2008");<br>console.log(date2);&nbsp;//&nbsp;Joi&nbsp;Mar&nbsp;27&nbsp;2008&nbsp;00:00:00&nbsp;GMT+0200&nbsp;(Ora&nbsp;Europei&nbsp;de&nbsp;Est)<br>//&nbsp;sau<br>const&nbsp;date3&nbsp;=&nbsp;new&nbsp;Date("3&nbsp;27&nbsp;2008");<br>console.log(date3);&nbsp;//&nbsp;Joi&nbsp;Mar&nbsp;27&nbsp;2008&nbsp;00:00:00&nbsp;GMT+0200&nbsp;(Ora&nbsp;Europei&nbsp;de&nbsp;Est)</code></pre>
+     </div>
+     <p class="paragraph">Dacă utilizăm numele complet al lunii, acesta este scris în engleză. Dacă folosim varianta prescurtată, atunci se utilizează formatul "lună/zi/an" sau "lună zi an".</p>
+     <ul class="enumeration">
+      <li>Al patrulea mod constă în transmiterea tuturor parametrilor pentru dată și timp în constructorul Date:</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>const&nbsp;myDate&nbsp;=&nbsp;new&nbsp;Date(2012,&nbsp;11,&nbsp;25,&nbsp;18,&nbsp;30,&nbsp;20,&nbsp;10);<br>console.log(myDate);&nbsp;//&nbsp;Mar&nbsp;Dec&nbsp;25&nbsp;2012&nbsp;18:30:20&nbsp;GMT+0200&nbsp;(Ora&nbsp;Europei&nbsp;de&nbsp;Est)</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, se utilizează următorii parametri în ordine: new Date(An, Luna, Zi, Oră, Minute, Secunde, Milisecunde). Trebuie să ținem cont că numărarea lunilor începe de la zero, adică ianuarie - 0, iar decembrie - 11.</p>
+     <h2 class="subtitle">Obținerea datei și timpului</h2>
+     <p class="paragraph">Pentru a obține diferite componente ale datei, se aplică o serie de metode:</p>
+     <ul class="enumeration">
+      <li>getDate(): returnează ziua lunii</li>
+      <li>getDay(): returnează ziua săptămânii (numărarea începe de la 0 - duminică, iar ultima zi - 6 - sâmbătă)</li>
+      <li>getMonth(): returnează numărul lunii (numărarea începe de la zero, deci luna cu numărul 0 este ianuarie)</li>
+      <li>getFullYear(): returnează anul</li>
+      <li>toDateString(): returnează data completă sub formă de șir de caractere</li>
+      <li>getHours(): returnează ora (de la 0 la 23)</li>
+      <li>getMinutes(): returnează minutele (de la 0 la 59)</li>
+      <li>getSeconds(): returnează secundele (de la 0 la 59)</li>
+      <li>getMilliseconds(): returnează milisecundele (de la 0 la 999)</li>
+      <li>toTimeString(): returnează timpul complet sub formă de șir de caractere</li>
+     </ul>
+     <p class="paragraph">Vom obține data și ora curentă:</p>
+     <div class="code-inline">
+      <pre><code>
+const today = new Date();
+
+const days = ["Duminică", "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă"];
+const months = ["Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie",
+                "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"];
+
+console.log(`Astăzi: ${today.getDate()} ${months[today.getMonth()]} ${today.getFullYear()}, ${days[today.getDay()]}`);
+
+const myDate = new Date();
+const hour = myDate.getHours();
+const minute = myDate.getMinutes();
+const second = myDate.getSeconds();
+
+console.log(`Timpul curent: ${hour}:${minute}:${second}`);
+  </code></pre>
+     </div>
+     <h2 class="subtitle">Explicație:</h2>
+     <p class="paragraph">În acest exemplu, folosim obiectul <code>Date</code> pentru a obține data și ora curentă. Apoi, folosim array-uri pentru a traduce indexurile numerice în denumirile corespunzătoare pentru zilele săptămânii și lunile anului.</p>
+     <h3>Setarea datei și orei</h3>
+     <p class="paragraph">Prin metodele <code>setDate()</code>, <code>setMonth()</code>, <code>setFullYear()</code>, etc., putem modifica data și ora curentă. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>
+const myDate = new Date();
+myDate.setDate(14);
+myDate.setMonth(10); // Noiembrie
+myDate.setFullYear(2023);
+console.log(myDate);
+  </code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

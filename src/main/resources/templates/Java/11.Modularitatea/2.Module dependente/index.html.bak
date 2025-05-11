@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Java', activeChapter='11.Modularitatea', activeLesson='2.Module dependente'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Module dependente</h1>
+     <p class="paragraph">Unele module pot depinde de altele, de exemplu, le pot utiliza într-un fel sau altul. Să luăm ca exemplu proiectul din tema precedentă cu un modul simplu:</p>
+     <div class="image-container">
+      <img th:src="@{/images/Java/11.Modularitatea/2.Module%20dependente/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">În fișierul Hello.java, vom defini afișarea mesajului nu pe consolă, ci într-o fereastră grafică, care este furnizată de infrastructura Swing:</p>
+     <div class="code-inline">
+      <pre><code>package&nbsp;com.fdc.hello;<br><br>import&nbsp;javax.swing.JOptionPane;<br><br>public&nbsp;class&nbsp;Hello&nbsp;{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//System.out.println("Hello&nbsp;Demo&nbsp;Module!");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;JOptionPane.showMessageDialog(null,&nbsp;"Hello&nbsp;Demo&nbsp;Module!");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Pentru afișarea mesajului se folosește metoda statică showMessageDialog() a clasei JOptionPane, care se află în pachetul javax.swing.JOptionPane. Pentru a folosi această clasă, o importăm la începutul fișierului.</p>
+     <p class="paragraph">Cu toate acestea, deoarece utilizăm această clasă într-un modul separat, simpla importare a clasei sau a întregului pachet nu este suficientă. Trebuie să indicăm modulului nostru să folosească modulul în care este definită această clasă.</p>
+     <p class="paragraph">Cum putem afla în ce modul se află o anumită clasă? Dacă este vorba de clase încorporate, trebuie să consultăm documentația, în special pentru Java (JDK) 9+. La începutul descrierii clasei, de obicei, este menționat modulul din care face parte.</p>
+     <div class="image-container">
+      <img th:src="@{/images/Java/11.Modularitatea/2.Module%20dependente/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Deci, documentația ne informează că clasa JOptionPane se află în modulul java.desktop. Acum vom indica modulului nostru că trebuie să folosească modulul java.desktop. Pentru aceasta, mergem la definiția modulului în fișierul module-info.java și îl modificăm după cum urmează:</p>
+     <div class="code-inline">
+      <pre><code>module&nbsp;demo&nbsp;{<br>&nbsp;&nbsp;&nbsp;requires&nbsp;java.desktop;<br>}</code></pre>
+     </div>
+     <p class="paragraph">După operatorul requires se specifică numele modulului de care depinde modulul nostru. În mod similar, dacă modulul nostru folosește mai multe alte module, putem indica toate modulele utilizate folosind operatorul require.</p>
+     <p class="paragraph">Apoi, compilăm modulul și îl rulăm. După lansare, ne va apărea o fereastră grafică:</p>
+     <div class="image-container">
+      <img th:src="@{/images/Java/11.Modularitatea/2.Module%20dependente/images/image3.png}" alt="" class="responsive-image">
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='16.Programarea asincrona', activeLesson='1.Metode asincrone, async si await'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Metode asincrone, async și await</h1>
+     <p class="paragraph">Nu de puține ori programul execută astfel de operații, care pot dura mult timp, de exemplu, accesarea resurselor de rețea, citirea-scrierea fișierelor, accesarea bazei de date etc.</p>
+     <p class="paragraph">Astfel de operații pot încărca serios aplicația. Acest lucru este deosebit de relevant în aplicațiile grafice (desktop sau mobile), unde operațiile de lungă durată pot bloca interfața utilizatorului și influența negativ dorința utilizatorului de a lucra cu programul, sau în aplicațiile web, care trebuie să fie gata să deservească mii de cereri pe secundă.</p>
+     <p class="paragraph">Într-o aplicație sincronă, în timpul efectuării operațiilor de lungă durată în firul principal, acest fir pur și simplu ar fi blocat pe durata executării operației. Și pentru ca operațiile de lungă durată să nu blocheze funcționarea generală a aplicației, în C# se poate utiliza asincronitatea.</p>
+     <p class="paragraph">Asincronitatea permite mutarea unor sarcini separate din firul principal în metode asincrone speciale și, în același timp, utilizarea mai economică a firelor. Metodele asincrone se execută în fire separate.</p>
+     <p class="paragraph">Totuși, în timpul executării unei operații de lungă durată, firul metodei asincrone se întoarce în pool-ul de fire și va fi utilizat pentru alte sarcini. Iar când operația de lungă durată își încheie execuția, pentru metoda asincronă se alocă din nou un fir din pool-ul de fire, iar metoda asincronă își continuă activitatea.</p>
+     <p class="paragraph">Cheia pentru lucrul cu apelurile asincrone în C# sunt doi operatori: async și await, al căror scop este simplificarea scrierii codului asincron. Ei sunt folosiți împreună pentru a crea o metodă asincronă.</p>
+     <ul class="enumeration">
+      <li>În antetul metodei se utilizează modificatorul async</li>
+      <li>Metoda conține una sau mai multe expresii await</li>
+      <li>Ca tip de returnare se folosește unul dintre următoarele: void, Task, Task&lt;T&gt;, ValueTask&lt;T&gt;</li>
+     </ul>
+     <p class="paragraph">O metodă asincronă, la fel ca una obișnuită, poate folosi un număr oricât de mare de parametri sau să nu folosească deloc. Totuși, o metodă asincronă nu poate defini parametri cu modificatorii out, ref și in.</p>
+     <p class="paragraph">De asemenea, trebuie menționat că cuvântul async, care se indică în definiția metodei, NU face automat metoda asincronă. El doar indică faptul că această metodă poate conține una sau mai multe expresii await.</p>
+     <p class="paragraph">Să analizăm un exemplu simplu de definire și apelare a unei metode asincrone:</p>
+     <div class="code-inline">
+      <pre><code>await&nbsp;PrintAsync();&nbsp;&nbsp;&nbsp;//&nbsp;apelul&nbsp;metodei&nbsp;asincrone<br>Console.WriteLine("Unele&nbsp;acțiuni&nbsp;în&nbsp;metoda&nbsp;Main");<br><br>void&nbsp;Print()<br>{<br>&nbsp;&nbsp;&nbsp;Thread.Sleep(3000);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;imitația&nbsp;unei&nbsp;lucrări&nbsp;de&nbsp;lungă&nbsp;durată<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Hello&nbsp;FDC.COM");<br>}<br><br>//&nbsp;definirea&nbsp;metodei&nbsp;asincrone<br>async&nbsp;Task&nbsp;PrintAsync()<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Începutul&nbsp;metodei&nbsp;PrintAsync");&nbsp;//&nbsp;se&nbsp;execută&nbsp;sincron<br>&nbsp;&nbsp;&nbsp;await&nbsp;Task.Run(()&nbsp;=&gt;&nbsp;Print());&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;se&nbsp;execută&nbsp;asincron<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Sfârșitul&nbsp;metodei&nbsp;PrintAsync");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici, în primul rând, este definită o metodă obișnuită Print, care doar afișează un anumit șir pe consolă. Pentru imitația unei lucrări de lungă durată se folosește o întârziere de 3 secunde cu ajutorul metodei Thread.Sleep().</p>
+     <p class="paragraph">Adică, în mod condiționat, Print este o anumită metodă care execută o anumită operație de lungă durată. Într-o aplicație reală, aceasta ar putea fi accesarea bazei de date sau citirea-scrierea fișierelor, dar pentru simplificarea înțelegerii, ea doar afișează un șir pe consolă.</p>
+     <p class="paragraph">De asemenea, aici este definită o metodă asincronă PrintAsync(). Ea este asincronă deoarece are în definiție, înaintea tipului de returnare, modificatorul async, tipul ei de returnare este Task, și în corpul metodei este definită expresia await.</p>
+     <p class="paragraph">Trebuie menționat că metoda PrintAsync nu returnează explicit niciun obiect Task, dar deoarece în corpul metodei se aplică expresia await, ca tip de returnare se poate folosi tipul Task.</p>
+     <p class="paragraph">Operatorul await precede executarea sarcinii care va fi executată asincron. În acest caz, această operație reprezintă executarea metodei Print:</p>
+     <div class="code-inline">
+      <pre><code>await&nbsp;Task.Run(()=&gt;Print());</code></pre>
+     </div>
+     <p class="paragraph">După regulile nescrise, în denumirea metodelor asincrone este obișnuit să se folosească sufixul Async - PrintAsync(), deși în principiu nu este obligatoriu.</p>
+     <p class="paragraph">Și apoi în program (în acest caz în metoda Main) este apelată această metodă asincronă.</p>
+     <div class="code-inline">
+      <pre><code>await&nbsp;PrintAsync();&nbsp;&nbsp;&nbsp;//&nbsp;apelul&nbsp;metodei&nbsp;asincrone</code></pre>
+     </div>
+     <p class="paragraph">Să vedem ce va afișa programul pe consolă:</p>
+     <div class="code-inline">
+      <pre><code>Începutul&nbsp;metodei&nbsp;PrintAsync<br>Hello&nbsp;FDC.COM<br>Sfârșitul&nbsp;metodei&nbsp;PrintAsync<br>Unele&nbsp;acțiuni&nbsp;în&nbsp;metoda&nbsp;Main</code></pre>
+     </div>
+     <p class="paragraph">Să analizăm pe etape ce se întâmplă aici:</p>
+     <p class="paragraph">Se lansează programul, mai exact metoda Main, în care este apelată metoda asincronă PrintAsync.</p>
+     <p class="paragraph">Metoda PrintAsync începe să se execute sincron până la expresia await.</p>
+     <div class="code-inline">
+      <pre><code>Console.WriteLine("Începutul&nbsp;metodei&nbsp;PrintAsync");&nbsp;//&nbsp;se&nbsp;execută&nbsp;sincron</code></pre>
+     </div>
+     <p class="paragraph">Expresia await lansează sarcina asincronă Task.Run(()=&gt;Print())</p>
+     <p class="paragraph">În timp ce sarcina asincronă Task.Run(()=&gt;Print()) se execută (și ea poate dura destul de mult timp), execuția codului se întoarce în metoda apelantă - adică în metoda Main.</p>
+     <p class="paragraph">Când sarcina asincronă își încheie execuția (în cazul de mai sus - afișează șirul după trei secunde), metoda asincronă PrintAsync, care a lansat sarcina asincronă, își continuă activitatea.</p>
+     <p class="paragraph">După încheierea metodei PrintAsync, își continuă activitatea metoda Main.</p>
+     <h2 class="subtitle">Metoda asincronă Main</h2>
+     <p class="paragraph">Trebuie avut în vedere că operatorul await se poate aplica doar în metoda care are modificatorul async. Și dacă în metoda Main se folosește operatorul await, atunci metoda Main trebuie de asemenea să fie definită ca asincronă. Adică exemplul anterior va fi de fapt analog cu următorul:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Program<br>{<br>&nbsp;&nbsp;&nbsp;async&nbsp;static&nbsp;Task&nbsp;Main(string[]&nbsp;args)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;await&nbsp;PrintAsync();&nbsp;&nbsp;&nbsp;//&nbsp;apelul&nbsp;metodei&nbsp;asincrone<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Unele&nbsp;acțiuni&nbsp;în&nbsp;metoda&nbsp;Main");<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;Print()<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread.Sleep(3000);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;imitația&nbsp;unei&nbsp;lucrări&nbsp;de&nbsp;lungă&nbsp;durată<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Hello&nbsp;FDC.COM");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;definirea&nbsp;metodei&nbsp;asincrone<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;async&nbsp;Task&nbsp;PrintAsync()<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Începutul&nbsp;metodei&nbsp;PrintAsync");&nbsp;//&nbsp;se&nbsp;execută&nbsp;sincron<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;await&nbsp;Task.Run(()&nbsp;=&gt;&nbsp;Print());&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;se&nbsp;execută&nbsp;asincron<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Sfârșitul&nbsp;metodei&nbsp;PrintAsync");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Întârzierea operației asincrone și Task.Delay</h2>
+     <p class="paragraph">În metodele asincrone pentru oprirea metodei pentru o anumită perioadă de timp se poate folosi metoda Task.Delay(). Ca parametru, aceasta primește numărul de milisecunde sub formă de valoare int sau obiectul TimeSpan, care stabilește timpul de întârziere:</p>
+     <div class="code-inline">
+      <pre><code>await&nbsp;PrintAsync();&nbsp;&nbsp;&nbsp;//&nbsp;apelul&nbsp;metodei&nbsp;asincrone<br>Console.WriteLine("Unele&nbsp;acțiuni&nbsp;în&nbsp;metoda&nbsp;Main");<br><br>//&nbsp;definirea&nbsp;metodei&nbsp;asincrone<br>async&nbsp;Task&nbsp;PrintAsync()<br>{<br>&nbsp;&nbsp;&nbsp;await&nbsp;Task.Delay(3000);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;imitația&nbsp;unei&nbsp;lucrări&nbsp;de&nbsp;lungă&nbsp;durată<br>&nbsp;&nbsp;&nbsp;//&nbsp;sau&nbsp;așa<br>&nbsp;&nbsp;&nbsp;//await&nbsp;Task.Delay(TimeSpan.FromMilliseconds(3000));<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Hello&nbsp;FDC.COM");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Metoda Task.Delay reprezintă o operație asincronă, prin urmare operatorul await se aplică la aceasta.</p>
+     <h2 class="subtitle">Avantajele asincronității</h2>
+     <p class="paragraph">Exemplele de mai sus sunt simplificări și probabil nu pot fi considerate exemplare. Să analizăm un alt exemplu:</p>
+     <div class="code-inline">
+      <pre><code>PrintName("Tom");<br>PrintName("Bob");<br>PrintName("Sam");<br><br>void&nbsp;PrintName(string&nbsp;name)<br>{<br>&nbsp;&nbsp;&nbsp;Thread.Sleep(300<br><br>0);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;imitația&nbsp;unei&nbsp;lucrări&nbsp;de&nbsp;lungă&nbsp;durată<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(name);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Acest cod este sincron și execută secvențial trei apeluri ale metodei PrintName. Deoarece pentru imitația unei lucrări de lungă durată în metodă este stabilită o întârziere de trei secunde, execuția totală a programului va dura cel puțin 9 secunde.</p>
+     <p class="paragraph">Deoarece fiecare apel ulterior al metodei PrintName va aștepta finalizarea celui precedent.</p>
+     <p class="paragraph">Să modificăm în program metoda sincronă PrintName în una asincronă:</p>
+     <div class="code-inline">
+      <pre><code>await&nbsp;PrintNameAsync("Tom");<br>await&nbsp;PrintNameAsync("Bob");<br>await&nbsp;PrintNameAsync("Sam");<br><br>//&nbsp;definirea&nbsp;metodei&nbsp;asincrone<br>async&nbsp;Task&nbsp;PrintNameAsync(string&nbsp;name)<br>{<br>&nbsp;&nbsp;&nbsp;await&nbsp;Task.Delay(3000);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;imitația&nbsp;unei&nbsp;lucrări&nbsp;de&nbsp;lungă&nbsp;durată<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(name);<br>}</code></pre>
+     </div>
+     <p class="paragraph">În locul metodei PrintName, acum se apelează de trei ori PrintNameAsync. Pentru imitația unei lucrări de lungă durată în metodă este stabilită o întârziere de 3 secunde cu ajutorul apelului Task.Delay(3000).</p>
+     <p class="paragraph">Și deoarece la apelul fiecărei metode se folosește operatorul await, care oprește execuția până la finalizarea metodei asincrone, execuția totală a programului va dura din nou cel puțin 9 secunde. Totuși, acum execuția operațiilor asincrone nu blochează firul principal.</p>
+     <p class="paragraph">Acum să optimizăm programul:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;tomTask&nbsp;=&nbsp;PrintNameAsync("Tom");<br>var&nbsp;bobTask&nbsp;=&nbsp;PrintNameAsync("Bob");<br>var&nbsp;samTask&nbsp;=&nbsp;PrintNameAsync("Sam");<br><br>await&nbsp;tomTask;<br>await&nbsp;bobTask;<br>await&nbsp;samTask;<br><br>//&nbsp;definirea&nbsp;metodei&nbsp;asincrone<br>async&nbsp;Task&nbsp;PrintNameAsync(string&nbsp;name)<br>{<br>&nbsp;&nbsp;&nbsp;await&nbsp;Task.Delay(3000);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;imitația&nbsp;unei&nbsp;lucrări&nbsp;de&nbsp;lungă&nbsp;durată<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(name);<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, sarcinile sunt de fapt lansate la definire. Iar operatorul await se aplică doar atunci când trebuie să așteptăm finalizarea operațiilor asincrone - adică la sfârșitul programului. Și în acest caz, execuția totală a programului va dura cel puțin 3 secunde, dar mult mai puțin de 9 secunde.</p>
+     <h2 class="subtitle">Definirea unei expresii lambda asincrone</h2>
+     <p class="paragraph">O operație asincronă poate fi definită nu doar cu ajutorul unei metode separate, ci și cu ajutorul unei expresii lambda:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;expresia&nbsp;lambda&nbsp;asincronă<br>Func&lt;string,&nbsp;Task&gt;&nbsp;printer&nbsp;=&nbsp;async&nbsp;(message)&nbsp;=&gt;<br>{<br>&nbsp;&nbsp;&nbsp;await&nbsp;Task.Delay(1000);<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(message);<br>};<br><br>await&nbsp;printer("Hello&nbsp;World");<br>await&nbsp;printer("Hello&nbsp;FDC.COM");</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

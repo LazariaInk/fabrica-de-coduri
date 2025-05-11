@@ -1,185 +1,175 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='10.Colectii si iteratori', activeLesson='3.Multimi Set'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Mulțimi Set</h1>
- <p class="paragraph">Mulțimile (sets) reprezintă o structură de date care poate stoca doar valori unice. În JavaScript, funcționalitatea seturilor este definită de obiectul Set. Pentru a crea o mulțime, se utilizează constructorul acestui obiect:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;mySet&nbsp;=&nbsp;new&nbsp;Set();</code></pre>
- </div>
- <p class="paragraph">De asemenea, puteți furniza un șir de valori către constructor, cu ajutorul căruia mulțimea va fi inițializată:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;arr&nbsp;=&nbsp;[1,&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5,&nbsp;2,&nbsp;4];<br>const&nbsp;numbers&nbsp;=&nbsp;new&nbsp;Set(arr);<br>console.log(numbers);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Set(5)&nbsp;{1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5}</code></pre>
- </div>
- <p class="paragraph">În acest caz, datele dintr-un array sunt transmise în mulțime. Totuși, deoarece o mulțime poate stoca doar valori unice, la crearea sa, valorile repetitive din array sunt eliminate.</p>
- <p class="paragraph">Pentru a simplifica crearea unui set, putem transmite direct array-ul în constructorul Set:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;numbers&nbsp;=&nbsp;new&nbsp;Set([1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]);<br>console.log(numbers);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Set(5)&nbsp;{1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5}</code></pre>
- </div>
- <h2 class="subtitle">Dimensiunea setului</h2>
- <p class="paragraph">Pentru a verifica numărul de elemente, puteți utiliza proprietatea size.</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;numbers&nbsp;=&nbsp;new&nbsp;Set([1,&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5,&nbsp;2,&nbsp;4]);<br>console.log(numbers.size);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;5</code></pre>
- </div>
- <h2 class="subtitle">Adăugare</h2>
- <p class="paragraph">Pentru a adăuga, se utilizează metoda add(). Rezultatul său este o modificare a mulțimii:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;numbers&nbsp;=&nbsp;new&nbsp;Set();<br>numbers.add(1);<br>numbers.add(3);<br>numbers.add(5);<br>numbers.add(3);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;nu&nbsp;se&nbsp;adaugă<br>numbers.add(1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;&nbsp;nu&nbsp;se&nbsp;adaugă<br>console.log(numbers);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Set(3)&nbsp;{1,&nbsp;3,&nbsp;5}</code></pre>
- </div>
- <p class="paragraph">În acest context, deoarece mulțimea stochează doar valori unice, adăugarea de elemente care sunt deja prezente în mulțime nu are sens.</p>
- <p class="paragraph">Deoarece metoda add returnează o referință la aceeași mulțime, putem apela metode într-o catenă:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;numbers&nbsp;=&nbsp;new&nbsp;Set();<br>numbers.add(1).add(3).add(5);<br>console.log(numbers);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Set(3)&nbsp;{1,&nbsp;3,&nbsp;5}</code></pre>
- </div>
- <h2 class="subtitle">Ștergere</h2>
- <p class="paragraph">Pentru a șterge elemente, se utilizează metoda delete():</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;numbers&nbsp;=&nbsp;new&nbsp;Set([1,&nbsp;3,&nbsp;5]);<br>numbers.delete(3);<br>console.log(numbers);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Set(2)&nbsp;{1,&nbsp;5}</code></pre>
- </div>
- <p class="paragraph">Această metodă returnează o valoare booleană: true - dacă elementul a fost șters și false - dacă ștergerea nu a avut loc (de exemplu, atunci când elementul de șters nu există în mulțime):</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;numbers&nbsp;=&nbsp;new&nbsp;Set([1,&nbsp;3,&nbsp;5]);<br><br>let&nbsp;isDeleted&nbsp;=&nbsp;numbers.delete(3);<br>console.log(isDeleted);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;true<br>isDeleted&nbsp;=&nbsp;numbers.delete(54);<br>console.log(isDeleted);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;false</code></pre>
- </div>
- <p class="paragraph">Dacă este necesar să ștergeți toate elementele din mulțime, se utilizează metoda clear():</p>
- <div class="code-inline">
-  <pre><code>let&nbsp;numbers&nbsp;=&nbsp;new&nbsp;Set();<br>const&nbsp;numbers&nbsp;=&nbsp;new&nbsp;Set([1,&nbsp;3,&nbsp;5]);<br>numbers.clear();<br>console.log(numbers);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Set(0)&nbsp;{}</code></pre>
- </div>
- <p class="paragraph">Verificarea existenței elementului</p>
- <p class="paragraph">Pentru a verifica dacă un element există în mulțime, se utilizează metoda has(). Dacă elementul există, metoda returnează true, în caz contrar returnează false:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;numbers&nbsp;=&nbsp;new&nbsp;Set([1,&nbsp;3,&nbsp;5]);<br>console.log(numbers.has(3));&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;true<br>console.log(numbers.has(32));&nbsp;&nbsp;&nbsp;//&nbsp;false</code></pre>
- </div>
- <h2 class="subtitle">Iterarea prin mulțime</h2>
- <p class="paragraph">Iterarea prin elementele mulțimii se realizează prin utilizarea metodei forEach():</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;numbers&nbsp;=&nbsp;new&nbsp;Set([1,&nbsp;2,&nbsp;3,&nbsp;5]);<br><br>numbers.forEach(function(value1,&nbsp;value2,&nbsp;set){<br>&nbsp;&nbsp;&nbsp;console.log(value1);<br>})</code></pre>
- </div>
- <p class="paragraph">Pentru a fi compatibil cu array-urile, care au, de asemenea, metoda forEach, în această metodă se transmite o funcție de callback care primește trei parametri. În cazul mulțimii, primul și al doilea parametru reprezintă elementul curent iterat, iar al treilea parametru reprezintă mulțimea iterată. În acest context, este folosit doar primul parametru.</p>
- <p class="paragraph">De asemenea, pentru a itera prin mulțime, se poate utiliza și bucla for...of:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;numbers&nbsp;=&nbsp;new&nbsp;Set([1,&nbsp;2,&nbsp;3,&nbsp;5]);<br><br>for(n&nbsp;of&nbsp;numbers){<br>&nbsp;&nbsp;&nbsp;console.log(n);<br>}</code></pre>
- </div>
- <h2 class="subtitle">Obținerea unui Iterator</h2>
- <p class="paragraph">Obiectul Set are, de asemenea, câteva metode care returnează un iterator, mai exact obiectul SetIterator. Acestea sunt metodele values(), keys() și entries():</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;numbers&nbsp;=&nbsp;new&nbsp;Set([1,&nbsp;2,&nbsp;3,&nbsp;5]);<br><br>console.log(numbers.values());&nbsp;&nbsp;//&nbsp;SetIterator&nbsp;{1,&nbsp;2,&nbsp;3,&nbsp;5}<br>console.log(numbers.keys());&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;SetIterator&nbsp;{1,&nbsp;2,&nbsp;3,&nbsp;5}<br>console.log(numbers.entries());&nbsp;//&nbsp;SetIterator&nbsp;{1&nbsp;=&gt;&nbsp;1,&nbsp;2&nbsp;=&gt;&nbsp;2,&nbsp;3&nbsp;=&gt;&nbsp;3,&nbsp;5&nbsp;=&gt;&nbsp;5}</code></pre>
- </div>
- <p class="paragraph">Prin urmare, iteratorul returnat poate fi folosit pentru a obține obiectele din mulțime:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;people&nbsp;=&nbsp;new&nbsp;Set(["Tom",&nbsp;"Bob",&nbsp;"Sam"]);<br><br>const&nbsp;iterator&nbsp;=&nbsp;people.values();&nbsp;&nbsp;<br><br>console.log(iterator.next());&nbsp;&nbsp;&nbsp;//&nbsp;{value:&nbsp;"Tom",&nbsp;done:&nbsp;false}<br>console.log(iterator.next());&nbsp;&nbsp;&nbsp;//&nbsp;{value:&nbsp;"Bob",&nbsp;done:&nbsp;false}<br>console.log(iterator.next());&nbsp;&nbsp;&nbsp;//&nbsp;{value:&nbsp;"Sam",&nbsp;done:&nbsp;false}<br>console.log(iterator.next());&nbsp;&nbsp;&nbsp;//&nbsp;{value:&nbsp;undefined,&nbsp;done:&nbsp;true}</code></pre>
- </div>
- <h2 class="subtitle">Ștergerea elementelor duplicate dintr-un array</h2>
- <p class="paragraph">Restricția obiectului Set de a stoca valori unice permite utilizarea eficientă într-o serie de operațiuni. De exemplu, eliminarea elementelor duplicate dintr-un array:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;peopleArray&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Sam",&nbsp;"Alice",&nbsp;"Sam",&nbsp;"Kate",&nbsp;"Tom"];<br>const&nbsp;peopleSet&nbsp;=&nbsp;new&nbsp;Set(peopleArray);<br>const&nbsp;newPeopleArray&nbsp;=&nbsp;Array.from(peopleSet);<br><br>console.log(newPeopleArray);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Sam",&nbsp;"Alice",&nbsp;"Kate"]</code></pre>
- </div>
- <p class="paragraph">Aici, pentru a crea un nou array cu elemente unice, se utilizează funcția Array.from(), care primește ca argument obiectul Set.</p>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Mulțimi Set</h1>
+     <p class="paragraph">Mulțimile (sets) reprezintă o structură de date care poate stoca doar valori unice. În JavaScript, funcționalitatea seturilor este definită de obiectul Set. Pentru a crea o mulțime, se utilizează constructorul acestui obiect:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;mySet&nbsp;=&nbsp;new&nbsp;Set();</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, puteți furniza un șir de valori către constructor, cu ajutorul căruia mulțimea va fi inițializată:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;arr&nbsp;=&nbsp;[1,&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5,&nbsp;2,&nbsp;4];<br>const&nbsp;numbers&nbsp;=&nbsp;new&nbsp;Set(arr);<br>console.log(numbers);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Set(5)&nbsp;{1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, datele dintr-un array sunt transmise în mulțime. Totuși, deoarece o mulțime poate stoca doar valori unice, la crearea sa, valorile repetitive din array sunt eliminate.</p>
+     <p class="paragraph">Pentru a simplifica crearea unui set, putem transmite direct array-ul în constructorul Set:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;numbers&nbsp;=&nbsp;new&nbsp;Set([1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]);<br>console.log(numbers);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Set(5)&nbsp;{1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5}</code></pre>
+     </div>
+     <h2 class="subtitle">Dimensiunea setului</h2>
+     <p class="paragraph">Pentru a verifica numărul de elemente, puteți utiliza proprietatea size.</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;numbers&nbsp;=&nbsp;new&nbsp;Set([1,&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5,&nbsp;2,&nbsp;4]);<br>console.log(numbers.size);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;5</code></pre>
+     </div>
+     <h2 class="subtitle">Adăugare</h2>
+     <p class="paragraph">Pentru a adăuga, se utilizează metoda add(). Rezultatul său este o modificare a mulțimii:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;numbers&nbsp;=&nbsp;new&nbsp;Set();<br>numbers.add(1);<br>numbers.add(3);<br>numbers.add(5);<br>numbers.add(3);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;nu&nbsp;se&nbsp;adaugă<br>numbers.add(1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;&nbsp;nu&nbsp;se&nbsp;adaugă<br>console.log(numbers);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Set(3)&nbsp;{1,&nbsp;3,&nbsp;5}</code></pre>
+     </div>
+     <p class="paragraph">În acest context, deoarece mulțimea stochează doar valori unice, adăugarea de elemente care sunt deja prezente în mulțime nu are sens.</p>
+     <p class="paragraph">Deoarece metoda add returnează o referință la aceeași mulțime, putem apela metode într-o catenă:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;numbers&nbsp;=&nbsp;new&nbsp;Set();<br>numbers.add(1).add(3).add(5);<br>console.log(numbers);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Set(3)&nbsp;{1,&nbsp;3,&nbsp;5}</code></pre>
+     </div>
+     <h2 class="subtitle">Ștergere</h2>
+     <p class="paragraph">Pentru a șterge elemente, se utilizează metoda delete():</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;numbers&nbsp;=&nbsp;new&nbsp;Set([1,&nbsp;3,&nbsp;5]);<br>numbers.delete(3);<br>console.log(numbers);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Set(2)&nbsp;{1,&nbsp;5}</code></pre>
+     </div>
+     <p class="paragraph">Această metodă returnează o valoare booleană: true - dacă elementul a fost șters și false - dacă ștergerea nu a avut loc (de exemplu, atunci când elementul de șters nu există în mulțime):</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;numbers&nbsp;=&nbsp;new&nbsp;Set([1,&nbsp;3,&nbsp;5]);<br><br>let&nbsp;isDeleted&nbsp;=&nbsp;numbers.delete(3);<br>console.log(isDeleted);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;true<br>isDeleted&nbsp;=&nbsp;numbers.delete(54);<br>console.log(isDeleted);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;false</code></pre>
+     </div>
+     <p class="paragraph">Dacă este necesar să ștergeți toate elementele din mulțime, se utilizează metoda clear():</p>
+     <div class="code-inline">
+      <pre><code>let&nbsp;numbers&nbsp;=&nbsp;new&nbsp;Set();<br>const&nbsp;numbers&nbsp;=&nbsp;new&nbsp;Set([1,&nbsp;3,&nbsp;5]);<br>numbers.clear();<br>console.log(numbers);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Set(0)&nbsp;{}</code></pre>
+     </div>
+     <p class="paragraph">Verificarea existenței elementului</p>
+     <p class="paragraph">Pentru a verifica dacă un element există în mulțime, se utilizează metoda has(). Dacă elementul există, metoda returnează true, în caz contrar returnează false:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;numbers&nbsp;=&nbsp;new&nbsp;Set([1,&nbsp;3,&nbsp;5]);<br>console.log(numbers.has(3));&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;true<br>console.log(numbers.has(32));&nbsp;&nbsp;&nbsp;//&nbsp;false</code></pre>
+     </div>
+     <h2 class="subtitle">Iterarea prin mulțime</h2>
+     <p class="paragraph">Iterarea prin elementele mulțimii se realizează prin utilizarea metodei forEach():</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;numbers&nbsp;=&nbsp;new&nbsp;Set([1,&nbsp;2,&nbsp;3,&nbsp;5]);<br><br>numbers.forEach(function(value1,&nbsp;value2,&nbsp;set){<br>&nbsp;&nbsp;&nbsp;console.log(value1);<br>})</code></pre>
+     </div>
+     <p class="paragraph">Pentru a fi compatibil cu array-urile, care au, de asemenea, metoda forEach, în această metodă se transmite o funcție de callback care primește trei parametri. În cazul mulțimii, primul și al doilea parametru reprezintă elementul curent iterat, iar al treilea parametru reprezintă mulțimea iterată. În acest context, este folosit doar primul parametru.</p>
+     <p class="paragraph">De asemenea, pentru a itera prin mulțime, se poate utiliza și bucla for...of:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;numbers&nbsp;=&nbsp;new&nbsp;Set([1,&nbsp;2,&nbsp;3,&nbsp;5]);<br><br>for(n&nbsp;of&nbsp;numbers){<br>&nbsp;&nbsp;&nbsp;console.log(n);<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Obținerea unui Iterator</h2>
+     <p class="paragraph">Obiectul Set are, de asemenea, câteva metode care returnează un iterator, mai exact obiectul SetIterator. Acestea sunt metodele values(), keys() și entries():</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;numbers&nbsp;=&nbsp;new&nbsp;Set([1,&nbsp;2,&nbsp;3,&nbsp;5]);<br><br>console.log(numbers.values());&nbsp;&nbsp;//&nbsp;SetIterator&nbsp;{1,&nbsp;2,&nbsp;3,&nbsp;5}<br>console.log(numbers.keys());&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;SetIterator&nbsp;{1,&nbsp;2,&nbsp;3,&nbsp;5}<br>console.log(numbers.entries());&nbsp;//&nbsp;SetIterator&nbsp;{1&nbsp;=&gt;&nbsp;1,&nbsp;2&nbsp;=&gt;&nbsp;2,&nbsp;3&nbsp;=&gt;&nbsp;3,&nbsp;5&nbsp;=&gt;&nbsp;5}</code></pre>
+     </div>
+     <p class="paragraph">Prin urmare, iteratorul returnat poate fi folosit pentru a obține obiectele din mulțime:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;people&nbsp;=&nbsp;new&nbsp;Set(["Tom",&nbsp;"Bob",&nbsp;"Sam"]);<br><br>const&nbsp;iterator&nbsp;=&nbsp;people.values();&nbsp;&nbsp;<br><br>console.log(iterator.next());&nbsp;&nbsp;&nbsp;//&nbsp;{value:&nbsp;"Tom",&nbsp;done:&nbsp;false}<br>console.log(iterator.next());&nbsp;&nbsp;&nbsp;//&nbsp;{value:&nbsp;"Bob",&nbsp;done:&nbsp;false}<br>console.log(iterator.next());&nbsp;&nbsp;&nbsp;//&nbsp;{value:&nbsp;"Sam",&nbsp;done:&nbsp;false}<br>console.log(iterator.next());&nbsp;&nbsp;&nbsp;//&nbsp;{value:&nbsp;undefined,&nbsp;done:&nbsp;true}</code></pre>
+     </div>
+     <h2 class="subtitle">Ștergerea elementelor duplicate dintr-un array</h2>
+     <p class="paragraph">Restricția obiectului Set de a stoca valori unice permite utilizarea eficientă într-o serie de operațiuni. De exemplu, eliminarea elementelor duplicate dintr-un array:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;peopleArray&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Sam",&nbsp;"Alice",&nbsp;"Sam",&nbsp;"Kate",&nbsp;"Tom"];<br>const&nbsp;peopleSet&nbsp;=&nbsp;new&nbsp;Set(peopleArray);<br>const&nbsp;newPeopleArray&nbsp;=&nbsp;Array.from(peopleSet);<br><br>console.log(newPeopleArray);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Sam",&nbsp;"Alice",&nbsp;"Kate"]</code></pre>
+     </div>
+     <p class="paragraph">Aici, pentru a crea un nou array cu elemente unice, se utilizează funcția Array.from(), care primește ca argument obiectul Set.</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

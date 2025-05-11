@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='24.Lucrul cu XML in C sharp', activeLesson='6.Selectia elementelor in LINQ to XML'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Selecția elementelor în LINQ to XML</h1>
+     <p class="paragraph">Un mare avantaj al LINQ to XML este că această tehnologie permite extragerea ușoară a elementelor necesare dintr-un document XML. De exemplu, să luăm fișierul XML people.xml, creat în tema anterioară:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?xml&nbsp;version="1.0"&nbsp;encoding="utf-8"?&gt;<br>&lt;people&gt;<br>&nbsp;&lt;person&nbsp;name="Tom"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;company&gt;Microsoft&lt;/company&gt;<br>&nbsp;&nbsp;&nbsp;&lt;age&gt;37&lt;/age&gt;<br>&nbsp;&lt;/person&gt;<br>&nbsp;&lt;person&nbsp;name="Bob"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;company&gt;Google&lt;/company&gt;<br>&nbsp;&nbsp;&nbsp;&lt;age&gt;41&lt;/age&gt;<br>&nbsp;&lt;/person&gt;<br>&lt;/people&gt;</code></pre>
+     </div>
+     <p class="paragraph">Vom parcurge elementele acestuia și le vom afișa valorile în consolă:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Xml.Linq;<br><br>XDocument&nbsp;xdoc&nbsp;=&nbsp;XDocument.Load("people.xml");<br>//&nbsp;obținem&nbsp;nodul&nbsp;rădăcină<br>XElement?&nbsp;people&nbsp;=&nbsp;xdoc.Element("people");<br>if&nbsp;(people&nbsp;is&nbsp;not&nbsp;null)<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;parcurgem&nbsp;toate&nbsp;elementele&nbsp;person<br>&nbsp;&nbsp;&nbsp;foreach&nbsp;(XElement&nbsp;person&nbsp;in&nbsp;people.Elements("person"))<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XAttribute?&nbsp;name&nbsp;=&nbsp;person.Attribute("name");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XElement?&nbsp;company&nbsp;=&nbsp;person.Element("company");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XElement?&nbsp;age&nbsp;=&nbsp;person.Element("age");<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Person:&nbsp;{name?.Value}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Company:&nbsp;{company?.Value}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Age:&nbsp;{age?.Value}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine();&nbsp;//&nbsp;pentru&nbsp;separare&nbsp;în&nbsp;consolă<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Rezultatul afișat va fi:</p>
+     <div class="code-inline">
+      <pre><code>Person:&nbsp;Tom<br>Company:&nbsp;Microsoft<br>Age:&nbsp;37<br><br>Person:&nbsp;Bob<br>Company:&nbsp;Google<br>Age:&nbsp;41</code></pre>
+     </div>
+     <p class="paragraph">Pentru a începe lucrul cu un fișier XML existent, trebuie mai întâi să-l încărcăm folosind metoda statică XDocument.Load(), în care se transmite calea către fișier:</p>
+     <div class="code-inline">
+      <pre><code>XDocument&nbsp;xdoc&nbsp;=&nbsp;XDocument.Load("people.xml");</code></pre>
+     </div>
+     <p class="paragraph">Deoarece XML-ul stochează elementele într-o structură ierarhică, pentru a accesa elementele, trebuie să începem de la cel mai înalt nivel din această ierarhie și să coborâm. Astfel, pentru a obține elementele person și a accesa valorile acestora, trebuie să ne adresăm mai întâi elementului rădăcină și, prin acesta, elementelor person:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;obținem&nbsp;nodul&nbsp;rădăcină<br>XElement?&nbsp;people&nbsp;=&nbsp;xdoc.Element("people");<br>if&nbsp;(people&nbsp;is&nbsp;not&nbsp;null)<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;parcurgem&nbsp;toate&nbsp;elementele&nbsp;person<br>&nbsp;&nbsp;&nbsp;foreach&nbsp;(XElement&nbsp;person&nbsp;in&nbsp;people.Elements("person"))<br>&nbsp;&nbsp;&nbsp;{</code></pre>
+     </div>
+     <p class="paragraph">Metoda Element("nume_element") returnează primul element găsit cu acest nume. Metoda Elements("nume_element") returnează o colecție de elemente cu același nume. În acest caz, obținem o colecție de elemente person, pe care o putem parcurge într-o buclă.</p>
+     <p class="paragraph">Coborând mai jos în ierarhie, putem obține atributele sau elementele încorporate, de exemplu, obținerea elementului &lt;company&gt;:</p>
+     <div class="code-inline">
+      <pre><code>XElement?&nbsp;company&nbsp;=&nbsp;person.Element("company");</code></pre>
+     </div>
+     <p class="paragraph">Valoarea elementelor simple, care conțin un singur text, poate fi obținută folosind proprietatea Value:</p>
+     <div class="code-inline">
+      <pre><code>string?&nbsp;companyValue&nbsp;=&nbsp;person.Element("company")?.Value;</code></pre>
+     </div>
+     <p class="paragraph">Combinând operatorii LINQ și LINQ to XML, putem extrage și prelucra datele din document destul de ușor. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Xml.Linq;<br><br>XDocument&nbsp;xdoc&nbsp;=&nbsp;XDocument.Load("people.xml");<br><br>var&nbsp;microsoft&nbsp;=&nbsp;xdoc.Element("people")?&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;nodul&nbsp;rădăcină&nbsp;people<br>&nbsp;&nbsp;&nbsp;.Elements("person")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;toate&nbsp;elementele&nbsp;person<br>&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;toate&nbsp;persoanele&nbsp;care&nbsp;au&nbsp;company&nbsp;=&nbsp;Microsoft<br>&nbsp;&nbsp;&nbsp;.Where(p&nbsp;=&gt;&nbsp;p.Element("company")?.Value&nbsp;==&nbsp;"Microsoft")&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;.Select(p&nbsp;=&gt;&nbsp;new&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;pentru&nbsp;fiecare&nbsp;obiect&nbsp;creăm&nbsp;un&nbsp;obiect&nbsp;anonim<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name&nbsp;=&nbsp;p.Attribute("name")?.Value,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;age&nbsp;=&nbsp;p.Element("age")?.Value,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;company&nbsp;=&nbsp;p.Element("company")?.Value<br>&nbsp;});<br><br>if&nbsp;(microsoft&nbsp;is&nbsp;not&nbsp;null)<br>{<br>&nbsp;&nbsp;&nbsp;foreach&nbsp;(var&nbsp;person&nbsp;in&nbsp;microsoft)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Name:&nbsp;{person.name}&nbsp;&nbsp;Age:&nbsp;{person.age}");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, selectăm toate elementele person al căror element încorporat company este egal cu "Microsoft". Apoi, pe baza selecției obținute, creăm un set de obiecte anonime cu trei proprietăți. Pentru afișare, s-ar putea crea o clasă sau o structură specială și utilizarea lor în locul obiectului anonim.</p>
+     <p class="paragraph">Un alt exemplu - selectăm elementul person în care atributul name este egal cu "Tom":</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Xml.Linq;<br><br>XDocument&nbsp;xdoc&nbsp;=&nbsp;XDocument.Load("people.xml");<br><br>var&nbsp;tom&nbsp;=&nbsp;xdoc.Element("people")?&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;nodul&nbsp;rădăcină&nbsp;people<br>&nbsp;&nbsp;&nbsp;.Elements("person")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;toate&nbsp;elementele&nbsp;person<br>&nbsp;&nbsp;&nbsp;.FirstOrDefault(p&nbsp;=&gt;&nbsp;p.Attribute("name")?.Value&nbsp;==&nbsp;"Tom");<br><br>var&nbsp;name&nbsp;=&nbsp;tom?.Attribute("name")?.Value;<br>var&nbsp;age&nbsp;=&nbsp;tom?.Element("age")?.Value;<br>var&nbsp;company&nbsp;=&nbsp;tom?.Element("company")?.Value;<br><br>Console.WriteLine($"Name:&nbsp;{name}&nbsp;&nbsp;Age:&nbsp;{age}&nbsp;&nbsp;Company:&nbsp;{company}");</code></pre>
+     </div>
+     <p class="paragraph">Acest cod extrage și afișează detaliile primei persoane din documentul XML care are atributul name cu valoarea "Tom".</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

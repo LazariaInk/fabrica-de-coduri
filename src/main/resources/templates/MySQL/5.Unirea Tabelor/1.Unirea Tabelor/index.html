@@ -1,157 +1,147 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='MySQL', activeChapter='5.Unirea Tabelor', activeLesson='1.Unirea Tabelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Unirea implicită a tabelelor</h1>
- <p class="paragraph">Adesea apare nevoia de a obține date într-o singură interogare din mai multe tabele. Pentru consolidarea datelor din tabele diferite, se pot utiliza diferite metode. În acest articol, vom examina o metodă nu foarte răspândită, dar destul de simplă, care implică unirea implicită a tabelelor.</p>
- <p class="paragraph">Să presupunem că avem următoarele tabele, care sunt legate între ele prin relații:</p>
- <div class="code-inline">
-  <pre><code>CREATE&nbsp;TABLE&nbsp;Products<br>(<br>&nbsp;&nbsp;&nbsp;Id&nbsp;INT&nbsp;AUTO_INCREMENT&nbsp;PRIMARY&nbsp;KEY,<br>&nbsp;&nbsp;&nbsp;ProductName&nbsp;VARCHAR(30)&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;Manufacturer&nbsp;VARCHAR(20)&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;ProductCount&nbsp;INT&nbsp;DEFAULT&nbsp;0,<br>&nbsp;&nbsp;&nbsp;Price&nbsp;DECIMAL&nbsp;NOT&nbsp;NULL<br>);<br>CREATE&nbsp;TABLE&nbsp;Customers<br>(<br>&nbsp;&nbsp;&nbsp;Id&nbsp;INT&nbsp;AUTO_INCREMENT&nbsp;PRIMARY&nbsp;KEY,<br>&nbsp;&nbsp;&nbsp;FirstName&nbsp;VARCHAR(30)&nbsp;NOT&nbsp;NULL<br>);<br>CREATE&nbsp;TABLE&nbsp;Orders<br>(<br>&nbsp;&nbsp;&nbsp;Id&nbsp;INT&nbsp;AUTO_INCREMENT&nbsp;PRIMARY&nbsp;KEY,<br>&nbsp;&nbsp;&nbsp;ProductId&nbsp;INT&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;CustomerId&nbsp;INT&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;CreatedAt&nbsp;DATE&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;ProductCount&nbsp;INT&nbsp;DEFAULT&nbsp;1,<br>&nbsp;&nbsp;&nbsp;Price&nbsp;DECIMAL&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;FOREIGN&nbsp;KEY&nbsp;(ProductId)&nbsp;REFERENCES&nbsp;Products(Id)&nbsp;ON&nbsp;DELETE&nbsp;CASCADE,<br>&nbsp;&nbsp;&nbsp;FOREIGN&nbsp;KEY&nbsp;(CustomerId)&nbsp;REFERENCES&nbsp;Customers(Id)&nbsp;ON&nbsp;DELETE&nbsp;CASCADE<br>);</code></pre>
- </div>
- <p class="paragraph">Aici, tabelele Products și Customers sunt legate de tabela Orders printr-o relație de tipul unu-la-multe. Tabela Orders, sub formă de chei străine ProductId și CustomerId, conține referințe către coloanele Id din tabelele Products și Customers, respectiv.</p>
- <p class="paragraph">De asemenea, aceasta stochează cantitatea de produs achiziționată (ProductCount) și prețul la care a fost achiziționat (Price). În plus, tabela stochează și data achiziției sub forma coloanei CreatedAt.</p>
- <p class="paragraph">Hai să presupunem că aceste tabele conțin următoarele date:</p>
- <div class="code-inline">
-  <pre><code>INSERT&nbsp;INTO&nbsp;Products&nbsp;(ProductName,&nbsp;Manufacturer,&nbsp;ProductCount,&nbsp;Price)<br>VALUES&nbsp;('iPhone&nbsp;X',&nbsp;'Apple',&nbsp;2,&nbsp;76000),<br>('iPhone&nbsp;8',&nbsp;'Apple',&nbsp;2,&nbsp;51000),<br>('iPhone&nbsp;7',&nbsp;'Apple',&nbsp;5,&nbsp;42000),<br>('Galaxy&nbsp;S9',&nbsp;'Samsung',&nbsp;2,&nbsp;56000),<br>('Galaxy&nbsp;S8',&nbsp;'Samsung',&nbsp;1,&nbsp;46000),<br>('Honor&nbsp;10',&nbsp;'Huawei',&nbsp;2,&nbsp;26000),<br>('Nokia&nbsp;8',&nbsp;'HMD&nbsp;Global',&nbsp;6,&nbsp;38000);<br><br>INSERT&nbsp;INTO&nbsp;Customers(FirstName)&nbsp;VALUES&nbsp;('Tom'),&nbsp;('Bob'),('Sam');<br><br>INSERT&nbsp;INTO&nbsp;Orders&nbsp;(ProductId,&nbsp;CustomerId,&nbsp;CreatedAt,&nbsp;ProductCount,&nbsp;Price)<br>VALUES<br>(<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Id&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;ProductName='Galaxy&nbsp;S8'),<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Id&nbsp;FROM&nbsp;Customers&nbsp;WHERE&nbsp;FirstName='Tom'),<br>&nbsp;&nbsp;&nbsp;'2018-05-21',<br>&nbsp;&nbsp;&nbsp;2,<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Price&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;ProductName='Galaxy&nbsp;S8')<br>),<br>(<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Id&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;ProductName='iPhone&nbsp;X'),<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Id&nbsp;FROM&nbsp;Customers&nbsp;WHERE&nbsp;FirstName='Tom'),<br>&nbsp;&nbsp;&nbsp;'2018-05-23',&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;1,<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Price&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;ProductName='iPhone&nbsp;X')<br>),<br>(<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Id&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;ProductName='iPhone&nbsp;X'),<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Id&nbsp;FROM&nbsp;Customers&nbsp;WHERE&nbsp;FirstName='Bob'),<br>&nbsp;&nbsp;&nbsp;'2018-05-21',&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;1,<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Price&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;ProductName='iPhone&nbsp;X')<br>);</code></pre>
- </div>
- <p class="paragraph">Acum să unim cele două tabele Orders și Customers:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Orders,&nbsp;Customers;</code></pre>
- </div>
- <p class="paragraph">Într-o astfel de selecție, fiecare rând din tabela Orders se va uni cu fiecare rând din tabela Customers. Cu alte cuvinte, se obține o uniune transversală. De exemplu, în Orders sunt trei rânduri, iar în Customers, de asemenea, sunt trei rânduri, deci vom obține 3 * 3 = 9 rânduri:</p>
- <div class="image-container">
-  <img src="images/image1.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Dar este puțin probabil că acesta este rezultatul dorit. Mai ales că fiecare comandă din Orders este legată de un client specific din Customers, nu de toți clienții posibili.</p>
- <p class="paragraph">Pentru a rezolva această problemă, este necesar să utilizăm expresia WHERE și să filtrăm rândurile în condiția în care câmpul CustomerId din Orders corespunde câmpului Id din Customers:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Orders,&nbsp;Customers<br>WHERE&nbsp;Orders.CustomerId&nbsp;=&nbsp;Customers.Id;</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image2.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Acum vom uni datele din cele trei tabele Orders, Customers și Products. Cu alte cuvinte, vom obține toate comenzile și vom adăuga informații despre client și produsul asociat:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;Customers.FirstName,&nbsp;Products.ProductName,&nbsp;Orders.CreatedAt<br>FROM&nbsp;Orders,&nbsp;Customers,&nbsp;Products<br>WHERE&nbsp;Orders.CustomerId&nbsp;=&nbsp;Customers.Id&nbsp;AND&nbsp;Orders.ProductId=Products.Id;</code></pre>
- </div>
- <p class="paragraph">Deoarece aici trebuie să unim trei tabele, cel puțin două condiții sunt aplicate. Tabelul cheie rămâne Orders, din care se extrag toate comenzile, și apoi sunt atașate datele despre client în funcție de condiția Orders.CustomerId = Customers.Id și datele despre produs în funcție de condiția Orders.ProductId=Products.Id:</p>
- <div class="image-container">
-  <img src="images/image3.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">În acest caz, numele tabelelor măresc considerabil codul, dar putem să-l reducem folosind pseudonime de tabel:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;C.FirstName,&nbsp;P.ProductName,&nbsp;O.CreatedAt<br>FROM&nbsp;Orders&nbsp;AS&nbsp;O,&nbsp;Customers&nbsp;AS&nbsp;C,&nbsp;Products&nbsp;AS&nbsp;P<br>WHERE&nbsp;O.CustomerId&nbsp;=&nbsp;C.Id&nbsp;AND&nbsp;O.ProductId=P.Id;</code></pre>
- </div>
- <p class="paragraph">Dacă este necesar să selectăm toate coloanele dintr-o anumită tabelă atunci când folosim un pseudonim, putem utiliza asteriscul (*):</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;C.FirstName,&nbsp;P.ProductName,&nbsp;O.*<br>FROM&nbsp;Orders&nbsp;AS&nbsp;O,&nbsp;Customers&nbsp;AS&nbsp;C,&nbsp;Products&nbsp;AS&nbsp;P<br>WHERE&nbsp;O.CustomerId&nbsp;=&nbsp;C.Id&nbsp;AND&nbsp;O.ProductId=P.Id;</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Unirea implicită a tabelelor</h1>
+     <p class="paragraph">Adesea apare nevoia de a obține date într-o singură interogare din mai multe tabele. Pentru consolidarea datelor din tabele diferite, se pot utiliza diferite metode. În acest articol, vom examina o metodă nu foarte răspândită, dar destul de simplă, care implică unirea implicită a tabelelor.</p>
+     <p class="paragraph">Să presupunem că avem următoarele tabele, care sunt legate între ele prin relații:</p>
+     <div class="code-inline">
+      <pre><code>CREATE&nbsp;TABLE&nbsp;Products<br>(<br>&nbsp;&nbsp;&nbsp;Id&nbsp;INT&nbsp;AUTO_INCREMENT&nbsp;PRIMARY&nbsp;KEY,<br>&nbsp;&nbsp;&nbsp;ProductName&nbsp;VARCHAR(30)&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;Manufacturer&nbsp;VARCHAR(20)&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;ProductCount&nbsp;INT&nbsp;DEFAULT&nbsp;0,<br>&nbsp;&nbsp;&nbsp;Price&nbsp;DECIMAL&nbsp;NOT&nbsp;NULL<br>);<br>CREATE&nbsp;TABLE&nbsp;Customers<br>(<br>&nbsp;&nbsp;&nbsp;Id&nbsp;INT&nbsp;AUTO_INCREMENT&nbsp;PRIMARY&nbsp;KEY,<br>&nbsp;&nbsp;&nbsp;FirstName&nbsp;VARCHAR(30)&nbsp;NOT&nbsp;NULL<br>);<br>CREATE&nbsp;TABLE&nbsp;Orders<br>(<br>&nbsp;&nbsp;&nbsp;Id&nbsp;INT&nbsp;AUTO_INCREMENT&nbsp;PRIMARY&nbsp;KEY,<br>&nbsp;&nbsp;&nbsp;ProductId&nbsp;INT&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;CustomerId&nbsp;INT&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;CreatedAt&nbsp;DATE&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;ProductCount&nbsp;INT&nbsp;DEFAULT&nbsp;1,<br>&nbsp;&nbsp;&nbsp;Price&nbsp;DECIMAL&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;FOREIGN&nbsp;KEY&nbsp;(ProductId)&nbsp;REFERENCES&nbsp;Products(Id)&nbsp;ON&nbsp;DELETE&nbsp;CASCADE,<br>&nbsp;&nbsp;&nbsp;FOREIGN&nbsp;KEY&nbsp;(CustomerId)&nbsp;REFERENCES&nbsp;Customers(Id)&nbsp;ON&nbsp;DELETE&nbsp;CASCADE<br>);</code></pre>
+     </div>
+     <p class="paragraph">Aici, tabelele Products și Customers sunt legate de tabela Orders printr-o relație de tipul unu-la-multe. Tabela Orders, sub formă de chei străine ProductId și CustomerId, conține referințe către coloanele Id din tabelele Products și Customers, respectiv.</p>
+     <p class="paragraph">De asemenea, aceasta stochează cantitatea de produs achiziționată (ProductCount) și prețul la care a fost achiziționat (Price). În plus, tabela stochează și data achiziției sub forma coloanei CreatedAt.</p>
+     <p class="paragraph">Hai să presupunem că aceste tabele conțin următoarele date:</p>
+     <div class="code-inline">
+      <pre><code>INSERT&nbsp;INTO&nbsp;Products&nbsp;(ProductName,&nbsp;Manufacturer,&nbsp;ProductCount,&nbsp;Price)<br>VALUES&nbsp;('iPhone&nbsp;X',&nbsp;'Apple',&nbsp;2,&nbsp;76000),<br>('iPhone&nbsp;8',&nbsp;'Apple',&nbsp;2,&nbsp;51000),<br>('iPhone&nbsp;7',&nbsp;'Apple',&nbsp;5,&nbsp;42000),<br>('Galaxy&nbsp;S9',&nbsp;'Samsung',&nbsp;2,&nbsp;56000),<br>('Galaxy&nbsp;S8',&nbsp;'Samsung',&nbsp;1,&nbsp;46000),<br>('Honor&nbsp;10',&nbsp;'Huawei',&nbsp;2,&nbsp;26000),<br>('Nokia&nbsp;8',&nbsp;'HMD&nbsp;Global',&nbsp;6,&nbsp;38000);<br><br>INSERT&nbsp;INTO&nbsp;Customers(FirstName)&nbsp;VALUES&nbsp;('Tom'),&nbsp;('Bob'),('Sam');<br><br>INSERT&nbsp;INTO&nbsp;Orders&nbsp;(ProductId,&nbsp;CustomerId,&nbsp;CreatedAt,&nbsp;ProductCount,&nbsp;Price)<br>VALUES<br>(<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Id&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;ProductName='Galaxy&nbsp;S8'),<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Id&nbsp;FROM&nbsp;Customers&nbsp;WHERE&nbsp;FirstName='Tom'),<br>&nbsp;&nbsp;&nbsp;'2018-05-21',<br>&nbsp;&nbsp;&nbsp;2,<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Price&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;ProductName='Galaxy&nbsp;S8')<br>),<br>(<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Id&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;ProductName='iPhone&nbsp;X'),<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Id&nbsp;FROM&nbsp;Customers&nbsp;WHERE&nbsp;FirstName='Tom'),<br>&nbsp;&nbsp;&nbsp;'2018-05-23',&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;1,<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Price&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;ProductName='iPhone&nbsp;X')<br>),<br>(<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Id&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;ProductName='iPhone&nbsp;X'),<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Id&nbsp;FROM&nbsp;Customers&nbsp;WHERE&nbsp;FirstName='Bob'),<br>&nbsp;&nbsp;&nbsp;'2018-05-21',&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;1,<br>&nbsp;&nbsp;&nbsp;(SELECT&nbsp;Price&nbsp;FROM&nbsp;Products&nbsp;WHERE&nbsp;ProductName='iPhone&nbsp;X')<br>);</code></pre>
+     </div>
+     <p class="paragraph">Acum să unim cele două tabele Orders și Customers:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Orders,&nbsp;Customers;</code></pre>
+     </div>
+     <p class="paragraph">Într-o astfel de selecție, fiecare rând din tabela Orders se va uni cu fiecare rând din tabela Customers. Cu alte cuvinte, se obține o uniune transversală. De exemplu, în Orders sunt trei rânduri, iar în Customers, de asemenea, sunt trei rânduri, deci vom obține 3 * 3 = 9 rânduri:</p>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/5.Unirea%20Tabelor/1.Unirea%20Tabelor/images/afisare-comenzi-si-clienti-mysql.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Dar este puțin probabil că acesta este rezultatul dorit. Mai ales că fiecare comandă din Orders este legată de un client specific din Customers, nu de toți clienții posibili.</p>
+     <p class="paragraph">Pentru a rezolva această problemă, este necesar să utilizăm expresia WHERE și să filtrăm rândurile în condiția în care câmpul CustomerId din Orders corespunde câmpului Id din Customers:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Orders,&nbsp;Customers<br>WHERE&nbsp;Orders.CustomerId&nbsp;=&nbsp;Customers.Id;</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/5.Unirea%20Tabelor/1.Unirea%20Tabelor/images/join-comenzi-cu-clienti-mysql.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Acum vom uni datele din cele trei tabele Orders, Customers și Products. Cu alte cuvinte, vom obține toate comenzile și vom adăuga informații despre client și produsul asociat:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;Customers.FirstName,&nbsp;Products.ProductName,&nbsp;Orders.CreatedAt<br>FROM&nbsp;Orders,&nbsp;Customers,&nbsp;Products<br>WHERE&nbsp;Orders.CustomerId&nbsp;=&nbsp;Customers.Id&nbsp;AND&nbsp;Orders.ProductId=Products.Id;</code></pre>
+     </div>
+     <p class="paragraph">Deoarece aici trebuie să unim trei tabele, cel puțin două condiții sunt aplicate. Tabelul cheie rămâne Orders, din care se extrag toate comenzile, și apoi sunt atașate datele despre client în funcție de condiția Orders.CustomerId = Customers.Id și datele despre produs în funcție de condiția Orders.ProductId=Products.Id:</p>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/5.Unirea%20Tabelor/1.Unirea%20Tabelor/images/afisare-clienti-si-produse-mysql.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">În acest caz, numele tabelelor măresc considerabil codul, dar putem să-l reducem folosind pseudonime de tabel:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;C.FirstName,&nbsp;P.ProductName,&nbsp;O.CreatedAt<br>FROM&nbsp;Orders&nbsp;AS&nbsp;O,&nbsp;Customers&nbsp;AS&nbsp;C,&nbsp;Products&nbsp;AS&nbsp;P<br>WHERE&nbsp;O.CustomerId&nbsp;=&nbsp;C.Id&nbsp;AND&nbsp;O.ProductId=P.Id;</code></pre>
+     </div>
+     <p class="paragraph">Dacă este necesar să selectăm toate coloanele dintr-o anumită tabelă atunci când folosim un pseudonim, putem utiliza asteriscul (*):</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;C.FirstName,&nbsp;P.ProductName,&nbsp;O.*<br>FROM&nbsp;Orders&nbsp;AS&nbsp;O,&nbsp;Customers&nbsp;AS&nbsp;C,&nbsp;Products&nbsp;AS&nbsp;P<br>WHERE&nbsp;O.CustomerId&nbsp;=&nbsp;C.Id&nbsp;AND&nbsp;O.ProductId=P.Id;</code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

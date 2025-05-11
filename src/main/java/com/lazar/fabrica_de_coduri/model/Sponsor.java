@@ -7,7 +7,6 @@ public class Sponsor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String name;
     private String instagramHandle;
     private String instagramUrl;
@@ -16,7 +15,8 @@ public class Sponsor {
     @JoinColumn(name = "platform_info_id")
     private PlatformInfo platformInfo;
 
-    public Sponsor() {}
+    public Sponsor() {
+    }
 
     public Sponsor(String name, String instagramHandle, String instagramUrl, PlatformInfo platformInfo) {
         this.name = name;

@@ -1,206 +1,196 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='14.Lucru cu browserul si BOM', activeLesson='1.Lucru cu browserul si BOM'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Lucru cu browserul și BOM</h1>
- <h2 class="subtitle">Modelul Obiectului Browser și obiectul window</h2>
- <p class="paragraph">Lucrul cu browserul web și cu obiectele pe care acesta le oferă are o importanță mare în JavaScript. De exemplu, utilizarea obiectelor browserului permite manipularea elementelor HTML de pe pagină sau interacțiunea cu utilizatorul.</p>
- <p class="paragraph">Toate obiectele prin care JavaScript interacționează cu browserul sunt descrise prin conceptul de Browser Object Model (Modelul Obiectului Browser).</p>
- <p class="paragraph">Browser Object Model poate fi reprezentat ca următoarea schemă:</p>
- <div class="image-container">
-  <img src="images/image1.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">În vârf se află obiectul principal - obiectul window, care reprezintă obiectul global (practic reprezintă browserul). Acest obiect include, la rândul său, o serie de alte obiecte, în particular, obiectul document, care reprezintă o pagină web separată afișată în browser.</p>
- <h2 class="subtitle">Obiectul window</h2>
- <p class="paragraph">Obiectul window reprezintă fereastra browserului web, în care sunt plasate paginile web. window fiind un obiect global, nu este necesar să folosim numele său când accesăm proprietățile și metodele sale. De exemplu, obiectul window are metoda alert(), care afișează o fereastră de mesaj. Dar nu este obligatoriu să scriem:</p>
- <div class="code-inline">
-  <pre><code>window.alert("Salut&nbsp;lume!");</code></pre>
- </div>
- <p class="paragraph">Putem să nu folosim window:</p>
- <div class="code-inline">
-  <pre><code>alert("Salut&nbsp;lume!");</code></pre>
- </div>
- <p class="paragraph">Dar fiind un obiect global, acest lucru implică unele restricții. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>var&nbsp;alert&nbsp;=&nbsp;function(message){<br>&nbsp;&nbsp;&nbsp;console.log("Mesaj:&nbsp;",&nbsp;message);<br>};<br>window.alert("Salut&nbsp;lume!");</code></pre>
- </div>
- <p class="paragraph">Prin var se definește o variabilă globală alert. Toate variabilele sau funcțiile globale declarate în program sunt adăugate automat la obiectul window. Și deoarece numele noii funcții va coincide cu numele metodei alert(), se va produce suprascrierea acestei metode în obiectul window cu noua funcție.</p>
- <p class="paragraph">Și dacă declarăm în program o variabilă globală oarecare, aceasta ne este accesibilă ca proprietate în obiectul window:</p>
- <div class="code-inline">
-  <pre><code>var&nbsp;message&nbsp;=&nbsp;"salut";<br>console.log(window.message);</code></pre>
- </div>
- <h2 class="subtitle">Proprietăți ale window</h2>
- <p class="paragraph">Prin intermediul proprietăților obiectului window putem obține diverse informații despre fereastra browserului. În particular, pentru determinarea poziției ferestrei se folosesc următoarele proprietăți:</p>
- <ul class="enumeration">
-  <li>innerHeight: conține înălțimea ferestrei, inclusiv barele orizontale de derulare</li>
-  <li>innerWidth: conține lățimea ferestrei, inclusiv barele verticale de derulare</li>
-  <li>outerHeight: conține înălțimea ferestrei browserului, inclusiv toate barele de derulare ale browserului</li>
-  <li>outerWidth: conține lățimea ferestrei browserului, inclusiv toate barele de derulare ale browserului</li>
-  <li>pageXOffset: sinonim pentru window.scrollX</li>
-  <li>pageYOffset: sinonim pentru window.scrollY</li>
-  <li>screenX: conține poziția ferestrei browserului pe axa X, adică distanța de la fereastra browserului până la marginea stângă a ecranului</li>
-  <li>screenY: conține poziția ferestrei browserului pe axa Y, adică distanța de la fereastra browserului până la marginea superioară a ecranului</li>
-  <li>scrollX: conține numărul de pixeli ai paginii web derulați orizontal</li>
-  <li>scrollY: conține numărul de pixeli ai paginii web derulați vertical</li>
- </ul>
- <p class="paragraph">De exemplu, obținem poziția ferestrei:</p>
- <div class="code-inline">
-  <pre><code>console.log(window.innerHeight);<br>console.log(window.innerWidth);<br>console.log(window.screenX);<br>console.log(window.screenY);</code></pre>
- </div>
- <h2 class="subtitle">Componentele browserului</h2>
- <p class="paragraph">Fereastra browserului este de obicei compusă din diferite componente. În funcție de browserul specific și de setările personale, setul specific de componente poate varia. Dar, în general, fereastra tipică a browserului arată astfel:</p>
- <div class="image-container">
-  <img src="images/image2.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">În afara zonei de conținut propriu-zis, în care este afișată pagina web, browserul web are o serie de componente:</p>
- <ul class="enumeration">
-  <li>bara de adrese pentru introducerea URL-ului sau a interogării de căutare (Address Bar)</li>
-  <li>bara de stare (Status Bar), care indică dacă pagina web este încărcată sau se află în procesul de încărcare</li>
-  <li>bara de meniu (Menu Bar)</li>
-  <li>bara de instrumente (ToolBar)</li>
-  <li>o anumită "bară personală" / "bară individuală", care, de exemplu, conține bookmark-uri (Personal Bar)</li>
-  <li>barele de derulare, care afișează poziția orizontală și verticală (Horizontal/Vertical ScrollBar)</li>
- </ul>
- <p class="paragraph">Obiectul window are capacități limitate pentru interacțiunea cu aceste componente, în special, pentru a verifica prezența acestor componente, obiectul window are o serie de proprietăți:</p>
- <ul class="enumeration">
-  <li>locationbar: conține un obiect care indică dacă bara de adrese este afișată sau nu</li>
-  <li>menubar: indică dacă bara de meniu este afișată sau nu</li>
-  <li>personalbar: indică dacă bara personală (de exemplu, bara de bookmark-uri) este afișată sau nu</li>
-  <li>scrollbars: indică dacă barele de derulare sunt afișate sau nu</li>
-  <li>statusbar: indică dacă bara de stare este afișată sau nu</li>
-  <li>toolbar: indică dacă bara de instrumente este afișată sau nu</li>
- </ul>
- <p class="paragraph">De exemplu, aflăm dacă bara personală este afișată:</p>
- <div class="code-inline">
-  <pre><code>console.log(window.personalbar);&nbsp;//&nbsp;BarProp&nbsp;{visible:&nbsp;true}&nbsp;sau&nbsp;BarProp&nbsp;{visible:&nbsp;false}</code></pre>
- </div>
- <p class="paragraph">Proprietatea va returna un obiect BarProp, în care proprietatea visible indică dacă bara este afișată sau nu.</p>
- <h2 class="subtitle">Proprietatea screen</h2>
- <p class="paragraph">Pentru a obține informații despre ecran se folosește, de asemenea, proprietatea screen a obiectului window. Această proprietate reprezintă un obiect de tip Screen:</p>
- <ul class="enumeration">
-  <li>availTop: indică înălțimea componentelor fixe care se alătură părții superioare a browserului, de exemplu, diferite bare superioare</li>
-  <li>availLeft: indică lățimea componentelor fixe care se alătură părții stângi a browserului, de exemplu, diferite bare laterale stângi</li>
-  <li>availHeight: conține înălțimea maxim disponibilă în pixeli minus înălțimea barelor superioare și inferioare</li>
-  <li>availWidth: conține lățimea maxim disponibilă în pixeli minus lățimea barelor laterale stângi și drepte</li>
-  <li>colorDepth: conține adâncimea de culoare a ecranului</li>
-  <li>height: conține înălțimea ecranului în pixeli</li>
-  <li>orientation: conține un obiect de tip ScreenOrientation, care oferă informații despre orientarea dispozitivului</li>
-  <li>pixelDepth: conține adâncimea pixelului ecranului</li>
-  <li>width: conține lățimea ecranului în pixeli</li>
- </ul>
- <div class="image-container">
-  <img src="images/image3.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Exemplu de utilizare:</p>
- <div class="code-inline">
-  <pre><code>console.log(screen.availTop);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;25<br>console.log(screen.availLeft);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;0<br>console.log(screen.availHeight);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;695<br>console.log(screen.availWidth);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;1280<br>console.log(screen.width);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;1280<br>console.log(screen.height);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;800<br>console.log(screen.pixelDepth);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;24<br>console.log(screen.colorDepth);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;24</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Lucru cu browserul și BOM</h1>
+     <h2 class="subtitle">Modelul Obiectului Browser și obiectul window</h2>
+     <p class="paragraph">Lucrul cu browserul web și cu obiectele pe care acesta le oferă are o importanță mare în JavaScript. De exemplu, utilizarea obiectelor browserului permite manipularea elementelor HTML de pe pagină sau interacțiunea cu utilizatorul.</p>
+     <p class="paragraph">Toate obiectele prin care JavaScript interacționează cu browserul sunt descrise prin conceptul de Browser Object Model (Modelul Obiectului Browser).</p>
+     <p class="paragraph">Browser Object Model poate fi reprezentat ca următoarea schemă:</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/14.Lucru%20cu%20browserul%20si%20BOM/1.Lucru%20cu%20browserul%20si%20BOM/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">În vârf se află obiectul principal - obiectul window, care reprezintă obiectul global (practic reprezintă browserul). Acest obiect include, la rândul său, o serie de alte obiecte, în particular, obiectul document, care reprezintă o pagină web separată afișată în browser.</p>
+     <h2 class="subtitle">Obiectul window</h2>
+     <p class="paragraph">Obiectul window reprezintă fereastra browserului web, în care sunt plasate paginile web. window fiind un obiect global, nu este necesar să folosim numele său când accesăm proprietățile și metodele sale. De exemplu, obiectul window are metoda alert(), care afișează o fereastră de mesaj. Dar nu este obligatoriu să scriem:</p>
+     <div class="code-inline">
+      <pre><code>window.alert("Salut&nbsp;lume!");</code></pre>
+     </div>
+     <p class="paragraph">Putem să nu folosim window:</p>
+     <div class="code-inline">
+      <pre><code>alert("Salut&nbsp;lume!");</code></pre>
+     </div>
+     <p class="paragraph">Dar fiind un obiect global, acest lucru implică unele restricții. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;alert&nbsp;=&nbsp;function(message){<br>&nbsp;&nbsp;&nbsp;console.log("Mesaj:&nbsp;",&nbsp;message);<br>};<br>window.alert("Salut&nbsp;lume!");</code></pre>
+     </div>
+     <p class="paragraph">Prin var se definește o variabilă globală alert. Toate variabilele sau funcțiile globale declarate în program sunt adăugate automat la obiectul window. Și deoarece numele noii funcții va coincide cu numele metodei alert(), se va produce suprascrierea acestei metode în obiectul window cu noua funcție.</p>
+     <p class="paragraph">Și dacă declarăm în program o variabilă globală oarecare, aceasta ne este accesibilă ca proprietate în obiectul window:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;message&nbsp;=&nbsp;"salut";<br>console.log(window.message);</code></pre>
+     </div>
+     <h2 class="subtitle">Proprietăți ale window</h2>
+     <p class="paragraph">Prin intermediul proprietăților obiectului window putem obține diverse informații despre fereastra browserului. În particular, pentru determinarea poziției ferestrei se folosesc următoarele proprietăți:</p>
+     <ul class="enumeration">
+      <li>innerHeight: conține înălțimea ferestrei, inclusiv barele orizontale de derulare</li>
+      <li>innerWidth: conține lățimea ferestrei, inclusiv barele verticale de derulare</li>
+      <li>outerHeight: conține înălțimea ferestrei browserului, inclusiv toate barele de derulare ale browserului</li>
+      <li>outerWidth: conține lățimea ferestrei browserului, inclusiv toate barele de derulare ale browserului</li>
+      <li>pageXOffset: sinonim pentru window.scrollX</li>
+      <li>pageYOffset: sinonim pentru window.scrollY</li>
+      <li>screenX: conține poziția ferestrei browserului pe axa X, adică distanța de la fereastra browserului până la marginea stângă a ecranului</li>
+      <li>screenY: conține poziția ferestrei browserului pe axa Y, adică distanța de la fereastra browserului până la marginea superioară a ecranului</li>
+      <li>scrollX: conține numărul de pixeli ai paginii web derulați orizontal</li>
+      <li>scrollY: conține numărul de pixeli ai paginii web derulați vertical</li>
+     </ul>
+     <p class="paragraph">De exemplu, obținem poziția ferestrei:</p>
+     <div class="code-inline">
+      <pre><code>console.log(window.innerHeight);<br>console.log(window.innerWidth);<br>console.log(window.screenX);<br>console.log(window.screenY);</code></pre>
+     </div>
+     <h2 class="subtitle">Componentele browserului</h2>
+     <p class="paragraph">Fereastra browserului este de obicei compusă din diferite componente. În funcție de browserul specific și de setările personale, setul specific de componente poate varia. Dar, în general, fereastra tipică a browserului arată astfel:</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/14.Lucru%20cu%20browserul%20si%20BOM/1.Lucru%20cu%20browserul%20si%20BOM/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">În afara zonei de conținut propriu-zis, în care este afișată pagina web, browserul web are o serie de componente:</p>
+     <ul class="enumeration">
+      <li>bara de adrese pentru introducerea URL-ului sau a interogării de căutare (Address Bar)</li>
+      <li>bara de stare (Status Bar), care indică dacă pagina web este încărcată sau se află în procesul de încărcare</li>
+      <li>bara de meniu (Menu Bar)</li>
+      <li>bara de instrumente (ToolBar)</li>
+      <li>o anumită "bară personală" / "bară individuală", care, de exemplu, conține bookmark-uri (Personal Bar)</li>
+      <li>barele de derulare, care afișează poziția orizontală și verticală (Horizontal/Vertical ScrollBar)</li>
+     </ul>
+     <p class="paragraph">Obiectul window are capacități limitate pentru interacțiunea cu aceste componente, în special, pentru a verifica prezența acestor componente, obiectul window are o serie de proprietăți:</p>
+     <ul class="enumeration">
+      <li>locationbar: conține un obiect care indică dacă bara de adrese este afișată sau nu</li>
+      <li>menubar: indică dacă bara de meniu este afișată sau nu</li>
+      <li>personalbar: indică dacă bara personală (de exemplu, bara de bookmark-uri) este afișată sau nu</li>
+      <li>scrollbars: indică dacă barele de derulare sunt afișate sau nu</li>
+      <li>statusbar: indică dacă bara de stare este afișată sau nu</li>
+      <li>toolbar: indică dacă bara de instrumente este afișată sau nu</li>
+     </ul>
+     <p class="paragraph">De exemplu, aflăm dacă bara personală este afișată:</p>
+     <div class="code-inline">
+      <pre><code>console.log(window.personalbar);&nbsp;//&nbsp;BarProp&nbsp;{visible:&nbsp;true}&nbsp;sau&nbsp;BarProp&nbsp;{visible:&nbsp;false}</code></pre>
+     </div>
+     <p class="paragraph">Proprietatea va returna un obiect BarProp, în care proprietatea visible indică dacă bara este afișată sau nu.</p>
+     <h2 class="subtitle">Proprietatea screen</h2>
+     <p class="paragraph">Pentru a obține informații despre ecran se folosește, de asemenea, proprietatea screen a obiectului window. Această proprietate reprezintă un obiect de tip Screen:</p>
+     <ul class="enumeration">
+      <li>availTop: indică înălțimea componentelor fixe care se alătură părții superioare a browserului, de exemplu, diferite bare superioare</li>
+      <li>availLeft: indică lățimea componentelor fixe care se alătură părții stângi a browserului, de exemplu, diferite bare laterale stângi</li>
+      <li>availHeight: conține înălțimea maxim disponibilă în pixeli minus înălțimea barelor superioare și inferioare</li>
+      <li>availWidth: conține lățimea maxim disponibilă în pixeli minus lățimea barelor laterale stângi și drepte</li>
+      <li>colorDepth: conține adâncimea de culoare a ecranului</li>
+      <li>height: conține înălțimea ecranului în pixeli</li>
+      <li>orientation: conține un obiect de tip ScreenOrientation, care oferă informații despre orientarea dispozitivului</li>
+      <li>pixelDepth: conține adâncimea pixelului ecranului</li>
+      <li>width: conține lățimea ecranului în pixeli</li>
+     </ul>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/14.Lucru%20cu%20browserul%20si%20BOM/1.Lucru%20cu%20browserul%20si%20BOM/images/image3.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Exemplu de utilizare:</p>
+     <div class="code-inline">
+      <pre><code>console.log(screen.availTop);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;25<br>console.log(screen.availLeft);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;0<br>console.log(screen.availHeight);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;695<br>console.log(screen.availWidth);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;1280<br>console.log(screen.width);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;1280<br>console.log(screen.height);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;800<br>console.log(screen.pixelDepth);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;24<br>console.log(screen.colorDepth);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;24</code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

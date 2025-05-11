@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='17.LINQ', activeLesson='6.Operatiuni agregate'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Operațiuni agregate</h1>
+     <p class="paragraph">Operațiunile agregate includ diverse operațiuni asupra selecțiilor, cum ar fi obținerea numărului de elemente, obținerea valorii minime, maxime și medii în selecție, precum și sumarea valorilor.</p>
+     <h2 class="subtitle">Metoda Aggregate</h2>
+     <p class="paragraph">Metoda Aggregate efectuează o agregare generală a elementelor colecției în funcție de expresia specificată. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>int[]&nbsp;numbers&nbsp;=&nbsp;{&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5&nbsp;};<br><br>int&nbsp;query&nbsp;=&nbsp;numbers.Aggregate((x,&nbsp;y)&nbsp;=&gt;&nbsp;x&nbsp;-&nbsp;y);<br>Console.WriteLine(query);&nbsp;&nbsp;&nbsp;//&nbsp;-13</code></pre>
+     </div>
+     <p class="paragraph">Variabila query va reprezenta rezultatul agregării array-ului. Ca și condiție de agregare se folosește expresia (x, y) =&gt; x - y, adică inițial se scade al doilea element din primul, apoi al treilea din rezultat și așa mai departe. Astfel, va fi echivalent cu expresia:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;query&nbsp;=&nbsp;1&nbsp;-&nbsp;2&nbsp;-&nbsp;3&nbsp;-&nbsp;4&nbsp;-&nbsp;5;</code></pre>
+     </div>
+     <p class="paragraph">Rezultatul va fi -13. Putem folosi orice alte operațiuni, de exemplu, adunarea:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;query&nbsp;=&nbsp;numbers.Aggregate((x,&nbsp;y)&nbsp;=&gt;&nbsp;x&nbsp;+&nbsp;y);&nbsp;//&nbsp;echivalent&nbsp;cu&nbsp;1&nbsp;+&nbsp;2&nbsp;+&nbsp;3&nbsp;+&nbsp;4&nbsp;+&nbsp;5</code></pre>
+     </div>
+     <p class="paragraph">O altă versiune a metodei permite specificarea unei valori inițiale de la care începe lanțul operațiunilor de agregare:</p>
+     <div class="code-inline">
+      <pre><code>string[]&nbsp;words&nbsp;=&nbsp;{&nbsp;"Gaudeamus",&nbsp;"igitur",&nbsp;"Juvenes",&nbsp;"dum",&nbsp;"sumus"&nbsp;};<br>var&nbsp;sentence&nbsp;=&nbsp;words.Aggregate("Text:",&nbsp;(first,&nbsp;next)&nbsp;=&gt;&nbsp;$"{first}&nbsp;{next}");<br><br>Console.WriteLine(sentence);&nbsp;&nbsp;//&nbsp;Text:&nbsp;Gaudeamus&nbsp;igitur&nbsp;Juvenes&nbsp;dum&nbsp;sumus</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, toate elementele array-ului words sunt combinate, dar primul element al operațiunii de agregare va fi șirul "Text:".</p>
+     <h2 class="subtitle">Obținerea dimensiunii selecției - Metoda Count</h2>
+     <p class="paragraph">Pentru a obține numărul de elemente dintr-o selecție se folosește metoda Count():</p>
+     <div class="code-inline">
+      <pre><code>int[]&nbsp;numbers&nbsp;=&nbsp;{&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;10,&nbsp;34,&nbsp;55,&nbsp;66,&nbsp;77,&nbsp;88&nbsp;};<br>int&nbsp;size&nbsp;=&nbsp;numbers.Count();&nbsp;&nbsp;//&nbsp;10<br>Console.WriteLine(size);</code></pre>
+     </div>
+     <p class="paragraph">Metoda Count() într-una din versiunile sale poate primi și o expresie lambda care stabilește condiția de selecție. Astfel, putem în acest caz să nu folosim expresia Where:</p>
+     <div class="code-inline">
+      <pre><code>int[]&nbsp;numbers&nbsp;=&nbsp;{&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;10,&nbsp;34,&nbsp;55,&nbsp;66,&nbsp;77,&nbsp;88&nbsp;};<br>//&nbsp;numărul&nbsp;de&nbsp;numere&nbsp;pare&nbsp;care&nbsp;sunt&nbsp;mai&nbsp;mari&nbsp;de&nbsp;10<br>int&nbsp;size&nbsp;=&nbsp;numbers.Count(i&nbsp;=&gt;&nbsp;i&nbsp;%&nbsp;2&nbsp;==&nbsp;0&nbsp;&amp;&amp;&nbsp;i&nbsp;&gt;&nbsp;10);<br>Console.WriteLine(size);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;3</code></pre>
+     </div>
+     <h2 class="subtitle">Obținerea sumei</h2>
+     <p class="paragraph">Pentru a obține suma valorilor se folosește metoda Sum:</p>
+     <div class="code-inline">
+      <pre><code>int[]&nbsp;numbers&nbsp;=&nbsp;{&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;10,&nbsp;34,&nbsp;55,&nbsp;66,&nbsp;77,&nbsp;88&nbsp;};<br><br>int&nbsp;sum&nbsp;=&nbsp;numbers.Sum();<br>Console.WriteLine(sum);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;340</code></pre>
+     </div>
+     <p class="paragraph">Metoda Sum() are mai multe suprascrieri. În special, dacă avem un set de obiecte complexe, cum este exemplul de mai sus, putem specifica proprietatea ale cărei valori vor fi însumate:</p>
+     <div class="code-inline">
+      <pre><code>Person[]&nbsp;people&nbsp;=&nbsp;{&nbsp;new&nbsp;Person("Tom",&nbsp;37),&nbsp;new&nbsp;Person("Sam",&nbsp;28),&nbsp;new&nbsp;Person("Bob",&nbsp;41)&nbsp;};<br><br>int&nbsp;ageSum&nbsp;=&nbsp;people.Sum(p&nbsp;=&gt;&nbsp;p.Age);<br>Console.WriteLine(ageSum);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;106<br><br>record&nbsp;class&nbsp;Person(string&nbsp;Name,&nbsp;int&nbsp;Age);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, se calculează suma valorilor proprietății Age a obiectelor Person din array-ul people.</p>
+     <h2 class="subtitle">Valoarea maximă, minimă și medie</h2>
+     <p class="paragraph">Pentru a găsi valoarea minimă se folosește metoda Min(), pentru a obține valoarea maximă - metoda Max(), iar pentru a găsi valoarea medie - metoda Average(). Acțiunea lor este similară cu metodele Sum și Count:</p>
+     <div class="code-inline">
+      <pre><code>int[]&nbsp;numbers&nbsp;=&nbsp;{&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;10,&nbsp;34,&nbsp;55,&nbsp;66,&nbsp;77,&nbsp;88&nbsp;};<br><br>int&nbsp;min&nbsp;=&nbsp;numbers.Min();<br>int&nbsp;max&nbsp;=&nbsp;numbers.Max();<br>double&nbsp;average&nbsp;=&nbsp;numbers.Average();<br><br>Console.WriteLine($"Min:&nbsp;{min}");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Min:&nbsp;1<br>Console.WriteLine($"Max:&nbsp;{max}");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Max:&nbsp;88<br>Console.WriteLine($"Average:&nbsp;{average}");&nbsp;&nbsp;&nbsp;//&nbsp;Average:&nbsp;34</code></pre>
+     </div>
+     <p class="paragraph">Dacă lucrăm cu obiecte complexe, în aceste metode se transmite un delegat care specifică proprietatea aplicată în calcule:</p>
+     <div class="code-inline">
+      <pre><code>Person[]&nbsp;people&nbsp;=&nbsp;{&nbsp;new&nbsp;Person("Tom",&nbsp;37),&nbsp;new&nbsp;Person("Sam",&nbsp;28),&nbsp;new&nbsp;Person("Bob",&nbsp;41)&nbsp;};<br><br>int&nbsp;minAge&nbsp;=&nbsp;people.Min(p&nbsp;=&gt;&nbsp;p.Age);&nbsp;//&nbsp;vârsta&nbsp;minimă<br>int&nbsp;maxAge&nbsp;=&nbsp;people.Max(p&nbsp;=&gt;&nbsp;p.Age);&nbsp;//&nbsp;vârsta&nbsp;maximă<br>double&nbsp;averageAge&nbsp;=&nbsp;people.Average(p&nbsp;=&gt;&nbsp;p.Age);&nbsp;//&nbsp;vârsta&nbsp;medie<br><br>Console.WriteLine($"Min&nbsp;Age:&nbsp;{minAge}");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Min&nbsp;Age:&nbsp;28<br>Console.WriteLine($"Max&nbsp;Age:&nbsp;{maxAge}");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Max&nbsp;Age:&nbsp;41<br>Console.WriteLine($"Average&nbsp;Age:&nbsp;{averageAge}");&nbsp;&nbsp;&nbsp;//&nbsp;Average&nbsp;Age:&nbsp;35,33<br><br>record&nbsp;class&nbsp;Person(string&nbsp;Name,&nbsp;int&nbsp;Age);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, pentru calcule se folosește proprietatea Age, adică se calculează vârsta minimă, maximă și medie.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

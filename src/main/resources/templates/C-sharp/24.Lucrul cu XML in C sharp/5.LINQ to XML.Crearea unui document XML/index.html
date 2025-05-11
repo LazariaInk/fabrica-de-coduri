@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='24.Lucrul cu XML in C sharp', activeLesson='5.LINQ to XML.Crearea unui document XML'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">LINQ to XML: Crearea unui document XML</h1>
+     <p class="paragraph">O altă abordare pentru lucrul cu XML este tehnologia LINQ to XML. Întreaga funcționalitate LINQ to XML se regăsește în spațiul de nume System.Xml.Linq. Să analizăm principalele clase din acest spațiu de nume:</p>
+     <ul class="enumeration">
+      <li>XAttribute: reprezintă un atribut al unui element XML</li>
+      <li>XComment: reprezintă un comentariu</li>
+      <li>XDocument: reprezintă întregul document XML</li>
+      <li>XElement: reprezintă un element XML individual</li>
+     </ul>
+     <p class="paragraph">Clasa principală este XElement, care permite obținerea elementelor încorporate și gestionarea acestora. Printre metodele sale, se remarcă următoarele:</p>
+     <ul class="enumeration">
+      <li>Add(): adaugă un nou atribut sau element</li>
+      <li>Attributes(): returnează o colecție de atribute pentru acest element</li>
+      <li>Elements(): returnează toate elementele copil ale acestui element</li>
+      <li>Remove(): elimină acest element din obiectul părinte</li>
+      <li>RemoveAll(): elimină toate elementele copil și atributele acestui element</li>
+     </ul>
+     <p class="paragraph">Acum, să folosim funcționalitatea LINQ to XML și să creăm un nou document XML:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Xml.Linq;<br><br>XDocument&nbsp;xdoc&nbsp;=&nbsp;new&nbsp;XDocument();<br>//&nbsp;creăm&nbsp;primul&nbsp;element&nbsp;person<br>XElement&nbsp;tom&nbsp;=&nbsp;new&nbsp;XElement("person");<br>//&nbsp;creăm&nbsp;atributul&nbsp;name<br>XAttribute&nbsp;tomNameAttr&nbsp;=&nbsp;new&nbsp;XAttribute("name",&nbsp;"Tom");<br>//&nbsp;creăm&nbsp;două&nbsp;elemente&nbsp;company&nbsp;și&nbsp;age<br>XElement&nbsp;tomCompanyElem&nbsp;=&nbsp;new&nbsp;XElement("company",&nbsp;"Microsoft");<br>XElement&nbsp;tomAgeElem&nbsp;=&nbsp;new&nbsp;XElement("age",&nbsp;37);<br>//&nbsp;adăugăm&nbsp;atributul&nbsp;și&nbsp;elementele&nbsp;în&nbsp;primul&nbsp;element&nbsp;person<br>tom.Add(tomNameAttr);<br>tom.Add(tomCompanyElem);<br>tom.Add(tomAgeElem);<br><br>//&nbsp;creăm&nbsp;al&nbsp;doilea&nbsp;element&nbsp;person<br>XElement&nbsp;bob&nbsp;=&nbsp;new&nbsp;XElement("person");<br>//&nbsp;creăm&nbsp;pentru&nbsp;el&nbsp;atributul&nbsp;name<br>XAttribute&nbsp;bobNameAttr&nbsp;=&nbsp;new&nbsp;XAttribute("name",&nbsp;"Bob");<br>//&nbsp;și&nbsp;două&nbsp;elemente&nbsp;-&nbsp;company&nbsp;și&nbsp;age<br>XElement&nbsp;bobCompanyElem&nbsp;=&nbsp;new&nbsp;XElement("company",&nbsp;"Google");<br>XElement&nbsp;bobAgeElem&nbsp;=&nbsp;new&nbsp;XElement("age",&nbsp;41);<br>bob.Add(bobNameAttr);<br>bob.Add(bobCompanyElem);<br>bob.Add(bobAgeElem);<br>//&nbsp;creăm&nbsp;elementul&nbsp;rădăcină<br>XElement&nbsp;people&nbsp;=&nbsp;new&nbsp;XElement("people");<br>//&nbsp;adăugăm&nbsp;cele&nbsp;două&nbsp;elemente&nbsp;person&nbsp;în&nbsp;elementul&nbsp;rădăcină<br>people.Add(tom);<br>people.Add(bob);<br>//&nbsp;adăugăm&nbsp;elementul&nbsp;rădăcină&nbsp;în&nbsp;document<br>xdoc.Add(people);<br>//&nbsp;salvăm&nbsp;documentul<br>xdoc.Save("people.xml");<br><br>Console.WriteLine("Data&nbsp;saved");</code></pre>
+     </div>
+     <p class="paragraph">Pentru a crea un document, trebuie să creăm un obiect al clasei XDocument. Acesta este obiectul de cel mai înalt nivel din documentul XML.</p>
+     <p class="paragraph">Elementele sunt create folosind constructorul clasei XElement. Constructorul are mai multe versiuni suprasolicitate. Primul parametru al constructorului transmite numele elementului, de exemplu, person. Al doilea parametru transmite valoarea acestui element.</p>
+     <p class="paragraph">Crearea unui atribut este similară cu crearea unui element. Apoi, toate atributele și elementele sunt adăugate în elementele person folosind metoda Add().</p>
+     <p class="paragraph">Deoarece documentul XML trebuie să aibă un singur element rădăcină, toate elementele person sunt adăugate într-un container - elementul people.</p>
+     <p class="paragraph">La final, elementul rădăcină este adăugat în obiectul XDocument, iar acest obiect este salvat pe disc într-un fișier XML folosind metoda Save().</p>
+     <p class="paragraph">Dacă deschidem fișierul salvat people.xml, vom vedea următorul conținut:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?xml&nbsp;version="1.0"&nbsp;encoding="utf-8"?&gt;<br>&lt;people&gt;<br>&nbsp;&lt;person&nbsp;name="Tom"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;company&gt;Microsoft&lt;/company&gt;<br>&nbsp;&nbsp;&nbsp;&lt;age&gt;37&lt;/age&gt;<br>&nbsp;&lt;/person&gt;<br>&nbsp;&lt;person&nbsp;name="Bob"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;company&gt;Google&lt;/company&gt;<br>&nbsp;&nbsp;&nbsp;&lt;age&gt;41&lt;/age&gt;<br>&nbsp;&lt;/person&gt;<br>&lt;/people&gt;</code></pre>
+     </div>
+     <p class="paragraph">Constructorul clasei XElement permite setarea unui grup de obiecte care vor face parte din element. Astfel, exemplul anterior poate fi scurtat în felul următor:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Xml.Linq;<br><br>XDocument&nbsp;xdoc&nbsp;=&nbsp;new&nbsp;XDocument(new&nbsp;XElement("people",<br>&nbsp;&nbsp;&nbsp;new&nbsp;XElement("person",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;XAttribute("name",&nbsp;"Tom"),<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;XElement("company",&nbsp;"Microsoft"),<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;XElement("age",&nbsp;37)),<br>&nbsp;&nbsp;&nbsp;new&nbsp;XElement("person",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;XAttribute("name",&nbsp;"Bob"),<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;XElement("company",&nbsp;"Google"),<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;XElement("age",&nbsp;41))));<br>xdoc.Save("people2.xml");<br><br>Console.WriteLine("Data&nbsp;saved");</code></pre>
+     </div>
+     <p class="paragraph">Acest cod creează și salvează un document XML similar celui din exemplul anterior, dar într-un mod mai concis.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

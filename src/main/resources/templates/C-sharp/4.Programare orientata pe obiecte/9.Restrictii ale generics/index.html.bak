@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='4.Programare orientata pe obiecte', activeLesson='9.Restrictii ale generics'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Restricții ale generics</h1>
+     <p class="paragraph">Prin intermediul parametrilor universali, putem tipiza clasele generice cu orice tip. Totuși, uneori este necesar să specificăm tipul. De exemplu, avem următoarea clasă Message, care reprezintă un mesaj:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Message<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Text&nbsp;{&nbsp;get;&nbsp;}&nbsp;//&nbsp;textul&nbsp;mesajului<br>&nbsp;&nbsp;&nbsp;public&nbsp;Message(string&nbsp;text)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Text&nbsp;=&nbsp;text;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Și, să presupunem că dorim să definim o metodă pentru a trimite mesaje sub formă de obiecte Message. La prima vedere, putem defini și folosi următoarea metodă:</p>
+     <div class="code-inline">
+      <pre><code>SendMessage(new&nbsp;Message("Hello&nbsp;World"));<br><br>void&nbsp;SendMessage(Message&nbsp;message)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Se&nbsp;trimite&nbsp;mesajul:&nbsp;{message.Text}");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Metoda SendMessage primește ca parametru un obiect Message și emulează trimiterea acestuia. Totul pare în regulă și nu pare să fie ceva mai bun de făcut. Totuși, clasa Message poate avea clase derivate. De exemplu, clasa EmailMessage pentru mesaje email și SmsMessage pentru mesaje SMS.</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;EmailMessage&nbsp;:&nbsp;Message<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;EmailMessage(string&nbsp;text)&nbsp;:&nbsp;base(text)&nbsp;{&nbsp;}<br>}<br><br>class&nbsp;SmsMessage&nbsp;:&nbsp;Message<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;SmsMessage(string&nbsp;text)&nbsp;:&nbsp;base(text)&nbsp;{&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Ce se întâmplă dacă dorim să trimitem și mesaje care reprezintă aceste clase? Nu pare a fi o problemă, deoarece metoda SendMessage acceptă un obiect Message și, prin urmare, și obiecte ale claselor derivate:</p>
+     <div class="code-inline">
+      <pre><code>SendMessage(new&nbsp;EmailMessage("Hello&nbsp;World"));<br><br>void&nbsp;SendMessage(Message&nbsp;message)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Se&nbsp;trimite&nbsp;mesajul:&nbsp;{message.Text}");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Dar aici ne confruntăm cu conversia tipurilor: de la EmailMessage la Message. În plus, poate apărea o problemă de siguranță a tipurilor dacă dorim să convertim obiectul message în obiecte ale claselor derivate. În acest caz, pentru a evita conversiile, putem folosi genericele:</p>
+     <div class="code-inline">
+      <pre><code>void&nbsp;SendMessage&lt;T&gt;(T&nbsp;message)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Se&nbsp;trimite&nbsp;mesajul:&nbsp;{message.Text}");&nbsp;//&nbsp;!&nbsp;Eroare&nbsp;-&nbsp;proprietatea&nbsp;Text<br>}</code></pre>
+     </div>
+     <p class="paragraph">Genericele permit evitarea conversiilor, dar acum ne confruntăm cu o altă problemă - parametrul universal T presupune orice tip. Dar nu orice tip are proprietatea Text.</p>
+     <p class="paragraph">Prin urmare, proprietatea Text pentru obiectul de tip T nu este definită și nu o putem folosi. Mai mult, pentru obiectul T implicit avem acces doar la metodele tipului object.</p>
+     <p class="paragraph">Astfel, apare problema: trebuie să evităm conversiile de tipuri și să folosim genericele, iar pe de altă parte, trebuie să accesăm funcționalitatea clasei Message în interiorul metodei. Restricțiile generice permit rezolvarea acestei probleme.</p>
+     <h2 class="subtitle">Restricțiile metodelor</h2>
+     <p class="paragraph">Restricțiile metodelor sunt specificate după lista de parametri, după operatorul where:</p>
+     <div class="code-inline">
+      <pre><code>numele_metodei&lt;T&gt;(parametri)&nbsp;where&nbsp;T:&nbsp;tip_restricție</code></pre>
+     </div>
+     <p class="paragraph">După operatorul where este specificat parametrul universal pentru care se aplică restricția. Și prin intermediul operatorului : se indică tipul restricției - de obicei, o anumită clasă.</p>
+     <p class="paragraph">De exemplu, aplicăm restricții metodei SendMessage, care trimite obiecte de tip Message:</p>
+     <div class="code-inline">
+      <pre><code>SendMessage(new&nbsp;Message("Hello&nbsp;World"));<br>SendMessage(new&nbsp;EmailMessage("Bye&nbsp;World"));<br><br>void&nbsp;SendMessage&lt;T&gt;(T&nbsp;message)&nbsp;where&nbsp;T:&nbsp;Message<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Se&nbsp;trimite&nbsp;mesajul:&nbsp;{message.Text}");<br>}<br><br>class&nbsp;Message<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Text&nbsp;{&nbsp;get;&nbsp;}&nbsp;//&nbsp;textul&nbsp;mesajului<br>&nbsp;&nbsp;&nbsp;public&nbsp;Message(string&nbsp;text)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Text&nbsp;=&nbsp;text;<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;EmailMessage&nbsp;:&nbsp;Message<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;EmailMessage(string&nbsp;text)&nbsp;:&nbsp;base(text)&nbsp;{&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Expresia where T: Message în definiția metodei SendMessage spune că prin intermediul parametrului universal T vor fi transmise obiecte ale clasei Message și ale claselor derivate.</p>
+     <p class="paragraph">Astfel, compilatorul va ști că T va avea funcționalitatea clasei Message și, prin urmare, putem accesa metodele și proprietățile clasei Message în interiorul metodei fără probleme.</p>
+     <p class="paragraph">La apelarea metodei, nu este necesar să specificăm tipul în parantezele unghiulare - compilatorul va determina tipul pe baza valorii transmise:</p>
+     <div class="code-inline">
+      <pre><code>SendMessage(new&nbsp;EmailMessage("Bye&nbsp;World"));</code></pre>
+     </div>
+     <p class="paragraph">Totuși, se poate face acest lucru și explicit:</p>
+     <div class="code-inline">
+      <pre><code>SendMessage&lt;EmailMessage&gt;(new&nbsp;EmailMessage("Bye&nbsp;World"));</code></pre>
+     </div>
+     <h2 class="subtitle">Restricțiile generice în tipuri</h2>
+     <p class="paragraph">În mod similar, putem defini și restricții pentru tipurile generice. De exemplu, restricțiile claselor generice:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;numele_clasei&lt;T&gt;&nbsp;where&nbsp;T:&nbsp;tip_restricție</code></pre>
+     </div>
+     <p class="paragraph">Ca exemplu, definim o clasă pentru trimiterea mesajelor sub formă de obiecte Message:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Messenger&lt;T&gt;&nbsp;where&nbsp;T&nbsp;:&nbsp;Message<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;SendMessage(T&nbsp;message)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Se&nbsp;trimite&nbsp;mesajul:&nbsp;{message.Text}");<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;Message<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Text&nbsp;{&nbsp;get;&nbsp;}&nbsp;//&nbsp;textul&nbsp;mesajului<br>&nbsp;&nbsp;&nbsp;public&nbsp;Message(string&nbsp;text)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Text&nbsp;=&nbsp;text;<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;EmailMessage&nbsp;:&nbsp;Message<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;EmailMessage(string&nbsp;text)&nbsp;:&nbsp;base(text)&nbsp;{&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici, pentru clasa Messenger este stabilită restricția where T : Message. Adică, în interiorul clasei Messenger, toate obiectele de tip T pot fi utilizate ca obiecte de tip Message. În acest caz, în clasa Messenger, metoda SendMessage emulează din nou trimiterea mesajelor.</p>
+     <p class="paragraph">Aplicăm clasa pentru trimiterea mesajelor:</p>
+     <div class="code-inline">
+      <pre><code>Messenger&lt;Message&gt;&nbsp;telegram&nbsp;=&nbsp;new&nbsp;Messenger&lt;Message&gt;();<br>telegram.SendMessage(new&nbsp;Message("Hello&nbsp;World"));<br><br>Messenger&lt;EmailMessage&gt;&nbsp;outlook&nbsp;=&nbsp;new&nbsp;Messenger&lt;EmailMessage&gt;();<br>outlook.SendMessage(new&nbsp;EmailMessage("Bye&nbsp;World"));</code></pre>
+     </div>
+     <h2 class="subtitle">Tipurile de restricții și restricțiile standard</h2>
+     <p class="paragraph">Ca restricții, putem folosi următoarele tipuri:</p>
+     <ul class="enumeration">
+      <li>Clase</li>
+      <li>Interfețe</li>
+      <li>class - parametrul universal trebuie să reprezinte o clasă</li>
+      <li>struct - parametrul universal trebuie să reprezinte o structură</li>
+      <li>new() - parametrul universal trebuie să reprezinte un tip care are un constructor public fără parametri</li>
+     </ul>
+     <p class="paragraph">Există o serie de restricții standard pe care le putem folosi. În special, putem specifica o restricție pentru a se folosi doar structuri sau alte tipuri de valori:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Messenger&lt;T&gt;&nbsp;where&nbsp;T&nbsp;:&nbsp;struct<br>{}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, nu putem folosi restricții specifice structurilor, spre deosebire de clase.</p>
+     <p class="paragraph">De asemenea, putem seta ca restricție tipurile de referință:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Messenger&lt;T&gt;&nbsp;where&nbsp;T&nbsp;:&nbsp;class<br>{}</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, putem specifica prin cuvântul new ca restricție clasele sau structurile care au un constructor public fără parametri:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Messenger&lt;T&gt;&nbsp;where&nbsp;T&nbsp;:&nbsp;new()<br>{}</code></pre>
+     </div>
+     <p class="paragraph">Dacă pentru un parametru universal sunt setate mai multe restricții, acestea trebuie să fie în ordine:</p>
+     <ul class="enumeration">
+      <li>Numele clasei, class, struct. De asemenea, putem specifica doar una dintre aceste restricții</li>
+      <li>Numele interfeței</li>
+      <li>new()</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Smartphone&lt;T&gt;&nbsp;where&nbsp;T:&nbsp;Messenger,&nbsp;new()<br>{<br>&nbsp;<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Utilizarea mai multor parametri universali</h2>
+     <p class="paragraph">Dacă o clasă folosește mai mulți parametri universali, putem specifica restricții pentru fiecare dintre aceștia:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Messenger&lt;T,&nbsp;P&gt;<br>&nbsp;&nbsp;&nbsp;where&nbsp;T&nbsp;:&nbsp;Message<br>&nbsp;&nbsp;&nbsp;where&nbsp;P:&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;SendMessage(P&nbsp;sender,&nbsp;P&nbsp;receiver,&nbsp;T&nbsp;message)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Expeditor:&nbsp;{sender.Name}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Destinatar:&nbsp;{receiver.Name}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Mesaj:&nbsp;{message.Text}");<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name)&nbsp;=&gt;&nbsp;Name&nbsp;=&nbsp;name;<br>}<br><br>class&nbsp;Message<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Text&nbsp;{&nbsp;get;&nbsp;}&nbsp;//&nbsp;textul&nbsp;mesajului<br>&nbsp;&nbsp;&nbsp;public&nbsp;Message(string&nbsp;text)&nbsp;=&gt;&nbsp;&nbsp;Text&nbsp;=&nbsp;text;<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, pentru parametrul P vor fi transmise obiecte de tip Person, iar pentru parametrul T - obiecte de tip Message.</p>
+     <p class="paragraph">Aplicăm clasele:</p>
+     <div class="code-inline">
+      <pre><code>Messenger&lt;Message,&nbsp;Person&gt;&nbsp;telegram&nbsp;=&nbsp;new&nbsp;Messenger&lt;Message,&nbsp;Person&gt;();<br>Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom");<br>Person&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person("Bob");<br>Message&nbsp;hello&nbsp;=&nbsp;new&nbsp;Message("Hello,&nbsp;Bob!");<br>telegram.SendMessage(tom,&nbsp;bob,&nbsp;hello);</code></pre>
+     </div>
+     <p class="paragraph">Rezultatul afișat în consolă va fi:</p>
+     <div class="code-inline">
+      <pre><code>Expeditor:&nbsp;Tom<br>Destinatar:&nbsp;Bob<br>Mesaj:&nbsp;Hello,&nbsp;Bob!</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

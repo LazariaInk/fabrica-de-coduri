@@ -1,153 +1,143 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='HTML', activeChapter='6.Culoare in CSS', activeLesson='21.Stilizarea elementului details'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Stilizarea elementului details</h1>
- <p class="paragraph">Să examinăm unele posibilități de stilizare a elementului details, care reprezintă un bloc extensibil.</p>
- <h2 class="subtitle">Atributul open</h2>
- <p class="paragraph">În primul rând, în starea deschisă, elementului details i se adaugă atributul open. Astfel, folosind acest atribut, se pot defini stiluri diferite pentru element în stările ascuns și deschis. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;details&nbsp;&gt;&nbsp;summary&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;padding:&nbsp;5px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;#eee;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;color:&nbsp;#333;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;#ccc&nbsp;solid;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cursor:&nbsp;pointer;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;details&nbsp;&gt;&nbsp;div&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;#ccc&nbsp;solid;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;padding:&nbsp;10px;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;details[open]&nbsp;&gt;&nbsp;summary&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;color:#eee;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:#333;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;details&gt;<br>&nbsp;&nbsp;&nbsp;&lt;summary&gt;Prințul&nbsp;Andrei&nbsp;și&nbsp;Pierre&nbsp;în&nbsp;Bogucharovo&lt;/summary&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&gt;În&nbsp;jurul&nbsp;casei&nbsp;era&nbsp;plantată&nbsp;o&nbsp;grădină&nbsp;tânără.&nbsp;Gardurile&nbsp;și&nbsp;porțile&nbsp;erau&nbsp;solide&nbsp;și&nbsp;noi;&nbsp;sub&nbsp;un&nbsp;adăpost<br>&nbsp;&nbsp;&nbsp;stăteau&nbsp;două&nbsp;țevi&nbsp;de&nbsp;pompieri&nbsp;și&nbsp;un&nbsp;butoi,&nbsp;vopsit&nbsp;în&nbsp;verde;&nbsp;drumurile&nbsp;erau&nbsp;drepte,&nbsp;podurile&nbsp;solide&nbsp;cu&nbsp;balustrade.<br>&nbsp;&nbsp;&nbsp;Peste&nbsp;tot&nbsp;erau&nbsp;amprenta&nbsp;ordonării&nbsp;și&nbsp;gospodăriei.&lt;/div&gt;<br>&lt;/details&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">Cu ajutorul selectorului details[open] ne putem referi la elementul details în starea deschisă.</p>
- <div class="code-inline">
-  <pre><code>details[open]&nbsp;&gt;&nbsp;summary&nbsp;{<br>&nbsp;&nbsp;&nbsp;color:#eee;<br>&nbsp;&nbsp;&nbsp;background-color:#333;<br>}</code></pre>
- </div>
- <p class="paragraph">Permite setarea stilurilor pentru elementul summary în starea deschisă. Astfel, în acest caz, la deschiderea elementului details schimbăm culoarea stilului și a fundalului titlului.</p>
- <div class="image-container">
-  <img src="images/image1.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Configurarea markerului</h2>
- <p class="paragraph">Implicit, elementul summary folosește un simbol triunghiular ca marker de ascundere/deschidere. Acesta poate fi, de asemenea, configurat.</p>
- <p class="paragraph">Pentru a configura imaginea markerului, se poate folosi proprietatea list-style, precum și proprietăți suplimentare precum list-style-type sau list-style-image, care sunt utilizate pentru stilizarea listelor. De exemplu, dacă este necesar să elimini acest marker, se poate aplica stilul list-style: none:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br><br>&nbsp;&nbsp;&nbsp;details&nbsp;&gt;&nbsp;summary&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;padding:&nbsp;5px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;#eee;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;color:&nbsp;#333;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;#ccc&nbsp;solid;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cursor:&nbsp;pointer;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;list-style:&nbsp;none;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;details&nbsp;&gt;&nbsp;div&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;#ccc&nbsp;solid;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;padding:&nbsp;10px;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;details[open]&nbsp;&gt;&nbsp;summary&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;color:#eee;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:#333;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;details&gt;<br>&nbsp;&nbsp;&nbsp;&lt;summary&gt;Prințul&nbsp;Andrei&nbsp;și&nbsp;Pierre&nbsp;în&nbsp;Bogucharovo&lt;/summary&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&gt;În&nbsp;jurul&nbsp;casei&nbsp;era&nbsp;plantată&nbsp;o&nbsp;grădină&nbsp;tânără.&nbsp;Gardurile&nbsp;și&nbsp;porțile&nbsp;erau&nbsp;solide&nbsp;și&nbsp;noi;&nbsp;sub&nbsp;un&nbsp;adăpost&nbsp;stăteau&nbsp;două&nbsp;țevi&nbsp;de&nbsp;pompieri&nbsp;și&nbsp;un&nbsp;butoi,<br>&nbsp;&nbsp;&nbsp;vopsit&nbsp;în&nbsp;verde;&nbsp;drumurile&nbsp;erau&nbsp;drepte,&nbsp;podurile&nbsp;solide&nbsp;cu&nbsp;balustrade.&nbsp;Peste&nbsp;tot&nbsp;erau&nbsp;amprenta&nbsp;ordonării&nbsp;și&nbsp;gospodăriei.&lt;/div&gt;<br>&lt;/details&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image2.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Alt exemplu - aplicarea stilului list-style-type: disc;</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br><br>&nbsp;&nbsp;&nbsp;details&nbsp;&gt;&nbsp;summary&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;padding:&nbsp;5px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;#eee;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;color:&nbsp;#<br><br>333;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;#ccc&nbsp;solid;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cursor:&nbsp;pointer;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;list-style-type:&nbsp;disc;&nbsp;&nbsp;/*&nbsp;setăm&nbsp;markerul&nbsp;*/<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;details&nbsp;&gt;&nbsp;div&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;#ccc&nbsp;solid;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;padding:&nbsp;10px;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;details[open]&nbsp;&gt;&nbsp;summary&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;color:#eee;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:#333;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;details&gt;<br>&nbsp;&nbsp;&nbsp;&lt;summary&gt;Prințul&nbsp;Andrei&nbsp;și&nbsp;Pierre&nbsp;în&nbsp;Bogucharovo&lt;/summary&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&gt;În&nbsp;jurul&nbsp;casei&nbsp;era&nbsp;plantată&nbsp;o&nbsp;grădină&nbsp;tânără.&nbsp;Gardurile&nbsp;și&nbsp;porțile&nbsp;erau&nbsp;solide&nbsp;și&nbsp;noi;&nbsp;sub&nbsp;un&nbsp;adăpost&nbsp;stăteau&nbsp;două&nbsp;țevi&nbsp;de&nbsp;pompieri&nbsp;și&nbsp;un&nbsp;butoi,<br>&nbsp;&nbsp;&nbsp;vopsit&nbsp;în&nbsp;verde;&nbsp;drumurile&nbsp;erau&nbsp;drepte,&nbsp;podurile&nbsp;solide&nbsp;cu&nbsp;balustrade.&nbsp;Peste&nbsp;tot&nbsp;erau&nbsp;amprenta&nbsp;ordonării&nbsp;și&nbsp;gospodăriei.&lt;/div&gt;<br>&lt;/details&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image3.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Configurarea cu ajutorul proprietății content</h2>
- <p class="paragraph">Desigur, nu suntem limitați la proprietatea list-style și putem controla mai fin titlul, de exemplu, folosind proprietatea content:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br><br>&nbsp;&nbsp;&nbsp;details&nbsp;&gt;&nbsp;summary&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;padding:&nbsp;5px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;#eee;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;color:&nbsp;#333;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;#ccc&nbsp;solid;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cursor:&nbsp;pointer;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;list-style:&nbsp;none;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;details&nbsp;&gt;&nbsp;div&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;#ccc&nbsp;solid;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;padding:&nbsp;10px;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;details[open]&nbsp;&gt;&nbsp;summary&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;color:#eee;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:#333;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;summary:before&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;content:&nbsp;"+";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;font-size:&nbsp;20px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;font-weight:&nbsp;bold;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;margin:&nbsp;-5px&nbsp;5px&nbsp;0&nbsp;0;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;details[open]&nbsp;summary:before&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;content:&nbsp;"-";<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;details&gt;<br>&nbsp;&nbsp;&nbsp;&lt;summary&gt;Prințul&nbsp;Andrei&nbsp;și&nbsp;Pierre&nbsp;în&nbsp;Bogucharovo&lt;/summary&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&gt;În&nbsp;jurul&nbsp;casei&nbsp;era&nbsp;plantată&nbsp;o&nbsp;grădină&nbsp;tânără.&nbsp;Gardurile&nbsp;și&nbsp;porțile&nbsp;erau&nbsp;solide&nbsp;și&nbsp;noi;&nbsp;sub&nbsp;un&nbsp;adăpost&nbsp;stăteau&nbsp;două&nbsp;țevi&nbsp;de&nbsp;pompieri&nbsp;și&nbsp;un&nbsp;butoi,<br>&nbsp;&nbsp;&nbsp;vopsit&nbsp;în&nbsp;verde;&nbsp;drumurile&nbsp;erau&nbsp;drepte,&nbsp;podurile&nbsp;solide&nbsp;cu&nbsp;balustrade.&nbsp;Peste&nbsp;tot&nbsp;erau&nbsp;amprenta&nbsp;ordonării&nbsp;și&nbsp;gospodăriei.&lt;/div&gt;<br>&lt;/details&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">În acest caz, folosind selectorul summary:before, stabilim conținutul care va fi plasat înaintea conținutului principal al elementului summary. Selectorul details[open] summary:before permite să facem același lucru, doar că în starea deschisă. În final, în starea ascunsă markerul va afișa simbolul +, iar în starea deschisă - simbolul -.</p>
- <div class="image-container">
-  <img src="images/image4.png" alt="" class="responsive-image">
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Stilizarea elementului details</h1>
+     <p class="paragraph">Să examinăm unele posibilități de stilizare a elementului details, care reprezintă un bloc extensibil.</p>
+     <h2 class="subtitle">Atributul open</h2>
+     <p class="paragraph">În primul rând, în starea deschisă, elementului details i se adaugă atributul open. Astfel, folosind acest atribut, se pot defini stiluri diferite pentru element în stările ascuns și deschis. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;details&nbsp;&gt;&nbsp;summary&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;padding:&nbsp;5px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;#eee;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;color:&nbsp;#333;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;#ccc&nbsp;solid;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cursor:&nbsp;pointer;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;details&nbsp;&gt;&nbsp;div&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;#ccc&nbsp;solid;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;padding:&nbsp;10px;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;details[open]&nbsp;&gt;&nbsp;summary&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;color:#eee;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:#333;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;details&gt;<br>&nbsp;&nbsp;&nbsp;&lt;summary&gt;Prințul&nbsp;Andrei&nbsp;și&nbsp;Pierre&nbsp;în&nbsp;Bogucharovo&lt;/summary&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&gt;În&nbsp;jurul&nbsp;casei&nbsp;era&nbsp;plantată&nbsp;o&nbsp;grădină&nbsp;tânără.&nbsp;Gardurile&nbsp;și&nbsp;porțile&nbsp;erau&nbsp;solide&nbsp;și&nbsp;noi;&nbsp;sub&nbsp;un&nbsp;adăpost<br>&nbsp;&nbsp;&nbsp;stăteau&nbsp;două&nbsp;țevi&nbsp;de&nbsp;pompieri&nbsp;și&nbsp;un&nbsp;butoi,&nbsp;vopsit&nbsp;în&nbsp;verde;&nbsp;drumurile&nbsp;erau&nbsp;drepte,&nbsp;podurile&nbsp;solide&nbsp;cu&nbsp;balustrade.<br>&nbsp;&nbsp;&nbsp;Peste&nbsp;tot&nbsp;erau&nbsp;amprenta&nbsp;ordonării&nbsp;și&nbsp;gospodăriei.&lt;/div&gt;<br>&lt;/details&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Cu ajutorul selectorului details[open] ne putem referi la elementul details în starea deschisă.</p>
+     <div class="code-inline">
+      <pre><code>details[open]&nbsp;&gt;&nbsp;summary&nbsp;{<br>&nbsp;&nbsp;&nbsp;color:#eee;<br>&nbsp;&nbsp;&nbsp;background-color:#333;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Permite setarea stilurilor pentru elementul summary în starea deschisă. Astfel, în acest caz, la deschiderea elementului details schimbăm culoarea stilului și a fundalului titlului.</p>
+     <div class="image-container">
+      <img th:src="@{/images/HTML/6.Culoare%20in%20CSS/21.Stilizarea%20elementului%20details/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Configurarea markerului</h2>
+     <p class="paragraph">Implicit, elementul summary folosește un simbol triunghiular ca marker de ascundere/deschidere. Acesta poate fi, de asemenea, configurat.</p>
+     <p class="paragraph">Pentru a configura imaginea markerului, se poate folosi proprietatea list-style, precum și proprietăți suplimentare precum list-style-type sau list-style-image, care sunt utilizate pentru stilizarea listelor. De exemplu, dacă este necesar să elimini acest marker, se poate aplica stilul list-style: none:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br><br>&nbsp;&nbsp;&nbsp;details&nbsp;&gt;&nbsp;summary&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;padding:&nbsp;5px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;#eee;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;color:&nbsp;#333;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;#ccc&nbsp;solid;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cursor:&nbsp;pointer;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;list-style:&nbsp;none;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;details&nbsp;&gt;&nbsp;div&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;#ccc&nbsp;solid;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;padding:&nbsp;10px;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;details[open]&nbsp;&gt;&nbsp;summary&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;color:#eee;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:#333;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;details&gt;<br>&nbsp;&nbsp;&nbsp;&lt;summary&gt;Prințul&nbsp;Andrei&nbsp;și&nbsp;Pierre&nbsp;în&nbsp;Bogucharovo&lt;/summary&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&gt;În&nbsp;jurul&nbsp;casei&nbsp;era&nbsp;plantată&nbsp;o&nbsp;grădină&nbsp;tânără.&nbsp;Gardurile&nbsp;și&nbsp;porțile&nbsp;erau&nbsp;solide&nbsp;și&nbsp;noi;&nbsp;sub&nbsp;un&nbsp;adăpost&nbsp;stăteau&nbsp;două&nbsp;țevi&nbsp;de&nbsp;pompieri&nbsp;și&nbsp;un&nbsp;butoi,<br>&nbsp;&nbsp;&nbsp;vopsit&nbsp;în&nbsp;verde;&nbsp;drumurile&nbsp;erau&nbsp;drepte,&nbsp;podurile&nbsp;solide&nbsp;cu&nbsp;balustrade.&nbsp;Peste&nbsp;tot&nbsp;erau&nbsp;amprenta&nbsp;ordonării&nbsp;și&nbsp;gospodăriei.&lt;/div&gt;<br>&lt;/details&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/HTML/6.Culoare%20in%20CSS/21.Stilizarea%20elementului%20details/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Alt exemplu - aplicarea stilului list-style-type: disc;</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br><br>&nbsp;&nbsp;&nbsp;details&nbsp;&gt;&nbsp;summary&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;padding:&nbsp;5px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;#eee;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;color:&nbsp;#<br><br>333;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;#ccc&nbsp;solid;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cursor:&nbsp;pointer;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;list-style-type:&nbsp;disc;&nbsp;&nbsp;/*&nbsp;setăm&nbsp;markerul&nbsp;*/<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;details&nbsp;&gt;&nbsp;div&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;#ccc&nbsp;solid;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;padding:&nbsp;10px;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;details[open]&nbsp;&gt;&nbsp;summary&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;color:#eee;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:#333;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;details&gt;<br>&nbsp;&nbsp;&nbsp;&lt;summary&gt;Prințul&nbsp;Andrei&nbsp;și&nbsp;Pierre&nbsp;în&nbsp;Bogucharovo&lt;/summary&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&gt;În&nbsp;jurul&nbsp;casei&nbsp;era&nbsp;plantată&nbsp;o&nbsp;grădină&nbsp;tânără.&nbsp;Gardurile&nbsp;și&nbsp;porțile&nbsp;erau&nbsp;solide&nbsp;și&nbsp;noi;&nbsp;sub&nbsp;un&nbsp;adăpost&nbsp;stăteau&nbsp;două&nbsp;țevi&nbsp;de&nbsp;pompieri&nbsp;și&nbsp;un&nbsp;butoi,<br>&nbsp;&nbsp;&nbsp;vopsit&nbsp;în&nbsp;verde;&nbsp;drumurile&nbsp;erau&nbsp;drepte,&nbsp;podurile&nbsp;solide&nbsp;cu&nbsp;balustrade.&nbsp;Peste&nbsp;tot&nbsp;erau&nbsp;amprenta&nbsp;ordonării&nbsp;și&nbsp;gospodăriei.&lt;/div&gt;<br>&lt;/details&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/HTML/6.Culoare%20in%20CSS/21.Stilizarea%20elementului%20details/images/image3.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Configurarea cu ajutorul proprietății content</h2>
+     <p class="paragraph">Desigur, nu suntem limitați la proprietatea list-style și putem controla mai fin titlul, de exemplu, folosind proprietatea content:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br><br>&nbsp;&nbsp;&nbsp;details&nbsp;&gt;&nbsp;summary&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;padding:&nbsp;5px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;#eee;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;color:&nbsp;#333;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;#ccc&nbsp;solid;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cursor:&nbsp;pointer;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;list-style:&nbsp;none;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;details&nbsp;&gt;&nbsp;div&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;#ccc&nbsp;solid;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;padding:&nbsp;10px;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;details[open]&nbsp;&gt;&nbsp;summary&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;color:#eee;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:#333;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;summary:before&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;content:&nbsp;"+";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;font-size:&nbsp;20px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;font-weight:&nbsp;bold;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;margin:&nbsp;-5px&nbsp;5px&nbsp;0&nbsp;0;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;details[open]&nbsp;summary:before&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;content:&nbsp;"-";<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;details&gt;<br>&nbsp;&nbsp;&nbsp;&lt;summary&gt;Prințul&nbsp;Andrei&nbsp;și&nbsp;Pierre&nbsp;în&nbsp;Bogucharovo&lt;/summary&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&gt;În&nbsp;jurul&nbsp;casei&nbsp;era&nbsp;plantată&nbsp;o&nbsp;grădină&nbsp;tânără.&nbsp;Gardurile&nbsp;și&nbsp;porțile&nbsp;erau&nbsp;solide&nbsp;și&nbsp;noi;&nbsp;sub&nbsp;un&nbsp;adăpost&nbsp;stăteau&nbsp;două&nbsp;țevi&nbsp;de&nbsp;pompieri&nbsp;și&nbsp;un&nbsp;butoi,<br>&nbsp;&nbsp;&nbsp;vopsit&nbsp;în&nbsp;verde;&nbsp;drumurile&nbsp;erau&nbsp;drepte,&nbsp;podurile&nbsp;solide&nbsp;cu&nbsp;balustrade.&nbsp;Peste&nbsp;tot&nbsp;erau&nbsp;amprenta&nbsp;ordonării&nbsp;și&nbsp;gospodăriei.&lt;/div&gt;<br>&lt;/details&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, folosind selectorul summary:before, stabilim conținutul care va fi plasat înaintea conținutului principal al elementului summary. Selectorul details[open] summary:before permite să facem același lucru, doar că în starea deschisă. În final, în starea ascunsă markerul va afișa simbolul +, iar în starea deschisă - simbolul -.</p>
+     <div class="image-container">
+      <img th:src="@{/images/HTML/6.Culoare%20in%20CSS/21.Stilizarea%20elementului%20details/images/image4.png}" alt="" class="responsive-image">
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

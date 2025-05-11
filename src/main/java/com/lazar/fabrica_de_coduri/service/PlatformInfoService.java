@@ -26,6 +26,8 @@ public class PlatformInfoService {
             platformInfo.setInstagramLink(updatedInfo.getInstagramLink());
             platformInfo.setYouTubeLink(updatedInfo.getYouTubeLink());
             platformInfo.setEmail(updatedInfo.getEmail());
+            platformInfo.setLinkedinLink(updatedInfo.getLinkedinLink());
+            platformInfo.setDiscordLink(updatedInfo.getDiscordLink());
             platformInfo.setDonateTitle(updatedInfo.getDonateTitle());
             return platformInfoRepository.save(platformInfo);
         }
@@ -38,10 +40,12 @@ public class PlatformInfoService {
             PlatformInfo defaultPlatform = new PlatformInfo();
             defaultPlatform.setBannerContent("Welcome to our platform!");
             defaultPlatform.setDonateMessage("Support us!");
-            defaultPlatform.setTiktokLink("https://tiktok.com");
-            defaultPlatform.setInstagramLink("https://instagram.com");
+            defaultPlatform.setTiktokLink("https://www.tiktok.com/@fabricadecoduri");
+            defaultPlatform.setInstagramLink("https://www.instagram.com/fabricadecoduri/");
+            defaultPlatform.setLinkedinLink("https://www.linkedin.com/company/106583635/admin/dashboard/");
             defaultPlatform.setYouTubeLink("https://youtube.com");
-            defaultPlatform.setEmail("contact@example.com");
+            defaultPlatform.setEmail("contact@fabricadecoduri.com");
+            defaultPlatform.setDiscordLink("");
             defaultPlatform.setDonateTitle("Haida sa crestem impreuna");
 
             platformInfoRepository.save(defaultPlatform);

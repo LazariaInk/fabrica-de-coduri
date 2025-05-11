@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='9.Pattern matching', activeLesson='6.Pattern-uri de liste'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Pattern-uri de liste</h1>
+     <p class="paragraph">Pattern-urile de liste permit potrivirea expresiilor cu liste și array-uri. Acest pattern este disponibil începând cu versiunea C# 11.</p>
+     <p class="paragraph">Potrivire completă cu un array/listă:</p>
+     <div class="code-inline">
+      <pre><code>Console.WriteLine(GetNumber(new[]&nbsp;{&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5&nbsp;}));&nbsp;&nbsp;//&nbsp;1<br>Console.WriteLine(GetNumber(new[]&nbsp;{&nbsp;1,&nbsp;2}));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;3<br>Console.WriteLine(GetNumber(new&nbsp;int[]&nbsp;{}));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;4<br>Console.WriteLine(GetNumber(new[]&nbsp;{&nbsp;1,&nbsp;2,&nbsp;5&nbsp;}));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;5<br><br>int&nbsp;GetNumber(int[]&nbsp;values)&nbsp;=&gt;&nbsp;values&nbsp;switch<br>{<br>&nbsp;&nbsp;&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]&nbsp;=&gt;&nbsp;1,<br>&nbsp;&nbsp;&nbsp;[1,&nbsp;2,&nbsp;3]&nbsp;=&gt;&nbsp;2,<br>&nbsp;&nbsp;&nbsp;[1,&nbsp;2]&nbsp;=&gt;&nbsp;3,<br>&nbsp;&nbsp;&nbsp;[]&nbsp;=&gt;&nbsp;4,<br>&nbsp;&nbsp;&nbsp;_&nbsp;=&gt;&nbsp;5<br>};</code></pre>
+     </div>
+     <p class="paragraph">În mod similar, în loc de array-uri se pot folosi liste:</p>
+     <div class="code-inline">
+      <pre><code>List&lt;int&gt;&nbsp;numbers&nbsp;=&nbsp;new&nbsp;List&lt;int&gt;&nbsp;{&nbsp;1,&nbsp;2,&nbsp;3&nbsp;};<br><br>Console.WriteLine(GetNumber(numbers));&nbsp;&nbsp;//&nbsp;2<br><br>int&nbsp;GetNumber(List&lt;int&gt;&nbsp;values)&nbsp;=&gt;&nbsp;values&nbsp;switch<br>{<br>&nbsp;&nbsp;&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]&nbsp;=&gt;&nbsp;1,<br>&nbsp;&nbsp;&nbsp;[1,&nbsp;2,&nbsp;3]&nbsp;=&gt;&nbsp;2,<br>&nbsp;&nbsp;&nbsp;[1,&nbsp;2]&nbsp;=&gt;&nbsp;3,<br>&nbsp;&nbsp;&nbsp;[]&nbsp;=&gt;&nbsp;4,<br>&nbsp;&nbsp;&nbsp;_&nbsp;=&gt;&nbsp;5<br>};</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, pattern-urile de liste pot fi folosite în construcția if:</p>
+     <div class="code-inline">
+      <pre><code>int[]&nbsp;numbers&nbsp;=&nbsp;{&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5&nbsp;};<br>if&nbsp;(numbers&nbsp;is&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5])<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]");<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Substituția _</h2>
+     <p class="paragraph">Cu ajutorul pattern-ului _ se poate desemna un element unic care are orice valoare. De exemplu, pattern-ul [2, _, 5] corespunde oricărui array de trei elemente în care între 2 și 5 se află o valoare arbitrară. Iar array-ul [_, _] corespunde oricărui array de două elemente arbitrare.</p>
+     <p class="paragraph">Câteva exemple:</p>
+     <div class="code-inline">
+      <pre><code>Console.WriteLine(GetNumber(new[]&nbsp;{&nbsp;2,&nbsp;3,&nbsp;5&nbsp;}));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;1<br>Console.WriteLine(GetNumber(new[]&nbsp;{&nbsp;2,&nbsp;4,&nbsp;6&nbsp;}));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;2<br>Console.WriteLine(GetNumber(new[]&nbsp;{&nbsp;1,&nbsp;2,&nbsp;5&nbsp;}));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;3<br>Console.WriteLine(GetNumber(new[]&nbsp;{&nbsp;1,&nbsp;2,&nbsp;3&nbsp;}));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;4<br>Console.WriteLine(GetNumber(new&nbsp;int[]&nbsp;{&nbsp;}));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;5<br><br>int&nbsp;GetNumber(int[]&nbsp;values)&nbsp;=&gt;&nbsp;values&nbsp;switch<br>{<br>&nbsp;&nbsp;&nbsp;[2,&nbsp;_,&nbsp;5]&nbsp;=&gt;&nbsp;1,<br>&nbsp;&nbsp;&nbsp;[2,&nbsp;_,&nbsp;_]&nbsp;=&gt;&nbsp;2,<br>&nbsp;&nbsp;&nbsp;[_,&nbsp;_,&nbsp;5]&nbsp;=&gt;&nbsp;3,<br>&nbsp;&nbsp;&nbsp;[_,&nbsp;_,&nbsp;_]&nbsp;=&gt;&nbsp;4,<br>&nbsp;&nbsp;&nbsp;_&nbsp;=&gt;&nbsp;5<br>};</code></pre>
+     </div>
+     <h2 class="subtitle">Pattern-ul slice</h2>
+     <p class="paragraph">Pentru a transmite un număr arbitrar de elemente din array/listă, se folosește pattern-ul slice ... De exemplu, pattern-ul [1, 2, .., 5] corespunde unui array care începe cu 1, urmat de 2, iar ultimul element din array este 5. Între 2 și 5 poate exista orice număr de valori întregi. Adică, pattern-ul [1, 2, .., 5] va corespunde unor array-uri precum:</p>
+     <div class="code-inline">
+      <pre><code>int[]&nbsp;arr1&nbsp;=&nbsp;{&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5&nbsp;};<br>int[]&nbsp;arr2&nbsp;=&nbsp;{&nbsp;1,&nbsp;2,&nbsp;5&nbsp;};<br>int[]&nbsp;arr3&nbsp;=&nbsp;{&nbsp;1,&nbsp;2,&nbsp;66,&nbsp;77,&nbsp;88,&nbsp;5&nbsp;};</code></pre>
+     </div>
+     <p class="paragraph">Cu ajutorul pattern-ului .. se poate desemna un număr arbitrar de elemente atât la început, cât și la sfârșitul array-ului/listei. De exemplu, pattern-ul [2, ..] reprezintă un array care începe cu 2. Iar pattern-ul [.., 5] reprezintă un array care se termină cu elementul 5. Pattern-ul [..] reprezintă un array care conține un număr arbitrar de elemente. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>Console.WriteLine(GetNumber(new[]&nbsp;{&nbsp;2,&nbsp;5&nbsp;}));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;1<br>Console.WriteLine(GetNumber(new[]&nbsp;{&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5&nbsp;}));&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;1<br><br>Console.WriteLine(GetNumber(new[]&nbsp;{&nbsp;2&nbsp;}));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;2<br>Console.WriteLine(GetNumber(new[]&nbsp;{&nbsp;2,&nbsp;3,&nbsp;4&nbsp;}));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;2<br><br>Console.WriteLine(GetNumber(new[]&nbsp;{&nbsp;3,&nbsp;4,&nbsp;5&nbsp;}));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;3<br>Console.WriteLine(GetNumber(new[]&nbsp;{&nbsp;5&nbsp;}));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;3<br><br>Console.WriteLine(GetNumber(new&nbsp;int[]&nbsp;{&nbsp;}));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;4<br>Console.WriteLine(GetNumber(new[]&nbsp;{&nbsp;1&nbsp;}));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;4<br>Console.WriteLine(GetNumber(new[]&nbsp;{&nbsp;1,&nbsp;2,&nbsp;3&nbsp;}));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;4<br><br>int&nbsp;GetNumber(int[]&nbsp;values)&nbsp;=&gt;&nbsp;values&nbsp;switch<br>{<br>&nbsp;&nbsp;&nbsp;[2,&nbsp;..,&nbsp;5]&nbsp;=&gt;&nbsp;1,&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;primul&nbsp;element&nbsp;este&nbsp;2,&nbsp;iar&nbsp;ultimul&nbsp;este&nbsp;5<br>&nbsp;&nbsp;&nbsp;[2,&nbsp;..]&nbsp;=&gt;&nbsp;2,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;primul&nbsp;element&nbsp;este&nbsp;2<br>&nbsp;&nbsp;&nbsp;[..,&nbsp;5]&nbsp;=&gt;&nbsp;3,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;ultimul&nbsp;element&nbsp;este&nbsp;5<br>&nbsp;&nbsp;&nbsp;[..]&nbsp;=&gt;&nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;număr&nbsp;arbitrar&nbsp;de&nbsp;elemente<br>};</code></pre>
+     </div>
+     <p class="paragraph">Pattern-ul slice poate fi combinat cu simboluri de substituție _, de exemplu:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;GetNumber(int[]&nbsp;values)&nbsp;=&gt;&nbsp;values&nbsp;switch<br>{<br>&nbsp;&nbsp;&nbsp;[_,&nbsp;..,&nbsp;_]&nbsp;=&gt;&nbsp;1,<br>&nbsp;&nbsp;&nbsp;[..]&nbsp;=&gt;&nbsp;2<br>};</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, pattern-ul [_, .., _] presupune un array format din cel puțin două elemente arbitrare, iar între primul și ultimul element poate exista un număr arbitrar de alte elemente:</p>
+     <div class="code-inline">
+      <pre><code>Console.WriteLine(GetNumber(new[]&nbsp;{&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4&nbsp;}));&nbsp;&nbsp;&nbsp;//&nbsp;1<br>Console.WriteLine(GetNumber(new[]&nbsp;{&nbsp;1,&nbsp;2,&nbsp;3&nbsp;}));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;1<br>Console.WriteLine(GetNumber(new[]&nbsp;{&nbsp;1,&nbsp;2&nbsp;}));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;1<br>Console.WriteLine(GetNumber(new[]&nbsp;{&nbsp;1&nbsp;}));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;2<br>Console.WriteLine(GetNumber(new&nbsp;int[]&nbsp;{&nbsp;}));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;2<br><br>int&nbsp;GetNumber(int[]&nbsp;values)&nbsp;=&gt;&nbsp;values&nbsp;switch<br>{<br>&nbsp;&nbsp;&nbsp;[_,&nbsp;..,&nbsp;_]&nbsp;=&gt;&nbsp;1,<br>&nbsp;&nbsp;&nbsp;[..]&nbsp;=&gt;&nbsp;2<br>};</code></pre>
+     </div>
+     <h2 class="subtitle">Obținerea elementelor în variabile</h2>
+     <p class="paragraph">Valorile individuale din array/listă pot fi obținute în variabile, de exemplu:</p>
+     <div class="code-inline">
+      <pre><code>int[]&nbsp;numbers&nbsp;=&nbsp;{&nbsp;2,&nbsp;3,&nbsp;5&nbsp;};<br>if&nbsp;(numbers&nbsp;is&nbsp;[var&nbsp;first,&nbsp;var&nbsp;second,&nbsp;..,&nbsp;var&nbsp;last])<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"first:&nbsp;{first},&nbsp;second:&nbsp;{second}&nbsp;&nbsp;last:&nbsp;{last}");<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, obținem primul element al array-ului în variabila first, al doilea element în variabila second, iar ultimul element în variabila last.</p>
+     <p class="paragraph">Exemplu cu diferite array-uri:</p>
+     <div class="code-inline">
+      <pre><code>Console.WriteLine(GetData(new[]&nbsp;{&nbsp;1,&nbsp;2,&nbsp;3&nbsp;}));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;First:&nbsp;1&nbsp;&nbsp;Second:&nbsp;2&nbsp;&nbsp;Last:&nbsp;3<br>Console.WriteLine(GetData(new[]&nbsp;{&nbsp;2,&nbsp;4,&nbsp;6,&nbsp;8&nbsp;}));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;First:&nbsp;2&nbsp;&nbsp;Second:&nbsp;4&nbsp;&nbsp;Last:&nbsp;8<br>Console.WriteLine(GetData(new[]&nbsp;{&nbsp;1,&nbsp;2&nbsp;}));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Array&nbsp;has&nbsp;less&nbsp;than&nbsp;3&nbsp;elements<br><br>string&nbsp;GetData(int[]&nbsp;values)&nbsp;=&gt;&nbsp;values&nbsp;switch<br>{<br>&nbsp;&nbsp;&nbsp;[var&nbsp;first,&nbsp;var&nbsp;second,&nbsp;..,&nbsp;var&nbsp;last]&nbsp;=&gt;&nbsp;$"First:&nbsp;{first}&nbsp;&nbsp;Second:&nbsp;{second}&nbsp;&nbsp;Last:&nbsp;{last}",<br>&nbsp;&nbsp;&nbsp;[..]&nbsp;=&gt;&nbsp;"Array&nbsp;has&nbsp;less&nbsp;than&nbsp;3&nbsp;elements"<br>};</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, obținem primul element al array-ului în variabila first, al doilea element în variabila second, iar ultimul element în variabila last.</p>
+     <p class="paragraph">În același timp, valorile proiectate pe pattern-ul .. pot fi, de asemenea, obținute într-o variabilă. De exemplu, în pattern-ul [2, .. var middle, 5] elementele proiectate pe .. pot fi transmise în variabila middle. Câteva exemple:</p>
+     <div class="code-inline">
+      <pre><code>Console.WriteLine(GetSlice(new[]&nbsp;{&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5&nbsp;}));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Middle:&nbsp;3,&nbsp;4<br>Console.WriteLine(GetSlice(new[]&nbsp;{&nbsp;2,&nbsp;4,&nbsp;6,&nbsp;8&nbsp;}));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;End:&nbsp;4,&nbsp;6,&nbsp;8<br>Console.WriteLine(GetSlice(new[]&nbsp;{<br><br>1,&nbsp;2,&nbsp;3,&nbsp;5&nbsp;}));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Start:&nbsp;1,&nbsp;2,&nbsp;3<br>Console.WriteLine(GetSlice(new[]&nbsp;{&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4&nbsp;}));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;All:&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4<br>Console.WriteLine(GetSlice(new&nbsp;int[]&nbsp;{&nbsp;}));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;All:<br><br>string&nbsp;GetSlice(int[]&nbsp;values)&nbsp;=&gt;&nbsp;values&nbsp;switch<br>{<br>&nbsp;&nbsp;&nbsp;[2,&nbsp;..&nbsp;var&nbsp;middle,&nbsp;5]&nbsp;=&gt;&nbsp;$"Middle:&nbsp;{string.Join(",&nbsp;",&nbsp;middle)}",<br>&nbsp;&nbsp;&nbsp;[2,&nbsp;..&nbsp;var&nbsp;end]&nbsp;=&gt;&nbsp;$"End:&nbsp;{string.Join(",&nbsp;",&nbsp;end)}",<br>&nbsp;&nbsp;&nbsp;[..&nbsp;var&nbsp;start,&nbsp;5]&nbsp;=&gt;&nbsp;$"Start:&nbsp;{string.Join(",&nbsp;",&nbsp;start)}",<br>&nbsp;&nbsp;&nbsp;[..&nbsp;var&nbsp;all]&nbsp;=&gt;&nbsp;$"All:&nbsp;{string.Join(",&nbsp;",&nbsp;all)}"<br>};</code></pre>
+     </div>
+     <h2 class="subtitle">Proprietăți ale colecțiilor</h2>
+     <p class="paragraph">Este de menționat că, deoarece array-urile și listele sunt clase C# obișnuite care au proprietăți, putem aplica pentru ele și pattern-ul de proprietăți. Combinarea pattern-ului de proprietăți și pattern-ului de liste permite simplificarea rezolvării unor sarcini.</p>
+     <p class="paragraph">De exemplu, avem o sarcină: dacă array-ul are trei elemente, să îl descompunem în trei variabile:</p>
+     <div class="code-inline">
+      <pre><code>int[]&nbsp;numbers&nbsp;=&nbsp;{&nbsp;2,&nbsp;3,&nbsp;5&nbsp;};<br>if&nbsp;(numbers&nbsp;is&nbsp;{&nbsp;Length:&nbsp;3&nbsp;}&nbsp;and&nbsp;[var&nbsp;first,&nbsp;var&nbsp;second,&nbsp;var&nbsp;third])<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"first:&nbsp;{first},&nbsp;second:&nbsp;{second}&nbsp;&nbsp;third:&nbsp;{third}");<br>}</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

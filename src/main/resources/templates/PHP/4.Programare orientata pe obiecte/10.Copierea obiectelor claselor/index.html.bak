@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='PHP', activeChapter='4.Programare orientata pe obiecte', activeLesson='10.Copierea obiectelor claselor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Copierea obiectelor claselor</h1>
+     <p class="paragraph">Atunci când se atribuie un obiect de clasă unei alte variabile, se creează o nouă referință la același obiect. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;public&nbsp;$name;<br>&nbsp;&nbsp;&nbsp;function&nbsp;__construct($name){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this-&gt;name&nbsp;=&nbsp;$name;<br>&nbsp;&nbsp;&nbsp;}<br>}<br>$tom&nbsp;=&nbsp;new&nbsp;Person("Tom");<br>$bob&nbsp;=&nbsp;$tom;<br>$bob-&gt;name&nbsp;=&nbsp;"Bob";<br>echo&nbsp;$tom-&gt;name;&nbsp;//&nbsp;Bob</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, după atribuirea $bob = $tom;, ambele variabile vor indica același obiect. Prin urmare, dacă schimbăm proprietatea $name a unei variabile, această schimbare va afecta și cealaltă variabilă, deoarece ele se referă la același obiect.</p>
+     <p class="paragraph">Totuși, acest comportament poate fi nedorit dacă dorim ca după copiere variabilele să reprezinte obiecte independente. Pentru aceasta, PHP oferă operatorul clone:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;public&nbsp;$name;<br>&nbsp;&nbsp;&nbsp;function&nbsp;__construct($name){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this-&gt;name&nbsp;=&nbsp;$name;<br>&nbsp;&nbsp;&nbsp;}<br>}<br>$tom&nbsp;=&nbsp;new&nbsp;Person("Tom");<br>$bob&nbsp;=&nbsp;clone&nbsp;$tom;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;copiem&nbsp;obiectul&nbsp;din&nbsp;$tom&nbsp;în&nbsp;variabila&nbsp;$bob<br>$bob-&gt;name&nbsp;=&nbsp;"Bob";<br>echo&nbsp;$tom-&gt;name;&nbsp;//&nbsp;Tom</code></pre>
+     </div>
+     <p class="paragraph">Prin aplicarea operatorului clone, toate proprietățile care reprezintă tipuri primitive și array-uri sunt copiate în noul obiect. Totuși, ce se întâmplă dacă o proprietate a clasei reprezintă o altă clasă:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Company{<br>&nbsp;&nbsp;&nbsp;public&nbsp;$name;<br>&nbsp;&nbsp;&nbsp;function&nbsp;__construct($name){&nbsp;$this-&gt;name&nbsp;=&nbsp;$name;&nbsp;}<br>}<br>class&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;public&nbsp;$name,&nbsp;$company;<br>&nbsp;&nbsp;&nbsp;function&nbsp;__construct($name,&nbsp;$company)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this-&gt;name&nbsp;=&nbsp;$name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this-&gt;company&nbsp;=&nbsp;$company;<br>&nbsp;&nbsp;&nbsp;}<br>}<br>$microsoft&nbsp;=&nbsp;new&nbsp;Company("Microsoft");<br>$tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;$microsoft);<br><br>$bob&nbsp;=&nbsp;clone&nbsp;$tom;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;copiem&nbsp;obiectul&nbsp;din&nbsp;$tom&nbsp;în&nbsp;variabila&nbsp;$bob<br>$bob-&gt;name&nbsp;=&nbsp;"Bob";<br>$bob-&gt;company-&gt;name&nbsp;=&nbsp;"Google";&nbsp;&nbsp;&nbsp;//&nbsp;schimbăm&nbsp;numele&nbsp;companiei&nbsp;lui&nbsp;Bob<br>echo&nbsp;$tom-&gt;company-&gt;name;&nbsp;//&nbsp;Google&nbsp;-&nbsp;și&nbsp;la&nbsp;Tom&nbsp;s-a&nbsp;schimbat&nbsp;numele&nbsp;companiei</code></pre>
+     </div>
+     <p class="paragraph">Aici ne confruntăm practic cu aceeași situație ca în primul exemplu. Clasa Person conține o proprietate care reprezintă clasa Company. La clonarea obiectului:</p>
+     <div class="code-inline">
+      <pre><code>$bob&nbsp;=&nbsp;clone&nbsp;$tom;</code></pre>
+     </div>
+     <p class="paragraph">Ambele variabile $tom și $bob vor conține o referință la același obiect Company. Prin urmare, dacă schimbăm proprietățile acestui obiect printr-o variabilă:</p>
+     <div class="code-inline">
+      <pre><code>$bob-&gt;company-&gt;name&nbsp;=&nbsp;"Google";</code></pre>
+     </div>
+     <p class="paragraph">Schimbarea va afecta și cealaltă variabilă:</p>
+     <div class="code-inline">
+      <pre><code>echo&nbsp;$tom-&gt;company-&gt;name;&nbsp;//&nbsp;Google</code></pre>
+     </div>
+     <p class="paragraph">Pentru a rezolva această problemă, trebuie să definim metoda __clone în clasă. Aceasta este apelată la clonare și poate fi utilizată pentru a clona obiectele încorporate:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Company{<br>&nbsp;&nbsp;&nbsp;public&nbsp;$name;<br>&nbsp;&nbsp;&nbsp;function&nbsp;__construct($name){&nbsp;$this-&gt;name&nbsp;=&nbsp;$name;&nbsp;}<br>}<br>class&nbsp;Person{<br>&nbsp;&nbsp;&nbsp;public&nbsp;$name,&nbsp;$company;<br>&nbsp;&nbsp;&nbsp;function&nbsp;__construct($name,&nbsp;$company)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this-&gt;name&nbsp;=&nbsp;$name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this-&gt;company&nbsp;=&nbsp;$company;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;function&nbsp;__clone()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this-&gt;company&nbsp;=&nbsp;clone&nbsp;$this-&gt;company;<br>&nbsp;&nbsp;&nbsp;}<br>}<br>$microsoft&nbsp;=&nbsp;new&nbsp;Company("Microsoft");<br>$tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;$microsoft);<br><br>$bob&nbsp;=&nbsp;clone&nbsp;$tom;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;copiem&nbsp;obiectul&nbsp;din&nbsp;$tom&nbsp;în&nbsp;variabila&nbsp;$bob<br>$bob-&gt;name&nbsp;=&nbsp;"Bob";<br>$bob-&gt;company-&gt;name&nbsp;=&nbsp;"Google";&nbsp;&nbsp;&nbsp;//&nbsp;schimbăm&nbsp;numele&nbsp;companiei&nbsp;lui&nbsp;Bob<br>echo&nbsp;$tom-&gt;company-&gt;name;&nbsp;//&nbsp;Microsoft&nbsp;-&nbsp;la&nbsp;Tom&nbsp;numele&nbsp;companiei&nbsp;nu&nbsp;s-a&nbsp;schimbat</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, metoda __clone din clasa Person clonează și obiectul Company, asigurându-se astfel că variabilele $tom și $bob se referă la obiecte independente.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

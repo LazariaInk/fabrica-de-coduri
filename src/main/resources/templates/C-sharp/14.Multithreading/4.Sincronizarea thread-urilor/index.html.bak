@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='14.Multithreading', activeLesson='4.Sincronizarea thread-urilor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Sincronizarea thread-urilor</h1>
+     <p class="paragraph">Deseori, în thread-uri sunt utilizate anumite resurse partajate, comune pentru întreaga programă. Acestea pot fi variabile comune, fișiere, alte resurse. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;x&nbsp;=&nbsp;0;<br><br>//&nbsp;pornim&nbsp;cinci&nbsp;thread-uri<br>for&nbsp;(int&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;&nbsp;6;&nbsp;i++)<br>{<br>&nbsp;&nbsp;&nbsp;Thread&nbsp;myThread&nbsp;=&nbsp;new(Print);<br>&nbsp;&nbsp;&nbsp;myThread.Name&nbsp;=&nbsp;$"Thread&nbsp;{i}";&nbsp;&nbsp;&nbsp;//&nbsp;setăm&nbsp;numele&nbsp;pentru&nbsp;fiecare&nbsp;thread<br>&nbsp;&nbsp;&nbsp;myThread.Start();<br>}<br><br>void&nbsp;Print()<br>{<br>&nbsp;&nbsp;&nbsp;x&nbsp;=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;&nbsp;6;&nbsp;i++)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"{Thread.CurrentThread.Name}:&nbsp;{x}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread.Sleep(100);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici pornim cinci thread-uri care apelează metoda Print și care lucrează cu variabila comună x. Ne așteptăm ca metoda să afișeze toate valorile x de la 1 la 5 pentru fiecare thread. Totuși, în realitate, în timpul execuției, va avea loc comutarea între thread-uri, iar valoarea variabilei x devine imprevizibilă. De exemplu, în cazul meu, am obținut următoarea ieșire pe consolă (poate varia în funcție de fiecare caz):</p>
+     <div class="code-inline">
+      <pre><code>Thread&nbsp;1:&nbsp;1<br>Thread&nbsp;5:&nbsp;1<br>Thread&nbsp;4:&nbsp;1<br>Thread&nbsp;2:&nbsp;1<br>Thread&nbsp;3:&nbsp;1<br>Thread&nbsp;1:&nbsp;6<br>Thread&nbsp;5:&nbsp;7<br>Thread&nbsp;3:&nbsp;7<br>Thread&nbsp;2:&nbsp;7<br>Thread&nbsp;4:&nbsp;9<br>Thread&nbsp;1:&nbsp;11<br>Thread&nbsp;4:&nbsp;11<br>Thread&nbsp;2:&nbsp;11<br>Thread&nbsp;3:&nbsp;14<br>Thread&nbsp;5:&nbsp;11<br>Thread&nbsp;1:&nbsp;16<br>Thread&nbsp;2:&nbsp;16<br>Thread&nbsp;3:&nbsp;16<br>Thread&nbsp;5:&nbsp;18<br>Thread&nbsp;4:&nbsp;16<br>Thread&nbsp;1:&nbsp;21<br>Thread&nbsp;5:&nbsp;21<br>Thread&nbsp;3:&nbsp;21<br>Thread&nbsp;2:&nbsp;21<br>Thread&nbsp;4:&nbsp;21</code></pre>
+     </div>
+     <p class="paragraph">Soluția problemei constă în sincronizarea thread-urilor și restricționarea accesului la resursele partajate în timpul utilizării acestora de către un thread. Pentru aceasta, se folosește cuvântul cheie lock. Operatorul lock definește un bloc de cod, în interiorul căruia tot codul este blocat și devine inaccesibil pentru alte thread-uri până la finalizarea execuției thread-ului curent.</p>
+     <p class="paragraph">Celelalte thread-uri sunt puse într-o coadă de așteptare și așteaptă până când thread-ul curent eliberează acest bloc de cod. Astfel, cu ajutorul lock, putem modifica exemplul anterior astfel:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;x&nbsp;=&nbsp;0;<br>object&nbsp;locker&nbsp;=&nbsp;new();&nbsp;&nbsp;//&nbsp;obiect&nbsp;placeholder<br><br>//&nbsp;pornim&nbsp;cinci&nbsp;thread-uri<br>for&nbsp;(int&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;&nbsp;6;&nbsp;i++)<br>{<br>&nbsp;&nbsp;&nbsp;Thread&nbsp;myThread&nbsp;=&nbsp;new(Print);<br>&nbsp;&nbsp;&nbsp;myThread.Name&nbsp;=&nbsp;$"Thread&nbsp;{i}";<br>&nbsp;&nbsp;&nbsp;myThread.Start();<br>}<br><br>void&nbsp;Print()<br>{<br>&nbsp;&nbsp;&nbsp;lock&nbsp;(locker)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x&nbsp;=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;&nbsp;6;&nbsp;i++)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"{Thread.CurrentThread.Name}:&nbsp;{x}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread.Sleep(100);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Pentru blocare, cuvântul cheie lock folosește un obiect placeholder, în acest caz, variabila locker. De obicei, aceasta este o variabilă de tip object. Când execuția ajunge la operatorul lock, obiectul locker este blocat, și pe durata blocării, accesul exclusiv la blocul de cod este asigurat doar pentru un singur thread.</p>
+     <p class="paragraph">După finalizarea execuției blocului de cod, obiectul locker este eliberat și devine accesibil pentru alte thread-uri.</p>
+     <p class="paragraph">În acest caz, ieșirea pe consolă va fi mai ordonată:</p>
+     <div class="code-inline">
+      <pre><code>Thread&nbsp;1:&nbsp;1<br>Thread&nbsp;1:&nbsp;2<br>Thread&nbsp;1:&nbsp;3<br>Thread&nbsp;1:&nbsp;4<br>Thread&nbsp;1:&nbsp;5<br>Thread&nbsp;5:&nbsp;1<br>Thread&nbsp;5:&nbsp;2<br>Thread&nbsp;5:&nbsp;3<br>Thread&nbsp;5:&nbsp;4<br>Thread&nbsp;5:&nbsp;5<br>Thread&nbsp;3:&nbsp;1<br>Thread&nbsp;3:&nbsp;2<br>Thread&nbsp;3:&nbsp;3<br>Thread&nbsp;3:&nbsp;4<br>Thread&nbsp;3:&nbsp;5<br>Thread&nbsp;2:&nbsp;1<br>Thread&nbsp;2:&nbsp;2<br>Thread&nbsp;2:&nbsp;3<br>Thread&nbsp;2:&nbsp;4<br>Thread&nbsp;2:&nbsp;5<br>Thread&nbsp;4:&nbsp;1<br>Thread&nbsp;4:&nbsp;2<br>Thread&nbsp;4:&nbsp;3<br>Thread&nbsp;4:&nbsp;4<br>Thread&nbsp;4:&nbsp;5</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

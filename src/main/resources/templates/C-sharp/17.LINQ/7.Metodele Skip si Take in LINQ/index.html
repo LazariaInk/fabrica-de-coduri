@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='17.LINQ', activeLesson='7.Metodele Skip si Take in LINQ'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Metodele Skip și Take în LINQ</h1>
+     <p class="paragraph">Există mai multe metode în LINQ care permit obținerea unei părți dintr-o colecție, în special metodele Skip, Take, SkipWhile și TakeWhile.</p>
+     <h2 class="subtitle">Metoda Skip()</h2>
+     <p class="paragraph">Metoda Skip() omite un număr specificat de elemente. Numărul de elemente omise este transmis ca parametru metodei:</p>
+     <div class="code-inline">
+      <pre><code>string[]&nbsp;people&nbsp;=&nbsp;{&nbsp;"Tom",&nbsp;"Sam",&nbsp;"Bob",&nbsp;"Mike",&nbsp;"Kate"&nbsp;};<br>//&nbsp;omitem&nbsp;primele&nbsp;două&nbsp;elemente<br>var&nbsp;result&nbsp;=&nbsp;people.Skip(2);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;"Bob",&nbsp;"Mike",&nbsp;"Kate"<br><br>foreach&nbsp;(var&nbsp;person&nbsp;in&nbsp;result)<br>&nbsp;Console.WriteLine(person);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, omitem primele două elemente. Afișarea pe consolă:</p>
+     <div class="code-inline">
+      <pre><code>Bob<br>Mike<br>Kate</code></pre>
+     </div>
+     <p class="paragraph">Dacă trebuie să omitem un anumit număr de elemente de la sfârșitul colecției, se utilizează metoda SkipLast():</p>
+     <div class="code-inline">
+      <pre><code>string[]&nbsp;people&nbsp;=&nbsp;{&nbsp;"Tom",&nbsp;"Sam",&nbsp;"Bob",&nbsp;"Mike",&nbsp;"Kate"&nbsp;};<br>//&nbsp;omitem&nbsp;ultimele&nbsp;două&nbsp;elemente<br>var&nbsp;result&nbsp;=&nbsp;people.SkipLast(2);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;"Tom",&nbsp;"Sam",&nbsp;"Bob"<br><br>foreach&nbsp;(var&nbsp;person&nbsp;in&nbsp;result)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(person);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, omitem ultimele două elemente. Afișarea pe consolă:</p>
+     <div class="code-inline">
+      <pre><code>Tom<br>Sam<br>Bob</code></pre>
+     </div>
+     <h2 class="subtitle">Metoda SkipWhile()</h2>
+     <p class="paragraph">Metoda SkipWhile() omite o secvență de elemente începând de la primul element, până când acestea îndeplinesc o anumită condiție:</p>
+     <div class="code-inline">
+      <pre><code>SkipWhile(Func&lt;TSource,&nbsp;bool&gt;&nbsp;predicate);</code></pre>
+     </div>
+     <p class="paragraph">Metoda primește un delegat care reprezintă condiția, primește fiecare element al colecției și returnează valoarea true dacă elementul corespunde condiției. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>string[]&nbsp;people&nbsp;=&nbsp;{&nbsp;"Tom",&nbsp;"Sam",&nbsp;"Mike",&nbsp;"Kate",&nbsp;"Bob"&nbsp;};<br>//&nbsp;omitem&nbsp;primele&nbsp;elemente&nbsp;a&nbsp;căror&nbsp;lungime&nbsp;este&nbsp;3<br>var&nbsp;result&nbsp;=&nbsp;people.SkipWhile(p&nbsp;=&gt;&nbsp;p.Length&nbsp;==&nbsp;3);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;"Mike",&nbsp;"Kate",&nbsp;"Bob"<br><br>foreach&nbsp;(var&nbsp;person&nbsp;in&nbsp;result)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(person);</code></pre>
+     </div>
+     <p class="paragraph">Aici metoda SkipWhile omite elementele a căror lungime este de 3 caractere. Primele două elemente din array-ul people ("Tom", "Sam") corespund acestei condiții și vor fi omise. La al treilea element ("Mike"), secvența se întrerupe, astfel că ultimul element ("Bob"), a cărui lungime este tot de 3 caractere, nu va fi omis și va fi inclus în colecția de ieșire:</p>
+     <div class="code-inline">
+      <pre><code>Mike<br>Kate<br>Bob</code></pre>
+     </div>
+     <p class="paragraph">Dacă primul element din array ar fi avut o lungime diferită de 3 caractere, secvența de elemente omise s-ar fi întrerupt deja la primul element, iar metoda SkipWhile ar fi returnat toate elementele array-ului.</p>
+     <h2 class="subtitle">Metoda Take()</h2>
+     <p class="paragraph">Metoda Take() extrage un anumit număr de elemente. Numărul de elemente extrase este transmis metodei ca parametru. De exemplu, să extragem primele trei elemente:</p>
+     <div class="code-inline">
+      <pre><code>string[]&nbsp;people&nbsp;=&nbsp;{&nbsp;"Tom",&nbsp;"Sam",&nbsp;"Mike",&nbsp;"Kate",&nbsp;"Bob"&nbsp;};<br>//&nbsp;extragem&nbsp;primele&nbsp;3&nbsp;elemente<br>var&nbsp;result&nbsp;=&nbsp;people.Take(3);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;"Tom",&nbsp;"Sam",&nbsp;"Mike"<br><br>foreach&nbsp;(var&nbsp;person&nbsp;in&nbsp;result)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(person);</code></pre>
+     </div>
+     <p class="paragraph">Metoda TakeLast() extrage un anumit număr de elemente de la sfârșitul colecției:</p>
+     <div class="code-inline">
+      <pre><code>string[]&nbsp;people&nbsp;=&nbsp;{&nbsp;"Tom",&nbsp;"Sam",&nbsp;"Mike",&nbsp;"Kate",&nbsp;"Bob"&nbsp;};<br>//&nbsp;extragem&nbsp;ultimele&nbsp;3&nbsp;elemente<br>var&nbsp;result&nbsp;=&nbsp;people.TakeLast(3);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;"Mike",&nbsp;"Kate",&nbsp;"Bob"<br><br>foreach&nbsp;(var&nbsp;person&nbsp;in&nbsp;result)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(person);</code></pre>
+     </div>
+     <h2 class="subtitle">Metoda TakeWhile()</h2>
+     <p class="paragraph">Metoda TakeWhile() selectează o secvență de elemente începând de la primul element, până când acestea îndeplinesc o anumită condiție:</p>
+     <div class="code-inline">
+      <pre><code>TakeWhile(Func&lt;TSource,&nbsp;bool&gt;&nbsp;predicate);</code></pre>
+     </div>
+     <p class="paragraph">Metoda primește un delegat care reprezintă condiția, primește fiecare element al colecției și returnează valoarea true dacă elementul corespunde condiției. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>string[]&nbsp;people&nbsp;=&nbsp;{&nbsp;"Tom",&nbsp;"Sam",&nbsp;"Mike",&nbsp;"Kate",&nbsp;"Bob"&nbsp;};<br>//&nbsp;extragem&nbsp;primele&nbsp;elemente&nbsp;a&nbsp;căror&nbsp;lungime&nbsp;este&nbsp;3<br>var&nbsp;result&nbsp;=&nbsp;people.TakeWhile(p&nbsp;=&gt;&nbsp;p.Length&nbsp;==&nbsp;3);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;"Tom",&nbsp;"Sam"<br><br>foreach&nbsp;(var&nbsp;person&nbsp;in&nbsp;result)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(person);</code></pre>
+     </div>
+     <p class="paragraph">Aici metoda TakeWhile selectează elementele a căror lungime este de 3 caractere. Primele două elemente din array-ul people ("Tom", "Sam") corespund acestei condiții și vor fi selectate în colecția de ieșire. La al treilea element ("Mike"), secvența se întrerupe, astfel că ultimul element ("Bob"), a cărui lungime este tot de 3 caractere, nu va fi inclus în colecția de ieșire:</p>
+     <div class="code-inline">
+      <pre><code>Tom<br>Sam</code></pre>
+     </div>
+     <p class="paragraph">Dacă primul element din array ar fi avut o lungime diferită de 3 caractere, în acest caz metoda TakeWhile ar fi returnat 0 elemente.</p>
+     <h2 class="subtitle">Afișare paginată</h2>
+     <p class="paragraph">Combinând ambele metode - Take și Skip, putem selecta un anumit număr de elemente începând de la un element specificat. De exemplu, să selectăm două elemente începând de la al patrulea (adică să omitem primele 3 elemente):</p>
+     <div class="code-inline">
+      <pre><code>string[]&nbsp;people&nbsp;=&nbsp;{&nbsp;"Tom",&nbsp;"Sam",&nbsp;"Mike",&nbsp;"Kate",&nbsp;"Bob",&nbsp;"Alice"&nbsp;};<br>//&nbsp;omitem&nbsp;3&nbsp;elemente&nbsp;și&nbsp;selectăm&nbsp;2&nbsp;elemente<br>var&nbsp;result&nbsp;=&nbsp;people.Skip(3).Take(2);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;"Kate",&nbsp;"Bob"<br><br>foreach&nbsp;(var&nbsp;person&nbsp;in&nbsp;result)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(person);</code></pre>
+     </div>
+     <p class="paragraph">Afișarea pe consolă:</p>
+     <div class="code-inline">
+      <pre><code>Kate<br>Bob</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

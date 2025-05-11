@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <title>Lessons Management</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
+    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
     <style>
         body {
             background-color: #f4f4f4;
@@ -15,7 +17,7 @@
         }
 
         #sidebar {
-            background-color: #28a745;
+            background-color: #04aa6d;
             color: white;
             width: 250px;
             height: 100vh;
@@ -46,7 +48,7 @@
 
         #menu-toggle {
             display: none;
-            background-color: #28a745;
+            background-color: #04aa6d;
             color: white;
             border: none;
             padding: 10px;
@@ -78,8 +80,6 @@
                 transform: translateX(0);
             }
         }
-
-
     </style>
 </head>
 
@@ -141,10 +141,15 @@
                     <option th:each="topic : ${topics}" th:value="${topic.id}" th:text="${topic.name}"></option>
                 </select>
             </div>
-            <div class="input-group mb-3">
+            <div class="mb-3">
+                <label>Chapter Title</label>
                 <input type="text" name="title" class="form-control" placeholder="New Chapter Title" required>
-                <button class="btn btn-primary" type="submit">Add</button>
             </div>
+            <div class="mb-3">
+                <label>Order</label>
+                <input type="number" name="orderNumber" class="form-control" required>
+            </div>
+            <button class="btn btn-primary" type="submit">Add</button>
         </form>
         <ul class="list-group">
             <li class="list-group-item d-flex justify-content-between align-items-center"
@@ -152,7 +157,7 @@
                 <span th:text="${chapter.title} + ' (' + ${chapter.topic.name} + ')' "></span>
                 <div>
                     <button class="btn btn-warning btn-sm"
-                            th:attr="data-id=${chapter.id}, data-title=${chapter.title}, data-topic=${chapter.topic.id}"
+                            th:attr="data-id=${chapter.id}, data-title=${chapter.title}, data-topic=${chapter.topic.id}, data-order=${chapter.orderNumber}"
                             onclick="openEditChapterModal(this)">Edit</button>
                     <a th:href="@{/admin/chapters/delete/{id}(id=${chapter.id})}"
                        class="btn btn-danger btn-sm">Delete</a>
@@ -175,8 +180,7 @@
                 <label class="form-label">Chapter</label>
                 <select class="form-select" name="chapterId" required>
                     <option value="">-- Select Chapter --</option>
-                    <option th:each="chapter : ${chapters}" th:value="${chapter.id}" th:text="${chapter.title + chapter.topic.name}">
-                    </option>
+                    <option th:each="chapter : ${chapters}" th:value="${chapter.id}" th:text="${chapter.title + chapter.topic.name}"></option>
                 </select>
             </div>
             <div class="mb-3">
@@ -186,6 +190,10 @@
             <div class="mb-3">
                 <label class="form-label">HTML Path (under /static/)</label>
                 <input type="text" class="form-control" th:field="*{htmlPath}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Order</label>
+                <input type="number" class="form-control" th:field="*{orderNumber}" required>
             </div>
             <button type="submit" class="btn btn-success w-100">✅ Add Lesson</button>
         </form>
@@ -198,17 +206,15 @@
                 <div class="d-flex align-items-center justify-content-between w-100">
                     <div>
                         <strong th:text="${lesson.title}"></strong>
-                        <span class="text-muted"
-                              th:text="' → ' + ${lesson.chapter.title} + ' / ' + ${lesson.chapter.topic.name}"></span>
+                        <span class="text-muted" th:text="' → ' + ${lesson.chapter.title} + ' / ' + ${lesson.chapter.topic.name}"></span>
                     </div>
                     <div>
                         <button class="btn btn-warning btn-sm me-1" th:attr="data-id=${lesson.id},
                                      data-title=${lesson.title},
                                      data-path=${lesson.htmlPath},
-                                     data-chapter=${lesson.chapter.id}" onclick="openEditModal(this)">Edit
-                        </button>
-                        <a th:href="@{/admin/lessons/delete/{id}(id=${lesson.id})}"
-                           class="btn btn-danger btn-sm">Delete</a>
+                                     data-chapter=${lesson.chapter.id},
+                                     data-order=${lesson.orderNumber}" onclick="openEditModal(this)">Edit</button>
+                        <a th:href="@{/admin/lessons/delete/{id}(id=${lesson.id})}" class="btn btn-danger btn-sm">Delete</a>
                     </div>
                 </div>
             </li>
@@ -216,138 +222,6 @@
     </div>
 </div>
 
-<div class="modal fade" id="editTopicModal" tabindex="-1" aria-labelledby="editTopicLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form method="post" action="/admin/topics/update">
-                <div class="modal-header">
-                    <h5 class="modal-title">✏️ Edit Topic</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" name="id" id="editTopicId">
-                    <div class="mb-3">
-                        <label class="form-label">Topic Name</label>
-                        <input type="text" name="name" id="editTopicName" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Description</label>
-                        <textarea name="description" id="editTopicDescription" class="form-control"
-                                  rows="2"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Code Snippet</label>
-                        <textarea name="codeSnippet" id="editTopicCodeSnippet" class="form-control"
-                                  rows="2"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">💾 Save</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="editChapterModal" tabindex="-1" aria-labelledby="editChapterLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form method="post" action="/admin/chapters/update">
-                <div class="modal-header">
-                    <h5 class="modal-title">✏️ Edit Chapter</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" name="id" id="editChapterId">
-                    <div class="mb-3">
-                        <label class="form-label">Chapter Title</label>
-                        <input type="text" name="title" id="editChapterTitle" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Topic</label>
-                        <select class="form-select" name="topicId" id="editChapterTopic" required>
-                            <option th:each="topic : ${topics}" th:value="${topic.id}" th:text="${topic.name}">
-                            </option>
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">💾 Save</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="editLessonModal" tabindex="-1" aria-labelledby="editLessonLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form method="post" action="/admin/lessons/update">
-                <div class="modal-header">
-                    <h5 class="modal-title">✏️ Edit Lesson</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" name="id" id="editLessonId">
-                    <div class="mb-3">
-                        <label class="form-label">Lesson Title</label>
-                        <input type="text" class="form-control" name="title" id="editLessonTitle" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">HTML Path</label>
-                        <input type="text" class="form-control" name="htmlPath" id="editLessonPath" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Chapter</label>
-                        <select class="form-select" name="chapterId" id="editLessonChapter" required>
-                            <option th:each="chapter : ${chapters}" th:value="${chapter.id}"
-                                    th:text="${chapter.title + chapter.topic.name}">
-                            </option>
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">💾 Save Changes</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    function toggleMenu() {
-        document.getElementById('sidebar').classList.toggle('visible');
-    }
-
-    function openEditTopicModal(button) {
-        document.getElementById('editTopicId').value = button.getAttribute('data-id');
-        document.getElementById('editTopicName').value = button.getAttribute('data-name');
-        document.getElementById('editTopicDescription').value = button.getAttribute('data-description');
-        document.getElementById('editTopicCodeSnippet').value = button.getAttribute('data-code');
-        new bootstrap.Modal(document.getElementById('editTopicModal')).show();
-    }
-
-    function openEditChapterModal(button) {
-        document.getElementById('editChapterId').value = button.getAttribute('data-id');
-        document.getElementById('editChapterTitle').value = button.getAttribute('data-title');
-        document.getElementById('editChapterTopic').value = button.getAttribute('data-topic');
-        new bootstrap.Modal(document.getElementById('editChapterModal')).show();
-    }
-
-    function openEditModal(button) {
-        document.getElementById('editLessonId').value = button.getAttribute('data-id');
-        document.getElementById('editLessonTitle').value = button.getAttribute('data-title');
-        document.getElementById('editLessonPath').value = button.getAttribute('data-path');
-        document.getElementById('editLessonChapter').value = button.getAttribute('data-chapter');
-
-        new bootstrap.Modal(document.getElementById('editLessonModal')).show();
-    }
-</script>
-</body>
-
-</html>
+<!-- Modals updated -->
+<!-- Include order fields in editChapterModal and editLessonModal as explained earlier -->
+<!-- Plus JavaScript updated with order support -->

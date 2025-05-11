@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='14.Lucru cu browserul si BOM', activeLesson='5.Obiectul location'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Obiectul location</h1>
+     <p class="paragraph">Obiectul location conține informații despre locația paginii web curente: URL, informații despre server, numărul portului, protocolul. Folosind proprietățile obiectului, putem obține aceste informații:</p>
+     <ul class="enumeration">
+      <li>href: adresa URL completă a paginii web</li>
+      <li>origin: schema comună a cererii</li>
+      <li>protocol: protocolul (inclusiv două puncte), de exemplu, http: sau https:</li>
+      <li>host: gazda, de exemplu, localhost.com. Dacă URL-ul conține un număr de port, atunci portul este de asemenea inclus în gazdă, de exemplu, localhost.com:8080</li>
+      <li>hostname: numele domeniului, similar cu gazda, dar nu include portul, de exemplu, localhost.com</li>
+      <li>port: portul folosit de resursă</li>
+      <li>pathname: calea către resursă - partea adresei care vine după gazdă după slash /</li>
+      <li>hash: identificatorul fragmentului - partea adresei care vine după simbolul diez # (dacă există)</li>
+      <li>search: șirul de interogare - partea adresei care vine după semnul întrebării ? (dacă există)</li>
+      <li>username: numele utilizatorului specificat în adresa. De exemplu, în adresa "https://tom:qwerty5@localhost.com" este subșirul "tom"</li>
+      <li>password: parola specificată în adresa. De exemplu, în adresa "https://tom:qwerty5@localhost.com" este subșirul "qwerty5"</li>
+     </ul>
+     <p class="paragraph">În general, formatul adresei URL arată în felul următor:</p>
+     <div class="code-inline">
+      <pre><code>protocol//username:password@hostname:port/path?search#hash</code></pre>
+     </div>
+     <p class="paragraph">De exemplu, să presupunem că avem următoarea pagină web index.html:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;script&gt;<br>console.log("href:",&nbsp;location.href);<br>console.log("path:",&nbsp;location.pathname);<br>console.log("origin:",&nbsp;location.origin);<br>console.log("protocol:",&nbsp;location.protocol);<br>console.log("port:",&nbsp;location.port);<br>console.log("host:",&nbsp;location.host);<br>console.log("hostname",&nbsp;location.hostname);<br>console.log("hash:",&nbsp;location.hash);<br>console.log("search:",&nbsp;location.search);<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Să presupunem că aceasta este găzduită pe un server web local și accesăm aceasta folosind adresa http://localhost:8080/index.html?name=tom&amp;age=39#userinfo.</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/14.Lucru%20cu%20browserul%20si%20BOM/5.Obiectul%20location/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Gestionarea adresei</h2>
+     <p class="paragraph">De asemenea, obiectul location oferă o serie de metode care pot fi folosite pentru a gestiona adresa paginii web:</p>
+     <ul class="enumeration">
+      <li>assign(url): încarcă resursa care se află la calea url</li>
+      <li>reload(forcedReload): reîncarcă pagina web curentă. Parametrul forcedReload indică dacă să folosească sau nu cache-ul browserului. Dacă parametrul este true, atunci cache-ul nu este folosit</li>
+      <li>replace(url): înlocuiește pagina web curentă cu altă resursă care se află la calea url. Spre deosebire de metoda assign, care de asemenea încarcă o pagină web de la altă resursă, metoda replace nu salvează pagina web precedentă în stiva de istorie a navigării history, prin urmare nu vom putea apela metoda history.back() pentru a reveni la ea</li>
+     </ul>
+     <p class="paragraph">Pentru redirecționare către altă resursă putem folosi atât proprietățile cât și metodele obiectului location:</p>
+     <div class="code-inline">
+      <pre><code>location&nbsp;=&nbsp;"http://google.com";<br>//&nbsp;similar&nbsp;cu<br>//&nbsp;location.href&nbsp;=&nbsp;"http://google.com";<br>//&nbsp;location.assign("http://google.com");</code></pre>
+     </div>
+     <p class="paragraph">Redirecționare către o altă resursă locală:</p>
+     <div class="code-inline">
+      <pre><code>location.replace("index.html");</code></pre>
+     </div>
+     <p class="paragraph">De exemplu, efectuăm redirecționarea pe pagină printr-o apăsare de buton:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;input&nbsp;type="url"&nbsp;id="url"&nbsp;/&gt;<br>&lt;button&nbsp;id="btn"&gt;Click&lt;/button&gt;<br>&lt;script&gt;<br>const&nbsp;btn&nbsp;=&nbsp;document.getElementById("btn");<br>btn.addEventListener("click",&nbsp;()&nbsp;=&gt;&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;url&nbsp;=&nbsp;document.getElementById("url").value;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;location.assign(url);<br>});<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici, printr-o apăsare de buton se efectuează redirecționarea către adresa introdusă în câmpul text url.</p>
+     <p class="paragraph">Redirecționarea folosind metoda replace() se face în mod similar:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;btn&nbsp;=&nbsp;document.getElementById("btn");<br>btn.addEventListener("click",&nbsp;()&nbsp;=&gt;&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;url&nbsp;=&nbsp;document.getElementById("url").value;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;location.replace(url);<br>});</code></pre>
+     </div>
+     <h2 class="subtitle">Reîncărcarea paginii</h2>
+     <p class="paragraph">Reîncărcarea folosind metoda replace() se face în mod similar:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;btn&nbsp;=&nbsp;document.getElementById("btn");<br>btn.addEventListener("click",&nbsp;()&nbsp;=&gt;&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;url&nbsp;=&nbsp;document.getElementById("url").value;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;location.reload(true);<br>});</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='PHP', activeChapter='7.Lucrul cu sistemul de fisiere', activeLesson='3.Blocarea fisierului'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Blocarea fișierului - Funcția flock</h1>
+     <p class="paragraph">Dacă site-ul nostru este vizitat de mulți utilizatori care accesează simultan același fișier, putem întâmpina unele probleme. În special, la încercarea simultană de scriere a mai multor utilizatori, fișierul poate fi corupt sau poate returna rezultate neașteptate dacă o persoană citește fișierul în timp ce alta îl scrie simultan. Apare problema sincronizării accesului utilizatorilor.</p>
+     <p class="paragraph">Pentru a limita accesul la fișier, în PHP se folosește funcția flock(). Această funcție blochează accesul la fișier când acesta este deja utilizat de un utilizator, iar toate celelalte cereri sunt puse în așteptare. La eliberarea fișierului, acesta se deblochează, se transmite primului utilizator din coadă și se blochează din nou.</p>
+     <p class="paragraph">Funcția are următoarea definiție:</p>
+     <div class="code-inline">
+      <pre><code>bool&nbsp;flock&nbsp;(resource&nbsp;$handle&nbsp;,&nbsp;int&nbsp;$operation&nbsp;[,&nbsp;int&nbsp;&amp;$wouldblock&nbsp;])</code></pre>
+     </div>
+     <p class="paragraph">Primul parametru este descriptorul fișierului, returnat de funcția fopen().</p>
+     <p class="paragraph">Al doilea parametru indică tipul blocării. Acesta poate avea următoarele valori:</p>
+     <ul class="enumeration">
+      <li>LOCK_SH (sau numărul 1): blocare partajată (citirea fișierului)</li>
+      <li>LOCK_EX (sau numărul 2): blocare exclusivă (scrierea fișierului)</li>
+      <li>LOCK_UN (sau numărul 3): pentru deblocare</li>
+      <li>LOCK_NB (sau numărul 4): această constantă se folosește doar împreună cu una dintre cele precedente într-o mască de biți (LOCK_EX | LOCK_NB), dacă nu trebuie să așteptăm până când flock() obține blocarea</li>
+     </ul>
+     <p class="paragraph">Al treilea parametru opțional $wouldblock va conține true dacă blocarea va fi una blocantă.</p>
+     <p class="paragraph">La execuția cu succes, funcția flock va returna valoarea true, iar în caz de eroare - false.</p>
+     <p class="paragraph">Folosim flock pentru a limita accesul la fișier:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$fd&nbsp;=&nbsp;fopen("hello.txt",&nbsp;'r+')&nbsp;or&nbsp;die("Eroare&nbsp;la&nbsp;deschiderea&nbsp;fișierului");<br>$str&nbsp;=&nbsp;"Hello&nbsp;World!";<br><br>if&nbsp;(flock($fd,&nbsp;LOCK_EX))&nbsp;//&nbsp;setarea&nbsp;blocării&nbsp;exclusive&nbsp;pentru&nbsp;scriere<br>{<br>&nbsp;&nbsp;&nbsp;fseek($fd,&nbsp;0,&nbsp;SEEK_END);&nbsp;//&nbsp;plasarea&nbsp;indicatorului&nbsp;la&nbsp;sfârșitul&nbsp;fișierului<br>&nbsp;&nbsp;&nbsp;fwrite($fd,&nbsp;"$str")&nbsp;or&nbsp;die("Eroare&nbsp;la&nbsp;scriere");&nbsp;//&nbsp;scrierea<br>&nbsp;&nbsp;&nbsp;flock($fd,&nbsp;LOCK_UN);&nbsp;//&nbsp;deblocarea&nbsp;fișierului<br>}<br>fclose($fd);<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">La modificarea fișierului, blocarea este plasată chiar înainte de a face modificările și se elimină imediat după efectuarea acestora. În caz contrar, programul poate încetini.</p>
+     <p class="paragraph">De aceea, apelul care blochează fișierul: flock($fd, LOCK_EX) este plasat chiar înainte de apelul funcției fwrite($fd, "$str"). Iar deblocarea cu ajutorul constantei LOCK_UN are loc imediat după scriere.</p>
+     <p class="paragraph">Rețineți că la deschiderea fișierului s-a folosit modul 'r+', nu 'w' sau 'w+', deoarece 'w' și 'w+' implică deja modificarea fișierului. Prin urmare, la blocare, chiar dacă trebuie făcută scrierea, nu este recomandată utilizarea 'w' și 'w+'.</p>
+     <p class="paragraph">Dacă trebuie să ștergem tot conținutul fișierului și să-l rescriem, putem folosi funcția ftruncate:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$fd&nbsp;=&nbsp;fopen("hello.txt",&nbsp;'r+')&nbsp;or&nbsp;die("Eroare&nbsp;la&nbsp;deschiderea&nbsp;fișierului");<br>$str&nbsp;=&nbsp;"Hello&nbsp;World!";<br><br>if&nbsp;(flock($fd,&nbsp;LOCK_EX))&nbsp;//&nbsp;setarea&nbsp;blocării&nbsp;exclusive&nbsp;pentru&nbsp;scriere<br>{<br>&nbsp;&nbsp;&nbsp;ftruncate($fd,&nbsp;0);&nbsp;//&nbsp;ștergerea&nbsp;conținutului&nbsp;fișierului<br>&nbsp;&nbsp;&nbsp;fwrite($fd,&nbsp;"$str")&nbsp;or&nbsp;die("Eroare&nbsp;la&nbsp;scriere");&nbsp;//&nbsp;scrierea<br>&nbsp;&nbsp;&nbsp;flock($fd,&nbsp;LOCK_UN);&nbsp;//&nbsp;deblocarea&nbsp;fișierului<br>}<br>fclose($fd);<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Astfel, ne asigurăm că fișierul este blocat în mod exclusiv înainte de ștergere și scriere, și deblocat imediat după.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

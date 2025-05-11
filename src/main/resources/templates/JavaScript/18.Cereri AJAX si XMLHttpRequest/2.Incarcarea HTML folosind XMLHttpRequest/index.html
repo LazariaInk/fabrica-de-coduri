@@ -1,257 +1,247 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='18.Cereri AJAX si XMLHttpRequest', activeLesson='2.Incarcarea HTML folosind XMLHttpRequest'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Încărcarea HTML folosind XMLHttpRequest</h1>
- <p class="paragraph">Adesea, în codul paginii este necesar să obții de pe server un anumit cod HTML. De exemplu, pagina poate reprezenta un site web pe o singură pagină, care prin intermediul unei solicitări ajax încarcă codul HTML necesar și îl inserează pe pagină. Prin urmare, să examinăm cum să încărcăm codul HTML prin AJAX.</p>
- <p class="paragraph">Ca server, la fel ca în articolul anterior, vom utiliza Node.js ca opțiunea cea mai simplă, dar, bineînțeles, dacă doriți, puteți utiliza orice altă tehnologie de nivel server sau un server web.</p>
- <p class="paragraph">Așadar, să definim pentru proiect un folder pe hard disk, în care vom crea trei fișiere:</p>
- <ul class="enumeration">
-  <li>index.html: pagina principală a aplicației</li>
-  <li>home.html: pagina cu codul HTML pe care îl vom încărca prin AJAX</li>
-  <li>server.js: fișierul aplicației server, care va utiliza Node.js</li>
- </ul>
- <h2 class="subtitle">Definirea serverului</h2>
- <p class="paragraph">Fișierul server.js va reprezenta codul serverului Node.js. Să definim în el următorul cod:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");<br><br>http.createServer((request,&nbsp;response)=&gt;{<br>&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;calea&nbsp;după&nbsp;slash,&nbsp;slash-ul&nbsp;-&nbsp;primul&nbsp;caracter&nbsp;în&nbsp;cale<br>&nbsp;&nbsp;&nbsp;let&nbsp;filePath&nbsp;=&nbsp;request.url.substring(1);<br>&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;calea&nbsp;este&nbsp;goală,&nbsp;trimitem&nbsp;pagina&nbsp;principală&nbsp;index.html<br>&nbsp;&nbsp;&nbsp;if(!filePath)&nbsp;filePath&nbsp;=&nbsp;"index.html";&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;//&nbsp;ca&nbsp;tip&nbsp;de&nbsp;răspuns&nbsp;stabilim&nbsp;html<br>&nbsp;&nbsp;&nbsp;response.setHeader("Content-Type",&nbsp;"text/html;&nbsp;charset=utf-8;");<br>&nbsp;&nbsp;&nbsp;fs.readFile(filePath,&nbsp;(error,&nbsp;data)=&gt;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(error){&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;este&nbsp;o&nbsp;eroare<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.statusCode&nbsp;=&nbsp;404;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.end("&lt;h1&gt;Resursa&nbsp;nu&nbsp;a&nbsp;fost&nbsp;găsită!&lt;/h1&gt;");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.end(data);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;});<br>}).listen(3000,&nbsp;()=&gt;console.log("Serverul&nbsp;a&nbsp;fost&nbsp;lansat&nbsp;la&nbsp;adresa&nbsp;http://localhost:3000"));</code></pre>
- </div>
- <p class="paragraph">Să parcurgem pe scurt codul. Mai întâi se conectează pachetele cu funcționalitatea pe care intenționăm să o utilizăm:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");&nbsp;&nbsp;&nbsp;//&nbsp;pentru&nbsp;prelucrarea&nbsp;cererilor&nbsp;de&nbsp;intrare<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;pentru&nbsp;citirea&nbsp;fișierelor&nbsp;de&nbsp;pe&nbsp;hard&nbsp;disk</code></pre>
- </div>
- <p class="paragraph">Pentru crearea serverului se utilizează funcția http.createServer(). În această funcție se transmite o funcție-handler, care este apelată de fiecare dată când la server sosește o cerere. Această funcție are doi parametri: request (conține datele cererii) și response (gestionează trimiterea răspunsului).</p>
- <p class="paragraph">În funcția-handler, folosind proprietatea request.url putem obține calea resursei către care a fost trimisă cererea. Trebuie să procesăm cererile către paginile "index.html" și "home.html" (și, în perspectivă, către orice alte pagini HTML). Calea începe întotdeauna cu slash-ul "/". De exemplu, o cerere către pagina "home.html" va reprezenta calea "/home.html". Respectiv, pentru a obține din calea solicitată calea către fișierele de pe hard disk, trebuie să înlăturăm slash-ul inițial:</p>
- <div class="code-inline">
-  <pre><code>let&nbsp;filePath&nbsp;=&nbsp;request.url.substring(1);</code></pre>
- </div>
- <p class="paragraph">Totuși, dacă cererea este adresată rădăcinii site-ului, atunci calea constă doar dintr-un slash - "/". Respectiv, dacă eliminăm acest slash, vom obține un șir gol. Prin urmare, dacă cererea este adresată rădăcinii aplicației web, atunci vom considera că cererea este adresată paginii principale - index.html:</p>
- <div class="code-inline">
-  <pre><code>if(!filePath)&nbsp;filePath&nbsp;=&nbsp;"index.html";</code></pre>
- </div>
- <p class="paragraph">Și, deoarece în cazul nostru răspunsul serverului va reprezenta codul HTML, atunci cu ajutorul metodei setHeader() stabilim pentru antetul "Content-Type" valoarea "text/html":</p>
- <div class="code-inline">
-  <pre><code>response.setHeader("Content-Type",&nbsp;"text/html;&nbsp;charset=utf-8;");</code></pre>
- </div>
- <p class="paragraph">Adică răspunsul serverului va reprezenta HTML.</p>
- <p class="paragraph">Apoi, cu ajutorul funcției fs.readFile citim fișierul către care este adresată cererea. Primul parametru al funcției - adresa fișierului (în acest caz se presupune că fișierul se află în același folder cu fișierul serverului server.js). Al doilea parametru - o funcție care este apelată după citirea fișierului și primește conținutul său prin al doilea său parametru data. Este foarte posibil ca fișierul solicitat să nu fie prezent, și în acest caz trimitem eroarea 404:</p>
- <div class="code-inline">
-  <pre><code>fs.readFile(filePath,&nbsp;(error,&nbsp;data)=&gt;{<br>&nbsp;&nbsp;&nbsp;if(error){&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;este&nbsp;o&nbsp;eroare<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.statusCode&nbsp;=&nbsp;404;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.end("&lt;h1&gt;Resursa&nbsp;nu&nbsp;a&nbsp;fost&nbsp;găsită!&lt;/h1&gt;");<br>&nbsp;&nbsp;&nbsp;}</code></pre>
- </div>
- <p class="paragraph">Dacă nu există erori, fișierul a fost găsit și citit cu succes, atunci trimitem parametrul data, care conține datele fișierului:</p>
- <div class="code-inline">
-  <pre><code>else{<br>&nbsp;&nbsp;&nbsp;response.end(data);<br>}</code></pre>
- </div>
- <p class="paragraph">La final, cu ajutorul funcției listen() lansăm serverul web pe portul 3000. Adică serverul va fi lansat la adresa http://localhost:3000/</p>
- <h2 class="subtitle">Definirea codului HTML pentru încărcare</h2>
- <p class="paragraph">Fișierul home.html va conține un cod simplu, care va fi încărcat de pagina web. Să presupunem că este următorul cod:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;Pagina&nbsp;de&nbsp;Acasă&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;h1&gt;Pagina&nbsp;de&nbsp;Acasă&lt;/h1&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Textul&nbsp;Paginii&nbsp;de&nbsp;Acasă&lt;/p&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <h2 class="subtitle">Definirea paginii principale și încărcarea datelor</h2>
- <p class="paragraph">Acum să definim codul paginii principale index.html, care va încărca pagina home.html:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;script&gt;<br>const&nbsp;xhr&nbsp;=&nbsp;new&nbsp;XMLHttpRequest();<br>xhr.onload&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;handler&nbsp;pentru&nbsp;primirea&nbsp;răspunsului&nbsp;serverului<br>&nbsp;&nbsp;&nbsp;if&nbsp;(xhr.status&nbsp;==&nbsp;200)&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;codul&nbsp;răspunsului&nbsp;este&nbsp;200<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;html&nbsp;=&nbsp;xhr.responseText;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;răspunsul<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(html);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;afișăm&nbsp;răspunsul&nbsp;obținut&nbsp;în&nbsp;consola&nbsp;browserului<br>&nbsp;&nbsp;&nbsp;}&nbsp;else&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;altfel&nbsp;afișăm&nbsp;textul&nbsp;stării<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Răspunsul&nbsp;serverului:&nbsp;",&nbsp;xhr.statusText);<br>&nbsp;&nbsp;&nbsp;}<br>};<br>xhr.open("GET",&nbsp;"/home.html");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;solicitare&nbsp;GET&nbsp;către&nbsp;resursa&nbsp;/home.html<br>xhr.setRequestHeader("Accept",&nbsp;"text/html");&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;acceptăm&nbsp;doar&nbsp;html<br>xhr.send();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;executăm&nbsp;solicitarea<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">În handler-ul de încărcare xhr.onload obținem textul răspunsului prin xhr.responseText și afișăm răspunsul în consolă.</p>
- <p class="paragraph">Acum, în consolă, ne vom deplasa la folderul serverului folosind comanda cd și vom lansa serverul folosind comanda node server.js</p>
- <div class="image-container">
-  <img src="images/image1.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">După lansarea serverului, putem accesa în browser adresa http://localhost:3000, ne va fi afișată pagina, în codul JavaScript al căreia va avea loc apelul către pagina "home.html". Codul JavaScript va obține această pagină și va afișa conținutul său în consolă:</p>
- <div class="image-container">
-  <img src="images/image2.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Gestionarea conținutului HTML</h2>
- <p class="paragraph">În exemplul de mai sus, am obținut conținutul paginii ca text obișnuit. Cu toate acestea, având în vedere că acest text conține de fapt marcaj HTML, îl putem încărca pe pagina web. Astfel, să modificăm codul paginii index.html în următorul mod:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;div&nbsp;id="content"&gt;&lt;/div&gt;<br>&lt;script&gt;<br>const&nbsp;contentDiv&nbsp;=&nbsp;document.getElementById("content");&nbsp;&nbsp;//&nbsp;element&nbsp;pentru&nbsp;încărcarea&nbsp;html<br>const&nbsp;xhr&nbsp;=&nbsp;new&nbsp;XMLHttpRequest();<br><br>xhr.onload&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;if&nbsp;(xhr.status&nbsp;==&nbsp;200)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contentDiv.innerHTML&nbsp;=&nbsp;xhr.responseText;&nbsp;&nbsp;//&nbsp;afișăm&nbsp;răspunsul&nbsp;obținut&nbsp;în&nbsp;contentDiv<br>&nbsp;&nbsp;&nbsp;}&nbsp;else&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;altfel&nbsp;afișăm&nbsp;textul&nbsp;stării<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Răspunsul&nbsp;serverului:&nbsp;",&nbsp;xhr.statusText);<br>&nbsp;&nbsp;&nbsp;}<br>};<br>xhr.open("GET",&nbsp;"/home.html");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;solicitare&nbsp;GET&nbsp;către&nbsp;resursa&nbsp;/home.html<br>xhr.setRequestHeader("Accept",&nbsp;"text/html");&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;acceptăm&nbsp;doar&nbsp;html<br>xhr.send();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;executăm&nbsp;solicitarea<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">În acest caz, încărcăm codul obținut al paginii "home.html" în elementul cu id=content</p>
- <div class="image-container">
-  <img src="images/image3.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Cu toate acestea, problema în acest caz constă în faptul că codul paginii "home.html" pe lângă conținutul propriu-zis conține și elemente head, title, descrieri ale paginii prin intermediul tag-urilor &lt;meta&gt;. Aceste elemente nu au sens să fie încărcate pe o altă pagină web.</p>
- <p class="paragraph">Sau poate dorim să încărcăm un anumit element de pe pagina "home.html", nu întregul său cod. În acest caz, putem obține răspunsul prin proprietatea responseXML și apoi să manipulăm răspunsul ca un document HTML standard. De exemplu, să modificăm codul JavaScript în următorul mod:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;contentDiv&nbsp;=&nbsp;document.getElementById("content");<br><br>const&nbsp;xhr&nbsp;=&nbsp;new&nbsp;XMLHttpRequest();<br>xhr.onload&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;handler&nbsp;pentru&nbsp;primirea&nbsp;răspunsului&nbsp;serverului<br>&nbsp;&nbsp;&nbsp;if&nbsp;(xhr.status&nbsp;==&nbsp;200)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;încărcăm&nbsp;doar&nbsp;conținutul&nbsp;elementului&nbsp;body<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contentDiv.innerHTML&nbsp;=&nbsp;xhr.responseXML.body.innerHTML;<br>&nbsp;&nbsp;&nbsp;}&nbsp;else&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Răspunsul&nbsp;serverului:&nbsp;",&nbsp;xhr.statusText);<br>&nbsp;&nbsp;&nbsp;}<br>};<br>xhr.open("GET",&nbsp;"/home.html");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;solicitare&nbsp;GET&nbsp;către&nbsp;resursa&nbsp;/home.html<br>xhr.responseType&nbsp;=&nbsp;"document";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;stabilim&nbsp;tipul&nbsp;de&nbsp;răspuns<br>xhr.setRequestHeader("Accept",&nbsp;"text/html");&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;acceptăm&nbsp;doar&nbsp;html<br>xhr.send();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;executăm&nbsp;solicitarea</code></pre>
- </div>
- <p class="paragraph">Aici trebuie să remarcăm două momente. În primul rând, stabilim pentru răspuns tipul "document":</p>
- <div class="code-inline">
-  <pre><code>xhr.responseType&nbsp;=&nbsp;"document";</code></pre>
- </div>
- <p class="paragraph">Acest lucru ne va permite să obținem răspunsul ca un obiect de tip Document, similar cu ceea ce reprezintă proprietatea document pe o pagină web.</p>
- <p class="paragraph">Pentru a obține răspunsul sub formă de html/xml utilizăm proprietatea responseXML. Și apoi, deoarece această proprietate reprezintă un obiect Document, utilizăm proprietatea body pentru a accesa conținutul direct al paginii:</p>
- <div class="code-inline">
-  <pre><code>contentDiv.innerHTML&nbsp;=&nbsp;xhr.responseXML.body.innerHTML;</code></pre>
- </div>
- <p class="paragraph">Ca rezultat, în contentDiv va fi încărcat conținutul elementului body al paginii "home.html".</p>
- <p class="paragraph">În mod similar, putem accesa alte proprietăți ale obiectului Document. De exemplu, putem obține titlul:</p>
- <div class="code-inline">
-  <pre><code>document.title&nbsp;=&nbsp;xhr.responseXML.title;</code></pre>
- </div>
- <p class="paragraph">Sau încărcăm pe pagină doar textul din titlul &lt;h1&gt;:</p>
- <div class="code-inline">
-  <pre><code>contentDiv.innerHTML&nbsp;=&nbsp;&nbsp;xhr.responseXML.querySelector("h1").textContent;</code></pre>
- </div>
- <h2 class="subtitle">Încărcarea dinamică a componentelor</h2>
- <p class="paragraph">Posibilitatea de a încărca codul HTML și de a-l insera pe o pagină ne permite să mergem mai departe și să împărțim funcționalitatea aplicației în mai multe componente și, dacă este necesar, să le încărcăm. De exemplu, să presupunem că în proiect avem următoarele fișiere:</p>
- <ul class="enumeration">
-  <li>server.js: fișierul aplicației server pe Node.js</li>
-  <li>index.html: pagina principală a aplicației</li>
-  <li>home.html: fișierul componentei home</li>
-  <li>about.html: fișierul componentei about</li>
-  <li>contact.html: fișierul componentei contact</li>
- </ul>
- <p class="paragraph">Fișierul aplicației server pe Node.js - server.js rămâne același ca cel definit mai sus în acest articol.</p>
- <p class="paragraph">Să presupunem că fișierul home.html conține un cod simplu de genul următor:</p>
- <div class="code-inline">
-  <pre><code>&lt;h1&gt;Pagina&nbsp;de&nbsp;Acasă&lt;/h1&gt;<br>&lt;p&gt;Textul&nbsp;Paginii&nbsp;de&nbsp;Acasă&lt;/p&gt;</code></pre>
- </div>
- <p class="paragraph">Fișierul about.html să arate în mod similar:</p>
- <div class="code-inline">
-  <pre><code>&lt;h1&gt;Pagina&nbsp;Despre&nbsp;Noi&lt;/h1&gt;<br>&lt;p&gt;Textul&nbsp;Paginii&nbsp;Despre&nbsp;Noi&lt;/p&gt;</code></pre>
- </div>
- <p class="paragraph">Și codul fișierului contact.html:</p>
- <div class="code-inline">
-  <pre><code>&lt;h1&gt;Pagina&nbsp;de&nbsp;Contact&lt;/h1&gt;<br>&lt;p&gt;Textul&nbsp;Paginii&nbsp;de&nbsp;Contact&lt;/p&gt;</code></pre>
- </div>
- <p class="paragraph">Aceste fișiere reprezintă componente, care vor fi încărcate pe pagina principală.</p>
- <p class="paragraph">Pe pagina principală index.html, să definim următorul cod:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;nav&gt;&lt;a&nbsp;href="home"&gt;Acasă&lt;/a&gt;&nbsp;|&nbsp;&lt;a&nbsp;href="about"&gt;Despre&nbsp;Noi&lt;/a&gt;&nbsp;|&nbsp;&lt;a&nbsp;href="contact"&gt;Contact&lt;/a&gt;&lt;/nav&gt;<br>&lt;div&nbsp;id="content"&gt;&lt;/div&gt;<br>&lt;script&gt;<br>const&nbsp;contentDiv&nbsp;=&nbsp;document.getElementById("content");<br><br>function&nbsp;loadContent(fileName){<br>&nbsp;&nbsp;&nbsp;const&nbsp;xhr&nbsp;=&nbsp;new&nbsp;XMLHttpRequest();<br>&nbsp;&nbsp;&nbsp;xhr.onload&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(xhr.status&nbsp;==&nbsp;200)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contentDiv.innerHTML&nbsp;=&nbsp;xhr.responseText;&nbsp;//&nbsp;xhr.responseXML.body.innerHTML;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;document.title&nbsp;=&nbsp;fileName;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;};<br>&nbsp;&nbsp;&nbsp;xhr.open("GET",&nbsp;fileName&nbsp;+&nbsp;".html");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;solicitare&nbsp;GET&nbsp;după&nbsp;adresa&nbsp;linkului<br>&nbsp;&nbsp;&nbsp;xhr.setRequestHeader("Accept",&nbsp;"text/html");&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;acceptăm&nbsp;doar&nbsp;html<br>&nbsp;&nbsp;&nbsp;xhr.send();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;executăm&nbsp;solicitarea<br>}<br><br>//&nbsp;stabilim&nbsp;handler-ul&nbsp;pentru&nbsp;apăsarea&nbsp;butoanelor<br>const&nbsp;links&nbsp;=&nbsp;document.getElementsByTagName("a");<br>for&nbsp;(let&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;links.length;&nbsp;i++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;links[i].addEventListener("click",&nbsp;(e)=&gt;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loadContent(links[i].getAttribute("href"));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;e.preventDefault();<br>&nbsp;&nbsp;&nbsp;});&nbsp;&nbsp;<br>}<br>//&nbsp;implicit&nbsp;încărcăm&nbsp;componenta&nbsp;home<br>loadContent("home");<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">Aici, pentru navigația între componente, pe pagină plasăm o serie de linkuri:</p>
- <div class="code-inline">
-  <pre><code>&lt;nav&gt;&lt;a&nbsp;href="home"&gt;Acasă&lt;/a&gt;&nbsp;|&nbsp;&lt;a&nbsp;href="about"&gt;Despre&nbsp;Noi&lt;/a&gt;&nbsp;|&nbsp;&lt;a&nbsp;href="contact"&gt;Contact&lt;/a&gt;&lt;/nav&gt;</code></pre>
- </div>
- <p class="paragraph">Adresa fiecărui astfel de link corespunde numelui paginii componentei corespunzătoare fără extensia ".html".</p>
- <p class="paragraph">Fiecare dintre componentele va fi încărcată pe pagină în elementul cu id="content", pe care îl obținem în codul JavaScript în constanta contentDiv:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;contentDiv&nbsp;=&nbsp;document.getElementById("content");</code></pre>
- </div>
- <p class="paragraph">De asemenea, în codul JavaScript, pentru fiecare link stabilim handleri, în care apelăm funcția loadContent și în care transmitem valoarea atributului href al linkului - adică adresa componentei</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;links&nbsp;=&nbsp;document.getElementsByTagName("a");<br>for&nbsp;(let&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;links.length;&nbsp;i++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;links[i].addEventListener("click",&nbsp;(e)=&gt;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loadContent(links[i].getAttribute("href"));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;e.preventDefault();<br>&nbsp;&nbsp;&nbsp;});&nbsp;&nbsp;<br>}</code></pre>
- </div>
- <p class="paragraph">În funcția loadContent utilizăm adresa linkului pentru a trimite o solicitare ajax, iar răspunsul (HTML-ul obținut) îl încărcăm în elementul contentDiv.</p>
- <div class="code-inline">
-  <pre><code>contentDiv.innerHTML&nbsp;=&nbsp;xhr.responseText;&nbsp;//&nbsp;xhr.responseXML.body.innerHTML;</code></pre>
- </div>
- <p class="paragraph">La încărcarea paginii, încărcăm imediat codul componentei home, ca componentă implicită:</p>
- <div class="code-inline">
-  <pre><code>loadContent("home");</code></pre>
- </div>
- <p class="paragraph">Astfel, pe pagina principală vom putea accesa componente specifice, navigând prin linkuri.</p>
- <div class="image-container">
-  <img src="images/image4.png" alt="" class="responsive-image">
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Încărcarea HTML folosind XMLHttpRequest</h1>
+     <p class="paragraph">Adesea, în codul paginii este necesar să obții de pe server un anumit cod HTML. De exemplu, pagina poate reprezenta un site web pe o singură pagină, care prin intermediul unei solicitări ajax încarcă codul HTML necesar și îl inserează pe pagină. Prin urmare, să examinăm cum să încărcăm codul HTML prin AJAX.</p>
+     <p class="paragraph">Ca server, la fel ca în articolul anterior, vom utiliza Node.js ca opțiunea cea mai simplă, dar, bineînțeles, dacă doriți, puteți utiliza orice altă tehnologie de nivel server sau un server web.</p>
+     <p class="paragraph">Așadar, să definim pentru proiect un folder pe hard disk, în care vom crea trei fișiere:</p>
+     <ul class="enumeration">
+      <li>index.html: pagina principală a aplicației</li>
+      <li>home.html: pagina cu codul HTML pe care îl vom încărca prin AJAX</li>
+      <li>server.js: fișierul aplicației server, care va utiliza Node.js</li>
+     </ul>
+     <h2 class="subtitle">Definirea serverului</h2>
+     <p class="paragraph">Fișierul server.js va reprezenta codul serverului Node.js. Să definim în el următorul cod:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");<br><br>http.createServer((request,&nbsp;response)=&gt;{<br>&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;calea&nbsp;după&nbsp;slash,&nbsp;slash-ul&nbsp;-&nbsp;primul&nbsp;caracter&nbsp;în&nbsp;cale<br>&nbsp;&nbsp;&nbsp;let&nbsp;filePath&nbsp;=&nbsp;request.url.substring(1);<br>&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;calea&nbsp;este&nbsp;goală,&nbsp;trimitem&nbsp;pagina&nbsp;principală&nbsp;index.html<br>&nbsp;&nbsp;&nbsp;if(!filePath)&nbsp;filePath&nbsp;=&nbsp;"index.html";&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;//&nbsp;ca&nbsp;tip&nbsp;de&nbsp;răspuns&nbsp;stabilim&nbsp;html<br>&nbsp;&nbsp;&nbsp;response.setHeader("Content-Type",&nbsp;"text/html;&nbsp;charset=utf-8;");<br>&nbsp;&nbsp;&nbsp;fs.readFile(filePath,&nbsp;(error,&nbsp;data)=&gt;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(error){&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;este&nbsp;o&nbsp;eroare<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.statusCode&nbsp;=&nbsp;404;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.end("&lt;h1&gt;Resursa&nbsp;nu&nbsp;a&nbsp;fost&nbsp;găsită!&lt;/h1&gt;");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.end(data);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;});<br>}).listen(3000,&nbsp;()=&gt;console.log("Serverul&nbsp;a&nbsp;fost&nbsp;lansat&nbsp;la&nbsp;adresa&nbsp;http://localhost:3000"));</code></pre>
+     </div>
+     <p class="paragraph">Să parcurgem pe scurt codul. Mai întâi se conectează pachetele cu funcționalitatea pe care intenționăm să o utilizăm:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");&nbsp;&nbsp;&nbsp;//&nbsp;pentru&nbsp;prelucrarea&nbsp;cererilor&nbsp;de&nbsp;intrare<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;pentru&nbsp;citirea&nbsp;fișierelor&nbsp;de&nbsp;pe&nbsp;hard&nbsp;disk</code></pre>
+     </div>
+     <p class="paragraph">Pentru crearea serverului se utilizează funcția http.createServer(). În această funcție se transmite o funcție-handler, care este apelată de fiecare dată când la server sosește o cerere. Această funcție are doi parametri: request (conține datele cererii) și response (gestionează trimiterea răspunsului).</p>
+     <p class="paragraph">În funcția-handler, folosind proprietatea request.url putem obține calea resursei către care a fost trimisă cererea. Trebuie să procesăm cererile către paginile "index.html" și "home.html" (și, în perspectivă, către orice alte pagini HTML). Calea începe întotdeauna cu slash-ul "/". De exemplu, o cerere către pagina "home.html" va reprezenta calea "/home.html". Respectiv, pentru a obține din calea solicitată calea către fișierele de pe hard disk, trebuie să înlăturăm slash-ul inițial:</p>
+     <div class="code-inline">
+      <pre><code>let&nbsp;filePath&nbsp;=&nbsp;request.url.substring(1);</code></pre>
+     </div>
+     <p class="paragraph">Totuși, dacă cererea este adresată rădăcinii site-ului, atunci calea constă doar dintr-un slash - "/". Respectiv, dacă eliminăm acest slash, vom obține un șir gol. Prin urmare, dacă cererea este adresată rădăcinii aplicației web, atunci vom considera că cererea este adresată paginii principale - index.html:</p>
+     <div class="code-inline">
+      <pre><code>if(!filePath)&nbsp;filePath&nbsp;=&nbsp;"index.html";</code></pre>
+     </div>
+     <p class="paragraph">Și, deoarece în cazul nostru răspunsul serverului va reprezenta codul HTML, atunci cu ajutorul metodei setHeader() stabilim pentru antetul "Content-Type" valoarea "text/html":</p>
+     <div class="code-inline">
+      <pre><code>response.setHeader("Content-Type",&nbsp;"text/html;&nbsp;charset=utf-8;");</code></pre>
+     </div>
+     <p class="paragraph">Adică răspunsul serverului va reprezenta HTML.</p>
+     <p class="paragraph">Apoi, cu ajutorul funcției fs.readFile citim fișierul către care este adresată cererea. Primul parametru al funcției - adresa fișierului (în acest caz se presupune că fișierul se află în același folder cu fișierul serverului server.js). Al doilea parametru - o funcție care este apelată după citirea fișierului și primește conținutul său prin al doilea său parametru data. Este foarte posibil ca fișierul solicitat să nu fie prezent, și în acest caz trimitem eroarea 404:</p>
+     <div class="code-inline">
+      <pre><code>fs.readFile(filePath,&nbsp;(error,&nbsp;data)=&gt;{<br>&nbsp;&nbsp;&nbsp;if(error){&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;este&nbsp;o&nbsp;eroare<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.statusCode&nbsp;=&nbsp;404;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.end("&lt;h1&gt;Resursa&nbsp;nu&nbsp;a&nbsp;fost&nbsp;găsită!&lt;/h1&gt;");<br>&nbsp;&nbsp;&nbsp;}</code></pre>
+     </div>
+     <p class="paragraph">Dacă nu există erori, fișierul a fost găsit și citit cu succes, atunci trimitem parametrul data, care conține datele fișierului:</p>
+     <div class="code-inline">
+      <pre><code>else{<br>&nbsp;&nbsp;&nbsp;response.end(data);<br>}</code></pre>
+     </div>
+     <p class="paragraph">La final, cu ajutorul funcției listen() lansăm serverul web pe portul 3000. Adică serverul va fi lansat la adresa http://localhost:3000/</p>
+     <h2 class="subtitle">Definirea codului HTML pentru încărcare</h2>
+     <p class="paragraph">Fișierul home.html va conține un cod simplu, care va fi încărcat de pagina web. Să presupunem că este următorul cod:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;Pagina&nbsp;de&nbsp;Acasă&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;h1&gt;Pagina&nbsp;de&nbsp;Acasă&lt;/h1&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Textul&nbsp;Paginii&nbsp;de&nbsp;Acasă&lt;/p&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <h2 class="subtitle">Definirea paginii principale și încărcarea datelor</h2>
+     <p class="paragraph">Acum să definim codul paginii principale index.html, care va încărca pagina home.html:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;script&gt;<br>const&nbsp;xhr&nbsp;=&nbsp;new&nbsp;XMLHttpRequest();<br>xhr.onload&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;handler&nbsp;pentru&nbsp;primirea&nbsp;răspunsului&nbsp;serverului<br>&nbsp;&nbsp;&nbsp;if&nbsp;(xhr.status&nbsp;==&nbsp;200)&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;codul&nbsp;răspunsului&nbsp;este&nbsp;200<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;html&nbsp;=&nbsp;xhr.responseText;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;răspunsul<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(html);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;afișăm&nbsp;răspunsul&nbsp;obținut&nbsp;în&nbsp;consola&nbsp;browserului<br>&nbsp;&nbsp;&nbsp;}&nbsp;else&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;altfel&nbsp;afișăm&nbsp;textul&nbsp;stării<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Răspunsul&nbsp;serverului:&nbsp;",&nbsp;xhr.statusText);<br>&nbsp;&nbsp;&nbsp;}<br>};<br>xhr.open("GET",&nbsp;"/home.html");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;solicitare&nbsp;GET&nbsp;către&nbsp;resursa&nbsp;/home.html<br>xhr.setRequestHeader("Accept",&nbsp;"text/html");&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;acceptăm&nbsp;doar&nbsp;html<br>xhr.send();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;executăm&nbsp;solicitarea<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">În handler-ul de încărcare xhr.onload obținem textul răspunsului prin xhr.responseText și afișăm răspunsul în consolă.</p>
+     <p class="paragraph">Acum, în consolă, ne vom deplasa la folderul serverului folosind comanda cd și vom lansa serverul folosind comanda node server.js</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/18.Cereri%20AJAX%20si%20XMLHttpRequest/2.Incarcarea%20HTML%20folosind%20XMLHttpRequest/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">După lansarea serverului, putem accesa în browser adresa http://localhost:3000, ne va fi afișată pagina, în codul JavaScript al căreia va avea loc apelul către pagina "home.html". Codul JavaScript va obține această pagină și va afișa conținutul său în consolă:</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/18.Cereri%20AJAX%20si%20XMLHttpRequest/2.Incarcarea%20HTML%20folosind%20XMLHttpRequest/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Gestionarea conținutului HTML</h2>
+     <p class="paragraph">În exemplul de mai sus, am obținut conținutul paginii ca text obișnuit. Cu toate acestea, având în vedere că acest text conține de fapt marcaj HTML, îl putem încărca pe pagina web. Astfel, să modificăm codul paginii index.html în următorul mod:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;div&nbsp;id="content"&gt;&lt;/div&gt;<br>&lt;script&gt;<br>const&nbsp;contentDiv&nbsp;=&nbsp;document.getElementById("content");&nbsp;&nbsp;//&nbsp;element&nbsp;pentru&nbsp;încărcarea&nbsp;html<br>const&nbsp;xhr&nbsp;=&nbsp;new&nbsp;XMLHttpRequest();<br><br>xhr.onload&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;if&nbsp;(xhr.status&nbsp;==&nbsp;200)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contentDiv.innerHTML&nbsp;=&nbsp;xhr.responseText;&nbsp;&nbsp;//&nbsp;afișăm&nbsp;răspunsul&nbsp;obținut&nbsp;în&nbsp;contentDiv<br>&nbsp;&nbsp;&nbsp;}&nbsp;else&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;altfel&nbsp;afișăm&nbsp;textul&nbsp;stării<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Răspunsul&nbsp;serverului:&nbsp;",&nbsp;xhr.statusText);<br>&nbsp;&nbsp;&nbsp;}<br>};<br>xhr.open("GET",&nbsp;"/home.html");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;solicitare&nbsp;GET&nbsp;către&nbsp;resursa&nbsp;/home.html<br>xhr.setRequestHeader("Accept",&nbsp;"text/html");&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;acceptăm&nbsp;doar&nbsp;html<br>xhr.send();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;executăm&nbsp;solicitarea<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, încărcăm codul obținut al paginii "home.html" în elementul cu id=content</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/18.Cereri%20AJAX%20si%20XMLHttpRequest/2.Incarcarea%20HTML%20folosind%20XMLHttpRequest/images/image3.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Cu toate acestea, problema în acest caz constă în faptul că codul paginii "home.html" pe lângă conținutul propriu-zis conține și elemente head, title, descrieri ale paginii prin intermediul tag-urilor &lt;meta&gt;. Aceste elemente nu au sens să fie încărcate pe o altă pagină web.</p>
+     <p class="paragraph">Sau poate dorim să încărcăm un anumit element de pe pagina "home.html", nu întregul său cod. În acest caz, putem obține răspunsul prin proprietatea responseXML și apoi să manipulăm răspunsul ca un document HTML standard. De exemplu, să modificăm codul JavaScript în următorul mod:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;contentDiv&nbsp;=&nbsp;document.getElementById("content");<br><br>const&nbsp;xhr&nbsp;=&nbsp;new&nbsp;XMLHttpRequest();<br>xhr.onload&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;handler&nbsp;pentru&nbsp;primirea&nbsp;răspunsului&nbsp;serverului<br>&nbsp;&nbsp;&nbsp;if&nbsp;(xhr.status&nbsp;==&nbsp;200)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;încărcăm&nbsp;doar&nbsp;conținutul&nbsp;elementului&nbsp;body<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contentDiv.innerHTML&nbsp;=&nbsp;xhr.responseXML.body.innerHTML;<br>&nbsp;&nbsp;&nbsp;}&nbsp;else&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Răspunsul&nbsp;serverului:&nbsp;",&nbsp;xhr.statusText);<br>&nbsp;&nbsp;&nbsp;}<br>};<br>xhr.open("GET",&nbsp;"/home.html");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;solicitare&nbsp;GET&nbsp;către&nbsp;resursa&nbsp;/home.html<br>xhr.responseType&nbsp;=&nbsp;"document";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;stabilim&nbsp;tipul&nbsp;de&nbsp;răspuns<br>xhr.setRequestHeader("Accept",&nbsp;"text/html");&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;acceptăm&nbsp;doar&nbsp;html<br>xhr.send();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;executăm&nbsp;solicitarea</code></pre>
+     </div>
+     <p class="paragraph">Aici trebuie să remarcăm două momente. În primul rând, stabilim pentru răspuns tipul "document":</p>
+     <div class="code-inline">
+      <pre><code>xhr.responseType&nbsp;=&nbsp;"document";</code></pre>
+     </div>
+     <p class="paragraph">Acest lucru ne va permite să obținem răspunsul ca un obiect de tip Document, similar cu ceea ce reprezintă proprietatea document pe o pagină web.</p>
+     <p class="paragraph">Pentru a obține răspunsul sub formă de html/xml utilizăm proprietatea responseXML. Și apoi, deoarece această proprietate reprezintă un obiect Document, utilizăm proprietatea body pentru a accesa conținutul direct al paginii:</p>
+     <div class="code-inline">
+      <pre><code>contentDiv.innerHTML&nbsp;=&nbsp;xhr.responseXML.body.innerHTML;</code></pre>
+     </div>
+     <p class="paragraph">Ca rezultat, în contentDiv va fi încărcat conținutul elementului body al paginii "home.html".</p>
+     <p class="paragraph">În mod similar, putem accesa alte proprietăți ale obiectului Document. De exemplu, putem obține titlul:</p>
+     <div class="code-inline">
+      <pre><code>document.title&nbsp;=&nbsp;xhr.responseXML.title;</code></pre>
+     </div>
+     <p class="paragraph">Sau încărcăm pe pagină doar textul din titlul &lt;h1&gt;:</p>
+     <div class="code-inline">
+      <pre><code>contentDiv.innerHTML&nbsp;=&nbsp;&nbsp;xhr.responseXML.querySelector("h1").textContent;</code></pre>
+     </div>
+     <h2 class="subtitle">Încărcarea dinamică a componentelor</h2>
+     <p class="paragraph">Posibilitatea de a încărca codul HTML și de a-l insera pe o pagină ne permite să mergem mai departe și să împărțim funcționalitatea aplicației în mai multe componente și, dacă este necesar, să le încărcăm. De exemplu, să presupunem că în proiect avem următoarele fișiere:</p>
+     <ul class="enumeration">
+      <li>server.js: fișierul aplicației server pe Node.js</li>
+      <li>index.html: pagina principală a aplicației</li>
+      <li>home.html: fișierul componentei home</li>
+      <li>about.html: fișierul componentei about</li>
+      <li>contact.html: fișierul componentei contact</li>
+     </ul>
+     <p class="paragraph">Fișierul aplicației server pe Node.js - server.js rămâne același ca cel definit mai sus în acest articol.</p>
+     <p class="paragraph">Să presupunem că fișierul home.html conține un cod simplu de genul următor:</p>
+     <div class="code-inline">
+      <pre><code>&lt;h1&gt;Pagina&nbsp;de&nbsp;Acasă&lt;/h1&gt;<br>&lt;p&gt;Textul&nbsp;Paginii&nbsp;de&nbsp;Acasă&lt;/p&gt;</code></pre>
+     </div>
+     <p class="paragraph">Fișierul about.html să arate în mod similar:</p>
+     <div class="code-inline">
+      <pre><code>&lt;h1&gt;Pagina&nbsp;Despre&nbsp;Noi&lt;/h1&gt;<br>&lt;p&gt;Textul&nbsp;Paginii&nbsp;Despre&nbsp;Noi&lt;/p&gt;</code></pre>
+     </div>
+     <p class="paragraph">Și codul fișierului contact.html:</p>
+     <div class="code-inline">
+      <pre><code>&lt;h1&gt;Pagina&nbsp;de&nbsp;Contact&lt;/h1&gt;<br>&lt;p&gt;Textul&nbsp;Paginii&nbsp;de&nbsp;Contact&lt;/p&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aceste fișiere reprezintă componente, care vor fi încărcate pe pagina principală.</p>
+     <p class="paragraph">Pe pagina principală index.html, să definim următorul cod:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;nav&gt;&lt;a&nbsp;href="home"&gt;Acasă&lt;/a&gt;&nbsp;|&nbsp;&lt;a&nbsp;href="about"&gt;Despre&nbsp;Noi&lt;/a&gt;&nbsp;|&nbsp;&lt;a&nbsp;href="contact"&gt;Contact&lt;/a&gt;&lt;/nav&gt;<br>&lt;div&nbsp;id="content"&gt;&lt;/div&gt;<br>&lt;script&gt;<br>const&nbsp;contentDiv&nbsp;=&nbsp;document.getElementById("content");<br><br>function&nbsp;loadContent(fileName){<br>&nbsp;&nbsp;&nbsp;const&nbsp;xhr&nbsp;=&nbsp;new&nbsp;XMLHttpRequest();<br>&nbsp;&nbsp;&nbsp;xhr.onload&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(xhr.status&nbsp;==&nbsp;200)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contentDiv.innerHTML&nbsp;=&nbsp;xhr.responseText;&nbsp;//&nbsp;xhr.responseXML.body.innerHTML;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;document.title&nbsp;=&nbsp;fileName;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;};<br>&nbsp;&nbsp;&nbsp;xhr.open("GET",&nbsp;fileName&nbsp;+&nbsp;".html");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;solicitare&nbsp;GET&nbsp;după&nbsp;adresa&nbsp;linkului<br>&nbsp;&nbsp;&nbsp;xhr.setRequestHeader("Accept",&nbsp;"text/html");&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;acceptăm&nbsp;doar&nbsp;html<br>&nbsp;&nbsp;&nbsp;xhr.send();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;executăm&nbsp;solicitarea<br>}<br><br>//&nbsp;stabilim&nbsp;handler-ul&nbsp;pentru&nbsp;apăsarea&nbsp;butoanelor<br>const&nbsp;links&nbsp;=&nbsp;document.getElementsByTagName("a");<br>for&nbsp;(let&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;links.length;&nbsp;i++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;links[i].addEventListener("click",&nbsp;(e)=&gt;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loadContent(links[i].getAttribute("href"));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;e.preventDefault();<br>&nbsp;&nbsp;&nbsp;});&nbsp;&nbsp;<br>}<br>//&nbsp;implicit&nbsp;încărcăm&nbsp;componenta&nbsp;home<br>loadContent("home");<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici, pentru navigația între componente, pe pagină plasăm o serie de linkuri:</p>
+     <div class="code-inline">
+      <pre><code>&lt;nav&gt;&lt;a&nbsp;href="home"&gt;Acasă&lt;/a&gt;&nbsp;|&nbsp;&lt;a&nbsp;href="about"&gt;Despre&nbsp;Noi&lt;/a&gt;&nbsp;|&nbsp;&lt;a&nbsp;href="contact"&gt;Contact&lt;/a&gt;&lt;/nav&gt;</code></pre>
+     </div>
+     <p class="paragraph">Adresa fiecărui astfel de link corespunde numelui paginii componentei corespunzătoare fără extensia ".html".</p>
+     <p class="paragraph">Fiecare dintre componentele va fi încărcată pe pagină în elementul cu id="content", pe care îl obținem în codul JavaScript în constanta contentDiv:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;contentDiv&nbsp;=&nbsp;document.getElementById("content");</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, în codul JavaScript, pentru fiecare link stabilim handleri, în care apelăm funcția loadContent și în care transmitem valoarea atributului href al linkului - adică adresa componentei</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;links&nbsp;=&nbsp;document.getElementsByTagName("a");<br>for&nbsp;(let&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;links.length;&nbsp;i++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;links[i].addEventListener("click",&nbsp;(e)=&gt;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loadContent(links[i].getAttribute("href"));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;e.preventDefault();<br>&nbsp;&nbsp;&nbsp;});&nbsp;&nbsp;<br>}</code></pre>
+     </div>
+     <p class="paragraph">În funcția loadContent utilizăm adresa linkului pentru a trimite o solicitare ajax, iar răspunsul (HTML-ul obținut) îl încărcăm în elementul contentDiv.</p>
+     <div class="code-inline">
+      <pre><code>contentDiv.innerHTML&nbsp;=&nbsp;xhr.responseText;&nbsp;//&nbsp;xhr.responseXML.body.innerHTML;</code></pre>
+     </div>
+     <p class="paragraph">La încărcarea paginii, încărcăm imediat codul componentei home, ca componentă implicită:</p>
+     <div class="code-inline">
+      <pre><code>loadContent("home");</code></pre>
+     </div>
+     <p class="paragraph">Astfel, pe pagina principală vom putea accesa componente specifice, navigând prin linkuri.</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/18.Cereri%20AJAX%20si%20XMLHttpRequest/2.Incarcarea%20HTML%20folosind%20XMLHttpRequest/images/image4.png}" alt="" class="responsive-image">
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

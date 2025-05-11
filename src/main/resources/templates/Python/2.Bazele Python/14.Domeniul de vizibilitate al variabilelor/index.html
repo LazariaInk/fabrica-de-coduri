@@ -1,151 +1,141 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Python', activeChapter='2.Bazele Python', activeLesson='14.Domeniul de vizibilitate al variabilelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Domeniul de vizibilitate al variabilelor</h1>
- <p class="paragraph">Domeniul de vizibilitate sau scope-ul determină contextul unei variabile, în cadrul căruia aceasta poate fi utilizată. În Python există două tipuri de context: global și local.</p>
- <h2 class="subtitle">Contextul global</h2>
- <p class="paragraph">Contextul global implică faptul că o variabilă este globală, adică este definită în afara oricărei funcții și este accesibilă oricărei funcții din program. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>name&nbsp;=&nbsp;"Tom"<br>def&nbsp;say_hi():<br>&nbsp;&nbsp;&nbsp;print("Hello",&nbsp;name)<br>def&nbsp;say_bye():<br>&nbsp;&nbsp;&nbsp;print("Good&nbsp;bye",&nbsp;name)<br>say_hi()<br>say_bye()</code></pre>
- </div>
- <p class="paragraph">Aici, variabila name este globală și are un domeniu de vizibilitate global. Ambele funcții definite aici o pot utiliza liber.</p>
- <h2 class="subtitle">Contextul local</h2>
- <p class="paragraph">Spre deosebire de variabilele globale, o variabilă locală este definită în interiorul unei funcții și este accesibilă doar din acea funcție, adică are un domeniu de vizibilitate local:</p>
- <div class="code-inline">
-  <pre><code>def&nbsp;say_hi():<br>&nbsp;&nbsp;&nbsp;name&nbsp;=&nbsp;"Sam"<br>&nbsp;&nbsp;&nbsp;surname&nbsp;=&nbsp;"Johnson"<br>&nbsp;&nbsp;&nbsp;print("Hello",&nbsp;name,&nbsp;surname)<br><br>def&nbsp;say_bye():<br>&nbsp;&nbsp;&nbsp;name&nbsp;=&nbsp;"Tom"<br>&nbsp;&nbsp;&nbsp;print("Good&nbsp;bye",&nbsp;name)<br><br>say_hi()<br>say_bye()</code></pre>
- </div>
- <p class="paragraph">În acest caz, în fiecare dintre cele două funcții este definită o variabilă locală name. Deși aceste variabile au aceleași nume, ele sunt două variabile diferite, fiecare fiind accesibilă doar în cadrul funcției sale. De asemenea, în funcția say_hi() este definită variabila surname, care este de asemenea locală, așa că nu putem să o folosim în funcția say_bye().</p>
- <h2 class="subtitle">Ascunderea variabilelor</h2>
- <p class="paragraph">Există și o altă situație în care o variabilă locală ascunde o variabilă globală cu același nume:</p>
- <div class="code-inline">
-  <pre><code>name&nbsp;=&nbsp;"Tom"<br>def&nbsp;say_hi():<br>&nbsp;&nbsp;&nbsp;name&nbsp;=&nbsp;"Bob"&nbsp;&nbsp;#&nbsp;ascunde&nbsp;valoarea&nbsp;variabilei&nbsp;globale<br>&nbsp;&nbsp;&nbsp;print("Hello",&nbsp;name)<br>def&nbsp;say_bye():<br>&nbsp;&nbsp;&nbsp;print("Good&nbsp;bye",&nbsp;name)<br>say_hi()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Hello&nbsp;Bob<br>say_bye()&nbsp;&nbsp;&nbsp;#&nbsp;Good&nbsp;bye&nbsp;Tom</code></pre>
- </div>
- <p class="paragraph">Aici, este definită o variabilă globală name. Totuși, în funcția say_hi este definită o variabilă locală cu același nume name. Și dacă funcția say_bye folosește variabila globală, funcția say_hi folosește variabila locală, care ascunde variabila globală.</p>
- <p class="paragraph">Dacă dorim să modificăm variabila globală într-o funcție locală, și nu să definim una locală, trebuie să folosim cuvântul cheie global:</p>
- <div class="code-inline">
-  <pre><code>name&nbsp;=&nbsp;"Tom"<br>def&nbsp;say_hi():<br>&nbsp;&nbsp;&nbsp;global&nbsp;name<br>&nbsp;&nbsp;&nbsp;name&nbsp;=&nbsp;"Bob"&nbsp;&nbsp;#&nbsp;modifică&nbsp;valoarea&nbsp;variabilei&nbsp;globale<br>&nbsp;&nbsp;&nbsp;print("Hello",&nbsp;name)<br>def&nbsp;say_bye():<br>&nbsp;&nbsp;&nbsp;print("Good&nbsp;bye",&nbsp;name)<br>say_hi()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Hello&nbsp;Bob<br>say_bye()&nbsp;&nbsp;&nbsp;#&nbsp;Good&nbsp;bye&nbsp;Bob</code></pre>
- </div>
- <h2 class="subtitle">nonlocal</h2>
- <p class="paragraph">Expresia nonlocal atașează un identificator la o variabilă din cel mai apropiat context înconjurător (cu excepția contextului global). De obicei, nonlocal se folosește în funcțiile imbricate, când trebuie să atașăm un identificator la o variabilă sau parametru al funcției exterioare înconjurătoare. Să analizăm o situație în care această expresie poate fi utilă:</p>
- <div class="code-inline">
-  <pre><code>def&nbsp;outer():&nbsp;&nbsp;#&nbsp;funcție&nbsp;exterioară<br>&nbsp;&nbsp;&nbsp;n&nbsp;=&nbsp;5<br>&nbsp;&nbsp;&nbsp;def&nbsp;inner():&nbsp;&nbsp;#&nbsp;funcție&nbsp;imbricată<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(n)<br>&nbsp;&nbsp;&nbsp;inner()&nbsp;&nbsp;#&nbsp;5<br>&nbsp;&nbsp;&nbsp;print(n)<br>outer()&nbsp;&nbsp;#&nbsp;5</code></pre>
- </div>
- <p class="paragraph">Aici, funcția locală imbricată inner() afișează pe consolă valoarea variabilei n, care este definită în funcția exterioară outer(). Apoi, în funcția outer(), se apelează funcția internă inner().</p>
- <p class="paragraph">La apelul funcției outer(), vom vedea așteptat pe consolă de două ori numărul 5. Totuși, în acest caz, funcția imbricată inner() doar accesează valoarea. Acum să luăm o altă situație în care funcția imbricată atribuie o valoare variabilei:</p>
- <div class="code-inline">
-  <pre><code>def&nbsp;outer():&nbsp;&nbsp;#&nbsp;funcție&nbsp;exterioară<br>&nbsp;&nbsp;&nbsp;n&nbsp;=&nbsp;5<br>&nbsp;&nbsp;&nbsp;def&nbsp;inner():&nbsp;&nbsp;#&nbsp;funcție&nbsp;imbricată<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;n&nbsp;=&nbsp;25<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(n)<br>&nbsp;&nbsp;&nbsp;inner()&nbsp;&nbsp;#&nbsp;25<br>&nbsp;&nbsp;&nbsp;print(n)<br>outer()&nbsp;&nbsp;#&nbsp;5<br>#&nbsp;25&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;inner<br>#&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;outer</code></pre>
- </div>
- <p class="paragraph">La atribuirea valorii în funcția imbricată: n = 25 va fi creată o nouă variabilă n, care va ascunde variabila n din funcția exterioară outer. În final, vom obține la afișare două numere diferite. Pentru a specifica în funcția imbricată că identificatorul din funcția imbricată va reprezenta variabila din funcția înconjurătoare, se folosește expresia nonlocal:</p>
- <div class="code-inline">
-  <pre><code>def&nbsp;outer():&nbsp;&nbsp;#&nbsp;funcție&nbsp;exterioară<br>&nbsp;&nbsp;&nbsp;n&nbsp;=&nbsp;5<br>&nbsp;&nbsp;&nbsp;def&nbsp;inner():&nbsp;&nbsp;#&nbsp;funcție&nbsp;imbricată<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nonlocal&nbsp;n&nbsp;&nbsp;#&nbsp;indicăm&nbsp;că&nbsp;n&nbsp;este&nbsp;o&nbsp;variabilă&nbsp;din&nbsp;funcția&nbsp;înconjurătoare<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;n&nbsp;=&nbsp;25<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(n)<br>&nbsp;&nbsp;&nbsp;inner()&nbsp;&nbsp;#&nbsp;25<br>&nbsp;&nbsp;&nbsp;print(n)<br>outer()&nbsp;&nbsp;#&nbsp;25</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Domeniul de vizibilitate al variabilelor</h1>
+     <p class="paragraph">Domeniul de vizibilitate sau scope-ul determină contextul unei variabile, în cadrul căruia aceasta poate fi utilizată. În Python există două tipuri de context: global și local.</p>
+     <h2 class="subtitle">Contextul global</h2>
+     <p class="paragraph">Contextul global implică faptul că o variabilă este globală, adică este definită în afara oricărei funcții și este accesibilă oricărei funcții din program. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>name&nbsp;=&nbsp;"Tom"<br>def&nbsp;say_hi():<br>&nbsp;&nbsp;&nbsp;print("Hello",&nbsp;name)<br>def&nbsp;say_bye():<br>&nbsp;&nbsp;&nbsp;print("Good&nbsp;bye",&nbsp;name)<br>say_hi()<br>say_bye()</code></pre>
+     </div>
+     <p class="paragraph">Aici, variabila name este globală și are un domeniu de vizibilitate global. Ambele funcții definite aici o pot utiliza liber.</p>
+     <h2 class="subtitle">Contextul local</h2>
+     <p class="paragraph">Spre deosebire de variabilele globale, o variabilă locală este definită în interiorul unei funcții și este accesibilă doar din acea funcție, adică are un domeniu de vizibilitate local:</p>
+     <div class="code-inline">
+      <pre><code>def&nbsp;say_hi():<br>&nbsp;&nbsp;&nbsp;name&nbsp;=&nbsp;"Sam"<br>&nbsp;&nbsp;&nbsp;surname&nbsp;=&nbsp;"Johnson"<br>&nbsp;&nbsp;&nbsp;print("Hello",&nbsp;name,&nbsp;surname)<br><br>def&nbsp;say_bye():<br>&nbsp;&nbsp;&nbsp;name&nbsp;=&nbsp;"Tom"<br>&nbsp;&nbsp;&nbsp;print("Good&nbsp;bye",&nbsp;name)<br><br>say_hi()<br>say_bye()</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, în fiecare dintre cele două funcții este definită o variabilă locală name. Deși aceste variabile au aceleași nume, ele sunt două variabile diferite, fiecare fiind accesibilă doar în cadrul funcției sale. De asemenea, în funcția say_hi() este definită variabila surname, care este de asemenea locală, așa că nu putem să o folosim în funcția say_bye().</p>
+     <h2 class="subtitle">Ascunderea variabilelor</h2>
+     <p class="paragraph">Există și o altă situație în care o variabilă locală ascunde o variabilă globală cu același nume:</p>
+     <div class="code-inline">
+      <pre><code>name&nbsp;=&nbsp;"Tom"<br>def&nbsp;say_hi():<br>&nbsp;&nbsp;&nbsp;name&nbsp;=&nbsp;"Bob"&nbsp;&nbsp;#&nbsp;ascunde&nbsp;valoarea&nbsp;variabilei&nbsp;globale<br>&nbsp;&nbsp;&nbsp;print("Hello",&nbsp;name)<br>def&nbsp;say_bye():<br>&nbsp;&nbsp;&nbsp;print("Good&nbsp;bye",&nbsp;name)<br>say_hi()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Hello&nbsp;Bob<br>say_bye()&nbsp;&nbsp;&nbsp;#&nbsp;Good&nbsp;bye&nbsp;Tom</code></pre>
+     </div>
+     <p class="paragraph">Aici, este definită o variabilă globală name. Totuși, în funcția say_hi este definită o variabilă locală cu același nume name. Și dacă funcția say_bye folosește variabila globală, funcția say_hi folosește variabila locală, care ascunde variabila globală.</p>
+     <p class="paragraph">Dacă dorim să modificăm variabila globală într-o funcție locală, și nu să definim una locală, trebuie să folosim cuvântul cheie global:</p>
+     <div class="code-inline">
+      <pre><code>name&nbsp;=&nbsp;"Tom"<br>def&nbsp;say_hi():<br>&nbsp;&nbsp;&nbsp;global&nbsp;name<br>&nbsp;&nbsp;&nbsp;name&nbsp;=&nbsp;"Bob"&nbsp;&nbsp;#&nbsp;modifică&nbsp;valoarea&nbsp;variabilei&nbsp;globale<br>&nbsp;&nbsp;&nbsp;print("Hello",&nbsp;name)<br>def&nbsp;say_bye():<br>&nbsp;&nbsp;&nbsp;print("Good&nbsp;bye",&nbsp;name)<br>say_hi()&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Hello&nbsp;Bob<br>say_bye()&nbsp;&nbsp;&nbsp;#&nbsp;Good&nbsp;bye&nbsp;Bob</code></pre>
+     </div>
+     <h2 class="subtitle">nonlocal</h2>
+     <p class="paragraph">Expresia nonlocal atașează un identificator la o variabilă din cel mai apropiat context înconjurător (cu excepția contextului global). De obicei, nonlocal se folosește în funcțiile imbricate, când trebuie să atașăm un identificator la o variabilă sau parametru al funcției exterioare înconjurătoare. Să analizăm o situație în care această expresie poate fi utilă:</p>
+     <div class="code-inline">
+      <pre><code>def&nbsp;outer():&nbsp;&nbsp;#&nbsp;funcție&nbsp;exterioară<br>&nbsp;&nbsp;&nbsp;n&nbsp;=&nbsp;5<br>&nbsp;&nbsp;&nbsp;def&nbsp;inner():&nbsp;&nbsp;#&nbsp;funcție&nbsp;imbricată<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(n)<br>&nbsp;&nbsp;&nbsp;inner()&nbsp;&nbsp;#&nbsp;5<br>&nbsp;&nbsp;&nbsp;print(n)<br>outer()&nbsp;&nbsp;#&nbsp;5</code></pre>
+     </div>
+     <p class="paragraph">Aici, funcția locală imbricată inner() afișează pe consolă valoarea variabilei n, care este definită în funcția exterioară outer(). Apoi, în funcția outer(), se apelează funcția internă inner().</p>
+     <p class="paragraph">La apelul funcției outer(), vom vedea așteptat pe consolă de două ori numărul 5. Totuși, în acest caz, funcția imbricată inner() doar accesează valoarea. Acum să luăm o altă situație în care funcția imbricată atribuie o valoare variabilei:</p>
+     <div class="code-inline">
+      <pre><code>def&nbsp;outer():&nbsp;&nbsp;#&nbsp;funcție&nbsp;exterioară<br>&nbsp;&nbsp;&nbsp;n&nbsp;=&nbsp;5<br>&nbsp;&nbsp;&nbsp;def&nbsp;inner():&nbsp;&nbsp;#&nbsp;funcție&nbsp;imbricată<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;n&nbsp;=&nbsp;25<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(n)<br>&nbsp;&nbsp;&nbsp;inner()&nbsp;&nbsp;#&nbsp;25<br>&nbsp;&nbsp;&nbsp;print(n)<br>outer()&nbsp;&nbsp;#&nbsp;5<br>#&nbsp;25&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;inner<br>#&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;outer</code></pre>
+     </div>
+     <p class="paragraph">La atribuirea valorii în funcția imbricată: n = 25 va fi creată o nouă variabilă n, care va ascunde variabila n din funcția exterioară outer. În final, vom obține la afișare două numere diferite. Pentru a specifica în funcția imbricată că identificatorul din funcția imbricată va reprezenta variabila din funcția înconjurătoare, se folosește expresia nonlocal:</p>
+     <div class="code-inline">
+      <pre><code>def&nbsp;outer():&nbsp;&nbsp;#&nbsp;funcție&nbsp;exterioară<br>&nbsp;&nbsp;&nbsp;n&nbsp;=&nbsp;5<br>&nbsp;&nbsp;&nbsp;def&nbsp;inner():&nbsp;&nbsp;#&nbsp;funcție&nbsp;imbricată<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nonlocal&nbsp;n&nbsp;&nbsp;#&nbsp;indicăm&nbsp;că&nbsp;n&nbsp;este&nbsp;o&nbsp;variabilă&nbsp;din&nbsp;funcția&nbsp;înconjurătoare<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;n&nbsp;=&nbsp;25<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(n)<br>&nbsp;&nbsp;&nbsp;inner()&nbsp;&nbsp;#&nbsp;25<br>&nbsp;&nbsp;&nbsp;print(n)<br>outer()&nbsp;&nbsp;#&nbsp;25</code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

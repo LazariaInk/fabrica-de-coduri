@@ -1,183 +1,173 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='7.Siruri de caractere', activeLesson='7.Grupurile in expresiile regulate'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Grupurile în expresiile regulate</h1>
- <h2 class="subtitle">Definirea grupurilor în expresiile regulate</h2>
- <p class="paragraph">Pentru a căuta corespondențe mai complexe într-un șir, se utilizează grupurile în expresiile regulate. Grupurile sunt delimitate de paranteze. De exemplu, să presupunem că dorim să obținem o dată într-un anumit format. Cu ajutorul metodei exec() a obiectului RegExp, putem obține întreaga potrivire.</p>
- <p class="paragraph">Să zicem că data este reprezentată în formatul "yyyy-mm-dd" (2021-09-06):</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;exp&nbsp;=&nbsp;/\d{4}-\d{2}-\d{2}/;<br>const&nbsp;text&nbsp;=&nbsp;"Publication&nbsp;Date:&nbsp;2021-09-06"<br>const&nbsp;result&nbsp;=&nbsp;exp.exec(text);<br><br>console.log(result[0]);&nbsp;//&nbsp;2021-09-06</code></pre>
- </div>
- <p class="paragraph">Din rezultatul metodei exec, putem extrage rezultatul - data dorită. Totuși, ce facem dacă dorim să obținem componente individuale ale datei - anul, luna, ziua? În acest caz, putem folosi grupurile.</p>
- <p class="paragraph">Fiecare grup reprezintă o parte a expresiei regulate și este înconjurat de paranteze rotunde. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;exp&nbsp;=&nbsp;/(\d{4})-(\d{2})-(\d{2})/;<br>const&nbsp;text&nbsp;=&nbsp;"Publication&nbsp;Date:&nbsp;2021-09-06"<br>const&nbsp;result&nbsp;=&nbsp;exp.exec(text);<br><br>console.log(result);&nbsp;&nbsp;&nbsp;&nbsp;<br>//&nbsp;Afișaj&nbsp;în&nbsp;consolă<br>//&nbsp;(4)&nbsp;['2021-09-06',&nbsp;'2021',&nbsp;'09',&nbsp;'06',&nbsp;index:&nbsp;18,&nbsp;input:&nbsp;'Publication&nbsp;Date:&nbsp;2021-09-06',&nbsp;groups:&nbsp;undefined]</code></pre>
- </div>
- <p class="paragraph">Aici, expresia regulată /(\d{4})-(\d{2})-(\d{2})/ conține trei grupuri. Primul grup - (\d{4}) constă din 4 cifre și reprezintă anul. Al doilea grup - (\d{2}) constă din 2 cifre și reprezintă luna. Al treilea grup, de asemenea, constă din 2 cifre și reprezintă ziua.</p>
- <p class="paragraph">Această expresie regulată "/(\d{4})-(\d{2})-(\d{2})/" are trei grupuri definite:</p>
- <ul class="enumeration">
-  <li>Prima grupă (\d{4}) se potrivește cu un număr format din patru cifre.</li>
-  <li>A doua grupă (\d{2}) se potrivește cu un număr format din două cifre.</li>
-  <li>A treia grupă este similară cu a doua.</li>
- </ul>
- <p class="paragraph">Și dacă ne uităm la rezultatul metodei exec(), vom vedea că, în afară de potrivirea efectivă cu data, el conține potriviri pentru fiecare grupă în parte:</p>
- <div class="code-inline">
-  <pre><code>(4)&nbsp;['2021-09-06',&nbsp;'2021',&nbsp;'09',&nbsp;'06',&nbsp;index:&nbsp;18,&nbsp;input:&nbsp;'Publication&nbsp;Date:&nbsp;2021-09-06',&nbsp;groups:&nbsp;undefined]</code></pre>
- </div>
- <p class="paragraph">Rezultatul obținut reprezintă un array, unde primul element (cu indexul 0) reprezintă întotdeauna subșirul care se potrivește cu expresia regulată. Toate elementele ulterioare ale acestui array reprezintă grupurile.</p>
- <p class="paragraph">Prin urmare, prima grupă are indexul 1, a doua are indexul 2 și așa mai departe. Prin aplicarea acestor indici, putem obține toate potrivirile grupelor din expresia regulată:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;exp&nbsp;=&nbsp;/(\d{4})-(\d{2})-(\d{2})/;<br>const&nbsp;text&nbsp;=&nbsp;"Publication&nbsp;Date:&nbsp;2021-09-06"<br>const&nbsp;result&nbsp;=&nbsp;exp.exec(text);<br><br>console.log(result[0]);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;2021-09-06&nbsp;-&nbsp;potrivirea&nbsp;completă<br>console.log(result[1]);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;2021&nbsp;-&nbsp;prima&nbsp;grupă<br>console.log(result[2]);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;09&nbsp;-&nbsp;a&nbsp;doua&nbsp;grupă<br>console.log(result[3]);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;06&nbsp;-&nbsp;a&nbsp;treia&nbsp;grupă</code></pre>
- </div>
- <p class="paragraph">Prin obținerea valorilor grupelor individuale, se pot realiza anumite acțiuni cu acestea, cum ar fi transformarea lor în alt format de dată:</p>
- <div class="code-inline">
-  <pre><code>console.log(`${result[3]}.${result[2]}.${result[1]}`);&nbsp;//&nbsp;06.09.2021</code></pre>
- </div>
- <p class="paragraph">Gruparea simplifică crearea expresiilor regulate mai complexe. La fel ca și în cazul caracterelor individuale, la grupuri le pot fi aplicate cuantificatoare. De exemplu, expresia (la)+ reprezintă una sau mai multe repetări ale șirului "la".</p>
- <h2 class="subtitle">Grupuri denumite</h2>
- <p class="paragraph">JavaScript permite asignarea unui nume fiecărei grupe în expresiile regulate. Cu ajutorul acestui nume, se poate obține ulterior valoarea care corespunde acestei grupe.</p>
- <p class="paragraph">Pentru a atribui un nume grupului în interiorul parantezelor care definesc grupa, se adaugă un semn de întrebare, iar apoi între parantezele unghiulare se introduce numele grupului:</p>
- <div class="code-inline">
-  <pre><code>(?&lt;nume_grup&gt;&nbsp;...&nbsp;)</code></pre>
- </div>
- <p class="paragraph">Să analizăm exemplul următor:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;exp&nbsp;=&nbsp;/(?&lt;year&gt;\d{4})-(?&lt;month&gt;\d{2})-(?&lt;day&gt;\d{2})/u;<br>const&nbsp;text&nbsp;=&nbsp;"Publication&nbsp;Date:&nbsp;2021-09-06"<br>const&nbsp;result&nbsp;=&nbsp;exp.exec(text);<br>console.log(result.groups);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;{year:&nbsp;"2021",&nbsp;month:&nbsp;"09",&nbsp;day:&nbsp;"06"}<br>console.log(result.groups.year);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;2021<br>console.log(result.groups.month);&nbsp;&nbsp;&nbsp;//&nbsp;09<br>console.log(result.groups.day);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;06</code></pre>
- </div>
- <p class="paragraph">Aici, expresia regulată definește trei grupuri. Prima grupă se numește "year", a doua - "month", iar a treia - "day". Când obținem rezultatul, putem accesa fiecare grupă prin intermediul proprietății groups.</p>
- <p class="paragraph">Această proprietate reprezintă un obiect în care proprietățile au aceleași nume ca și grupurile și conțin valorile pentru fiecare grupă:</p>
- <div class="code-inline">
-  <pre><code>console.log(result.groups);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;{year:&nbsp;"2021",&nbsp;month:&nbsp;"09",&nbsp;day:&nbsp;"06"}</code></pre>
- </div>
- <p class="paragraph">Prin urmare, utilizând numele grupelor, putem obține valoarea pentru fiecare grupă în parte.</p>
- <h2 class="subtitle">Afirmații</h2>
- <p class="paragraph">Afirmațiile permit obținerea unui subșir care se potrivește cu o expresie regulată și care este precedat sau, dimpotrivă, nu este precedat de o anumită expresie.</p>
- <p class="paragraph">Afirmarea pozitivă (când subșirul trebuie să fie precedat de alt subșir) este definită cu ajutorul expresiei:</p>
- <div class="code-inline">
-  <pre><code>(?&lt;=...)</code></pre>
- </div>
- <p class="paragraph">După semnul egal = urmează expresia cu care subșirul trebuie să fie precedat.</p>
- <p class="paragraph">Afirmarea negativă (când subșirul NU trebuie să fie precedat de alt subșir) este definită cu ajutorul expresiei:</p>
- <div class="code-inline">
-  <pre><code>(?&lt;!...)</code></pre>
- </div>
- <p class="paragraph">După semnul exclamării ! urmează expresia cu care subșirul nu trebuie să fie precedat.</p>
- <p class="paragraph">Hai să luăm o sarcină simplă. Să presupunem că avem o anumită informație cu o anumită sumă. Dar această sumă poate fi exprimată în dolari, euro, gbp etc. Ceva asemănător:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;text1&nbsp;=&nbsp;"All&nbsp;costs:&nbsp;$10.53";<br>const&nbsp;text2&nbsp;=&nbsp;"All&nbsp;costs:&nbsp;€10.53";<br><br>const&nbsp;exp&nbsp;=&nbsp;/\d+(\.\d*)?/;<br>const&nbsp;result1&nbsp;=&nbsp;exp.exec(text1);<br>console.log(result1[0]);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;10.53<br><br>const&nbsp;result2&nbsp;=&nbsp;exp.exec(text2);<br>console.log(result2[0]);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;10.53<br><br></code></pre>
- </div>
- <p class="paragraph">Aici vedem că atât suma în dolari (\\$) cât și suma în euro (€) corespund expresiei regulate. Dar ce facem dacă dorim să obținem doar suma în dolari? Pentru asta, vom aplica o afirmare pozitivă:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;text1&nbsp;=&nbsp;"All&nbsp;costs:&nbsp;$10.53";<br>const&nbsp;text2&nbsp;=&nbsp;"All&nbsp;costs:&nbsp;€10.53";<br><br>const&nbsp;exp&nbsp;=&nbsp;/(?&lt;=\$)\d+(\.\d*)?/;<br><br>const&nbsp;result1&nbsp;=&nbsp;exp.exec(text1);<br>console.log(result1);&nbsp;&nbsp;&nbsp;//&nbsp;["10.53",&nbsp;".53",&nbsp;index:&nbsp;12,&nbsp;input:&nbsp;"All&nbsp;costs:&nbsp;$10.53",&nbsp;groups:&nbsp;undefined]<br><br>const&nbsp;result2&nbsp;=&nbsp;exp.exec(text2);<br>console.log(result2);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;null</code></pre>
- </div>
- <p class="paragraph">Grupa (?&lt;=\$) indică că înaintea șirului trebuie să existe simbolul dolar $. Dacă acesta lipsește, atunci metoda exec() nu va găsi nicio potrivire și va returna null.</p>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Grupurile în expresiile regulate</h1>
+     <h2 class="subtitle">Definirea grupurilor în expresiile regulate</h2>
+     <p class="paragraph">Pentru a căuta corespondențe mai complexe într-un șir, se utilizează grupurile în expresiile regulate. Grupurile sunt delimitate de paranteze. De exemplu, să presupunem că dorim să obținem o dată într-un anumit format. Cu ajutorul metodei exec() a obiectului RegExp, putem obține întreaga potrivire.</p>
+     <p class="paragraph">Să zicem că data este reprezentată în formatul "yyyy-mm-dd" (2021-09-06):</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;exp&nbsp;=&nbsp;/\d{4}-\d{2}-\d{2}/;<br>const&nbsp;text&nbsp;=&nbsp;"Publication&nbsp;Date:&nbsp;2021-09-06"<br>const&nbsp;result&nbsp;=&nbsp;exp.exec(text);<br><br>console.log(result[0]);&nbsp;//&nbsp;2021-09-06</code></pre>
+     </div>
+     <p class="paragraph">Din rezultatul metodei exec, putem extrage rezultatul - data dorită. Totuși, ce facem dacă dorim să obținem componente individuale ale datei - anul, luna, ziua? În acest caz, putem folosi grupurile.</p>
+     <p class="paragraph">Fiecare grup reprezintă o parte a expresiei regulate și este înconjurat de paranteze rotunde. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;exp&nbsp;=&nbsp;/(\d{4})-(\d{2})-(\d{2})/;<br>const&nbsp;text&nbsp;=&nbsp;"Publication&nbsp;Date:&nbsp;2021-09-06"<br>const&nbsp;result&nbsp;=&nbsp;exp.exec(text);<br><br>console.log(result);&nbsp;&nbsp;&nbsp;&nbsp;<br>//&nbsp;Afișaj&nbsp;în&nbsp;consolă<br>//&nbsp;(4)&nbsp;['2021-09-06',&nbsp;'2021',&nbsp;'09',&nbsp;'06',&nbsp;index:&nbsp;18,&nbsp;input:&nbsp;'Publication&nbsp;Date:&nbsp;2021-09-06',&nbsp;groups:&nbsp;undefined]</code></pre>
+     </div>
+     <p class="paragraph">Aici, expresia regulată /(\d{4})-(\d{2})-(\d{2})/ conține trei grupuri. Primul grup - (\d{4}) constă din 4 cifre și reprezintă anul. Al doilea grup - (\d{2}) constă din 2 cifre și reprezintă luna. Al treilea grup, de asemenea, constă din 2 cifre și reprezintă ziua.</p>
+     <p class="paragraph">Această expresie regulată "/(\d{4})-(\d{2})-(\d{2})/" are trei grupuri definite:</p>
+     <ul class="enumeration">
+      <li>Prima grupă (\d{4}) se potrivește cu un număr format din patru cifre.</li>
+      <li>A doua grupă (\d{2}) se potrivește cu un număr format din două cifre.</li>
+      <li>A treia grupă este similară cu a doua.</li>
+     </ul>
+     <p class="paragraph">Și dacă ne uităm la rezultatul metodei exec(), vom vedea că, în afară de potrivirea efectivă cu data, el conține potriviri pentru fiecare grupă în parte:</p>
+     <div class="code-inline">
+      <pre><code>(4)&nbsp;['2021-09-06',&nbsp;'2021',&nbsp;'09',&nbsp;'06',&nbsp;index:&nbsp;18,&nbsp;input:&nbsp;'Publication&nbsp;Date:&nbsp;2021-09-06',&nbsp;groups:&nbsp;undefined]</code></pre>
+     </div>
+     <p class="paragraph">Rezultatul obținut reprezintă un array, unde primul element (cu indexul 0) reprezintă întotdeauna subșirul care se potrivește cu expresia regulată. Toate elementele ulterioare ale acestui array reprezintă grupurile.</p>
+     <p class="paragraph">Prin urmare, prima grupă are indexul 1, a doua are indexul 2 și așa mai departe. Prin aplicarea acestor indici, putem obține toate potrivirile grupelor din expresia regulată:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;exp&nbsp;=&nbsp;/(\d{4})-(\d{2})-(\d{2})/;<br>const&nbsp;text&nbsp;=&nbsp;"Publication&nbsp;Date:&nbsp;2021-09-06"<br>const&nbsp;result&nbsp;=&nbsp;exp.exec(text);<br><br>console.log(result[0]);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;2021-09-06&nbsp;-&nbsp;potrivirea&nbsp;completă<br>console.log(result[1]);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;2021&nbsp;-&nbsp;prima&nbsp;grupă<br>console.log(result[2]);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;09&nbsp;-&nbsp;a&nbsp;doua&nbsp;grupă<br>console.log(result[3]);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;06&nbsp;-&nbsp;a&nbsp;treia&nbsp;grupă</code></pre>
+     </div>
+     <p class="paragraph">Prin obținerea valorilor grupelor individuale, se pot realiza anumite acțiuni cu acestea, cum ar fi transformarea lor în alt format de dată:</p>
+     <div class="code-inline">
+      <pre><code>console.log(`${result[3]}.${result[2]}.${result[1]}`);&nbsp;//&nbsp;06.09.2021</code></pre>
+     </div>
+     <p class="paragraph">Gruparea simplifică crearea expresiilor regulate mai complexe. La fel ca și în cazul caracterelor individuale, la grupuri le pot fi aplicate cuantificatoare. De exemplu, expresia (la)+ reprezintă una sau mai multe repetări ale șirului "la".</p>
+     <h2 class="subtitle">Grupuri denumite</h2>
+     <p class="paragraph">JavaScript permite asignarea unui nume fiecărei grupe în expresiile regulate. Cu ajutorul acestui nume, se poate obține ulterior valoarea care corespunde acestei grupe.</p>
+     <p class="paragraph">Pentru a atribui un nume grupului în interiorul parantezelor care definesc grupa, se adaugă un semn de întrebare, iar apoi între parantezele unghiulare se introduce numele grupului:</p>
+     <div class="code-inline">
+      <pre><code>(?&lt;nume_grup&gt;&nbsp;...&nbsp;)</code></pre>
+     </div>
+     <p class="paragraph">Să analizăm exemplul următor:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;exp&nbsp;=&nbsp;/(?&lt;year&gt;\d{4})-(?&lt;month&gt;\d{2})-(?&lt;day&gt;\d{2})/u;<br>const&nbsp;text&nbsp;=&nbsp;"Publication&nbsp;Date:&nbsp;2021-09-06"<br>const&nbsp;result&nbsp;=&nbsp;exp.exec(text);<br>console.log(result.groups);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;{year:&nbsp;"2021",&nbsp;month:&nbsp;"09",&nbsp;day:&nbsp;"06"}<br>console.log(result.groups.year);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;2021<br>console.log(result.groups.month);&nbsp;&nbsp;&nbsp;//&nbsp;09<br>console.log(result.groups.day);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;06</code></pre>
+     </div>
+     <p class="paragraph">Aici, expresia regulată definește trei grupuri. Prima grupă se numește "year", a doua - "month", iar a treia - "day". Când obținem rezultatul, putem accesa fiecare grupă prin intermediul proprietății groups.</p>
+     <p class="paragraph">Această proprietate reprezintă un obiect în care proprietățile au aceleași nume ca și grupurile și conțin valorile pentru fiecare grupă:</p>
+     <div class="code-inline">
+      <pre><code>console.log(result.groups);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;{year:&nbsp;"2021",&nbsp;month:&nbsp;"09",&nbsp;day:&nbsp;"06"}</code></pre>
+     </div>
+     <p class="paragraph">Prin urmare, utilizând numele grupelor, putem obține valoarea pentru fiecare grupă în parte.</p>
+     <h2 class="subtitle">Afirmații</h2>
+     <p class="paragraph">Afirmațiile permit obținerea unui subșir care se potrivește cu o expresie regulată și care este precedat sau, dimpotrivă, nu este precedat de o anumită expresie.</p>
+     <p class="paragraph">Afirmarea pozitivă (când subșirul trebuie să fie precedat de alt subșir) este definită cu ajutorul expresiei:</p>
+     <div class="code-inline">
+      <pre><code>(?&lt;=...)</code></pre>
+     </div>
+     <p class="paragraph">După semnul egal = urmează expresia cu care subșirul trebuie să fie precedat.</p>
+     <p class="paragraph">Afirmarea negativă (când subșirul NU trebuie să fie precedat de alt subșir) este definită cu ajutorul expresiei:</p>
+     <div class="code-inline">
+      <pre><code>(?&lt;!...)</code></pre>
+     </div>
+     <p class="paragraph">După semnul exclamării ! urmează expresia cu care subșirul nu trebuie să fie precedat.</p>
+     <p class="paragraph">Hai să luăm o sarcină simplă. Să presupunem că avem o anumită informație cu o anumită sumă. Dar această sumă poate fi exprimată în dolari, euro, gbp etc. Ceva asemănător:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;text1&nbsp;=&nbsp;"All&nbsp;costs:&nbsp;$10.53";<br>const&nbsp;text2&nbsp;=&nbsp;"All&nbsp;costs:&nbsp;€10.53";<br><br>const&nbsp;exp&nbsp;=&nbsp;/\d+(\.\d*)?/;<br>const&nbsp;result1&nbsp;=&nbsp;exp.exec(text1);<br>console.log(result1[0]);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;10.53<br><br>const&nbsp;result2&nbsp;=&nbsp;exp.exec(text2);<br>console.log(result2[0]);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;10.53<br><br></code></pre>
+     </div>
+     <p class="paragraph">Aici vedem că atât suma în dolari (\\$) cât și suma în euro (€) corespund expresiei regulate. Dar ce facem dacă dorim să obținem doar suma în dolari? Pentru asta, vom aplica o afirmare pozitivă:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;text1&nbsp;=&nbsp;"All&nbsp;costs:&nbsp;$10.53";<br>const&nbsp;text2&nbsp;=&nbsp;"All&nbsp;costs:&nbsp;€10.53";<br><br>const&nbsp;exp&nbsp;=&nbsp;/(?&lt;=\$)\d+(\.\d*)?/;<br><br>const&nbsp;result1&nbsp;=&nbsp;exp.exec(text1);<br>console.log(result1);&nbsp;&nbsp;&nbsp;//&nbsp;["10.53",&nbsp;".53",&nbsp;index:&nbsp;12,&nbsp;input:&nbsp;"All&nbsp;costs:&nbsp;$10.53",&nbsp;groups:&nbsp;undefined]<br><br>const&nbsp;result2&nbsp;=&nbsp;exp.exec(text2);<br>console.log(result2);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;null</code></pre>
+     </div>
+     <p class="paragraph">Grupa (?&lt;=\$) indică că înaintea șirului trebuie să existe simbolul dolar $. Dacă acesta lipsește, atunci metoda exec() nu va găsi nicio potrivire și va returna null.</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

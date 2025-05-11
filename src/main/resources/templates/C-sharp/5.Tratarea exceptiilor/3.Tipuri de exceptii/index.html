@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='5.Tratarea exceptiilor', activeLesson='3.Tipuri de exceptii'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Tipuri de excepții. Clasa Exception</h1>
+     <p class="paragraph">Clasa de bază pentru toate tipurile de excepții este clasa Exception. Această clasă definește o serie de proprietăți prin care se poate obține informații despre excepție.</p>
+     <ul class="enumeration">
+      <li>InnerException: stochează informații despre excepția care a cauzat excepția curentă</li>
+      <li>Message: stochează mesajul despre excepție, textul erorii</li>
+      <li>Source: stochează numele obiectului sau al ansamblului care a cauzat excepția</li>
+      <li>StackTrace: returnează o reprezentare sub formă de șir a stivei de apeluri care au dus la apariția excepției</li>
+      <li>TargetSite: returnează metoda în care a fost generată excepția</li>
+     </ul>
+     <p class="paragraph">De exemplu, să tratăm excepțiile de tip Exception:</p>
+     <div class="code-inline">
+      <pre><code>try<br>{<br>&nbsp;&nbsp;&nbsp;int&nbsp;x&nbsp;=&nbsp;5;<br>&nbsp;&nbsp;&nbsp;int&nbsp;y&nbsp;=&nbsp;x&nbsp;/&nbsp;0;<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Rezultatul:&nbsp;{y}");<br>}<br>catch&nbsp;(Exception&nbsp;ex)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Excepție:&nbsp;{ex.Message}");<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Metodă:&nbsp;{ex.TargetSite}");<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Trecere&nbsp;prin&nbsp;stivă:&nbsp;{ex.StackTrace}");<br>}</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/5.Tratarea%20exceptiilor/3.Tipuri%20de%20exceptii/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Cu toate acestea, deoarece tipul Exception este tipul de bază pentru toate excepțiile, expresia catch (Exception ex) va trata toate excepțiile care pot apărea.</p>
+     <p class="paragraph">Există și tipuri de excepții mai specializate, care sunt destinate tratării unor anumite tipuri de excepții. Acestea sunt destul de numeroase, dar iată câteva exemple:</p>
+     <ul class="enumeration">
+      <li>DivideByZeroException: reprezintă excepția generată la împărțirea la zero</li>
+      <li>ArgumentOutOfRangeException: este generată atunci când valoarea unui argument este în afara intervalului valorilor acceptabile</li>
+      <li>ArgumentException: este generată atunci când o valoare incorectă este transmisă unui parametru al unei metode</li>
+      <li>IndexOutOfRangeException: este generată atunci când un index al unui element al unui array sau colecție este în afara intervalului valorilor acceptabile</li>
+      <li>InvalidCastException: este generată la încercarea de a face o conversie de tipuri nevalidă</li>
+      <li>NullReferenceException: este generată la încercarea de a accesa un obiect care este null (practic nedefinit)</li>
+     </ul>
+     <p class="paragraph">În cazul necesității, putem diferenția tratarea diverselor tipuri de excepții, incluzând blocuri catch adiționale:</p>
+     <div class="code-inline">
+      <pre><code>static&nbsp;void&nbsp;Main(string[]&nbsp;args)<br>{<br>&nbsp;&nbsp;&nbsp;try<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int[]&nbsp;numbers&nbsp;=&nbsp;new&nbsp;int[4];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;numbers[7]&nbsp;=&nbsp;9;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;IndexOutOfRangeException<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;x&nbsp;=&nbsp;5;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;y&nbsp;=&nbsp;x&nbsp;/&nbsp;0;&nbsp;&nbsp;//&nbsp;DivideByZeroException<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Rezultatul:&nbsp;{y}");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;catch&nbsp;(DivideByZeroException)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("A&nbsp;apărut&nbsp;o&nbsp;excepție&nbsp;DivideByZeroException");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;catch&nbsp;(IndexOutOfRangeException&nbsp;ex)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(ex.Message);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Console.Read();<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, blocurile catch tratează excepțiile de tip IndexOutOfRangeException și DivideByZeroException. Când în blocul try apare o excepție, CLR va căuta blocul catch corespunzător pentru a trata excepția. Astfel, în acest caz, pe linia:</p>
+     <div class="code-inline">
+      <pre><code>numbers[7]&nbsp;=&nbsp;9;</code></pre>
+     </div>
+     <p class="paragraph">are loc accesarea celui de-al 7-lea element al array-ului. Cu toate acestea, deoarece array-ul are doar 4 elemente, vom primi o excepție de tip IndexOutOfRangeException. CLR va găsi blocul catch care tratează această excepție și va transfera controlul acestuia.</p>
+     <p class="paragraph">Trebuie menționat că în acest caz în blocul try există o situație care generează o a doua excepție - împărțirea la zero.</p>
+     <p class="paragraph">Totuși, deoarece după generarea excepției IndexOutOfRangeException controlul este transferat către blocul catch corespunzător, împărțirea la zero int y = x / 0 nu va fi executată, prin urmare excepția de tip DivideByZeroException nu va fi niciodată generată.</p>
+     <p class="paragraph">Totuși, să considerăm o altă situație:</p>
+     <div class="code-inline">
+      <pre><code>try<br>{<br>&nbsp;&nbsp;&nbsp;object&nbsp;obj&nbsp;=&nbsp;"you";<br>&nbsp;&nbsp;&nbsp;int&nbsp;num&nbsp;=&nbsp;(int)obj;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;System.InvalidCastException<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Rezultatul:&nbsp;{num}");<br>}<br>catch&nbsp;(DivideByZeroException)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("A&nbsp;apărut&nbsp;o&nbsp;excepție&nbsp;DivideByZeroException");<br>}<br>catch&nbsp;(IndexOutOfRangeException)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("A&nbsp;apărut&nbsp;o&nbsp;excepție&nbsp;IndexOutOfRangeException");<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, în blocul try este generată o excepție de tip InvalidCastException, dar nu există un bloc catch corespunzător pentru tratarea acestei excepții. Prin urmare, programul se va închide brusc.</p>
+     <p class="paragraph">De asemenea, putem defini un bloc catch specific pentru InvalidCastException, dar ideea este că teoretic în cod pot fi generate diverse tipuri de excepții.</p>
+     <p class="paragraph">Și nu are sens să definim blocuri catch pentru toate tipurile de excepții dacă tratarea excepțiilor este similară. În acest caz, putem defini un bloc catch pentru tipul de bază Exception:</p>
+     <div class="code-inline">
+      <pre><code>try<br>{<br>&nbsp;&nbsp;&nbsp;object&nbsp;obj&nbsp;=&nbsp;"you";<br>&nbsp;&nbsp;&nbsp;int&nbsp;num&nbsp;=&nbsp;(int)obj;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;System.InvalidCastException<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Rezultatul:&nbsp;{num}");<br>}<br>catch&nbsp;(DivideByZeroException)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("A&nbsp;apărut&nbsp;o&nbsp;excepție&nbsp;DivideByZeroException");<br>}<br>catch&nbsp;(IndexOutOfRangeException)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("A&nbsp;apărut&nbsp;o&nbsp;excepție&nbsp;IndexOutOfRangeException");<br>}<br>catch&nbsp;(Exception&nbsp;ex)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Excepție:&nbsp;{ex.Message}");<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, blocul catch (Exception ex){} va trata toate excepțiile, cu excepția celor de tip DivideByZeroException și IndexOutOfRangeException.</p>
+     <p class="paragraph">Blocurile catch pentru excepțiile mai generale, de bază, trebuie plasate la final - după blocurile catch pentru tipurile mai specifice de excepții. CLR va alege pentru tratarea excepției primul bloc catch care corespunde tipului de excepție generată.</p>
+     <p class="paragraph">Prin urmare, în acest caz, mai întâi sunt tratate excepțiile de tip DivideByZeroException și IndexOutOfRangeException, iar apoi cele de tip Exception (deoarece DivideByZeroException și IndexOutOfRangeException sunt derivate din clasa Exception).</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

@@ -1,182 +1,172 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='24.IndexDB API', activeLesson='5.Obtinerea datelor din IndexDB'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Obținerea datelor din IndexDB</h1>
- <p class="paragraph">Pentru a obține un obiect din depozit, putem folosi o serie de metode ale obiectului IDBObjectStore. Să examinăm diferitele opțiuni de selecție.</p>
- <h2 class="subtitle">Obținerea tuturor obiectelor din baza de date</h2>
- <p class="paragraph">Pentru a obține toate obiectele din depozit, obiectul IDBObjectStore oferă metoda getAll():</p>
- <div class="code-inline">
-  <pre><code>getAll()</code></pre>
- </div>
- <p class="paragraph">Această metodă returnează un obiect IDBRequest. Dacă metoda se execută cu succes, pentru obiectul IDBRequest se generează evenimentul success, iar proprietatea sa result conține un array cu datele obținute din depozit. În cazul apariției unei erori, la obiectul IDBRequest se declanșează evenimentul error, iar proprietatea sa error conține informații despre eroare. Pentru a gestiona aceste evenimente, se pot folosi, respectiv, proprietățile onsuccess și onerror.</p>
- <p class="paragraph">De exemplu, să obținem toate obiectele din depozitul "users":</p>
- <div class="code-inline">
-  <pre><code><br>const&nbsp;request&nbsp;=&nbsp;indexedDB.open("test",&nbsp;5);&nbsp;//&nbsp;ne&nbsp;conectăm&nbsp;la&nbsp;baza&nbsp;de&nbsp;date&nbsp;test<br><br>//&nbsp;la&nbsp;crearea&nbsp;sau&nbsp;modificarea&nbsp;versiunii&nbsp;bazei&nbsp;de&nbsp;date,&nbsp;creăm&nbsp;în&nbsp;ea&nbsp;un&nbsp;depozit&nbsp;users<br>request.onupgradeneeded&nbsp;=&nbsp;(event)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;db&nbsp;=&nbsp;event.target.result;&nbsp;&nbsp;//&nbsp;obținem&nbsp;baza&nbsp;de&nbsp;date<br>&nbsp;&nbsp;&nbsp;//&nbsp;cheia&nbsp;este&nbsp;proprietatea&nbsp;id,&nbsp;și&nbsp;este&nbsp;autoincrementată<br>&nbsp;&nbsp;&nbsp;const&nbsp;userStore&nbsp;=&nbsp;db.createObjectStore("users",&nbsp;{&nbsp;keyPath:&nbsp;"id",&nbsp;autoIncrement:&nbsp;true&nbsp;});<br>&nbsp;&nbsp;&nbsp;userStore.add({name:&nbsp;"Tom",&nbsp;age:&nbsp;39});<br>&nbsp;&nbsp;&nbsp;userStore.add({name:&nbsp;"Bob",&nbsp;age:&nbsp;43});<br>&nbsp;&nbsp;&nbsp;userStore.add({name:&nbsp;"Sam",&nbsp;age:&nbsp;28});<br>};<br>//&nbsp;la&nbsp;deschiderea&nbsp;bazei&nbsp;de&nbsp;date&nbsp;obținem&nbsp;toate&nbsp;datele<br>request.onsuccess&nbsp;=&nbsp;(event)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;db&nbsp;=&nbsp;event.target.result;&nbsp;&nbsp;//&nbsp;obținem&nbsp;baza&nbsp;de&nbsp;date<br>&nbsp;&nbsp;&nbsp;const&nbsp;transaction&nbsp;=&nbsp;db.transaction(["users"],&nbsp;"readwrite");&nbsp;//&nbsp;creăm&nbsp;o&nbsp;tranzacție<br>&nbsp;&nbsp;&nbsp;const&nbsp;userStore&nbsp;=&nbsp;transaction.objectStore("users");&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;depozitul&nbsp;users<br><br>&nbsp;&nbsp;&nbsp;const&nbsp;getRequest&nbsp;=&nbsp;userStore.getAll();&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;toate&nbsp;obiectele<br>&nbsp;&nbsp;&nbsp;getRequest.onsuccess&nbsp;=&nbsp;(e)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;users&nbsp;=&nbsp;getRequest.result;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(users);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;getRequest.onerror&nbsp;=&nbsp;(e)&nbsp;=&gt;&nbsp;&nbsp;console.log(e.target.error.message);&nbsp;//&nbsp;afișăm&nbsp;mesajul&nbsp;de&nbsp;eroare<br>};</code></pre>
- </div>
- <p class="paragraph">Aici, în handlerul getRequest.onsuccess, obținem datele extrase în constanta users și le afișăm în consolă:</p>
- <div class="code-inline">
-  <pre><code>getRequest.onsuccess&nbsp;=&nbsp;(e)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;users&nbsp;=&nbsp;getRequest.result;<br>&nbsp;&nbsp;&nbsp;console.log(users);<br>}</code></pre>
- </div>
- <p class="paragraph">Astfel, în cazul meu, în depozit sunt conținute trei obiecte cu proprietățile id (cheie), name și age:</p>
- <div class="code-inline">
-  <pre><code>[<br>&nbsp;&nbsp;&nbsp;{&nbsp;"name":&nbsp;"Tom",&nbsp;"age":&nbsp;39,&nbsp;"id":&nbsp;1},<br>&nbsp;&nbsp;&nbsp;{&nbsp;"name":&nbsp;"Bob",&nbsp;"age":&nbsp;43,&nbsp;"id":&nbsp;2},<br>&nbsp;&nbsp;&nbsp;{&nbsp;"name":&nbsp;"Sam",&nbsp;"age":&nbsp;28,&nbsp;"id":&nbsp;3}<br>]</code></pre>
- </div>
- <p class="paragraph">Deoarece rezultatul este un array, putem folosi indici pentru a obține anumite elemente specifice din array sau să parcurgem array-ul:</p>
- <div class="code-inline">
-  <pre><code>getRequest.onsuccess&nbsp;=&nbsp;(e)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;users&nbsp;=&nbsp;getRequest.result;<br>&nbsp;&nbsp;&nbsp;for(user&nbsp;of&nbsp;users){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${user.name}&nbsp;&nbsp;Age:&nbsp;${user.age}`);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
- </div>
- <h2 class="subtitle">Filtrarea după chei</h2>
- <p class="paragraph">O versiune suplimentară a metodei getAll() permite filtrarea obiectelor sau selectarea doar a acelor obiecte care corespund unui anumit interval de chei:</p>
- <div class="code-inline">
-  <pre><code>getAll(query)<br>getAll(query,&nbsp;count)</code></pre>
- </div>
- <p class="paragraph">Ca parametru query în metodă se transmite cheia sau obiectul IDBKeyRange, care stabilește intervalul de chei. Suplimentar, parametrul count permite stabilirea numărului maxim de elemente în selecție.</p>
- <p class="paragraph">De exemplu, putem transmite valoarea cheii:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;getRequest&nbsp;=&nbsp;userStore.getAll(2);&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;obiectele,&nbsp;al&nbsp;căror&nbsp;proprietate-cheie&nbsp;este&nbsp;egală&nbsp;cu&nbsp;2<br>getRequest.onsuccess&nbsp;=&nbsp;(e)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(e.target.result);<br>}</code></pre>
- </div>
- <p class="paragraph">În acest caz, obținem toate elementele, la care valoarea proprietății-cheie este egală cu 2.</p>
- <p class="paragraph">Utilizarea obiectului IDBKeyRange oferă posibilități suplimentare prin intermediul unei serii de metode statice:</p>
- <ul class="enumeration">
-  <li>IDBKeyRange.bound(): creează un interval de chei, pentru care sunt stabilite valorile minimă și maximă</li>
-  <li>IDBKeyRange.only(): creează un interval de chei, care conține doar o singură valoare</li>
-  <li>IDBKeyRange.lowerBound(): creează un interval de chei, pentru care este stabilită valoarea minimă</li>
-  <li>IDBKeyRange.upperBound(): creează un interval de chei, pentru care este stabilită valoarea maximă</li>
- </ul>
- <p class="paragraph">Intervalele de chei, care sunt create cu ajutorul acestor metode, pot fi descrise de următoarea tabelă:</p>
- <div class="image-container">
-  <img src="images/image1.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">De exemplu, obținem toate obiectele, la care valoarea cheii nu este mai mare de 2:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;getRequest&nbsp;=&nbsp;userStore.getAll(IDBKeyRange.upperBound(2));&nbsp;&nbsp;<br>getRequest.onsuccess&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;users&nbsp;=&nbsp;getRequest.result;<br>&nbsp;&nbsp;&nbsp;console.log(users);<br>}</code></pre>
- </div>
- <h2 class="subtitle">Obținerea unui singur obiect după cheie</h2>
- <p class="paragraph">Pentru a obține un singur obiect după cheie se aplică metoda get(), în care se transmite cheia obiectului:</p>
- <div class="code-inline">
-  <pre><code>get(key)</code></pre>
- </div>
- <p class="paragraph">Rezultatul metodei este un obiect IDBRequest. În cazul unei adăugări de succes, la acest obiect se declanșează evenimentul success, iar proprietatea sa result va conține obiectul cu cheia specificată. În caz de eroare, se generează evenimentul error împreună cu o excepție de tip DOMException.</p>
- <p class="paragraph">De exemplu, să obținem obiectul cu cheia 1:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;request&nbsp;=&nbsp;indexedDB.open("test",&nbsp;5);&nbsp;//&nbsp;ne&nbsp;conectăm&nbsp;la&nbsp;baza&nbsp;de&nbsp;date&nbsp;test<br><br>//&nbsp;la&nbsp;crearea&nbsp;sau&nbsp;modificarea&nbsp;versiunii&nbsp;bazei&nbsp;de&nbsp;date,&nbsp;creăm&nbsp;în&nbsp;ea&nbsp;un&nbsp;depozit&nbsp;users<br>request.onupgradeneeded&nbsp;=&nbsp;(event)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;db&nbsp;=&nbsp;event.target.result;&nbsp;&nbsp;//&nbsp;obținem&nbsp;baza&nbsp;de&nbsp;date<br>&nbsp;&nbsp;&nbsp;//&nbsp;cheia&nbsp;este&nbsp;proprietatea&nbsp;id,&nbsp;și&nbsp;este&nbsp;autoincrementată<br>&nbsp;&nbsp;&nbsp;db.createObjectStore("users",&nbsp;{&nbsp;keyPath:&nbsp;"id",&nbsp;autoIncrement:&nbsp;true&nbsp;});<br>};<br>//&nbsp;la&nbsp;deschiderea&nbsp;bazei&nbsp;de&nbsp;date&nbsp;obținem&nbsp;un&nbsp;singur&nbsp;obiect<br>request.onsuccess&nbsp;=&nbsp;(event)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;db&nbsp;=&nbsp;event.target.result;&nbsp;&nbsp;//&nbsp;obținem&nbsp;baza&nbsp;de&nbsp;date<br>&nbsp;&nbsp;&nbsp;const&nbsp;transaction&nbsp;=&nbsp;db.transaction(["users"],&nbsp;"readwrite");&nbsp;//&nbsp;creăm&nbsp;o&nbsp;tranzacție<br>&nbsp;&nbsp;&nbsp;const&nbsp;userStore&nbsp;=&nbsp;transaction.objectStore("users");&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;depozitul&nbsp;users<br><br>&nbsp;&nbsp;&nbsp;const&nbsp;getRequest&nbsp;=&nbsp;userStore.get(1);&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;obiectul&nbsp;după&nbsp;cheia&nbsp;1<br>&nbsp;&nbsp;&nbsp;getRequest.onsuccess&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;console.log(getRequest.result);&nbsp;//&nbsp;afișăm&nbsp;obiectul&nbsp;obținut<br>&nbsp;&nbsp;&nbsp;getRequest.onerror&nbsp;=&nbsp;(e)&nbsp;=&gt;&nbsp;&nbsp;console.log(e.target.error.message);&nbsp;//&nbsp;afișăm&nbsp;mesajul&nbsp;de&nbsp;eroare<br>};</code></pre>
- </div>
- <p class="paragraph">Rezultatul în cazul meu este:</p>
- <div class="code-inline">
-  <pre><code>Object<br>&nbsp;&nbsp;&nbsp;age:&nbsp;39<br>&nbsp;&nbsp;&nbsp;id:&nbsp;1<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"Tom"<br>&nbsp;&nbsp;&nbsp;[[Prototype]]:&nbsp;Object</code></pre>
- </div>
- <p class="paragraph">De asemenea, obiectul extras îl putem obține prin parametrul handlerului evenimentului - prin proprietatea sa event.target.result:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;getRequest&nbsp;=&nbsp;userStore.get(1);&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;obiectul&nbsp;după&nbsp;cheia&nbsp;1<br>getRequest.onsuccess&nbsp;=&nbsp;(e)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;user&nbsp;=&nbsp;e.target.result;&nbsp;//&nbsp;obiectul&nbsp;obținut<br>&nbsp;&nbsp;&nbsp;console.log(user.name);<br>&nbsp;&nbsp;&nbsp;console.log(user.age);<br>}</code></pre>
- </div>
- <p class="paragraph">Dacă încercăm să găsim un obiect cu o cheie inexistentă, atunci proprietatea result va fi egală cu undefined.</p>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Obținerea datelor din IndexDB</h1>
+     <p class="paragraph">Pentru a obține un obiect din depozit, putem folosi o serie de metode ale obiectului IDBObjectStore. Să examinăm diferitele opțiuni de selecție.</p>
+     <h2 class="subtitle">Obținerea tuturor obiectelor din baza de date</h2>
+     <p class="paragraph">Pentru a obține toate obiectele din depozit, obiectul IDBObjectStore oferă metoda getAll():</p>
+     <div class="code-inline">
+      <pre><code>getAll()</code></pre>
+     </div>
+     <p class="paragraph">Această metodă returnează un obiect IDBRequest. Dacă metoda se execută cu succes, pentru obiectul IDBRequest se generează evenimentul success, iar proprietatea sa result conține un array cu datele obținute din depozit. În cazul apariției unei erori, la obiectul IDBRequest se declanșează evenimentul error, iar proprietatea sa error conține informații despre eroare. Pentru a gestiona aceste evenimente, se pot folosi, respectiv, proprietățile onsuccess și onerror.</p>
+     <p class="paragraph">De exemplu, să obținem toate obiectele din depozitul "users":</p>
+     <div class="code-inline">
+      <pre><code><br>const&nbsp;request&nbsp;=&nbsp;indexedDB.open("test",&nbsp;5);&nbsp;//&nbsp;ne&nbsp;conectăm&nbsp;la&nbsp;baza&nbsp;de&nbsp;date&nbsp;test<br><br>//&nbsp;la&nbsp;crearea&nbsp;sau&nbsp;modificarea&nbsp;versiunii&nbsp;bazei&nbsp;de&nbsp;date,&nbsp;creăm&nbsp;în&nbsp;ea&nbsp;un&nbsp;depozit&nbsp;users<br>request.onupgradeneeded&nbsp;=&nbsp;(event)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;db&nbsp;=&nbsp;event.target.result;&nbsp;&nbsp;//&nbsp;obținem&nbsp;baza&nbsp;de&nbsp;date<br>&nbsp;&nbsp;&nbsp;//&nbsp;cheia&nbsp;este&nbsp;proprietatea&nbsp;id,&nbsp;și&nbsp;este&nbsp;autoincrementată<br>&nbsp;&nbsp;&nbsp;const&nbsp;userStore&nbsp;=&nbsp;db.createObjectStore("users",&nbsp;{&nbsp;keyPath:&nbsp;"id",&nbsp;autoIncrement:&nbsp;true&nbsp;});<br>&nbsp;&nbsp;&nbsp;userStore.add({name:&nbsp;"Tom",&nbsp;age:&nbsp;39});<br>&nbsp;&nbsp;&nbsp;userStore.add({name:&nbsp;"Bob",&nbsp;age:&nbsp;43});<br>&nbsp;&nbsp;&nbsp;userStore.add({name:&nbsp;"Sam",&nbsp;age:&nbsp;28});<br>};<br>//&nbsp;la&nbsp;deschiderea&nbsp;bazei&nbsp;de&nbsp;date&nbsp;obținem&nbsp;toate&nbsp;datele<br>request.onsuccess&nbsp;=&nbsp;(event)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;db&nbsp;=&nbsp;event.target.result;&nbsp;&nbsp;//&nbsp;obținem&nbsp;baza&nbsp;de&nbsp;date<br>&nbsp;&nbsp;&nbsp;const&nbsp;transaction&nbsp;=&nbsp;db.transaction(["users"],&nbsp;"readwrite");&nbsp;//&nbsp;creăm&nbsp;o&nbsp;tranzacție<br>&nbsp;&nbsp;&nbsp;const&nbsp;userStore&nbsp;=&nbsp;transaction.objectStore("users");&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;depozitul&nbsp;users<br><br>&nbsp;&nbsp;&nbsp;const&nbsp;getRequest&nbsp;=&nbsp;userStore.getAll();&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;toate&nbsp;obiectele<br>&nbsp;&nbsp;&nbsp;getRequest.onsuccess&nbsp;=&nbsp;(e)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;users&nbsp;=&nbsp;getRequest.result;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(users);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;getRequest.onerror&nbsp;=&nbsp;(e)&nbsp;=&gt;&nbsp;&nbsp;console.log(e.target.error.message);&nbsp;//&nbsp;afișăm&nbsp;mesajul&nbsp;de&nbsp;eroare<br>};</code></pre>
+     </div>
+     <p class="paragraph">Aici, în handlerul getRequest.onsuccess, obținem datele extrase în constanta users și le afișăm în consolă:</p>
+     <div class="code-inline">
+      <pre><code>getRequest.onsuccess&nbsp;=&nbsp;(e)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;users&nbsp;=&nbsp;getRequest.result;<br>&nbsp;&nbsp;&nbsp;console.log(users);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Astfel, în cazul meu, în depozit sunt conținute trei obiecte cu proprietățile id (cheie), name și age:</p>
+     <div class="code-inline">
+      <pre><code>[<br>&nbsp;&nbsp;&nbsp;{&nbsp;"name":&nbsp;"Tom",&nbsp;"age":&nbsp;39,&nbsp;"id":&nbsp;1},<br>&nbsp;&nbsp;&nbsp;{&nbsp;"name":&nbsp;"Bob",&nbsp;"age":&nbsp;43,&nbsp;"id":&nbsp;2},<br>&nbsp;&nbsp;&nbsp;{&nbsp;"name":&nbsp;"Sam",&nbsp;"age":&nbsp;28,&nbsp;"id":&nbsp;3}<br>]</code></pre>
+     </div>
+     <p class="paragraph">Deoarece rezultatul este un array, putem folosi indici pentru a obține anumite elemente specifice din array sau să parcurgem array-ul:</p>
+     <div class="code-inline">
+      <pre><code>getRequest.onsuccess&nbsp;=&nbsp;(e)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;users&nbsp;=&nbsp;getRequest.result;<br>&nbsp;&nbsp;&nbsp;for(user&nbsp;of&nbsp;users){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${user.name}&nbsp;&nbsp;Age:&nbsp;${user.age}`);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Filtrarea după chei</h2>
+     <p class="paragraph">O versiune suplimentară a metodei getAll() permite filtrarea obiectelor sau selectarea doar a acelor obiecte care corespund unui anumit interval de chei:</p>
+     <div class="code-inline">
+      <pre><code>getAll(query)<br>getAll(query,&nbsp;count)</code></pre>
+     </div>
+     <p class="paragraph">Ca parametru query în metodă se transmite cheia sau obiectul IDBKeyRange, care stabilește intervalul de chei. Suplimentar, parametrul count permite stabilirea numărului maxim de elemente în selecție.</p>
+     <p class="paragraph">De exemplu, putem transmite valoarea cheii:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;getRequest&nbsp;=&nbsp;userStore.getAll(2);&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;obiectele,&nbsp;al&nbsp;căror&nbsp;proprietate-cheie&nbsp;este&nbsp;egală&nbsp;cu&nbsp;2<br>getRequest.onsuccess&nbsp;=&nbsp;(e)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(e.target.result);<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, obținem toate elementele, la care valoarea proprietății-cheie este egală cu 2.</p>
+     <p class="paragraph">Utilizarea obiectului IDBKeyRange oferă posibilități suplimentare prin intermediul unei serii de metode statice:</p>
+     <ul class="enumeration">
+      <li>IDBKeyRange.bound(): creează un interval de chei, pentru care sunt stabilite valorile minimă și maximă</li>
+      <li>IDBKeyRange.only(): creează un interval de chei, care conține doar o singură valoare</li>
+      <li>IDBKeyRange.lowerBound(): creează un interval de chei, pentru care este stabilită valoarea minimă</li>
+      <li>IDBKeyRange.upperBound(): creează un interval de chei, pentru care este stabilită valoarea maximă</li>
+     </ul>
+     <p class="paragraph">Intervalele de chei, care sunt create cu ajutorul acestor metode, pot fi descrise de următoarea tabelă:</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/24.IndexDB%20API/5.Obtinerea%20datelor%20din%20IndexDB/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">De exemplu, obținem toate obiectele, la care valoarea cheii nu este mai mare de 2:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;getRequest&nbsp;=&nbsp;userStore.getAll(IDBKeyRange.upperBound(2));&nbsp;&nbsp;<br>getRequest.onsuccess&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;users&nbsp;=&nbsp;getRequest.result;<br>&nbsp;&nbsp;&nbsp;console.log(users);<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Obținerea unui singur obiect după cheie</h2>
+     <p class="paragraph">Pentru a obține un singur obiect după cheie se aplică metoda get(), în care se transmite cheia obiectului:</p>
+     <div class="code-inline">
+      <pre><code>get(key)</code></pre>
+     </div>
+     <p class="paragraph">Rezultatul metodei este un obiect IDBRequest. În cazul unei adăugări de succes, la acest obiect se declanșează evenimentul success, iar proprietatea sa result va conține obiectul cu cheia specificată. În caz de eroare, se generează evenimentul error împreună cu o excepție de tip DOMException.</p>
+     <p class="paragraph">De exemplu, să obținem obiectul cu cheia 1:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;request&nbsp;=&nbsp;indexedDB.open("test",&nbsp;5);&nbsp;//&nbsp;ne&nbsp;conectăm&nbsp;la&nbsp;baza&nbsp;de&nbsp;date&nbsp;test<br><br>//&nbsp;la&nbsp;crearea&nbsp;sau&nbsp;modificarea&nbsp;versiunii&nbsp;bazei&nbsp;de&nbsp;date,&nbsp;creăm&nbsp;în&nbsp;ea&nbsp;un&nbsp;depozit&nbsp;users<br>request.onupgradeneeded&nbsp;=&nbsp;(event)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;db&nbsp;=&nbsp;event.target.result;&nbsp;&nbsp;//&nbsp;obținem&nbsp;baza&nbsp;de&nbsp;date<br>&nbsp;&nbsp;&nbsp;//&nbsp;cheia&nbsp;este&nbsp;proprietatea&nbsp;id,&nbsp;și&nbsp;este&nbsp;autoincrementată<br>&nbsp;&nbsp;&nbsp;db.createObjectStore("users",&nbsp;{&nbsp;keyPath:&nbsp;"id",&nbsp;autoIncrement:&nbsp;true&nbsp;});<br>};<br>//&nbsp;la&nbsp;deschiderea&nbsp;bazei&nbsp;de&nbsp;date&nbsp;obținem&nbsp;un&nbsp;singur&nbsp;obiect<br>request.onsuccess&nbsp;=&nbsp;(event)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;db&nbsp;=&nbsp;event.target.result;&nbsp;&nbsp;//&nbsp;obținem&nbsp;baza&nbsp;de&nbsp;date<br>&nbsp;&nbsp;&nbsp;const&nbsp;transaction&nbsp;=&nbsp;db.transaction(["users"],&nbsp;"readwrite");&nbsp;//&nbsp;creăm&nbsp;o&nbsp;tranzacție<br>&nbsp;&nbsp;&nbsp;const&nbsp;userStore&nbsp;=&nbsp;transaction.objectStore("users");&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;depozitul&nbsp;users<br><br>&nbsp;&nbsp;&nbsp;const&nbsp;getRequest&nbsp;=&nbsp;userStore.get(1);&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;obiectul&nbsp;după&nbsp;cheia&nbsp;1<br>&nbsp;&nbsp;&nbsp;getRequest.onsuccess&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;console.log(getRequest.result);&nbsp;//&nbsp;afișăm&nbsp;obiectul&nbsp;obținut<br>&nbsp;&nbsp;&nbsp;getRequest.onerror&nbsp;=&nbsp;(e)&nbsp;=&gt;&nbsp;&nbsp;console.log(e.target.error.message);&nbsp;//&nbsp;afișăm&nbsp;mesajul&nbsp;de&nbsp;eroare<br>};</code></pre>
+     </div>
+     <p class="paragraph">Rezultatul în cazul meu este:</p>
+     <div class="code-inline">
+      <pre><code>Object<br>&nbsp;&nbsp;&nbsp;age:&nbsp;39<br>&nbsp;&nbsp;&nbsp;id:&nbsp;1<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"Tom"<br>&nbsp;&nbsp;&nbsp;[[Prototype]]:&nbsp;Object</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, obiectul extras îl putem obține prin parametrul handlerului evenimentului - prin proprietatea sa event.target.result:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;getRequest&nbsp;=&nbsp;userStore.get(1);&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;obiectul&nbsp;după&nbsp;cheia&nbsp;1<br>getRequest.onsuccess&nbsp;=&nbsp;(e)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;user&nbsp;=&nbsp;e.target.result;&nbsp;//&nbsp;obiectul&nbsp;obținut<br>&nbsp;&nbsp;&nbsp;console.log(user.name);<br>&nbsp;&nbsp;&nbsp;console.log(user.age);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Dacă încercăm să găsim un obiect cu o cheie inexistentă, atunci proprietatea result va fi egală cu undefined.</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

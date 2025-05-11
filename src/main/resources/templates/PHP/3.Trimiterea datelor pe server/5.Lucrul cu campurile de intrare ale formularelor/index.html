@@ -1,184 +1,174 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='PHP', activeChapter='3.Trimiterea datelor pe server', activeLesson='5.Lucrul cu campurile de intrare ale formularelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Lucrul cu câmpurile de intrare ale formularelor</h1>
- <p class="paragraph">Formularele pot conține diverse elemente - câmpuri de text, checkbox-uri, radiobutton-uri etc., a căror procesare are anumite particularități.</p>
- <h2 class="subtitle">Procesarea checkbox-urilor</h2>
- <p class="paragraph">Checkbox-urile (elementul HTML &lt;input type="checkbox"/&gt;) pot fi în două stări: bifate (checked) și nebifate (unchecked). De exemplu:</p>
- <div class="code-inline">
-  <pre><code>Memorează:&nbsp;&lt;input&nbsp;type="checkbox"&nbsp;name="remember"&nbsp;checked="checked"&nbsp;/&gt;</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image1.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Dacă checkbox-ul este în starea nebifată, de exemplu:</p>
- <div class="code-inline">
-  <pre><code>Memorează:&nbsp;&lt;input&nbsp;type="checkbox"&nbsp;name="remember"&nbsp;/&gt;</code></pre>
- </div>
- <p class="paragraph">atunci la trimiterea formularului valoarea acestui checkbox nu este trimisă pe server.</p>
- <p class="paragraph">Dacă checkbox-ul este bifat, atunci la trimiterea pe server pentru câmpul remember va fi transmisă valoarea on:</p>
- <div class="code-inline">
-  <pre><code>$remember&nbsp;=&nbsp;$_POST["remember"];</code></pre>
- </div>
- <p class="paragraph">Dacă valoarea on nu ne convine, atunci cu ajutorul atributului value putem seta valoarea dorită:</p>
- <div class="code-inline">
-  <pre><code>Memorează:&nbsp;&lt;input&nbsp;type="checkbox"&nbsp;name="remember"&nbsp;value="1"&nbsp;/&gt;</code></pre>
- </div>
- <p class="paragraph">Uneori este necesar să creăm un set de checkbox-uri din care să putem selecta mai multe valori. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;?php<br>if(isset($_POST["technologies"])){<br>&nbsp;&nbsp;&nbsp;$technologies&nbsp;=&nbsp;$_POST["technologies"];<br>&nbsp;&nbsp;&nbsp;foreach($technologies&nbsp;as&nbsp;$item)&nbsp;echo&nbsp;"$item&lt;br&nbsp;/&gt;";&nbsp;&nbsp;<br>}<br>?&gt;<br>&lt;h3&gt;Formular&nbsp;de&nbsp;introducere&nbsp;a&nbsp;datelor&lt;/h3&gt;<br>&lt;form&nbsp;method="POST"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;ASP.NET:&nbsp;&lt;input&nbsp;type="checkbox"&nbsp;name="technologies[]"&nbsp;value="ASP.NET"&nbsp;/&gt;&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;PHP:&nbsp;&lt;input&nbsp;type="checkbox"&nbsp;name="technologies[]"&nbsp;value="PHP"&nbsp;/&gt;&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Node.js:&nbsp;&lt;input&nbsp;type="checkbox"&nbsp;name="technologies[]"&nbsp;value="Node.js"&nbsp;/&gt;&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="submit"&nbsp;value="Trimite"&gt;<br>&lt;/form&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">În acest caz, valoarea atributului name trebuie să aibă paranteze pătrate. Și atunci, după trimitere, serverul va primi un array de valori bifate:</p>
- <div class="code-inline">
-  <pre><code>$technologies&nbsp;=&nbsp;$_POST["technologies"];<br>foreach($technologies&nbsp;as&nbsp;$item)&nbsp;echo&nbsp;"$item&lt;br&nbsp;/&gt;";</code></pre>
- </div>
- <p class="paragraph">În acest caz, variabila $technologies va reprezenta un array, pe care îl putem parcurge și efectua toate celelalte operațiuni cu array-urile.</p>
- <div class="image-container">
-  <img src="images/image2.png" alt="" class="responsive-image">
- </div>
- <div class="image-container">
-  <img src="images/image3.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Procesarea radiobutton-urilor</h2>
- <p class="paragraph">Radiobutton-urile permit realizarea unei alegeri între mai multe opțiuni mutual exclusive:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;?php<br>if(isset($_POST["course"]))<br>{<br>&nbsp;&nbsp;&nbsp;$course&nbsp;=&nbsp;$_POST["course"];<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$course;<br>}<br>?&gt;<br>&lt;h3&gt;Formular&nbsp;de&nbsp;introducere&nbsp;a&nbsp;datelor&lt;/h3&gt;<br>&lt;form&nbsp;method="POST"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="radio"&nbsp;name="course"&nbsp;value="ASP.NET"&nbsp;/&gt;ASP.NET&nbsp;&lt;br&gt;<br>&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="radio"&nbsp;name="course"&nbsp;value="PHP"&nbsp;/&gt;PHP&nbsp;&lt;br&gt;<br>&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="radio"&nbsp;name="course"&nbsp;value="Node.js"&nbsp;/&gt;Node.js&nbsp;&lt;br&gt;<br>&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="submit"&nbsp;value="Trimite"&gt;<br>&lt;/form&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image4.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Pe server se transmite valoarea atributului value al radiobutton-ului selectat. Obținerea valorii transmise:</p>
- <div class="code-inline">
-  <pre><code>if(isset($_POST["course"]))<br>{<br>&nbsp;&nbsp;&nbsp;$course&nbsp;=&nbsp;$_POST["course"];<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$course;<br>}</code></pre>
- </div>
- <h2 class="subtitle">Lista (select)</h2>
- <p class="paragraph">Lista reprezintă elementul select, care oferă posibilitatea de a alege unul sau mai multe elemente:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;?php<br>if(isset($_POST["course"]))<br>{<br>&nbsp;&nbsp;&nbsp;$course&nbsp;=&nbsp;$_POST["course"];<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$course;<br>}<br>?&gt;<br>&lt;h3&gt;Formular&nbsp;de&nbsp;introducere&nbsp;a&nbsp;datelor&lt;/h3&gt;<br>&lt;form&nbsp;method="POST"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;select&nbsp;name="course"&nbsp;size="1"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;option&nbsp;value="ASP.NET"&gt;ASP.NET&lt;/option&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;option&nbsp;value="PHP"&gt;PHP&lt;/option&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;option&nbsp;value="Ruby"&gt;RUBY&lt;/option&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;option&nbsp;value="Python"&gt;Python&lt;/option&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/select&gt;<br>&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="submit"&nbsp;value="Trimite"&gt;<br>&lt;/form&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">Elementul &lt;select&gt; conține o serie de opțiuni de selecție sub formă de elemente &lt;option&gt;:</p>
- <div class="image-container">
-  <img src="images/image5.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Obținerea elementului selectat în codul PHP ca și o valoare simplă:</p>
- <div class="code-inline">
-  <pre><code>if(isset($_POST["course"]))<br>{<br>&nbsp;&nbsp;&nbsp;$course&nbsp;=&nbsp;$_POST["course"];<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$course;<br>}</code></pre>
- </div>
- <p class="paragraph">Dar elementul &lt;select&gt; permite, de asemenea, realizarea unei selecții multiple. În acest caz, procesarea valorilor selectate se schimbă, deoarece serverul primește un array de valori:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;?php<br>if(isset($_POST["courses"]))<br>{<br>&nbsp;&nbsp;&nbsp;$courses&nbsp;=&nbsp;$_POST["courses"];<br>&nbsp;&nbsp;&nbsp;foreach($courses&nbsp;as&nbsp;$item)&nbsp;echo&nbsp;"$item&lt;br&gt;";<br>}<br>?&gt;<br>&lt;h3&gt;Formular&nbsp;de&nbsp;introducere&nbsp;a&nbsp;datelor&lt;/h3&gt;<br>&lt;form&nbsp;method="POST"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;select&nbsp;name="courses[]"&nbsp;size="4"&nbsp;multiple="multiple"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;option&nbsp;value="ASP.NET"&gt;ASP.NET&lt;/option&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;option&nbsp;value="PHP"&gt;PHP&lt;/option&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;option&nbsp;value="Ruby"&gt;RUBY&lt;/option&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;option&nbsp;value="Python"&gt;Python&lt;/option&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/select&gt;&lt;br&gt;<br>&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="submit"&nbsp;value="Trimite"&gt;<br>&lt;/form&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">Aceste liste au atributul multiple="multiple". Pentru a transmite un array, se specifică paranteze pătrate în atributul name: name="courses[]"</p>
- <div class="image-container">
-  <img src="images/image6.png" alt="" class="responsive-image">
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Lucrul cu câmpurile de intrare ale formularelor</h1>
+     <p class="paragraph">Formularele pot conține diverse elemente - câmpuri de text, checkbox-uri, radiobutton-uri etc., a căror procesare are anumite particularități.</p>
+     <h2 class="subtitle">Procesarea checkbox-urilor</h2>
+     <p class="paragraph">Checkbox-urile (elementul HTML &lt;input type="checkbox"/&gt;) pot fi în două stări: bifate (checked) și nebifate (unchecked). De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>Memorează:&nbsp;&lt;input&nbsp;type="checkbox"&nbsp;name="remember"&nbsp;checked="checked"&nbsp;/&gt;</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/PHP/3.Trimiterea%20datelor%20pe%20server/5.Lucrul%20cu%20campurile%20de%20intrare%20ale%20formularelor/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Dacă checkbox-ul este în starea nebifată, de exemplu:</p>
+     <div class="code-inline">
+      <pre><code>Memorează:&nbsp;&lt;input&nbsp;type="checkbox"&nbsp;name="remember"&nbsp;/&gt;</code></pre>
+     </div>
+     <p class="paragraph">atunci la trimiterea formularului valoarea acestui checkbox nu este trimisă pe server.</p>
+     <p class="paragraph">Dacă checkbox-ul este bifat, atunci la trimiterea pe server pentru câmpul remember va fi transmisă valoarea on:</p>
+     <div class="code-inline">
+      <pre><code>$remember&nbsp;=&nbsp;$_POST["remember"];</code></pre>
+     </div>
+     <p class="paragraph">Dacă valoarea on nu ne convine, atunci cu ajutorul atributului value putem seta valoarea dorită:</p>
+     <div class="code-inline">
+      <pre><code>Memorează:&nbsp;&lt;input&nbsp;type="checkbox"&nbsp;name="remember"&nbsp;value="1"&nbsp;/&gt;</code></pre>
+     </div>
+     <p class="paragraph">Uneori este necesar să creăm un set de checkbox-uri din care să putem selecta mai multe valori. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;?php<br>if(isset($_POST["technologies"])){<br>&nbsp;&nbsp;&nbsp;$technologies&nbsp;=&nbsp;$_POST["technologies"];<br>&nbsp;&nbsp;&nbsp;foreach($technologies&nbsp;as&nbsp;$item)&nbsp;echo&nbsp;"$item&lt;br&nbsp;/&gt;";&nbsp;&nbsp;<br>}<br>?&gt;<br>&lt;h3&gt;Formular&nbsp;de&nbsp;introducere&nbsp;a&nbsp;datelor&lt;/h3&gt;<br>&lt;form&nbsp;method="POST"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;ASP.NET:&nbsp;&lt;input&nbsp;type="checkbox"&nbsp;name="technologies[]"&nbsp;value="ASP.NET"&nbsp;/&gt;&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;PHP:&nbsp;&lt;input&nbsp;type="checkbox"&nbsp;name="technologies[]"&nbsp;value="PHP"&nbsp;/&gt;&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Node.js:&nbsp;&lt;input&nbsp;type="checkbox"&nbsp;name="technologies[]"&nbsp;value="Node.js"&nbsp;/&gt;&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="submit"&nbsp;value="Trimite"&gt;<br>&lt;/form&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, valoarea atributului name trebuie să aibă paranteze pătrate. Și atunci, după trimitere, serverul va primi un array de valori bifate:</p>
+     <div class="code-inline">
+      <pre><code>$technologies&nbsp;=&nbsp;$_POST["technologies"];<br>foreach($technologies&nbsp;as&nbsp;$item)&nbsp;echo&nbsp;"$item&lt;br&nbsp;/&gt;";</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, variabila $technologies va reprezenta un array, pe care îl putem parcurge și efectua toate celelalte operațiuni cu array-urile.</p>
+     <div class="image-container">
+      <img th:src="@{/images/PHP/3.Trimiterea%20datelor%20pe%20server/5.Lucrul%20cu%20campurile%20de%20intrare%20ale%20formularelor/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/PHP/3.Trimiterea%20datelor%20pe%20server/5.Lucrul%20cu%20campurile%20de%20intrare%20ale%20formularelor/images/image3.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Procesarea radiobutton-urilor</h2>
+     <p class="paragraph">Radiobutton-urile permit realizarea unei alegeri între mai multe opțiuni mutual exclusive:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;?php<br>if(isset($_POST["course"]))<br>{<br>&nbsp;&nbsp;&nbsp;$course&nbsp;=&nbsp;$_POST["course"];<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$course;<br>}<br>?&gt;<br>&lt;h3&gt;Formular&nbsp;de&nbsp;introducere&nbsp;a&nbsp;datelor&lt;/h3&gt;<br>&lt;form&nbsp;method="POST"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="radio"&nbsp;name="course"&nbsp;value="ASP.NET"&nbsp;/&gt;ASP.NET&nbsp;&lt;br&gt;<br>&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="radio"&nbsp;name="course"&nbsp;value="PHP"&nbsp;/&gt;PHP&nbsp;&lt;br&gt;<br>&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="radio"&nbsp;name="course"&nbsp;value="Node.js"&nbsp;/&gt;Node.js&nbsp;&lt;br&gt;<br>&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="submit"&nbsp;value="Trimite"&gt;<br>&lt;/form&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/PHP/3.Trimiterea%20datelor%20pe%20server/5.Lucrul%20cu%20campurile%20de%20intrare%20ale%20formularelor/images/image4.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Pe server se transmite valoarea atributului value al radiobutton-ului selectat. Obținerea valorii transmise:</p>
+     <div class="code-inline">
+      <pre><code>if(isset($_POST["course"]))<br>{<br>&nbsp;&nbsp;&nbsp;$course&nbsp;=&nbsp;$_POST["course"];<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$course;<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Lista (select)</h2>
+     <p class="paragraph">Lista reprezintă elementul select, care oferă posibilitatea de a alege unul sau mai multe elemente:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;?php<br>if(isset($_POST["course"]))<br>{<br>&nbsp;&nbsp;&nbsp;$course&nbsp;=&nbsp;$_POST["course"];<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$course;<br>}<br>?&gt;<br>&lt;h3&gt;Formular&nbsp;de&nbsp;introducere&nbsp;a&nbsp;datelor&lt;/h3&gt;<br>&lt;form&nbsp;method="POST"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;select&nbsp;name="course"&nbsp;size="1"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;option&nbsp;value="ASP.NET"&gt;ASP.NET&lt;/option&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;option&nbsp;value="PHP"&gt;PHP&lt;/option&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;option&nbsp;value="Ruby"&gt;RUBY&lt;/option&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;option&nbsp;value="Python"&gt;Python&lt;/option&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/select&gt;<br>&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="submit"&nbsp;value="Trimite"&gt;<br>&lt;/form&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Elementul &lt;select&gt; conține o serie de opțiuni de selecție sub formă de elemente &lt;option&gt;:</p>
+     <div class="image-container">
+      <img th:src="@{/images/PHP/3.Trimiterea%20datelor%20pe%20server/5.Lucrul%20cu%20campurile%20de%20intrare%20ale%20formularelor/images/image5.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Obținerea elementului selectat în codul PHP ca și o valoare simplă:</p>
+     <div class="code-inline">
+      <pre><code>if(isset($_POST["course"]))<br>{<br>&nbsp;&nbsp;&nbsp;$course&nbsp;=&nbsp;$_POST["course"];<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$course;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Dar elementul &lt;select&gt; permite, de asemenea, realizarea unei selecții multiple. În acest caz, procesarea valorilor selectate se schimbă, deoarece serverul primește un array de valori:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;?php<br>if(isset($_POST["courses"]))<br>{<br>&nbsp;&nbsp;&nbsp;$courses&nbsp;=&nbsp;$_POST["courses"];<br>&nbsp;&nbsp;&nbsp;foreach($courses&nbsp;as&nbsp;$item)&nbsp;echo&nbsp;"$item&lt;br&gt;";<br>}<br>?&gt;<br>&lt;h3&gt;Formular&nbsp;de&nbsp;introducere&nbsp;a&nbsp;datelor&lt;/h3&gt;<br>&lt;form&nbsp;method="POST"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;select&nbsp;name="courses[]"&nbsp;size="4"&nbsp;multiple="multiple"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;option&nbsp;value="ASP.NET"&gt;ASP.NET&lt;/option&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;option&nbsp;value="PHP"&gt;PHP&lt;/option&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;option&nbsp;value="Ruby"&gt;RUBY&lt;/option&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;option&nbsp;value="Python"&gt;Python&lt;/option&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/select&gt;&lt;br&gt;<br>&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="submit"&nbsp;value="Trimite"&gt;<br>&lt;/form&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aceste liste au atributul multiple="multiple". Pentru a transmite un array, se specifică paranteze pătrate în atributul name: name="courses[]"</p>
+     <div class="image-container">
+      <img th:src="@{/images/PHP/3.Trimiterea%20datelor%20pe%20server/5.Lucrul%20cu%20campurile%20de%20intrare%20ale%20formularelor/images/image6.png}" alt="" class="responsive-image">
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

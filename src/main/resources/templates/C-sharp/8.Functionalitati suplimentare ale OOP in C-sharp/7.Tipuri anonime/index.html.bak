@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='8.Functionalitati suplimentare ale OOP in C-sharp', activeLesson='7.Tipuri anonime'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Tipuri anonime</h1>
+     <p class="paragraph">Tipurile anonime permit crearea unui obiect cu un anumit set de proprietăți fără a defini o clasă. Un tip anonim este definit cu ajutorul cuvântului cheie var și al inițializatorului de obiecte:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;user&nbsp;=&nbsp;new&nbsp;{&nbsp;Name&nbsp;=&nbsp;"Tom",&nbsp;Age&nbsp;=&nbsp;34&nbsp;};<br>Console.WriteLine(user.Name);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, user este un obiect de tip anonim, care are definite două proprietăți Name și Age. Putem folosi proprietățile acestuia la fel ca și în cazul obiectelor claselor obișnuite. Totuși, există o limitare - proprietățile tipurilor anonime sunt disponibile doar pentru citire.</p>
+     <p class="paragraph">În timpul compilării, compilatorul va crea automat un nume de tip pentru el și va folosi acest nume la accesarea obiectului. Adesea, tipurile anonime au un nume de genul &lt;&gt;f__AnonymousType0'2.</p>
+     <p class="paragraph">Pentru mediul de execuție CLR, tipurile anonime vor reprezenta, la fel ca și clasele, un tip referențial.</p>
+     <p class="paragraph">Dacă în program sunt folosite mai multe obiecte de tip anonim cu același set de proprietăți, compilatorul va crea o singură definiție a tipului anonim:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;user&nbsp;=&nbsp;new&nbsp;{&nbsp;Name&nbsp;=&nbsp;"Tom",&nbsp;Age&nbsp;=&nbsp;34&nbsp;};<br>var&nbsp;student&nbsp;=&nbsp;new&nbsp;{&nbsp;Name&nbsp;=&nbsp;"Alice",&nbsp;Age&nbsp;=&nbsp;21&nbsp;};<br>var&nbsp;manager&nbsp;=&nbsp;new&nbsp;{&nbsp;Name&nbsp;=&nbsp;"Bob",&nbsp;Age&nbsp;=&nbsp;26,&nbsp;Company&nbsp;=&nbsp;"Microsoft"&nbsp;};<br><br>Console.WriteLine(user.GetType().Name);&nbsp;//&nbsp;&lt;&gt;f__AnonymousType0'2<br>Console.WriteLine(student.GetType().Name);&nbsp;//&nbsp;&lt;&gt;f__AnonymousType0'2<br>Console.WriteLine(manager.GetType().Name);&nbsp;//&nbsp;&lt;&gt;f__AnonymousType1'3</code></pre>
+     </div>
+     <p class="paragraph">Aici, user și student vor avea aceeași definiție a tipului anonim. Cu toate acestea, astfel de obiecte nu pot fi convertite la alt tip, de exemplu, la o clasă, chiar dacă aceasta are un set similar de proprietăți.</p>
+     <p class="paragraph">Trebuie luat în considerare faptul că proprietățile unui obiect anonim pot fi setate doar în inițializator. În afara inițializatorului nu le putem atribui valori. Astfel, de exemplu, în următorul caz vom întâmpina o eroare:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;student&nbsp;=&nbsp;new&nbsp;{&nbsp;Name&nbsp;=&nbsp;"Alice",&nbsp;Age&nbsp;=&nbsp;21&nbsp;};<br>student.Age&nbsp;=&nbsp;32;&nbsp;&nbsp;&nbsp;//&nbsp;!&nbsp;Eroare</code></pre>
+     </div>
+     <p class="paragraph">Pe lângă forma de inițializare folosită mai sus, când atribuim proprietăților anumite valori, putem folosi și inițializatori cu proiecție, unde putem transmite în inițializator anumiți identificatori ale căror nume vor fi folosite ca denumiri ale proprietăților:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom");<br>int&nbsp;age&nbsp;=&nbsp;34;<br>var&nbsp;student&nbsp;=&nbsp;new&nbsp;{&nbsp;tom.Name,&nbsp;age&nbsp;};&nbsp;//&nbsp;inițializator&nbsp;cu&nbsp;proiecție<br>Console.WriteLine(student.Name);<br>Console.WriteLine(student.age);<br><br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name)&nbsp;=&gt;&nbsp;Name&nbsp;=&nbsp;name;<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, definirea obiectului anonim va fi de fapt identică cu următoarea:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;student&nbsp;=&nbsp;new&nbsp;{&nbsp;Name&nbsp;=&nbsp;tom.Name,&nbsp;age&nbsp;=&nbsp;age};</code></pre>
+     </div>
+     <p class="paragraph">Denumirile proprietăților și variabilelor (Name și age) vor fi folosite ca denumiri ale proprietăților obiectului.</p>
+     <p class="paragraph">De asemenea, putem defini array-uri de obiecte de tip anonim:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;people&nbsp;=&nbsp;new[]<br>{<br>&nbsp;&nbsp;&nbsp;new&nbsp;{Name="Tom"},<br>&nbsp;&nbsp;&nbsp;new&nbsp;{Name="Bob"}<br>};<br>foreach(var&nbsp;p&nbsp;in&nbsp;people)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(p.Name);<br>}</code></pre>
+     </div>
+     <p class="paragraph">De ce sunt necesare tipurile anonime? Uneori apare necesitatea de a folosi un tip într-un context restrâns sau chiar o singură dată. Crearea unei clase pentru un astfel de tip poate fi redundantă.</p>
+     <p class="paragraph">Dacă dorim să adăugăm o proprietate, o putem face direct la locul obiectului anonim. În cazul unei clase, ar trebui să modificăm și clasa, care poate să nu mai fie folosită în altă parte.</p>
+     <p class="paragraph">O situație tipică este obținerea rezultatului unei selecții dintr-o bază de date: obiectele sunt folosite doar pentru a obține selecția și adesea nu mai sunt folosite în altă parte, iar crearea unor clase pentru ele ar fi excesivă. Un obiect anonim este ideal pentru stocarea temporară a selecției.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

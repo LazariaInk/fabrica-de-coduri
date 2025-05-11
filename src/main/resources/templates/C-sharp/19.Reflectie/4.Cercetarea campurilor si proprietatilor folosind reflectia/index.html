@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='19.Reflectie', activeLesson='4.Cercetarea campurilor si proprietatilor folosind reflectia'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Cercetarea câmpurilor și proprietăților folosind reflecția</h1>
+     <h2 class="subtitle">Obținerea informațiilor despre câmpuri</h2>
+     <p class="paragraph">Pentru extragerea tuturor câmpurilor, se folosește metoda GetFields(), care returnează o matrice de obiecte de clasă FieldInfo.</p>
+     <p class="paragraph">Câteva dintre principalele proprietăți și metode ale clasei FieldInfo:</p>
+     <ul class="enumeration">
+      <li>IsFamily: returnează true dacă câmpul are modificatorul de acces protected</li>
+      <li>IsFamilyAndAssembly: returnează true dacă câmpul are modificatorul de acces private protected</li>
+      <li>IsFamilyOrAssembly: returnează true dacă câmpul are modificatorul de acces protected internal</li>
+      <li>IsAssembly: returnează true dacă câmpul are modificatorul de acces internal</li>
+      <li>IsPrivate: returnează true dacă câmpul are modificatorul de acces private</li>
+      <li>IsPublic: returnează true dacă câmpul are modificatorul de acces public</li>
+      <li>IsStatic: returnează true dacă câmpul este static</li>
+      <li>Metoda GetValue(): returnează valoarea câmpului</li>
+      <li>Metoda SetValue(): setează valoarea câmpului</li>
+     </ul>
+     <p class="paragraph">De exemplu, să obținem toate câmpurile unei clase:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Reflection;<br><br>Type&nbsp;myType&nbsp;=&nbsp;typeof(Person);<br><br>Console.WriteLine("Câmpuri:");<br>foreach&nbsp;(FieldInfo&nbsp;field&nbsp;in&nbsp;myType.GetFields(<br>&nbsp;&nbsp;&nbsp;BindingFlags.Instance&nbsp;|&nbsp;BindingFlags.NonPublic&nbsp;|&nbsp;BindingFlags.Public&nbsp;|&nbsp;BindingFlags.Static))<br>{<br>&nbsp;&nbsp;&nbsp;string&nbsp;modificator&nbsp;=&nbsp;"";<br><br>&nbsp;&nbsp;&nbsp;if&nbsp;(field.IsPublic)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;modificator&nbsp;+=&nbsp;"public&nbsp;";<br>&nbsp;&nbsp;&nbsp;else&nbsp;if&nbsp;(field.IsPrivate)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;modificator&nbsp;+=&nbsp;"private&nbsp;";<br>&nbsp;&nbsp;&nbsp;else&nbsp;if&nbsp;(field.IsAssembly)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;modificator&nbsp;+=&nbsp;"internal&nbsp;";<br>&nbsp;&nbsp;&nbsp;else&nbsp;if&nbsp;(field.IsFamily)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;modificator&nbsp;+=&nbsp;"protected&nbsp;";<br>&nbsp;&nbsp;&nbsp;else&nbsp;if&nbsp;(field.IsFamilyAndAssembly)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;modificator&nbsp;+=&nbsp;"private&nbsp;protected&nbsp;";<br>&nbsp;&nbsp;&nbsp;else&nbsp;if&nbsp;(field.IsFamilyOrAssembly)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;modificator&nbsp;+=&nbsp;"protected&nbsp;internal&nbsp;";<br><br>&nbsp;&nbsp;&nbsp;if&nbsp;(field.IsStatic)&nbsp;modificator&nbsp;+=&nbsp;"static&nbsp;";<br><br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"{modificator}{field.FieldType.Name}&nbsp;{field.Name}");<br>}<br><br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;static&nbsp;int&nbsp;minAge&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;string&nbsp;name;<br>&nbsp;&nbsp;&nbsp;int&nbsp;age;<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name,&nbsp;int&nbsp;age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Print()&nbsp;=&gt;&nbsp;Console.WriteLine($"{name}&nbsp;-&nbsp;{age}");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Pentru a obține atât câmpurile statice, cât și cele non-statice, publice și non-publice, în metoda GetFields() se transmite un set de flaguri:</p>
+     <div class="code-inline">
+      <pre><code>BindingFlags.Instance&nbsp;|&nbsp;BindingFlags.NonPublic&nbsp;|&nbsp;BindingFlags.Public&nbsp;|&nbsp;BindingFlags.Static</code></pre>
+     </div>
+     <p class="paragraph">Ieșirea consolei:</p>
+     <div class="code-inline">
+      <pre><code>Câmpuri:<br><br>private&nbsp;String&nbsp;name<br><br>private&nbsp;Int32&nbsp;age<br><br>private&nbsp;static&nbsp;Int32&nbsp;minAge</code></pre>
+     </div>
+     <h2 class="subtitle">Obținerea și modificarea valorii câmpului</h2>
+     <p class="paragraph">Pentru a obține un câmp după nume, se folosește metoda GetField(), căreia i se transmite numele câmpului:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;name&nbsp;=&nbsp;myType.GetField("name",&nbsp;BindingFlags.Instance&nbsp;|&nbsp;BindingFlags.NonPublic);</code></pre>
+     </div>
+     <p class="paragraph">Ca al doilea parametru opțional, se transmite un set de flaguri.</p>
+     <p class="paragraph">Reflecția permite obținerea și modificarea valorilor chiar și pentru câmpurile private. De exemplu, să obținem și să modificăm valoarea câmpului name:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Reflection;<br><br>Type&nbsp;myType&nbsp;=&nbsp;typeof(Person);<br>Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;37);<br><br>var&nbsp;name&nbsp;=&nbsp;myType.GetField("name",&nbsp;BindingFlags.Instance&nbsp;|&nbsp;BindingFlags.NonPublic);<br><br>var&nbsp;value&nbsp;=&nbsp;name?.GetValue(tom);<br>Console.WriteLine(value);&nbsp;&nbsp;&nbsp;//&nbsp;Tom<br><br>name?.SetValue(tom,&nbsp;"Bob");<br>tom.Print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Bob&nbsp;-&nbsp;37<br><br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;static&nbsp;int&nbsp;minAge&nbsp;=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;string&nbsp;name;<br>&nbsp;&nbsp;&nbsp;int&nbsp;age;<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name,&nbsp;int&nbsp;age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Print()&nbsp;=&gt;&nbsp;Console.WriteLine($"{name}&nbsp;-&nbsp;{age}");<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Proprietăți</h2>
+     <p class="paragraph">Pentru extragerea tuturor proprietăților de tip, se folosește metoda GetProperties(), care returnează o matrice de obiecte PropertyInfo. Pentru a obține o proprietate după nume, se folosește metoda GetProperty(), căreia i se transmite numele proprietății și care returnează un obiect PropertyInfo?.</p>
+     <p class="paragraph">Câteva dintre principalele funcționalități ale clasei PropertyInfo:</p>
+     <ul class="enumeration">
+      <li>Attributes: returnează colecția de atribute ale proprietății</li>
+      <li>CanRead: returnează true dacă proprietatea poate fi citită</li>
+      <li>CanWrite: returnează true dacă proprietatea poate fi scrisă</li>
+      <li>GetMethod: returnează get-accesorul sub formă de obiect MethodInfo?</li>
+      <li>SetMethod: returnează set-accesorul sub formă de obiect MethodInfo?</li>
+      <li>PropertyType: returnează tipul proprietății</li>
+      <li>Metoda GetValue(): returnează valoarea proprietății</li>
+      <li>Metoda SetValue(): setează valoarea proprietății</li>
+     </ul>
+     <p class="paragraph">Folosim câteva proprietăți PropertyInfo pentru a obține informații despre proprietăți:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Reflection;<br><br>Type&nbsp;myType&nbsp;=&nbsp;typeof(Person);<br>foreach&nbsp;(PropertyInfo&nbsp;prop&nbsp;in&nbsp;myType.GetProperties(<br>&nbsp;&nbsp;&nbsp;BindingFlags.Instance&nbsp;|&nbsp;BindingFlags.NonPublic&nbsp;|&nbsp;BindingFlags.Public&nbsp;|&nbsp;BindingFlags.Static))<br>{<br>&nbsp;&nbsp;&nbsp;Console.Write($"{prop.PropertyType}&nbsp;{prop.Name}&nbsp;{{");<br><br>&nbsp;&nbsp;&nbsp;if&nbsp;(prop.CanRead)&nbsp;Console.Write("get;");<br>&nbsp;&nbsp;&nbsp;if&nbsp;(prop.CanWrite)&nbsp;Console.Write("set;");<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("}");<br>}<br><br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Age&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name,&nbsp;int&nbsp;age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Print()&nbsp;=&gt;&nbsp;Console.WriteLine($"{Name}&nbsp;-&nbsp;{Age}");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Ieșirea consolei:</p>
+     <div class="code-inline">
+      <pre><code>System.String&nbsp;Name&nbsp;{get;}<br><br>System.Int32&nbsp;Age&nbsp;{get;set;}</code></pre>
+     </div>
+     <p class="paragraph">Cu ajutorul metodelor PropertyInfo, se poate manipula valoarea proprietății. De exemplu, să obținem și să modificăm valoarea proprietății:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Reflection;<br><br>Type&nbsp;myType&nbsp;=&nbsp;typeof(Person);<br>Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;37);<br><br>var&nbsp;ageProp&nbsp;=&nbsp;myType.GetProperty("Age");<br><br>var&nbsp;age&nbsp;=&nbsp;ageProp?.GetValue(tom);<br>Console.WriteLine(age);&nbsp;//&nbsp;37<br><br>ageProp?.SetValue(tom,&nbsp;22);<br>tom.Print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Tom&nbsp;-&nbsp;22<br><br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Age&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name,&nbsp;int&nbsp;age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Print()&nbsp;=&gt;&nbsp;Console.WriteLine($"{Name}&nbsp;-&nbsp;{Age}");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Pentru a obține valoarea unei proprietăți, în metoda GetValue() a obiectului PropertyInfo se transmite obiectul de la care se apelează proprietatea. Rezultatul metodei este valoarea proprietății. Pentru a seta valoarea, în metoda SetValue() a obiectului PropertyInfo se transmite obiectul căruia i se setează proprietatea și noua valoare a acesteia.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

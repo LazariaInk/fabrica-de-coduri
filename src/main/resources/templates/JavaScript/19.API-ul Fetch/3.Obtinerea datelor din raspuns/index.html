@@ -1,215 +1,205 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='19.API-ul Fetch', activeLesson='3.Obtinerea datelor din raspuns'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Obținerea datelor din răspuns</h1>
- <p class="paragraph">Toate datele trimise de server sunt disponibile în obiectul Response prin proprietatea body, care reprezintă un obiect ReadableStream, dar este mult mai simplu să folosești una dintre metodele obiectului Response. Interfața Response oferă următoarele metode:</p>
- <ul class="enumeration">
-  <li>arrayBuffer(): returnează un promise, care obține conținutul răspunsului sub formă de obiect ArrayBuffer</li>
-  <li>blob(): returnează un promise, care obține conținutul răspunsului sub formă de obiect Blob</li>
-  <li>clone(): returnează o copie a obiectului Response curent</li>
-  <li>error(): returnează un nou obiect Response, asociat cu o eroare de rețea apărută</li>
-  <li>formData(): returnează un promise, care obține conținutul răspunsului sub formă de obiect FormData</li>
-  <li>json(): returnează un promise, care obține conținutul răspunsului sub formă de obiect JSON</li>
-  <li>redirect(): returnează un nou obiect Response cu o altă adresă URL</li>
-  <li>text(): returnează un promise, care obține conținutul răspunsului sub formă de text</li>
- </ul>
- <h2 class="subtitle">Obținerea răspunsului sub formă de text</h2>
- <p class="paragraph">Pentru a obține răspunsul sub formă de text se folosește metoda text(). De exemplu, serverul pe Node.js trimite ca răspuns clientului un anumit text:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");<br>&nbsp;&nbsp;&nbsp;<br>http.createServer(function(request,&nbsp;response){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;if(request.url&nbsp;==&nbsp;"/hello"){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.end("Fetch&nbsp;pe&nbsp;METANIT.COM");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fs.readFile("index.html",&nbsp;(error,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>&nbsp;&nbsp;&nbsp;}<br>}).listen(3000,&nbsp;()=&gt;console.log("Serverul&nbsp;a&nbsp;fost&nbsp;lansat&nbsp;la&nbsp;adresa&nbsp;http://localhost:3000"));</code></pre>
- </div>
- <p class="paragraph">În acest caz, la accesarea adresei "/hello", serverul va trimite ca răspuns clientului textul "Fetch pe FDC.COM".</p>
- <p class="paragraph">Pe pagina index.html, cu ajutorul metodei text() obținem acest text:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;script&gt;<br>fetch("/hello")<br>&nbsp;&nbsp;&nbsp;.then(response&nbsp;=&gt;&nbsp;response.text())<br>&nbsp;&nbsp;&nbsp;.then(responseText&nbsp;=&gt;&nbsp;console.log(responseText));<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">Pentru a obține textul trimis, la obiectul response se apelează metoda response.text(), care returnează un Promise. Și pentru a obține de fapt textul răspunsului, se atașează o a doua metodă then(), în care, în funcția callback, obținem textul răspunsului:</p>
- <div class="code-inline">
-  <pre><code>.then(responseText&nbsp;=&gt;&nbsp;console.log(responseText));</code></pre>
- </div>
- <p class="paragraph">Sau se poate folosi async/await:</p>
- <div class="code-inline">
-  <pre><code>getText();<br>async&nbsp;function&nbsp;getText()&nbsp;{<br>&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;obiectul&nbsp;răspuns<br>&nbsp;&nbsp;&nbsp;const&nbsp;response&nbsp;=&nbsp;await&nbsp;fetch("/hello");<br>&nbsp;&nbsp;&nbsp;//&nbsp;extragem&nbsp;textul&nbsp;răspunsului&nbsp;din&nbsp;obiectul&nbsp;răspuns<br>&nbsp;&nbsp;&nbsp;const&nbsp;responseText&nbsp;=&nbsp;await&nbsp;response.text();<br>&nbsp;&nbsp;&nbsp;console.log(responseText);<br>}</code></pre>
- </div>
- <h2 class="subtitle">Obținerea răspunsului sub formă de json</h2>
- <p class="paragraph">Să presupunem că serverul trimite un obiect json:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");<br>&nbsp;&nbsp;&nbsp;<br>http.createServer(function(request,&nbsp;response){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;if(request.url&nbsp;==&nbsp;"/user"){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;user&nbsp;=&nbsp;{name:&nbsp;"Tom",&nbsp;age:&nbsp;37};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.end(JSON.stringify(user));<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fs.readFile("index.html",&nbsp;(error,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>&nbsp;&nbsp;&nbsp;}<br>}).listen(3000,&nbsp;()=&gt;console.log("Serverul&nbsp;a&nbsp;fost&nbsp;lansat&nbsp;la&nbsp;adresa&nbsp;http://localhost:3000"));</code></pre>
- </div>
- <p class="paragraph">În acest caz, serverul, la accesarea adresei "/user", trimite obiectul user sub formă de cod json.</p>
- <p class="paragraph">Obținem acest obiect:</p>
- <div class="code-inline">
-  <pre><code>fetch("/user")<br>&nbsp;&nbsp;&nbsp;.then(response&nbsp;=&gt;&nbsp;response.json())<br>&nbsp;&nbsp;&nbsp;.then(user&nbsp;=&gt;&nbsp;console.log(user.name,&nbsp;"&nbsp;-&nbsp;",&nbsp;user.age));</code></pre>
- </div>
- <p class="paragraph">Metoda json() returnează un obiect Promise, deci în a doua metodă then() putem obține obiectul json trimis și ne putem referi la proprietățile sale:</p>
- <div class="code-inline">
-  <pre><code>.then(user&nbsp;=&gt;&nbsp;console.log(user.name,&nbsp;"-",&nbsp;user.age));</code></pre>
- </div>
- <p class="paragraph">Același exemplu cu folosirea async/await:</p>
- <div class="code-inline">
-  <pre><code>getUser();<br>async&nbsp;function&nbsp;getUser()&nbsp;{<br>&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;obiectul&nbsp;răspuns<br>&nbsp;&nbsp;&nbsp;const&nbsp;response&nbsp;=&nbsp;await&nbsp;fetch("/user");<br>&nbsp;&nbsp;&nbsp;//&nbsp;extragem&nbsp;json&nbsp;din&nbsp;obiectul&nbsp;răspuns<br>&nbsp;&nbsp;&nbsp;const&nbsp;user&nbsp;=&nbsp;await&nbsp;response.json();<br>&nbsp;&nbsp;&nbsp;console.log(user.name,&nbsp;"-",&nbsp;user.age);<br>}</code></pre>
- </div>
- <h2 class="subtitle">Trimiterea seturilor de date</h2>
- <p class="paragraph">În mod similar, se pot obține seturi de obiecte în format json. Să presupunem că serverul pe node.js trimite un array de obiecte:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");<br>&nbsp;&nbsp;&nbsp;<br>http.createServer(function(request,&nbsp;response){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;if(request.url&nbsp;==&nbsp;"/users.json"){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;users&nbsp;=&nbsp;[<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{name:&nbsp;"Tom",&nbsp;age:&nbsp;37},<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{name:&nbsp;"Sam",&nbsp;age:&nbsp;25},<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{name:&nbsp;"Bob",&nbsp;age:&nbsp;41}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.end(JSON.stringify(users));<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fs.readFile("index.html",&nbsp;(error,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>&nbsp;&nbsp;&nbsp;}<br>}).listen(3000,&nbsp;()=&gt;console.log("Serverul&nbsp;a&nbsp;fost&nbsp;lansat&nbsp;la&nbsp;adresa&nbsp;http://localhost:3000"));</code></pre>
- </div>
- <p class="paragraph">Obținem aceste date pe pagina web:</p>
- <div class="code-inline">
-  <pre><code>fetch("/users.json")<br>&nbsp;&nbsp;&nbsp;.then(response&nbsp;=&gt;&nbsp;response.json())<br>&nbsp;&nbsp;&nbsp;.then(users&nbsp;=&gt;&nbsp;users.forEach(user&nbsp;=&gt;&nbsp;console.log(user.name,&nbsp;"&nbsp;-&nbsp;",&nbsp;user.age)));<br>&nbsp;&nbsp;&nbsp;<br>//&nbsp;analog&nbsp;cu&nbsp;async/await<br>getUsers();<br>async&nbsp;function&nbsp;getUsers()&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;const&nbsp;response&nbsp;=&nbsp;await&nbsp;fetch("/users.json");<br>&nbsp;&nbsp;&nbsp;const&nbsp;users&nbsp;=&nbsp;await&nbsp;response.json();<br>&nbsp;&nbsp;&nbsp;users.forEach(user&nbsp;=&gt;&nbsp;console.log(user.name,&nbsp;"&nbsp;-&nbsp;",&nbsp;user.age))<br>}</code></pre>
- </div>
- <h2 class="subtitle">Trimiterea fișierului json</h2>
- <p class="paragraph">Să presupunem că în folderul serverului este definit fișierul users.json cu următorul conținut:</p>
- <div class="code-inline">
-  <pre><code>[<br>&nbsp;&nbsp;&nbsp;{"name":&nbsp;"Tom",&nbsp;"age":&nbsp;37},<br>&nbsp;&nbsp;&nbsp;{"name":&nbsp;"Sam",&nbsp;"age":&nbsp;25},<br>&nbsp;&nbsp;&nbsp;{"name":&nbsp;"Bob",&nbsp;"age:&nbsp;41"}<br>]</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image1.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">În cazul serverului node.js, am putea trimite acest fișier în următorul mod:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");<br>&nbsp;&nbsp;&nbsp;<br>http.createServer(function(request,&nbsp;response){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;if(request.url&nbsp;==&nbsp;"/users.json"){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fs.readFile("users.json",&nbsp;(error,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fs.readFile("index.html",&nbsp;(error,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>&nbsp;&nbsp;&nbsp;}<br>}).listen(3000,&nbsp;()=&gt;console.log("Serverul&nbsp;a&nbsp;fost&nbsp;lansat&nbsp;la&nbsp;adresa&nbsp;http://localhost:3000"));</code></pre>
- </div>
- <p class="paragraph">În funcție de tehnologia specifică serverului, trimiterea fișierelor poate varia. Aici, la fel ca în cazul trimiterii fișierului index.html, citim datele din fișierul users.json folosind funcția fs.readFile() și le trimitem ca răspuns.</p>
- <p class="paragraph">Pe partea clientului ar fi același cod ca în cazul precedent:</p>
- <div class="code-inline">
-  <pre><code>fetch("/users.json")<br>&nbsp;&nbsp;&nbsp;.then(response&nbsp;=&gt;&nbsp;response.json())<br>&nbsp;&nbsp;&nbsp;.then(users&nbsp;=&gt;&nbsp;users.forEach(user&nbsp;=&gt;&nbsp;console.log(user.name,&nbsp;"&nbsp;-&nbsp;",&nbsp;user.age)));</code></pre>
- </div>
- <h2 class="subtitle">Încărcarea datelor binare</h2>
- <p class="paragraph">Cu ajutorul metodei blob() se pot încărca date binare. Să luăm exemplul imaginilor. Să presupunem că pe server există fișierul fox.png.</p>
- <div class="image-container">
-  <img src="images/image2.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Să presupunem că serverul node.js trimite acest fișier la accesarea adresei "fox.png":</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");<br>&nbsp;&nbsp;&nbsp;<br>http.createServer(function(request,&nbsp;response){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;if(request.url&nbsp;==&nbsp;"/fox.png"){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fs.readFile("fox.png",&nbsp;(error,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fs.readFile("index.html",&nbsp;(error,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>&nbsp;&nbsp;&nbsp;}<br>}).listen(3000,&nbsp;()=&gt;console.log("Serverul&nbsp;a&nbsp;fost&nbsp;lansat&nbsp;la&nbsp;adresa&nbsp;http://localhost:3000"));</code></pre>
- </div>
- <p class="paragraph">Pe pagina web index.html, pentru a accesa serverul, definim următorul cod:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;img&nbsp;/&gt;<br>&lt;script&gt;<br>const<br><br>img&nbsp;=&nbsp;document.querySelector("img");<br>fetch("/fox.png")<br>&nbsp;&nbsp;&nbsp;.then(response&nbsp;=&gt;&nbsp;response.blob())<br>&nbsp;&nbsp;&nbsp;.then(data&nbsp;=&gt;&nbsp;img.src&nbsp;=&nbsp;URL.createObjectURL(data));<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">Pentru afișarea imaginii pe pagina web, este definit elementul &lt;img&gt;</p>
- <p class="paragraph">Metoda blob() returnează un obiect Promise, care obține datele răspunsului sub formă de obiect Blob. Și în a doua metodă then() obținem acest obiect:</p>
- <div class="code-inline">
-  <pre><code>.then(data&nbsp;=&gt;&nbsp;img.src&nbsp;=&nbsp;URL.createObjectURL(data));</code></pre>
- </div>
- <p class="paragraph">Aici trebuie să stabilim pentru elementul html &lt;img&gt; ca sursă de imagine fișierul obținut. Pentru acest lucru se apelează funcția URL.createObjectURL(), în care se transmite obiectul Blob. Această funcție creează o adresă URL, la care se proiectează fișierul încărcat.</p>
- <p class="paragraph">Astfel, după executarea cererii, elementul html &lt;img&gt; va afișa imaginea încărcată. Pentru aplicarea acestui exemplu, descărcați o simplă imagine de tip png și salvați-o în fișierul cu care lucrați ( la mine el este app), după înlocuiți în codul sursă denumirea imaginii ( în cazul meu - fox.png ) cu denumirea imaginii voastre:</p>
- <div class="image-container">
-  <img src="images/image3.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Exemplu similar cu utilizarea async/await:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;img&nbsp;=&nbsp;document.querySelector("img");<br>getImage();<br>async&nbsp;function&nbsp;getImage()&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;response&nbsp;=&nbsp;await&nbsp;fetch("/fox.png");<br>&nbsp;&nbsp;&nbsp;const&nbsp;imgBlob&nbsp;=&nbsp;await&nbsp;response.blob();<br>&nbsp;&nbsp;&nbsp;img.src&nbsp;=&nbsp;URL.createObjectURL(imgBlob);<br>}</code></pre>
- </div>
- <p class="paragraph">În mod similar, se pot obține și utiliza alte tipuri de fișiere, de exemplu, fișiere audio și video.</p>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Obținerea datelor din răspuns</h1>
+     <p class="paragraph">Toate datele trimise de server sunt disponibile în obiectul Response prin proprietatea body, care reprezintă un obiect ReadableStream, dar este mult mai simplu să folosești una dintre metodele obiectului Response. Interfața Response oferă următoarele metode:</p>
+     <ul class="enumeration">
+      <li>arrayBuffer(): returnează un promise, care obține conținutul răspunsului sub formă de obiect ArrayBuffer</li>
+      <li>blob(): returnează un promise, care obține conținutul răspunsului sub formă de obiect Blob</li>
+      <li>clone(): returnează o copie a obiectului Response curent</li>
+      <li>error(): returnează un nou obiect Response, asociat cu o eroare de rețea apărută</li>
+      <li>formData(): returnează un promise, care obține conținutul răspunsului sub formă de obiect FormData</li>
+      <li>json(): returnează un promise, care obține conținutul răspunsului sub formă de obiect JSON</li>
+      <li>redirect(): returnează un nou obiect Response cu o altă adresă URL</li>
+      <li>text(): returnează un promise, care obține conținutul răspunsului sub formă de text</li>
+     </ul>
+     <h2 class="subtitle">Obținerea răspunsului sub formă de text</h2>
+     <p class="paragraph">Pentru a obține răspunsul sub formă de text se folosește metoda text(). De exemplu, serverul pe Node.js trimite ca răspuns clientului un anumit text:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");<br>&nbsp;&nbsp;&nbsp;<br>http.createServer(function(request,&nbsp;response){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;if(request.url&nbsp;==&nbsp;"/hello"){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.end("Fetch&nbsp;pe&nbsp;METANIT.COM");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fs.readFile("index.html",&nbsp;(error,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>&nbsp;&nbsp;&nbsp;}<br>}).listen(3000,&nbsp;()=&gt;console.log("Serverul&nbsp;a&nbsp;fost&nbsp;lansat&nbsp;la&nbsp;adresa&nbsp;http://localhost:3000"));</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, la accesarea adresei "/hello", serverul va trimite ca răspuns clientului textul "Fetch pe FDC.COM".</p>
+     <p class="paragraph">Pe pagina index.html, cu ajutorul metodei text() obținem acest text:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;script&gt;<br>fetch("/hello")<br>&nbsp;&nbsp;&nbsp;.then(response&nbsp;=&gt;&nbsp;response.text())<br>&nbsp;&nbsp;&nbsp;.then(responseText&nbsp;=&gt;&nbsp;console.log(responseText));<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Pentru a obține textul trimis, la obiectul response se apelează metoda response.text(), care returnează un Promise. Și pentru a obține de fapt textul răspunsului, se atașează o a doua metodă then(), în care, în funcția callback, obținem textul răspunsului:</p>
+     <div class="code-inline">
+      <pre><code>.then(responseText&nbsp;=&gt;&nbsp;console.log(responseText));</code></pre>
+     </div>
+     <p class="paragraph">Sau se poate folosi async/await:</p>
+     <div class="code-inline">
+      <pre><code>getText();<br>async&nbsp;function&nbsp;getText()&nbsp;{<br>&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;obiectul&nbsp;răspuns<br>&nbsp;&nbsp;&nbsp;const&nbsp;response&nbsp;=&nbsp;await&nbsp;fetch("/hello");<br>&nbsp;&nbsp;&nbsp;//&nbsp;extragem&nbsp;textul&nbsp;răspunsului&nbsp;din&nbsp;obiectul&nbsp;răspuns<br>&nbsp;&nbsp;&nbsp;const&nbsp;responseText&nbsp;=&nbsp;await&nbsp;response.text();<br>&nbsp;&nbsp;&nbsp;console.log(responseText);<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Obținerea răspunsului sub formă de json</h2>
+     <p class="paragraph">Să presupunem că serverul trimite un obiect json:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");<br>&nbsp;&nbsp;&nbsp;<br>http.createServer(function(request,&nbsp;response){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;if(request.url&nbsp;==&nbsp;"/user"){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;user&nbsp;=&nbsp;{name:&nbsp;"Tom",&nbsp;age:&nbsp;37};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.end(JSON.stringify(user));<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fs.readFile("index.html",&nbsp;(error,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>&nbsp;&nbsp;&nbsp;}<br>}).listen(3000,&nbsp;()=&gt;console.log("Serverul&nbsp;a&nbsp;fost&nbsp;lansat&nbsp;la&nbsp;adresa&nbsp;http://localhost:3000"));</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, serverul, la accesarea adresei "/user", trimite obiectul user sub formă de cod json.</p>
+     <p class="paragraph">Obținem acest obiect:</p>
+     <div class="code-inline">
+      <pre><code>fetch("/user")<br>&nbsp;&nbsp;&nbsp;.then(response&nbsp;=&gt;&nbsp;response.json())<br>&nbsp;&nbsp;&nbsp;.then(user&nbsp;=&gt;&nbsp;console.log(user.name,&nbsp;"&nbsp;-&nbsp;",&nbsp;user.age));</code></pre>
+     </div>
+     <p class="paragraph">Metoda json() returnează un obiect Promise, deci în a doua metodă then() putem obține obiectul json trimis și ne putem referi la proprietățile sale:</p>
+     <div class="code-inline">
+      <pre><code>.then(user&nbsp;=&gt;&nbsp;console.log(user.name,&nbsp;"-",&nbsp;user.age));</code></pre>
+     </div>
+     <p class="paragraph">Același exemplu cu folosirea async/await:</p>
+     <div class="code-inline">
+      <pre><code>getUser();<br>async&nbsp;function&nbsp;getUser()&nbsp;{<br>&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;obiectul&nbsp;răspuns<br>&nbsp;&nbsp;&nbsp;const&nbsp;response&nbsp;=&nbsp;await&nbsp;fetch("/user");<br>&nbsp;&nbsp;&nbsp;//&nbsp;extragem&nbsp;json&nbsp;din&nbsp;obiectul&nbsp;răspuns<br>&nbsp;&nbsp;&nbsp;const&nbsp;user&nbsp;=&nbsp;await&nbsp;response.json();<br>&nbsp;&nbsp;&nbsp;console.log(user.name,&nbsp;"-",&nbsp;user.age);<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Trimiterea seturilor de date</h2>
+     <p class="paragraph">În mod similar, se pot obține seturi de obiecte în format json. Să presupunem că serverul pe node.js trimite un array de obiecte:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");<br>&nbsp;&nbsp;&nbsp;<br>http.createServer(function(request,&nbsp;response){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;if(request.url&nbsp;==&nbsp;"/users.json"){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;users&nbsp;=&nbsp;[<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{name:&nbsp;"Tom",&nbsp;age:&nbsp;37},<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{name:&nbsp;"Sam",&nbsp;age:&nbsp;25},<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{name:&nbsp;"Bob",&nbsp;age:&nbsp;41}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.end(JSON.stringify(users));<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fs.readFile("index.html",&nbsp;(error,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>&nbsp;&nbsp;&nbsp;}<br>}).listen(3000,&nbsp;()=&gt;console.log("Serverul&nbsp;a&nbsp;fost&nbsp;lansat&nbsp;la&nbsp;adresa&nbsp;http://localhost:3000"));</code></pre>
+     </div>
+     <p class="paragraph">Obținem aceste date pe pagina web:</p>
+     <div class="code-inline">
+      <pre><code>fetch("/users.json")<br>&nbsp;&nbsp;&nbsp;.then(response&nbsp;=&gt;&nbsp;response.json())<br>&nbsp;&nbsp;&nbsp;.then(users&nbsp;=&gt;&nbsp;users.forEach(user&nbsp;=&gt;&nbsp;console.log(user.name,&nbsp;"&nbsp;-&nbsp;",&nbsp;user.age)));<br>&nbsp;&nbsp;&nbsp;<br>//&nbsp;analog&nbsp;cu&nbsp;async/await<br>getUsers();<br>async&nbsp;function&nbsp;getUsers()&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;const&nbsp;response&nbsp;=&nbsp;await&nbsp;fetch("/users.json");<br>&nbsp;&nbsp;&nbsp;const&nbsp;users&nbsp;=&nbsp;await&nbsp;response.json();<br>&nbsp;&nbsp;&nbsp;users.forEach(user&nbsp;=&gt;&nbsp;console.log(user.name,&nbsp;"&nbsp;-&nbsp;",&nbsp;user.age))<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Trimiterea fișierului json</h2>
+     <p class="paragraph">Să presupunem că în folderul serverului este definit fișierul users.json cu următorul conținut:</p>
+     <div class="code-inline">
+      <pre><code>[<br>&nbsp;&nbsp;&nbsp;{"name":&nbsp;"Tom",&nbsp;"age":&nbsp;37},<br>&nbsp;&nbsp;&nbsp;{"name":&nbsp;"Sam",&nbsp;"age":&nbsp;25},<br>&nbsp;&nbsp;&nbsp;{"name":&nbsp;"Bob",&nbsp;"age:&nbsp;41"}<br>]</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/19.API-ul%20Fetch/3.Obtinerea%20datelor%20din%20raspuns/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">În cazul serverului node.js, am putea trimite acest fișier în următorul mod:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");<br>&nbsp;&nbsp;&nbsp;<br>http.createServer(function(request,&nbsp;response){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;if(request.url&nbsp;==&nbsp;"/users.json"){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fs.readFile("users.json",&nbsp;(error,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fs.readFile("index.html",&nbsp;(error,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>&nbsp;&nbsp;&nbsp;}<br>}).listen(3000,&nbsp;()=&gt;console.log("Serverul&nbsp;a&nbsp;fost&nbsp;lansat&nbsp;la&nbsp;adresa&nbsp;http://localhost:3000"));</code></pre>
+     </div>
+     <p class="paragraph">În funcție de tehnologia specifică serverului, trimiterea fișierelor poate varia. Aici, la fel ca în cazul trimiterii fișierului index.html, citim datele din fișierul users.json folosind funcția fs.readFile() și le trimitem ca răspuns.</p>
+     <p class="paragraph">Pe partea clientului ar fi același cod ca în cazul precedent:</p>
+     <div class="code-inline">
+      <pre><code>fetch("/users.json")<br>&nbsp;&nbsp;&nbsp;.then(response&nbsp;=&gt;&nbsp;response.json())<br>&nbsp;&nbsp;&nbsp;.then(users&nbsp;=&gt;&nbsp;users.forEach(user&nbsp;=&gt;&nbsp;console.log(user.name,&nbsp;"&nbsp;-&nbsp;",&nbsp;user.age)));</code></pre>
+     </div>
+     <h2 class="subtitle">Încărcarea datelor binare</h2>
+     <p class="paragraph">Cu ajutorul metodei blob() se pot încărca date binare. Să luăm exemplul imaginilor. Să presupunem că pe server există fișierul fox.png.</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/19.API-ul%20Fetch/3.Obtinerea%20datelor%20din%20raspuns/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Să presupunem că serverul node.js trimite acest fișier la accesarea adresei "fox.png":</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");<br>&nbsp;&nbsp;&nbsp;<br>http.createServer(function(request,&nbsp;response){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;if(request.url&nbsp;==&nbsp;"/fox.png"){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fs.readFile("fox.png",&nbsp;(error,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fs.readFile("index.html",&nbsp;(error,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>&nbsp;&nbsp;&nbsp;}<br>}).listen(3000,&nbsp;()=&gt;console.log("Serverul&nbsp;a&nbsp;fost&nbsp;lansat&nbsp;la&nbsp;adresa&nbsp;http://localhost:3000"));</code></pre>
+     </div>
+     <p class="paragraph">Pe pagina web index.html, pentru a accesa serverul, definim următorul cod:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;img&nbsp;/&gt;<br>&lt;script&gt;<br>const<br><br>img&nbsp;=&nbsp;document.querySelector("img");<br>fetch("/fox.png")<br>&nbsp;&nbsp;&nbsp;.then(response&nbsp;=&gt;&nbsp;response.blob())<br>&nbsp;&nbsp;&nbsp;.then(data&nbsp;=&gt;&nbsp;img.src&nbsp;=&nbsp;URL.createObjectURL(data));<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Pentru afișarea imaginii pe pagina web, este definit elementul &lt;img&gt;</p>
+     <p class="paragraph">Metoda blob() returnează un obiect Promise, care obține datele răspunsului sub formă de obiect Blob. Și în a doua metodă then() obținem acest obiect:</p>
+     <div class="code-inline">
+      <pre><code>.then(data&nbsp;=&gt;&nbsp;img.src&nbsp;=&nbsp;URL.createObjectURL(data));</code></pre>
+     </div>
+     <p class="paragraph">Aici trebuie să stabilim pentru elementul html &lt;img&gt; ca sursă de imagine fișierul obținut. Pentru acest lucru se apelează funcția URL.createObjectURL(), în care se transmite obiectul Blob. Această funcție creează o adresă URL, la care se proiectează fișierul încărcat.</p>
+     <p class="paragraph">Astfel, după executarea cererii, elementul html &lt;img&gt; va afișa imaginea încărcată. Pentru aplicarea acestui exemplu, descărcați o simplă imagine de tip png și salvați-o în fișierul cu care lucrați ( la mine el este app), după înlocuiți în codul sursă denumirea imaginii ( în cazul meu - fox.png ) cu denumirea imaginii voastre:</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/19.API-ul%20Fetch/3.Obtinerea%20datelor%20din%20raspuns/images/image3.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Exemplu similar cu utilizarea async/await:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;img&nbsp;=&nbsp;document.querySelector("img");<br>getImage();<br>async&nbsp;function&nbsp;getImage()&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;response&nbsp;=&nbsp;await&nbsp;fetch("/fox.png");<br>&nbsp;&nbsp;&nbsp;const&nbsp;imgBlob&nbsp;=&nbsp;await&nbsp;response.blob();<br>&nbsp;&nbsp;&nbsp;img.src&nbsp;=&nbsp;URL.createObjectURL(imgBlob);<br>}</code></pre>
+     </div>
+     <p class="paragraph">În mod similar, se pot obține și utiliza alte tipuri de fișiere, de exemplu, fișiere audio și video.</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

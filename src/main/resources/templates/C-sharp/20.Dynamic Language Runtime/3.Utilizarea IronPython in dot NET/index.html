@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='20.Dynamic Language Runtime', activeLesson='3.Utilizarea IronPython in dot NET'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Utilizarea IronPython în .NET</h1>
+     <p class="paragraph">Unul dintre principalele avantaje ale mediului DLR este suportul pentru limbaje dinamice precum IronPython și IronRuby. S-ar putea să ne întrebăm de ce avem nevoie de alte limbaje, mai ales de cele care sunt utilizate în contextul unui alt limbaj, C#.</p>
+     <p class="paragraph">De fapt, limbajele dinamice, deși poate nu sunt utilizate frecvent, au domenii în care utilizarea lor este justificată. De exemplu, scrierea de scripturi client. Este posibil ca utilizatorul programului nostru să dorească să adauge un comportament suplimentar în program și pentru aceasta poate fi utilizat IronPython.</p>
+     <p class="paragraph">Se poate chiar spune că crearea de scripturi client este larg răspândită în zilele noastre, multe programe și chiar jocuri suportând adăugarea de scripturi client scrise în diverse limbaje.</p>
+     <p class="paragraph">În plus, este posibil să existe biblioteci în Python, a căror funcționalitate poate lipsi în .NET. Și în acest caz, IronPython ne poate ajuta din nou.</p>
+     <p class="paragraph">Să analizăm un exemplu de utilizare a IronPython. Dar, mai întâi, trebuie să adăugăm în proiect câteva pachete prin intermediul managerului de pachete NuGet. Pentru aceasta, facem clic dreapta pe nodul Dependencies din fereastra proiectului și selectăm opțiunea Manage NuGet Packages... (Gestionarea pachetelor NuGet) din lista care apare:</p>
+     <div class="image-container">
+      <img th:src="@{/images/20.Dynamic%20Language%20Runtime/3.Utilizarea%20IronPython%20in%20dot%20NET/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Se va deschide fereastra managerului de pachete. Pentru a găsi pachetul necesar, introducem în câmpul de căutare "DLR", iar managerul va afișa o serie de rezultate, dintre care al doilea - pachetul DynamicLanguageRuntime trebuie instalat.</p>
+     <div class="image-container">
+      <img th:src="@{/images/20.Dynamic%20Language%20Runtime/3.Utilizarea%20IronPython%20in%20dot%20NET/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">După aceasta, în proiect, în nodul Dependencies, se adaugă biblioteca Microsoft.Scripting.</p>
+     <p class="paragraph">Acum trebuie să adăugăm și pachetul IronPython. Pentru aceasta, introducem în câmpul de căutare "IronPython" și apoi instalăm pachetul cu același nume:</p>
+     <div class="image-container">
+      <img th:src="@{/images/20.Dynamic%20Language%20Runtime/3.Utilizarea%20IronPython%20in%20dot%20NET/images/image3.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">După instalarea pachetului, în nodul Dependencies se adaugă biblioteca IronPython.</p>
+     <p class="paragraph">Acum să scriem un program simplu:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;IronPython.Hosting;<br>using&nbsp;Microsoft.Scripting.Hosting;<br><br>ScriptEngine&nbsp;engine&nbsp;=&nbsp;Python.CreateEngine();<br>engine.Execute("print('hello,&nbsp;world')");</code></pre>
+     </div>
+     <p class="paragraph">Output în consolă:</p>
+     <div class="code-inline">
+      <pre><code>hello,&nbsp;world</code></pre>
+     </div>
+     <p class="paragraph">Aici este utilizată expresia print('hello, world') din limbajul Python, care afișează în consolă un șir de caractere. Pentru a crea motorul care execută scriptul, se folosește clasa ScriptEngine, iar metoda sa Execute() execută scriptul.</p>
+     <p class="paragraph">De asemenea, am putea defini un fișier hello.py, adică un fișier text simplu cu cod în limbajul Python, cu următorul conținut:</p>
+     <div class="code-inline">
+      <pre><code>print("hello,&nbsp;fdc.com")</code></pre>
+     </div>
+     <p class="paragraph">Și să-l rulăm în program:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;IronPython.Hosting;<br>using&nbsp;Microsoft.Scripting.Hosting;<br><br>ScriptEngine&nbsp;engine&nbsp;=&nbsp;Python.CreateEngine();<br>engine.ExecuteFile("hello.py");</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, se presupune că scriptul se află în proiect:</p>
+     <div class="image-container">
+      <img th:src="@{/images/20.Dynamic%20Language%20Runtime/3.Utilizarea%20IronPython%20in%20dot%20NET/images/image4.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">De asemenea, putem utiliza căi absolute, de exemplu, dacă scriptul se află pe calea "D://hello.py":</p>
+     <div class="code-inline">
+      <pre><code>ScriptEngine&nbsp;engine&nbsp;=&nbsp;Python.CreateEngine();<br>engine.ExecuteFile("D://hello.py");</code></pre>
+     </div>
+     <h2 class="subtitle">ScriptScope</h2>
+     <p class="paragraph">Obiectul ScriptScope permite interacțiunea cu scriptul, obținând sau setând variabilele sale, obținând referințe la funcții. De exemplu, să scriem un script simplu hello2.py, care utilizează variabile:</p>
+     <div class="code-inline">
+      <pre><code>x&nbsp;=&nbsp;10<br>z&nbsp;=&nbsp;x&nbsp;+&nbsp;y<br>print(z)</code></pre>
+     </div>
+     <p class="paragraph">Acum să scriem un program care să interacționeze cu scriptul:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;IronPython.Hosting;<br>using&nbsp;Microsoft.Scripting.Hosting;<br><br>int&nbsp;y&nbsp;=&nbsp;22;<br><br>ScriptEngine&nbsp;engine&nbsp;=&nbsp;Python.CreateEngine();<br>ScriptScope&nbsp;scope&nbsp;=&nbsp;engine.CreateScope();<br>scope.SetVariable("y",&nbsp;y);<br>engine.ExecuteFile("hello.py",&nbsp;scope);<br>dynamic&nbsp;x&nbsp;=&nbsp;scope.GetVariable("x");<br>dynamic&nbsp;z&nbsp;=&nbsp;scope.GetVariable("z");<br>Console.WriteLine($"{x}&nbsp;+&nbsp;{y}&nbsp;=&nbsp;{z}");</code></pre>
+     </div>
+     <p class="paragraph">Obiectul ScriptScope permite setarea variabilelor în script prin metoda SetVariable, iar cu ajutorul metodei GetVariable() le putem obține.</p>
+     <p class="paragraph">Output în consolă:</p>
+     <div class="code-inline">
+      <pre><code>32<br>10&nbsp;+&nbsp;22&nbsp;=&nbsp;32</code></pre>
+     </div>
+     <h2 class="subtitle">Apelarea funcțiilor din IronPython</h2>
+     <p class="paragraph">Definim în fișierul hello.py o funcție pentru calcularea pătratului unui număr:</p>
+     <div class="code-inline">
+      <pre><code>def&nbsp;square(n):<br>&nbsp;&nbsp;return&nbsp;n&nbsp;*&nbsp;n</code></pre>
+     </div>
+     <p class="paragraph">Acum să apelăm această funcție în codul C#:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;IronPython.Hosting;<br>using&nbsp;Microsoft.Scripting.Hosting;<br><br>int&nbsp;number&nbsp;=&nbsp;5;<br><br>ScriptEngine&nbsp;engine&nbsp;=&nbsp;Python.CreateEngine();<br>ScriptScope&nbsp;scope&nbsp;=&nbsp;engine.CreateScope();<br><br>engine.ExecuteFile("hello.py",&nbsp;scope);<br>dynamic&nbsp;square&nbsp;=&nbsp;scope.GetVariable("square");<br>//&nbsp;apelăm&nbsp;funcția&nbsp;și&nbsp;obținem&nbsp;rezultatul<br>dynamic&nbsp;result&nbsp;=&nbsp;square(number);<br>Console.WriteLine(result);&nbsp;&nbsp;//&nbsp;25</code></pre>
+     </div>
+     <p class="paragraph">Putem obține obiectul funcției la fel ca și o variabilă: scope.GetVariable("square");. Apoi, lucrăm cu acest obiect la fel ca și cu orice altă metodă. În final, când transmitem numărul 5 funcției square, rezultatul va fi 25.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

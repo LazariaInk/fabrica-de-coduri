@@ -1,153 +1,143 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='22.Module', activeLesson='6.Incarcarea dinamica a modulelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Încărcarea dinamică a modulelor</h1>
- <p class="paragraph">Modulele pot fi încărcate dinamic în orice parte a unui alt modul. În acest caz, trebuie să țineți minte că modulul este încărcat asincron, iar rezultatul funcției import va fi un obiect Promise, a cărui rezolvare va fi chiar modulul încărcat.</p>
- <div class="code-inline">
-  <pre><code>import("calea_către_modul").then((module)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;//&nbsp;acțiuni&nbsp;cu&nbsp;modulul<br>&nbsp;});</code></pre>
- </div>
- <p class="paragraph">De asemenea, se poate folosi operatorul await pentru a obține obiectul modulului:</p>
- <div class="code-inline">
-  <pre><code>let&nbsp;module&nbsp;=&nbsp;await&nbsp;import("calea_către_modul");</code></pre>
- </div>
- <p class="paragraph">De exemplu, să presupunem că avem definit următorul modul message.js:</p>
- <div class="code-inline">
-  <pre><code>export&nbsp;const&nbsp;hello&nbsp;=&nbsp;"Hello&nbsp;Work!";<br><br>export&nbsp;default&nbsp;function&nbsp;sayHello()&nbsp;{<br>&nbsp;console.log("Hello&nbsp;FDC.COM");<br>}</code></pre>
- </div>
- <p class="paragraph">Aici sunt exportate constanta hello și funcția sayHello(), funcția fiind exportată implicit.</p>
- <p class="paragraph">Să conectăm dinamic acest modul într-un alt modul main.js:</p>
- <div class="code-inline">
-  <pre><code>console.log("Main&nbsp;module&nbsp;starts");<br><br>import("./message.js").then((module)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;module.default();<br>&nbsp;&nbsp;&nbsp;console.log(module.hello);<br>});<br><br>console.log("Main&nbsp;module&nbsp;ends");</code></pre>
- </div>
- <p class="paragraph">Aici, funcția din metoda then() primește ca parametru modulul încărcat. Apoi, putem accesa componentele modulului după nume. De exemplu, accesând constanta hello</p>
- <div class="code-inline">
-  <pre><code>module.hello</code></pre>
- </div>
- <p class="paragraph">Totuși, dacă un component este exportat implicit, pentru a accesa acest component se folosește cuvântul cheie default. Astfel, deoarece funcția sayHello() este exportată implicit, expresia:</p>
- <div class="code-inline">
-  <pre><code>module.default();</code></pre>
- </div>
- <p class="paragraph">va reprezenta de fapt apelul acestei funcții.</p>
- <p class="paragraph">Output-ul consolii programului:</p>
- <div class="code-inline">
-  <pre><code>Main&nbsp;module&nbsp;starts<br>Main&nbsp;module&nbsp;ends<br>Hello&nbsp;FDC.COM<br>Hello&nbsp;Work!</code></pre>
- </div>
- <p class="paragraph">De asemenea, în acest caz, se putea folosi operatorul await pentru a obține modulul încărcat:</p>
- <div class="code-inline">
-  <pre><code>console.log("Main&nbsp;module&nbsp;starts");<br><br>const&nbsp;module&nbsp;=&nbsp;await&nbsp;import("./message.js");<br><br>module.default();<br>console.log(module.hello);<br><br>console.log("Main&nbsp;module&nbsp;ends");</code></pre>
- </div>
- <p class="paragraph">Încărcarea dinamică a modulelor ne oferă posibilitatea de a încărca module în diverse situații, inclusiv în funcții, construcții ciclice și condiționale și în alte părți ale programului. De exemplu, am putea încărca un modul în funcție de condiție:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;hour&nbsp;=&nbsp;new&nbsp;Date().getHours();<br>if(hour&nbsp;&lt;&nbsp;17){<br>&nbsp;&nbsp;&nbsp;const&nbsp;module&nbsp;=&nbsp;await&nbsp;import("./message.js");<br>&nbsp;&nbsp;&nbsp;console.log(module.hello);<br>}<br>else{<br>&nbsp;&nbsp;&nbsp;console.log("Go&nbsp;home");<br>}</code></pre>
- </div>
- <p class="paragraph">În acest caz, obținem ora curentă. Și dacă este mai mică de 17, încărcăm modulul și afișăm valoarea constantei hello din modulul încărcat. Altfel, afișăm un anumit mesaj.</p>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Încărcarea dinamică a modulelor</h1>
+     <p class="paragraph">Modulele pot fi încărcate dinamic în orice parte a unui alt modul. În acest caz, trebuie să țineți minte că modulul este încărcat asincron, iar rezultatul funcției import va fi un obiect Promise, a cărui rezolvare va fi chiar modulul încărcat.</p>
+     <div class="code-inline">
+      <pre><code>import("calea_către_modul").then((module)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;//&nbsp;acțiuni&nbsp;cu&nbsp;modulul<br>&nbsp;});</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, se poate folosi operatorul await pentru a obține obiectul modulului:</p>
+     <div class="code-inline">
+      <pre><code>let&nbsp;module&nbsp;=&nbsp;await&nbsp;import("calea_către_modul");</code></pre>
+     </div>
+     <p class="paragraph">De exemplu, să presupunem că avem definit următorul modul message.js:</p>
+     <div class="code-inline">
+      <pre><code>export&nbsp;const&nbsp;hello&nbsp;=&nbsp;"Hello&nbsp;Work!";<br><br>export&nbsp;default&nbsp;function&nbsp;sayHello()&nbsp;{<br>&nbsp;console.log("Hello&nbsp;FDC.COM");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici sunt exportate constanta hello și funcția sayHello(), funcția fiind exportată implicit.</p>
+     <p class="paragraph">Să conectăm dinamic acest modul într-un alt modul main.js:</p>
+     <div class="code-inline">
+      <pre><code>console.log("Main&nbsp;module&nbsp;starts");<br><br>import("./message.js").then((module)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;module.default();<br>&nbsp;&nbsp;&nbsp;console.log(module.hello);<br>});<br><br>console.log("Main&nbsp;module&nbsp;ends");</code></pre>
+     </div>
+     <p class="paragraph">Aici, funcția din metoda then() primește ca parametru modulul încărcat. Apoi, putem accesa componentele modulului după nume. De exemplu, accesând constanta hello</p>
+     <div class="code-inline">
+      <pre><code>module.hello</code></pre>
+     </div>
+     <p class="paragraph">Totuși, dacă un component este exportat implicit, pentru a accesa acest component se folosește cuvântul cheie default. Astfel, deoarece funcția sayHello() este exportată implicit, expresia:</p>
+     <div class="code-inline">
+      <pre><code>module.default();</code></pre>
+     </div>
+     <p class="paragraph">va reprezenta de fapt apelul acestei funcții.</p>
+     <p class="paragraph">Output-ul consolii programului:</p>
+     <div class="code-inline">
+      <pre><code>Main&nbsp;module&nbsp;starts<br>Main&nbsp;module&nbsp;ends<br>Hello&nbsp;FDC.COM<br>Hello&nbsp;Work!</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, în acest caz, se putea folosi operatorul await pentru a obține modulul încărcat:</p>
+     <div class="code-inline">
+      <pre><code>console.log("Main&nbsp;module&nbsp;starts");<br><br>const&nbsp;module&nbsp;=&nbsp;await&nbsp;import("./message.js");<br><br>module.default();<br>console.log(module.hello);<br><br>console.log("Main&nbsp;module&nbsp;ends");</code></pre>
+     </div>
+     <p class="paragraph">Încărcarea dinamică a modulelor ne oferă posibilitatea de a încărca module în diverse situații, inclusiv în funcții, construcții ciclice și condiționale și în alte părți ale programului. De exemplu, am putea încărca un modul în funcție de condiție:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;hour&nbsp;=&nbsp;new&nbsp;Date().getHours();<br>if(hour&nbsp;&lt;&nbsp;17){<br>&nbsp;&nbsp;&nbsp;const&nbsp;module&nbsp;=&nbsp;await&nbsp;import("./message.js");<br>&nbsp;&nbsp;&nbsp;console.log(module.hello);<br>}<br>else{<br>&nbsp;&nbsp;&nbsp;console.log("Go&nbsp;home");<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, obținem ora curentă. Și dacă este mai mică de 17, încărcăm modulul și afișăm valoarea constantei hello din modulul încărcat. Altfel, afișăm un anumit mesaj.</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='20.Web Socket API si Server-Sent Events', activeLesson='1.Web Socket API'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Web Socket API</h1>
+     <h2 class="subtitle">Web Socket API</h2>
+     <p class="paragraph">Web Socket API permite organizarea unei conexiuni între client și server, prin care clientul și serverul pot trimite date unul altuia în orice moment.</p>
+     <p class="paragraph">Pentru a crea o conexiune prin Web Socket API se utilizează constructorul WebSocket():</p>
+     <div class="code-inline">
+      <pre><code>const connection = new WebSocket("ws://example.com/test");</code></pre>
+     </div>
+     <h2 class="subtitle">Gestionarea ciclului de viață al conexiunii</h2>
+     <p class="paragraph">Pentru gestionarea conexiunii, sunt definite trei evenimente principale: <b>open</b>, <b>error</b> și <b>close</b>.</p>
+     <div class="code-inline">
+      <pre><code>const connection = new WebSocket("ws://example.com/test");
+connection.onopen = (event) =&gt; {
+  console.log("Connection opened");
+};
+connection.onerror = (error) =&gt; {
+  console.log(`WebSocket Error: ${error}`);
+};
+connection.onclose = (event) =&gt; {
+  console.log("Connection closed");
+};</code></pre>
+     </div>
+     <h2 class="subtitle">Trimiterea datelor către server</h2>
+     <div class="code-inline">
+      <pre><code>connection.onopen = (event) =&gt; {
+  connection.send("Hello FDC.COM");
+};
+const data = { message: "Hello" };
+connection.send(JSON.stringify(data));</code></pre>
+     </div>
+     <h2 class="subtitle">Recepția datelor</h2>
+     <div class="code-inline">
+      <pre><code>connection.onmessage = (event) =&gt; {
+  console.log(event.data);
+};
+connection.binaryType = "arraybuffer";</code></pre>
+     </div>
+     <h2 class="subtitle">Închiderea conexiunii</h2>
+     <div class="code-inline">
+      <pre><code>connection.close();</code></pre>
+     </div>
+     <h2 class="subtitle">Exemplu de server Node.js</h2>
+     <div class="code-inline">
+      <pre><code>const WebSocket = require("ws");
+const server = new WebSocket.Server({ port: 9000 });
+
+server.on("connection", function(client) {
+  console.log("Connection opened");
+  client.on("message", function(message) {
+    console.log("Client message:", message.toString());
+    client.send("Hello Client");
+  });
+  client.on("close", function() {
+    console.log("Connection closed");
+  });
+});
+console.log("Serverul a fost lansat pe portul 9000");</code></pre>
+     </div>
+     <h2 class="subtitle">Cod client simplu HTML + JS</h2>
+     <div class="code-inline">
+      <pre><code>const connection = new WebSocket("ws://localhost:9000");
+connection.onopen = (event) =&gt; {
+  console.log("Connection opened");
+  connection.send("Hello Server");
+};
+connection.onerror = (error) =&gt; {
+  console.log(`WebSocket Error: ${error}`);
+};
+connection.onclose = (event) =&gt; {
+  console.log("Connection closed");
+};
+connection.onmessage = (event) =&gt; {
+  console.log("Server response:", event.data);
+};</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

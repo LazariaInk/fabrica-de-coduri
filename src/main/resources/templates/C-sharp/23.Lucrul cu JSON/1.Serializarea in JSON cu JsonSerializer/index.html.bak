@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='23.Lucrul cu JSON', activeLesson='1.Serializarea in JSON cu JsonSerializer'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Serializarea în JSON cu JsonSerializer</h1>
+     <p class="paragraph">JSON (JavaScript Object Notation) este unul dintre cele mai populare formate pentru stocarea și transferul datelor. Platforma .NET oferă funcționalități pentru lucrul cu JSON.</p>
+     <p class="paragraph">Funcționalitatea principală pentru lucrul cu JSON este concentrată în spațiul de nume System.Text.Json. Tipul cheie este clasa JsonSerializer, care permite serializarea unui obiect în JSON și, invers, deserializarea codului JSON într-un obiect C#.</p>
+     <p class="paragraph">Pentru a salva un obiect în JSON, clasa JsonSerializer definește metoda statică Serialize() și versiunea sa asincronă SerializeAsync(), care au mai multe versiuni supraîncărcate. Câteva dintre acestea sunt:</p>
+     <ul class="enumeration">
+      <li>string Serialize(Object obj, Type type, JsonSerializerOptions options): serializă un obiect obj de tip type și returnează codul JSON ca șir de caractere. Parametrul opțional options permite setarea unor opțiuni suplimentare de serializare</li>
+      <li>string Serialize&lt;T&gt;(T obj, JsonSerializerOptions options): o versiune tipizată care serializă un obiect obj de tip T și returnează codul JSON ca șir de caractere</li>
+      <li>Task SerializeAsync(Stream utf8Json, Object obj, Type type, JsonSerializerOptions options): serializă un obiect obj de tip type și îl scrie într-un flux utf8Json. Parametrul opțional options permite setarea unor opțiuni suplimentare de serializare</li>
+      <li>Task SerializeAsync&lt;T&gt;(Stream utf8Json, T obj, JsonSerializerOptions options): o versiune tipizată care serializă un obiect obj de tip T într-un flux utf8Json</li>
+     </ul>
+     <p class="paragraph">Pentru deserializarea codului JSON într-un obiect C#, se utilizează metoda Deserialize() și versiunea sa asincronă DeserializeAsync(), care au diferite versiuni. Câteva dintre acestea sunt:</p>
+     <ul class="enumeration">
+      <li>object? Deserialize(string json, Type type, JsonSerializerOptions options): deserializă un șir JSON într-un obiect de tip type și returnează obiectul deserializat. Parametrul opțional options permite setarea unor opțiuni suplimentare de deserializare</li>
+      <li>T? Deserialize&lt;T&gt;(string json, JsonSerializerOptions options): deserializă un șir JSON într-un obiect de tip T și returnează acest obiect</li>
+      <li>ValueTask&lt;object?&gt; DeserializeAsync(Stream utf8Json, Type type, JsonSerializerOptions options, CancellationToken token): deserializă datele dintr-un flux utf8Json, care reprezintă un obiect JSON, într-un obiect de tip type. Parametrii opționali options și token permit setarea unor opțiuni suplimentare de deserializare și anularea sarcinii</li>
+      <li>ValueTask&lt;T?&gt; DeserializeAsync&lt;T&gt;(Stream utf8Json, JsonSerializerOptions options, CancellationToken token): deserializă datele dintr-un flux utf8Json, care reprezintă un obiect JSON, într-un obiect de tip T</li>
+     </ul>
+     <p class="paragraph">Să vedem un exemplu simplu de serializare și deserializare a unui obiect:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Text.Json;<br><br>Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;37);<br>string&nbsp;json&nbsp;=&nbsp;JsonSerializer.Serialize(tom);<br>Console.WriteLine(json);<br>Person?&nbsp;restoredPerson&nbsp;=&nbsp;JsonSerializer.Deserialize&lt;Person&gt;(json);<br>Console.WriteLine(restoredPerson?.Name);&nbsp;//&nbsp;Tom<br><br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Age&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name,&nbsp;int&nbsp;age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest exemplu, serializăm obiectul de tip Person într-un șir JSON folosind metoda JsonSerializer.Serialize(). Apoi, restaurăm acest obiect din șirul JSON folosind metoda JsonSerializer.Deserialize().</p>
+     <p class="paragraph">Ieșirea în consolă:</p>
+     <div class="code-inline">
+      <pre><code>{"Name":"Tom","Age":37}<br>Tom</code></pre>
+     </div>
+     <p class="paragraph">Deși în exemplul de mai sus s-a serializat/deserializat un obiect de clasă, putem serializa/deserializa și structuri în mod similar.</p>
+     <h2 class="subtitle">Observații privind serializarea/deserializarea</h2>
+     <p class="paragraph">Obiectul care urmează să fie deserializat trebuie să aibă fie un constructor fără parametri, fie un constructor pentru care există valori corespunzătoare pentru toți parametrii în obiectul JSON deserializat (corespondența între parametrii constructorului și proprietățile obiectului JSON este stabilită pe baza denumirilor, ignorându-se sensibilitatea la majuscule).</p>
+     <p class="paragraph">Doar proprietățile publice ale obiectului (cu modificatorul public) sunt serializate.</p>
+     <h2 class="subtitle">Scrierea și citirea fișierelor JSON</h2>
+     <p class="paragraph">Deoarece metodele SerializeAsync/DeserializeAsync pot primi un flux de tip Stream, putem utiliza un flux de fișiere pentru a salva și extrage datele ulterior:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Text.Json;<br><br>//&nbsp;salvarea&nbsp;datelor<br>using&nbsp;(FileStream&nbsp;fs&nbsp;=&nbsp;new&nbsp;FileStream("user.json",&nbsp;FileMode.OpenOrCreate))<br>{<br>&nbsp;&nbsp;&nbsp;Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;37);<br>&nbsp;&nbsp;&nbsp;await&nbsp;JsonSerializer.SerializeAsync&lt;Person&gt;(fs,&nbsp;tom);<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Datele&nbsp;au&nbsp;fost&nbsp;salvate&nbsp;în&nbsp;fișier");<br>}<br><br>//&nbsp;citirea&nbsp;datelor<br>using&nbsp;(FileStream&nbsp;fs&nbsp;=&nbsp;new&nbsp;FileStream("user.json",&nbsp;FileMode.OpenOrCreate))<br>{<br>&nbsp;&nbsp;&nbsp;Person?&nbsp;person&nbsp;=&nbsp;await&nbsp;JsonSerializer.DeserializeAsync&lt;Person&gt;(fs);<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Nume:&nbsp;{person?.Name}&nbsp;&nbsp;Vârstă:&nbsp;{person?.Age}");<br>}<br><br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Age&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name,&nbsp;int&nbsp;age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest exemplu, datele sunt salvate mai întâi într-un fișier user.json și apoi sunt citite din acesta.</p>
+     <h2 class="subtitle">Configurarea serializării cu JsonSerializerOptions</h2>
+     <p class="paragraph">În mod implicit, JsonSerializer serializă obiectele într-un cod minimizat. Cu ajutorul parametrului suplimentar de tip JsonSerializerOptions, putem personaliza mecanismul de serializare/deserializare folosind proprietățile JsonSerializerOptions. Câteva dintre proprietățile sale sunt:</p>
+     <ul class="enumeration">
+      <li>AllowTrailingCommas: stabilește dacă trebuie adăugată o virgulă după ultimul element din JSON. Dacă valoarea este true, se adaugă o virgulă</li>
+      <li>DefaultIgnoreCondition: stabilește dacă proprietățile cu valori implicite trebuie serializate/deserializate în JSON</li>
+      <li>IgnoreReadOnlyProperties: stabilește dacă proprietățile doar pentru citire trebuie serializate</li>
+      <li>WriteIndented: stabilește dacă trebuie adăugate spații în JSON (pentru lizibilitate). Dacă valoarea este true, se adaugă spații suplimentare</li>
+     </ul>
+     <p class="paragraph">Exemplu de utilizare:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Text.Json;<br><br>Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;37);<br><br>var&nbsp;options&nbsp;=&nbsp;new&nbsp;JsonSerializerOptions<br>{<br>&nbsp;&nbsp;&nbsp;WriteIndented&nbsp;=&nbsp;true<br>};<br>string&nbsp;json&nbsp;=&nbsp;JsonSerializer.Serialize&lt;Person&gt;(tom,&nbsp;options);<br>Console.WriteLine(json);<br>Person?&nbsp;restoredPerson&nbsp;=&nbsp;JsonSerializer.Deserialize&lt;Person&gt;(json);<br>Console.WriteLine(restoredPerson?.Name);</code></pre>
+     </div>
+     <p class="paragraph">Ieșirea în consolă:</p>
+     <div class="code-inline">
+      <pre><code>{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Name":&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Age":&nbsp;&nbsp;37<br>}<br>Tom</code></pre>
+     </div>
+     <h2 class="subtitle">Configurarea serializării cu ajutorul atributelor</h2>
+     <p class="paragraph">În mod implicit, toate proprietățile publice sunt serializate. În plus, în obiectul JSON de ieșire, toate denumirile proprietăților corespund denumirilor proprietăților obiectului C#. Cu toate acestea, folosind atributele JsonIgnore și JsonPropertyName, putem ajusta acest comportament.</p>
+     <ul class="enumeration">
+      <li>JsonIgnore: permite excluderea unei proprietăți din serializare</li>
+      <li>JsonPropertyName: permite înlocuirea denumirii originale a unei proprietăți</li>
+     </ul>
+     <p class="paragraph">Exemplu de utilizare:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Text.Json;<br>using&nbsp;System.Text.Json.Serialization;<br><br>Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;37);<br><br>string&nbsp;json&nbsp;=&nbsp;JsonSerializer.Serialize&lt;Person&gt;(tom);<br>Console.WriteLine(json);<br>Person?&nbsp;person&nbsp;=&nbsp;JsonSerializer.Deserialize&lt;Person&gt;(json);<br>Console.WriteLine($"Nume:&nbsp;{person?.Name}&nbsp;&nbsp;Vârstă:&nbsp;{person?.Age}");<br><br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;[JsonPropertyName("firstname")]<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;[JsonIgnore]<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Age&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name,&nbsp;int&nbsp;age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest exemplu, proprietatea Age va fi ignorată, iar pentru proprietatea Name va fi utilizat pseudonimul "firstname". Ieșirea în consolă:</p>
+     <div class="code-inline">
+      <pre><code>{"firstname":"Tom"}<br>Nume:&nbsp;Tom&nbsp;&nbsp;&nbsp;Vârstă:&nbsp;0</code></pre>
+     </div>
+     <p class="paragraph">Observați că, deoarece proprietatea Age nu a fost serializată, la deserializare se utilizează valoarea implicită pentru aceasta.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

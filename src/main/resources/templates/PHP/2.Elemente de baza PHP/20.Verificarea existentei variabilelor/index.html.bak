@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='PHP', activeChapter='2.Elemente de baza PHP', activeLesson='20.Verificarea existentei variabilelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Verificarea existenței variabilelor</h1>
+     <p class="paragraph">Dacă o variabilă este declarată, dar nu i s-a atribuit inițial nici o valoare (altfel spus, nu este inițializată) sau dacă variabila nu este deloc definită, atunci va fi problematic să o folosim. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$a;<br>echo&nbsp;$a;<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">La încercarea de a afișa valoarea variabilei, vom primi un mesaj de eroare care indică faptul că variabila nu este definită:</p>
+     <div class="code-inline">
+      <pre><code>Warning:&nbsp;Undefined&nbsp;variable&nbsp;$a&nbsp;in&nbsp;C:\localhost\hello.php&nbsp;on&nbsp;line&nbsp;10</code></pre>
+     </div>
+     <p class="paragraph">Această situație poate părea artificială. Cu toate acestea, deseori variabilele în PHP primesc date din surse externe, cum ar fi input-ul utilizatorului. Prin urmare, apare necesitatea de a verifica dacă aceste date sunt definite și disponibile înainte de a le utiliza.</p>
+     <p class="paragraph">Pentru a verifica existența unei variabile, PHP oferă mai multe funcții încorporate.</p>
+     <h2 class="subtitle">Operatorul isset</h2>
+     <p class="paragraph">Funcția isset() permite determinarea dacă o variabilă este inițializată sau nu. Dacă variabila este definită, isset() returnează true. Dacă variabila nu este definită, isset() returnează false. De asemenea, dacă variabila are valoarea null, funcția isset() returnează false.</p>
+     <p class="paragraph">De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$message;<br>if(isset($message))<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$message;<br>else<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"variabila&nbsp;message&nbsp;nu&nbsp;este&nbsp;definită";<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici variabila $message nu este inițializată, deci expresia isset($message) va returna false.</p>
+     <div class="code-inline">
+      <pre><code>variabila&nbsp;message&nbsp;nu&nbsp;este&nbsp;definită</code></pre>
+     </div>
+     <p class="paragraph">Acum să presupunem că variabila $message are o valoare inițială:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$message&nbsp;=&nbsp;"Hello&nbsp;PHP";<br>if(isset($message))<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$message;<br>else<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"variabila&nbsp;message&nbsp;nu&nbsp;este&nbsp;definită";<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, expresia isset($message) va returna true, așa că se va executa instrucțiunea echo $message:</p>
+     <div class="code-inline">
+      <pre><code>Hello&nbsp;PHP</code></pre>
+     </div>
+     <p class="paragraph">Totuși, dacă variabilei i se atribuie valoarea null, atunci va fi considerată neinstalată:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$message&nbsp;=&nbsp;null;<br>if(isset($message))<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$message;<br>else<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"variabila&nbsp;message&nbsp;nu&nbsp;este&nbsp;definită";<br>?&gt;</code></pre>
+     </div>
+     <div class="code-inline">
+      <pre><code>variabila&nbsp;message&nbsp;nu&nbsp;este&nbsp;definită</code></pre>
+     </div>
+     <h2 class="subtitle">Funcția empty</h2>
+     <p class="paragraph">Funcția empty() verifică dacă o variabilă este "goală". O variabilă "goală" este o variabilă al cărei valoare este null, 0, false sau un șir gol. În acest caz, funcția empty() returnează true:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$message&nbsp;=&nbsp;"";<br>if(empty($message))<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"variabila&nbsp;message&nbsp;nu&nbsp;este&nbsp;definită";<br>else<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$message;<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici variabila $message conține un șir gol, deci expresia empty($message) va returna true.</p>
+     <div class="code-inline">
+      <pre><code>variabila&nbsp;message&nbsp;nu&nbsp;este&nbsp;definită</code></pre>
+     </div>
+     <p class="paragraph">Dacă șirul conține măcar un spațiu ($message = " "), atunci acest șir nu va mai fi considerat gol.</p>
+     <h2 class="subtitle">Funcția unset</h2>
+     <p class="paragraph">Funcția unset() ne permite să distrugem o variabilă:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$a&nbsp;=&nbsp;20;<br>echo&nbsp;$a;&nbsp;//&nbsp;20<br>unset($a);<br>echo&nbsp;$a;&nbsp;//&nbsp;eroare,&nbsp;variabila&nbsp;nu&nbsp;este&nbsp;definită<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Cu toate acestea, necesitatea de a elimina o variabilă în acest mod este rară, deoarece PHP elimină automat variabilele când se încheie execuția contextului (de exemplu, a funcției) în care au fost definite aceste variabile.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

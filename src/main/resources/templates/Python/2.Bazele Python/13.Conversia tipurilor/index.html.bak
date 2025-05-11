@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Python', activeChapter='2.Bazele Python', activeLesson='13.Conversia tipurilor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Conversia tipurilor</h1>
+     <p class="paragraph">În operațiile cu date pot fi utilizate valori de diferite tipuri. De exemplu, se adună un număr de tip int și un număr de tip float:</p>
+     <div class="code-inline">
+      <pre><code>a&nbsp;=&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;număr&nbsp;int<br>b&nbsp;=&nbsp;2.5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;număr&nbsp;float<br>c&nbsp;=&nbsp;a&nbsp;+&nbsp;b<br>print(c)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;4.5</code></pre>
+     </div>
+     <p class="paragraph">În acest caz nu va exista nicio eroare. Totuși, Python nu poate întotdeauna să efectueze automat operații în care sunt implicate date de tipuri diferite. Să vedem ce reguli se aplică în acest caz.</p>
+     <h2 class="subtitle">Conversii implicite</h2>
+     <p class="paragraph">Ambele numere din operațiile aritmetice trebuie să reprezinte același tip. Dacă cei doi operanzi ai operației reprezintă tipuri de date diferite, Python încearcă să efectueze automat conversia la unul dintre tipuri conform următoarelor reguli:</p>
+     <ul class="enumeration">
+      <li>Dacă unul dintre operanzi reprezintă un număr complex (tip complex), atunci celălalt operand este de asemenea convertit la tipul complex.</li>
+      <li>În caz contrar, dacă unul dintre operanzi reprezintă tipul float, atunci celălalt operand este de asemenea convertit la tipul float. Așa s-a întâmplat în exemplul de mai sus, unde valoarea variabilei a a fost convertită la tipul float.</li>
+      <li>În caz contrar, ambii operanzi trebuie să reprezinte tipul int, și în acest caz conversia nu este necesară.</li>
+     </ul>
+     <h2 class="subtitle">Conversii explicite</h2>
+     <p class="paragraph">În unele cazuri apare necesitatea de a efectua manual conversia tipurilor. De exemplu, să presupunem că avem următorul cod:</p>
+     <div class="code-inline">
+      <pre><code>a&nbsp;=&nbsp;"2"<br>b&nbsp;=&nbsp;3<br>c&nbsp;=&nbsp;a&nbsp;+&nbsp;b</code></pre>
+     </div>
+     <p class="paragraph">Ne așteptăm ca "2" + 3 să fie egal cu 5. Totuși, acest cod va genera o excepție, deoarece primul număr reprezintă de fapt un șir de caractere. Și vom vedea la executarea codului ceva de genul:</p>
+     <div class="code-inline">
+      <pre><code>Traceback&nbsp;(most&nbsp;recent&nbsp;call&nbsp;last):<br>&nbsp;File&nbsp;"/Users/eugene/PycharmProjects/HelloApp/main.py",&nbsp;line&nbsp;3,&nbsp;in&nbsp;<br>&nbsp;&nbsp;&nbsp;c&nbsp;=&nbsp;a&nbsp;+&nbsp;b<br>TypeError:&nbsp;can&nbsp;only&nbsp;concatenate&nbsp;str&nbsp;(not&nbsp;"int")&nbsp;to&nbsp;str</code></pre>
+     </div>
+     <p class="paragraph">Pentru conversia tipurilor, Python oferă o serie de funcții încorporate:</p>
+     <ul class="enumeration">
+      <li>int(): convertește valoarea la un număr întreg.</li>
+      <li>float(): convertește valoarea la un număr cu virgulă mobilă.</li>
+      <li>str(): convertește valoarea la un șir de caractere.</li>
+     </ul>
+     <h2 class="subtitle">int</h2>
+     <p class="paragraph">Astfel, în exemplul precedent convertim șirul la un număr cu ajutorul funcției int():</p>
+     <div class="code-inline">
+      <pre><code>a&nbsp;=&nbsp;"2"<br>b&nbsp;=&nbsp;3<br>c&nbsp;=&nbsp;int(a)&nbsp;+&nbsp;b<br>print(c)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;5</code></pre>
+     </div>
+     <p class="paragraph">Exemple de conversii cu ajutorul funcției int():</p>
+     <div class="code-inline">
+      <pre><code>a&nbsp;=&nbsp;int(15)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;a&nbsp;=&nbsp;15<br>b&nbsp;=&nbsp;int(3.7)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;b&nbsp;=&nbsp;3<br>c&nbsp;=&nbsp;int("4")&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;c&nbsp;=&nbsp;4<br>e&nbsp;=&nbsp;int(False)&nbsp;&nbsp;#&nbsp;e&nbsp;=&nbsp;0<br>f&nbsp;=&nbsp;int(True)&nbsp;&nbsp;&nbsp;#&nbsp;f&nbsp;=&nbsp;1<br><br></code></pre>
+     </div>
+     <p class="paragraph">Totuși, dacă valoarea nu poate fi convertită, funcția int va genera o eroare ValueError: invalid literal for int() with base 10:</p>
+     <div class="code-inline">
+      <pre><code>b&nbsp;=&nbsp;int("a1c")&nbsp;&nbsp;#&nbsp;Eroare<br>c&nbsp;=&nbsp;int("4.7")&nbsp;&nbsp;#&nbsp;Eroare</code></pre>
+     </div>
+     <h2 class="subtitle">float</h2>
+     <p class="paragraph">În mod similar, funcția float() convertește o valoare la un număr cu virgulă mobilă.</p>
+     <div class="code-inline">
+      <pre><code>a&nbsp;=&nbsp;"2.7"<br>b&nbsp;=&nbsp;3<br>c&nbsp;=&nbsp;float(a)&nbsp;+&nbsp;b<br>print(c)&nbsp;#&nbsp;5.7<br><br><br></code></pre>
+     </div>
+     <p class="paragraph">Exemple de conversii cu ajutorul funcției float():</p>
+     <div class="code-inline">
+      <pre><code>a&nbsp;=&nbsp;float(15)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;a&nbsp;=&nbsp;15.0<br>b&nbsp;=&nbsp;float(3.7)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;b&nbsp;=&nbsp;3.7<br>c&nbsp;=&nbsp;float("4.7")&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;c&nbsp;=&nbsp;4.7<br>d&nbsp;=&nbsp;float("5")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;d&nbsp;=&nbsp;5.0<br>e&nbsp;=&nbsp;float(False)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;e&nbsp;=&nbsp;0.0<br>f&nbsp;=&nbsp;float(True)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;f&nbsp;=&nbsp;1.0</code></pre>
+     </div>
+     <p class="paragraph">Dar, din nou, nu toate valorile pot fi automat convertite la float. În următorul caz, Python va genera o eroare:</p>
+     <div class="code-inline">
+      <pre><code>d&nbsp;=&nbsp;float("abc")&nbsp;&nbsp;#&nbsp;Eroare</code></pre>
+     </div>
+     <h2 class="subtitle">str</h2>
+     <p class="paragraph">Funcția str() convertește o valoare la un șir de caractere:</p>
+     <div class="code-inline">
+      <pre><code>a&nbsp;=&nbsp;str(False)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;a&nbsp;=&nbsp;"False"<br>b&nbsp;=&nbsp;str(True)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;b&nbsp;=&nbsp;"True"<br>c&nbsp;=&nbsp;str(5)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;c&nbsp;=&nbsp;"5"<br>d&nbsp;=&nbsp;str(5.7)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;d&nbsp;=&nbsp;"5.7"</code></pre>
+     </div>
+     <p class="paragraph">Funcția str() poate fi utilă, de exemplu, la adăugarea unei valori de alt tip la un șir de caractere. De exemplu, în următorul caz vom obține o eroare:</p>
+     <div class="code-inline">
+      <pre><code>age&nbsp;=&nbsp;22<br>message&nbsp;=&nbsp;"Age:&nbsp;"&nbsp;+&nbsp;age&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Eroare<br>print(message)</code></pre>
+     </div>
+     <p class="paragraph">Dacă un număr este adăugat la un număr, este o operație standard de adunare a numerelor. Dacă un șir este adăugat la un șir, este o operație de concatenare a șirurilor. Dar cum să efectuezi operația de adunare între un șir și un număr, Python nu știe. Și dacă dorim să realizăm o operație de concatenare a șirurilor, putem converti numărul la șir cu ajutorul funcției str():</p>
+     <div class="code-inline">
+      <pre><code>age&nbsp;=&nbsp;22<br>message&nbsp;=&nbsp;"Age:&nbsp;"&nbsp;+&nbsp;str(age)&nbsp;&nbsp;&nbsp;#&nbsp;Age:&nbsp;22<br>print(message)</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Java', activeChapter='8.Expresii lambda', activeLesson='3.Interfete functionale incorporate'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Interfețe funcționale încorporate</h1>
+     <p class="paragraph">În JDK 8, odată cu introducerea expresiilor lambda, au fost adăugate și un număr de interfețe funcționale încorporate, pe care le putem utiliza în diverse situații și în diferite API-uri din cadrul JDK 8. În special, unele dintre aceste interfețe sunt larg utilizate în Stream API – noul API pentru lucrul cu datele. Să analizăm principalele dintre aceste interfețe:</p>
+     <ul class="enumeration">
+      <li>Predicate&lt;T&gt;</li>
+      <li>Consumer&lt;T&gt;</li>
+      <li>Function&lt;T,R&gt;</li>
+      <li>Supplier&lt;T&gt;</li>
+      <li>UnaryOperator&lt;T&gt;</li>
+      <li>BinaryOperator&lt;T&gt;</li>
+     </ul>
+     <h2 class="subtitle">Predicate<t></t></h2>
+     <p class="paragraph">Interfața funcțională Predicate&lt;T&gt; verifică dacă o anumită condiție este îndeplinită. Dacă aceasta este îndeplinită, se returnează valoarea true. Parametrul expresiei lambda este un obiect de tip T:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;interface&nbsp;Predicate&lt;T&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;boolean&nbsp;test(T&nbsp;t);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Exemplu:</p>
+     <div class="code-inline">
+      <pre><code>import&nbsp;java.util.function.Predicate;<br><br>public&nbsp;class&nbsp;LambdaApp&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Predicate&lt;Integer&gt;&nbsp;isPositive&nbsp;=&nbsp;x&nbsp;-&gt;&nbsp;x&nbsp;&gt;&nbsp;0;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(isPositive.test(5));&nbsp;&nbsp;//&nbsp;true<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(isPositive.test(-7));&nbsp;//&nbsp;false<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">BinaryOperator<t></t></h2>
+     <p class="paragraph">BinaryOperator&lt;T&gt; primește ca parametri două obiecte de tip T, efectuează o operație binară asupra lor și returnează rezultatul sub forma unui obiect de tip T:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;interface&nbsp;BinaryOperator&lt;T&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;T&nbsp;apply(T&nbsp;t1,&nbsp;T&nbsp;t2);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Exemplu:</p>
+     <div class="code-inline">
+      <pre><code>import&nbsp;java.util.function.BinaryOperator;<br><br>public&nbsp;class&nbsp;LambdaApp&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BinaryOperator&lt;Integer&gt;&nbsp;multiply&nbsp;=&nbsp;(x,&nbsp;y)&nbsp;-&gt;&nbsp;x&nbsp;*&nbsp;y;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(multiply.apply(3,&nbsp;5));&nbsp;&nbsp;//&nbsp;15<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(multiply.apply(10,&nbsp;-2));&nbsp;//&nbsp;-20<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">UnaryOperator<t></t></h2>
+     <p class="paragraph">UnaryOperator&lt;T&gt; primește ca parametru un obiect de tip T, efectuează operații asupra acestuia și returnează rezultatul sub formă de obiect de același tip T:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;interface&nbsp;UnaryOperator&lt;T&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;T&nbsp;apply(T&nbsp;t);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Exemplu:</p>
+     <div class="code-inline">
+      <pre><code>import&nbsp;java.util.function.UnaryOperator;<br><br>public&nbsp;class&nbsp;LambdaApp&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UnaryOperator&lt;Integer&gt;&nbsp;square&nbsp;=&nbsp;x&nbsp;-&gt;&nbsp;x&nbsp;*&nbsp;x;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(square.apply(5));&nbsp;&nbsp;//&nbsp;25<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Function<t, r></t,></h2>
+     <p class="paragraph">Interfața funcțională Function&lt;T, R&gt; reprezintă o funcție care transformă un obiect de tip T într-un obiect de tip R:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;interface&nbsp;Function&lt;T,&nbsp;R&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;R&nbsp;apply(T&nbsp;t);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Exemplu:</p>
+     <div class="code-inline">
+      <pre><code>import&nbsp;java.util.function.Function;<br><br>public&nbsp;class&nbsp;LambdaApp&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Function&lt;Integer,&nbsp;String&gt;&nbsp;convert&nbsp;=&nbsp;x&nbsp;-&gt;&nbsp;String.valueOf(x)&nbsp;+&nbsp;"&nbsp;dolari";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(convert.apply(5));&nbsp;&nbsp;//&nbsp;5&nbsp;dolari<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Consumer<t></t></h2>
+     <p class="paragraph">Consumer&lt;T&gt; efectuează o acțiune asupra unui obiect de tip T, fără a returna vreo valoare:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;interface&nbsp;Consumer&lt;T&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;void&nbsp;accept(T&nbsp;t);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Exemplu:</p>
+     <div class="code-inline">
+      <pre><code>import&nbsp;java.util.function.Consumer;<br><br>public&nbsp;class&nbsp;LambdaApp&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Consumer&lt;Integer&gt;&nbsp;printer&nbsp;=&nbsp;x&nbsp;-&gt;&nbsp;System.out.printf("%d&nbsp;dolari&nbsp;\n",&nbsp;x);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printer.accept(600);&nbsp;&nbsp;//&nbsp;600&nbsp;dolari<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Supplier<t></t></h2>
+     <p class="paragraph">Supplier&lt;T&gt; nu primește niciun argument, dar trebuie să returneze un obiect de tip T:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;interface&nbsp;Supplier&lt;T&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;T&nbsp;get();<br>}</code></pre>
+     </div>
+     <p class="paragraph">Exemplu:</p>
+     <div class="code-inline">
+      <pre><code>import&nbsp;java.util.Scanner;<br>import&nbsp;java.util.function.Supplier;<br><br>public&nbsp;class&nbsp;LambdaApp&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Supplier&lt;User&gt;&nbsp;userFactory&nbsp;=&nbsp;()&nbsp;-&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Scanner&nbsp;in&nbsp;=&nbsp;new&nbsp;Scanner(System.in);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Introduceți&nbsp;numele:&nbsp;");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;name&nbsp;=&nbsp;in.nextLine();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;User(name);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;User&nbsp;user1&nbsp;=&nbsp;userFactory.get();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;User&nbsp;user2&nbsp;=&nbsp;userFactory.get();<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Numele&nbsp;user1:&nbsp;"&nbsp;+&nbsp;user1.getName());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Numele&nbsp;user2:&nbsp;"&nbsp;+&nbsp;user2.getName());<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;User&nbsp;{<br>&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;name;<br><br>&nbsp;&nbsp;&nbsp;String&nbsp;getName()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;User(String&nbsp;n)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;n;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Ieșire în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Introduceți&nbsp;numele:<br>Tom<br>Introduceți&nbsp;numele:<br>Sam<br>Numele&nbsp;user1:&nbsp;Tom<br>Numele&nbsp;user2:&nbsp;Sam</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

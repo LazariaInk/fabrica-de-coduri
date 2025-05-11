@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Python', activeChapter='3.Programare orientata pe obiecte', activeLesson='2.Incapsularea, atributele si proprietatile'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Încapsularea, atributele și proprietățile</h1>
+     <p class="paragraph">Implicit, atributele din clase sunt publice, ceea ce înseamnă că putem accesa și modifica atributele unui obiect din orice loc al programului. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name,&nbsp;age):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.name&nbsp;=&nbsp;name&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;stabilim&nbsp;numele<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.age&nbsp;=&nbsp;age&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;stabilim&nbsp;vârsta<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;def&nbsp;print_person(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"Nume:&nbsp;{self.name}\tVârstă:&nbsp;{self.age}")<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>tom&nbsp;=&nbsp;Person("Tom",&nbsp;39)<br>tom.name&nbsp;=&nbsp;"Omul-Păianjen"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;schimbăm&nbsp;atributul&nbsp;name<br>tom.age&nbsp;=&nbsp;-129&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;schimbăm&nbsp;atributul&nbsp;age<br>tom.print_person()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Nume:&nbsp;Omul-Păianjen&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vârstă:&nbsp;-129</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, putem, de exemplu, să atribuim un nume sau o vârstă incorectă, cum ar fi o vârstă negativă. Un astfel de comportament este nedorit, de aceea apare necesitatea controlului accesului la atributele obiectului.</p>
+     <p class="paragraph">Această problemă este strâns legată de conceptul de încapsulare. Încapsularea este un concept fundamental al programării orientate pe obiecte, care presupune ascunderea funcționalității și prevenirea accesului direct din exterior.</p>
+     <p class="paragraph">Limbajul de programare Python permite definirea atributelor private sau închise. Pentru aceasta, numele atributului trebuie să înceapă cu două liniuțe de subliniere - __name. De exemplu, rescriem programul anterior, făcând ambele atribute - name și age private:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name,&nbsp;age):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.__name&nbsp;=&nbsp;name&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;stabilim&nbsp;numele<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.__age&nbsp;=&nbsp;age&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;stabilim&nbsp;vârsta<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;def&nbsp;print_person(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"Nume:&nbsp;{self.__name}\tVârstă:&nbsp;{self.__age}")<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>tom&nbsp;=&nbsp;Person("Tom",&nbsp;39)<br>tom.__name&nbsp;=&nbsp;"Omul-Păianjen"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;încercăm&nbsp;să&nbsp;schimbăm&nbsp;atributul&nbsp;__name<br>tom.__age&nbsp;=&nbsp;-129&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;încercăm&nbsp;să&nbsp;schimbăm&nbsp;atributul&nbsp;__age<br>tom.print_person()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Nume:&nbsp;Tom&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vârstă:&nbsp;39</code></pre>
+     </div>
+     <p class="paragraph">În principiu, putem încerca să stabilim pentru atributele __name și __age noi valori:</p>
+     <div class="code-inline">
+      <pre><code>tom.__name&nbsp;=&nbsp;"Omul-Păianjen"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;încercăm&nbsp;să&nbsp;schimbăm&nbsp;atributul&nbsp;__name<br>tom.__age&nbsp;=&nbsp;-129&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;încercăm&nbsp;să&nbsp;schimbăm&nbsp;atributul&nbsp;__age</code></pre>
+     </div>
+     <p class="paragraph">Dar afișarea metodei print_person va arăta că atributele obiectului nu și-au schimbat valorile:</p>
+     <div class="code-inline">
+      <pre><code>tom.print_person()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Nume:&nbsp;Tom&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vârstă:&nbsp;39</code></pre>
+     </div>
+     <p class="paragraph">Cum funcționează acest lucru? La declararea unui atribut al cărui nume începe cu două liniuțe, de exemplu __attribute, Python definește în realitate un atribut care se numește după modelul _ClassName__attribute. Deci, în cazul de mai sus, se vor crea atributele _Person__name și _Person__age. Astfel, putem accesa aceste atribute doar din aceeași clasă, nu și din exteriorul acestei clase. De exemplu, atribuirea unei valori acestui atribut nu va avea niciun efect:</p>
+     <div class="code-inline">
+      <pre><code>tom.__age&nbsp;=&nbsp;43</code></pre>
+     </div>
+     <p class="paragraph">Pentru că în acest caz doar se definește dinamic un nou atribut __age, dar acesta nu are nimic de-a face cu atributul self.__age sau, mai precis, self._Person__age.</p>
+     <p class="paragraph">Și încercarea de a obține valoarea lui va duce la o eroare de execuție (dacă anterior nu a fost definită variabila __age):</p>
+     <div class="code-inline">
+      <pre><code>print(tom.__age)</code></pre>
+     </div>
+     <p class="paragraph">Totuși, intimitatea atributelor aici este relativă. De exemplu, putem folosi numele complet al atributului:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name,&nbsp;age):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.__name&nbsp;=&nbsp;name&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;stabilim&nbsp;numele<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.__age&nbsp;=&nbsp;age&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;stabilim&nbsp;vârsta<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;def&nbsp;print_person(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"Nume:&nbsp;{self.__name}\tVârstă:&nbsp;{self.__age}")<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>tom&nbsp;=&nbsp;Person("Tom",&nbsp;39)<br>tom._Person__name&nbsp;=&nbsp;"Omul-Păianjen"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;schimbăm&nbsp;atributul&nbsp;__name<br>tom.print_person()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Nume:&nbsp;Omul-Păianjen&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vârstă:&nbsp;39</code></pre>
+     </div>
+     <p class="paragraph">Totuși, autorul codului exterior trebuie să ghicească cum se numesc atributele.</p>
+     <h2 class="subtitle">Metode de acces. Getteri și setteri</h2>
+     <p class="paragraph">Poate apărea întrebarea cum să accesăm astfel de atribute private. Pentru aceasta, se folosesc de obicei metode speciale de acces. Getterul permite obținerea valorii atributului, iar setterul permite stabilirea acestuia. Astfel, modificăm clasa definită anterior, definind metode de acces:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name,&nbsp;age):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.__name&nbsp;=&nbsp;name&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;stabilim&nbsp;numele<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.__age&nbsp;=&nbsp;age&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;stabilim&nbsp;vârsta<br><br>&nbsp;&nbsp;&nbsp;#&nbsp;setter&nbsp;pentru&nbsp;stabilirea&nbsp;vârstei<br>&nbsp;&nbsp;&nbsp;def&nbsp;set_age(self,&nbsp;age):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;0&nbsp;&lt;&nbsp;age&nbsp;&lt;&nbsp;110:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.__age&nbsp;=&nbsp;age<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print("Vârstă&nbsp;neacceptabilă")<br><br>&nbsp;&nbsp;&nbsp;#&nbsp;getter&nbsp;pentru&nbsp;obținerea&nbsp;vârstei<br>&nbsp;&nbsp;&nbsp;def&nbsp;get_age(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;self.__age<br><br>&nbsp;&nbsp;&nbsp;#&nbsp;getter&nbsp;pentru&nbsp;obținerea&nbsp;numelui<br>&nbsp;&nbsp;&nbsp;def&nbsp;get_name(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;self.__name<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;def&nbsp;print_person(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"Nume:&nbsp;{self.__name}\tVârstă:&nbsp;{self.__age}")<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>tom&nbsp;=&nbsp;Person("Tom",&nbsp;39)<br>tom.print_person()&nbsp;&nbsp;#&nbsp;Nume:&nbsp;Tom&nbsp;&nbsp;Vârstă:&nbsp;39<br>tom.set_age(-3486)&nbsp;&nbsp;#&nbsp;Vârstă&nbsp;neacceptabilă<br>tom.set_age(25)<br>tom.print_person()&nbsp;&nbsp;#&nbsp;Nume:&nbsp;Tom&nbsp;&nbsp;Vârstă:&nbsp;25</code></pre>
+     </div>
+     <p class="paragraph">Pentru obținerea valorii vârstei se folosește metoda get_age:</p>
+     <div class="code-inline">
+      <pre><code>def&nbsp;get_age(self):<br>&nbsp;&nbsp;&nbsp;return&nbsp;self.__age</code></pre>
+     </div>
+     <p class="paragraph">Pentru schimbarea vârstei este definită metoda set_age:</p>
+     <div class="code-inline">
+      <pre><code>def&nbsp;set_age(self,&nbsp;age):<br>&nbsp;&nbsp;&nbsp;if&nbsp;0&nbsp;&lt;&nbsp;age&nbsp;&lt;&nbsp;110:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.__age&nbsp;=&nbsp;age<br>&nbsp;&nbsp;&nbsp;else:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print("Vârstă&nbsp;neacceptabilă")</code></pre>
+     </div>
+     <p class="paragraph">Accesul la atribute prin metode permite adăugarea unei logici suplimentare. Astfel, în funcție de vârsta transmisă, putem decide dacă trebuie să modificăm vârsta, deoarece valoarea transmisă poate fi incorectă.</p>
+     <p class="paragraph">De asemenea, nu este necesar să creăm o pereche de metode pentru fiecare atribut privat. Astfel, în exemplul de mai sus, numele persoanei poate fi stabilit doar din constructor. Iar pentru obținerea numelui este definită metoda get_name.</p>
+     <h2 class="subtitle">Anotări pentru proprietăți</h2>
+     <p class="paragraph">Am văzut mai sus cum să creăm metode de acces. Dar Python are și o altă metodă - mai elegantă - de a gestiona proprietățile. Această metodă presupune folosirea unor anotări, care sunt precedate de simbolul @.</p>
+     <p class="paragraph">Pentru a crea o proprietate-getter, se pune anotarea @property deasupra proprietății.</p>
+     <p class="paragraph">Pentru a crea o proprietate-setter, se pune anotarea nume_proprietate_getter.setter deasupra proprietății.</p>
+     <p class="paragraph">Rescriem clasa Person folosind anotările:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name,&nbsp;age):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.__name&nbsp;=&nbsp;name&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;stabilim&nbsp;numele<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.__age&nbsp;=&nbsp;age&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;stabilim&nbsp;vârsta<br><br>&nbsp;&nbsp;&nbsp;#&nbsp;proprietate-getter<br>&nbsp;&nbsp;&nbsp;&nbsp;@property<br>&nbsp;&nbsp;&nbsp;def&nbsp;age(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;self.__age<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;#&nbsp;proprietate-setter<br>&nbsp;&nbsp;&nbsp;&nbsp;@age.setter<br>&nbsp;&nbsp;&nbsp;def&nbsp;age(self,&nbsp;age):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;0&nbsp;&lt;&nbsp;age&nbsp;&lt;&nbsp;110:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.__age&nbsp;=&nbsp;age<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print("Vârstă&nbsp;neacceptabilă")<br><br>&nbsp;&nbsp;&nbsp;&nbsp;@property<br>&nbsp;&nbsp;&nbsp;def&nbsp;name(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;self.__name<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;def&nbsp;print_person(self):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"Nume:&nbsp;{self.__name}\tVârstă:&nbsp;{self.__age}")<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>tom&nbsp;=&nbsp;Person("Tom",&nbsp;39)<br>tom.print_person()&nbsp;&nbsp;#&nbsp;Nume:&nbsp;Tom&nbsp;&nbsp;Vârstă:&nbsp;39<br>tom.age&nbsp;=&nbsp;-3486&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Vârstă&nbsp;neacceptabilă&nbsp;&nbsp;(Accesarea&nbsp;setter-ului)<br>print(tom.age)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;39&nbsp;(Accesarea&nbsp;getter-ului)<br>tom.age&nbsp;=&nbsp;25&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;(Accesarea&nbsp;setter-ului)<br>tom.print_person()&nbsp;&nbsp;#&nbsp;Nume:&nbsp;Tom&nbsp;&nbsp;Vârstă:&nbsp;25</code></pre>
+     </div>
+     <p class="paragraph">În primul rând, trebuie observat că proprietatea-setter se definește după proprietatea-getter.</p>
+     <p class="paragraph">În al doilea rând, atât setter-ul, cât și getter-ul au același nume - age. Și pentru că getter-ul se numește age, asupra setter-ului se pune anotarea @age.setter.</p>
+     <p class="paragraph">După aceasta, atât la getter, cât și la setter, ne referim prin expresia tom.age.</p>
+     <p class="paragraph">Astfel, putem defini doar getter-ul, ca în cazul proprietății name - acesta nu poate fi schimbat, ci doar obținută valoarea lui.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

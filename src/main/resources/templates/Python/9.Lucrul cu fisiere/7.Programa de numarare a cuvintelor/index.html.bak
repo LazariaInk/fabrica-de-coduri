@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Python', activeChapter='9.Lucrul cu fisiere', activeLesson='7.Programa de numarare a cuvintelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Programă de numărare a cuvintelor</h1>
+     <p class="paragraph">Să analizăm lucrul cu șirurile de caractere într-un exemplu simplu, care va reprezenta un program de numărare a cuvintelor.</p>
+     <p class="paragraph">Codul complet al programului arată astfel:</p>
+     <div class="code-inline">
+      <pre><code>#&nbsp;Programă&nbsp;de&nbsp;numărare&nbsp;a&nbsp;cuvintelor&nbsp;dintr-un&nbsp;fișier<br>import&nbsp;os<br><br>def&nbsp;get_words(filename):<br>&nbsp;&nbsp;&nbsp;with&nbsp;open(filename,&nbsp;encoding="utf8")&nbsp;as&nbsp;file:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;=&nbsp;file.read()<br>&nbsp;&nbsp;&nbsp;text&nbsp;=&nbsp;text.replace("\n",&nbsp;"&nbsp;")<br>&nbsp;&nbsp;&nbsp;text&nbsp;=&nbsp;text.replace(",",&nbsp;"").replace(".",&nbsp;"").replace("?",&nbsp;"").replace("!",&nbsp;"")<br>&nbsp;&nbsp;&nbsp;text&nbsp;=&nbsp;text.lower()<br>&nbsp;&nbsp;&nbsp;words&nbsp;=&nbsp;text.split()<br>&nbsp;&nbsp;&nbsp;words.sort()<br>&nbsp;&nbsp;&nbsp;return&nbsp;words<br><br><br>def&nbsp;get_words_dict(words):<br>&nbsp;&nbsp;&nbsp;words_dict&nbsp;=&nbsp;dict()<br><br>&nbsp;&nbsp;&nbsp;for&nbsp;word&nbsp;in&nbsp;words:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;word&nbsp;in&nbsp;words_dict:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;words_dict[word]&nbsp;=&nbsp;words_dict[word]&nbsp;+&nbsp;1<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;words_dict[word]&nbsp;=&nbsp;1<br>&nbsp;&nbsp;&nbsp;return&nbsp;words_dict<br><br><br>def&nbsp;main():<br>&nbsp;&nbsp;&nbsp;filename&nbsp;=&nbsp;input("Introduceți&nbsp;calea&nbsp;către&nbsp;fișier:&nbsp;")<br>&nbsp;&nbsp;&nbsp;if&nbsp;not&nbsp;os.path.exists(filename):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print("Fișierul&nbsp;specificat&nbsp;nu&nbsp;există")<br>&nbsp;&nbsp;&nbsp;else:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;words&nbsp;=&nbsp;get_words(filename)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;words_dict&nbsp;=&nbsp;get_words_dict(words)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"Numărul&nbsp;total&nbsp;de&nbsp;cuvinte:&nbsp;{len(words)}")<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"Numărul&nbsp;de&nbsp;cuvinte&nbsp;unice:&nbsp;{len(words_dict)}")<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print("Toate&nbsp;cuvintele&nbsp;utilizate:")<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;word&nbsp;in&nbsp;words_dict:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(word.ljust(20),&nbsp;words_dict[word])<br><br><br>if&nbsp;__name__&nbsp;==&nbsp;"__main__":<br>&nbsp;&nbsp;&nbsp;main()</code></pre>
+     </div>
+     <p class="paragraph">În funcția get_words(), are loc segmentarea inițială a textului în cuvinte. Toate semnele de punctuație sunt eliminate, iar liniile noi sunt înlocuite cu spații. Apoi, textul este împărțit în cuvinte, folosind spațiul ca delimitator implicit.</p>
+     <p class="paragraph">Mai departe, în funcția get_words_dict(), obținem un dicționar de cuvinte, unde cheia este un cuvânt unic, iar valoarea este numărul de apariții ale acelui cuvânt în text.</p>
+     <p class="paragraph">În funcția main, se introduce calea către fișier, se apelează funcțiile definite anterior și se afișează statisticile.</p>
+     <p class="paragraph">Ieșirea pe consolă a programului:</p>
+     <div class="code-inline">
+      <pre><code>Introduceți&nbsp;calea&nbsp;către&nbsp;fișier:&nbsp;C:\SomeDir\hello.txt<br>Numărul&nbsp;total&nbsp;de&nbsp;cuvinte:&nbsp;66<br>Numărul&nbsp;de&nbsp;cuvinte&nbsp;unice:&nbsp;54<br>Toate&nbsp;cuvintele&nbsp;utilizate:<br>bucurie&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2<br>în&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1<br>toate&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1<br>voi&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1<br>muștar&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1<br>ea&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1<br>dacă&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3<br>încă&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1<br>...</code></pre>
+     </div>
+     <p class="paragraph">Acest program simplu ilustrează cum putem manipula textul într-un fișier pentru a număra cuvintele și a analiza frecvența acestora.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

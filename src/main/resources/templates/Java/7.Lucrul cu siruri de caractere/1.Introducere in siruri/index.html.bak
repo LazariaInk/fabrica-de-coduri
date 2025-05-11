@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Java', activeChapter='7.Lucrul cu siruri de caractere', activeLesson='1.Introducere in siruri'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Introducere în șiruri - Clasa String</h1>
+     <p class="paragraph">Un șir reprezintă o secvență de caractere. Pentru lucrul cu șiruri în Java este definită clasa String, care oferă o serie de metode pentru manipularea șirurilor. Fizic, un obiect String reprezintă o referință la o zonă din memorie unde sunt plasate caracterele.</p>
+     <p class="paragraph">Pentru a crea un nou șir, putem folosi unul dintre constructorii clasei String sau să atribuim direct un șir în ghilimele duble:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;String&nbsp;str1&nbsp;=&nbsp;"Java";<br>&nbsp;&nbsp;&nbsp;String&nbsp;str2&nbsp;=&nbsp;new&nbsp;String();&nbsp;//&nbsp;șir&nbsp;gol<br>&nbsp;&nbsp;&nbsp;String&nbsp;str3&nbsp;=&nbsp;new&nbsp;String(new&nbsp;char[]&nbsp;{'h',&nbsp;'e',&nbsp;'l',&nbsp;'l',&nbsp;'o'});<br>&nbsp;&nbsp;&nbsp;String&nbsp;str4&nbsp;=&nbsp;new&nbsp;String(new&nbsp;char[]{'w',&nbsp;'e',&nbsp;'l',&nbsp;'c',&nbsp;'o',&nbsp;'m',&nbsp;'e'},&nbsp;3,&nbsp;4);&nbsp;//&nbsp;3&nbsp;-&nbsp;indexul&nbsp;de&nbsp;început,&nbsp;4&nbsp;-&nbsp;numărul&nbsp;de&nbsp;caractere<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;System.out.println(str1);&nbsp;//&nbsp;Java<br>&nbsp;&nbsp;&nbsp;System.out.println(str2);&nbsp;//<br>&nbsp;&nbsp;&nbsp;System.out.println(str3);&nbsp;//&nbsp;hello<br>&nbsp;&nbsp;&nbsp;System.out.println(str4);&nbsp;//&nbsp;come<br>}</code></pre>
+     </div>
+     <p class="paragraph">Când lucrăm cu șiruri de caractere, este important de înțeles că obiectul String este imuabil (immutable). Asta înseamnă că la orice operație asupra șirului care modifică acest șir, va fi creat un nou șir de caractere.</p>
+     <p class="paragraph">Deoarece un șir este considerat un set de caractere, putem aplica metoda length() pentru a găsi lungimea șirului sau lungimea setului de caractere:</p>
+     <div class="code-inline">
+      <pre><code>String&nbsp;str1&nbsp;=&nbsp;"Java";<br>System.out.println(str1.length());&nbsp;//&nbsp;4</code></pre>
+     </div>
+     <p class="paragraph">Cu ajutorul metodei toCharArray(), putem transforma din nou șirul într-un tablou de caractere:</p>
+     <div class="code-inline">
+      <pre><code>String&nbsp;str1&nbsp;=&nbsp;new&nbsp;String(new&nbsp;char[]&nbsp;{'h',&nbsp;'e',&nbsp;'l',&nbsp;'l',&nbsp;'o'});<br>char[]&nbsp;helloArray&nbsp;=&nbsp;str1.toCharArray();</code></pre>
+     </div>
+     <p class="paragraph">Un șir poate fi gol. Pentru aceasta, i se pot atribui ghilimele goale sau se pot elimina toate caracterele din șir:</p>
+     <div class="code-inline">
+      <pre><code>String&nbsp;s&nbsp;=&nbsp;"";&nbsp;&nbsp;&nbsp;//&nbsp;șir&nbsp;gol<br>if(s.length()&nbsp;==&nbsp;0)&nbsp;System.out.println("String&nbsp;is&nbsp;empty");</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, lungimea șirului returnată de metoda length() este 0.</p>
+     <p class="paragraph">Clasa String are o metodă specială care permite verificarea dacă un șir este gol - isEmpty(). Dacă șirul este gol, aceasta returnează true:</p>
+     <div class="code-inline">
+      <pre><code>String&nbsp;s&nbsp;=&nbsp;"";&nbsp;&nbsp;&nbsp;//&nbsp;șir&nbsp;gol<br>if(s.isEmpty())&nbsp;System.out.println("String&nbsp;is&nbsp;empty");</code></pre>
+     </div>
+     <p class="paragraph">O variabilă de tip String poate să nu indice un obiect și să aibă valoarea null:</p>
+     <div class="code-inline">
+      <pre><code>String&nbsp;s&nbsp;=&nbsp;null;&nbsp;&nbsp;&nbsp;//&nbsp;șirul&nbsp;nu&nbsp;indică&nbsp;un&nbsp;obiect<br>if(s&nbsp;==&nbsp;null)&nbsp;System.out.println("String&nbsp;is&nbsp;null");</code></pre>
+     </div>
+     <p class="paragraph">Valoarea null nu este echivalentă cu un șir gol. De exemplu, în următorul caz, ne vom confrunta cu o eroare de execuție:</p>
+     <div class="code-inline">
+      <pre><code>String&nbsp;s&nbsp;=&nbsp;null;&nbsp;&nbsp;&nbsp;//&nbsp;șirul&nbsp;nu&nbsp;indică&nbsp;un&nbsp;obiect<br>if(s.length()&nbsp;==&nbsp;0)&nbsp;System.out.println("String&nbsp;is&nbsp;empty");&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;!&nbsp;Eroare</code></pre>
+     </div>
+     <p class="paragraph">Deoarece variabila nu indică niciun obiect String, nu putem apela metodele obiectului String. Pentru a evita astfel de erori, putem verifica preventiv șirul pentru valoarea null:</p>
+     <div class="code-inline">
+      <pre><code>String&nbsp;s&nbsp;=&nbsp;null;&nbsp;&nbsp;&nbsp;//&nbsp;șirul&nbsp;nu&nbsp;indică&nbsp;un&nbsp;obiect<br>if(s&nbsp;==&nbsp;null&nbsp;||&nbsp;s.length()&nbsp;==&nbsp;0)&nbsp;System.out.println("String&nbsp;is&nbsp;empty");</code></pre>
+     </div>
+     <h2 class="subtitle">Principalele metode ale clasei String</h2>
+     <p class="paragraph">Principalele operații cu șiruri de caractere sunt desfășurate prin metodele clasei String, dintre care putem evidenția următoarele:</p>
+     <ul class="enumeration">
+      <li>concat(): unește șiruri</li>
+      <li>valueOf(): transformă un obiect într-o reprezentare de tip șir</li>
+      <li>join(): unește șiruri cu un separator</li>
+      <li>compareTo(): compară două șiruri</li>
+      <li>charAt(): returnează caracterul șirului după index</li>
+      <li>getChars(): returnează un grup de caractere</li>
+      <li>equals(): compară șiruri ținând cont de majuscule/minuscule</li>
+      <li>equalsIgnoreCase(): compară șiruri fără a ține cont de majuscule/minuscule</li>
+      <li>regionMatches(): compară subșiruri</li>
+      <li>indexOf(): găsește indexul primei apariții a unui subșir</li>
+      <li>lastIndexOf(): găsește indexul ultimei apariții a unui subșir</li>
+      <li>startsWith(): determină dacă un șir începe cu un subșir</li>
+      <li>endsWith(): determină dacă un șir se termină cu un subșir</li>
+      <li>replace(): înlocuiește un subșir cu altul</li>
+      <li>trim(): elimină spațiile de la începutul și sfârșitul șirului</li>
+      <li>substring(): returnează un subșir, începând de la un anumit index până la sfârșit sau până la un anumit index</li>
+      <li>toLowerCase(): transformă toate caracterele șirului în litere mici</li>
+      <li>toUpperCase(): transformă toate caracterele șirului în litere mari</li>
+     </ul>
+     <p class="paragraph">Vom analiza funcționarea acestor metode.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

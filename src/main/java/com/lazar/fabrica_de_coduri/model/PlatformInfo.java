@@ -19,6 +19,8 @@ public class PlatformInfo {
     private String tiktokLink;
     private String instagramLink;
     private String youTubeLink;
+    private String discordLink;
+    private String linkedinLink;
     private String email;
 
     @OneToMany(mappedBy = "platformInfo", cascade = CascadeType.ALL)
@@ -28,7 +30,7 @@ public class PlatformInfo {
     public PlatformInfo() {
     }
 
-    public PlatformInfo(long id, String bannerContent, String donateMessage, List<SEOHashTag> seoHashTags, List<News> news, String tiktokLink, String instagramLink, String youTubeLink, String email, String donateTile) {
+    public PlatformInfo(long id, String bannerContent, String donateMessage, List<SEOHashTag> seoHashTags, List<News> news, String tiktokLink, String instagramLink, String youTubeLink, String email, String donateTile, String discordLink, String linkedinLink) {
         this.id = id;
         this.bannerContent = bannerContent;
         this.donateMessage = donateMessage;
@@ -39,6 +41,8 @@ public class PlatformInfo {
         this.youTubeLink = youTubeLink;
         this.email = email;
         this.donateTitle = donateTile;
+        this.discordLink = discordLink;
+        this.linkedinLink = linkedinLink;
     }
 
     public List<Sponsor> getSponsors() {
@@ -127,5 +131,21 @@ public class PlatformInfo {
 
     public void setDonateTitle(String donateTitle) {
         this.donateTitle = donateTitle;
+    }
+
+    public String getDiscordLink() {
+        return discordLink;
+    }
+
+    public void setDiscordLink(String discordLink) {
+        this.discordLink = discordLink;
+    }
+
+    public String getLinkedinLink() {
+        return linkedinLink;
+    }
+
+    public void setLinkedinLink(String linkedinLink) {
+        this.linkedinLink = linkedinLink;
     }
 }

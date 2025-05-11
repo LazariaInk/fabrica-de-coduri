@@ -1,210 +1,200 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='PHP', activeChapter='4.Programare orientata pe obiecte', activeLesson='1.Programare orientata pe obiecte'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Programarea orientată pe obiecte în PHP</h1>
- <h2 class="subtitle">Obiecte și clase</h2>
- <p class="paragraph">La crearea unui program în PHP și a blocurilor sale separate, este posibil să fie suficientă funcționalitatea oferită de funcții. Cu toate acestea, PHP are și alte posibilități de creare a programelor, reprezentate de programarea orientată pe obiecte (OOP).</p>
- <p class="paragraph">În multe cazuri, programele care utilizează OOP sunt mai ușor de înțeles, de întreținut și de modificat.</p>
- <p class="paragraph">Conceptele cheie ale paradigmei OOP sunt „clasa” și „obiectul”. Descrierea unui obiect este clasa, iar obiectul reprezintă o instanță a acestei clase. Putem face următoarea analogie: de exemplu, fiecare persoană are un nume, o anumită vârstă, greutate și alte caracteristici.</p>
- <p class="paragraph">Adică, un anumit șablon care conține un set de caracteristici ale unei persoane - acest șablon poate fi numit clasă. O persoană reală cu un nume, vârstă și greutate specifică este un obiect sau o instanță a acestei clase.</p>
- <p class="paragraph">Pentru a crea o clasă în PHP se folosește cuvântul cheie class, urmat de numele clasei și acoladele {} - blocul de cod al clasei. De exemplu, o nouă clasă care reprezintă un utilizator:</p>
- <div class="code-inline">
-  <pre><code>class&nbsp;Person<br>{}</code></pre>
- </div>
- <p class="paragraph">Pentru a crea un obiect al clasei Person, se folosește cuvântul cheie new:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>class&nbsp;Person<br>{&nbsp;}<br><br>$person&nbsp;=&nbsp;new&nbsp;Person();<br>print_r($person);<br>?&gt;</code></pre>
- </div>
- <p class="paragraph">În acest caz, variabila $person este un obiect al clasei Person. Cu ajutorul funcției print_r() se poate afișa conținutul obiectului, la fel ca și în cazul array-urilor.</p>
- <p class="paragraph">Nu contează dacă clasa este definită înainte sau după crearea obiectului. De exemplu, putem defini mai întâi variabila clasei și apoi clasa:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>$person&nbsp;=&nbsp;new&nbsp;Person();<br><br>class&nbsp;Person<br>{&nbsp;}<br>?&gt;</code></pre>
- </div>
- <h2 class="subtitle">Proprietăți și metode</h2>
- <p class="paragraph">O clasă poate conține variabile care descriu anumite caracteristici ale obiectului, starea acestuia și care sunt numite proprietăți sau atribute. De asemenea, clasa poate conține funcții, numite metode, care definesc comportamentul acesteia.</p>
- <p class="paragraph">Astfel, vom adăuga în clasa Person câteva proprietăți și metode:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;$name,&nbsp;$age;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;function&nbsp;hello()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;"Hello!&lt;br&gt;";<br>&nbsp;&nbsp;&nbsp;}<br>}<br>$tom&nbsp;=&nbsp;new&nbsp;Person();<br>$tom-&gt;name&nbsp;=&nbsp;"Tom";&nbsp;//&nbsp;setarea&nbsp;proprietății&nbsp;$name<br>$tom-&gt;age&nbsp;=&nbsp;36;&nbsp;//&nbsp;setarea&nbsp;proprietății&nbsp;$age<br>$personName&nbsp;=&nbsp;$tom-&gt;name;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținerea&nbsp;valorii&nbsp;proprietății&nbsp;$name<br>echo&nbsp;"Numele&nbsp;utilizatorului:&nbsp;"&nbsp;.&nbsp;$personName&nbsp;.&nbsp;"&lt;br&gt;";<br>$tom-&gt;hello();&nbsp;//&nbsp;apelarea&nbsp;metodei&nbsp;hello()<br>print_r($tom);<br>?&gt;</code></pre>
- </div>
- <p class="paragraph">Aici, clasa Person conține două proprietăți: $name și $age. Proprietățile sunt declarate ca variabile obișnuite, precedate de un modificator de acces - în acest caz, modificatorul public.</p>
- <p class="paragraph">Metodele sunt funcții obișnuite care execută anumite acțiuni. Aici, funcția hello() doar afișează un mesaj de salut.</p>
- <p class="paragraph">După crearea unui obiect al clasei Person:</p>
- <div class="code-inline">
-  <pre><code>$tom&nbsp;=&nbsp;new&nbsp;Person();</code></pre>
- </div>
- <p class="paragraph">Putem accesa proprietățile și metodele acestuia prin numele variabilei clasei. Pentru a accesa proprietățile și metodele obiectului se folosește operatorul de acces -&gt;. De exemplu, pentru a seta valorile proprietăților:</p>
- <div class="code-inline">
-  <pre><code>$tom-&gt;name&nbsp;=&nbsp;"Tom";&nbsp;//&nbsp;setarea&nbsp;proprietății&nbsp;$name<br>$tom-&gt;age&nbsp;=&nbsp;36;&nbsp;//&nbsp;setarea&nbsp;proprietății&nbsp;$age</code></pre>
- </div>
- <p class="paragraph">Sau pentru a obține valoarea (de exemplu, pentru a o atribui unei variabile):</p>
- <div class="code-inline">
-  <pre><code>$personName&nbsp;=&nbsp;$tom-&gt;name;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținerea&nbsp;valorii&nbsp;proprietății&nbsp;$name</code></pre>
- </div>
- <p class="paragraph">Sau pentru a apela metodele obiectului:</p>
- <div class="code-inline">
-  <pre><code>$tom-&gt;hello();&nbsp;//&nbsp;apelarea&nbsp;metodei&nbsp;hello()</code></pre>
- </div>
- <p class="paragraph">Rezultatul în browser va fi:</p>
- <div class="code-inline">
-  <pre><code>Numele&nbsp;utilizatorului:&nbsp;Tom<br>Hello!<br>Person&nbsp;Object&nbsp;(&nbsp;[name]&nbsp;=&gt;&nbsp;Tom&nbsp;[age]&nbsp;=&gt;&nbsp;36&nbsp;)</code></pre>
- </div>
- <p class="paragraph">Putem, de asemenea, să setăm valori inițiale pentru proprietăți în clasă:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;$name&nbsp;=&nbsp;"Undefined",&nbsp;$age&nbsp;=&nbsp;18;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;function&nbsp;hello()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;"Hello!&lt;br&gt;";<br>&nbsp;&nbsp;&nbsp;}<br>}<br>$tom&nbsp;=&nbsp;new&nbsp;Person();<br>$tom-&gt;age&nbsp;=&nbsp;36;&nbsp;//&nbsp;setarea&nbsp;proprietății&nbsp;$age<br><br>echo&nbsp;"Numele&nbsp;utilizatorului:&nbsp;"&nbsp;.&nbsp;$tom-&gt;name&nbsp;.&nbsp;"&lt;br&gt;";<br>echo&nbsp;"Vârsta&nbsp;utilizatorului:&nbsp;"&nbsp;.&nbsp;$tom-&gt;age&nbsp;.&nbsp;"&lt;br&gt;";<br>?&gt;</code></pre>
- </div>
- <p class="paragraph">Rezultatul în browser:</p>
- <div class="code-inline">
-  <pre><code>Numele&nbsp;utilizatorului:&nbsp;Undefined<br>Vârsta&nbsp;utilizatorului:&nbsp;36</code></pre>
- </div>
- <h2 class="subtitle">Cuvântul cheie this</h2>
- <p class="paragraph">Pentru a accesa proprietățile și metodele obiectului din interiorul clasei sale, se folosește cuvântul cheie this. De exemplu, definim o metodă în clasă pentru afișarea informațiilor despre obiect:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;$name&nbsp;=&nbsp;"Undefined",&nbsp;$age&nbsp;=&nbsp;18;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;function&nbsp;displayInfo()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;"Name:&nbsp;"&nbsp;.&nbsp;$this-&gt;name&nbsp;.";&nbsp;Age:&nbsp;"&nbsp;.&nbsp;$this-&gt;age&nbsp;.&nbsp;"&lt;br&gt;";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;de&nbsp;asemenea&nbsp;se&nbsp;poate&nbsp;scrie<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;echo&nbsp;"Name:&nbsp;$this-&gt;name;&nbsp;Age:&nbsp;$this-&gt;age&lt;br&gt;";<br>&nbsp;&nbsp;&nbsp;}<br>}<br>$tom&nbsp;=&nbsp;new&nbsp;Person();<br>$tom&nbsp;-&gt;&nbsp;name&nbsp;=&nbsp;"Tom";<br>$tom&nbsp;-&gt;&nbsp;displayInfo();&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Tom;&nbsp;Age:&nbsp;18<br>?&gt;</code></pre>
- </div>
- <p class="paragraph">Pentru a accesa câmpurile și metodele din interiorul clasei se folosește, de asemenea, operatorul de acces -&gt;, precedat de $this. Acest $this indică obiectul curent. Ce înseamnă acest lucru în practică? De exemplu:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;$name&nbsp;=&nbsp;"Undefined",&nbsp;$age&nbsp;=&nbsp;18;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;function&nbsp;displayInfo()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;"Name:&nbsp;$this-&gt;name;&nbsp;Age:&nbsp;$this-&gt;age&lt;br&gt;";<br>&nbsp;&nbsp;&nbsp;}<br>}<br>$tom&nbsp;=&nbsp;new&nbsp;Person();<br>$tom&nbsp;-&gt;&nbsp;name&nbsp;=&nbsp;"Tom";<br>$tom&nbsp;-&gt;&nbsp;displayInfo();<br><br>$bob&nbsp;=&nbsp;new&nbsp;Person();<br>$bob&nbsp;-&gt;&nbsp;name&nbsp;=&nbsp;"Bob";<br>$bob&nbsp;-&gt;&nbsp;age&nbsp;=&nbsp;25;<br>$bob&nbsp;-&gt;&nbsp;displayInfo();<br>?&gt;</code></pre>
- </div>
- <p class="paragraph">La apelul:</p>
- <div class="code-inline">
-  <pre><code>$tom&nbsp;-&gt;&nbsp;displayInfo();</code></pre>
- </div>
- <p class="paragraph">$this va indica de fapt către variabila $tom. În timp ce la apelul:</p>
- <div class="code-inline">
-  <pre><code>$bob&nbsp;-&gt;&nbsp;displayInfo();</code></pre>
- </div>
- <p class="paragraph">$this va indica către variabila $bob.</p>
- <p class="paragraph">Rezultatul în browser:</p>
- <div class="code-inline">
-  <pre><code>Name:&nbsp;Tom;&nbsp;Age:&nbsp;18<br>Name:&nbsp;Bob;&nbsp;Age:&nbsp;25</code></pre>
- </div>
- <h2 class="subtitle">Compararea obiectelor</h2>
- <p class="paragraph">La compararea obiectelor claselor trebuie luate în considerare câteva aspecte. În special, la utilizarea operatorului de egalitate ==, două obiecte sunt considerate egale dacă reprezintă aceeași clasă și proprietățile lor au aceleași valori.</p>
- <p class="paragraph">La utilizarea operatorului de echivalență ===, ambele obiecte sunt considerate egale dacă ambele variabile de clasă indică către aceeași instanță a clasei.</p>
- <p class="paragraph">Să vedem un exemplu:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;$name,&nbsp;$age;<br>&nbsp;&nbsp;&nbsp;function&nbsp;displayInfo()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;"Name:&nbsp;$this-&gt;name;&nbsp;Age:&nbsp;$this-&gt;age&lt;br&gt;";<br>&nbsp;&nbsp;&nbsp;}<br>}<br>$tom&nbsp;=&nbsp;new&nbsp;Person();<br>$tom&nbsp;-&gt;&nbsp;name&nbsp;=&nbsp;"Tom";<br>$tom&nbsp;-&gt;&nbsp;age&nbsp;=&nbsp;36;<br><br>$tomas&nbsp;=&nbsp;new&nbsp;Person();<br>$tomas&nbsp;-&gt;&nbsp;name&nbsp;=&nbsp;"Tom";<br>$tomas&nbsp;-&gt;&nbsp;age&nbsp;=&nbsp;36;<br><br>if($tom&nbsp;==&nbsp;$tomas)&nbsp;echo&nbsp;"variabilele&nbsp;tom&nbsp;și&nbsp;tomas&nbsp;sunt&nbsp;egale&lt;br&gt;";<br>else&nbsp;echo&nbsp;"variabilele&nbsp;tom&nbsp;și&nbsp;tomas&nbsp;NU&nbsp;sunt&nbsp;egale&lt;br&gt;";<br><br>if($tom&nbsp;===&nbsp;$tomas)&nbsp;echo&nbsp;"variabilele&nbsp;tom&nbsp;și&nbsp;tomas&nbsp;sunt&nbsp;echivalente";<br>else&nbsp;echo&nbsp;"variabilele&nbsp;tom&nbsp;și&nbsp;tomas&nbsp;NU&nbsp;sunt&nbsp;echivalente";<br>?&gt;</code></pre>
- </div>
- <p class="paragraph">Aici, sunt comparate două variabile - $tom și $tomas. Ele reprezintă aceeași clasă Person, și proprietățile lor au aceleași valori. Cu toate acestea, ele reprezintă obiecte diferite. Prin urmare, la compararea cu operatorul ==, acesta va returna true, iar operatorul === - false:</p>
- <div class="code-inline">
-  <pre><code>variabilele&nbsp;tom&nbsp;și&nbsp;tomas&nbsp;sunt&nbsp;egale<br>variabilele&nbsp;tom&nbsp;și&nbsp;tomas&nbsp;NU&nbsp;sunt&nbsp;echivalente</code></pre>
- </div>
- <p class="paragraph">Să luăm un alt exemplu, în care ambele variabile reprezintă același obiect:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>$person&nbsp;=&nbsp;new&nbsp;Person();<br><br>$tom&nbsp;=&nbsp;$person;<br>$tom&nbsp;-&gt;&nbsp;name&nbsp;=&nbsp;"Tom";<br>$tom&nbsp;-&gt;&nbsp;age&nbsp;=&nbsp;36;<br><br>$tomas&nbsp;=&nbsp;$person;<br><br>if($tom&nbsp;==&nbsp;$tomas)&nbsp;echo&nbsp;"variabilele&nbsp;tom&nbsp;și&nbsp;tomas&nbsp;sunt&nbsp;egale&lt;br&gt;";<br>else&nbsp;echo&nbsp;"variabilele&nbsp;tom&nbsp;și&nbsp;tomas&nbsp;NU&nbsp;sunt&nbsp;egale&lt;br&gt;";<br><br>if($tom&nbsp;===&nbsp;$tomas)&nbsp;echo&nbsp;"variabilele&nbsp;tom&nbsp;și&nbsp;tomas&nbsp;sunt&nbsp;echivalente";<br>else&nbsp;echo&nbsp;"variabilele&nbsp;tom&nbsp;și&nbsp;tomas&nbsp;NU&nbsp;sunt&nbsp;echivalente";<br>?&gt;</code></pre>
- </div>
- <p class="paragraph">Aici, obiectul clasei Person este creat doar o singură dată: $person = new Person();. Și apoi ambele variabile $tom și $tomas vor indica către acest obiect.</p>
- <p class="paragraph">Nu contează pentru ce variabilă setăm proprietățile, deoarece în realitate va fi același obiect. În final, atât operatorul ==, cât și operatorul === vor returna true la comparare:</p>
- <div class="code-inline">
-  <pre><code>variabilele&nbsp;tom&nbsp;și&nbsp;tomas&nbsp;sunt&nbsp;egale<br>variabilele&nbsp;tom&nbsp;și&nbsp;tomas&nbsp;sunt&nbsp;echivalente</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Programarea orientată pe obiecte în PHP</h1>
+     <h2 class="subtitle">Obiecte și clase</h2>
+     <p class="paragraph">La crearea unui program în PHP și a blocurilor sale separate, este posibil să fie suficientă funcționalitatea oferită de funcții. Cu toate acestea, PHP are și alte posibilități de creare a programelor, reprezentate de programarea orientată pe obiecte (OOP).</p>
+     <p class="paragraph">În multe cazuri, programele care utilizează OOP sunt mai ușor de înțeles, de întreținut și de modificat.</p>
+     <p class="paragraph">Conceptele cheie ale paradigmei OOP sunt „clasa” și „obiectul”. Descrierea unui obiect este clasa, iar obiectul reprezintă o instanță a acestei clase. Putem face următoarea analogie: de exemplu, fiecare persoană are un nume, o anumită vârstă, greutate și alte caracteristici.</p>
+     <p class="paragraph">Adică, un anumit șablon care conține un set de caracteristici ale unei persoane - acest șablon poate fi numit clasă. O persoană reală cu un nume, vârstă și greutate specifică este un obiect sau o instanță a acestei clase.</p>
+     <p class="paragraph">Pentru a crea o clasă în PHP se folosește cuvântul cheie class, urmat de numele clasei și acoladele {} - blocul de cod al clasei. De exemplu, o nouă clasă care reprezintă un utilizator:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person<br>{}</code></pre>
+     </div>
+     <p class="paragraph">Pentru a crea un obiect al clasei Person, se folosește cuvântul cheie new:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>class&nbsp;Person<br>{&nbsp;}<br><br>$person&nbsp;=&nbsp;new&nbsp;Person();<br>print_r($person);<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, variabila $person este un obiect al clasei Person. Cu ajutorul funcției print_r() se poate afișa conținutul obiectului, la fel ca și în cazul array-urilor.</p>
+     <p class="paragraph">Nu contează dacă clasa este definită înainte sau după crearea obiectului. De exemplu, putem defini mai întâi variabila clasei și apoi clasa:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$person&nbsp;=&nbsp;new&nbsp;Person();<br><br>class&nbsp;Person<br>{&nbsp;}<br>?&gt;</code></pre>
+     </div>
+     <h2 class="subtitle">Proprietăți și metode</h2>
+     <p class="paragraph">O clasă poate conține variabile care descriu anumite caracteristici ale obiectului, starea acestuia și care sunt numite proprietăți sau atribute. De asemenea, clasa poate conține funcții, numite metode, care definesc comportamentul acesteia.</p>
+     <p class="paragraph">Astfel, vom adăuga în clasa Person câteva proprietăți și metode:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;$name,&nbsp;$age;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;function&nbsp;hello()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;"Hello!&lt;br&gt;";<br>&nbsp;&nbsp;&nbsp;}<br>}<br>$tom&nbsp;=&nbsp;new&nbsp;Person();<br>$tom-&gt;name&nbsp;=&nbsp;"Tom";&nbsp;//&nbsp;setarea&nbsp;proprietății&nbsp;$name<br>$tom-&gt;age&nbsp;=&nbsp;36;&nbsp;//&nbsp;setarea&nbsp;proprietății&nbsp;$age<br>$personName&nbsp;=&nbsp;$tom-&gt;name;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținerea&nbsp;valorii&nbsp;proprietății&nbsp;$name<br>echo&nbsp;"Numele&nbsp;utilizatorului:&nbsp;"&nbsp;.&nbsp;$personName&nbsp;.&nbsp;"&lt;br&gt;";<br>$tom-&gt;hello();&nbsp;//&nbsp;apelarea&nbsp;metodei&nbsp;hello()<br>print_r($tom);<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici, clasa Person conține două proprietăți: $name și $age. Proprietățile sunt declarate ca variabile obișnuite, precedate de un modificator de acces - în acest caz, modificatorul public.</p>
+     <p class="paragraph">Metodele sunt funcții obișnuite care execută anumite acțiuni. Aici, funcția hello() doar afișează un mesaj de salut.</p>
+     <p class="paragraph">După crearea unui obiect al clasei Person:</p>
+     <div class="code-inline">
+      <pre><code>$tom&nbsp;=&nbsp;new&nbsp;Person();</code></pre>
+     </div>
+     <p class="paragraph">Putem accesa proprietățile și metodele acestuia prin numele variabilei clasei. Pentru a accesa proprietățile și metodele obiectului se folosește operatorul de acces -&gt;. De exemplu, pentru a seta valorile proprietăților:</p>
+     <div class="code-inline">
+      <pre><code>$tom-&gt;name&nbsp;=&nbsp;"Tom";&nbsp;//&nbsp;setarea&nbsp;proprietății&nbsp;$name<br>$tom-&gt;age&nbsp;=&nbsp;36;&nbsp;//&nbsp;setarea&nbsp;proprietății&nbsp;$age</code></pre>
+     </div>
+     <p class="paragraph">Sau pentru a obține valoarea (de exemplu, pentru a o atribui unei variabile):</p>
+     <div class="code-inline">
+      <pre><code>$personName&nbsp;=&nbsp;$tom-&gt;name;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținerea&nbsp;valorii&nbsp;proprietății&nbsp;$name</code></pre>
+     </div>
+     <p class="paragraph">Sau pentru a apela metodele obiectului:</p>
+     <div class="code-inline">
+      <pre><code>$tom-&gt;hello();&nbsp;//&nbsp;apelarea&nbsp;metodei&nbsp;hello()</code></pre>
+     </div>
+     <p class="paragraph">Rezultatul în browser va fi:</p>
+     <div class="code-inline">
+      <pre><code>Numele&nbsp;utilizatorului:&nbsp;Tom<br>Hello!<br>Person&nbsp;Object&nbsp;(&nbsp;[name]&nbsp;=&gt;&nbsp;Tom&nbsp;[age]&nbsp;=&gt;&nbsp;36&nbsp;)</code></pre>
+     </div>
+     <p class="paragraph">Putem, de asemenea, să setăm valori inițiale pentru proprietăți în clasă:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;$name&nbsp;=&nbsp;"Undefined",&nbsp;$age&nbsp;=&nbsp;18;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;function&nbsp;hello()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;"Hello!&lt;br&gt;";<br>&nbsp;&nbsp;&nbsp;}<br>}<br>$tom&nbsp;=&nbsp;new&nbsp;Person();<br>$tom-&gt;age&nbsp;=&nbsp;36;&nbsp;//&nbsp;setarea&nbsp;proprietății&nbsp;$age<br><br>echo&nbsp;"Numele&nbsp;utilizatorului:&nbsp;"&nbsp;.&nbsp;$tom-&gt;name&nbsp;.&nbsp;"&lt;br&gt;";<br>echo&nbsp;"Vârsta&nbsp;utilizatorului:&nbsp;"&nbsp;.&nbsp;$tom-&gt;age&nbsp;.&nbsp;"&lt;br&gt;";<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Rezultatul în browser:</p>
+     <div class="code-inline">
+      <pre><code>Numele&nbsp;utilizatorului:&nbsp;Undefined<br>Vârsta&nbsp;utilizatorului:&nbsp;36</code></pre>
+     </div>
+     <h2 class="subtitle">Cuvântul cheie this</h2>
+     <p class="paragraph">Pentru a accesa proprietățile și metodele obiectului din interiorul clasei sale, se folosește cuvântul cheie this. De exemplu, definim o metodă în clasă pentru afișarea informațiilor despre obiect:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;$name&nbsp;=&nbsp;"Undefined",&nbsp;$age&nbsp;=&nbsp;18;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;function&nbsp;displayInfo()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;"Name:&nbsp;"&nbsp;.&nbsp;$this-&gt;name&nbsp;.";&nbsp;Age:&nbsp;"&nbsp;.&nbsp;$this-&gt;age&nbsp;.&nbsp;"&lt;br&gt;";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;de&nbsp;asemenea&nbsp;se&nbsp;poate&nbsp;scrie<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;echo&nbsp;"Name:&nbsp;$this-&gt;name;&nbsp;Age:&nbsp;$this-&gt;age&lt;br&gt;";<br>&nbsp;&nbsp;&nbsp;}<br>}<br>$tom&nbsp;=&nbsp;new&nbsp;Person();<br>$tom&nbsp;-&gt;&nbsp;name&nbsp;=&nbsp;"Tom";<br>$tom&nbsp;-&gt;&nbsp;displayInfo();&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Tom;&nbsp;Age:&nbsp;18<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Pentru a accesa câmpurile și metodele din interiorul clasei se folosește, de asemenea, operatorul de acces -&gt;, precedat de $this. Acest $this indică obiectul curent. Ce înseamnă acest lucru în practică? De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;$name&nbsp;=&nbsp;"Undefined",&nbsp;$age&nbsp;=&nbsp;18;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;function&nbsp;displayInfo()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;"Name:&nbsp;$this-&gt;name;&nbsp;Age:&nbsp;$this-&gt;age&lt;br&gt;";<br>&nbsp;&nbsp;&nbsp;}<br>}<br>$tom&nbsp;=&nbsp;new&nbsp;Person();<br>$tom&nbsp;-&gt;&nbsp;name&nbsp;=&nbsp;"Tom";<br>$tom&nbsp;-&gt;&nbsp;displayInfo();<br><br>$bob&nbsp;=&nbsp;new&nbsp;Person();<br>$bob&nbsp;-&gt;&nbsp;name&nbsp;=&nbsp;"Bob";<br>$bob&nbsp;-&gt;&nbsp;age&nbsp;=&nbsp;25;<br>$bob&nbsp;-&gt;&nbsp;displayInfo();<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">La apelul:</p>
+     <div class="code-inline">
+      <pre><code>$tom&nbsp;-&gt;&nbsp;displayInfo();</code></pre>
+     </div>
+     <p class="paragraph">$this va indica de fapt către variabila $tom. În timp ce la apelul:</p>
+     <div class="code-inline">
+      <pre><code>$bob&nbsp;-&gt;&nbsp;displayInfo();</code></pre>
+     </div>
+     <p class="paragraph">$this va indica către variabila $bob.</p>
+     <p class="paragraph">Rezultatul în browser:</p>
+     <div class="code-inline">
+      <pre><code>Name:&nbsp;Tom;&nbsp;Age:&nbsp;18<br>Name:&nbsp;Bob;&nbsp;Age:&nbsp;25</code></pre>
+     </div>
+     <h2 class="subtitle">Compararea obiectelor</h2>
+     <p class="paragraph">La compararea obiectelor claselor trebuie luate în considerare câteva aspecte. În special, la utilizarea operatorului de egalitate ==, două obiecte sunt considerate egale dacă reprezintă aceeași clasă și proprietățile lor au aceleași valori.</p>
+     <p class="paragraph">La utilizarea operatorului de echivalență ===, ambele obiecte sunt considerate egale dacă ambele variabile de clasă indică către aceeași instanță a clasei.</p>
+     <p class="paragraph">Să vedem un exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;$name,&nbsp;$age;<br>&nbsp;&nbsp;&nbsp;function&nbsp;displayInfo()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;"Name:&nbsp;$this-&gt;name;&nbsp;Age:&nbsp;$this-&gt;age&lt;br&gt;";<br>&nbsp;&nbsp;&nbsp;}<br>}<br>$tom&nbsp;=&nbsp;new&nbsp;Person();<br>$tom&nbsp;-&gt;&nbsp;name&nbsp;=&nbsp;"Tom";<br>$tom&nbsp;-&gt;&nbsp;age&nbsp;=&nbsp;36;<br><br>$tomas&nbsp;=&nbsp;new&nbsp;Person();<br>$tomas&nbsp;-&gt;&nbsp;name&nbsp;=&nbsp;"Tom";<br>$tomas&nbsp;-&gt;&nbsp;age&nbsp;=&nbsp;36;<br><br>if($tom&nbsp;==&nbsp;$tomas)&nbsp;echo&nbsp;"variabilele&nbsp;tom&nbsp;și&nbsp;tomas&nbsp;sunt&nbsp;egale&lt;br&gt;";<br>else&nbsp;echo&nbsp;"variabilele&nbsp;tom&nbsp;și&nbsp;tomas&nbsp;NU&nbsp;sunt&nbsp;egale&lt;br&gt;";<br><br>if($tom&nbsp;===&nbsp;$tomas)&nbsp;echo&nbsp;"variabilele&nbsp;tom&nbsp;și&nbsp;tomas&nbsp;sunt&nbsp;echivalente";<br>else&nbsp;echo&nbsp;"variabilele&nbsp;tom&nbsp;și&nbsp;tomas&nbsp;NU&nbsp;sunt&nbsp;echivalente";<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici, sunt comparate două variabile - $tom și $tomas. Ele reprezintă aceeași clasă Person, și proprietățile lor au aceleași valori. Cu toate acestea, ele reprezintă obiecte diferite. Prin urmare, la compararea cu operatorul ==, acesta va returna true, iar operatorul === - false:</p>
+     <div class="code-inline">
+      <pre><code>variabilele&nbsp;tom&nbsp;și&nbsp;tomas&nbsp;sunt&nbsp;egale<br>variabilele&nbsp;tom&nbsp;și&nbsp;tomas&nbsp;NU&nbsp;sunt&nbsp;echivalente</code></pre>
+     </div>
+     <p class="paragraph">Să luăm un alt exemplu, în care ambele variabile reprezintă același obiect:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$person&nbsp;=&nbsp;new&nbsp;Person();<br><br>$tom&nbsp;=&nbsp;$person;<br>$tom&nbsp;-&gt;&nbsp;name&nbsp;=&nbsp;"Tom";<br>$tom&nbsp;-&gt;&nbsp;age&nbsp;=&nbsp;36;<br><br>$tomas&nbsp;=&nbsp;$person;<br><br>if($tom&nbsp;==&nbsp;$tomas)&nbsp;echo&nbsp;"variabilele&nbsp;tom&nbsp;și&nbsp;tomas&nbsp;sunt&nbsp;egale&lt;br&gt;";<br>else&nbsp;echo&nbsp;"variabilele&nbsp;tom&nbsp;și&nbsp;tomas&nbsp;NU&nbsp;sunt&nbsp;egale&lt;br&gt;";<br><br>if($tom&nbsp;===&nbsp;$tomas)&nbsp;echo&nbsp;"variabilele&nbsp;tom&nbsp;și&nbsp;tomas&nbsp;sunt&nbsp;echivalente";<br>else&nbsp;echo&nbsp;"variabilele&nbsp;tom&nbsp;și&nbsp;tomas&nbsp;NU&nbsp;sunt&nbsp;echivalente";<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici, obiectul clasei Person este creat doar o singură dată: $person = new Person();. Și apoi ambele variabile $tom și $tomas vor indica către acest obiect.</p>
+     <p class="paragraph">Nu contează pentru ce variabilă setăm proprietățile, deoarece în realitate va fi același obiect. În final, atât operatorul ==, cât și operatorul === vor returna true la comparare:</p>
+     <div class="code-inline">
+      <pre><code>variabilele&nbsp;tom&nbsp;și&nbsp;tomas&nbsp;sunt&nbsp;egale<br>variabilele&nbsp;tom&nbsp;și&nbsp;tomas&nbsp;sunt&nbsp;echivalente</code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

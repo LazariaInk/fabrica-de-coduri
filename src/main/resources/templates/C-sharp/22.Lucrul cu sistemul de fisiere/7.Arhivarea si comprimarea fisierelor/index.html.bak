@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='22.Lucrul cu sistemul de fisiere', activeLesson='7.Arhivarea si comprimarea fisierelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Arhivarea și comprimarea fișierelor</h1>
+     <p class="paragraph">Pe lângă clasele de citire și scriere, .NET oferă și clase care permit comprimarea fișierelor și apoi restaurarea lor în starea inițială.</p>
+     <p class="paragraph">Aceste clase sunt ZipFile, DeflateStream și GZipStream, care se află în spațiul de nume System.IO.Compression și implementează algoritmi de comprimare precum Deflate sau GZip.</p>
+     <h2 class="subtitle">GZipStream și DeflateStream</h2>
+     <p class="paragraph">Pentru a crea un obiect GZipStream, se poate folosi unul dintre constructorii săi:</p>
+     <ul class="enumeration">
+      <li>GZipStream(Stream stream, CompressionLevel level): stream reprezintă datele, iar level setează nivelul de comprimare</li>
+      <li>GZipStream(Stream stream, CompressionMode mode): mode indică dacă datele vor fi comprimate sau restaurate și poate avea două valori:</li>
+     </ul>
+     <p class="paragraph">CompressionMode.Compress: datele sunt comprimate.</p>
+     <p class="paragraph">CompressionMode.Decompress: datele sunt restaurate.</p>
+     <p class="paragraph">Dacă datele sunt comprimate, stream indică fluxul datelor care urmează să fie arhivate. Dacă datele sunt restaurate, stream indică fluxul în care vor fi transferate datele restaurate.</p>
+     <ul class="enumeration">
+      <li>GZipStream(Stream stream, CompressionLevel level, bool leaveOpen): parametrul leaveOpen indică dacă fluxul stream trebuie lăsat deschis după ce obiectul GZipStream este eliminat. Dacă valoarea este true, fluxul rămâne deschis</li>
+      <li>GZipStream(Stream stream, CompressionMode mode, bool leaveOpen)</li>
+     </ul>
+     <p class="paragraph">Pentru a gestiona comprimarea/restaurarea datelor, GZipStream oferă o serie de metode esențiale:</p>
+     <ul class="enumeration">
+      <li>void CopyTo(Stream destination): copiază toate datele în fluxul destination</li>
+      <li>Task CopyToAsync(Stream destination): versiunea asincronă a metodei CopyTo</li>
+      <li>void Flush(): curăță bufferul, scriind toate datele în fișier</li>
+      <li>Task FlushAsync(): versiunea asincronă a metodei Flush</li>
+      <li>int Read(byte[] array, int offset, int count): citește datele din fișier într-un array de bytes și returnează numărul de bytes citite. Primește trei parametri:</li>
+     </ul>
+     <p class="paragraph">- array: array-ul de bytes în care vor fi plasate datele citite din fișier.</p>
+     <p class="paragraph">- offset: deplasarea în bytes în array-ul array, în care vor fi plasate bytes-ii citiți.</p>
+     <p class="paragraph">- count: numărul maxim de bytes care urmează să fie citiți. Dacă în fișier există mai puțini bytes, aceștia vor fi citiți toți.</p>
+     <ul class="enumeration">
+      <li>Task&lt;int&gt; ReadAsync(byte[] array, int offset, int count): versiunea asincronă a metodei Read</li>
+      <li>long Seek(long offset, SeekOrigin origin): setează poziția în flux cu o deplasare de numărul de bytes specificat în parametrul offset</li>
+      <li>void Write(byte[] array, int offset, int count): scrie datele din array-ul de bytes în fișier. Primește trei parametri:</li>
+     </ul>
+     <p class="paragraph">- array: array-ul de bytes din care datele vor fi scrise în fișier.</p>
+     <p class="paragraph">- offset: deplasarea în bytes în array-ul array, de unde începe scrierea bytes-ilor în flux.</p>
+     <p class="paragraph">- count: numărul maxim de bytes care urmează să fie scriși.</p>
+     <ul class="enumeration">
+      <li>Task WriteAsync(byte[] array, int offset, int count): versiunea asincronă a metodei Write.</li>
+     </ul>
+     <p class="paragraph">Să vedem un exemplu de utilizare a clasei GZipStream:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.IO.Compression;<br><br>string&nbsp;sourceFile&nbsp;=&nbsp;"book.pdf";&nbsp;//&nbsp;fișierul&nbsp;sursă<br>string&nbsp;compressedFile&nbsp;=&nbsp;"book.gz";&nbsp;//&nbsp;fișierul&nbsp;comprimat<br>string&nbsp;targetFile&nbsp;=&nbsp;"book_new.pdf";&nbsp;//&nbsp;fișierul&nbsp;restaurat<br><br>//&nbsp;crearea&nbsp;fișierului&nbsp;comprimat<br>await&nbsp;CompressAsync(sourceFile,&nbsp;compressedFile);<br>//&nbsp;citirea&nbsp;din&nbsp;fișierul&nbsp;comprimat<br>await&nbsp;DecompressAsync(compressedFile,&nbsp;targetFile);<br><br>async&nbsp;Task&nbsp;CompressAsync(string&nbsp;sourceFile,&nbsp;string&nbsp;compressedFile)<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;flux&nbsp;pentru&nbsp;citirea&nbsp;fișierului&nbsp;sursă<br>&nbsp;&nbsp;&nbsp;using&nbsp;FileStream&nbsp;sourceStream&nbsp;=&nbsp;new&nbsp;FileStream(sourceFile,&nbsp;FileMode.OpenOrCreate);<br>&nbsp;&nbsp;&nbsp;//&nbsp;flux&nbsp;pentru&nbsp;scrierea&nbsp;fișierului&nbsp;comprimat<br>&nbsp;&nbsp;&nbsp;using&nbsp;FileStream&nbsp;targetStream&nbsp;=&nbsp;File.Create(compressedFile);<br><br>&nbsp;&nbsp;&nbsp;//&nbsp;fluxul&nbsp;de&nbsp;comprimare<br>&nbsp;&nbsp;&nbsp;using&nbsp;GZipStream&nbsp;compressionStream&nbsp;=&nbsp;new&nbsp;GZipStream(targetStream,&nbsp;CompressionMode.Compress);<br>&nbsp;&nbsp;&nbsp;await&nbsp;sourceStream.CopyToAsync(compressionStream);&nbsp;//&nbsp;copiem&nbsp;bytes&nbsp;dintr-un&nbsp;flux&nbsp;în&nbsp;altul<br><br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Comprimarea&nbsp;fișierului&nbsp;{sourceFile}&nbsp;a&nbsp;fost&nbsp;finalizată.");<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Dimensiunea&nbsp;originală:&nbsp;{sourceStream.Length}&nbsp;&nbsp;dimensiunea&nbsp;comprimată:&nbsp;{targetStream.Length}");<br>}<br><br>async&nbsp;Task&nbsp;DecompressAsync(string&nbsp;compressedFile,&nbsp;string&nbsp;targetFile)<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;flux&nbsp;pentru&nbsp;citirea&nbsp;din&nbsp;fișierul&nbsp;comprimat<br>&nbsp;&nbsp;&nbsp;using&nbsp;FileStream&nbsp;sourceStream&nbsp;=&nbsp;new&nbsp;FileStream(compressedFile,&nbsp;FileMode.OpenOrCreate);<br>&nbsp;&nbsp;&nbsp;//&nbsp;flux&nbsp;pentru&nbsp;scrierea&nbsp;fișierului&nbsp;restaurat<br>&nbsp;&nbsp;&nbsp;using&nbsp;FileStream&nbsp;targetStream&nbsp;=&nbsp;File.Create(targetFile);<br>&nbsp;&nbsp;&nbsp;//&nbsp;fluxul&nbsp;de&nbsp;decomprimare<br>&nbsp;&nbsp;&nbsp;using&nbsp;GZipStream&nbsp;decompressionStream&nbsp;=&nbsp;new&nbsp;GZipStream(sourceStream,&nbsp;CompressionMode.Decompress);<br>&nbsp;&nbsp;&nbsp;await&nbsp;decompressionStream.CopyToAsync(targetStream);<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Fișierul&nbsp;a&nbsp;fost&nbsp;restaurat:&nbsp;{targetFile}");<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest exemplu, se presupune că în folderul cu programul se află fișierul book.pdf, care va fi arhivat.</p>
+     <p class="paragraph">Metoda CompressAsync primește numele fișierului sursă care trebuie arhivat și numele viitorului fișier comprimat.</p>
+     <p class="paragraph">Mai întâi, se creează un flux pentru citirea din fișierul sursă - FileStream sourceStream. Apoi se creează un flux pentru scrierea în fișierul comprimat - FileStream targetStream. Fluxul de arhivare GZipStream compressionStream este inițializat cu fluxul targetStream și, cu ajutorul metodei CopyToAsync(), primește date din fluxul sourceStream.</p>
+     <p class="paragraph">Metoda DecompressAsync efectuează operația inversă de restaurare a fișierului comprimat în starea sa inițială. Ea primește ca parametri căile către fișierul comprimat și fișierul restaurat.</p>
+     <p class="paragraph">Aici, mai întâi se creează un flux pentru citirea din fișierul comprimat FileStream sourceStream, apoi un flux pentru scrierea în fișierul restaurat FileStream targetStream. La final, se creează fluxul GZipStream decompressionStream, care, cu ajutorul metodei CopyToAsync(), copiază datele restaurate în fluxul targetStream.</p>
+     <p class="paragraph">Pentru a specifica scopul fluxului GZipStream - comprimare sau restaurare - în constructorul său se transmite parametrul CompressionMode, care poate lua două valori: Compress și Decompress.</p>
+     <p class="paragraph">Exemplu de ieșire în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Comprimarea&nbsp;fișierului&nbsp;book.pdf&nbsp;a&nbsp;fost&nbsp;finalizată.<br>Dimensiunea&nbsp;originală:&nbsp;3235353&nbsp;&nbsp;dimensiunea&nbsp;comprimată:&nbsp;2574401<br>Fișierul&nbsp;a&nbsp;fost&nbsp;restaurat:&nbsp;book_new.pdf</code></pre>
+     </div>
+     <p class="paragraph">Dacă dorim să folosim altă clasă de comprimare, cum ar fi DeflateStream, putem pur și simplu să înlocuim în cod referințele la GZipStream cu DeflateStream, fără a modifica restul codului. Utilizarea lor este identică.</p>
+     <p class="paragraph">Totuși, folosirea acestor clase are unele limitări; de exemplu, putem comprima doar un singur fișier. Pentru arhivarea unui grup de fișiere, este mai bine să utilizăm alte instrumente, cum ar fi ZipFile.</p>
+     <h2 class="subtitle">Clasa statică ZipFile</h2>
+     <p class="paragraph">Clasa statică ZipFile din spațiul de nume System.IO.Compression oferă funcționalități suplimentare pentru crearea arhivelor. Aceasta permite crearea unei arhive din directoare. Principalele sale metode sunt:</p>
+     <ul class="enumeration">
+      <li>void CreateFromDirectory(string sourceDirectoryName, string destinationFileName): arhivează un folder de la calea sourceDirectoryName într-un fișier cu numele destinationFileName</li>
+      <li>void ExtractToDirectory(string sourceFileName, string destinationDirectoryName): extrage toate fișierele din fișierul zip sourceFileName în directorul destinationDirectoryName</li>
+     </ul>
+     <p class="paragraph">Ambele metode au mai multe versiuni supraîncărcate. Să vedem un exemplu de utilizare:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.IO.Compression;<br><br>string&nbsp;sourceFolder&nbsp;=&nbsp;"D://test/";&nbsp;//&nbsp;folderul&nbsp;sursă<br>string&nbsp;zipFile&nbsp;=&nbsp;"D://test.zip";&nbsp;//<br><br>fișierul&nbsp;comprimat<br>string&nbsp;targetFolder&nbsp;=&nbsp;"D://newtest";&nbsp;//&nbsp;folderul&nbsp;în&nbsp;care&nbsp;va&nbsp;fi&nbsp;extras&nbsp;fișierul<br><br>ZipFile.CreateFromDirectory(sourceFolder,&nbsp;zipFile);<br>Console.WriteLine($"Folderul&nbsp;{sourceFolder}&nbsp;a&nbsp;fost&nbsp;arhivat&nbsp;în&nbsp;fișierul&nbsp;{zipFile}");<br>ZipFile.ExtractToDirectory(zipFile,&nbsp;targetFolder);<br><br>Console.WriteLine($"Fișierul&nbsp;{zipFile}&nbsp;a&nbsp;fost&nbsp;extras&nbsp;în&nbsp;folderul&nbsp;{targetFolder}");</code></pre>
+     </div>
+     <p class="paragraph">În acest exemplu, folderul "D://test/" este arhivat în fișierul test.zip folosind metoda ZipFile.CreateFromDirectory. Apoi, metoda ZipFile.ExtractToDirectory() extrage acest fișier în folderul "D://newtest" (dacă acest folder nu există, va fi creat).</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

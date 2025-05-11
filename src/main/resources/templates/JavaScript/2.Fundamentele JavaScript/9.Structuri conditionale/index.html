@@ -1,252 +1,242 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='2.Fundamentele JavaScript', activeLesson='9.Structuri conditionale'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Structuri condiționale</h1>
- <p class="paragraph">Structurile condiționale permit executarea unor acțiuni diferite în funcție de anumite condiții.</p>
- <h2 class="subtitle">Construcția if..else</h2>
- <p class="paragraph">Construcția if..else verifică o anumită condiție și, dacă această condiție este adevărată, atunci se execută anumite acțiuni. Forma cea mai simplă a construcției if..else:</p>
- <div class="code-inline">
-  <pre><code>if(condiție){<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;careva&nbsp;acțiuni<br>}</code></pre>
- </div>
- <p class="paragraph">După cuvântul cheie if, între parantezele rotunde, este specificată condiția, iar după condiție - un bloc de cod cu anumite acțiuni. Dacă condiția este adevărată, atunci acțiunile din blocul de cod sunt executate.</p>
- <p class="paragraph">De exemplu:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;income&nbsp;=&nbsp;100;<br>if(income&nbsp;&gt;&nbsp;50)&nbsp;{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;console.log("venit&nbsp;mai&nbsp;mare&nbsp;de&nbsp;50");<br>}</code></pre>
- </div>
- <p class="paragraph">În această construcție if, se folosește condiția income &gt; 50. Dacă această condiție este adevărată, adică dacă constanta income are o valoare mai mare de 50, atunci browser-ul afișează un mesaj. Dacă valoarea income este mai mică de 50, atunci nu se afișează niciun mesaj.</p>
- <p class="paragraph">Dacă blocul de cod conține o singură instrucțiune, cum este cazul de mai sus, construcția poate fi simplificată eliminând acoladele și plasând acțiunile imediat după condiție:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;income&nbsp;=&nbsp;100;<br>if(income&nbsp;&gt;&nbsp;50)&nbsp;console.log("venit&nbsp;mai&nbsp;mare&nbsp;de&nbsp;50");</code></pre>
- </div>
- <p class="paragraph">Sau putem muta acțiunile pe linii separate:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;income&nbsp;=&nbsp;100;<br>if(income&nbsp;&gt;&nbsp;50)<br>&nbsp;&nbsp;&nbsp;console.log("venit&nbsp;mai&nbsp;mare&nbsp;de&nbsp;50");</code></pre>
- </div>
- <p class="paragraph">Cu toate astea, condițiile pot fi mai complexe:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;income&nbsp;=&nbsp;100;<br>const&nbsp;age&nbsp;=&nbsp;19;<br>if(income&nbsp;&gt;&nbsp;50&nbsp;&amp;&amp;&nbsp;age&nbsp;&gt;&nbsp;18){<br><br>&nbsp;&nbsp;&nbsp;console.log("venit&nbsp;mai&nbsp;mare&nbsp;de&nbsp;50");<br>&nbsp;&nbsp;&nbsp;console.log("vârsta&nbsp;mai&nbsp;mare&nbsp;de&nbsp;18");<br>}</code></pre>
- </div>
- <h2 class="subtitle">Verificarea prezenței valorii</h2>
- <p class="paragraph">Construcția if permite verificarea prezenței unei valori. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>let&nbsp;myVar&nbsp;=&nbsp;89;<br>if&nbsp;(myVar)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(Variabila&nbsp;myVar&nbsp;are&nbsp;valoarea:&nbsp;${myVar});<br>}</code></pre>
- </div>
- <p class="paragraph">Dacă variabila myVar are o valoare, așa cum este cazul aici, atunci în construcția condițională aceasta va evalua la true.</p>
- <p class="paragraph">Varianta opusă:</p>
- <div class="code-inline">
-  <pre><code>let&nbsp;myVar;<br>if&nbsp;(myVar)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(Variabila&nbsp;myVar&nbsp;are&nbsp;valoarea:&nbsp;${myVar});<br>}</code></pre>
- </div>
- <p class="paragraph">Aici, variabila myVar nu are o valoare (în realitate, este undefined). Prin urmare, condiția din construcția if va evalua la false, iar acțiunile din blocul if nu vor fi executate.</p>
- <p class="paragraph">Dar adesea, pentru a verifica valoarea unei variabile, se utilizează o variantă alternativă - se verifică pe undefined și null:</p>
- <div class="code-inline">
-  <pre><code>if&nbsp;(myVar&nbsp;!==&nbsp;undefined&nbsp;&amp;&amp;&nbsp;myVar&nbsp;!==&nbsp;null)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(Variabila&nbsp;myVar&nbsp;are&nbsp;valoarea:&nbsp;${myVar});<br>}</code></pre>
- </div>
- <h2 class="subtitle">Expresia else</h2>
- <p class="paragraph">Mai sus am discutat cum să definim acțiunile care se execută dacă condiția de după if este adevărată. Dar ce facem dacă dorim să executăm și un alt set de instrucțiuni atunci când condiția este falsă? În acest caz, putem utiliza blocul else. Acest bloc conține instrucțiunile care se execută dacă condiția după if este falsă, adică false:</p>
- <div class="code-inline">
-  <pre><code>if&nbsp;(condiție)&nbsp;{<br>&nbsp;&nbsp;&nbsp;//&nbsp;acțiuni&nbsp;dacă&nbsp;condiția&nbsp;este&nbsp;adevărată<br>}&nbsp;else&nbsp;{<br>&nbsp;&nbsp;&nbsp;//&nbsp;acțiuni&nbsp;dacă&nbsp;condiția&nbsp;este&nbsp;falsă<br>}</code></pre>
- </div>
- <p class="paragraph">Adică, dacă condiția de după if este adevărată, se execută blocul if. Dacă condiția este falsă, se execută blocul else. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;income&nbsp;=&nbsp;45;<br>if&nbsp;(income&nbsp;&gt;&nbsp;50)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;mai&nbsp;mare&nbsp;de&nbsp;50");<br>}&nbsp;else&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;mai&nbsp;mic&nbsp;sau&nbsp;egal&nbsp;cu&nbsp;50");<br>}</code></pre>
- </div>
- <p class="paragraph">Aici, constanta income are valoarea 45, astfel că condiția după operatorul if va evalua valoarea false, iar controlul va trece la blocul else.</p>
- <p class="paragraph">De asemenea, dacă blocul else conține o singură instrucțiune, construcția poate fi scurtată:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;income&nbsp;=&nbsp;45;<br>if&nbsp;(income&nbsp;&gt;&nbsp;50)&nbsp;console.log("Venitul&nbsp;este&nbsp;mai&nbsp;mare&nbsp;de&nbsp;50");<br>else&nbsp;console.log("Venitul&nbsp;este&nbsp;mai&nbsp;mic&nbsp;sau&nbsp;egal&nbsp;cu&nbsp;50");</code></pre>
- </div>
- <h2 class="subtitle">Condiții Alternative și else if</h2>
- <p class="paragraph">Cu ajutorul construcției else if, putem adăuga o altă condiție la blocul if. De exemplu, mai sus, valoarea income poate fi mai mare, mai mică sau egală cu o anumită valoare. Vom reflecta aceasta în cod:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;income&nbsp;=&nbsp;50;<br>if&nbsp;(income&nbsp;&gt;&nbsp;50)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;mai&nbsp;mare&nbsp;de&nbsp;50");<br>}&nbsp;else&nbsp;if&nbsp;(income&nbsp;===&nbsp;50)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;egal&nbsp;cu&nbsp;50");<br>}&nbsp;else&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;mai&nbsp;mic&nbsp;de&nbsp;50");<br>}</code></pre>
- </div>
- <p class="paragraph">În acest caz, se va executa blocul else if. Dacă este necesar, putem utiliza mai multe blocuri else if cu condiții diferite:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;income&nbsp;=&nbsp;500;<br>if&nbsp;(income&nbsp;&lt;&nbsp;200)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;sub&nbsp;medie");<br>}&nbsp;else&nbsp;if&nbsp;(income&nbsp;&gt;=&nbsp;200&nbsp;&amp;&amp;&nbsp;income&nbsp;&lt;&nbsp;300)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Puțin&nbsp;sub&nbsp;medie");<br>}&nbsp;else&nbsp;if&nbsp;(income&nbsp;&gt;=&nbsp;300&nbsp;&amp;&amp;&nbsp;income&nbsp;&lt;&nbsp;400)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Venit&nbsp;mediu");<br>}&nbsp;else&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;peste&nbsp;medie");<br>}</code></pre>
- </div>
- <p class="paragraph">În acest caz, nu este neapărat să aplicăm blocul else:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;income&nbsp;=&nbsp;500;<br>if&nbsp;(income&nbsp;&lt;&nbsp;200)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;sub&nbsp;medie");<br>}&nbsp;else&nbsp;if&nbsp;(income&nbsp;&gt;=&nbsp;200&nbsp;&amp;&amp;&nbsp;income&nbsp;&lt;&nbsp;300)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Puțin&nbsp;sub&nbsp;medie");<br>}&nbsp;else&nbsp;if&nbsp;(income&nbsp;&gt;=&nbsp;300&nbsp;&amp;&amp;&nbsp;income&nbsp;&lt;&nbsp;400)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Venit&nbsp;mediu");<br>}</code></pre>
- </div>
- <h2 class="subtitle">True sau False</h2>
- <p class="paragraph">În JavaScript, orice variabilă poate fi folosită în expresii condiționale, dar nu orice variabilă reprezintă un tip boolean. În această privință, apare întrebarea despre ce va returna o anumită variabilă - true sau false? Mult depinde de tipul de date pe care îl reprezintă variabila:</p>
- <ul class="enumeration">
-  <li>undefined: Returnează false</li>
-  <li>null: Returnează false</li>
-  <li>Boolean: Dacă constanta/variabila este false, atunci se returnează false. Similar, dacă constanta/variabila este true, atunci se returnează true.</li>
-  <li>Number: Returnează false dacă numărul este 0 sau NaN (Not a Number), în celelalte cazuri returnează true</li>
- </ul>
- <p class="paragraph">De exemplu, următoarea variabilă va returna false:</p>
- <div class="code-inline">
-  <pre><code>let&nbsp;x&nbsp;=&nbsp;NaN;<br>if(x){&nbsp;&nbsp;//&nbsp;false<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>}</code></pre>
- </div>
- <ul class="enumeration">
-  <li>String</li>
- </ul>
- <p class="paragraph">Returnează false dacă constanta/variabila este o șir de caractere gol, adică lungimea sa este 0, în celelalte cazuri returnează true.</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;emptyText&nbsp;=&nbsp;"";&nbsp;&nbsp;&nbsp;//&nbsp;false&nbsp;-&nbsp;deoarece&nbsp;este&nbsp;un&nbsp;șir&nbsp;gol<br>const&nbsp;someText&nbsp;=&nbsp;"javascript";&nbsp;&nbsp;//&nbsp;true&nbsp;-&nbsp;șirul&nbsp;nu&nbsp;este&nbsp;gol</code></pre>
- </div>
- <ul class="enumeration">
-  <li>Object</li>
- </ul>
- <p class="paragraph">Întotdeauna returnează true.</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;user&nbsp;=&nbsp;{name:"Tom"};&nbsp;&nbsp;//&nbsp;true<br>const&nbsp;car&nbsp;=&nbsp;{};&nbsp;//&nbsp;true</code></pre>
- </div>
- <h2 class="subtitle">Construcția switch..case</h2>
- <p class="paragraph">Construcția switch..case reprezintă o alternativă la folosirea construcției if..else și permite procesarea simultană a mai multor condiții:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;income&nbsp;=&nbsp;200;<br>switch&nbsp;(income)&nbsp;{<br>&nbsp;&nbsp;&nbsp;case&nbsp;100:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;de&nbsp;100");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;case&nbsp;200:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;de&nbsp;200");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;case&nbsp;500:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;de&nbsp;500");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>}</code></pre>
- </div>
- <p class="paragraph">După cuvântul cheie switch, în paranteze, se găsește expresia de comparare. Valoarea acestei expresii este comparată secvențial cu valorile plasate după operatorul case. Dacă se găsește o potrivire, atunci se va executa blocul case corespunzător.</p>
- <p class="paragraph">La sfârșitul fiecărui bloc case se adaugă operatorul break pentru a evita executarea altor blocuri. În acest caz, constanta income este egală cu 200, așa că va fi executat blocul case corespunzător:</p>
- <div class="code-inline">
-  <pre><code>case&nbsp;200:<br>&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;de&nbsp;200");<br>&nbsp;&nbsp;&nbsp;break;</code></pre>
- </div>
- <h2 class="subtitle">Operatorul break</h2>
- <p class="paragraph">Operatorul break servește pentru a evita executarea altor condiții. De exemplu, am putea scrie:</p>
- <div class="code-inline">
-  <pre><code>let&nbsp;income&nbsp;=&nbsp;200;<br>switch&nbsp;(income)&nbsp;{<br>&nbsp;&nbsp;&nbsp;case&nbsp;100:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;de&nbsp;100");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;income&nbsp;+=&nbsp;100;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;case&nbsp;200:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;de&nbsp;200");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;income&nbsp;+=&nbsp;100;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;case&nbsp;500:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;de&nbsp;500");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;income&nbsp;+=&nbsp;100;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;break;&nbsp;&nbsp;&nbsp;//&nbsp;aici&nbsp;nu&nbsp;are&nbsp;sens&nbsp;să&nbsp;folosim&nbsp;break,&nbsp;deoarece&nbsp;este&nbsp;ultimul&nbsp;bloc<br>}</code></pre>
- </div>
- <p class="paragraph">În acest caz, variabila income este din nou setată la 200 și blocul va fi din nou executat.</p>
- <div class="code-inline">
-  <pre><code>case&nbsp;200&nbsp;:<br>&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;de&nbsp;200");<br>&nbsp;&nbsp;&nbsp;income&nbsp;+=100;<br>&nbsp;&nbsp;&nbsp;break;</code></pre>
- </div>
- <p class="paragraph">Datorită operatorului break, după executarea blocului, se va ieși din construcția switch, iar alte blocuri case nu vor fi executate.</p>
- <p class="paragraph">Dar acum să eliminăm operatorul break:</p>
- <div class="code-inline">
-  <pre><code>let&nbsp;income&nbsp;=&nbsp;200;<br>switch&nbsp;(income)&nbsp;{<br>&nbsp;&nbsp;&nbsp;case&nbsp;100:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;de&nbsp;100");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;income&nbsp;+=&nbsp;100;<br>&nbsp;&nbsp;&nbsp;case&nbsp;200:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;de&nbsp;200");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;income&nbsp;+=&nbsp;100;<br>&nbsp;&nbsp;&nbsp;case&nbsp;500:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;de&nbsp;500");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;income&nbsp;+=&nbsp;100;<br>}<br>console.log("Venitul&nbsp;final&nbsp;este",&nbsp;income);</code></pre>
- </div>
- <p class="paragraph">Rezultatul executării:</p>
- <p class="paragraph">Venitul este de 200 Venitul este de 500 Venitul final este 400</p>
- <p class="paragraph">În acest caz, variabila income este inițializată cu 200, deci blocul va fi executat.</p>
- <div class="code-inline">
-  <pre><code>case&nbsp;200&nbsp;:<br>&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;de&nbsp;200");<br>&nbsp;&nbsp;&nbsp;income&nbsp;+=&nbsp;100;</code></pre>
- </div>
- <p class="paragraph">Valoarea variabilei income este crescută cu 100, dar la sfârșitul blocului nu există un operator break, astfel încât controlul va trece la verificarea condiției în următorul bloc:</p>
- <div class="code-inline">
-  <pre><code>case&nbsp;500&nbsp;:<br>&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;de&nbsp;500");<br>&nbsp;&nbsp;&nbsp;income&nbsp;+=&nbsp;100;</code></pre>
- </div>
- <p class="paragraph">Și nu contează că venitul nu este 500 (ci doar 300 în acest moment), acest bloc tot va fi executat.</p>
- <h2 class="subtitle">Unirea condițiilor</h2>
- <p class="paragraph">Totuși, dacă este necesar, se pot verifica simultan mai multe condiții:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;income&nbsp;=&nbsp;200;<br>switch(income){<br><br>&nbsp;&nbsp;&nbsp;case&nbsp;100&nbsp;:<br>&nbsp;&nbsp;&nbsp;case&nbsp;200&nbsp;:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;100&nbsp;sau&nbsp;200");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;case&nbsp;500&nbsp;:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;500");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>}</code></pre>
- </div>
- <p class="paragraph">În acest caz, pentru condiția în care venitul este de 100 sau 200, se vor efectua aceleași acțiuni.</p>
- <h2 class="subtitle">Condiția implicită - default</h2>
- <p class="paragraph">Dacă dorim să gestionăm și situația în care nu se găsesc corespondențe, putem adăuga un bloc opțional default:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;income&nbsp;=&nbsp;700;<br>switch(income){<br><br>&nbsp;&nbsp;&nbsp;case&nbsp;100&nbsp;:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;100");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;case&nbsp;200&nbsp;:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;200");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;case&nbsp;500&nbsp;:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;500");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;default:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;de&nbsp;valoare&nbsp;necunoscută");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>}</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Structuri condiționale</h1>
+     <p class="paragraph">Structurile condiționale permit executarea unor acțiuni diferite în funcție de anumite condiții.</p>
+     <h2 class="subtitle">Construcția if..else</h2>
+     <p class="paragraph">Construcția if..else verifică o anumită condiție și, dacă această condiție este adevărată, atunci se execută anumite acțiuni. Forma cea mai simplă a construcției if..else:</p>
+     <div class="code-inline">
+      <pre><code>if(condiție){<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;careva&nbsp;acțiuni<br>}</code></pre>
+     </div>
+     <p class="paragraph">După cuvântul cheie if, între parantezele rotunde, este specificată condiția, iar după condiție - un bloc de cod cu anumite acțiuni. Dacă condiția este adevărată, atunci acțiunile din blocul de cod sunt executate.</p>
+     <p class="paragraph">De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;income&nbsp;=&nbsp;100;<br>if(income&nbsp;&gt;&nbsp;50)&nbsp;{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;console.log("venit&nbsp;mai&nbsp;mare&nbsp;de&nbsp;50");<br>}</code></pre>
+     </div>
+     <p class="paragraph">În această construcție if, se folosește condiția income &gt; 50. Dacă această condiție este adevărată, adică dacă constanta income are o valoare mai mare de 50, atunci browser-ul afișează un mesaj. Dacă valoarea income este mai mică de 50, atunci nu se afișează niciun mesaj.</p>
+     <p class="paragraph">Dacă blocul de cod conține o singură instrucțiune, cum este cazul de mai sus, construcția poate fi simplificată eliminând acoladele și plasând acțiunile imediat după condiție:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;income&nbsp;=&nbsp;100;<br>if(income&nbsp;&gt;&nbsp;50)&nbsp;console.log("venit&nbsp;mai&nbsp;mare&nbsp;de&nbsp;50");</code></pre>
+     </div>
+     <p class="paragraph">Sau putem muta acțiunile pe linii separate:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;income&nbsp;=&nbsp;100;<br>if(income&nbsp;&gt;&nbsp;50)<br>&nbsp;&nbsp;&nbsp;console.log("venit&nbsp;mai&nbsp;mare&nbsp;de&nbsp;50");</code></pre>
+     </div>
+     <p class="paragraph">Cu toate astea, condițiile pot fi mai complexe:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;income&nbsp;=&nbsp;100;<br>const&nbsp;age&nbsp;=&nbsp;19;<br>if(income&nbsp;&gt;&nbsp;50&nbsp;&amp;&amp;&nbsp;age&nbsp;&gt;&nbsp;18){<br><br>&nbsp;&nbsp;&nbsp;console.log("venit&nbsp;mai&nbsp;mare&nbsp;de&nbsp;50");<br>&nbsp;&nbsp;&nbsp;console.log("vârsta&nbsp;mai&nbsp;mare&nbsp;de&nbsp;18");<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Verificarea prezenței valorii</h2>
+     <p class="paragraph">Construcția if permite verificarea prezenței unei valori. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>let&nbsp;myVar&nbsp;=&nbsp;89;<br>if&nbsp;(myVar)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(Variabila&nbsp;myVar&nbsp;are&nbsp;valoarea:&nbsp;${myVar});<br>}</code></pre>
+     </div>
+     <p class="paragraph">Dacă variabila myVar are o valoare, așa cum este cazul aici, atunci în construcția condițională aceasta va evalua la true.</p>
+     <p class="paragraph">Varianta opusă:</p>
+     <div class="code-inline">
+      <pre><code>let&nbsp;myVar;<br>if&nbsp;(myVar)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(Variabila&nbsp;myVar&nbsp;are&nbsp;valoarea:&nbsp;${myVar});<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici, variabila myVar nu are o valoare (în realitate, este undefined). Prin urmare, condiția din construcția if va evalua la false, iar acțiunile din blocul if nu vor fi executate.</p>
+     <p class="paragraph">Dar adesea, pentru a verifica valoarea unei variabile, se utilizează o variantă alternativă - se verifică pe undefined și null:</p>
+     <div class="code-inline">
+      <pre><code>if&nbsp;(myVar&nbsp;!==&nbsp;undefined&nbsp;&amp;&amp;&nbsp;myVar&nbsp;!==&nbsp;null)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(Variabila&nbsp;myVar&nbsp;are&nbsp;valoarea:&nbsp;${myVar});<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Expresia else</h2>
+     <p class="paragraph">Mai sus am discutat cum să definim acțiunile care se execută dacă condiția de după if este adevărată. Dar ce facem dacă dorim să executăm și un alt set de instrucțiuni atunci când condiția este falsă? În acest caz, putem utiliza blocul else. Acest bloc conține instrucțiunile care se execută dacă condiția după if este falsă, adică false:</p>
+     <div class="code-inline">
+      <pre><code>if&nbsp;(condiție)&nbsp;{<br>&nbsp;&nbsp;&nbsp;//&nbsp;acțiuni&nbsp;dacă&nbsp;condiția&nbsp;este&nbsp;adevărată<br>}&nbsp;else&nbsp;{<br>&nbsp;&nbsp;&nbsp;//&nbsp;acțiuni&nbsp;dacă&nbsp;condiția&nbsp;este&nbsp;falsă<br>}</code></pre>
+     </div>
+     <p class="paragraph">Adică, dacă condiția de după if este adevărată, se execută blocul if. Dacă condiția este falsă, se execută blocul else. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;income&nbsp;=&nbsp;45;<br>if&nbsp;(income&nbsp;&gt;&nbsp;50)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;mai&nbsp;mare&nbsp;de&nbsp;50");<br>}&nbsp;else&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;mai&nbsp;mic&nbsp;sau&nbsp;egal&nbsp;cu&nbsp;50");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici, constanta income are valoarea 45, astfel că condiția după operatorul if va evalua valoarea false, iar controlul va trece la blocul else.</p>
+     <p class="paragraph">De asemenea, dacă blocul else conține o singură instrucțiune, construcția poate fi scurtată:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;income&nbsp;=&nbsp;45;<br>if&nbsp;(income&nbsp;&gt;&nbsp;50)&nbsp;console.log("Venitul&nbsp;este&nbsp;mai&nbsp;mare&nbsp;de&nbsp;50");<br>else&nbsp;console.log("Venitul&nbsp;este&nbsp;mai&nbsp;mic&nbsp;sau&nbsp;egal&nbsp;cu&nbsp;50");</code></pre>
+     </div>
+     <h2 class="subtitle">Condiții Alternative și else if</h2>
+     <p class="paragraph">Cu ajutorul construcției else if, putem adăuga o altă condiție la blocul if. De exemplu, mai sus, valoarea income poate fi mai mare, mai mică sau egală cu o anumită valoare. Vom reflecta aceasta în cod:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;income&nbsp;=&nbsp;50;<br>if&nbsp;(income&nbsp;&gt;&nbsp;50)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;mai&nbsp;mare&nbsp;de&nbsp;50");<br>}&nbsp;else&nbsp;if&nbsp;(income&nbsp;===&nbsp;50)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;egal&nbsp;cu&nbsp;50");<br>}&nbsp;else&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;mai&nbsp;mic&nbsp;de&nbsp;50");<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, se va executa blocul else if. Dacă este necesar, putem utiliza mai multe blocuri else if cu condiții diferite:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;income&nbsp;=&nbsp;500;<br>if&nbsp;(income&nbsp;&lt;&nbsp;200)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;sub&nbsp;medie");<br>}&nbsp;else&nbsp;if&nbsp;(income&nbsp;&gt;=&nbsp;200&nbsp;&amp;&amp;&nbsp;income&nbsp;&lt;&nbsp;300)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Puțin&nbsp;sub&nbsp;medie");<br>}&nbsp;else&nbsp;if&nbsp;(income&nbsp;&gt;=&nbsp;300&nbsp;&amp;&amp;&nbsp;income&nbsp;&lt;&nbsp;400)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Venit&nbsp;mediu");<br>}&nbsp;else&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;peste&nbsp;medie");<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, nu este neapărat să aplicăm blocul else:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;income&nbsp;=&nbsp;500;<br>if&nbsp;(income&nbsp;&lt;&nbsp;200)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;sub&nbsp;medie");<br>}&nbsp;else&nbsp;if&nbsp;(income&nbsp;&gt;=&nbsp;200&nbsp;&amp;&amp;&nbsp;income&nbsp;&lt;&nbsp;300)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Puțin&nbsp;sub&nbsp;medie");<br>}&nbsp;else&nbsp;if&nbsp;(income&nbsp;&gt;=&nbsp;300&nbsp;&amp;&amp;&nbsp;income&nbsp;&lt;&nbsp;400)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Venit&nbsp;mediu");<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">True sau False</h2>
+     <p class="paragraph">În JavaScript, orice variabilă poate fi folosită în expresii condiționale, dar nu orice variabilă reprezintă un tip boolean. În această privință, apare întrebarea despre ce va returna o anumită variabilă - true sau false? Mult depinde de tipul de date pe care îl reprezintă variabila:</p>
+     <ul class="enumeration">
+      <li>undefined: Returnează false</li>
+      <li>null: Returnează false</li>
+      <li>Boolean: Dacă constanta/variabila este false, atunci se returnează false. Similar, dacă constanta/variabila este true, atunci se returnează true.</li>
+      <li>Number: Returnează false dacă numărul este 0 sau NaN (Not a Number), în celelalte cazuri returnează true</li>
+     </ul>
+     <p class="paragraph">De exemplu, următoarea variabilă va returna false:</p>
+     <div class="code-inline">
+      <pre><code>let&nbsp;x&nbsp;=&nbsp;NaN;<br>if(x){&nbsp;&nbsp;//&nbsp;false<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>}</code></pre>
+     </div>
+     <ul class="enumeration">
+      <li>String</li>
+     </ul>
+     <p class="paragraph">Returnează false dacă constanta/variabila este o șir de caractere gol, adică lungimea sa este 0, în celelalte cazuri returnează true.</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;emptyText&nbsp;=&nbsp;"";&nbsp;&nbsp;&nbsp;//&nbsp;false&nbsp;-&nbsp;deoarece&nbsp;este&nbsp;un&nbsp;șir&nbsp;gol<br>const&nbsp;someText&nbsp;=&nbsp;"javascript";&nbsp;&nbsp;//&nbsp;true&nbsp;-&nbsp;șirul&nbsp;nu&nbsp;este&nbsp;gol</code></pre>
+     </div>
+     <ul class="enumeration">
+      <li>Object</li>
+     </ul>
+     <p class="paragraph">Întotdeauna returnează true.</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;user&nbsp;=&nbsp;{name:"Tom"};&nbsp;&nbsp;//&nbsp;true<br>const&nbsp;car&nbsp;=&nbsp;{};&nbsp;//&nbsp;true</code></pre>
+     </div>
+     <h2 class="subtitle">Construcția switch..case</h2>
+     <p class="paragraph">Construcția switch..case reprezintă o alternativă la folosirea construcției if..else și permite procesarea simultană a mai multor condiții:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;income&nbsp;=&nbsp;200;<br>switch&nbsp;(income)&nbsp;{<br>&nbsp;&nbsp;&nbsp;case&nbsp;100:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;de&nbsp;100");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;case&nbsp;200:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;de&nbsp;200");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;case&nbsp;500:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;de&nbsp;500");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>}</code></pre>
+     </div>
+     <p class="paragraph">După cuvântul cheie switch, în paranteze, se găsește expresia de comparare. Valoarea acestei expresii este comparată secvențial cu valorile plasate după operatorul case. Dacă se găsește o potrivire, atunci se va executa blocul case corespunzător.</p>
+     <p class="paragraph">La sfârșitul fiecărui bloc case se adaugă operatorul break pentru a evita executarea altor blocuri. În acest caz, constanta income este egală cu 200, așa că va fi executat blocul case corespunzător:</p>
+     <div class="code-inline">
+      <pre><code>case&nbsp;200:<br>&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;de&nbsp;200");<br>&nbsp;&nbsp;&nbsp;break;</code></pre>
+     </div>
+     <h2 class="subtitle">Operatorul break</h2>
+     <p class="paragraph">Operatorul break servește pentru a evita executarea altor condiții. De exemplu, am putea scrie:</p>
+     <div class="code-inline">
+      <pre><code>let&nbsp;income&nbsp;=&nbsp;200;<br>switch&nbsp;(income)&nbsp;{<br>&nbsp;&nbsp;&nbsp;case&nbsp;100:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;de&nbsp;100");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;income&nbsp;+=&nbsp;100;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;case&nbsp;200:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;de&nbsp;200");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;income&nbsp;+=&nbsp;100;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;case&nbsp;500:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;de&nbsp;500");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;income&nbsp;+=&nbsp;100;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;break;&nbsp;&nbsp;&nbsp;//&nbsp;aici&nbsp;nu&nbsp;are&nbsp;sens&nbsp;să&nbsp;folosim&nbsp;break,&nbsp;deoarece&nbsp;este&nbsp;ultimul&nbsp;bloc<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, variabila income este din nou setată la 200 și blocul va fi din nou executat.</p>
+     <div class="code-inline">
+      <pre><code>case&nbsp;200&nbsp;:<br>&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;de&nbsp;200");<br>&nbsp;&nbsp;&nbsp;income&nbsp;+=100;<br>&nbsp;&nbsp;&nbsp;break;</code></pre>
+     </div>
+     <p class="paragraph">Datorită operatorului break, după executarea blocului, se va ieși din construcția switch, iar alte blocuri case nu vor fi executate.</p>
+     <p class="paragraph">Dar acum să eliminăm operatorul break:</p>
+     <div class="code-inline">
+      <pre><code>let&nbsp;income&nbsp;=&nbsp;200;<br>switch&nbsp;(income)&nbsp;{<br>&nbsp;&nbsp;&nbsp;case&nbsp;100:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;de&nbsp;100");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;income&nbsp;+=&nbsp;100;<br>&nbsp;&nbsp;&nbsp;case&nbsp;200:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;de&nbsp;200");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;income&nbsp;+=&nbsp;100;<br>&nbsp;&nbsp;&nbsp;case&nbsp;500:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;de&nbsp;500");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;income&nbsp;+=&nbsp;100;<br>}<br>console.log("Venitul&nbsp;final&nbsp;este",&nbsp;income);</code></pre>
+     </div>
+     <p class="paragraph">Rezultatul executării:</p>
+     <p class="paragraph">Venitul este de 200 Venitul este de 500 Venitul final este 400</p>
+     <p class="paragraph">În acest caz, variabila income este inițializată cu 200, deci blocul va fi executat.</p>
+     <div class="code-inline">
+      <pre><code>case&nbsp;200&nbsp;:<br>&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;de&nbsp;200");<br>&nbsp;&nbsp;&nbsp;income&nbsp;+=&nbsp;100;</code></pre>
+     </div>
+     <p class="paragraph">Valoarea variabilei income este crescută cu 100, dar la sfârșitul blocului nu există un operator break, astfel încât controlul va trece la verificarea condiției în următorul bloc:</p>
+     <div class="code-inline">
+      <pre><code>case&nbsp;500&nbsp;:<br>&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;de&nbsp;500");<br>&nbsp;&nbsp;&nbsp;income&nbsp;+=&nbsp;100;</code></pre>
+     </div>
+     <p class="paragraph">Și nu contează că venitul nu este 500 (ci doar 300 în acest moment), acest bloc tot va fi executat.</p>
+     <h2 class="subtitle">Unirea condițiilor</h2>
+     <p class="paragraph">Totuși, dacă este necesar, se pot verifica simultan mai multe condiții:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;income&nbsp;=&nbsp;200;<br>switch(income){<br><br>&nbsp;&nbsp;&nbsp;case&nbsp;100&nbsp;:<br>&nbsp;&nbsp;&nbsp;case&nbsp;200&nbsp;:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;100&nbsp;sau&nbsp;200");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;case&nbsp;500&nbsp;:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;500");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, pentru condiția în care venitul este de 100 sau 200, se vor efectua aceleași acțiuni.</p>
+     <h2 class="subtitle">Condiția implicită - default</h2>
+     <p class="paragraph">Dacă dorim să gestionăm și situația în care nu se găsesc corespondențe, putem adăuga un bloc opțional default:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;income&nbsp;=&nbsp;700;<br>switch(income){<br><br>&nbsp;&nbsp;&nbsp;case&nbsp;100&nbsp;:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;100");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;case&nbsp;200&nbsp;:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;200");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;case&nbsp;500&nbsp;:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;este&nbsp;500");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;default:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Venitul&nbsp;de&nbsp;valoare&nbsp;necunoscută");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>}</code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

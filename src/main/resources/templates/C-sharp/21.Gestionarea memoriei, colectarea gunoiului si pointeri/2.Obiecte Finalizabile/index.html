@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='21.Gestionarea memoriei, colectarea gunoiului si pointeri', activeLesson='2.Obiecte Finalizabile'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Obiecte Finalizabile</h1>
+     <p class="paragraph">Majoritatea obiectelor utilizate în programele C# sunt parte a codului gestionat (managed code). Aceste obiecte sunt gestionate de CLR și sunt ușor curățate de colectorul de gunoi. Cu toate acestea, există și obiecte care utilizează resurse neadministrate (cum ar fi conexiunile la fișiere, baze de date, conexiuni de rețea etc.).</p>
+     <p class="paragraph">Aceste obiecte neadministrate apelează la API-ul sistemului de operare. Colectorul de gunoi poate gestiona obiectele administrate, dar nu știe cum să elimine obiectele neadministrate. În acest caz, dezvoltatorul trebuie să implementeze manual mecanismele de curățare la nivelul codului programului.</p>
+     <p class="paragraph">Eliberarea resurselor neadministrate implică implementarea unuia dintre cele două mecanisme:</p>
+     <ul class="enumeration">
+      <li>Crearea unui destructor</li>
+      <li>Implementarea de către clasă a interfeței System.IDisposable</li>
+     </ul>
+     <h2 class="subtitle">Crearea Destructorilor</h2>
+     <p class="paragraph">Dacă ați programat în C++, probabil că sunteți deja familiarizat cu conceptul de destructori. Metoda destructor poartă numele clasei (la fel ca și constructorul), dar este precedată de simbolul tilde (~).</p>
+     <p class="paragraph">Destructorii pot fi definiți doar în clase. Destructorul, spre deosebire de constructor, nu poate avea modificatori de acces și parametri. De asemenea, fiecare clasă poate avea un singur destructor.</p>
+     <p class="paragraph">De exemplu, să definim un destructor simplu în clasa Person:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name)&nbsp;=&gt;&nbsp;Name&nbsp;=&nbsp;name;<br><br>&nbsp;&nbsp;&nbsp;~Person()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"{Name}&nbsp;has&nbsp;deleted");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, destructorul doar afișează un mesaj în consolă pentru a informa că obiectul a fost șters. Dar în programele reale, destructorul conține logica de eliberare a resurselor neadministrate.</p>
+     <p class="paragraph">Cu toate acestea, în practică, colectorul de gunoi nu apelează destructorul direct, ci metoda Finalize. Acest lucru se datorează faptului că compilatorul C# compilează destructorul într-o construcție echivalentă cu următoarea:</p>
+     <div class="code-inline">
+      <pre><code>protected&nbsp;override&nbsp;void&nbsp;Finalize()<br>{<br>&nbsp;&nbsp;&nbsp;try<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;aici&nbsp;sunt&nbsp;instrucțiunile&nbsp;destructorului<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;finally<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;base.Finalize();<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Metoda Finalize este deja definită în clasa de bază Object, care este comună pentru toate tipurile de clase, dar această metodă nu poate fi suprascrisă direct. Implementarea sa reală se face prin crearea unui destructor.</p>
+     <p class="paragraph">Folosind clasa Person în program, după terminarea acestuia, se poate vedea în consolă un mesaj care anunță ștergerea obiectului tom:</p>
+     <div class="code-inline">
+      <pre><code>Test();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>GC.Collect();&nbsp;&nbsp;&nbsp;//&nbsp;curățarea&nbsp;memoriei&nbsp;ocupate&nbsp;de&nbsp;obiectul&nbsp;tom<br>Console.Read();&nbsp;//&nbsp;așteptare&nbsp;la&nbsp;final<br><br>void&nbsp;Test()<br>{<br>&nbsp;&nbsp;&nbsp;Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom");<br>}<br><br>public&nbsp;class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name)&nbsp;=&gt;&nbsp;Name&nbsp;=&nbsp;name;<br><br>&nbsp;&nbsp;&nbsp;~Person()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"{Name}&nbsp;has&nbsp;been&nbsp;deleted");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Este important de menționat că, chiar și după terminarea metodei Test și eliminarea referinței din stivă la obiectul Person din heap, destructorul poate să nu fie apelat imediat. Doar la finalul întregului program, memoria este garantat curățată.</p>
+     <p class="paragraph">Cu toate acestea, în .NET 5 și versiunile ulterioare, destructorii nu sunt apelați la terminarea programului. De aceea, în programul de mai sus, pentru o curățare mai rapidă a memoriei, se utilizează metoda GC.Collect și, pentru a garanta apelarea destructorului, se introduce o pauză cu ajutorul Console.Read(), care așteaptă un input de la utilizator.</p>
+     <p class="paragraph">La nivel de memorie, acest proces funcționează astfel: colectorul de gunoi, atunci când plasează un obiect în heap, determină dacă obiectul respectiv implementează metoda Finalize. Dacă obiectul are metoda Finalize, un pointer către acesta este salvat într-o tabelă specială, numită coada de finalizare.</p>
+     <p class="paragraph">Când vine momentul colectării gunoiului, colectorul vede că obiectul trebuie distrus și, dacă are metoda Finalize, acesta este copiat într-o altă tabelă și este distrus complet abia la următoarea trecere a colectorului de gunoi.</p>
+     <p class="paragraph">Trebuie menționat că momentul exact al apelării destructorului nu este definit. În plus, în cazul finalizării a două obiecte asociate, ordinea apelării destructorilor nu este garantată. De exemplu, dacă obiectul A deține o referință la obiectul B și ambele obiecte au destructori, este posibil ca destructorul pentru obiectul B să fie apelat înainte ca destructorul pentru obiectul A să înceapă să funcționeze.</p>
+     <p class="paragraph">Aici ne putem confrunta cu următoarea problemă: ce facem dacă trebuie să apelăm imediat destructorul și să eliberăm toate resursele neadministrate asociate cu obiectul? În acest caz, putem folosi l doua abordare - implementarea interfeței IDisposable.</p>
+     <h2 class="subtitle">Interfața IDisposable</h2>
+     <p class="paragraph">Interfața IDisposable declară o singură metodă, Dispose, în care, la implementarea interfeței într-o clasă, trebuie să se facă eliberarea resurselor neadministrate. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>Test();<br><br>void&nbsp;Test()<br>{<br>&nbsp;&nbsp;&nbsp;Person?&nbsp;tom&nbsp;=&nbsp;null;<br>&nbsp;&nbsp;&nbsp;try<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;finally<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tom?.Dispose();<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>public&nbsp;class&nbsp;Person&nbsp;:&nbsp;IDisposable<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name)&nbsp;=&gt;&nbsp;Name&nbsp;=&nbsp;name;<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Dispose()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"{Name}&nbsp;has&nbsp;been&nbsp;disposed");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest cod, se folosește construcția try...finally. În esență, această construcție este echivalentă cu următoarele două linii de cod:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom");<br>tom.Dispose();</code></pre>
+     </div>
+     <p class="paragraph">Însă, construcția try...finally este preferabilă atunci când apelăm metoda Dispose, deoarece garantează că, chiar și în cazul unei excepții, resursele vor fi eliberate în metoda Dispose.</p>
+     <h2 class="subtitle">Combinarea abordărilor</h2>
+     <p class="paragraph">Am analizat două abordări. Care dintre ele este mai bună? Pe de o parte, metoda Dispose permite eliberarea resurselor asociate în orice moment, iar pe de altă parte, programatorul care folosește clasa noastră poate uita să apeleze metoda Dispose. În general, pot apărea situații variate.</p>
+     <p class="paragraph">Și pentru a combina avantajele ambelor abordări, putem folosi o abordare combinată. Microsoft ne oferă următorul șablon formalizat:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;class&nbsp;SomeClass:&nbsp;IDisposable<br>{<br>&nbsp;&nbsp;&nbsp;private&nbsp;bool&nbsp;disposed&nbsp;=&nbsp;false;<br><br>&nbsp;&nbsp;&nbsp;//&nbsp;Implementarea&nbsp;interfeței&nbsp;IDisposable<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Dispose()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Eliberăm&nbsp;resursele&nbsp;neadministrate<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Dispose(true);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Suprimăm&nbsp;finalizarea<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GC.SuppressFinalize(this);<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;protected&nbsp;virtual&nbsp;void&nbsp;Dispose(bool&nbsp;disposing)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(disposed)&nbsp;return;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(disposing)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Eliberăm&nbsp;resursele&nbsp;administrate<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Eliberăm&nbsp;obiectele&nbsp;neadministrate<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;disposed&nbsp;=&nbsp;true;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;//&nbsp;Destructor<br>&nbsp;&nbsp;&nbsp;~SomeClass()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Dispose&nbsp;(false);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Logica de curățare este implementată prin versiunea suprascrisă a metodei Dispose(bool disposing). Dacă parametrul disposing are valoarea true, atunci metoda este apelată din metoda publică Dispose, dacă are valoarea false, este apelată din destructor.</p>
+     <p class="paragraph">Când se apelează destructorul, parametrului disposing i se transmite valoarea false, pentru a evita curățarea resurselor administrate, deoarece nu putem fi siguri că acestea mai sunt încă în memorie. În acest caz, rămâne să ne bazăm pe destructoarele acestor resurse. În ambele cazuri, resursele neadministrate sunt eliberate.</p>
+     <p class="paragraph">Un alt aspect important este apelarea metodei GC.SuppressFinalize(this) în metoda Dispose. Aceasta împiedică sistemul să execute metoda Finalize pentru obiectul respectiv. Dacă clasa nu are definit un destructor, apelarea acestei metode nu va avea niciun efect.</p>
+     <p class="paragraph">Astfel, chiar dacă dezvoltatorul nu folosește metoda Dispose în program, resursele vor fi totuși eliberate.</p>
+     <h2 class="subtitle">Recomandări generale pentru utilizarea Finalize și Dispose</h2>
+     <p class="paragraph">Destructorul ar trebui implementat doar la obiectele care chiar au nevoie de el, deoarece metoda Finalize are un impact semnificativ asupra performanței.</p>
+     <p class="paragraph">- După apelarea metodei Dispose, trebuie să se blocheze apelul metodei Finalize cu ajutorul GC.SuppressFinalize.</p>
+     <p class="paragraph">- La crearea claselor derivate din clase de bază care implementează interfața IDisposable, trebuie să se apeleze și metoda Dispose a clasei de bază:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;class&nbsp;Derived:&nbsp;Base<br>{<br>&nbsp;&nbsp;&nbsp;private&nbsp;bool&nbsp;IsDisposed&nbsp;=&nbsp;false;<br><br>&nbsp;&nbsp;&nbsp;protected&nbsp;override&nbsp;void&nbsp;Dispose(bool&nbsp;disposing)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(IsDisposed)&nbsp;return;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(disposing)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Eliberarea&nbsp;resurselor&nbsp;administrate<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IsDisposed&nbsp;=&nbsp;true;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Apelarea&nbsp;metodei&nbsp;Dispose&nbsp;a&nbsp;clasei&nbsp;de&nbsp;bază<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;base.Dispose(disposing);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">- Acordați preferință șablonului combinat, care implementează atât metoda Dispose, cât și destructorul.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='21.Localizare', activeLesson='4.Localizarea denumirilor cu Intl'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Localizarea denumirilor cu Intl.DisplayNames</h1>
+     <p class="paragraph">Obiectul Intl.DisplayNames permite localizarea denumirilor, în special, a numelor de țări și regiuni, limbi, anumite alte denumiri. Constructorul său poate accepta doi parametri:</p>
+     <div class="code-inline">
+      <pre><code>Intl.DisplayNames([locales[,&nbsp;options]])</code></pre>
+     </div>
+     <p class="paragraph">Parametrul locales reprezintă codul limbii în format BCP 47 sau un set de coduri de limbi.</p>
+     <p class="paragraph">Parametrul options reprezintă un set suplimentar de opțiuni:</p>
+     <ul class="enumeration">
+      <li>localeMatcher: algoritmul de potrivire. Poate fi "lookup" sau "best fit". Implicit este "best fit"</li>
+      <li>style: lungimea șirului formatat. Valorile posibile sunt: "long", "short", și "narrow". Implicit este "long"</li>
+      <li>type: tipul de nume care vor fi localizate. Valorile posibile:</li>
+     </ul>
+     <p class="paragraph">1) "language": returnează numele limbii 2) "region": returnează numele țării/regiunii 3) "script": returnează numele scriptului scris 4) "currency": returnează numele monedei</p>
+     <ul class="enumeration">
+      <li>fallback: setează opțiunea de rezervă. Valorile posibile sunt: "code" și "none". "code" indică codul care definește numele localizat.</li>
+     </ul>
+     <p class="paragraph">Numele specific care va fi localizat este specificat prin metoda of(). În această metodă se transmite codul numelui. Metoda returnează denumirea localizată.</p>
+     <p class="paragraph">Să examinăm câteva exemple:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;USAInEnglish&nbsp;=&nbsp;new&nbsp;Intl.DisplayNames("en",&nbsp;{type:&nbsp;"region"}).of("US");<br>const&nbsp;USAInRomanian&nbsp;=&nbsp;new&nbsp;Intl.DisplayNames("ro",&nbsp;{type:&nbsp;"region"}).of("US");<br><br>console.log(USAInEnglish);&nbsp;&nbsp;//&nbsp;United&nbsp;States<br>console.log(USAInRomanian);&nbsp;&nbsp;//&nbsp;Statele&nbsp;Unite</code></pre>
+     </div>
+     <p class="paragraph">Aici obținem două denumiri pentru aceeași țară - SUA. Pentru constanta USAInEnglish se utilizează codul de cultură "en", adică vom obține numele în limba engleză. Parametrul type: "region" indică faptul că dorim să obținem numele unei țări/regiuni.</p>
+     <p class="paragraph">Apoi, apelăm metoda of(), în care transmitem valoarea "US" - codul care înseamnă că dorim să obținem numele pentru SUA. În final, obținem numele SUA în limba engleză - "United States".</p>
+     <p class="paragraph">Constanta USAInRomanian obține, de asemenea, numele țării folosind codul "US", dar în limba română.</p>
+     <h2 class="subtitle">Obținerea denumirii unei regiuni</h2>
+     <p class="paragraph">Pentru a obține numele unei regiuni (acesta poate fi numele unei țări sau al unei regiuni geografice) se utilizează parametrul type: "region". Pentru a obține numele regiunii, în metoda of() se transmite codul regiunii. Ca cod al regiunii poate servi codul ISO-3166 de două litere (de exemplu, US, RO, DE etc.) sau codul numeric de trei cifre UN M49.</p>
+     <p class="paragraph">De exemplu, utilizăm codul "DE" pentru a obține numele Germaniei în diferite limbi:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;GermanyInEnglish&nbsp;=&nbsp;new&nbsp;Intl.DisplayNames("en",&nbsp;{type:&nbsp;"region"}).of("DE");<br>const&nbsp;GermanyInRomanian&nbsp;=&nbsp;new&nbsp;Intl.DisplayNames("ro",&nbsp;{type:&nbsp;"region"}).of("DE");<br>const&nbsp;GermanyInGerman&nbsp;=&nbsp;new&nbsp;Intl.DisplayNames("de",&nbsp;{type:&nbsp;"region"}).of("DE");<br><br>console.log(GermanyInEnglish);&nbsp;&nbsp;//&nbsp;Germany<br>console.log(GermanyInRomanian);&nbsp;&nbsp;//&nbsp;Germania<br>console.log(GermanyInGerman);&nbsp;&nbsp;&nbsp;//&nbsp;Deutschland</code></pre>
+     </div>
+     <h2 class="subtitle">Obținerea denumirii unui script</h2>
+     <p class="paragraph">Pentru a obține numele unui script scris se utilizează valoarea type: "script". Pentru a obține numele scriptului, în metoda of() se transmite codul ISO-15924 de patru litere. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;CyrlInEnglish&nbsp;=&nbsp;new&nbsp;Intl.DisplayNames("en",&nbsp;{type:&nbsp;"script"}).of("Cyrl");<br>const&nbsp;CyrlInRomanian&nbsp;=&nbsp;new&nbsp;Intl.DisplayNames("ro",&nbsp;{type:&nbsp;"script"}).of("Cyrl");<br><br>console.log(CyrlInEnglish);&nbsp;//&nbsp;Cyrillic<br>console.log(CyrlInRomanian);&nbsp;//&nbsp;chirilic</code></pre>
+     </div>
+     <h2 class="subtitle">Obținerea denumirii unei limbi</h2>
+     <p class="paragraph">Pentru a obține numele unei limbi se utilizează valoarea type: "language", iar în metoda of() se transmite codul limbii în format languageCode[-scriptCode][-regionCode](-variant), unde componenta languageCode reprezintă codul de două litere al limbii conform ISO 639-1 sau codul de trei litere conform ISO 639-2. Componentele opționale scriptCode și regionCode sunt codurile scriptului și regiunii discutate anterior.</p>
+     <p class="paragraph">De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;enRomanian&nbsp;=&nbsp;new&nbsp;Intl.DisplayNames("en",&nbsp;{type:&nbsp;"language"}).of("ro");<br>const&nbsp;roRomanian&nbsp;=&nbsp;new&nbsp;Intl.DisplayNames("ro",&nbsp;{type:&nbsp;"language"}).of("ro");<br>const&nbsp;deRomanian&nbsp;=&nbsp;new&nbsp;Intl.DisplayNames("de",&nbsp;{type:&nbsp;"language"}).of("ro");<br><br>console.log(enRomanian);&nbsp;//&nbsp;Romanian<br>console.log(roRomanian);&nbsp;//&nbsp;română<br>console.log(deRomanian);&nbsp;//&nbsp;Rumänisch</code></pre>
+     </div>
+     <p class="paragraph">Utilizarea codului limbii împreună cu codul regiunii:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;roLang&nbsp;=&nbsp;new&nbsp;Intl.DisplayNames("ro",&nbsp;{type:&nbsp;"language"});<br>const&nbsp;enUS&nbsp;=&nbsp;roLang.of("en-US");<br>const&nbsp;enGB&nbsp;=&nbsp;roLang.of("en-GB");<br><br>console.log(enUS);&nbsp;&nbsp;//&nbsp;engleză&nbsp;americană<br>console.log(enGB);&nbsp;&nbsp;//&nbsp;engleză&nbsp;britanică</code></pre>
+     </div>
+     <h2 class="subtitle">Obținerea denumirii unei monede</h2>
+     <p class="paragraph">Pentru a obține numele unei monede se utilizează valoarea type: "currency", iar în metoda of() se transmite codul ISO 4217 de trei litere. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;roLang&nbsp;=&nbsp;new&nbsp;Intl.DisplayNames("ro",&nbsp;{type:&nbsp;"currency"});<br>const&nbsp;usd&nbsp;=&nbsp;roLang.of("USD");<br>const&nbsp;euro&nbsp;=&nbsp;roLang.of("EUR");<br>const&nbsp;ruble&nbsp;=&nbsp;roLang.of("RON");<br><br>console.log(usd);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dolar&nbsp;american<br>console.log(euro);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;euro<br>console.log(ron);&nbsp;//&nbsp;leu&nbsp;românesc</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

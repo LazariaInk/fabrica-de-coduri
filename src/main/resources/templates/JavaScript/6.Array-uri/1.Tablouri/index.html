@@ -1,175 +1,165 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='6.Array-uri', activeLesson='1.Tablouri'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Array-uri</h1>
- <h2 class="subtitle">Crearea unui array și obiectul Array</h2>
- <p class="paragraph">Pentru a stoca un set de date în limbajul JavaScript, sunt destinate array-urile. Array-urile în JavaScript sunt reprezentate de obiectul Array. Obiectul Array oferă o serie de proprietăți și metode prin care putem gestiona array-ul și elementele sale.</p>
- <h2 class="subtitle">Crearea unui array</h2>
- <p class="paragraph">Se poate crea un array gol folosind paranteze pătrate sau constructorul Array:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;users&nbsp;=&nbsp;new&nbsp;Array();<br>const&nbsp;people&nbsp;=&nbsp;[];<br><br>console.log(users);&nbsp;//&nbsp;Array[0]<br>console.log(people);&nbsp;//&nbsp;Array[0]</code></pre>
- </div>
- <p class="paragraph">Se poate inițializa imediat un array cu un anumit număr de elemente:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;users&nbsp;=&nbsp;new&nbsp;Array("Tom",&nbsp;"Bill",&nbsp;"Alice");<br>const&nbsp;people&nbsp;=&nbsp;["Sam",&nbsp;"John",&nbsp;"Kate"];<br><br>console.log(users);&nbsp;//&nbsp;["Tom",&nbsp;"Bill",&nbsp;"Alice"]<br>console.log(people);&nbsp;//&nbsp;["Sam",&nbsp;"John",&nbsp;"Kate"]</code></pre>
- </div>
- <p class="paragraph">Se poate defini un array și să se adauge noi elemente pe parcurs:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;users&nbsp;=&nbsp;[];<br>users[1]&nbsp;=&nbsp;"Tom";<br>users[2]&nbsp;=&nbsp;"Kate";<br>console.log(users[1]);&nbsp;//&nbsp;"Tom"<br>console.log(users[0]);&nbsp;//&nbsp;undefined<br><br></code></pre>
- </div>
- <p class="paragraph">În acest caz, nu contează că array-ul se creează inițial cu o lungime de zero. Cu ajutorul indicilor, putem atribui un anumit element la un index specific în array.</p>
- <p class="paragraph">Un alt mod de a inițializa array-uri este prin intermediul metodei Array.of() - aceasta primește elemente și le folosește pentru a inițializa array-ul:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;people&nbsp;=&nbsp;Array.of("Tom",&nbsp;"Bob",&nbsp;"Sam");<br>console.log(people);&nbsp;//&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Sam"]</code></pre>
- </div>
- <h2 class="subtitle">Array.from</h2>
- <p class="paragraph">Și încă o modalitate o reprezintă funcția Array.from(). Aceasta are mai multe variante, să analizăm cele mai comune:</p>
- <div class="code-inline">
-  <pre><code>Array.from(arrayLike)<br>Array.from(arrayLike,&nbsp;function&nbsp;mapFn(element)&nbsp;{&nbsp;...&nbsp;})<br>Array.from(arrayLike,&nbsp;function&nbsp;mapFn(element,&nbsp;index)&nbsp;{&nbsp;...&nbsp;})</code></pre>
- </div>
- <p class="paragraph">Ca prim parametru, funcția acceptă un obiect numit "arrayLike", care, în mod condiționat, este "asemănător cu un array", adică poate fi reprezentat sub formă de set de elemente. Acesta poate fi un alt array, poate fi și un șir de caractere, care, practic, furnizează un set de caractere. În general, orice set de elemente care poate fi transformat într-un array. De asemenea, poate fi un obiect în care este definită proprietatea length.</p>
- <p class="paragraph">De exemplu:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;array&nbsp;=&nbsp;Array.from("Hello");<br>console.log(array);&nbsp;//&nbsp;["H",&nbsp;"e",&nbsp;"l",&nbsp;"l",&nbsp;"o"]</code></pre>
- </div>
- <p class="paragraph">În acest caz, în funcție este transmis un șir și este returnat un array, fiecare element al căruia furnizează unul dintre caracterele din acest șir.</p>
- <p class="paragraph">Ca al doilea parametru, este transmisă o funcție de transformare, care prin primul său parametru primește elementul curent al setului și returnează un rezultat al transformării sale. De exemplu:</p>
- <div class="code-inline">
-  <pre><code><br>const&nbsp;numbers&nbsp;=&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4];<br>const&nbsp;array&nbsp;=&nbsp;Array.from(numbers,&nbsp;n&nbsp;=&gt;&nbsp;n&nbsp;*&nbsp;n);<br>console.log(array);&nbsp;//&nbsp;[1,&nbsp;4,&nbsp;9,&nbsp;16]</code></pre>
- </div>
- <p class="paragraph">În acest caz, în funcția Array.from() este transmis un array de numere. Al doilea parametru - funcția (în acest caz, un lambda expression) rulează pentru fiecare număr din acest array și primește acel număr prin parametrul n. În interiorul expresiei lambda, se întoarce pătratul acelui număr. În final, Array.from() va returna un nou array în care vor fi pătratele numerelor din array-ul numbers.</p>
- <p class="paragraph">Și încă o versiune a funcției Array.from() în calitate de al doilea parametru acceptă o funcție de transformare, în care, pe lângă elementul din setul iterabil, se transmite și indexul acestui element:</p>
- <div class="code-inline">
-  <pre><code>Array.from(arrayLike,&nbsp;function&nbsp;mapFn(element,&nbsp;index)&nbsp;{&nbsp;...&nbsp;})</code></pre>
- </div>
- <p class="paragraph">Folosim această versiune și transmitem în funcție un obiect cu proprietatea length:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;array&nbsp;=&nbsp;Array.from({length:3},&nbsp;(element,&nbsp;index)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(element);&nbsp;&nbsp;&nbsp;//&nbsp;undefined<br>&nbsp;&nbsp;&nbsp;return&nbsp;index;<br>});<br>console.log(array);&nbsp;//&nbsp;[0,&nbsp;1,&nbsp;2]</code></pre>
- </div>
- <p class="paragraph">Aici este transmis în funcție un obiect cu proprietatea length setată la 3. Pentru funcția Array.from, acesta este un semnal că array-ul returnat ar trebui să aibă trei elemente. Este destul de neimportant faptul că funcția de transformare din al doilea parametru primește un element din set (parametrul element) - în acest caz, acesta va fi întotdeauna indefinit.</p>
- <p class="paragraph">Cu toate acestea, valoarea length: 3 va indica faptul că array-ul returnat va avea trei elemente cu indici de la 0 la 2. Și prin intermediul celui de-al doilea parametru al funcției de transformare - parametrul index - putem obține indexul curent al elementului.</p>
- <p class="paragraph">Cu toate acestea, putem transmite un obiect în care numele proprietăților sunt indici. În acest caz, obiectul se va transforma într-un obiect asemănător cu un array, care poate fi iterat:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;array&nbsp;=&nbsp;Array.from({length:3,&nbsp;"0":&nbsp;"Tom",&nbsp;"1":&nbsp;"Sam",&nbsp;"2":&nbsp;"Bob"},&nbsp;(element)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(element);&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;return&nbsp;element;<br>});<br>console.log(array);&nbsp;//&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"]</code></pre>
- </div>
- <h2 class="subtitle">length</h2>
- <p class="paragraph">Pentru a afla lungimea unui array, se folosește proprietatea length:</p>
- <div class="code-inline">
-  <pre><code>Const&nbsp;fructe&nbsp;=&nbsp;[];<br>fructe[0]&nbsp;=&nbsp;"mere";<br>fructe[1]&nbsp;=&nbsp;"pere";<br>fructe[2]&nbsp;=&nbsp;"prune";<br><br>console.log("În&nbsp;array-ul&nbsp;fructe&nbsp;există&nbsp;",&nbsp;fructe.length,&nbsp;"&nbsp;element(e)");<br>for(let&nbsp;i=0;&nbsp;i&nbsp;&lt;&nbsp;fructe.length;&nbsp;i++)<br>&nbsp;&nbsp;&nbsp;console.log(fructe[i]);</code></pre>
- </div>
- <p class="paragraph">În realitate, lungimea array-ului va fi indicele ultimului element plus unu. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;users&nbsp;=&nbsp;[];&nbsp;//&nbsp;în&nbsp;array&nbsp;sunt&nbsp;0&nbsp;elemente<br>users[0]&nbsp;=&nbsp;"Tom";<br>users[1]&nbsp;=&nbsp;"Kate";<br>users[4]&nbsp;=&nbsp;"Sam";<br>for(let&nbsp;i=0;&nbsp;i&lt;users.length;i++)<br>&nbsp;&nbsp;&nbsp;console.log(users[i]);</code></pre>
- </div>
- <p class="paragraph">Afișaj în browser: Tom Kate undefined undefined Sam</p>
- <p class="paragraph">În ciuda faptului că nu am adăugat elemente pentru indexurile 2 și 3, lungimea array-ului în acest caz va fi 5. Doar elementele cu indexurile 2 și 3 vor avea valoarea undefined.</p>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Array-uri</h1>
+     <h2 class="subtitle">Crearea unui array și obiectul Array</h2>
+     <p class="paragraph">Pentru a stoca un set de date în limbajul JavaScript, sunt destinate array-urile. Array-urile în JavaScript sunt reprezentate de obiectul Array. Obiectul Array oferă o serie de proprietăți și metode prin care putem gestiona array-ul și elementele sale.</p>
+     <h2 class="subtitle">Crearea unui array</h2>
+     <p class="paragraph">Se poate crea un array gol folosind paranteze pătrate sau constructorul Array:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;users&nbsp;=&nbsp;new&nbsp;Array();<br>const&nbsp;people&nbsp;=&nbsp;[];<br><br>console.log(users);&nbsp;//&nbsp;Array[0]<br>console.log(people);&nbsp;//&nbsp;Array[0]</code></pre>
+     </div>
+     <p class="paragraph">Se poate inițializa imediat un array cu un anumit număr de elemente:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;users&nbsp;=&nbsp;new&nbsp;Array("Tom",&nbsp;"Bill",&nbsp;"Alice");<br>const&nbsp;people&nbsp;=&nbsp;["Sam",&nbsp;"John",&nbsp;"Kate"];<br><br>console.log(users);&nbsp;//&nbsp;["Tom",&nbsp;"Bill",&nbsp;"Alice"]<br>console.log(people);&nbsp;//&nbsp;["Sam",&nbsp;"John",&nbsp;"Kate"]</code></pre>
+     </div>
+     <p class="paragraph">Se poate defini un array și să se adauge noi elemente pe parcurs:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;users&nbsp;=&nbsp;[];<br>users[1]&nbsp;=&nbsp;"Tom";<br>users[2]&nbsp;=&nbsp;"Kate";<br>console.log(users[1]);&nbsp;//&nbsp;"Tom"<br>console.log(users[0]);&nbsp;//&nbsp;undefined<br><br></code></pre>
+     </div>
+     <p class="paragraph">În acest caz, nu contează că array-ul se creează inițial cu o lungime de zero. Cu ajutorul indicilor, putem atribui un anumit element la un index specific în array.</p>
+     <p class="paragraph">Un alt mod de a inițializa array-uri este prin intermediul metodei Array.of() - aceasta primește elemente și le folosește pentru a inițializa array-ul:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;people&nbsp;=&nbsp;Array.of("Tom",&nbsp;"Bob",&nbsp;"Sam");<br>console.log(people);&nbsp;//&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Sam"]</code></pre>
+     </div>
+     <h2 class="subtitle">Array.from</h2>
+     <p class="paragraph">Și încă o modalitate o reprezintă funcția Array.from(). Aceasta are mai multe variante, să analizăm cele mai comune:</p>
+     <div class="code-inline">
+      <pre><code>Array.from(arrayLike)<br>Array.from(arrayLike,&nbsp;function&nbsp;mapFn(element)&nbsp;{&nbsp;...&nbsp;})<br>Array.from(arrayLike,&nbsp;function&nbsp;mapFn(element,&nbsp;index)&nbsp;{&nbsp;...&nbsp;})</code></pre>
+     </div>
+     <p class="paragraph">Ca prim parametru, funcția acceptă un obiect numit "arrayLike", care, în mod condiționat, este "asemănător cu un array", adică poate fi reprezentat sub formă de set de elemente. Acesta poate fi un alt array, poate fi și un șir de caractere, care, practic, furnizează un set de caractere. În general, orice set de elemente care poate fi transformat într-un array. De asemenea, poate fi un obiect în care este definită proprietatea length.</p>
+     <p class="paragraph">De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;array&nbsp;=&nbsp;Array.from("Hello");<br>console.log(array);&nbsp;//&nbsp;["H",&nbsp;"e",&nbsp;"l",&nbsp;"l",&nbsp;"o"]</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, în funcție este transmis un șir și este returnat un array, fiecare element al căruia furnizează unul dintre caracterele din acest șir.</p>
+     <p class="paragraph">Ca al doilea parametru, este transmisă o funcție de transformare, care prin primul său parametru primește elementul curent al setului și returnează un rezultat al transformării sale. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code><br>const&nbsp;numbers&nbsp;=&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4];<br>const&nbsp;array&nbsp;=&nbsp;Array.from(numbers,&nbsp;n&nbsp;=&gt;&nbsp;n&nbsp;*&nbsp;n);<br>console.log(array);&nbsp;//&nbsp;[1,&nbsp;4,&nbsp;9,&nbsp;16]</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, în funcția Array.from() este transmis un array de numere. Al doilea parametru - funcția (în acest caz, un lambda expression) rulează pentru fiecare număr din acest array și primește acel număr prin parametrul n. În interiorul expresiei lambda, se întoarce pătratul acelui număr. În final, Array.from() va returna un nou array în care vor fi pătratele numerelor din array-ul numbers.</p>
+     <p class="paragraph">Și încă o versiune a funcției Array.from() în calitate de al doilea parametru acceptă o funcție de transformare, în care, pe lângă elementul din setul iterabil, se transmite și indexul acestui element:</p>
+     <div class="code-inline">
+      <pre><code>Array.from(arrayLike,&nbsp;function&nbsp;mapFn(element,&nbsp;index)&nbsp;{&nbsp;...&nbsp;})</code></pre>
+     </div>
+     <p class="paragraph">Folosim această versiune și transmitem în funcție un obiect cu proprietatea length:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;array&nbsp;=&nbsp;Array.from({length:3},&nbsp;(element,&nbsp;index)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(element);&nbsp;&nbsp;&nbsp;//&nbsp;undefined<br>&nbsp;&nbsp;&nbsp;return&nbsp;index;<br>});<br>console.log(array);&nbsp;//&nbsp;[0,&nbsp;1,&nbsp;2]</code></pre>
+     </div>
+     <p class="paragraph">Aici este transmis în funcție un obiect cu proprietatea length setată la 3. Pentru funcția Array.from, acesta este un semnal că array-ul returnat ar trebui să aibă trei elemente. Este destul de neimportant faptul că funcția de transformare din al doilea parametru primește un element din set (parametrul element) - în acest caz, acesta va fi întotdeauna indefinit.</p>
+     <p class="paragraph">Cu toate acestea, valoarea length: 3 va indica faptul că array-ul returnat va avea trei elemente cu indici de la 0 la 2. Și prin intermediul celui de-al doilea parametru al funcției de transformare - parametrul index - putem obține indexul curent al elementului.</p>
+     <p class="paragraph">Cu toate acestea, putem transmite un obiect în care numele proprietăților sunt indici. În acest caz, obiectul se va transforma într-un obiect asemănător cu un array, care poate fi iterat:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;array&nbsp;=&nbsp;Array.from({length:3,&nbsp;"0":&nbsp;"Tom",&nbsp;"1":&nbsp;"Sam",&nbsp;"2":&nbsp;"Bob"},&nbsp;(element)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(element);&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;return&nbsp;element;<br>});<br>console.log(array);&nbsp;//&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"]</code></pre>
+     </div>
+     <h2 class="subtitle">length</h2>
+     <p class="paragraph">Pentru a afla lungimea unui array, se folosește proprietatea length:</p>
+     <div class="code-inline">
+      <pre><code>Const&nbsp;fructe&nbsp;=&nbsp;[];<br>fructe[0]&nbsp;=&nbsp;"mere";<br>fructe[1]&nbsp;=&nbsp;"pere";<br>fructe[2]&nbsp;=&nbsp;"prune";<br><br>console.log("În&nbsp;array-ul&nbsp;fructe&nbsp;există&nbsp;",&nbsp;fructe.length,&nbsp;"&nbsp;element(e)");<br>for(let&nbsp;i=0;&nbsp;i&nbsp;&lt;&nbsp;fructe.length;&nbsp;i++)<br>&nbsp;&nbsp;&nbsp;console.log(fructe[i]);</code></pre>
+     </div>
+     <p class="paragraph">În realitate, lungimea array-ului va fi indicele ultimului element plus unu. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;users&nbsp;=&nbsp;[];&nbsp;//&nbsp;în&nbsp;array&nbsp;sunt&nbsp;0&nbsp;elemente<br>users[0]&nbsp;=&nbsp;"Tom";<br>users[1]&nbsp;=&nbsp;"Kate";<br>users[4]&nbsp;=&nbsp;"Sam";<br>for(let&nbsp;i=0;&nbsp;i&lt;users.length;i++)<br>&nbsp;&nbsp;&nbsp;console.log(users[i]);</code></pre>
+     </div>
+     <p class="paragraph">Afișaj în browser: Tom Kate undefined undefined Sam</p>
+     <p class="paragraph">În ciuda faptului că nu am adăugat elemente pentru indexurile 2 și 3, lungimea array-ului în acest caz va fi 5. Doar elementele cu indexurile 2 și 3 vor avea valoarea undefined.</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

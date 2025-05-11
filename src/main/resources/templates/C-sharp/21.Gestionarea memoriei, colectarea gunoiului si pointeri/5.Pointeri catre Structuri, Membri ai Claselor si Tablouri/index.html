@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='21.Gestionarea memoriei, colectarea gunoiului si pointeri', activeLesson='5.Pointeri catre Structuri, Membri ai Claselor si Tablouri'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Pointeri către Structuri, Membri ai Claselor și Tablouri</h1>
+     <h2 class="subtitle">Pointeri către Tipuri și Operația -&gt;</h2>
+     <p class="paragraph">Pe lângă pointerii către tipuri simple, se pot folosi pointeri către structuri. Pentru a accesa câmpurile structurii la care face referire un pointer, se folosește operația -&gt;:</p>
+     <div class="code-inline">
+      <pre><code>unsafe<br>{<br>&nbsp;&nbsp;&nbsp;Point&nbsp;point&nbsp;=&nbsp;new&nbsp;Point(0,&nbsp;0);<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(point);&nbsp;&nbsp;&nbsp;//&nbsp;X:&nbsp;0&nbsp;&nbsp;Y:&nbsp;0<br>&nbsp;&nbsp;&nbsp;Point*&nbsp;p&nbsp;=&nbsp;&amp;point;<br><br>&nbsp;&nbsp;&nbsp;p-&gt;X&nbsp;=&nbsp;30;<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(p-&gt;X);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;30<br><br>&nbsp;&nbsp;&nbsp;//&nbsp;dereferențierea&nbsp;pointerului<br>&nbsp;&nbsp;&nbsp;(*p).Y&nbsp;=&nbsp;180;<br>&nbsp;&nbsp;&nbsp;Console.WriteLine((*p).Y);&nbsp;&nbsp;//&nbsp;180<br><br>&nbsp;&nbsp;&nbsp;Console.WriteLine(point);&nbsp;&nbsp;&nbsp;//&nbsp;X:&nbsp;30&nbsp;&nbsp;Y:&nbsp;180<br>}<br>struct&nbsp;Point<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;X&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Y&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Point(int&nbsp;x,&nbsp;int&nbsp;y)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X&nbsp;=&nbsp;x;&nbsp;Y&nbsp;=&nbsp;y;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;override&nbsp;string&nbsp;ToString()&nbsp;=&gt;&nbsp;$"X:&nbsp;{X}&nbsp;&nbsp;Y:&nbsp;{Y}";<br>}</code></pre>
+     </div>
+     <p class="paragraph">Prin accesarea pointerului p-&gt;X = 30;, putem obține sau seta valoarea unei proprietăți a structurii la care face referire pointerul. Este important de menționat că nu putem scrie simplu p.X=30, deoarece p nu este structura Point, ci un pointer către această structură.</p>
+     <p class="paragraph">O alternativă este operația de dereferențiere: (*p).X = 30;.</p>
+     <p class="paragraph">Trebuie menționat că un pointer poate face referire doar la acele structuri care nu au câmpuri de tip referențial (inclusiv câmpuri generate automat de compilator pentru proprietățile auto-implementate).</p>
+     <h2 class="subtitle">Pointeri către Tablouri și stackalloc</h2>
+     <p class="paragraph">Cu ajutorul cuvântului cheie stackalloc, se poate aloca memorie pentru un tablou în stivă. Alocarea memoriei în stivă este utilă pentru creșterea performanței codului. Să vedem un exemplu de calcul al pătratelor numerelor:</p>
+     <div class="code-inline">
+      <pre><code>unsafe<br>{<br>&nbsp;&nbsp;&nbsp;const&nbsp;int&nbsp;size&nbsp;=&nbsp;7;<br>&nbsp;&nbsp;&nbsp;int*&nbsp;square&nbsp;=&nbsp;stackalloc&nbsp;int[size];&nbsp;//&nbsp;alocăm&nbsp;memorie&nbsp;în&nbsp;stivă&nbsp;pentru&nbsp;șapte&nbsp;obiecte&nbsp;de&nbsp;tip&nbsp;int<br>&nbsp;&nbsp;&nbsp;int*&nbsp;p&nbsp;=&nbsp;square;<br>&nbsp;&nbsp;&nbsp;//&nbsp;calculăm&nbsp;pătratele&nbsp;numerelor&nbsp;de&nbsp;la&nbsp;1&nbsp;la&nbsp;7&nbsp;inclusiv<br>&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;=&nbsp;size;&nbsp;i++,&nbsp;p++)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;calculăm&nbsp;pătratul&nbsp;numărului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*p&nbsp;=&nbsp;i&nbsp;*&nbsp;i;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;size;&nbsp;i++)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(square[i]);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Operatorul stackalloc este urmat de un tablou la care va face referire pointerul: int* square = stackalloc int[size];.</p>
+     <p class="paragraph">Pentru a manipula tabloul, creăm un pointer p: int* p = square;, care indică primul element al tabloului ce conține șapte elemente. Cu ajutorul pointerului p, putem naviga prin tabloul square.</p>
+     <p class="paragraph">În continuare, ciclul calculează pătratele numerelor de la 1 la 7. În ciclu, pentru a seta valoarea (pătratul numărului - i * i) la adresa stocată de pointer, se execută expresia:</p>
+     <div class="code-inline">
+      <pre><code>*p&nbsp;=&nbsp;i&nbsp;*&nbsp;i;</code></pre>
+     </div>
+     <p class="paragraph">Apoi are loc incrementarea pointerului p++, și pointerul p se deplasează la următorul element din tabloul square.</p>
+     <p class="paragraph">Un exemplu mai complex - calculul factorialului:</p>
+     <div class="code-inline">
+      <pre><code>unsafe<br>{<br>&nbsp;&nbsp;&nbsp;const&nbsp;int&nbsp;size&nbsp;=&nbsp;7;<br>&nbsp;&nbsp;&nbsp;int*&nbsp;factorial&nbsp;=&nbsp;stackalloc&nbsp;int[size];&nbsp;//&nbsp;alocăm&nbsp;memorie&nbsp;în&nbsp;stivă&nbsp;pentru&nbsp;șapte&nbsp;obiecte&nbsp;de&nbsp;tip&nbsp;int<br>&nbsp;&nbsp;&nbsp;int*&nbsp;p&nbsp;=&nbsp;factorial;<br><br>&nbsp;&nbsp;&nbsp;*(p++)&nbsp;=&nbsp;1;&nbsp;//&nbsp;atribuim&nbsp;primei&nbsp;celule&nbsp;valoarea&nbsp;1&nbsp;și<br>&nbsp;&nbsp;&nbsp;//&nbsp;incrementăm&nbsp;pointerul&nbsp;cu&nbsp;1<br>&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;2;&nbsp;i&nbsp;&lt;=&nbsp;size;&nbsp;i++,&nbsp;p++)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;calculăm&nbsp;factorialul&nbsp;numărului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*p&nbsp;=&nbsp;p[-1]&nbsp;*&nbsp;i;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;size;&nbsp;i++)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(factorial[i]);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Cu ajutorul operatorului stackalloc se alocă memorie pentru 7 elemente ale tabloului. De asemenea, pentru manipularea tabloului, creăm un pointer p: int* p = factorial;, care indică primul element al tabloului, ce conține 7 elemente.</p>
+     <p class="paragraph">În continuare, începem operațiile cu pointerul și calculul factorialului. Deoarece factorialul lui 1 este 1, atribuim primului element indicat de pointerul p valoarea 1 prin operația de dereferențiere: *(p++)= 1;.</p>
+     <p class="paragraph">Pentru a seta o anumită valoare la adresa indicată de pointer, se folosește expresia: *p=1;. În plus, pointerul este incrementat p++. Așadar, întâi se atribuie valoarea 1 primului element al tabloului, apoi pointerul p se deplasează și începe să indice către al doilea element. Am putea scrie aceasta astfel:</p>
+     <div class="code-inline">
+      <pre><code>*p=&nbsp;1;<br>p++;</code></pre>
+     </div>
+     <p class="paragraph">Pentru a obține elementul anterior și a ne deplasa înapoi, putem folosi operația de decrementare: Console.WriteLine(*(--p));. Observați că operațiile *(--p) și *(p--) sunt diferite, deoarece în primul caz mai întâi se deplasează pointerul și apoi se dereferențiază, în timp ce în al doilea caz se întâmplă invers.</p>
+     <p class="paragraph">În final, calculăm factorialul celorlalte șase numere: *p = p[-1] *i;. Accesarea pointerilor ca și cum ar fi tablouri reprezintă o alternativă la operația de dereferențiere pentru a obține valoarea. În acest caz, obținem valoarea elementului anterior.</p>
+     <p class="paragraph">În final, folosind pointerul factorial, afișăm factorialele celor șapte numere.</p>
+     <h2 class="subtitle">Operatorul fixed și Fixarea Pointerilor</h2>
+     <p class="paragraph">Anterior, am văzut cum să creăm pointeri pentru tipuri valoare, cum ar fi int sau structuri. Cu toate acestea, pe lângă structuri, în C# există și clase, care, spre deosebire de tipurile valoare, stochează toate valorile asociate în heap.</p>
+     <p class="paragraph">În orice moment, colectorul de gunoi poate interveni în operațiunile claselor, curățând periodic heap-ul. Pentru a fixa pointerii pe obiecte ale claselor pe toată durata execuției, se folosește operatorul fixed.</p>
+     <p class="paragraph">Să presupunem că avem clasa Point:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Point<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;x;<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;y;<br>&nbsp;&nbsp;&nbsp;public&nbsp;override&nbsp;string&nbsp;ToString()&nbsp;=&gt;&nbsp;$"x:&nbsp;{x}&nbsp;&nbsp;y:&nbsp;{y}";<br>}</code></pre>
+     </div>
+     <p class="paragraph">Fixăm pointerul folosind operatorul fixed:</p>
+     <div class="code-inline">
+      <pre><code>unsafe<br>{<br>&nbsp;&nbsp;&nbsp;Point&nbsp;point&nbsp;=&nbsp;new&nbsp;Point();<br><br>&nbsp;&nbsp;&nbsp;//&nbsp;bloc&nbsp;de&nbsp;fixare&nbsp;a&nbsp;pointerului<br>&nbsp;&nbsp;&nbsp;fixed&nbsp;(int*&nbsp;pX&nbsp;=&nbsp;&amp;point.x)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*pX&nbsp;=&nbsp;30;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;fixed&nbsp;(int*&nbsp;pY&nbsp;=&nbsp;&amp;point.y)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*pY&nbsp;=&nbsp;150;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;//&nbsp;putem&nbsp;combina&nbsp;ambele&nbsp;blocuri<br>&nbsp;&nbsp;&nbsp;/*fixed&nbsp;(int*&nbsp;pX&nbsp;=&nbsp;&amp;point.x,&nbsp;pY&nbsp;=&nbsp;&amp;point.y)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*pX&nbsp;=&nbsp;30;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*pY&nbsp;=&nbsp;150;<br>&nbsp;&nbsp;&nbsp;}*/<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(point);&nbsp;//&nbsp;x:&nbsp;30&nbsp;&nbsp;y:&nbsp;150<br>}</code></pre>
+     </div>
+     <p class="paragraph">Operatorul fixed creează un bloc în care pointerul pe câmpul obiectului point este fixat. După finalizarea blocului fixed, fixarea variabilelor este anulată și acestea pot fi supuse colectării de gunoi.</p>
+     <p class="paragraph">Pe lângă adresa variabilei, putem inițializa pointerul folosind un tablou, un șir de caractere sau un buffer de dimensiune fixă:</p>
+     <div class="code-inline">
+      <pre><code>unsafe<br>{<br>&nbsp;&nbsp;&nbsp;int[]&nbsp;nums&nbsp;=&nbsp;{&nbsp;0,&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;7,&nbsp;88&nbsp;};<br>&nbsp;&nbsp;&nbsp;string&nbsp;str&nbsp;=&nbsp;"Привет&nbsp;мир";<br>&nbsp;&nbsp;&nbsp;fixed(int*&nbsp;p&nbsp;=&nbsp;nums)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;third&nbsp;=&nbsp;*(p+2);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;al&nbsp;treilea&nbsp;element<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(third);&nbsp;//&nbsp;2<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;fixed(char*&nbsp;p&nbsp;=&nbsp;str)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;char&nbsp;forth&nbsp;=&nbsp;*(p&nbsp;+&nbsp;3);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;al&nbsp;patrulea&nbsp;element<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(forth);&nbsp;//&nbsp;в<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">La inițializarea pointerilor pentru un șir de caractere, trebuie să ținem cont că pointerul trebuie să fie de tip char*.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

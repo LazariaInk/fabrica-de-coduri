@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='MySQL', activeChapter='2.Definirea structurii de date', activeLesson='6.Modificarea tabelor si coloanelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Modificarea tabelor și coloanelor</h1>
+     <p class="paragraph">Dacă tabela a fost deja creată și trebuie modificată, atunci se utilizează comanda ALTER TABLE. Forma sa sintactică abreviată este:</p>
+     <div class="code-inline">
+      <pre><code>ALTER&nbsp;TABLE&nbsp;nume_tabel<br>{&nbsp;ADD&nbsp;nume_coloană&nbsp;tip_date_coloană&nbsp;[atribute_coloană]&nbsp;|<br>&nbsp;&nbsp;DROP&nbsp;COLUMN&nbsp;nume_coloană&nbsp;|<br>&nbsp;&nbsp;MODIFY&nbsp;COLUMN&nbsp;nume_coloană&nbsp;tip_date_coloană&nbsp;[atribute_coloană]&nbsp;|<br>&nbsp;&nbsp;ALTER&nbsp;COLUMN&nbsp;nume_coloană&nbsp;SET&nbsp;DEFAULT&nbsp;valoare_implicita&nbsp;|<br>&nbsp;&nbsp;ADD&nbsp;[CONSTRAINT]&nbsp;definire_restricție&nbsp;|<br>&nbsp;&nbsp;DROP&nbsp;[CONSTRAINT]&nbsp;nume_restricție&nbsp;}<br></code></pre>
+     </div>
+     <p class="paragraph">Această comandă în general suportă multe opțiuni și funcționalități. Toate acestea pot fi consultate în documentație. Vom examina doar scenariile de bază cu care ne putem întâlni.</p>
+     <h2 class="subtitle">Adăugarea unei noi coloane</h2>
+     <p class="paragraph">Vom adăuga în tabela "Customers" o nouă coloană numită "Address":</p>
+     <div class="code-inline">
+      <pre><code>ALTER&nbsp;TABLE&nbsp;Customers<br>ADD&nbsp;Address&nbsp;VARCHAR(50)&nbsp;NULL;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, coloana "Address" are tipul VARCHAR și pentru ea este definit atributul NULL.</p>
+     <h2 class="subtitle">Ștergerea coloanei</h2>
+     <p class="paragraph">Vom șterge coloana "Address" din tabela "Customers":</p>
+     <div class="code-inline">
+      <pre><code>ALTER&nbsp;TABLE&nbsp;Customers<br>DROP&nbsp;COLUMN&nbsp;Address;</code></pre>
+     </div>
+     <h2 class="subtitle">Schimbarea valorii implicite</h2>
+     <p class="paragraph">Vom schimba valoarea implicită în tabela "Customers" pentru coloana "Age" la 22:</p>
+     <div class="code-inline">
+      <pre><code>ALTER&nbsp;TABLE&nbsp;Customers<br>ALTER&nbsp;COLUMN&nbsp;Age&nbsp;SET&nbsp;DEFAULT&nbsp;22;</code></pre>
+     </div>
+     <h2 class="subtitle">Schimbarea tipului de date</h2>
+     <p class="paragraph">Vom schimba tipul de date al coloanei "FirstName" în tabela "Customers" la CHAR(100) și vom seta atributul NULL pentru aceasta:</p>
+     <div class="code-inline">
+      <pre><code>ALTER&nbsp;TABLE&nbsp;Customers<br>MODIFY&nbsp;COLUMN&nbsp;FirstName&nbsp;CHAR(100)&nbsp;NULL;</code></pre>
+     </div>
+     <h2 class="subtitle">Adăugarea și ștergerea unei chei externe</h2>
+     <p class="paragraph">Să presupunem că inițial în baza de date sunt adăugate două tabele care nu sunt legate între ele:</p>
+     <div class="code-inline">
+      <pre><code>CREATE&nbsp;TABLE&nbsp;Customers<br>(<br>&nbsp;&nbsp;&nbsp;Id&nbsp;INT&nbsp;PRIMARY&nbsp;KEY&nbsp;AUTO_INCREMENT,<br>&nbsp;&nbsp;&nbsp;Age&nbsp;INT,<br>&nbsp;&nbsp;&nbsp;FirstName&nbsp;VARCHAR(20)&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;LastName&nbsp;VARCHAR(20)&nbsp;NOT&nbsp;NULL<br>);<br>CREATE&nbsp;TABLE&nbsp;Orders<br>(<br>&nbsp;&nbsp;&nbsp;Id&nbsp;INT&nbsp;PRIMARY&nbsp;KEY&nbsp;AUTO_INCREMENT,<br>&nbsp;&nbsp;&nbsp;CustomerId&nbsp;INT,<br>&nbsp;&nbsp;&nbsp;CreatedAt&nbsp;Date<br>);</code></pre>
+     </div>
+     <p class="paragraph">Vom adăuga o restricție de cheie externă la coloana "CustomerId" a tabelei "Orders":</p>
+     <div class="code-inline">
+      <pre><code>ALTER&nbsp;TABLE&nbsp;Orders<br>ADD&nbsp;FOREIGN&nbsp;KEY(CustomerId)&nbsp;REFERENCES&nbsp;Customers(Id);</code></pre>
+     </div>
+     <p class="paragraph">La adăugarea constrângerilor, putem specifica un nume pentru ele folosind operatorul CONSTRAINT, după care se indică numele constrângerii:</p>
+     <div class="code-inline">
+      <pre><code>ALTER&nbsp;TABLE&nbsp;Orders<br>ADD&nbsp;CONSTRAINT&nbsp;orders_customers_fk<br>FOREIGN&nbsp;KEY(CustomerId)&nbsp;REFERENCES&nbsp;Customers(Id);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, constrângerea cheii externe se numește orders_customers_fk. Ulterior, folosind acest nume, putem șterge constrângerea:</p>
+     <div class="code-inline">
+      <pre><code>ALTER&nbsp;TABLE&nbsp;Orders<br>DROP&nbsp;FOREIGN&nbsp;KEY&nbsp;orders_customers_fk;</code></pre>
+     </div>
+     <h2 class="subtitle">Adăugarea și ștergerea cheii primare</h2>
+     <p class="paragraph">Vom adăuga o cheie primară în tabela "Products":</p>
+     <div class="code-inline">
+      <pre><code>CREATE&nbsp;TABLE&nbsp;Products<br>(<br>&nbsp;&nbsp;&nbsp;Id&nbsp;INT,<br>&nbsp;&nbsp;&nbsp;Model&nbsp;VARCHAR(20)<br>);<br><br>ALTER&nbsp;TABLE&nbsp;Products<br>ADD&nbsp;PRIMARY&nbsp;KEY&nbsp;(Id);</code></pre>
+     </div>
+     <p class="paragraph">Acum vom șterge cheia primară:</p>
+     <div class="code-inline">
+      <pre><code>ALTER&nbsp;TABLE&nbsp;Products<br>DROP&nbsp;PRIMARY&nbsp;KEY;</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

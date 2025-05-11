@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='7.Interfete', activeLesson='8.Sortarea obiectelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Sortarea obiectelor - Interfața IComparable</h1>
+     <p class="paragraph">Majoritatea claselor de colecții încorporate în .NET și array-urile suportă sortarea. Cu ajutorul unei metode, de obicei numită Sort(), poți sorta imediat întregul set de date în ordine crescătoare. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>int[]&nbsp;numbers&nbsp;=&nbsp;new&nbsp;int[]&nbsp;{&nbsp;97,&nbsp;45,&nbsp;32,&nbsp;65,&nbsp;83,&nbsp;23,&nbsp;15&nbsp;};<br>Array.Sort(numbers);<br>foreach&nbsp;(int&nbsp;n&nbsp;in&nbsp;numbers)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(n);<br>//&nbsp;15&nbsp;23&nbsp;32&nbsp;45&nbsp;65&nbsp;83&nbsp;97</code></pre>
+     </div>
+     <p class="paragraph">Totuși, metoda Sort funcționează implicit doar pentru seturi de tipuri primitive, cum ar fi int sau string. Pentru a sorta seturi de obiecte complexe, se folosește interfața IComparable. Aceasta are un singur metodă:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;interface&nbsp;IComparable<br>{<br>&nbsp;&nbsp;&nbsp;int&nbsp;CompareTo(object?&nbsp;o);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Metoda CompareTo este destinată comparării obiectului curent cu obiectul trecut ca parametru object? o. Returnează un număr întreg care poate avea una dintre cele trei valori:</p>
+     <ul class="enumeration">
+      <li>Mai puțin de zero: Obiectul curent ar trebui să fie înaintea obiectului trecut ca parametru</li>
+      <li>Egal cu zero: Ambele obiecte sunt egale</li>
+      <li>Mai mare de zero: Obiectul curent ar trebui să fie după obiectul trecut ca parametru</li>
+     </ul>
+     <p class="paragraph">De exemplu, avem clasa Person:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person&nbsp;:&nbsp;IComparable<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Age&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name,&nbsp;int&nbsp;age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;CompareTo(object?&nbsp;o)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(o&nbsp;is&nbsp;Person&nbsp;person)&nbsp;return&nbsp;Name.CompareTo(person.Name);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;throw&nbsp;new&nbsp;ArgumentException("Valoarea&nbsp;parametrului&nbsp;este&nbsp;incorectă");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici, ca criteriu de comparație a fost aleasă proprietatea Name a obiectului Person. Astfel, compararea se face între valoarea proprietății Name a obiectului curent și valoarea proprietății Name a obiectului transmis prin parametru.</p>
+     <p class="paragraph">Dacă obiectul nu poate fi convertit la tipul Person, se aruncă o excepție.</p>
+     <p class="paragraph">Utilizare:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;37);<br>var&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person("Bob",&nbsp;41);<br>var&nbsp;sam&nbsp;=&nbsp;new&nbsp;Person("Sam",&nbsp;25);<br><br>Person[]&nbsp;people&nbsp;=&nbsp;{&nbsp;tom,&nbsp;bob,&nbsp;sam&nbsp;};<br>Array.Sort(people);<br><br>foreach&nbsp;(Person&nbsp;person&nbsp;in&nbsp;people)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"{person.Name}&nbsp;-&nbsp;{person.Age}");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Și în acest caz, obținem următoarea ieșire în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Bob&nbsp;-&nbsp;41<br>Sam&nbsp;-&nbsp;25<br>Tom&nbsp;-&nbsp;37</code></pre>
+     </div>
+     <p class="paragraph">Interfața IComparable are o versiune generică, astfel că putem simplifica și scurta utilizarea acesteia în clasa Person:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person&nbsp;:&nbsp;IComparable&lt;Person&gt;<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Age&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name,&nbsp;int&nbsp;age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;CompareTo(Person?&nbsp;person)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(person&nbsp;is&nbsp;null)&nbsp;throw&nbsp;new&nbsp;ArgumentException("Valoarea&nbsp;parametrului&nbsp;este&nbsp;incorectă");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;Name.CompareTo(person.Name);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În mod similar, putem compara după vârstă:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person&nbsp;:&nbsp;IComparable&lt;Person&gt;<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Age&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name,&nbsp;int&nbsp;age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;CompareTo(Person?&nbsp;person)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(person&nbsp;is&nbsp;null)&nbsp;throw&nbsp;new&nbsp;ArgumentException("Valoarea&nbsp;parametrului&nbsp;este&nbsp;incorectă");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;Age&nbsp;-&nbsp;person.Age;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Utilizarea comparatorului</h2>
+     <p class="paragraph">În afară de interfața IComparable, platforma .NET oferă și interfața IComparer:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;interface&nbsp;IComparer&lt;in&nbsp;T&gt;<br>{<br>&nbsp;&nbsp;&nbsp;int&nbsp;Compare(T?&nbsp;x,&nbsp;T?&nbsp;y);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Metoda Compare este destinată comparării a două obiecte o1 și o2. Aceasta returnează de asemenea trei valori, în funcție de rezultatul comparației: dacă primul obiect este mai mare decât al doilea, se returnează un număr mai mare decât 0, dacă este mai mic - un număr mai mic decât zero; dacă ambele obiecte sunt egale, se returnează zero.</p>
+     <p class="paragraph">Să creăm un comparator pentru obiectele Person. Să presupunem că acesta compară obiectele în funcție de lungimea șirului - valoarea proprietății Name:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;PeopleComparer&nbsp;:&nbsp;IComparer&lt;Person&gt;<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Compare(Person?&nbsp;p1,&nbsp;Person?&nbsp;p2)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(p1&nbsp;is&nbsp;null&nbsp;||&nbsp;p2&nbsp;is&nbsp;null)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentException("Valoarea&nbsp;parametrului&nbsp;este&nbsp;incorectă");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;p1.Name.Length&nbsp;-&nbsp;p2.Name.Length;<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Age&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name,&nbsp;int&nbsp;age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, se folosește versiunea generică a interfeței IComparer, pentru a evita conversiile inutile de tipuri. Utilizarea comparatorului:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;alice&nbsp;=&nbsp;new&nbsp;Person("Alice",&nbsp;41);<br>var&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;37);<br>var&nbsp;kate&nbsp;=&nbsp;new&nbsp;Person("Kate",&nbsp;25);<br><br>Person[]&nbsp;people&nbsp;=&nbsp;{&nbsp;alice,&nbsp;tom,&nbsp;kate&nbsp;};<br>Array.Sort(people,&nbsp;new&nbsp;PeopleComparer());<br><br>foreach&nbsp;(Person&nbsp;person&nbsp;in&nbsp;people)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"{person.Name}&nbsp;-&nbsp;{person.Age}");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Comparatorul este specificat ca al doilea parametru al metodei Array.Sort(). În acest caz, nu contează dacă clasa Person implementează interfața IComparable sau nu. Regulile de sortare stabilite de comparator vor avea prioritate.</p>
+     <p class="paragraph">La început vor fi obiectele Person cu nume mai scurte, iar la final cele cu nume mai lungi:</p>
+     <div class="code-inline">
+      <pre><code>Tom&nbsp;-&nbsp;37<br>Kate&nbsp;-&nbsp;25<br>Alice&nbsp;-&nbsp;41</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

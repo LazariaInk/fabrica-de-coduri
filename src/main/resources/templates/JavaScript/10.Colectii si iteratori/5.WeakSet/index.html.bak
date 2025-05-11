@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='10.Colectii si iteratori', activeLesson='5.WeakSet'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">WeakSet</h1>
+     <p class="paragraph">Obiectul WeakSet este în multe privințe similar cu un set obișnuit. El poate stoca doar valori unice și fiecare element al său trebuie să reprezinte un obiect.</p>
+     <p class="paragraph">Pentru a crea un obiect WeakSet, se folosește constructorul său, în care pot fi furnizate valorile inițiale:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;WeakSet&nbsp;gol<br>const&nbsp;weakSet1&nbsp;=&nbsp;new&nbsp;WeakSet();<br>//&nbsp;Inițializare&nbsp;cu&nbsp;valori&nbsp;inițiale<br>const&nbsp;weakSet2&nbsp;=&nbsp;new&nbsp;WeakSet([{name:"Tom",&nbsp;age:&nbsp;37},&nbsp;{name:"Alice",&nbsp;age:&nbsp;34}]);</code></pre>
+     </div>
+     <p class="paragraph">Pentru inițializare, la fel ca în cazul obiectului Set, în constructor se furnizează un array, dar acest array conține în mod specific obiecte, nu valori scalare precum numere sau șiruri de caractere.</p>
+     <p class="paragraph">Pentru adăugarea datelor într-un WeakSet, se folosește metoda add():</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;weakSet&nbsp;=&nbsp;new&nbsp;WeakSet();<br>weakSet.add({lang:&nbsp;"JavaScript"});<br>weakSet.add({lang:&nbsp;"TypeScript"});<br>//&nbsp;weakSet.add(34);&nbsp;//&nbsp;nu&nbsp;se&nbsp;poate&nbsp;-&nbsp;34&nbsp;este&nbsp;un&nbsp;număr,&nbsp;nu&nbsp;un&nbsp;obiect<br>console.log(weakSet);&nbsp;&nbsp;&nbsp;//&nbsp;{{lang:&nbsp;"JavaScript"},&nbsp;{lang:&nbsp;"TypeScript"}}</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, trebuie menționat că putem adăuga doar obiecte, nu valori scalare precum numere sau șiruri de caractere.</p>
+     <p class="paragraph">Pentru ștergere, se folosește metoda delete(), la care se furnizează referința către obiectul de șters:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;weakSet&nbsp;=&nbsp;new&nbsp;WeakSet();<br>const&nbsp;js&nbsp;=&nbsp;{lang:&nbsp;"JavaScript"};<br>const&nbsp;ts&nbsp;=&nbsp;{lang:&nbsp;"TypeScript"};<br>weakSet.add(js);<br>weakSet.add(ts);<br><br>weakSet.delete(js);<br><br>console.log(weakSet);&nbsp;&nbsp;&nbsp;//&nbsp;{{lang:&nbsp;"TypeScript"}}</code></pre>
+     </div>
+     <p class="paragraph">Dacă trebuie să verificați dacă un obiect există într-un WeakSet, puteți utiliza metoda has(), care returnează true în cazul în care obiectul este prezent:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;js&nbsp;=&nbsp;{lang:&nbsp;"JavaScript"};<br>const&nbsp;ts&nbsp;=&nbsp;{lang:&nbsp;"TypeScript"};<br>const&nbsp;java&nbsp;=&nbsp;{lang:&nbsp;"Java"};<br>const&nbsp;weakSet&nbsp;=&nbsp;new&nbsp;WeakSet([js,&nbsp;ts]);<br>console.log(weakSet.has(ts));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;true<br>console.log(weakSet.has(java));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;&nbsp;false</code></pre>
+     </div>
+     <h2 class="subtitle">Iterarea prin WeakSet</h2>
+     <p class="paragraph">Trebuie menționat că WeakSet nu susține iterarea nici prin intermediul metodei ForEach, pe care WeakSet nu o are, nici prin intermediul unui ciclu for. De exemplu, dacă încercăm să iterăm prin WeakSet folosind un ciclu for..of:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;weakSet&nbsp;=&nbsp;new&nbsp;WeakSet([<br>&nbsp;&nbsp;&nbsp;{lang:&nbsp;"JavaScript"},<br>&nbsp;&nbsp;&nbsp;{lang:&nbsp;"TypeScript"},<br>&nbsp;&nbsp;&nbsp;{lang:&nbsp;"Java"}<br>]);<br><br><br>for(item&nbsp;of&nbsp;weakSet){<br>&nbsp;&nbsp;&nbsp;console.log(item);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Vom primi o eroare:</p>
+     <div class="code-inline">
+      <pre><code>Uncaught&nbsp;TypeError:&nbsp;weakSet&nbsp;nu&nbsp;este&nbsp;iterabil</code></pre>
+     </div>
+     <h2 class="subtitle">Referințe slabe</h2>
+     <p class="paragraph">Obiectele sunt adăugate într-un WeakSet prin referință. O caracteristică distinctivă a WeakSet este că atunci când un obiect încetează să mai existe din diverse motive, el este eliminat din WeakSet. Astfel, să luăm în considerare următorul exemplu:</p>
+     <div class="code-inline">
+      <pre><code>let&nbsp;js&nbsp;=&nbsp;{lang:&nbsp;"JavaScript"};<br>let&nbsp;ts&nbsp;=&nbsp;{lang:&nbsp;"TypeScript"};<br>const&nbsp;weakSet&nbsp;=&nbsp;new&nbsp;WeakSet([js,&nbsp;ts]);<br><br>js&nbsp;=&nbsp;null;<br><br>console.log(weakSet);&nbsp;&nbsp;&nbsp;//&nbsp;{{lang:&nbsp;"JavaScript"},&nbsp;{lang:&nbsp;"TypeScript"}}<br>console.log("Anumită&nbsp;muncă");<br>const&nbsp;timerId&nbsp;=&nbsp;setTimeout(function(){<br>&nbsp;&nbsp;&nbsp;console.log(weakSet);&nbsp;&nbsp;&nbsp;//&nbsp;{{lang:&nbsp;"TypeScript"}}<br>&nbsp;&nbsp;&nbsp;clearTimeout(timerId);<br>},&nbsp;20000);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, mai întâi obiectul WeakSet stochează referințe către două obiecte: js și ts. Apoi, setăm valoarea variabilei js la null.</p>
+     <p class="paragraph">Acest lucru va duce la faptul că, după un anumit timp, valoarea inițială a acestei variabile va fi eliminată de colectorul de gunoi JavaScript.</p>
+     <div class="code-inline">
+      <pre><code>js&nbsp;=&nbsp;null;</code></pre>
+     </div>
+     <p class="paragraph">În cazul în care imediat după aceasta verificăm conținutul weakSet, vom vedea că obiectul js este încă prezent în el. Cu toate acestea, după un timp, referința va fi eliminată din weakSet. Pentru a simula trecerea timpului, aici se utilizează funcția setTimeout, care afișează conținutul weakSet la 9000 de milisecunde (perioada de timp specifică după care colectorul de gunoi va șterge valoarea poate diferi).</p>
+     <p class="paragraph">Acum, să comparăm cu ceea ce se întâmplă dacă folosim Set în loc de WeakSet:</p>
+     <div class="code-inline">
+      <pre><code>let&nbsp;js&nbsp;=&nbsp;{lang:&nbsp;"JavaScript"};<br>let&nbsp;ts&nbsp;=&nbsp;{lang:&nbsp;"TypeScript"};<br>const&nbsp;set&nbsp;=&nbsp;new&nbsp;Set([js,&nbsp;ts]);<br><br>js&nbsp;=&nbsp;null;<br><br>console.log(set);&nbsp;&nbsp;&nbsp;//&nbsp;Set(2)&nbsp;{{lang:&nbsp;"JavaScript"},&nbsp;{lang:&nbsp;"TypeScript"}}<br>console.log("Anumită&nbsp;muncă");<br>const&nbsp;timerId&nbsp;=&nbsp;setTimeout(function(){<br>&nbsp;&nbsp;&nbsp;console.log(set);&nbsp;&nbsp;&nbsp;//&nbsp;Set(2){{lang:&nbsp;"JavaScript"},&nbsp;{lang:&nbsp;"TypeScript"}}<br>&nbsp;&nbsp;&nbsp;clearTimeout(timerId);<br>},&nbsp;20000);</code></pre>
+     </div>
+     <p class="paragraph">În cazul unui Set, chiar și după un anumit timp, vom observa că obiectul pentru care a fost setată valoarea null este încă prezent în obiectul Set.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

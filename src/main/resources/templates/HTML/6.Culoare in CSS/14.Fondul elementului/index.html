@@ -1,272 +1,262 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='HTML', activeChapter='6.Culoare in CSS', activeLesson='14.Fondul elementului'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Fondul elementului</h1>
- <p class="paragraph">Fondul elementului este descris în CSS cu proprietatea background. Practic, această proprietate reprezintă o abreviere pentru setul următor de proprietăți CSS:</p>
- <ul class="enumeration">
-  <li>background-color: stabilește culoarea de fundal</li>
- </ul>
- <div class="code-inline">
-  <pre><code>background-color:&nbsp;#ff0507;</code></pre>
- </div>
- <ul class="enumeration">
-  <li>background-image: stabilește imaginea de fundal</li>
- </ul>
- <div class="code-inline">
-  <pre><code>background-image:&nbsp;url(dubi.png);</code></pre>
- </div>
- <p class="paragraph">Această proprietate primește o singură valoare: cuvântul cheie url, după care urmează calea către fișierul imaginei. În acest caz, presupunem că fișierul dubi.png este în aceeași mapă cu pagina web.</p>
- <p class="paragraph">De asemenea, se pot folosi adrese URL absolute, de exemplu:</p>
- <div class="code-inline">
-  <pre><code>background-image:&nbsp;url(http://localhost.com/someimage.png);</code></pre>
- </div>
- <p class="paragraph">Sau se pot folosi adrese URL relative - relative la documentul HTML sau directorul rădăcină al site-ului:</p>
- <div class="code-inline">
-  <pre><code>background-image:&nbsp;url(../images/someimage.png);&nbsp;/*&nbsp;cale&nbsp;relativă&nbsp;la&nbsp;documentul&nbsp;HTML&nbsp;*/</code></pre>
- </div>
- <ul class="enumeration">
-  <li>background-repeat: stabilește modul de repetare a imaginii de fundal pe întreaga suprafață a elementului</li>
-  <li>background-size: stabilește dimensiunea imaginii de fundal</li>
-  <li>background-position: indică poziția imaginii de fundal</li>
-  <li>background-attachment: stabilește stilul de atașare a imaginii de fundal la element</li>
-  <li>background-clip: definește zona care este decupată din imagine și utilizată ca fundal</li>
-  <li>background-origin: stabilește poziția inițială a imaginii de fundal</li>
- </ul>
- <p class="paragraph">De exemplu:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&nbsp;&nbsp;&nbsp;&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;Modelul&nbsp;bloc&nbsp;în&nbsp;CSS3&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:&nbsp;250px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;200px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;margin:&nbsp;10px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.colored{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;#ff0507;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.imaged{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-image:&nbsp;url(dubi.png);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="colored"&gt;Primul&nbsp;bloc&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="imaged"&gt;Al&nbsp;doilea&nbsp;bloc&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">Primul bloc este colorat într-o nuanță de roșu, iar al doilea bloc stabilește o imagine ca fundal. Toate conținuturile blocului se suprapun peste fundal:</p>
- <div class="image-container">
-  <img src="images/image1.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Repetarea imaginii</h2>
- <p class="paragraph">Pe captura de ecran de mai sus se poate vedea că CSS dimensionează corect imaginea pentru a o potrivi cât mai bine în spațiul elementului. Cu toate acestea, datorită dimensionării, imaginea poate să nu acopere complet suprafața elementului, și de aceea pentru acoperirea completă CSS începe automat să repete imaginea.</p>
- <p class="paragraph">Cu proprietatea background-repeat se poate modifica mecanismul de repetare. Aceasta poate lua următoarele valori:</p>
- <ul class="enumeration">
-  <li>repeat-x: repetarea pe orizontală</li>
-  <li>repeat-y: repetarea pe verticală</li>
-  <li>repeat: repetarea pe ambele părți (acțiunea implicită)</li>
-  <li>space: imaginea este repetată pentru a umple întreaga suprafață a elementului, dar fără a crea fragmente</li>
-  <li>round: imaginea este dimensionată corect pentru a umple complet spațiul</li>
-  <li>no-repeat: imaginea nu este repetată</li>
- </ul>
- <p class="paragraph">De exemplu:</p>
- <div class="code-inline">
-  <pre><code>div{<br>&nbsp;&nbsp;&nbsp;width:&nbsp;200px;<br>&nbsp;&nbsp;&nbsp;height:&nbsp;150px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;background-image:&nbsp;url(dubi.png);<br>&nbsp;&nbsp;&nbsp;background-repeat:&nbsp;round;<br>}</code></pre>
- </div>
- <h2 class="subtitle">Dimensiunea imaginii</h2>
- <p class="paragraph">Proprietatea background-size permite setarea dimensiunii imaginii de fundal. Pentru setarea dimensiunii se pot folosi unități de măsură, cum ar fi pixeli, procente sau una din valorile prestabilite:</p>
- <ul class="enumeration">
-  <li>contain: dimensionează imaginea pentru a se potrivi pe latura cea mai lungă, păstrând raportul de aspect</li>
-  <li>cover: dimensionează imaginea pentru a se potrivi pe latura cea mai scurtă, păstrând raportul de aspect</li>
-  <li>auto: valoarea implicită, imaginea este afișată la dimensiunea completă</li>
- </ul>
- <p class="paragraph">Dacă se dorește dimensionarea imaginii astfel încât să fie optimizată pentru fundal, atunci se pot seta ambele dimensiuni la 100%:</p>
- <div class="code-inline">
-  <pre><code>background-size:&nbsp;100%&nbsp;100%;</code></pre>
- </div>
- <p class="paragraph">Dacă sunt specificate dimensiuni precise, mai întâi se indică lățimea, iar apoi înălțimea imaginii:</p>
- <div class="code-inline">
-  <pre><code>background-size:&nbsp;200px&nbsp;150px;&nbsp;&nbsp;&nbsp;/*&nbsp;lățimea&nbsp;de&nbsp;200&nbsp;pixeli,&nbsp;înălțimea&nbsp;de&nbsp;150&nbsp;pixeli&nbsp;*/</code></pre>
- </div>
- <p class="paragraph">Se poate specifica o valoare precisă pentru una din dimensiuni - lățimea sau înălțimea, iar pentru cealaltă dimensiune se pot seta dimensiuni automate, pentru ca browser-ul să afișeze valori precise:</p>
- <div class="code-inline">
-  <pre><code>background-size:&nbsp;200px&nbsp;auto;&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;lățimea&nbsp;de&nbsp;200&nbsp;pixeli,&nbsp;înălțimea&nbsp;automată&nbsp;*/</code></pre>
- </div>
- <p class="paragraph">De exemplu:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&nbsp;&nbsp;&nbsp;&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;Modelul&nbsp;bloc&nbsp;în&nbsp;CSS3&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:&nbsp;200px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;150px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;margin:&nbsp;10px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;black&nbsp;solid&nbsp;1px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-image:&nbsp;url(dubi.png);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.imaged1{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-size:&nbsp;cover;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.imaged2{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-size:&nbsp;140px&nbsp;110px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="imaged1"&gt;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="imaged2"&gt;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">În al doilea caz, imaginea va fi dimensionată la 140x110 pixeli. Deoarece mai este spațiu pe element, implicit imaginea va fi repetată pentru a acoperi întreaga suprafață:</p>
- <div class="image-container">
-  <img src="images/image2.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Poziționarea imaginii</h2>
- <p class="paragraph">Proprietatea background-position controlează poziția imaginii de fundal în interiorul elementului. Aceasta poate lua margini de la colțul stânga-sus al elementului în unități de măsură, cum ar fi pixeli, în formatul următor:</p>
- <div class="code-inline">
-  <pre><code>background-position:&nbsp;offset_pe_axa_X&nbsp;offset_pe_axa_Y;&nbsp;&nbsp;</code></pre>
- </div>
- <p class="paragraph">De exemplu:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&nbsp;&nbsp;&nbsp;&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;Modelul&nbsp;bloc&nbsp;în&nbsp;CSS3&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:&nbsp;300px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;250px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;margin:&nbsp;10px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;solid&nbsp;#ccc;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;#eee;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-image:&nbsp;url(dubi.png);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-repeat:&nbsp;no-repeat;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-position:&nbsp;20px&nbsp;15px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&gt;"Învingătorii&nbsp;nu&nbsp;renunță&nbsp;niciodată,&nbsp;iar&nbsp;cei&nbsp;care&nbsp;renunță&nbsp;nu&nbsp;câștigă&nbsp;niciodată."&nbsp;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image3.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">În plus, această proprietate poate lua una dintre următoarele valori:</p>
- <ul class="enumeration">
-  <li>top: aliniere în partea de sus a elementului</li>
-  <li>left: aliniere în partea stângă a elementului</li>
-  <li>right: aliniere în partea dreaptă a elementului</li>
-  <li>bottom: aliniere în partea de jos a elementului</li>
-  <li>center: imaginea este plasată în centrul elementului</li>
- </ul>
- <p class="paragraph">De exemplu:</p>
- <div class="code-inline">
-  <pre><code>background-position:&nbsp;top&nbsp;right;</code></pre>
- </div>
- <p class="paragraph">Aici imaginea este aliniată în partea de sus și în partea dreaptă, adică va fi plasată în colțul din dreapta sus al elementului.</p>
- <h2 class="subtitle">background-attachment</h2>
- <p class="paragraph">Proprietatea background-attachment controlează modul în care imaginea de fundal va fi atașată la element. Această proprietate poate avea următoarele valori:</p>
- <ul class="enumeration">
-  <li>fixed: imaginea de fundal a elementului este fixată indiferent de derularea în interiorul elementului</li>
-  <li>local: pe măsură ce elementul este derulat în interior, fundalul se modifică</li>
-  <li>scroll: fundalul este fix și nu se schimbă în timpul derulării, dar, spre deosebire de fix, mai multe elemente pot utiliza propriul fundal, în timp ce la fix se creează un fundal comun pentru toate elementele</li>
- </ul>
- <p class="paragraph">De exemplu:</p>
- <div class="code-inline">
-  <pre><code>div{<br>&nbsp;&nbsp;&nbsp;width:&nbsp;300px;<br>&nbsp;&nbsp;&nbsp;height:&nbsp;250px;<br>&nbsp;&nbsp;&nbsp;overflow:&nbsp;scroll;&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;adăugăm&nbsp;derularea&nbsp;*/<br>&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;solid&nbsp;#ccc;<br>&nbsp;&nbsp;&nbsp;background-image:&nbsp;url(dubi.png);<br>&nbsp;&nbsp;&nbsp;background-size:&nbsp;512px&nbsp;384px;<br>&nbsp;&nbsp;&nbsp;background-attachment:&nbsp;scroll;<br>&nbsp;&nbsp;&nbsp;background-repeat:&nbsp;no-repeat;<br>}</code></pre>
- </div>
- <h2 class="subtitle">background-origin</h2>
- <p class="paragraph">Proprietatea background-origin indică poziția din imagine de la care va începe imaginea de fundal propriu-zisă pentru element. Aceasta poate avea următoarele valori:</p>
- <ul class="enumeration">
-  <li>border-box: imaginea de fundal a elementului începe de la marginea sa exterioară, definită de proprietatea border</li>
-  <li>padding-box: fundalul este setat ținând cont de marginile interioare</li>
-  <li>content-box: fundalul este setat în funcție de conținutul elementului</li>
- </ul>
- <p class="paragraph">Folosim toate cele trei valori:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;Modelul&nbsp;bloc&nbsp;în&nbsp;CSS3&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:&nbsp;200px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;200px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;margin:&nbsp;10px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;display:&nbsp;inline-block;&nbsp;/*&nbsp;așezăm&nbsp;blocurile&nbsp;într-o&nbsp;linie&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;color:&nbsp;#eee;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;padding:&nbsp;15px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;25px&nbsp;solid&nbsp;rgba(23,&nbsp;23,&nbsp;23,&nbsp;0.2);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-image:&nbsp;url(cats.jpg);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-size:&nbsp;cover;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-repeat:&nbsp;no-repeat;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.borderBox&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-origin:&nbsp;border-box;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-clip:&nbsp;border-box;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;Dacă&nbsp;este&nbsp;necesar,&nbsp;ajustează&nbsp;poziționarea&nbsp;imaginii&nbsp;de&nbsp;fundal&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-position:&nbsp;center;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.paddingBox&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-origin:&nbsp;padding-box;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-clip:&nbsp;padding-box;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;Dacă&nbsp;este&nbsp;necesar,&nbsp;ajustează&nbsp;poziționarea&nbsp;imaginii&nbsp;de&nbsp;fundal&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-position:&nbsp;center;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.contentBox&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-origin:&nbsp;content-box;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-clip:&nbsp;content-box;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;Dacă&nbsp;este&nbsp;necesar,&nbsp;ajustează&nbsp;poziționarea&nbsp;imaginii&nbsp;de&nbsp;fundal&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-position:&nbsp;center;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;div&nbsp;class="borderBox"&gt;<br>&nbsp;&nbsp;&nbsp;Toată&nbsp;puterea&nbsp;-&nbsp;pisicilor!<br>&lt;/div&gt;<br>&lt;div&nbsp;class="paddingBox"&gt;<br>&nbsp;&nbsp;&nbsp;Toată&nbsp;puterea&nbsp;-&nbsp;pisicilor!<br>&lt;/div&gt;<br>&lt;div&nbsp;class="contentBox"&gt;<br>&nbsp;&nbsp;&nbsp;Toată&nbsp;puterea&nbsp;-&nbsp;pisicilor!<br>&lt;/div&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image4.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">background-clip</h2>
- <p class="paragraph">Proprietatea background-clip definește care parte a imaginii este utilizată pentru fundal. Aceasta acceptă aceleași valori:</p>
- <ul class="enumeration">
-  <li>border-box: imaginea este tăiată conform marginilor elementului</li>
-  <li>padding-box: partea imaginii care se află sub marginile elementului este exclusă</li>
-  <li>content-box: imaginea este tăiată conform conținutului, ținând cont de marginile interioare</li>
- </ul>
- <p class="paragraph">De exemplu, dacă aplicăm următoarele stiluri la marcarea anterioară:</p>
- <div class="code-inline">
-  <pre><code>div{<br>&nbsp;&nbsp;&nbsp;width:&nbsp;200px;<br>&nbsp;&nbsp;&nbsp;height:&nbsp;200px;<br>&nbsp;&nbsp;&nbsp;margin:&nbsp;10px;<br>&nbsp;&nbsp;&nbsp;display:&nbsp;inline-block;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;color:&nbsp;#eee;<br>&nbsp;&nbsp;&nbsp;padding:15px;<br>&nbsp;&nbsp;&nbsp;border:&nbsp;15px&nbsp;solid&nbsp;rgba(23,23,23,0.1);<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;background-image:&nbsp;url(cats.jpg);<br>&nbsp;&nbsp;&nbsp;background-size:&nbsp;cover;<br>&nbsp;&nbsp;&nbsp;background-repeat:&nbsp;no-repeat;<br>}<br>.borderBox{background-clip:&nbsp;border-box;}<br>.paddingBox{background-clip:&nbsp;padding-box;}<br>.contentBox{background-clip:&nbsp;content-box;}</code></pre>
- </div>
- <p class="paragraph">Atunci vom obține următorul rezultat:</p>
- <div class="image-container">
-  <img src="images/image5.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Proprietatea background</h2>
- <p class="paragraph">Proprietatea background, practic, este un scurtătură pentru toate proprietățile CSS enumerate anterior în formatul:</p>
- <div class="code-inline">
-  <pre><code>background:&nbsp;&lt;culoare-fundal&gt;&nbsp;&lt;poziție-fundal&gt;&nbsp;&lt;dimensiune-fundal&gt;<br>&lt;repetare-fundal&gt;&nbsp;&lt;origin-fundal&gt;&nbsp;&lt;clip-fundal&gt;&nbsp;&lt;atașament-fundal&gt;<br>&lt;imagine-fundal&gt;</code></pre>
- </div>
- <p class="paragraph">De exemplu, dacă avem următorul set de proprietăți:</p>
- <div class="code-inline">
-  <pre><code>background-image:&nbsp;url(cats.jpg);<br>background-color:&nbsp;#eee;<br>background-repeat:&nbsp;no-repeat;<br>background-clip:&nbsp;border-box;<br>background-origin:&nbsp;border-box;<br>background-attachment:&nbsp;local;</code></pre>
- </div>
- <p class="paragraph">Atunci le putem reduce astfel:</p>
- <div class="code-inline">
-  <pre><code>background:&nbsp;#eee&nbsp;no-repeat&nbsp;border-box&nbsp;local&nbsp;url(cats.jpg);</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Fondul elementului</h1>
+     <p class="paragraph">Fondul elementului este descris în CSS cu proprietatea background. Practic, această proprietate reprezintă o abreviere pentru setul următor de proprietăți CSS:</p>
+     <ul class="enumeration">
+      <li>background-color: stabilește culoarea de fundal</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>background-color:&nbsp;#ff0507;</code></pre>
+     </div>
+     <ul class="enumeration">
+      <li>background-image: stabilește imaginea de fundal</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>background-image:&nbsp;url(dubi.png);</code></pre>
+     </div>
+     <p class="paragraph">Această proprietate primește o singură valoare: cuvântul cheie url, după care urmează calea către fișierul imaginei. În acest caz, presupunem că fișierul dubi.png este în aceeași mapă cu pagina web.</p>
+     <p class="paragraph">De asemenea, se pot folosi adrese URL absolute, de exemplu:</p>
+     <div class="code-inline">
+      <pre><code>background-image:&nbsp;url(http://localhost.com/someimage.png);</code></pre>
+     </div>
+     <p class="paragraph">Sau se pot folosi adrese URL relative - relative la documentul HTML sau directorul rădăcină al site-ului:</p>
+     <div class="code-inline">
+      <pre><code>background-image:&nbsp;url(../images/someimage.png);&nbsp;/*&nbsp;cale&nbsp;relativă&nbsp;la&nbsp;documentul&nbsp;HTML&nbsp;*/</code></pre>
+     </div>
+     <ul class="enumeration">
+      <li>background-repeat: stabilește modul de repetare a imaginii de fundal pe întreaga suprafață a elementului</li>
+      <li>background-size: stabilește dimensiunea imaginii de fundal</li>
+      <li>background-position: indică poziția imaginii de fundal</li>
+      <li>background-attachment: stabilește stilul de atașare a imaginii de fundal la element</li>
+      <li>background-clip: definește zona care este decupată din imagine și utilizată ca fundal</li>
+      <li>background-origin: stabilește poziția inițială a imaginii de fundal</li>
+     </ul>
+     <p class="paragraph">De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&nbsp;&nbsp;&nbsp;&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;Modelul&nbsp;bloc&nbsp;în&nbsp;CSS3&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:&nbsp;250px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;200px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;margin:&nbsp;10px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.colored{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;#ff0507;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.imaged{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-image:&nbsp;url(dubi.png);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="colored"&gt;Primul&nbsp;bloc&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="imaged"&gt;Al&nbsp;doilea&nbsp;bloc&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Primul bloc este colorat într-o nuanță de roșu, iar al doilea bloc stabilește o imagine ca fundal. Toate conținuturile blocului se suprapun peste fundal:</p>
+     <div class="image-container">
+      <img th:src="@{/images/HTML/6.Culoare%20in%20CSS/14.Fondul%20elementului/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Repetarea imaginii</h2>
+     <p class="paragraph">Pe captura de ecran de mai sus se poate vedea că CSS dimensionează corect imaginea pentru a o potrivi cât mai bine în spațiul elementului. Cu toate acestea, datorită dimensionării, imaginea poate să nu acopere complet suprafața elementului, și de aceea pentru acoperirea completă CSS începe automat să repete imaginea.</p>
+     <p class="paragraph">Cu proprietatea background-repeat se poate modifica mecanismul de repetare. Aceasta poate lua următoarele valori:</p>
+     <ul class="enumeration">
+      <li>repeat-x: repetarea pe orizontală</li>
+      <li>repeat-y: repetarea pe verticală</li>
+      <li>repeat: repetarea pe ambele părți (acțiunea implicită)</li>
+      <li>space: imaginea este repetată pentru a umple întreaga suprafață a elementului, dar fără a crea fragmente</li>
+      <li>round: imaginea este dimensionată corect pentru a umple complet spațiul</li>
+      <li>no-repeat: imaginea nu este repetată</li>
+     </ul>
+     <p class="paragraph">De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>div{<br>&nbsp;&nbsp;&nbsp;width:&nbsp;200px;<br>&nbsp;&nbsp;&nbsp;height:&nbsp;150px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;background-image:&nbsp;url(dubi.png);<br>&nbsp;&nbsp;&nbsp;background-repeat:&nbsp;round;<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Dimensiunea imaginii</h2>
+     <p class="paragraph">Proprietatea background-size permite setarea dimensiunii imaginii de fundal. Pentru setarea dimensiunii se pot folosi unități de măsură, cum ar fi pixeli, procente sau una din valorile prestabilite:</p>
+     <ul class="enumeration">
+      <li>contain: dimensionează imaginea pentru a se potrivi pe latura cea mai lungă, păstrând raportul de aspect</li>
+      <li>cover: dimensionează imaginea pentru a se potrivi pe latura cea mai scurtă, păstrând raportul de aspect</li>
+      <li>auto: valoarea implicită, imaginea este afișată la dimensiunea completă</li>
+     </ul>
+     <p class="paragraph">Dacă se dorește dimensionarea imaginii astfel încât să fie optimizată pentru fundal, atunci se pot seta ambele dimensiuni la 100%:</p>
+     <div class="code-inline">
+      <pre><code>background-size:&nbsp;100%&nbsp;100%;</code></pre>
+     </div>
+     <p class="paragraph">Dacă sunt specificate dimensiuni precise, mai întâi se indică lățimea, iar apoi înălțimea imaginii:</p>
+     <div class="code-inline">
+      <pre><code>background-size:&nbsp;200px&nbsp;150px;&nbsp;&nbsp;&nbsp;/*&nbsp;lățimea&nbsp;de&nbsp;200&nbsp;pixeli,&nbsp;înălțimea&nbsp;de&nbsp;150&nbsp;pixeli&nbsp;*/</code></pre>
+     </div>
+     <p class="paragraph">Se poate specifica o valoare precisă pentru una din dimensiuni - lățimea sau înălțimea, iar pentru cealaltă dimensiune se pot seta dimensiuni automate, pentru ca browser-ul să afișeze valori precise:</p>
+     <div class="code-inline">
+      <pre><code>background-size:&nbsp;200px&nbsp;auto;&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;lățimea&nbsp;de&nbsp;200&nbsp;pixeli,&nbsp;înălțimea&nbsp;automată&nbsp;*/</code></pre>
+     </div>
+     <p class="paragraph">De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&nbsp;&nbsp;&nbsp;&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;Modelul&nbsp;bloc&nbsp;în&nbsp;CSS3&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:&nbsp;200px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;150px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;margin:&nbsp;10px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;black&nbsp;solid&nbsp;1px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-image:&nbsp;url(dubi.png);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.imaged1{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-size:&nbsp;cover;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.imaged2{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-size:&nbsp;140px&nbsp;110px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="imaged1"&gt;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="imaged2"&gt;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">În al doilea caz, imaginea va fi dimensionată la 140x110 pixeli. Deoarece mai este spațiu pe element, implicit imaginea va fi repetată pentru a acoperi întreaga suprafață:</p>
+     <div class="image-container">
+      <img th:src="@{/images/HTML/6.Culoare%20in%20CSS/14.Fondul%20elementului/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Poziționarea imaginii</h2>
+     <p class="paragraph">Proprietatea background-position controlează poziția imaginii de fundal în interiorul elementului. Aceasta poate lua margini de la colțul stânga-sus al elementului în unități de măsură, cum ar fi pixeli, în formatul următor:</p>
+     <div class="code-inline">
+      <pre><code>background-position:&nbsp;offset_pe_axa_X&nbsp;offset_pe_axa_Y;&nbsp;&nbsp;</code></pre>
+     </div>
+     <p class="paragraph">De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&nbsp;&nbsp;&nbsp;&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;Modelul&nbsp;bloc&nbsp;în&nbsp;CSS3&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:&nbsp;300px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;250px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;margin:&nbsp;10px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;solid&nbsp;#ccc;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;#eee;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-image:&nbsp;url(dubi.png);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-repeat:&nbsp;no-repeat;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-position:&nbsp;20px&nbsp;15px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&gt;"Învingătorii&nbsp;nu&nbsp;renunță&nbsp;niciodată,&nbsp;iar&nbsp;cei&nbsp;care&nbsp;renunță&nbsp;nu&nbsp;câștigă&nbsp;niciodată."&nbsp;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/HTML/6.Culoare%20in%20CSS/14.Fondul%20elementului/images/image3.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">În plus, această proprietate poate lua una dintre următoarele valori:</p>
+     <ul class="enumeration">
+      <li>top: aliniere în partea de sus a elementului</li>
+      <li>left: aliniere în partea stângă a elementului</li>
+      <li>right: aliniere în partea dreaptă a elementului</li>
+      <li>bottom: aliniere în partea de jos a elementului</li>
+      <li>center: imaginea este plasată în centrul elementului</li>
+     </ul>
+     <p class="paragraph">De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>background-position:&nbsp;top&nbsp;right;</code></pre>
+     </div>
+     <p class="paragraph">Aici imaginea este aliniată în partea de sus și în partea dreaptă, adică va fi plasată în colțul din dreapta sus al elementului.</p>
+     <h2 class="subtitle">background-attachment</h2>
+     <p class="paragraph">Proprietatea background-attachment controlează modul în care imaginea de fundal va fi atașată la element. Această proprietate poate avea următoarele valori:</p>
+     <ul class="enumeration">
+      <li>fixed: imaginea de fundal a elementului este fixată indiferent de derularea în interiorul elementului</li>
+      <li>local: pe măsură ce elementul este derulat în interior, fundalul se modifică</li>
+      <li>scroll: fundalul este fix și nu se schimbă în timpul derulării, dar, spre deosebire de fix, mai multe elemente pot utiliza propriul fundal, în timp ce la fix se creează un fundal comun pentru toate elementele</li>
+     </ul>
+     <p class="paragraph">De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>div{<br>&nbsp;&nbsp;&nbsp;width:&nbsp;300px;<br>&nbsp;&nbsp;&nbsp;height:&nbsp;250px;<br>&nbsp;&nbsp;&nbsp;overflow:&nbsp;scroll;&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;adăugăm&nbsp;derularea&nbsp;*/<br>&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;solid&nbsp;#ccc;<br>&nbsp;&nbsp;&nbsp;background-image:&nbsp;url(dubi.png);<br>&nbsp;&nbsp;&nbsp;background-size:&nbsp;512px&nbsp;384px;<br>&nbsp;&nbsp;&nbsp;background-attachment:&nbsp;scroll;<br>&nbsp;&nbsp;&nbsp;background-repeat:&nbsp;no-repeat;<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">background-origin</h2>
+     <p class="paragraph">Proprietatea background-origin indică poziția din imagine de la care va începe imaginea de fundal propriu-zisă pentru element. Aceasta poate avea următoarele valori:</p>
+     <ul class="enumeration">
+      <li>border-box: imaginea de fundal a elementului începe de la marginea sa exterioară, definită de proprietatea border</li>
+      <li>padding-box: fundalul este setat ținând cont de marginile interioare</li>
+      <li>content-box: fundalul este setat în funcție de conținutul elementului</li>
+     </ul>
+     <p class="paragraph">Folosim toate cele trei valori:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;Modelul&nbsp;bloc&nbsp;în&nbsp;CSS3&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:&nbsp;200px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;200px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;margin:&nbsp;10px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;display:&nbsp;inline-block;&nbsp;/*&nbsp;așezăm&nbsp;blocurile&nbsp;într-o&nbsp;linie&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;color:&nbsp;#eee;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;padding:&nbsp;15px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;25px&nbsp;solid&nbsp;rgba(23,&nbsp;23,&nbsp;23,&nbsp;0.2);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-image:&nbsp;url(cats.jpg);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-size:&nbsp;cover;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-repeat:&nbsp;no-repeat;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.borderBox&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-origin:&nbsp;border-box;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-clip:&nbsp;border-box;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;Dacă&nbsp;este&nbsp;necesar,&nbsp;ajustează&nbsp;poziționarea&nbsp;imaginii&nbsp;de&nbsp;fundal&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-position:&nbsp;center;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.paddingBox&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-origin:&nbsp;padding-box;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-clip:&nbsp;padding-box;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;Dacă&nbsp;este&nbsp;necesar,&nbsp;ajustează&nbsp;poziționarea&nbsp;imaginii&nbsp;de&nbsp;fundal&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-position:&nbsp;center;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.contentBox&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-origin:&nbsp;content-box;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-clip:&nbsp;content-box;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;Dacă&nbsp;este&nbsp;necesar,&nbsp;ajustează&nbsp;poziționarea&nbsp;imaginii&nbsp;de&nbsp;fundal&nbsp;*/<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-position:&nbsp;center;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;div&nbsp;class="borderBox"&gt;<br>&nbsp;&nbsp;&nbsp;Toată&nbsp;puterea&nbsp;-&nbsp;pisicilor!<br>&lt;/div&gt;<br>&lt;div&nbsp;class="paddingBox"&gt;<br>&nbsp;&nbsp;&nbsp;Toată&nbsp;puterea&nbsp;-&nbsp;pisicilor!<br>&lt;/div&gt;<br>&lt;div&nbsp;class="contentBox"&gt;<br>&nbsp;&nbsp;&nbsp;Toată&nbsp;puterea&nbsp;-&nbsp;pisicilor!<br>&lt;/div&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/HTML/6.Culoare%20in%20CSS/14.Fondul%20elementului/images/image4.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">background-clip</h2>
+     <p class="paragraph">Proprietatea background-clip definește care parte a imaginii este utilizată pentru fundal. Aceasta acceptă aceleași valori:</p>
+     <ul class="enumeration">
+      <li>border-box: imaginea este tăiată conform marginilor elementului</li>
+      <li>padding-box: partea imaginii care se află sub marginile elementului este exclusă</li>
+      <li>content-box: imaginea este tăiată conform conținutului, ținând cont de marginile interioare</li>
+     </ul>
+     <p class="paragraph">De exemplu, dacă aplicăm următoarele stiluri la marcarea anterioară:</p>
+     <div class="code-inline">
+      <pre><code>div{<br>&nbsp;&nbsp;&nbsp;width:&nbsp;200px;<br>&nbsp;&nbsp;&nbsp;height:&nbsp;200px;<br>&nbsp;&nbsp;&nbsp;margin:&nbsp;10px;<br>&nbsp;&nbsp;&nbsp;display:&nbsp;inline-block;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;color:&nbsp;#eee;<br>&nbsp;&nbsp;&nbsp;padding:15px;<br>&nbsp;&nbsp;&nbsp;border:&nbsp;15px&nbsp;solid&nbsp;rgba(23,23,23,0.1);<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;background-image:&nbsp;url(cats.jpg);<br>&nbsp;&nbsp;&nbsp;background-size:&nbsp;cover;<br>&nbsp;&nbsp;&nbsp;background-repeat:&nbsp;no-repeat;<br>}<br>.borderBox{background-clip:&nbsp;border-box;}<br>.paddingBox{background-clip:&nbsp;padding-box;}<br>.contentBox{background-clip:&nbsp;content-box;}</code></pre>
+     </div>
+     <p class="paragraph">Atunci vom obține următorul rezultat:</p>
+     <div class="image-container">
+      <img th:src="@{/images/HTML/6.Culoare%20in%20CSS/14.Fondul%20elementului/images/image5.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Proprietatea background</h2>
+     <p class="paragraph">Proprietatea background, practic, este un scurtătură pentru toate proprietățile CSS enumerate anterior în formatul:</p>
+     <div class="code-inline">
+      <pre><code>background:&nbsp;&lt;culoare-fundal&gt;&nbsp;&lt;poziție-fundal&gt;&nbsp;&lt;dimensiune-fundal&gt;<br>&lt;repetare-fundal&gt;&nbsp;&lt;origin-fundal&gt;&nbsp;&lt;clip-fundal&gt;&nbsp;&lt;atașament-fundal&gt;<br>&lt;imagine-fundal&gt;</code></pre>
+     </div>
+     <p class="paragraph">De exemplu, dacă avem următorul set de proprietăți:</p>
+     <div class="code-inline">
+      <pre><code>background-image:&nbsp;url(cats.jpg);<br>background-color:&nbsp;#eee;<br>background-repeat:&nbsp;no-repeat;<br>background-clip:&nbsp;border-box;<br>background-origin:&nbsp;border-box;<br>background-attachment:&nbsp;local;</code></pre>
+     </div>
+     <p class="paragraph">Atunci le putem reduce astfel:</p>
+     <div class="code-inline">
+      <pre><code>background:&nbsp;#eee&nbsp;no-repeat&nbsp;border-box&nbsp;local&nbsp;url(cats.jpg);</code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

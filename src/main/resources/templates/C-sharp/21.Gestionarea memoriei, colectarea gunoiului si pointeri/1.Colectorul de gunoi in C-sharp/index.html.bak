@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='21.Gestionarea memoriei, colectarea gunoiului si pointeri', activeLesson='1.Colectorul de gunoi in C-sharp'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Colectorul de gunoi în C#</h1>
+     <p class="paragraph">Anterior, în tema Tipuri de valori și tipuri de referințe, am analizat diferite tipuri de date și modul în care acestea sunt plasate în memorie. Astfel, când folosim variabile de tip valoare într-o metodă, toate valorile acestor variabile sunt stocate în stivă. După finalizarea execuției metodei, stiva este curățată.</p>
+     <p class="paragraph">În cazul tipurilor de referință, cum ar fi obiectele claselor, pentru acestea va fi alocat spațiu în stivă, dar acolo va fi stocată doar adresa secțiunii de memorie din heap sau grămadă, unde se află efectiv valorile obiectului respectiv. Și dacă un obiect de tip clasă nu mai este utilizat, odată cu curățarea stivei, referința către secțiunea de memorie este, de asemenea, curățată, însă acest lucru nu duce la o curățare imediată a secțiunii de memorie din heap.</p>
+     <p class="paragraph">Ulterior, colectorul de gunoi (garbage collector) va observa că nu mai există referințe către secțiunea de memorie respectivă și o va curăța.</p>
+     <p class="paragraph">De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>Test();<br><br>void&nbsp;Test()<br>{<br>&nbsp;&nbsp;&nbsp;Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom");<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(tom.Name);<br>}<br>record&nbsp;class&nbsp;Person(string&nbsp;Name);</code></pre>
+     </div>
+     <p class="paragraph">În metoda Test este creat un obiect Person. Cu ajutorul operatorului new, în heap este alocată o secțiune de memorie pentru a stoca obiectul. Iar în stivă se adaugă adresa acestei secțiuni de memorie. În metoda Main, definită implicit, apelăm metoda Test. Și după ce metoda Test se încheie, spațiul din stivă este curățat, iar colectorul de gunoi eliberează secțiunea de memorie alocată anterior pentru obiectul Person.</p>
+     <p class="paragraph">Colectorul de gunoi nu este lansat imediat după ștergerea din stivă a referinței către obiectul plasat în heap. Este lansat atunci când mediul CLR detectează necesitatea, de exemplu, când programul are nevoie de memorie suplimentară.</p>
+     <p class="paragraph">De regulă, obiectele din heap sunt plasate neordonat, între ele putând exista goluri. Heap-ul este destul de fragmentat. Prin urmare, după curățarea memoriei ca urmare a unei colectări de gunoi, obiectele rămase sunt mutate într-un bloc de memorie continuu. Odată cu aceasta, referințele sunt actualizate pentru a indica corect noile adrese ale obiectelor.</p>
+     <p class="paragraph">De asemenea, trebuie menționat că pentru obiectele mari există un heap separat - Large Object Heap. În acest heap sunt plasate obiectele a căror dimensiune depășește 85.000 de biți. Particularitatea acestui heap este că în timpul colectării de gunoi nu se efectuează comprimarea memoriei din cauza costurilor mari asociate dimensiunii obiectelor.</p>
+     <p class="paragraph">Deși comprimarea spațiului ocupat necesită timp și aplicația nu poate continua să ruleze până când colectorul de gunoi nu își termină sarcina, acest proces optimizează, de asemenea, aplicația. Acum, pentru a găsi spațiu liber în heap, mediul CLR nu trebuie să caute insule de spațiu liber între blocurile ocupate. Este suficient să se adreseze pointerului heap-ului, care indică secțiunea de memorie liberă, ceea ce reduce numărul de accesări ale memoriei.</p>
+     <p class="paragraph">În plus, pentru a reduce costurile asociate cu colectorul de gunoi, toate obiectele din heap sunt împărțite pe generații. Există trei generații de obiecte: 0, 1 și 2.</p>
+     <p class="paragraph">La generația 0 aparțin obiectele noi, care nu au fost încă supuse colectării de gunoi. La generația 1 aparțin obiectele care au supraviețuit unei colectări, iar la generația 2 - obiectele care au trecut prin mai multe colectări de gunoi.</p>
+     <p class="paragraph">Când colectorul de gunoi începe să lucreze, acesta analizează mai întâi obiectele din generația 0. Obiectele care rămân relevante după curățare sunt promovate la generația 1.</p>
+     <p class="paragraph">Dacă, după procesarea obiectelor din generația 0, este încă necesară memorie suplimentară, colectorul de gunoi trece la obiectele din generația 1. Obiectele care nu mai au referințe sunt distruse, iar cele care rămân relevante sunt promovate la generația 2.</p>
+     <p class="paragraph">Deoarece obiectele din generația 0 sunt mai noi și, adesea, se află în spațiul de memorie apropiat unul de altul, eliminarea lor se face cu costuri minime.</p>
+     <h2 class="subtitle">Clasa System.GC.</h2>
+     <p class="paragraph">Funcționalitatea colectorului de gunoi în biblioteca de clase .NET este reprezentată de clasa System.GC. Prin metodele statice, această clasă permite accesul la colectorul de gunoi. De regulă, nu este necesară utilizarea acestei clase. Cel mai frecvent caz de utilizare este colectarea de gunoi în timpul lucrului cu resurse neadministrate, când sunt alocate cantități mari de memorie și este necesară eliberarea lor rapidă.</p>
+     <p class="paragraph">Să analizăm câteva metode și proprietăți ale clasei System.GC:</p>
+     <ul class="enumeration">
+      <li>Metoda AddMemoryPressure informează mediul CLR despre alocarea unei cantități mari de memorie neadministrată, care trebuie luată în considerare la planificarea colectării de gunoi. În asociere cu această metodă, se folosește metoda RemoveMemoryPressure, care indică CLR că memoria alocată anterior a fost eliberată și nu mai trebuie luată în considerare la colectarea de gunoi</li>
+      <li>Metoda Collect declanșează mecanismul de colectare a gunoiului. Versiunile supraîncărcate ale metodei permit specificarea generației de obiecte până la care trebuie efectuată colectarea de gunoi</li>
+      <li>Metoda GetGeneration(Object) permite determinarea generației la care aparține obiectul transmis ca parametru</li>
+      <li>Metoda GetTotalMemory returnează cantitatea de memorie în biți care este ocupată în heap-ul administrat</li>
+      <li>Metoda WaitForPendingFinalizers suspendă activitatea thread-ului curent până când toate obiectele pentru care se efectuează colectarea de gunoi sunt eliberate</li>
+     </ul>
+     <p class="paragraph">Lucrul cu metodele System.GC este simplu:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;.................................<br>long&nbsp;totalMemory&nbsp;=&nbsp;GC.GetTotalMemory(false);<br><br>GC.Collect();<br>GC.WaitForPendingFinalizers();<br>//......................................</code></pre>
+     </div>
+     <p class="paragraph">Cu ajutorul versiunilor supraîncărcate ale metodei GC.Collect, se poate efectua o configurare mai precisă a colectării de gunoi. De exemplu, versiunea supraîncărcată a acestei metode primește ca parametru un număr - generația până la care trebuie efectuată curățarea. De exemplu, GC.Collect(0) - vor fi eliminate doar obiectele din generația 0.</p>
+     <p class="paragraph">O altă versiune supraîncărcată primește și un al doilea parametru - o enumerare GCCollectionMode. Această enumerare poate avea trei valori:</p>
+     <ul class="enumeration">
+      <li>Default: valoare implicită pentru această enumerare (Forced)</li>
+      <li>Forced: declanșează imediat execuția colectării de gunoi</li>
+      <li>Optimized: permite colectorului de gunoi să determine dacă momentul curent este optim pentru colectarea de gunoi</li>
+     </ul>
+     <p class="paragraph">De exemplu, colectarea imediată a gunoiului până la prima generație de obiecte: GC.Collect(1, GCCollectionMode.Forced);.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

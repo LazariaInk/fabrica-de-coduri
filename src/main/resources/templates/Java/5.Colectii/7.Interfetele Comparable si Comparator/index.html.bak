@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Java', activeChapter='5.Colectii', activeLesson='7.Interfetele Comparable si Comparator'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Interfețele Comparable și Comparator - Sortare</h1>
+     <p class="paragraph">În tema anterioară am discutat despre funcționarea colecției TreeSet, tipizată cu obiecte de tip String. La adăugarea de noi elemente, TreeSet sortează automat obiectele, plasându-le în ordinea corectă. Cu șiruri de caractere, acest lucru este simplu. Dar ce se întâmplă dacă folosim propriile noastre clase, cum ar fi următoarea clasă Person?</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;name;<br>&nbsp;&nbsp;&nbsp;Person(String&nbsp;name){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;String&nbsp;getName()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Nu putem tipiza un obiect TreeSet cu această clasă, deoarece, atunci când adăugăm obiecte, TreeSet nu va ști cum să le compare, și următorul cod nu va funcționa:</p>
+     <div class="code-inline">
+      <pre><code>TreeSet&lt;Person&gt;&nbsp;people&nbsp;=&nbsp;new&nbsp;TreeSet&lt;Person&gt;();<br>people.add(new&nbsp;Person("Tom"));</code></pre>
+     </div>
+     <p class="paragraph">La rularea acestui cod, vom întâlni o eroare care spune că obiectul Person nu poate fi convertit în tipul java.lang.Comparable.</p>
+     <p class="paragraph">Pentru ca obiectele Person să poată fi comparate și sortate, ele trebuie să implementeze interfața Comparable&lt;E&gt;. Aceasta va fi tipizată cu clasa curentă. Aplicăm interfața clasei Person astfel:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person&nbsp;implements&nbsp;Comparable&lt;Person&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;name;<br>&nbsp;&nbsp;&nbsp;Person(String&nbsp;name)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;String&nbsp;getName()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;compareTo(Person&nbsp;p)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;name.compareTo(p.getName());<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Interfața Comparable conține o singură metodă: int compareTo(E item), care compară obiectul curent cu obiectul transmis ca parametru. Dacă metoda returnează un număr negativ, obiectul curent va fi plasat înaintea celui transmis. Dacă returnează un număr pozitiv, va fi plasat după acesta. Dacă returnează zero, cele două obiecte sunt considerate egale.</p>
+     <p class="paragraph">În acest caz, ne bazăm pe mecanismul de comparare integrat al clasei String, dar putem defini propria logică, de exemplu, comparând în funcție de lungimea numelui:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;int&nbsp;compareTo(Person&nbsp;p)&nbsp;{<br>&nbsp;&nbsp;&nbsp;return&nbsp;name.length()&nbsp;-&nbsp;p.getName().length();<br>}</code></pre>
+     </div>
+     <p class="paragraph">Acum putem tipiza TreeSet cu tipul Person și adăuga obiecte în arbore:</p>
+     <div class="code-inline">
+      <pre><code>TreeSet&lt;Person&gt;&nbsp;people&nbsp;=&nbsp;new&nbsp;TreeSet&lt;Person&gt;();<br>people.add(new&nbsp;Person("Tom"));<br><br></code></pre>
+     </div>
+     <h2 class="subtitle">Interfața Comparator</h2>
+     <p class="paragraph">Problema apare atunci când clasa pe care dorim să o folosim nu implementează interfața Comparable, sau când dorim să redefinim logica de comparare. În acest caz, putem folosi interfața Comparator&lt;E&gt;, care este mai flexibilă.</p>
+     <p class="paragraph">Interfața Comparator conține metoda cheie compare():</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;interface&nbsp;Comparator&lt;E&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;int&nbsp;compare(T&nbsp;a,&nbsp;T&nbsp;b);<br>&nbsp;&nbsp;&nbsp;//&nbsp;alte&nbsp;metode<br>}</code></pre>
+     </div>
+     <p class="paragraph">Metoda compare() returnează un număr: negativ dacă obiectul a precede b, pozitiv dacă îl urmează, iar zero dacă sunt egale. Pentru a aplica această interfață, creăm o clasă care implementează Comparator:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;PersonComparator&nbsp;implements&nbsp;Comparator&lt;Person&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;compare(Person&nbsp;a,&nbsp;Person&nbsp;b)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;a.getName().compareTo(b.getName());<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Apoi, folosim clasa comparator pentru a crea un TreeSet:</p>
+     <div class="code-inline">
+      <pre><code>PersonComparator&nbsp;pcomp&nbsp;=&nbsp;new&nbsp;PersonComparator();<br>TreeSet&lt;Person&gt;&nbsp;people&nbsp;=&nbsp;new&nbsp;TreeSet&lt;Person&gt;(pcomp);<br>people.add(new&nbsp;Person("Tom"));<br>people.add(new&nbsp;Person("Nick"));<br>people.add(new&nbsp;Person("Alice"));<br>people.add(new&nbsp;Person("Bill"));<br><br>for&nbsp;(Person&nbsp;p&nbsp;:&nbsp;people)&nbsp;{<br>&nbsp;&nbsp;&nbsp;System.out.println(p.getName());<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, constructorul TreeSet primește comparatorul ca parametru. Astfel, indiferent dacă Person implementează sau nu interfața Comparable, logica de comparare definită în PersonComparator va fi utilizată.</p>
+     <h2 class="subtitle">Sortare după mai multe criterii</h2>
+     <p class="paragraph">Începând cu JDK 8, au fost introduse îmbunătățiri în mecanismul de funcționare al comparatorilor. De exemplu, acum putem aplica mai mulți comparatori în lanț. Să modificăm clasa Person pentru a include și vârsta:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;name;<br>&nbsp;&nbsp;&nbsp;private&nbsp;int&nbsp;age;<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(String&nbsp;n,&nbsp;int&nbsp;a)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name&nbsp;=&nbsp;n;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;age&nbsp;=&nbsp;a;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;String&nbsp;getName()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;int&nbsp;getAge()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Vom defini doi comparatori: unul pentru nume și unul pentru vârstă:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;PersonNameComparator&nbsp;implements&nbsp;Comparator&lt;Person&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;compare(Person&nbsp;a,&nbsp;Person&nbsp;b)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;a.getName().compareTo(b.getName());<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;PersonAgeComparator&nbsp;implements&nbsp;Comparator&lt;Person&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;compare(Person&nbsp;a,&nbsp;Person&nbsp;b)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(a.getAge()&nbsp;&gt;&nbsp;b.getAge())&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;else&nbsp;if&nbsp;(a.getAge()&nbsp;&lt;&nbsp;b.getAge())&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;-1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;else&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Interfața comparator are o metodă specială thenComparing, care permite utilizarea mai multor comparatori în lanț:</p>
+     <div class="code-inline">
+      <pre><code>Comparator&lt;Person&gt;&nbsp;pcomp&nbsp;=&nbsp;new&nbsp;PersonNameComparator().thenComparing(new&nbsp;PersonAgeComparator());<br>TreeSet&lt;Person&gt;&nbsp;people&nbsp;=&nbsp;new&nbsp;TreeSet(pcomp);<br>people.add(new&nbsp;Person("Tom",&nbsp;23));<br>people.add(new&nbsp;Person("Nick",&nbsp;34));<br>people.add(new&nbsp;Person("Tom",&nbsp;10));<br>people.add(new&nbsp;Person("Bill",&nbsp;14));<br><br>for&nbsp;(Person&nbsp;p&nbsp;:&nbsp;people)&nbsp;{<br>&nbsp;&nbsp;&nbsp;System.out.println(p.getName()&nbsp;+&nbsp;"&nbsp;"&nbsp;+&nbsp;p.getAge());<br>}</code></pre>
+     </div>
+     <p class="paragraph">Rezultatul afișat în consolă va fi:</p>
+     <div class="code-inline">
+      <pre><code>Bill&nbsp;14&nbsp;<br>Nick&nbsp;34&nbsp;<br>Tom&nbsp;10&nbsp;<br>Tom&nbsp;23</code></pre>
+     </div>
+     <p class="paragraph">În acest exemplu, mai întâi se aplică sortarea după nume, iar apoi după vârstă, dacă numele sunt identice.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

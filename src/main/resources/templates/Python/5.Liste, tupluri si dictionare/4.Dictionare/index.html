@@ -1,256 +1,246 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Python', activeChapter='5.Liste, tupluri si dictionare', activeLesson='4.Dictionare'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Dicționare</h1>
- <p class="paragraph">Dicționarul (dictionary) în limbajul Python stochează o colecție de elemente, unde fiecare element are o cheie unică și o valoare asociată acesteia.</p>
- <p class="paragraph">Definiția dicționarului are următoarea sintaxă:</p>
- <div class="code-inline">
-  <pre><code>dictionary&nbsp;=&nbsp;{&nbsp;cheie1:valoare1,&nbsp;cheie2:valoare2,&nbsp;....}</code></pre>
- </div>
- <p class="paragraph">În acolade, separate prin virgulă, se definește o secvență de elemente, unde pentru fiecare element se specifică mai întâi cheia și prin două puncte valoarea sa.</p>
- <p class="paragraph">Definim un dicționar:</p>
- <div class="code-inline">
-  <pre><code>users&nbsp;=&nbsp;{1:&nbsp;"Tom",&nbsp;2:&nbsp;"Bob",&nbsp;3:&nbsp;"Bill"}</code></pre>
- </div>
- <p class="paragraph">În dicționarul users, ca și chei sunt utilizate numere, iar ca valori - șiruri de caractere. Adică, elementul cu cheia 1 are valoarea "Tom", elementul cu cheia 2 - valoarea "Bob" și așa mai departe.</p>
- <p class="paragraph">Un alt exemplu:</p>
- <div class="code-inline">
-  <pre><code>emails&nbsp;=&nbsp;{"tom@gmail.com":&nbsp;"Tom",&nbsp;"bob@gmai.com":&nbsp;"Bob",&nbsp;"sam@gmail.com":&nbsp;"Sam"}</code></pre>
- </div>
- <p class="paragraph">În dicționarul emails, ca și chei sunt utilizate șiruri de caractere - adresele electronice ale utilizatorilor și ca valori tot șiruri de caractere - numele utilizatorilor.</p>
- <p class="paragraph">Dar nu este obligatoriu ca cheile și valorile să fie de același tip. Ele pot reprezenta tipuri diferite:</p>
- <div class="code-inline">
-  <pre><code>objects&nbsp;=&nbsp;{1:&nbsp;"Tom",&nbsp;"2":&nbsp;True,&nbsp;3:&nbsp;100.6}</code></pre>
- </div>
- <p class="paragraph">De asemenea, putem defini un dicționar gol fără elemente:</p>
- <div class="code-inline">
-  <pre><code>objects&nbsp;=&nbsp;{}</code></pre>
- </div>
- <p class="paragraph">sau astfel:</p>
- <div class="code-inline">
-  <pre><code>objects&nbsp;=&nbsp;dict()</code></pre>
- </div>
- <h2 class="subtitle">Transformarea listelor și a tuple-urilor în dicționar</h2>
- <p class="paragraph">Deși dicționarul și lista sunt tipuri diferite ca structură, totuși există posibilitatea pentru anumite tipuri de liste de a le transforma în dicționar cu ajutorul funcției integrate dict(). Pentru aceasta, lista trebuie să conțină un set de liste imbricate. Fiecare listă imbricată trebuie să constea din două elemente - la conversia în dicționar, primul element va deveni cheia, iar al doilea - valoarea:</p>
- <div class="code-inline">
-  <pre><code>users_list&nbsp;=&nbsp;[<br>&nbsp;&nbsp;&nbsp;["+111123455",&nbsp;"Tom"],<br>&nbsp;&nbsp;&nbsp;["+384767557",&nbsp;"Bob"],<br>&nbsp;&nbsp;&nbsp;["+958758767",&nbsp;"Alice"]<br>]<br>users_dict&nbsp;=&nbsp;dict(users_list)<br>print(users_dict)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;{"+111123455":&nbsp;"Tom",&nbsp;"+384767557":&nbsp;"Bob",&nbsp;"+958758767":&nbsp;"Alice"}</code></pre>
- </div>
- <p class="paragraph">În mod similar, putem transforma în dicționar tuple-uri bidimensionale, care la rândul lor conțin tuple-uri de două elemente:</p>
- <div class="code-inline">
-  <pre><code>users_tuple&nbsp;=&nbsp;(<br>&nbsp;&nbsp;&nbsp;("+111123455",&nbsp;"Tom"),<br>&nbsp;&nbsp;&nbsp;("+384767557",&nbsp;"Bob"),<br>&nbsp;&nbsp;&nbsp;("+958758767",&nbsp;"Alice")<br>)<br>users_dict&nbsp;=&nbsp;dict(users_tuple)<br>print(users_dict)</code></pre>
- </div>
- <h2 class="subtitle">Obținerea și modificarea elementelor</h2>
- <p class="paragraph">Pentru a accesa elementele dicționarului, după numele acestuia se specifică cheia elementului între paranteze pătrate:</p>
- <div class="code-inline">
-  <pre><code>dictionary[cheie]</code></pre>
- </div>
- <p class="paragraph">De exemplu, vom obține și modifica elemente în dicționar:</p>
- <div class="code-inline">
-  <pre><code>users&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;"+11111111":&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;"+33333333":&nbsp;"Bob",<br>&nbsp;&nbsp;&nbsp;"+55555555":&nbsp;"Alice"<br>}<br><br>print(users["+11111111"])&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Tom<br><br>users["+33333333"]&nbsp;=&nbsp;"Bob&nbsp;Smith"<br>print(users["+33333333"])&nbsp;&nbsp;&nbsp;#&nbsp;Bob&nbsp;Smith</code></pre>
- </div>
- <p class="paragraph">Dacă la setarea valorii, elementul cu acea cheie nu se află în dicționar, acesta va fi adăugat:</p>
- <div class="code-inline">
-  <pre><code>users["+4444444"]&nbsp;=&nbsp;"Sam"</code></pre>
- </div>
- <p class="paragraph">Dar dacă încercăm să obținem valoarea unei chei care nu există în dicționar, Python va genera o eroare KeyError:</p>
- <div class="code-inline">
-  <pre><code>user&nbsp;=&nbsp;users["+4444444"]&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;KeyError</code></pre>
- </div>
- <p class="paragraph">Pentru a evita această situație, înainte de a accesa elementul, putem verifica existența cheii în dicționar cu ajutorul expresiei cheie in dicționar. Dacă cheia se află în dicționar, această expresie returnează True:</p>
- <div class="code-inline">
-  <pre><code>key&nbsp;=&nbsp;"+4444444"<br>if&nbsp;key&nbsp;in&nbsp;users:<br>&nbsp;&nbsp;&nbsp;user&nbsp;=&nbsp;users[key]<br>&nbsp;&nbsp;&nbsp;print(user)<br>else:<br>&nbsp;&nbsp;&nbsp;print("Elementul&nbsp;nu&nbsp;a&nbsp;fost&nbsp;găsit")</code></pre>
- </div>
- <p class="paragraph">De asemenea, pentru a obține elementele putem utiliza metoda get, care are două forme:</p>
- <ul class="enumeration">
-  <li>get(key): returnează din dicționar elementul cu cheia key. Dacă elementul cu acea cheie nu există, returnează valoarea None</li>
-  <li>get(key, default): returnează din dicționar elementul cu cheia key. Dacă elementul cu acea cheie nu există, returnează valoarea implicită default</li>
- </ul>
- <div class="code-inline">
-  <pre><code>users&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;"+11111111":&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;"+33333333":&nbsp;"Bob",<br>&nbsp;&nbsp;&nbsp;"+55555555":&nbsp;"Alice"<br>}<br><br>user1&nbsp;=&nbsp;users.get("+55555555")<br>print(user1)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Alice<br>user2&nbsp;=&nbsp;users.get("+33333333",&nbsp;"Unknown&nbsp;user")<br>print(user2)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Bob<br>user3&nbsp;=&nbsp;users.get("+44444444",&nbsp;"Unknown&nbsp;user")<br>print(user3)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Unknown&nbsp;user</code></pre>
- </div>
- <h2 class="subtitle">Ștergerea prin cheie</h2>
- <p class="paragraph">Pentru a șterge un element prin cheie, se folosește operatorul del:</p>
- <div class="code-inline">
-  <pre><code>users&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;"+11111111":&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;"+33333333":&nbsp;"Bob",<br>&nbsp;&nbsp;&nbsp;"+55555555":&nbsp;"Alice"<br>}<br><br>del&nbsp;users["+55555555"]<br>print(users)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;{&nbsp;"+11111111":&nbsp;"Tom",&nbsp;"+33333333":&nbsp;"Bob"}</code></pre>
- </div>
- <p class="paragraph">Dar trebuie să ținem cont că, dacă o astfel de cheie nu se află în dicționar, va fi generată o excepție KeyError. Prin urmare, din nou, înainte de ștergere, este recomandat să verificăm existența elementului cu acea cheie.</p>
- <div class="code-inline">
-  <pre><code>users&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;"+11111111":&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;"+33333333":&nbsp;"Bob",<br>&nbsp;&nbsp;&nbsp;"+55555555":&nbsp;"Alice"<br>}<br><br>key&nbsp;=&nbsp;"+55555555"<br>if&nbsp;key&nbsp;in&nbsp;users:<br>&nbsp;&nbsp;&nbsp;del&nbsp;users[key]<br>&nbsp;&nbsp;&nbsp;print(f"Elementul&nbsp;cu&nbsp;cheia&nbsp;{key}&nbsp;a&nbsp;fost&nbsp;șters")<br>else:<br>&nbsp;&nbsp;&nbsp;print("Elementul&nbsp;nu&nbsp;a&nbsp;fost&nbsp;găsit")</code></pre>
- </div>
- <p class="paragraph">O altă metodă de ștergere este reprezentată de metoda pop(). Ea are două forme:</p>
- <ul class="enumeration">
-  <li>pop(key): șterge elementul cu cheia key și returnează elementul șters. Dacă elementul cu acea cheie nu există, este generată excepția KeyError</li>
-  <li>pop(key, default): șterge elementul cu cheia key și returnează elementul șters. Dacă elementul cu acea cheie nu există, returnează valoarea default</li>
- </ul>
- <div class="code-inline">
-  <pre><code>users&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;"+11111111":&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;"+33333333":&nbsp;"Bob",<br>&nbsp;&nbsp;&nbsp;"+55555555":&nbsp;"Alice"<br>}<br>key&nbsp;=&nbsp;"+55555555"<br>user&nbsp;=&nbsp;users.pop(key)<br>print(user)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Alice<br><br>user&nbsp;=&nbsp;users.pop("+4444444",&nbsp;"Unknown&nbsp;user")<br>print(user)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Unknown&nbsp;user</code></pre>
- </div>
- <p class="paragraph">Dacă este necesar să ștergem toate elementele, în acest caz putem folosi metoda clear():</p>
- <div class="code-inline">
-  <pre><code>users.clear()</code></pre>
- </div>
- <h2 class="subtitle">Copierea și unirea dicționarelor</h2>
- <p class="paragraph">Metoda copy() copiază conținutul dicționarului, returnând un nou dicționar:</p>
- <div class="code-inline">
-  <pre><code>users&nbsp;=&nbsp;{"+1111111":&nbsp;"Tom",&nbsp;"+3333333":&nbsp;"Bob",&nbsp;"+5555555":&nbsp;"Alice"}<br>students&nbsp;=&nbsp;users.copy()<br>print(students)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;{"+1111111":&nbsp;"Tom",&nbsp;"+3333333":&nbsp;"Bob",&nbsp;"+5555555":&nbsp;"Alice"}</code></pre>
- </div>
- <p class="paragraph">Metoda update() unește două dicționare:</p>
- <div class="code-inline">
-  <pre><code>users&nbsp;=&nbsp;{"+1111111":&nbsp;"Tom",&nbsp;"+3333333":&nbsp;"Bob"}<br>users2&nbsp;=&nbsp;{"+2222222":&nbsp;"Sam",&nbsp;"+6666666":&nbsp;"Kate"}<br>users.update(users2)<br><br>print(users)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;{"+1111111":&nbsp;"Tom",&nbsp;"+3333333":&nbsp;"Bob",&nbsp;"+2222222":&nbsp;"Sam",&nbsp;"+6666666":&nbsp;"Kate"}<br>print(users2)&nbsp;&nbsp;&nbsp;#&nbsp;{"+2222222":&nbsp;"Sam",&nbsp;"+6666666":&nbsp;"Kate"}</code></pre>
- </div>
- <p class="paragraph">În acest caz, dicționarul users2 rămâne neschimbat. Doar dicționarul users se modifică, în el fiind adăugate elementele celuilalt dicționar. Dar dacă este necesar ca ambele dicționare să rămână neatinse, iar rezultatul unirii să fie un al treilea dicționar, putem copia unul din dicționare în altul:</p>
- <div class="code-inline">
-  <pre><code>users3&nbsp;=&nbsp;users.copy()<br>users3.update(users2)</code></pre>
- </div>
- <h2 class="subtitle">Parcurgerea dicționarului</h2>
- <p class="paragraph">Pentru parcurgerea dicționarului putem folosi ciclul for:</p>
- <div class="code-inline">
-  <pre><code>users&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;"+11111111":&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;"+33333333":&nbsp;"Bob",<br>&nbsp;&nbsp;&nbsp;"+55555555":&nbsp;"Alice"<br>}<br>for&nbsp;key&nbsp;in&nbsp;users:<br>&nbsp;&nbsp;&nbsp;print(f"Phone:&nbsp;{key}&nbsp;&nbsp;User:&nbsp;{users[key]}&nbsp;")</code></pre>
- </div>
- <p class="paragraph">La parcurgerea elementelor obținem cheia elementului curent și prin aceasta putem obține elementul propriu-zis.</p>
- <p class="paragraph">O altă metodă de parcurgere a elementelor este utilizarea metodei items():</p>
- <div class="code-inline">
-  <pre><code>users&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;"+11111111":&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;"+33333333":&nbsp;"Bob",<br>&nbsp;&nbsp;&nbsp;"+55555555":<br><br>"Alice"<br>}<br>for&nbsp;key,&nbsp;value&nbsp;in&nbsp;users.items():<br>&nbsp;&nbsp;&nbsp;print(f"Phone:&nbsp;{key}&nbsp;&nbsp;User:&nbsp;{value}&nbsp;")</code></pre>
- </div>
- <p class="paragraph">Metoda items() returnează un set de tuple-uri. Fiecare tuple conține cheia și valoarea elementului, pe care le putem obține în variabilele key și value.</p>
- <p class="paragraph">Există de asemenea și posibilități de parcurgere a cheilor și a valorilor separat. Pentru parcurgerea cheilor putem apela metoda keys() a dicționarului:</p>
- <div class="code-inline">
-  <pre><code>for&nbsp;key&nbsp;in&nbsp;users.keys():<br>&nbsp;&nbsp;&nbsp;print(key)</code></pre>
- </div>
- <p class="paragraph">De fapt, acest mod de parcurgere nu are rost, deoarece și fără apelul metodei keys() putem parcurge cheile, așa cum am arătat mai sus.</p>
- <p class="paragraph">Pentru parcurgerea doar a valorilor putem apela metoda values() a dicționarului:</p>
- <div class="code-inline">
-  <pre><code>for&nbsp;value&nbsp;in&nbsp;users.values():<br>&nbsp;&nbsp;&nbsp;print(value)</code></pre>
- </div>
- <h2 class="subtitle">Dicționare complexe</h2>
- <p class="paragraph">Pe lângă obiectele simple precum numere și șiruri de caractere, dicționarele pot stoca și obiecte mai complexe - cum ar fi liste, tuple-uri sau alte dicționare:</p>
- <div class="code-inline">
-  <pre><code>users&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;"Tom":&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"phone":&nbsp;"+971478745",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"email":&nbsp;"tom12@gmail.com"<br>&nbsp;&nbsp;&nbsp;},<br>&nbsp;&nbsp;&nbsp;"Bob":&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"phone":&nbsp;"+876390444",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"email":&nbsp;"bob@gmail.com",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"skype":&nbsp;"bob123"<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
- </div>
- <p class="paragraph">În acest caz, valoarea fiecărui element al dicționarului reprezintă la rândul său un alt dicționar.</p>
- <p class="paragraph">Pentru a accesa elementele unui dicționar imbricat, trebuie să folosim două chei:</p>
- <div class="code-inline">
-  <pre><code>old_email&nbsp;=&nbsp;users["Tom"]["email"]<br>users["Tom"]["email"]&nbsp;=&nbsp;"supertom@gmail.com"<br>print(users["Tom"])&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;{&nbsp;phone":&nbsp;"+971478745",&nbsp;"email":&nbsp;"supertom@gmail.com&nbsp;}</code></pre>
- </div>
- <p class="paragraph">Dar dacă încercăm să obținem valoarea pentru o cheie care lipsește în dicționar, Python va genera o excepție KeyError:</p>
- <div class="code-inline">
-  <pre><code>tom_skype&nbsp;=&nbsp;users["Tom"]["skype"]&nbsp;&nbsp;&nbsp;#&nbsp;KeyError</code></pre>
- </div>
- <p class="paragraph">Pentru a evita eroarea, putem verifica existența cheii în dicționar:</p>
- <div class="code-inline">
-  <pre><code>key&nbsp;=&nbsp;"skype"<br>if&nbsp;key&nbsp;in&nbsp;users["Tom"]:<br>&nbsp;&nbsp;&nbsp;print(users["Tom"]["skype"])<br>else:<br>&nbsp;&nbsp;&nbsp;print("skype&nbsp;is&nbsp;not&nbsp;found")</code></pre>
- </div>
- <p class="paragraph">Sau, alternativ, putem folosi metoda get():</p>
- <div class="code-inline">
-  <pre><code>users&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;"Tom":&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"phone":&nbsp;"+971478745",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"email":&nbsp;"tom12@gmail.com"<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>tom_skype&nbsp;=&nbsp;users["Tom"].get("skype",&nbsp;"Undefined")<br>print(tom_skype)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Undefined</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Dicționare</h1>
+     <p class="paragraph">Dicționarul (dictionary) în limbajul Python stochează o colecție de elemente, unde fiecare element are o cheie unică și o valoare asociată acesteia.</p>
+     <p class="paragraph">Definiția dicționarului are următoarea sintaxă:</p>
+     <div class="code-inline">
+      <pre><code>dictionary&nbsp;=&nbsp;{&nbsp;cheie1:valoare1,&nbsp;cheie2:valoare2,&nbsp;....}</code></pre>
+     </div>
+     <p class="paragraph">În acolade, separate prin virgulă, se definește o secvență de elemente, unde pentru fiecare element se specifică mai întâi cheia și prin două puncte valoarea sa.</p>
+     <p class="paragraph">Definim un dicționar:</p>
+     <div class="code-inline">
+      <pre><code>users&nbsp;=&nbsp;{1:&nbsp;"Tom",&nbsp;2:&nbsp;"Bob",&nbsp;3:&nbsp;"Bill"}</code></pre>
+     </div>
+     <p class="paragraph">În dicționarul users, ca și chei sunt utilizate numere, iar ca valori - șiruri de caractere. Adică, elementul cu cheia 1 are valoarea "Tom", elementul cu cheia 2 - valoarea "Bob" și așa mai departe.</p>
+     <p class="paragraph">Un alt exemplu:</p>
+     <div class="code-inline">
+      <pre><code>emails&nbsp;=&nbsp;{"tom@gmail.com":&nbsp;"Tom",&nbsp;"bob@gmai.com":&nbsp;"Bob",&nbsp;"sam@gmail.com":&nbsp;"Sam"}</code></pre>
+     </div>
+     <p class="paragraph">În dicționarul emails, ca și chei sunt utilizate șiruri de caractere - adresele electronice ale utilizatorilor și ca valori tot șiruri de caractere - numele utilizatorilor.</p>
+     <p class="paragraph">Dar nu este obligatoriu ca cheile și valorile să fie de același tip. Ele pot reprezenta tipuri diferite:</p>
+     <div class="code-inline">
+      <pre><code>objects&nbsp;=&nbsp;{1:&nbsp;"Tom",&nbsp;"2":&nbsp;True,&nbsp;3:&nbsp;100.6}</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, putem defini un dicționar gol fără elemente:</p>
+     <div class="code-inline">
+      <pre><code>objects&nbsp;=&nbsp;{}</code></pre>
+     </div>
+     <p class="paragraph">sau astfel:</p>
+     <div class="code-inline">
+      <pre><code>objects&nbsp;=&nbsp;dict()</code></pre>
+     </div>
+     <h2 class="subtitle">Transformarea listelor și a tuple-urilor în dicționar</h2>
+     <p class="paragraph">Deși dicționarul și lista sunt tipuri diferite ca structură, totuși există posibilitatea pentru anumite tipuri de liste de a le transforma în dicționar cu ajutorul funcției integrate dict(). Pentru aceasta, lista trebuie să conțină un set de liste imbricate. Fiecare listă imbricată trebuie să constea din două elemente - la conversia în dicționar, primul element va deveni cheia, iar al doilea - valoarea:</p>
+     <div class="code-inline">
+      <pre><code>users_list&nbsp;=&nbsp;[<br>&nbsp;&nbsp;&nbsp;["+111123455",&nbsp;"Tom"],<br>&nbsp;&nbsp;&nbsp;["+384767557",&nbsp;"Bob"],<br>&nbsp;&nbsp;&nbsp;["+958758767",&nbsp;"Alice"]<br>]<br>users_dict&nbsp;=&nbsp;dict(users_list)<br>print(users_dict)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;{"+111123455":&nbsp;"Tom",&nbsp;"+384767557":&nbsp;"Bob",&nbsp;"+958758767":&nbsp;"Alice"}</code></pre>
+     </div>
+     <p class="paragraph">În mod similar, putem transforma în dicționar tuple-uri bidimensionale, care la rândul lor conțin tuple-uri de două elemente:</p>
+     <div class="code-inline">
+      <pre><code>users_tuple&nbsp;=&nbsp;(<br>&nbsp;&nbsp;&nbsp;("+111123455",&nbsp;"Tom"),<br>&nbsp;&nbsp;&nbsp;("+384767557",&nbsp;"Bob"),<br>&nbsp;&nbsp;&nbsp;("+958758767",&nbsp;"Alice")<br>)<br>users_dict&nbsp;=&nbsp;dict(users_tuple)<br>print(users_dict)</code></pre>
+     </div>
+     <h2 class="subtitle">Obținerea și modificarea elementelor</h2>
+     <p class="paragraph">Pentru a accesa elementele dicționarului, după numele acestuia se specifică cheia elementului între paranteze pătrate:</p>
+     <div class="code-inline">
+      <pre><code>dictionary[cheie]</code></pre>
+     </div>
+     <p class="paragraph">De exemplu, vom obține și modifica elemente în dicționar:</p>
+     <div class="code-inline">
+      <pre><code>users&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;"+11111111":&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;"+33333333":&nbsp;"Bob",<br>&nbsp;&nbsp;&nbsp;"+55555555":&nbsp;"Alice"<br>}<br><br>print(users["+11111111"])&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Tom<br><br>users["+33333333"]&nbsp;=&nbsp;"Bob&nbsp;Smith"<br>print(users["+33333333"])&nbsp;&nbsp;&nbsp;#&nbsp;Bob&nbsp;Smith</code></pre>
+     </div>
+     <p class="paragraph">Dacă la setarea valorii, elementul cu acea cheie nu se află în dicționar, acesta va fi adăugat:</p>
+     <div class="code-inline">
+      <pre><code>users["+4444444"]&nbsp;=&nbsp;"Sam"</code></pre>
+     </div>
+     <p class="paragraph">Dar dacă încercăm să obținem valoarea unei chei care nu există în dicționar, Python va genera o eroare KeyError:</p>
+     <div class="code-inline">
+      <pre><code>user&nbsp;=&nbsp;users["+4444444"]&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;KeyError</code></pre>
+     </div>
+     <p class="paragraph">Pentru a evita această situație, înainte de a accesa elementul, putem verifica existența cheii în dicționar cu ajutorul expresiei cheie in dicționar. Dacă cheia se află în dicționar, această expresie returnează True:</p>
+     <div class="code-inline">
+      <pre><code>key&nbsp;=&nbsp;"+4444444"<br>if&nbsp;key&nbsp;in&nbsp;users:<br>&nbsp;&nbsp;&nbsp;user&nbsp;=&nbsp;users[key]<br>&nbsp;&nbsp;&nbsp;print(user)<br>else:<br>&nbsp;&nbsp;&nbsp;print("Elementul&nbsp;nu&nbsp;a&nbsp;fost&nbsp;găsit")</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, pentru a obține elementele putem utiliza metoda get, care are două forme:</p>
+     <ul class="enumeration">
+      <li>get(key): returnează din dicționar elementul cu cheia key. Dacă elementul cu acea cheie nu există, returnează valoarea None</li>
+      <li>get(key, default): returnează din dicționar elementul cu cheia key. Dacă elementul cu acea cheie nu există, returnează valoarea implicită default</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>users&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;"+11111111":&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;"+33333333":&nbsp;"Bob",<br>&nbsp;&nbsp;&nbsp;"+55555555":&nbsp;"Alice"<br>}<br><br>user1&nbsp;=&nbsp;users.get("+55555555")<br>print(user1)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Alice<br>user2&nbsp;=&nbsp;users.get("+33333333",&nbsp;"Unknown&nbsp;user")<br>print(user2)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Bob<br>user3&nbsp;=&nbsp;users.get("+44444444",&nbsp;"Unknown&nbsp;user")<br>print(user3)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Unknown&nbsp;user</code></pre>
+     </div>
+     <h2 class="subtitle">Ștergerea prin cheie</h2>
+     <p class="paragraph">Pentru a șterge un element prin cheie, se folosește operatorul del:</p>
+     <div class="code-inline">
+      <pre><code>users&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;"+11111111":&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;"+33333333":&nbsp;"Bob",<br>&nbsp;&nbsp;&nbsp;"+55555555":&nbsp;"Alice"<br>}<br><br>del&nbsp;users["+55555555"]<br>print(users)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;{&nbsp;"+11111111":&nbsp;"Tom",&nbsp;"+33333333":&nbsp;"Bob"}</code></pre>
+     </div>
+     <p class="paragraph">Dar trebuie să ținem cont că, dacă o astfel de cheie nu se află în dicționar, va fi generată o excepție KeyError. Prin urmare, din nou, înainte de ștergere, este recomandat să verificăm existența elementului cu acea cheie.</p>
+     <div class="code-inline">
+      <pre><code>users&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;"+11111111":&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;"+33333333":&nbsp;"Bob",<br>&nbsp;&nbsp;&nbsp;"+55555555":&nbsp;"Alice"<br>}<br><br>key&nbsp;=&nbsp;"+55555555"<br>if&nbsp;key&nbsp;in&nbsp;users:<br>&nbsp;&nbsp;&nbsp;del&nbsp;users[key]<br>&nbsp;&nbsp;&nbsp;print(f"Elementul&nbsp;cu&nbsp;cheia&nbsp;{key}&nbsp;a&nbsp;fost&nbsp;șters")<br>else:<br>&nbsp;&nbsp;&nbsp;print("Elementul&nbsp;nu&nbsp;a&nbsp;fost&nbsp;găsit")</code></pre>
+     </div>
+     <p class="paragraph">O altă metodă de ștergere este reprezentată de metoda pop(). Ea are două forme:</p>
+     <ul class="enumeration">
+      <li>pop(key): șterge elementul cu cheia key și returnează elementul șters. Dacă elementul cu acea cheie nu există, este generată excepția KeyError</li>
+      <li>pop(key, default): șterge elementul cu cheia key și returnează elementul șters. Dacă elementul cu acea cheie nu există, returnează valoarea default</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>users&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;"+11111111":&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;"+33333333":&nbsp;"Bob",<br>&nbsp;&nbsp;&nbsp;"+55555555":&nbsp;"Alice"<br>}<br>key&nbsp;=&nbsp;"+55555555"<br>user&nbsp;=&nbsp;users.pop(key)<br>print(user)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Alice<br><br>user&nbsp;=&nbsp;users.pop("+4444444",&nbsp;"Unknown&nbsp;user")<br>print(user)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Unknown&nbsp;user</code></pre>
+     </div>
+     <p class="paragraph">Dacă este necesar să ștergem toate elementele, în acest caz putem folosi metoda clear():</p>
+     <div class="code-inline">
+      <pre><code>users.clear()</code></pre>
+     </div>
+     <h2 class="subtitle">Copierea și unirea dicționarelor</h2>
+     <p class="paragraph">Metoda copy() copiază conținutul dicționarului, returnând un nou dicționar:</p>
+     <div class="code-inline">
+      <pre><code>users&nbsp;=&nbsp;{"+1111111":&nbsp;"Tom",&nbsp;"+3333333":&nbsp;"Bob",&nbsp;"+5555555":&nbsp;"Alice"}<br>students&nbsp;=&nbsp;users.copy()<br>print(students)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;{"+1111111":&nbsp;"Tom",&nbsp;"+3333333":&nbsp;"Bob",&nbsp;"+5555555":&nbsp;"Alice"}</code></pre>
+     </div>
+     <p class="paragraph">Metoda update() unește două dicționare:</p>
+     <div class="code-inline">
+      <pre><code>users&nbsp;=&nbsp;{"+1111111":&nbsp;"Tom",&nbsp;"+3333333":&nbsp;"Bob"}<br>users2&nbsp;=&nbsp;{"+2222222":&nbsp;"Sam",&nbsp;"+6666666":&nbsp;"Kate"}<br>users.update(users2)<br><br>print(users)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;{"+1111111":&nbsp;"Tom",&nbsp;"+3333333":&nbsp;"Bob",&nbsp;"+2222222":&nbsp;"Sam",&nbsp;"+6666666":&nbsp;"Kate"}<br>print(users2)&nbsp;&nbsp;&nbsp;#&nbsp;{"+2222222":&nbsp;"Sam",&nbsp;"+6666666":&nbsp;"Kate"}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, dicționarul users2 rămâne neschimbat. Doar dicționarul users se modifică, în el fiind adăugate elementele celuilalt dicționar. Dar dacă este necesar ca ambele dicționare să rămână neatinse, iar rezultatul unirii să fie un al treilea dicționar, putem copia unul din dicționare în altul:</p>
+     <div class="code-inline">
+      <pre><code>users3&nbsp;=&nbsp;users.copy()<br>users3.update(users2)</code></pre>
+     </div>
+     <h2 class="subtitle">Parcurgerea dicționarului</h2>
+     <p class="paragraph">Pentru parcurgerea dicționarului putem folosi ciclul for:</p>
+     <div class="code-inline">
+      <pre><code>users&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;"+11111111":&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;"+33333333":&nbsp;"Bob",<br>&nbsp;&nbsp;&nbsp;"+55555555":&nbsp;"Alice"<br>}<br>for&nbsp;key&nbsp;in&nbsp;users:<br>&nbsp;&nbsp;&nbsp;print(f"Phone:&nbsp;{key}&nbsp;&nbsp;User:&nbsp;{users[key]}&nbsp;")</code></pre>
+     </div>
+     <p class="paragraph">La parcurgerea elementelor obținem cheia elementului curent și prin aceasta putem obține elementul propriu-zis.</p>
+     <p class="paragraph">O altă metodă de parcurgere a elementelor este utilizarea metodei items():</p>
+     <div class="code-inline">
+      <pre><code>users&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;"+11111111":&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;"+33333333":&nbsp;"Bob",<br>&nbsp;&nbsp;&nbsp;"+55555555":<br><br>"Alice"<br>}<br>for&nbsp;key,&nbsp;value&nbsp;in&nbsp;users.items():<br>&nbsp;&nbsp;&nbsp;print(f"Phone:&nbsp;{key}&nbsp;&nbsp;User:&nbsp;{value}&nbsp;")</code></pre>
+     </div>
+     <p class="paragraph">Metoda items() returnează un set de tuple-uri. Fiecare tuple conține cheia și valoarea elementului, pe care le putem obține în variabilele key și value.</p>
+     <p class="paragraph">Există de asemenea și posibilități de parcurgere a cheilor și a valorilor separat. Pentru parcurgerea cheilor putem apela metoda keys() a dicționarului:</p>
+     <div class="code-inline">
+      <pre><code>for&nbsp;key&nbsp;in&nbsp;users.keys():<br>&nbsp;&nbsp;&nbsp;print(key)</code></pre>
+     </div>
+     <p class="paragraph">De fapt, acest mod de parcurgere nu are rost, deoarece și fără apelul metodei keys() putem parcurge cheile, așa cum am arătat mai sus.</p>
+     <p class="paragraph">Pentru parcurgerea doar a valorilor putem apela metoda values() a dicționarului:</p>
+     <div class="code-inline">
+      <pre><code>for&nbsp;value&nbsp;in&nbsp;users.values():<br>&nbsp;&nbsp;&nbsp;print(value)</code></pre>
+     </div>
+     <h2 class="subtitle">Dicționare complexe</h2>
+     <p class="paragraph">Pe lângă obiectele simple precum numere și șiruri de caractere, dicționarele pot stoca și obiecte mai complexe - cum ar fi liste, tuple-uri sau alte dicționare:</p>
+     <div class="code-inline">
+      <pre><code>users&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;"Tom":&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"phone":&nbsp;"+971478745",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"email":&nbsp;"tom12@gmail.com"<br>&nbsp;&nbsp;&nbsp;},<br>&nbsp;&nbsp;&nbsp;"Bob":&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"phone":&nbsp;"+876390444",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"email":&nbsp;"bob@gmail.com",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"skype":&nbsp;"bob123"<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, valoarea fiecărui element al dicționarului reprezintă la rândul său un alt dicționar.</p>
+     <p class="paragraph">Pentru a accesa elementele unui dicționar imbricat, trebuie să folosim două chei:</p>
+     <div class="code-inline">
+      <pre><code>old_email&nbsp;=&nbsp;users["Tom"]["email"]<br>users["Tom"]["email"]&nbsp;=&nbsp;"supertom@gmail.com"<br>print(users["Tom"])&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;{&nbsp;phone":&nbsp;"+971478745",&nbsp;"email":&nbsp;"supertom@gmail.com&nbsp;}</code></pre>
+     </div>
+     <p class="paragraph">Dar dacă încercăm să obținem valoarea pentru o cheie care lipsește în dicționar, Python va genera o excepție KeyError:</p>
+     <div class="code-inline">
+      <pre><code>tom_skype&nbsp;=&nbsp;users["Tom"]["skype"]&nbsp;&nbsp;&nbsp;#&nbsp;KeyError</code></pre>
+     </div>
+     <p class="paragraph">Pentru a evita eroarea, putem verifica existența cheii în dicționar:</p>
+     <div class="code-inline">
+      <pre><code>key&nbsp;=&nbsp;"skype"<br>if&nbsp;key&nbsp;in&nbsp;users["Tom"]:<br>&nbsp;&nbsp;&nbsp;print(users["Tom"]["skype"])<br>else:<br>&nbsp;&nbsp;&nbsp;print("skype&nbsp;is&nbsp;not&nbsp;found")</code></pre>
+     </div>
+     <p class="paragraph">Sau, alternativ, putem folosi metoda get():</p>
+     <div class="code-inline">
+      <pre><code>users&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;"Tom":&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"phone":&nbsp;"+971478745",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"email":&nbsp;"tom12@gmail.com"<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>tom_skype&nbsp;=&nbsp;users["Tom"].get("skype",&nbsp;"Undefined")<br>print(tom_skype)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Undefined</code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

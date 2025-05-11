@@ -10,6 +10,7 @@ public class News {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String title;
+    @Lob
     private String content;
     private String imageUrl;
     private LocalDateTime createdAt;

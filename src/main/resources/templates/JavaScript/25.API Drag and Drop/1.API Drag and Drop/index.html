@@ -1,176 +1,166 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='25.API Drag and Drop', activeLesson='1.API Drag and Drop'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">API Drag-and-Drop</h1>
- <h2 class="subtitle">Mutarea elementelor folosind API-ul Drag-and-Drop</h2>
- <p class="paragraph">API-ul Drag-and-Drop permite mutarea diferitelor elemente cu mouse-ul într-o poziție specifică pe pagina web. Când mutăm elemente, avem o sursă de mutare - elementul pe care îl mutăm cu mouse-ul, și o țintă de mutare - zona țintă pe pagina web (un alt element) unde trebuie să mutăm sursa de mutare.</p>
- <p class="paragraph">Pentru a defini un element pe pagina web care poate fi mutat (sursa de tragere), pentru acest element trebuie să definim atributul draggable cu valoarea true. Teoretic, orice element al paginii web poate fi un element care poate fi tras. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>&lt;div&nbsp;style="width:50px;height:50px;&nbsp;background-color:&nbsp;red;"&nbsp;draggable="true"&gt;&lt;/div&gt;</code></pre>
- </div>
- <p class="paragraph">Implicit, elementele nu sunt tratabile.</p>
- <p class="paragraph">Ca țintă pentru tragere poate servi orice element al paginii web.</p>
- <p class="paragraph">După ce un element este definit ca fiind mutabil, trebuie de asemenea să definim acțiunile care sunt executate atunci când elementul este mutat. În timpul operației de tragere, se generează o serie de evenimente diferite:</p>
- <ul class="enumeration">
-  <li>dragstart: generat când începe tragerea elementului</li>
-  <li>drag: generat constant pe măsură ce elementul este tras</li>
-  <li>dragend: generat când tragerea elementului este completă</li>
-  <li>dragenter: generat când elementul intră în limitele zonei țintă</li>
-  <li>dragover: generat constant, de mai multe ori pe secundă, pe măsură ce elementul este tras deasupra zonei țintă</li>
-  <li>dragleave: generat când elementul părăsește zona țintă</li>
-  <li>drop: generat când elementul trageabil este eliberat pe zona țintă</li>
- </ul>
- <p class="paragraph">Manipulatorii tuturor evenimentelor de mutare enumerate mai sus primesc ca parametru un obiect de tip DragEvent. Acest tip moștenește proprietățile de la MouseEvent și, respectiv, de la tipul Event.</p>
- <p class="paragraph">Manipulatorul evenimentului dragstart este definit pentru elementul trageabil, iar manipulatorii celorlalte evenimente sunt definiți pentru zona pe care trebuie să mutăm elementul. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;#source&nbsp;{&nbsp;width:50px;&nbsp;height:50px;&nbsp;background-color:&nbsp;red;&nbsp;display:&nbsp;inline-block;}<br>&nbsp;&nbsp;&nbsp;#target&nbsp;{width:&nbsp;200px;&nbsp;height:&nbsp;150px;&nbsp;overflow:&nbsp;hidden;&nbsp;border:&nbsp;#ccc&nbsp;1px&nbsp;dashed;}<br>&nbsp;&nbsp;&nbsp;div{margin:5px;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;div&nbsp;id="source"&nbsp;draggable="true"&gt;&lt;/div&gt;<br>&lt;div&nbsp;id="target"&gt;&lt;/div&gt;<br>&lt;script&gt;<br>const&nbsp;source&nbsp;=&nbsp;document.getElementById("source");<br>source.addEventListener("dragstart",&nbsp;()&nbsp;=&gt;&nbsp;console.log("Drag&nbsp;operation&nbsp;started"));<br><br>const&nbsp;target&nbsp;=&nbsp;document.getElementById("target");<br>target.addEventListener("dragover",&nbsp;(event)&nbsp;=&gt;&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;event.preventDefault();&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;console.log("Dragover&nbsp;operation");<br>});<br>target.addEventListener("drop",&nbsp;()&nbsp;=&gt;&nbsp;console.log("Drag&nbsp;operation&nbsp;finished"));<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">În acest caz, elementul mutabil are identificatorul source, și pentru el se înregistrează manipulatorul evenimentului "dragstart". El va fi generat când prindem elementul cu indicatorul mouse-ului și începem să-l mutăm.</p>
- <p class="paragraph">Zona pe care mutăm elementul reprezintă un alt element cu identificatorul target. Pentru demonstrație, pentru el înregistrăm manipulatorii evenimentelor "dragover" și "drop". Evenimentul "dragover" va fi generat când elementul item va fi mutat deasupra elementului target.</p>
- <p class="paragraph">Pentru a preveni generarea evenimentului "drop" în timpul mutării, în manipulatorul acestui eveniment se apelează metoda event.preventDefault(). Când vom elibera elementul item pe elementul target, va fi generat evenimentul "drop".</p>
- <div class="image-container">
-  <img src="images/image1.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">În exemplul prezentat mai sus, elementul trasabil nu se mută efectiv încă nicăieri. Acest lucru se datorează faptului că trebuie să stabilim datele care sunt mutate și să le obținem la finalizarea mutării. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;#source&nbsp;{&nbsp;width:50px;&nbsp;height:50px;&nbsp;background-color:&nbsp;red;&nbsp;display:&nbsp;inline-block;}<br>&nbsp;&nbsp;&nbsp;#target&nbsp;{width:&nbsp;200px;&nbsp;height:&nbsp;150px;&nbsp;overflow:&nbsp;hidden;&nbsp;border:&nbsp;#ccc&nbsp;1px&nbsp;dashed;}<br>&nbsp;&nbsp;&nbsp;div{margin:5px;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;div&nbsp;id="source"&nbsp;draggable="true"&gt;&lt;/div&gt;<br>&lt;div&nbsp;id="target"&gt;&lt;/div&gt;<br>&lt;script&gt;<br>let&nbsp;dragged&nbsp;=&nbsp;null;&nbsp;//&nbsp;datele&nbsp;mutate<br>//&nbsp;sursa&nbsp;mutării<br>const&nbsp;source&nbsp;=&nbsp;document.getElementById("source");<br>//&nbsp;în&nbsp;manipulator&nbsp;stabilim&nbsp;referința&nbsp;la&nbsp;elementul&nbsp;care&nbsp;se&nbsp;mută<br>source.addEventListener("dragstart",&nbsp;(e)&nbsp;=&gt;&nbsp;dragged&nbsp;=&nbsp;e.target);<br><br>//&nbsp;zona&nbsp;țintă&nbsp;a&nbsp;mutării<br>const&nbsp;target&nbsp;=&nbsp;document.getElementById("target");<br>//&nbsp;prevenim&nbsp;evenimentul&nbsp;drop<br>target.addEventListener("dragover",&nbsp;(e)&nbsp;=&gt;&nbsp;e.preventDefault());<br>//&nbsp;copiem&nbsp;elementul&nbsp;trasabil&nbsp;și&nbsp;îl&nbsp;plasăm&nbsp;pe&nbsp;zona&nbsp;țintă<br>target.addEventListener("drop",&nbsp;(e)&nbsp;=&gt;&nbsp;e.target.appendChild(dragged.cloneNode()));<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">Aici, la începutul tragerii, salvăm obiectul mutat în variabila dragged</p>
- <div class="code-inline">
-  <pre><code>source.addEventListener("dragstart",&nbsp;(e)&nbsp;=&gt;&nbsp;dragged&nbsp;=&nbsp;e.target);</code></pre>
- </div>
- <p class="paragraph">La finalizarea tragerii, plasăm o copie a elementului source pe elementul target</p>
- <div class="code-inline">
-  <pre><code>target.addEventListener("drop",&nbsp;(e)&nbsp;=&gt;&nbsp;e.target.appendChild(dragged.cloneNode()));</code></pre>
- </div>
- <p class="paragraph">Astfel, la tragerea pe zona target vor fi adăugate copii ale elementului source.</p>
- <div class="image-container">
-  <img src="images/image2.png" alt="" class="responsive-image">
- </div>
- <div class="image-container">
-  <img src="images/image3.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Ca alternativă, putem efectua mutarea completă a elementului trasabil:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;#source&nbsp;{&nbsp;width:50px;&nbsp;height:50px;&nbsp;background-color:&nbsp;red;&nbsp;display:&nbsp;inline-block;}<br>&nbsp;&nbsp;&nbsp;#target&nbsp;{width:&nbsp;200px;&nbsp;height:&nbsp;150px;&nbsp;overflow:&nbsp;hidden;&nbsp;border:&nbsp;#ccc&nbsp;1px&nbsp;dashed;}<br>&nbsp;&nbsp;&nbsp;div{margin:5px;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;div&nbsp;id="target"&gt;&lt;/div&gt;<br>&lt;div&nbsp;id="source"&nbsp;draggable="true"&gt;&lt;/div&gt;<br>&lt;script&gt;<br>let&nbsp;dragged&nbsp;=&nbsp;null;&nbsp;//&nbsp;datele&nbsp;mutate<br>//&nbsp;sursa&nbsp;mutării<br>const&nbsp;source&nbsp;=&nbsp;document.getElementById("source");<br>//&nbsp;în&nbsp;manipulator&nbsp;stabilim&nbsp;referința&nbsp;la&nbsp;elementul&nbsp;care&nbsp;se&nbsp;mută<br>source.addEventListener("dragstart",&nbsp;(e)&nbsp;=&gt;&nbsp;dragged&nbsp;=&nbsp;e.target);<br><br>//&nbsp;zona&nbsp;țintă&nbsp;a&nbsp;mutării<br>const&nbsp;target&nbsp;=&nbsp;document.getElementById("target");<br>//&nbsp;prevenim&nbsp;evenimentul&nbsp;drop<br>target.addEventListener("dragover",&nbsp;(e)&nbsp;=&gt;&nbsp;e.preventDefault());<br>//&nbsp;mutăm&nbsp;complet&nbsp;elementul&nbsp;trasabil&nbsp;pe&nbsp;zona&nbsp;țintă<br>target.addEventListener("drop",&nbsp;(e)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;dragged.parentNode.removeChild(dragged);<br>&nbsp;&nbsp;&nbsp;e.target.appendChild(dragged);<br>});<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">Aici, în manipulatorul "drop", mai întâi eliminăm elementul trasabil din containerul părinte (în acest caz, elementul body), apoi îl adăugăm pe zona țintă:</p>
- <div class="code-inline">
-  <pre><code>target.addEventListener("drop",&nbsp;(e)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;dragged.parentNode.removeChild(dragged);<br>&nbsp;&nbsp;&nbsp;e.target.appendChild(dragged);<br>});</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image4.png" alt="" class="responsive-image">
- </div>
- <div class="image-container">
-  <img src="images/image5.png" alt="" class="responsive-image">
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">API Drag-and-Drop</h1>
+     <h2 class="subtitle">Mutarea elementelor folosind API-ul Drag-and-Drop</h2>
+     <p class="paragraph">API-ul Drag-and-Drop permite mutarea diferitelor elemente cu mouse-ul într-o poziție specifică pe pagina web. Când mutăm elemente, avem o sursă de mutare - elementul pe care îl mutăm cu mouse-ul, și o țintă de mutare - zona țintă pe pagina web (un alt element) unde trebuie să mutăm sursa de mutare.</p>
+     <p class="paragraph">Pentru a defini un element pe pagina web care poate fi mutat (sursa de tragere), pentru acest element trebuie să definim atributul draggable cu valoarea true. Teoretic, orice element al paginii web poate fi un element care poate fi tras. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;div&nbsp;style="width:50px;height:50px;&nbsp;background-color:&nbsp;red;"&nbsp;draggable="true"&gt;&lt;/div&gt;</code></pre>
+     </div>
+     <p class="paragraph">Implicit, elementele nu sunt tratabile.</p>
+     <p class="paragraph">Ca țintă pentru tragere poate servi orice element al paginii web.</p>
+     <p class="paragraph">După ce un element este definit ca fiind mutabil, trebuie de asemenea să definim acțiunile care sunt executate atunci când elementul este mutat. În timpul operației de tragere, se generează o serie de evenimente diferite:</p>
+     <ul class="enumeration">
+      <li>dragstart: generat când începe tragerea elementului</li>
+      <li>drag: generat constant pe măsură ce elementul este tras</li>
+      <li>dragend: generat când tragerea elementului este completă</li>
+      <li>dragenter: generat când elementul intră în limitele zonei țintă</li>
+      <li>dragover: generat constant, de mai multe ori pe secundă, pe măsură ce elementul este tras deasupra zonei țintă</li>
+      <li>dragleave: generat când elementul părăsește zona țintă</li>
+      <li>drop: generat când elementul trageabil este eliberat pe zona țintă</li>
+     </ul>
+     <p class="paragraph">Manipulatorii tuturor evenimentelor de mutare enumerate mai sus primesc ca parametru un obiect de tip DragEvent. Acest tip moștenește proprietățile de la MouseEvent și, respectiv, de la tipul Event.</p>
+     <p class="paragraph">Manipulatorul evenimentului dragstart este definit pentru elementul trageabil, iar manipulatorii celorlalte evenimente sunt definiți pentru zona pe care trebuie să mutăm elementul. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;#source&nbsp;{&nbsp;width:50px;&nbsp;height:50px;&nbsp;background-color:&nbsp;red;&nbsp;display:&nbsp;inline-block;}<br>&nbsp;&nbsp;&nbsp;#target&nbsp;{width:&nbsp;200px;&nbsp;height:&nbsp;150px;&nbsp;overflow:&nbsp;hidden;&nbsp;border:&nbsp;#ccc&nbsp;1px&nbsp;dashed;}<br>&nbsp;&nbsp;&nbsp;div{margin:5px;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;div&nbsp;id="source"&nbsp;draggable="true"&gt;&lt;/div&gt;<br>&lt;div&nbsp;id="target"&gt;&lt;/div&gt;<br>&lt;script&gt;<br>const&nbsp;source&nbsp;=&nbsp;document.getElementById("source");<br>source.addEventListener("dragstart",&nbsp;()&nbsp;=&gt;&nbsp;console.log("Drag&nbsp;operation&nbsp;started"));<br><br>const&nbsp;target&nbsp;=&nbsp;document.getElementById("target");<br>target.addEventListener("dragover",&nbsp;(event)&nbsp;=&gt;&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;event.preventDefault();&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;console.log("Dragover&nbsp;operation");<br>});<br>target.addEventListener("drop",&nbsp;()&nbsp;=&gt;&nbsp;console.log("Drag&nbsp;operation&nbsp;finished"));<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, elementul mutabil are identificatorul source, și pentru el se înregistrează manipulatorul evenimentului "dragstart". El va fi generat când prindem elementul cu indicatorul mouse-ului și începem să-l mutăm.</p>
+     <p class="paragraph">Zona pe care mutăm elementul reprezintă un alt element cu identificatorul target. Pentru demonstrație, pentru el înregistrăm manipulatorii evenimentelor "dragover" și "drop". Evenimentul "dragover" va fi generat când elementul item va fi mutat deasupra elementului target.</p>
+     <p class="paragraph">Pentru a preveni generarea evenimentului "drop" în timpul mutării, în manipulatorul acestui eveniment se apelează metoda event.preventDefault(). Când vom elibera elementul item pe elementul target, va fi generat evenimentul "drop".</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/25.API%20Drag%20and%20Drop/1.API%20Drag%20and%20Drop/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">În exemplul prezentat mai sus, elementul trasabil nu se mută efectiv încă nicăieri. Acest lucru se datorează faptului că trebuie să stabilim datele care sunt mutate și să le obținem la finalizarea mutării. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;#source&nbsp;{&nbsp;width:50px;&nbsp;height:50px;&nbsp;background-color:&nbsp;red;&nbsp;display:&nbsp;inline-block;}<br>&nbsp;&nbsp;&nbsp;#target&nbsp;{width:&nbsp;200px;&nbsp;height:&nbsp;150px;&nbsp;overflow:&nbsp;hidden;&nbsp;border:&nbsp;#ccc&nbsp;1px&nbsp;dashed;}<br>&nbsp;&nbsp;&nbsp;div{margin:5px;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;div&nbsp;id="source"&nbsp;draggable="true"&gt;&lt;/div&gt;<br>&lt;div&nbsp;id="target"&gt;&lt;/div&gt;<br>&lt;script&gt;<br>let&nbsp;dragged&nbsp;=&nbsp;null;&nbsp;//&nbsp;datele&nbsp;mutate<br>//&nbsp;sursa&nbsp;mutării<br>const&nbsp;source&nbsp;=&nbsp;document.getElementById("source");<br>//&nbsp;în&nbsp;manipulator&nbsp;stabilim&nbsp;referința&nbsp;la&nbsp;elementul&nbsp;care&nbsp;se&nbsp;mută<br>source.addEventListener("dragstart",&nbsp;(e)&nbsp;=&gt;&nbsp;dragged&nbsp;=&nbsp;e.target);<br><br>//&nbsp;zona&nbsp;țintă&nbsp;a&nbsp;mutării<br>const&nbsp;target&nbsp;=&nbsp;document.getElementById("target");<br>//&nbsp;prevenim&nbsp;evenimentul&nbsp;drop<br>target.addEventListener("dragover",&nbsp;(e)&nbsp;=&gt;&nbsp;e.preventDefault());<br>//&nbsp;copiem&nbsp;elementul&nbsp;trasabil&nbsp;și&nbsp;îl&nbsp;plasăm&nbsp;pe&nbsp;zona&nbsp;țintă<br>target.addEventListener("drop",&nbsp;(e)&nbsp;=&gt;&nbsp;e.target.appendChild(dragged.cloneNode()));<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici, la începutul tragerii, salvăm obiectul mutat în variabila dragged</p>
+     <div class="code-inline">
+      <pre><code>source.addEventListener("dragstart",&nbsp;(e)&nbsp;=&gt;&nbsp;dragged&nbsp;=&nbsp;e.target);</code></pre>
+     </div>
+     <p class="paragraph">La finalizarea tragerii, plasăm o copie a elementului source pe elementul target</p>
+     <div class="code-inline">
+      <pre><code>target.addEventListener("drop",&nbsp;(e)&nbsp;=&gt;&nbsp;e.target.appendChild(dragged.cloneNode()));</code></pre>
+     </div>
+     <p class="paragraph">Astfel, la tragerea pe zona target vor fi adăugate copii ale elementului source.</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/25.API%20Drag%20and%20Drop/1.API%20Drag%20and%20Drop/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/25.API%20Drag%20and%20Drop/1.API%20Drag%20and%20Drop/images/image3.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Ca alternativă, putem efectua mutarea completă a elementului trasabil:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;#source&nbsp;{&nbsp;width:50px;&nbsp;height:50px;&nbsp;background-color:&nbsp;red;&nbsp;display:&nbsp;inline-block;}<br>&nbsp;&nbsp;&nbsp;#target&nbsp;{width:&nbsp;200px;&nbsp;height:&nbsp;150px;&nbsp;overflow:&nbsp;hidden;&nbsp;border:&nbsp;#ccc&nbsp;1px&nbsp;dashed;}<br>&nbsp;&nbsp;&nbsp;div{margin:5px;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;div&nbsp;id="target"&gt;&lt;/div&gt;<br>&lt;div&nbsp;id="source"&nbsp;draggable="true"&gt;&lt;/div&gt;<br>&lt;script&gt;<br>let&nbsp;dragged&nbsp;=&nbsp;null;&nbsp;//&nbsp;datele&nbsp;mutate<br>//&nbsp;sursa&nbsp;mutării<br>const&nbsp;source&nbsp;=&nbsp;document.getElementById("source");<br>//&nbsp;în&nbsp;manipulator&nbsp;stabilim&nbsp;referința&nbsp;la&nbsp;elementul&nbsp;care&nbsp;se&nbsp;mută<br>source.addEventListener("dragstart",&nbsp;(e)&nbsp;=&gt;&nbsp;dragged&nbsp;=&nbsp;e.target);<br><br>//&nbsp;zona&nbsp;țintă&nbsp;a&nbsp;mutării<br>const&nbsp;target&nbsp;=&nbsp;document.getElementById("target");<br>//&nbsp;prevenim&nbsp;evenimentul&nbsp;drop<br>target.addEventListener("dragover",&nbsp;(e)&nbsp;=&gt;&nbsp;e.preventDefault());<br>//&nbsp;mutăm&nbsp;complet&nbsp;elementul&nbsp;trasabil&nbsp;pe&nbsp;zona&nbsp;țintă<br>target.addEventListener("drop",&nbsp;(e)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;dragged.parentNode.removeChild(dragged);<br>&nbsp;&nbsp;&nbsp;e.target.appendChild(dragged);<br>});<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici, în manipulatorul "drop", mai întâi eliminăm elementul trasabil din containerul părinte (în acest caz, elementul body), apoi îl adăugăm pe zona țintă:</p>
+     <div class="code-inline">
+      <pre><code>target.addEventListener("drop",&nbsp;(e)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;dragged.parentNode.removeChild(dragged);<br>&nbsp;&nbsp;&nbsp;e.target.appendChild(dragged);<br>});</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/25.API%20Drag%20and%20Drop/1.API%20Drag%20and%20Drop/images/image4.png}" alt="" class="responsive-image">
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/25.API%20Drag%20and%20Drop/1.API%20Drag%20and%20Drop/images/image5.png}" alt="" class="responsive-image">
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

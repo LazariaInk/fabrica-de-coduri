@@ -1,150 +1,140 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='22.Module', activeLesson='3.Export si import de componente ale modulelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Export și import de componente ale modulelor</h1>
- <h2 class="subtitle">Exportul numit al componentelor modulului</h2>
- <p class="paragraph">Pentru ca anumite componente ale modulului (variabile/constante/funcții/clase) să poată fi conectate și utilizate în alt modul, acestea trebuie exportate. Putem exporta fiecare componentă în parte. Pentru acest lucru, înainte de definirea componentei se indică cuvântul cheie export. De exemplu, să avem următorul modul message.js</p>
- <div class="code-inline">
-  <pre><code>//&nbsp;exportul&nbsp;variabilei<br>export&nbsp;let&nbsp;welcome&nbsp;=&nbsp;"Welcome";<br>//&nbsp;exportul&nbsp;constantei<br>export&nbsp;const&nbsp;hello&nbsp;=&nbsp;"Hello";<br><br>//&nbsp;exportul&nbsp;funcției<br>export&nbsp;function&nbsp;sayHello()&nbsp;{<br>&nbsp;console.log("Hello&nbsp;FDC.COM");<br>}<br><br>//&nbsp;exportul&nbsp;clasei<br>export&nbsp;class&nbsp;Messenger&nbsp;{<br>&nbsp;&nbsp;&nbsp;send(text){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Sending&nbsp;message:",&nbsp;text);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
- </div>
- <p class="paragraph">Aici sunt exportate variabila welcome, constanta hello, funcția sayHello() și clasa Messenger. Este de remarcat că nu este necesar să exportăm toate componentele modulului, unele componente le putem folosi doar în interiorul acestui modul.</p>
- <p class="paragraph">Ca alternativă, am putea exporta toate componentele împreună sub forma unei liste:</p>
- <div class="code-inline">
-  <pre><code>let&nbsp;welcome&nbsp;=&nbsp;"Welcome";<br>const&nbsp;hello&nbsp;=&nbsp;"Hello";<br><br>function&nbsp;sayHello()&nbsp;{<br>&nbsp;console.log("Hello&nbsp;FDC.COM");<br>}<br><br>class&nbsp;Messenger&nbsp;{<br>&nbsp;&nbsp;&nbsp;send(text){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Sending&nbsp;message:",&nbsp;text);<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>export&nbsp;{welcome,&nbsp;hello,&nbsp;sayHello,&nbsp;Messenger}</code></pre>
- </div>
- <p class="paragraph">În acest caz, ambele metode de export sunt echivalente.</p>
- <h2 class="subtitle">Importul numit al componentelor modulului</h2>
- <p class="paragraph">Toate componentele importate le putem conecta separat. Pentru acest lucru, după operatorul import în parantezele acolade se indică numele componentelor conectate - variabile/constante/funcții/clase. Apoi, după operatorul from se indică modulul din care se face importul.</p>
- <div class="code-inline">
-  <pre><code>import&nbsp;{componenta1,&nbsp;componenta2,&nbsp;...&nbsp;componentaN}&nbsp;from&nbsp;"calea_către_modul";</code></pre>
- </div>
- <p class="paragraph">De exemplu, să importăm în modulul main.js componentele exportate ale modulului message.js:</p>
- <div class="code-inline">
-  <pre><code>import&nbsp;{sayHello,&nbsp;welcome,&nbsp;Messenger}&nbsp;from&nbsp;"./message.js";<br><br>sayHello();<br><br>const&nbsp;telegram&nbsp;=&nbsp;new&nbsp;Messenger();<br>telegram.send(welcome);</code></pre>
- </div>
- <p class="paragraph">Astfel, aici sunt conectate din modulul message.js variabila welcome, funcția sayHello() și clasa Messenger. Nu este obligatoriu să conectăm toate componentele modulului. Putem conecta doar acele componente care ne sunt direct necesare și pe care intenționăm să le utilizăm.</p>
- <p class="paragraph">În final, la executarea paginii în browser, în consola acestuia vom vedea rezultatul activității componentelor modulului conectat main.js:</p>
- <div class="code-inline">
-  <pre><code>Hello&nbsp;FDC.COM<br>Sending&nbsp;message:&nbsp;Welcome</code></pre>
- </div>
- <h2 class="subtitle">Importul întregului modul</h2>
- <p class="paragraph">Dacă modulul conectat conține foarte multe componente și intenționăm să folosim toate capacitățile modulului, atunci enumerarea tuturor componentelor conectate poate fi obositoare. În acest caz, putem conecta întreaga funcționalitate a modulului în forma:</p>
- <div class="code-inline">
-  <pre><code>import&nbsp;*&nbsp;as&nbsp;alias_modul&nbsp;from&nbsp;"modul";</code></pre>
- </div>
- <p class="paragraph">După operatorul import urmează semnul stelei, care indică faptul că trebuie conectate toate componentele exportate. Și după operatorul as urmează aliasul modulului, cu care va fi asociat modulul conectat.</p>
- <p class="paragraph">De exemplu, să conectăm în fișierul main.js întregul modul message.js</p>
- <div class="code-inline">
-  <pre><code>import&nbsp;*&nbsp;as&nbsp;MessageModule&nbsp;from&nbsp;"./message.js";<br><br>MessageModule.sayHello();<br><br>const&nbsp;telegram&nbsp;=&nbsp;new&nbsp;MessageModule.Messenger();<br>telegram.send(MessageModule.welcome);</code></pre>
- </div>
- <p class="paragraph">În acest caz, modulul conectat message.js este asociat cu identificatorul MessageModule. Ca alias al modulului poate servi orice nume la alegere. Și ulterior putem accesa toate componentele exportate ale modulului prin aliasul modulului, de exemplu, accesând funcția sayHello: MessageModule.sayHello().</p>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Export și import de componente ale modulelor</h1>
+     <h2 class="subtitle">Exportul numit al componentelor modulului</h2>
+     <p class="paragraph">Pentru ca anumite componente ale modulului (variabile/constante/funcții/clase) să poată fi conectate și utilizate în alt modul, acestea trebuie exportate. Putem exporta fiecare componentă în parte. Pentru acest lucru, înainte de definirea componentei se indică cuvântul cheie export. De exemplu, să avem următorul modul message.js</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;exportul&nbsp;variabilei<br>export&nbsp;let&nbsp;welcome&nbsp;=&nbsp;"Welcome";<br>//&nbsp;exportul&nbsp;constantei<br>export&nbsp;const&nbsp;hello&nbsp;=&nbsp;"Hello";<br><br>//&nbsp;exportul&nbsp;funcției<br>export&nbsp;function&nbsp;sayHello()&nbsp;{<br>&nbsp;console.log("Hello&nbsp;FDC.COM");<br>}<br><br>//&nbsp;exportul&nbsp;clasei<br>export&nbsp;class&nbsp;Messenger&nbsp;{<br>&nbsp;&nbsp;&nbsp;send(text){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Sending&nbsp;message:",&nbsp;text);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici sunt exportate variabila welcome, constanta hello, funcția sayHello() și clasa Messenger. Este de remarcat că nu este necesar să exportăm toate componentele modulului, unele componente le putem folosi doar în interiorul acestui modul.</p>
+     <p class="paragraph">Ca alternativă, am putea exporta toate componentele împreună sub forma unei liste:</p>
+     <div class="code-inline">
+      <pre><code>let&nbsp;welcome&nbsp;=&nbsp;"Welcome";<br>const&nbsp;hello&nbsp;=&nbsp;"Hello";<br><br>function&nbsp;sayHello()&nbsp;{<br>&nbsp;console.log("Hello&nbsp;FDC.COM");<br>}<br><br>class&nbsp;Messenger&nbsp;{<br>&nbsp;&nbsp;&nbsp;send(text){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Sending&nbsp;message:",&nbsp;text);<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>export&nbsp;{welcome,&nbsp;hello,&nbsp;sayHello,&nbsp;Messenger}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, ambele metode de export sunt echivalente.</p>
+     <h2 class="subtitle">Importul numit al componentelor modulului</h2>
+     <p class="paragraph">Toate componentele importate le putem conecta separat. Pentru acest lucru, după operatorul import în parantezele acolade se indică numele componentelor conectate - variabile/constante/funcții/clase. Apoi, după operatorul from se indică modulul din care se face importul.</p>
+     <div class="code-inline">
+      <pre><code>import&nbsp;{componenta1,&nbsp;componenta2,&nbsp;...&nbsp;componentaN}&nbsp;from&nbsp;"calea_către_modul";</code></pre>
+     </div>
+     <p class="paragraph">De exemplu, să importăm în modulul main.js componentele exportate ale modulului message.js:</p>
+     <div class="code-inline">
+      <pre><code>import&nbsp;{sayHello,&nbsp;welcome,&nbsp;Messenger}&nbsp;from&nbsp;"./message.js";<br><br>sayHello();<br><br>const&nbsp;telegram&nbsp;=&nbsp;new&nbsp;Messenger();<br>telegram.send(welcome);</code></pre>
+     </div>
+     <p class="paragraph">Astfel, aici sunt conectate din modulul message.js variabila welcome, funcția sayHello() și clasa Messenger. Nu este obligatoriu să conectăm toate componentele modulului. Putem conecta doar acele componente care ne sunt direct necesare și pe care intenționăm să le utilizăm.</p>
+     <p class="paragraph">În final, la executarea paginii în browser, în consola acestuia vom vedea rezultatul activității componentelor modulului conectat main.js:</p>
+     <div class="code-inline">
+      <pre><code>Hello&nbsp;FDC.COM<br>Sending&nbsp;message:&nbsp;Welcome</code></pre>
+     </div>
+     <h2 class="subtitle">Importul întregului modul</h2>
+     <p class="paragraph">Dacă modulul conectat conține foarte multe componente și intenționăm să folosim toate capacitățile modulului, atunci enumerarea tuturor componentelor conectate poate fi obositoare. În acest caz, putem conecta întreaga funcționalitate a modulului în forma:</p>
+     <div class="code-inline">
+      <pre><code>import&nbsp;*&nbsp;as&nbsp;alias_modul&nbsp;from&nbsp;"modul";</code></pre>
+     </div>
+     <p class="paragraph">După operatorul import urmează semnul stelei, care indică faptul că trebuie conectate toate componentele exportate. Și după operatorul as urmează aliasul modulului, cu care va fi asociat modulul conectat.</p>
+     <p class="paragraph">De exemplu, să conectăm în fișierul main.js întregul modul message.js</p>
+     <div class="code-inline">
+      <pre><code>import&nbsp;*&nbsp;as&nbsp;MessageModule&nbsp;from&nbsp;"./message.js";<br><br>MessageModule.sayHello();<br><br>const&nbsp;telegram&nbsp;=&nbsp;new&nbsp;MessageModule.Messenger();<br>telegram.send(MessageModule.welcome);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, modulul conectat message.js este asociat cu identificatorul MessageModule. Ca alias al modulului poate servi orice nume la alegere. Și ulterior putem accesa toate componentele exportate ale modulului prin aliasul modulului, de exemplu, accesând funcția sayHello: MessageModule.sayHello().</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

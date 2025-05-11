@@ -11,12 +11,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Comparator;
+import java.util.List;
+
 @Controller
 public class LessonsManagementController {
     @Autowired
     private TopicRepository topicRepo;
+
     @Autowired
     private ChapterRepository chapterRepo;
+
     @Autowired
     private LessonRepository lessonRepo;
 
@@ -24,17 +29,38 @@ public class LessonsManagementController {
     public String lessonForm(Model model) {
         model.addAttribute("lesson", new Lesson());
         model.addAttribute("topics", topicRepo.findAll());
-        model.addAttribute("chapters", chapterRepo.findAll());
-        model.addAttribute("lessons", lessonRepo.findAll());
+
+        List<Chapter> sortedChapters = chapterRepo.findAll()
+                .stream()
+                .sorted(Comparator.comparingInt(Chapter::getOrderNumber))
+                .toList();
+        model.addAttribute("chapters", sortedChapters);
+
+        List<Lesson> sortedLessons = lessonRepo.findAll()
+                .stream()
+                .sorted(Comparator.comparingInt(Lesson::getOrderNumber))
+                .toList();
+        model.addAttribute("lessons", sortedLessons);
+
         return "lessons-management";
     }
-
 
     @PostMapping("/admin/lessons/add")
     public String addLesson(@ModelAttribute Lesson lesson,
                             @RequestParam Long chapterId) {
         Chapter chapter = chapterRepo.findById(chapterId).orElseThrow();
         lesson.setChapter(chapter);
+        lessonRepo.save(lesson);
+        return "redirect:/admin/lessons-management";
+    }
+
+    @PostMapping("/admin/lessons/update")
+    public String updateLesson(@ModelAttribute Lesson lesson,
+                               @RequestParam Long chapterId,
+                               @RequestParam Integer orderNumber) {
+        Chapter chapter = chapterRepo.findById(chapterId).orElseThrow();
+        lesson.setChapter(chapter);
+        lesson.setOrderNumber(orderNumber);
         lessonRepo.save(lesson);
         return "redirect:/admin/lessons-management";
     }
@@ -47,43 +73,6 @@ public class LessonsManagementController {
         topic.setDescription(description);
         topic.setCodeSnippet(codeSnippet);
         topicRepo.save(topic);
-        return "redirect:/admin/lessons-management";
-    }
-
-    @GetMapping("/admin/topics/delete/{id}")
-    public String deleteTopic(@PathVariable Long id) {
-        topicRepo.deleteById(id);
-        return "redirect:/admin/lessons-management";
-    }
-
-    @PostMapping("/admin/chapters/add")
-    public String addChapter(@RequestParam String title, @RequestParam Long topicId) {
-        Topic topic = topicRepo.findById(topicId).orElseThrow();
-        Chapter chapter = new Chapter();
-        chapter.setTitle(title);
-        chapter.setTopic(topic);
-        chapterRepo.save(chapter);
-        return "redirect:/admin/lessons-management";
-    }
-
-    @GetMapping("/admin/chapters/delete/{id}")
-    public String deleteChapter(@PathVariable Long id) {
-        chapterRepo.deleteById(id);
-        return "redirect:/admin/lessons-management";
-    }
-
-    @GetMapping("/admin/lessons/delete/{id}")
-    public String deleteLesson(@PathVariable Long id) {
-        lessonRepo.deleteById(id);
-        return "redirect:/admin/lessons-management";
-    }
-
-    @PostMapping("/admin/lessons/update")
-    public String updateLesson(@ModelAttribute Lesson lesson,
-                               @RequestParam Long chapterId) {
-        Chapter chapter = chapterRepo.findById(chapterId).orElseThrow();
-        lesson.setChapter(chapter);
-        lessonRepo.save(lesson);
         return "redirect:/admin/lessons-management";
     }
 
@@ -100,15 +89,48 @@ public class LessonsManagementController {
         return "redirect:/admin/lessons-management";
     }
 
+    @PostMapping("/admin/chapters/add")
+    public String addChapter(@RequestParam String title,
+                             @RequestParam Long topicId,
+                             @RequestParam Integer orderNumber) {
+        Topic topic = topicRepo.findById(topicId).orElseThrow();
+        Chapter chapter = new Chapter();
+        chapter.setTitle(title);
+        chapter.setTopic(topic);
+        chapter.setOrderNumber(orderNumber);
+        chapterRepo.save(chapter);
+        return "redirect:/admin/lessons-management";
+    }
+
     @PostMapping("/admin/chapters/update")
     public String updateChapter(@RequestParam Long id,
                                 @RequestParam String title,
-                                @RequestParam Long topicId) {
+                                @RequestParam Long topicId,
+                                @RequestParam Integer orderNumber) {
         Chapter chapter = chapterRepo.findById(id).orElseThrow();
         Topic topic = topicRepo.findById(topicId).orElseThrow();
         chapter.setTitle(title);
         chapter.setTopic(topic);
+        chapter.setOrderNumber(orderNumber);
         chapterRepo.save(chapter);
+        return "redirect:/admin/lessons-management";
+    }
+
+    @GetMapping("/admin/topics/delete/{id}")
+    public String deleteTopic(@PathVariable Long id) {
+        topicRepo.deleteById(id);
+        return "redirect:/admin/lessons-management";
+    }
+
+    @GetMapping("/admin/chapters/delete/{id}")
+    public String deleteChapter(@PathVariable Long id) {
+        chapterRepo.deleteById(id);
+        return "redirect:/admin/lessons-management";
+    }
+
+    @GetMapping("/admin/lessons/delete/{id}")
+    public String deleteLesson(@PathVariable Long id) {
+        lessonRepo.deleteById(id);
         return "redirect:/admin/lessons-management";
     }
 }

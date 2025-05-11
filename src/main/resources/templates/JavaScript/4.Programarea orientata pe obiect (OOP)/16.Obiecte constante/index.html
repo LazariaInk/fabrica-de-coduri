@@ -1,168 +1,158 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='4.Programarea orientata pe obiect (OOP)', activeLesson='16.Obiecte constante'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Obiecte constante - Interzicerea modificării obiectului</h1>
- <p class="paragraph">Limbajul JavaScript permite modificarea dinamică a proprietăților obiectelor, adăugarea de noi proprietăți și metode la obiecte sau ștergerea celor deja existente. Cu toate acestea, astfel de modificări ale obiectelor pot fi nedorite. JavaScript furnizează trei mecanisme pentru a gestiona acest lucru:</p>
- <h2 class="subtitle">Interzicerea extensiei obiectelor</h2>
- <p class="paragraph">Metoda `Object.preventExtensions()` permite interzicerea extensiei unui obiect, adică nu se pot adăuga noi proprietăți și metode în obiectul respectiv. Metoda primește ca parametru obiectul țintă.</p>
- <p class="paragraph">Pentru exemplu:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;tom&nbsp;=&nbsp;{name:&nbsp;"Tom"};<br>//&nbsp;adăugăm&nbsp;în&nbsp;obiectul&nbsp;tom&nbsp;o&nbsp;nouă&nbsp;proprietate&nbsp;-&nbsp;company<br>tom.company&nbsp;=&nbsp;"Localhost";<br><br>console.log(`Nume:&nbsp;${tom.name}&nbsp;&nbsp;Companie:&nbsp;${tom.company}`);&nbsp;//&nbsp;Nume:&nbsp;Tom&nbsp;&nbsp;Companie:&nbsp;Localhost</code></pre>
- </div>
- <p class="paragraph">Aici se adaugă o nouă proprietate `company` la obiectul `tom`. După adăugare, aceasta poate fi utilizată.</p>
- <p class="paragraph">Acum, vom interzice extinderea folosind metoda `Object.preventExtensions()`:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;tom&nbsp;=&nbsp;{name:&nbsp;"Tom"};<br>Object.preventExtensions(tom);&nbsp;&nbsp;//&nbsp;interzicem&nbsp;extinderea&nbsp;obiectului&nbsp;tom<br>tom.company&nbsp;=&nbsp;"Localhost";&nbsp;&nbsp;//&nbsp;încercăm&nbsp;să&nbsp;adăugăm&nbsp;o&nbsp;nouă&nbsp;proprietate&nbsp;în&nbsp;obiectul&nbsp;tom<br>console.log(`Nume:&nbsp;${tom.name}&nbsp;&nbsp;Companie:&nbsp;${tom.company}`);&nbsp;//&nbsp;Nume:&nbsp;Tom&nbsp;&nbsp;Companie:&nbsp;undefined</code></pre>
- </div>
- <p class="paragraph">Chiar dacă încercăm să definim o nouă proprietate pentru obiect, aceasta nu va fi adăugată. În încercarea de a accesa o astfel de proprietate, vom primi `undefined`.</p>
- <p class="paragraph">Uneori poate apărea necesitatea de a verifica dacă un obiect este extensibil. De exemplu, dacă un obiect este extensibil, putem adăuga proprietăți în el și apoi să le utilizăm. Pentru a verifica extensibilitatea, se poate folosi metoda `Object.isExtensible()`. Aceasta primește ca parametru obiectul testat și, dacă obiectul suportă extinderea, metoda returnează `true`, altfel returnează `false`:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;tom&nbsp;=&nbsp;{name:&nbsp;"Tom"};<br>console.log(Object.isExtensible(tom));&nbsp;&nbsp;//&nbsp;true<br>Object.preventExtensions(tom);&nbsp;&nbsp;//&nbsp;interzicem&nbsp;extinderea&nbsp;obiectului&nbsp;tom<br>console.log(Object.isExtensible(tom));&nbsp;&nbsp;//&nbsp;false</code></pre>
- </div>
- <h2 class="subtitle">Închiderea obiectelor</h2>
- <p class="paragraph">Închiderea (sealing) sau "sigilarea" obiectelor permite, de asemenea, interzicerea extinderii obiectelor. Cu toate acestea, în plus, ea interzice și modificarea proprietăților deja existente. Pentru a sigila obiecte, se folosește metoda `Object.seal()`.</p>
- <p class="paragraph">Să vedem mai întâi ce putem face cu un obiect fără a aplica `Object.seal()`:</p>
- <p class="paragraph">const tom = {name: "Tom"};</p>
- <div class="code-inline">
-  <pre><code>//&nbsp;pentru&nbsp;proprietatea&nbsp;name&nbsp;interzicem&nbsp;modificarea<br>Object.defineProperty(tom,&nbsp;"name",&nbsp;{&nbsp;writable:&nbsp;false});<br>tom.name&nbsp;=&nbsp;"Tomas";<br><br>//&nbsp;adăugăm&nbsp;o&nbsp;nouă&nbsp;proprietate&nbsp;-&nbsp;age<br>tom.age&nbsp;=&nbsp;39;<br>console.log(`Nume:&nbsp;${tom.name}&nbsp;&nbsp;Vârstă:&nbsp;${tom.age}`);&nbsp;&nbsp;//&nbsp;Nume:&nbsp;Tom&nbsp;&nbsp;Vârstă:&nbsp;39<br><br>//&nbsp;pentru&nbsp;proprietatea&nbsp;name&nbsp;permitem&nbsp;modificarea<br>Object.defineProperty(tom,&nbsp;"name",&nbsp;{&nbsp;writable:&nbsp;true});<br>tom.name&nbsp;=&nbsp;"Tomas";<br>console.log(`Nume:&nbsp;${tom.name}&nbsp;&nbsp;Vârstă:&nbsp;${tom.age}`);&nbsp;&nbsp;//&nbsp;Nume:&nbsp;Tomas&nbsp;&nbsp;Vârstă:&nbsp;39</code></pre>
- </div>
- <p class="paragraph">Deci, putem modifica configurarea unei proprietăți (aici facem proprietatea `name` indisponibilă pentru scriere). De asemenea, putem adăuga o nouă proprietate în obiect.</p>
- <p class="paragraph">Acum, să aplicăm metoda `Object.seal()`:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;tom&nbsp;=&nbsp;{name:&nbsp;"Tom"};<br>Object.seal(tom);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;sigilăm&nbsp;obiectul&nbsp;tom&nbsp;împotriva&nbsp;extinderii&nbsp;și&nbsp;modificării&nbsp;configurației<br>//&nbsp;pentru&nbsp;proprietatea&nbsp;name&nbsp;interzicem&nbsp;modificarea<br>Object.defineProperty(tom,&nbsp;"name",&nbsp;{&nbsp;writable:&nbsp;false});<br>tom.name&nbsp;=&nbsp;"Tomas";<br><br>//&nbsp;adăugăm&nbsp;o&nbsp;nouă&nbsp;proprietate&nbsp;-&nbsp;age<br>tom.age&nbsp;=&nbsp;39;<br>console.log(`Nume:&nbsp;${tom.name}&nbsp;&nbsp;Vârstă:&nbsp;${tom.age}`);&nbsp;&nbsp;//&nbsp;Nume:&nbsp;Tom&nbsp;&nbsp;Vârstă:&nbsp;undefined<br><br>//&nbsp;pentru&nbsp;proprietatea&nbsp;name&nbsp;permitem&nbsp;modificarea<br>Object.defineProperty(tom,&nbsp;"name",&nbsp;{&nbsp;writable:&nbsp;true});&nbsp;//&nbsp;Uncaught&nbsp;TypeError:&nbsp;Cannot&nbsp;redefine&nbsp;property:&nbsp;name</code></pre>
- </div>
- <p class="paragraph">După sigilarea obiectului cu `Object.seal(tom)`, nu vom putea adăuga o nouă proprietate în obiect. Prin urmare, în exemplul de mai sus, proprietatea `tom.age` va fi `undefined`. De asemenea, nu vom putea modifica din nou configurarea proprietății. Astfel, în acest caz, la al doilea apel al metodei `Object.defineProperty()` pentru proprietatea `name`, vom primi eroarea "Uncaught TypeError: Cannot redefine property: name".</p>
- <p class="paragraph">Pentru a verifica dacă un obiect este sigilat, putem utiliza metoda `Object.isSealed()`. Dacă obiectul este sigilat, metoda returnează true. Trebuie menționat că, deoarece un obiect sigilat nu poate fi extins, metoda `Object.isExtensible()` returnează false pentru el:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;tom&nbsp;=&nbsp;{name:&nbsp;"Tom"};<br>console.log(Object.isExtensible(tom));&nbsp;&nbsp;//&nbsp;true<br>console.log(Object.isSealed(tom));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;false<br>Object.seal(tom);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;închidem&nbsp;obiectul&nbsp;tom<br>console.log(Object.isExtensible(tom));&nbsp;&nbsp;//&nbsp;false<br>console.log(Object.isSealed(tom));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;true</code></pre>
- </div>
- <h2 class="subtitle">Interdicția de modificare a valorilor proprietăților</h2>
- <p class="paragraph">Congelarea (freezing) permite interzicerea modificării valorilor proprietăților, adică face obiectul complet constant. Astfel, doar definirea unui obiect ca o constantă obișnuită cu ajutorul operatorului `const` nu este suficient. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;tom&nbsp;=&nbsp;{name:&nbsp;"Tom"};<br>tom.name=&nbsp;"Tomas";<br>console.log(tom.name);&nbsp;&nbsp;//&nbsp;Tomas</code></pre>
- </div>
- <p class="paragraph">Aici observăm că proprietatea obiectului și-a schimbat valoarea, chiar dacă obiectul este definit ca o constantă.</p>
- <p class="paragraph">Operatorul `const` afectează doar atribuirea unei noi valori constantei, așa cum se vede în exemplul următor:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;tom&nbsp;=&nbsp;{name:&nbsp;"Tom"};<br>tom&nbsp;=&nbsp;{name:&nbsp;"Sam"};&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Eroare&nbsp;-&nbsp;nu&nbsp;se&nbsp;poate&nbsp;atribui&nbsp;o&nbsp;valoare&nbsp;constantului&nbsp;a&nbsp;doua&nbsp;oară</code></pre>
- </div>
- <p class="paragraph">Cu toate acestea, valorile proprietăților obiectului le putem schimba.</p>
- <p class="paragraph">Pentru a face obiectul cu adevărat constant, este necesar să aplicăm metoda specială `Object.freeze()`. Această metodă primește ca parametru obiectul pe care dorim să îl facem constant:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;tom&nbsp;=&nbsp;{name:&nbsp;"Tom"};<br>Object.freeze(tom);<br>tom.name=&nbsp;"Tomas";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;nu&nbsp;se&nbsp;poate&nbsp;schimba&nbsp;valoarea&nbsp;proprietății<br>console.log(tom.name);&nbsp;&nbsp;&nbsp;//&nbsp;Tom</code></pre>
- </div>
- <p class="paragraph">Pentru a verifica dacă putem schimba valorile proprietăților obiectului, utilizăm metoda `Object.isFrozen()`. Dacă valorile proprietăților nu pot fi schimbate, aceasta returnează `true`.</p>
- <p class="paragraph">Trebuie menționat că un obiect "înghețat" este cel mai înalt nivel de restricție a modificărilor la obiect. Prin urmare, un astfel de obiect nu poate fi extins și, de asemenea, nu se poate schimba configurația proprietăților sale.</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;tom&nbsp;=&nbsp;{name:&nbsp;"Tom"};<br>console.log(Object.isExtensible(tom));&nbsp;&nbsp;//&nbsp;true<br>console.log(Object.isSealed(tom));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;false<br>console.log(Object.isFrozen(tom));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;false<br>Object.freeze(tom);<br>console.log(Object.isExtensible(tom));&nbsp;&nbsp;//&nbsp;false<br>console.log(Object.isSealed(tom));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;true<br>console.log(Object.isFrozen(tom));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;true</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Obiecte constante - Interzicerea modificării obiectului</h1>
+     <p class="paragraph">Limbajul JavaScript permite modificarea dinamică a proprietăților obiectelor, adăugarea de noi proprietăți și metode la obiecte sau ștergerea celor deja existente. Cu toate acestea, astfel de modificări ale obiectelor pot fi nedorite. JavaScript furnizează trei mecanisme pentru a gestiona acest lucru:</p>
+     <h2 class="subtitle">Interzicerea extensiei obiectelor</h2>
+     <p class="paragraph">Metoda `Object.preventExtensions()` permite interzicerea extensiei unui obiect, adică nu se pot adăuga noi proprietăți și metode în obiectul respectiv. Metoda primește ca parametru obiectul țintă.</p>
+     <p class="paragraph">Pentru exemplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;tom&nbsp;=&nbsp;{name:&nbsp;"Tom"};<br>//&nbsp;adăugăm&nbsp;în&nbsp;obiectul&nbsp;tom&nbsp;o&nbsp;nouă&nbsp;proprietate&nbsp;-&nbsp;company<br>tom.company&nbsp;=&nbsp;"Localhost";<br><br>console.log(`Nume:&nbsp;${tom.name}&nbsp;&nbsp;Companie:&nbsp;${tom.company}`);&nbsp;//&nbsp;Nume:&nbsp;Tom&nbsp;&nbsp;Companie:&nbsp;Localhost</code></pre>
+     </div>
+     <p class="paragraph">Aici se adaugă o nouă proprietate `company` la obiectul `tom`. După adăugare, aceasta poate fi utilizată.</p>
+     <p class="paragraph">Acum, vom interzice extinderea folosind metoda `Object.preventExtensions()`:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;tom&nbsp;=&nbsp;{name:&nbsp;"Tom"};<br>Object.preventExtensions(tom);&nbsp;&nbsp;//&nbsp;interzicem&nbsp;extinderea&nbsp;obiectului&nbsp;tom<br>tom.company&nbsp;=&nbsp;"Localhost";&nbsp;&nbsp;//&nbsp;încercăm&nbsp;să&nbsp;adăugăm&nbsp;o&nbsp;nouă&nbsp;proprietate&nbsp;în&nbsp;obiectul&nbsp;tom<br>console.log(`Nume:&nbsp;${tom.name}&nbsp;&nbsp;Companie:&nbsp;${tom.company}`);&nbsp;//&nbsp;Nume:&nbsp;Tom&nbsp;&nbsp;Companie:&nbsp;undefined</code></pre>
+     </div>
+     <p class="paragraph">Chiar dacă încercăm să definim o nouă proprietate pentru obiect, aceasta nu va fi adăugată. În încercarea de a accesa o astfel de proprietate, vom primi `undefined`.</p>
+     <p class="paragraph">Uneori poate apărea necesitatea de a verifica dacă un obiect este extensibil. De exemplu, dacă un obiect este extensibil, putem adăuga proprietăți în el și apoi să le utilizăm. Pentru a verifica extensibilitatea, se poate folosi metoda `Object.isExtensible()`. Aceasta primește ca parametru obiectul testat și, dacă obiectul suportă extinderea, metoda returnează `true`, altfel returnează `false`:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;tom&nbsp;=&nbsp;{name:&nbsp;"Tom"};<br>console.log(Object.isExtensible(tom));&nbsp;&nbsp;//&nbsp;true<br>Object.preventExtensions(tom);&nbsp;&nbsp;//&nbsp;interzicem&nbsp;extinderea&nbsp;obiectului&nbsp;tom<br>console.log(Object.isExtensible(tom));&nbsp;&nbsp;//&nbsp;false</code></pre>
+     </div>
+     <h2 class="subtitle">Închiderea obiectelor</h2>
+     <p class="paragraph">Închiderea (sealing) sau "sigilarea" obiectelor permite, de asemenea, interzicerea extinderii obiectelor. Cu toate acestea, în plus, ea interzice și modificarea proprietăților deja existente. Pentru a sigila obiecte, se folosește metoda `Object.seal()`.</p>
+     <p class="paragraph">Să vedem mai întâi ce putem face cu un obiect fără a aplica `Object.seal()`:</p>
+     <p class="paragraph">const tom = {name: "Tom"};</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;pentru&nbsp;proprietatea&nbsp;name&nbsp;interzicem&nbsp;modificarea<br>Object.defineProperty(tom,&nbsp;"name",&nbsp;{&nbsp;writable:&nbsp;false});<br>tom.name&nbsp;=&nbsp;"Tomas";<br><br>//&nbsp;adăugăm&nbsp;o&nbsp;nouă&nbsp;proprietate&nbsp;-&nbsp;age<br>tom.age&nbsp;=&nbsp;39;<br>console.log(`Nume:&nbsp;${tom.name}&nbsp;&nbsp;Vârstă:&nbsp;${tom.age}`);&nbsp;&nbsp;//&nbsp;Nume:&nbsp;Tom&nbsp;&nbsp;Vârstă:&nbsp;39<br><br>//&nbsp;pentru&nbsp;proprietatea&nbsp;name&nbsp;permitem&nbsp;modificarea<br>Object.defineProperty(tom,&nbsp;"name",&nbsp;{&nbsp;writable:&nbsp;true});<br>tom.name&nbsp;=&nbsp;"Tomas";<br>console.log(`Nume:&nbsp;${tom.name}&nbsp;&nbsp;Vârstă:&nbsp;${tom.age}`);&nbsp;&nbsp;//&nbsp;Nume:&nbsp;Tomas&nbsp;&nbsp;Vârstă:&nbsp;39</code></pre>
+     </div>
+     <p class="paragraph">Deci, putem modifica configurarea unei proprietăți (aici facem proprietatea `name` indisponibilă pentru scriere). De asemenea, putem adăuga o nouă proprietate în obiect.</p>
+     <p class="paragraph">Acum, să aplicăm metoda `Object.seal()`:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;tom&nbsp;=&nbsp;{name:&nbsp;"Tom"};<br>Object.seal(tom);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;sigilăm&nbsp;obiectul&nbsp;tom&nbsp;împotriva&nbsp;extinderii&nbsp;și&nbsp;modificării&nbsp;configurației<br>//&nbsp;pentru&nbsp;proprietatea&nbsp;name&nbsp;interzicem&nbsp;modificarea<br>Object.defineProperty(tom,&nbsp;"name",&nbsp;{&nbsp;writable:&nbsp;false});<br>tom.name&nbsp;=&nbsp;"Tomas";<br><br>//&nbsp;adăugăm&nbsp;o&nbsp;nouă&nbsp;proprietate&nbsp;-&nbsp;age<br>tom.age&nbsp;=&nbsp;39;<br>console.log(`Nume:&nbsp;${tom.name}&nbsp;&nbsp;Vârstă:&nbsp;${tom.age}`);&nbsp;&nbsp;//&nbsp;Nume:&nbsp;Tom&nbsp;&nbsp;Vârstă:&nbsp;undefined<br><br>//&nbsp;pentru&nbsp;proprietatea&nbsp;name&nbsp;permitem&nbsp;modificarea<br>Object.defineProperty(tom,&nbsp;"name",&nbsp;{&nbsp;writable:&nbsp;true});&nbsp;//&nbsp;Uncaught&nbsp;TypeError:&nbsp;Cannot&nbsp;redefine&nbsp;property:&nbsp;name</code></pre>
+     </div>
+     <p class="paragraph">După sigilarea obiectului cu `Object.seal(tom)`, nu vom putea adăuga o nouă proprietate în obiect. Prin urmare, în exemplul de mai sus, proprietatea `tom.age` va fi `undefined`. De asemenea, nu vom putea modifica din nou configurarea proprietății. Astfel, în acest caz, la al doilea apel al metodei `Object.defineProperty()` pentru proprietatea `name`, vom primi eroarea "Uncaught TypeError: Cannot redefine property: name".</p>
+     <p class="paragraph">Pentru a verifica dacă un obiect este sigilat, putem utiliza metoda `Object.isSealed()`. Dacă obiectul este sigilat, metoda returnează true. Trebuie menționat că, deoarece un obiect sigilat nu poate fi extins, metoda `Object.isExtensible()` returnează false pentru el:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;tom&nbsp;=&nbsp;{name:&nbsp;"Tom"};<br>console.log(Object.isExtensible(tom));&nbsp;&nbsp;//&nbsp;true<br>console.log(Object.isSealed(tom));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;false<br>Object.seal(tom);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;închidem&nbsp;obiectul&nbsp;tom<br>console.log(Object.isExtensible(tom));&nbsp;&nbsp;//&nbsp;false<br>console.log(Object.isSealed(tom));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;true</code></pre>
+     </div>
+     <h2 class="subtitle">Interdicția de modificare a valorilor proprietăților</h2>
+     <p class="paragraph">Congelarea (freezing) permite interzicerea modificării valorilor proprietăților, adică face obiectul complet constant. Astfel, doar definirea unui obiect ca o constantă obișnuită cu ajutorul operatorului `const` nu este suficient. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;tom&nbsp;=&nbsp;{name:&nbsp;"Tom"};<br>tom.name=&nbsp;"Tomas";<br>console.log(tom.name);&nbsp;&nbsp;//&nbsp;Tomas</code></pre>
+     </div>
+     <p class="paragraph">Aici observăm că proprietatea obiectului și-a schimbat valoarea, chiar dacă obiectul este definit ca o constantă.</p>
+     <p class="paragraph">Operatorul `const` afectează doar atribuirea unei noi valori constantei, așa cum se vede în exemplul următor:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;tom&nbsp;=&nbsp;{name:&nbsp;"Tom"};<br>tom&nbsp;=&nbsp;{name:&nbsp;"Sam"};&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Eroare&nbsp;-&nbsp;nu&nbsp;se&nbsp;poate&nbsp;atribui&nbsp;o&nbsp;valoare&nbsp;constantului&nbsp;a&nbsp;doua&nbsp;oară</code></pre>
+     </div>
+     <p class="paragraph">Cu toate acestea, valorile proprietăților obiectului le putem schimba.</p>
+     <p class="paragraph">Pentru a face obiectul cu adevărat constant, este necesar să aplicăm metoda specială `Object.freeze()`. Această metodă primește ca parametru obiectul pe care dorim să îl facem constant:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;tom&nbsp;=&nbsp;{name:&nbsp;"Tom"};<br>Object.freeze(tom);<br>tom.name=&nbsp;"Tomas";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;nu&nbsp;se&nbsp;poate&nbsp;schimba&nbsp;valoarea&nbsp;proprietății<br>console.log(tom.name);&nbsp;&nbsp;&nbsp;//&nbsp;Tom</code></pre>
+     </div>
+     <p class="paragraph">Pentru a verifica dacă putem schimba valorile proprietăților obiectului, utilizăm metoda `Object.isFrozen()`. Dacă valorile proprietăților nu pot fi schimbate, aceasta returnează `true`.</p>
+     <p class="paragraph">Trebuie menționat că un obiect "înghețat" este cel mai înalt nivel de restricție a modificărilor la obiect. Prin urmare, un astfel de obiect nu poate fi extins și, de asemenea, nu se poate schimba configurația proprietăților sale.</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;tom&nbsp;=&nbsp;{name:&nbsp;"Tom"};<br>console.log(Object.isExtensible(tom));&nbsp;&nbsp;//&nbsp;true<br>console.log(Object.isSealed(tom));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;false<br>console.log(Object.isFrozen(tom));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;false<br>Object.freeze(tom);<br>console.log(Object.isExtensible(tom));&nbsp;&nbsp;//&nbsp;false<br>console.log(Object.isSealed(tom));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;true<br>console.log(Object.isFrozen(tom));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;true</code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

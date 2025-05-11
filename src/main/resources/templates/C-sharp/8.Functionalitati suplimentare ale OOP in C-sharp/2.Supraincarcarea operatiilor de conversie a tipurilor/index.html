@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='8.Functionalitati suplimentare ale OOP in C-sharp', activeLesson='2.Supraincarcarea operatiilor de conversie a tipurilor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Supraincărcarea operațiilor de conversie a tipurilor</h1>
+     <p class="paragraph">În tema anterioară am discutat despre supraincărcarea operatorilor. Aceasta este strâns legată de supraincărcarea operatorilor de conversie a tipurilor.</p>
+     <p class="paragraph">Anterior, am discutat despre conversiile explicite și implicite ale tipurilor primitive. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;x&nbsp;=&nbsp;50;<br>byte&nbsp;y&nbsp;=&nbsp;(byte)x;&nbsp;//&nbsp;conversie&nbsp;explicită&nbsp;de&nbsp;la&nbsp;int&nbsp;la&nbsp;byte<br>int&nbsp;z&nbsp;=&nbsp;y;&nbsp;&nbsp;//&nbsp;conversie&nbsp;implicită&nbsp;de&nbsp;la&nbsp;byte&nbsp;la&nbsp;int</code></pre>
+     </div>
+     <p class="paragraph">Ar fi util să putem defini logica de conversie a unui tip în altul. Prin supraincărcarea operatorilor, putem face acest lucru. Pentru aceasta, în clasă se definește o metodă cu următoarea formă:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;static&nbsp;implicit|explicit&nbsp;operator&nbsp;Tip_în_care_să_convertim(tip_de_origine&nbsp;param)<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;logica&nbsp;de&nbsp;conversie<br>}</code></pre>
+     </div>
+     <p class="paragraph">După modificatorii public static urmează cuvântul cheie explicit (dacă conversia este explicită, adică este necesară operația de casting) sau implicit (dacă conversia este implicită). Apoi urmează cuvântul cheie operator și tipul returnat, în care trebuie convertit obiectul. În paranteze, ca parametru, se transmite obiectul care trebuie convertit.</p>
+     <p class="paragraph">De exemplu, să presupunem că avem următoarea clasă Counter, care reprezintă un contor-cronometru și care stochează numărul de secunde în proprietatea Seconds:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Counter<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Seconds&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;implicit&nbsp;operator&nbsp;Counter(int&nbsp;x)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;Counter&nbsp;{&nbsp;Seconds&nbsp;=&nbsp;x&nbsp;};<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;explicit&nbsp;operator&nbsp;int(Counter&nbsp;counter)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;counter.Seconds;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Primul operator convertește un număr - obiect de tip int la tipul Counter. Logica sa este simplă - se creează un nou obiect Counter, căruia i se setează proprietatea Seconds.</p>
+     <p class="paragraph">Al doilea operator convertește obiectul Counter la tipul int, adică obține un număr din Counter.</p>
+     <p class="paragraph">Aplicarea operatorilor de conversie în program:</p>
+     <div class="code-inline">
+      <pre><code>Counter&nbsp;counter1&nbsp;=&nbsp;new&nbsp;Counter&nbsp;{&nbsp;Seconds&nbsp;=&nbsp;23&nbsp;};<br><br>int&nbsp;x&nbsp;=&nbsp;(int)counter1;<br>Console.WriteLine(x);&nbsp;&nbsp;&nbsp;//&nbsp;23<br><br>Counter&nbsp;counter2&nbsp;=&nbsp;x;<br>Console.WriteLine(counter2.Seconds);&nbsp;&nbsp;//&nbsp;23</code></pre>
+     </div>
+     <p class="paragraph">Deoarece operația de conversie din Counter în int este definită cu cuvântul cheie explicit, adică ca o conversie explicită, în acest caz este necesară operația de casting:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;x&nbsp;=&nbsp;(int)counter1;</code></pre>
+     </div>
+     <p class="paragraph">În cazul operației de conversie de la int la Counter nu este nevoie de nimic similar, deoarece această operație este definită cu cuvântul cheie implicit, adică ca o conversie implicită. Ce operații de conversie să fie făcute explicite și care implicite este decizia dezvoltatorului.</p>
+     <p class="paragraph">Trebuie avut în vedere că operatorul de conversie a tipurilor trebuie să convertească din tipul sau în tipul în care acest operator este definit. Adică operatorul de conversie definit în tipul Counter trebuie să accepte ca parametru un obiect de tip Counter sau să returneze un obiect de tip Counter.</p>
+     <p class="paragraph">Să examinăm și conversii mai complexe, de exemplu, dintr-un tip compus într-alt tip compus. Să presupunem că avem și clasa Timer:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Timer<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Hours&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Minutes&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Seconds&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>}<br>class&nbsp;Counter<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Seconds&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;implicit&nbsp;operator&nbsp;Counter(int&nbsp;x)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;Counter&nbsp;{&nbsp;Seconds&nbsp;=&nbsp;x&nbsp;};<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;explicit&nbsp;operator&nbsp;int(Counter&nbsp;counter)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;counter.Seconds;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;explicit&nbsp;operator&nbsp;Counter(Timer&nbsp;timer)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;h&nbsp;=&nbsp;timer.Hours&nbsp;*&nbsp;3600;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;m&nbsp;=&nbsp;timer.Minutes&nbsp;*&nbsp;60;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;Counter&nbsp;{&nbsp;Seconds&nbsp;=&nbsp;h&nbsp;+&nbsp;m&nbsp;+&nbsp;timer.Seconds&nbsp;};<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;implicit&nbsp;operator&nbsp;Timer(Counter&nbsp;counter)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;h&nbsp;=&nbsp;counter.Seconds&nbsp;/&nbsp;3600;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;m&nbsp;=&nbsp;(counter.Seconds&nbsp;%&nbsp;3600)&nbsp;/&nbsp;60;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;s&nbsp;=&nbsp;counter.Seconds&nbsp;%&nbsp;60;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;Timer&nbsp;{&nbsp;Hours&nbsp;=&nbsp;h,&nbsp;Minutes&nbsp;=&nbsp;m,&nbsp;Seconds&nbsp;=&nbsp;s&nbsp;};<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Clasa Timer reprezintă un cronometru care stochează orele, minutele și secundele. Clasa Counter reprezintă un contor-cronometru care stochează numărul de secunde.</p>
+     <p class="paragraph">Pornind de la aceasta, putem defini o anumită logică de conversie dintr-un tip în altul, adică obținerea din secunde în obiectul Counter a orelor, minutelor și secundelor în obiectul Timer. De exemplu, 3675 secunde înseamnă 1 oră, 1 minut și 15 secunde.</p>
+     <p class="paragraph">Aplicarea operațiilor de conversie:</p>
+     <div class="code-inline">
+      <pre><code>Counter&nbsp;counter1&nbsp;=&nbsp;new&nbsp;Counter&nbsp;{&nbsp;Seconds&nbsp;=&nbsp;115&nbsp;};<br><br>Timer&nbsp;timer&nbsp;=&nbsp;counter1;<br>Console.WriteLine($"{timer.Hours}:{timer.Minutes}:{timer.Seconds}");&nbsp;//&nbsp;0:1:55<br><br>Counter&nbsp;counter2&nbsp;=&nbsp;(Counter)timer;<br>Console.WriteLine(counter2.Seconds);&nbsp;&nbsp;//115</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

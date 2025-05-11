@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Java', activeChapter='9.Programare multithreading', activeLesson='2.Crearea si executia firelor de executie'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Crearea și execuția firelor de execuție</h1>
+     <p class="paragraph">Pentru a crea un nou fir de execuție, putem crea o nouă clasă fie moștenind-o de la clasa Thread, fie implementând în clasă interfața Runnable.</p>
+     <h2 class="subtitle">Moștenirea de la clasa Thread</h2>
+     <p class="paragraph">Să creăm propria clasă pe baza clasei Thread:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;JThread&nbsp;extends&nbsp;Thread&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;JThread(String&nbsp;name){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super(name);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;run(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("%s&nbsp;started...&nbsp;\n",&nbsp;Thread.currentThread().getName());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread.sleep(500);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;catch(InterruptedException&nbsp;e){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Thread&nbsp;has&nbsp;been&nbsp;interrupted");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("%s&nbsp;finished...&nbsp;\n",&nbsp;Thread.currentThread().getName());<br>&nbsp;&nbsp;&nbsp;}<br>}<br>&nbsp;<br>public&nbsp;class&nbsp;Program&nbsp;{<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Main&nbsp;thread&nbsp;started...");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;JThread("JThread").start();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Main&nbsp;thread&nbsp;finished...");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Clasa firului de execuție se numește JThread. Se presupune că în constructorul clasei se transmite numele firului, care apoi este transmis în constructorul clasei de bază. În constructorul propriei clase de fir, putem transmite diverse date, dar principalul este să apelăm constructorul clasei de bază Thread, în care se transmite numele firului.</p>
+     <p class="paragraph">De asemenea, în JThread se suprascrie metoda run(), al cărei cod va reprezenta codul ce se execută în fir.</p>
+     <p class="paragraph">În metoda main, pentru a porni firul JThread, se apelează metoda start(), după care începe execuția codului definit în metoda run:</p>
+     <div class="code-inline">
+      <pre><code>new&nbsp;JThread("JThread").start();</code></pre>
+     </div>
+     <p class="paragraph">Ieșirea în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Main&nbsp;thread&nbsp;started...<br>Main&nbsp;thread&nbsp;finished...<br>JThread&nbsp;started...<br>JThread&nbsp;finished...</code></pre>
+     </div>
+     <p class="paragraph">Aici, în metoda main, în constructorul JThread se transmite un nume arbitrar al firului, iar apoi se apelează metoda start(). Această metodă invocă de fapt metoda suprascrisă run() a clasei JThread.</p>
+     <p class="paragraph">Observați că firul principal își termină execuția mai devreme decât firul fiu JThread.</p>
+     <p class="paragraph">Similar cu crearea unui fir, putem porni mai multe fire simultan:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;System.out.println("Main&nbsp;thread&nbsp;started...");<br>&nbsp;&nbsp;&nbsp;for(int&nbsp;i=1;&nbsp;i&nbsp;&lt;&nbsp;6;&nbsp;i++)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;JThread("JThread&nbsp;"&nbsp;+&nbsp;i).start();<br>&nbsp;&nbsp;&nbsp;System.out.println("Main&nbsp;thread&nbsp;finished...");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Ieșirea în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Main&nbsp;thread&nbsp;started...<br>Main&nbsp;thread&nbsp;finished...<br>JThread&nbsp;2&nbsp;started...<br>JThread&nbsp;5&nbsp;started...<br>JThread&nbsp;4&nbsp;started...<br>JThread&nbsp;1&nbsp;started...<br>JThread&nbsp;3&nbsp;started...<br>JThread&nbsp;1&nbsp;finished...<br>JThread&nbsp;2&nbsp;finished...<br>JThread&nbsp;5&nbsp;finished...<br>JThread&nbsp;4&nbsp;finished...<br>JThread&nbsp;3&nbsp;finished...</code></pre>
+     </div>
+     <h2 class="subtitle">Așteptarea finalizării firului</h2>
+     <p class="paragraph">În exemplele de mai sus, Main thread se termina înaintea firului fiu. În general, o situație mai comună este când firul principal se termină ultimul. Pentru aceasta, trebuie să aplicăm metoda join(). În acest caz, firul curent va aștepta finalizarea firului pentru care se apelează metoda join:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;System.out.println("Main&nbsp;thread&nbsp;started...");<br>&nbsp;&nbsp;&nbsp;JThread&nbsp;t&nbsp;=&nbsp;new&nbsp;JThread("JThread&nbsp;");<br>&nbsp;&nbsp;&nbsp;t.start();<br>&nbsp;&nbsp;&nbsp;try{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t.join();<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;catch(InterruptedException&nbsp;e){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("%s&nbsp;has&nbsp;been&nbsp;interrupted",&nbsp;t.getName());<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;System.out.println("Main&nbsp;thread&nbsp;finished...");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Metoda join() face ca firul care o apelează (în acest caz, Main thread) să aștepte finalizarea firului pentru care se aplică join (în acest caz, JThread).</p>
+     <p class="paragraph">Ieșirea în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Main&nbsp;thread&nbsp;started...<br>JThread&nbsp;started...<br>JThread&nbsp;finished...<br>Main&nbsp;thread&nbsp;finished...</code></pre>
+     </div>
+     <p class="paragraph">Dacă în program sunt utilizate mai multe fire fiu, iar firul principal trebuie să se termine după acestea, pentru fiecare fir fiu trebuie să apelăm metoda join.</p>
+     <h2 class="subtitle">Implementarea interfeței Runnable</h2>
+     <p class="paragraph">O altă modalitate de a defini un fir este prin implementarea interfeței Runnable. Această interfață are o singură metodă run:</p>
+     <div class="code-inline">
+      <pre><code>interface&nbsp;Runnable{<br>&nbsp;&nbsp;&nbsp;void&nbsp;run();<br>}</code></pre>
+     </div>
+     <p class="paragraph">În metoda run(), se definește de fapt codul care se execută la pornirea firului.</p>
+     <p class="paragraph">După definirea obiectului Runnable, acesta este transmis unui constructor al clasei Thread:</p>
+     <div class="code-inline">
+      <pre><code>Thread(Runnable&nbsp;runnable,&nbsp;String&nbsp;threadName)</code></pre>
+     </div>
+     <p class="paragraph">Pentru implementarea interfeței, să definim următoarea clasă MyThread:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;MyThread&nbsp;implements&nbsp;Runnable&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;run(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("%s&nbsp;started...&nbsp;\n",&nbsp;Thread.currentThread().getName());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread.sleep(500);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;catch(InterruptedException&nbsp;e){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Thread&nbsp;has&nbsp;been&nbsp;interrupted");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("%s&nbsp;finished...&nbsp;\n",&nbsp;Thread.currentThread().getName());<br>&nbsp;&nbsp;&nbsp;}<br>}<br>&nbsp;<br>public&nbsp;class&nbsp;Program&nbsp;{<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Main&nbsp;thread&nbsp;started...");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread&nbsp;myThread&nbsp;=&nbsp;new&nbsp;Thread(new&nbsp;MyThread(),"MyThread");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;myThread.start();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Main&nbsp;thread&nbsp;finished...");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Implementarea interfeței Runnable este foarte asemănătoare cu suprascrierea clasei Thread. De asemenea, în metoda run se definește codul care suspendă firul pentru 500 de milisecunde.</p>
+     <p class="paragraph">În metoda main se apelează constructorul Thread, căruia i se transmite obiectul MyThread. Și pentru a porni firul, se apelează metoda start(). În final, consola va afișa ceva de genul:</p>
+     <div class="code-inline">
+      <pre><code>Main&nbsp;thread&nbsp;started...<br>Main&nbsp;thread&nbsp;finished...<br>MyThread&nbsp;started...<br>MyThread&nbsp;finished...</code></pre>
+     </div>
+     <p class="paragraph">Deoarece Runnable reprezintă de fapt o interfață funcțională, care definește o singură metodă, obiectul acestei interfețe poate fi reprezentat sub forma unei expresii lambda:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;class&nbsp;Program&nbsp;{<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Main&nbsp;thread&nbsp;started...");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Runnable&nbsp;r&nbsp;=&nbsp;()-&gt;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("%s&nbsp;started...&nbsp;\n",&nbsp;Thread.currentThread().getName());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread.sleep(500);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;catch(InterruptedException&nbsp;e){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Thread&nbsp;has&nbsp;been&nbsp;interrupted");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("%s&nbsp;finished...&nbsp;\n",&nbsp;Thread.currentThread().getName());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread&nbsp;myThread&nbsp;=&nbsp;new&nbsp;Thread(r,"MyThread");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;myThread.start();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Main&nbsp;thread&nbsp;finished...");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='20.Dynamic Language Runtime', activeLesson='1.Dynamic Language Runtime (DLR) in C-sharp'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Dynamic Language Runtime (DLR) în C#. Cuvântul cheie dynamic</h1>
+     <p class="paragraph">Deși C# este un limbaj de programare cu tipizare statică, în versiunile recente ale limbajului au fost adăugate anumite capabilități dinamice. Astfel, începând cu .NET 4.0, a fost introdusă o nouă funcționalitate denumită DLR (Dynamic Language Runtime). DLR reprezintă un mediu de execuție pentru limbajele dinamice, cum ar fi IronPython și IronRuby.</p>
+     <p class="paragraph">Pentru a înțelege importanța acestei noutăți, este esențial să conștientizăm diferența dintre limbajele cu tipizare statică și dinamică. În limbajele cu tipizare statică, identificarea tuturor tipurilor și membrilor acestora – proprietăți și metode – are loc în timpul compilării. În schimb, în limbajele dinamice, sistemul nu știe nimic despre proprietățile și metodele tipurilor până la execuție.</p>
+     <p class="paragraph">Datorită mediului DLR, C# poate crea obiecte dinamice, ale căror membri sunt identificați în timpul execuției programului, și le poate utiliza împreună cu obiectele tradiționale cu tipizare statică.</p>
+     <p class="paragraph">Un aspect cheie al utilizării DLR în C# este aplicarea tipurilor dynamic. Acest cuvânt cheie permite omisiunea verificării tipurilor în timpul compilării. În plus, obiectele declarate ca dynamic pot schimba tipul lor pe parcursul execuției programului. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>dynamic&nbsp;obj&nbsp;=&nbsp;3;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;aici&nbsp;obj&nbsp;este&nbsp;un&nbsp;int<br>Console.WriteLine(obj);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;3<br><br>obj&nbsp;=&nbsp;"Hello&nbsp;world";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obj&nbsp;devine&nbsp;un&nbsp;string<br>Console.WriteLine(obj);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Hello&nbsp;world<br><br>obj&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;37);&nbsp;//&nbsp;obj&nbsp;devine&nbsp;un&nbsp;obiect&nbsp;Person<br>Console.WriteLine(obj);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Person&nbsp;{&nbsp;Name&nbsp;=&nbsp;Tom,&nbsp;Age&nbsp;=&nbsp;37&nbsp;}<br><br>record&nbsp;class&nbsp;Person(string&nbsp;Name,&nbsp;int&nbsp;Age);</code></pre>
+     </div>
+     <p class="paragraph">Chiar dacă variabila obj își schimbă tipul de mai multe ori, acest cod va funcționa corect. Utilizarea tipurilor dynamic diferă de utilizarea cuvântului cheie var. Pentru o variabilă declarată cu var, tipul este dedus în timpul compilării și nu se mai schimbă pe parcursul execuției.</p>
+     <p class="paragraph">Există asemănări între utilizarea dynamic și tipul object. Dacă în exemplul anterior am înlocui dynamic cu object (object obj = 3;), rezultatul ar fi același. Totuși, există diferențe. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>object&nbsp;obj&nbsp;=&nbsp;24;<br>dynamic&nbsp;dyn&nbsp;=&nbsp;24;<br>obj&nbsp;+=&nbsp;4;&nbsp;//&nbsp;aceasta&nbsp;nu&nbsp;este&nbsp;permisă<br>dyn&nbsp;+=&nbsp;4;&nbsp;//&nbsp;aceasta&nbsp;este&nbsp;permisă</code></pre>
+     </div>
+     <p class="paragraph">În linia obj += 4;, apare o eroare, deoarece operația += nu poate fi aplicată la tipurile object și int. Cu o variabilă declarată ca dynamic, acest lucru va funcționa, deoarece tipul său va fi cunoscut doar în timpul execuției.</p>
+     <p class="paragraph">O altă caracteristică distinctivă a utilizării dynamic este că acest cuvânt cheie poate fi aplicat nu doar variabilelor, ci și proprietăților și metodelor. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;dynamic&nbsp;Age&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name,&nbsp;dynamic&nbsp;age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;&nbsp;Age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;//&nbsp;afișăm&nbsp;salariul&nbsp;în&nbsp;funcție&nbsp;de&nbsp;formatul&nbsp;specificat<br>&nbsp;&nbsp;&nbsp;public&nbsp;dynamic&nbsp;GetSalary(dynamic&nbsp;value,&nbsp;string&nbsp;format)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(format&nbsp;==&nbsp;"string")&nbsp;return&nbsp;$"{value}&nbsp;euro";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;if&nbsp;(format&nbsp;==&nbsp;"int")&nbsp;return&nbsp;value;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;return&nbsp;0.0;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;override&nbsp;string&nbsp;ToString()&nbsp;=&gt;&nbsp;$"Name:&nbsp;{Name}&nbsp;&nbsp;Age:&nbsp;{Age}";<br>}</code></pre>
+     </div>
+     <p class="paragraph">În clasa Person este definită o proprietate dinamică Age, astfel încât la atribuirea unei valori acestei proprietăți putem scrie fie person.Age=22, fie person.Age="twenty-two". Ambele variante sunt valabile. De asemenea, prin parametrul age din constructor, putem atribui orice valoare acestei proprietăți.</p>
+     <p class="paragraph">Există, de asemenea, o metodă GetSalary, care returnează o valoare dynamic. De exemplu, în funcție de parametru, putem returna fie o reprezentare text a sumei veniturilor, fie o valoare numerică. De asemenea, metoda acceptă un parametru dynamic. Astfel, putem transmite ca valoare a venitului fie un număr întreg, fie unul zecimal sau chiar un șir de caractere. Iată un exemplu concret:</p>
+     <div class="code-inline">
+      <pre><code>dynamic&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;22);<br>Console.WriteLine(tom);<br>Console.WriteLine(tom.GetSalary(28,&nbsp;"int"));<br><br>dynamic&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person("Bob",&nbsp;"twenty-two");<br>Console.WriteLine(bob);<br>Console.WriteLine(bob.GetSalary("twenty-eight",&nbsp;"string"));</code></pre>
+     </div>
+     <p class="paragraph">Ieșirea în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Name:&nbsp;Tom&nbsp;&nbsp;Age:&nbsp;22<br>28<br>Name:&nbsp;Bob&nbsp;&nbsp;Age:&nbsp;twenty-two<br>twenty-eight&nbsp;euro</code></pre>
+     </div>
+     <p class="paragraph">Acest exemplu arată cum tipul dynamic permite flexibilitatea tipurilor de date în timpul execuției, făcându-l util în scenarii unde tipizarea strictă ar limita funcționalitatea.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

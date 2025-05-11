@@ -1,141 +1,131 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='PHP', activeChapter='1.Introducere in PHP', activeLesson='5.Primul site pe PHP'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Primul website pe PHP</h1>
- <p class="paragraph">Acum vom crea un mic website care să ofere o înțelegere inițială a lucrului cu PHP.</p>
- <p class="paragraph">Pentru a crea programe în PHP, avem nevoie de un editor de text. Putem folosi orice editor de text. Cel mai popular în prezent este Visual Studio Code.</p>
- <p class="paragraph">Vom accesa directorul destinat stocării fișierelor site-ului web (în tema precedentă, acest scop a fost creat directorul C:\localhost). Vom crea în acest director un fișier text și îl vom numi index.html. Îl deschidem în editorul de text și adăugăm următorul cod:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;meta&nbsp;charset="utf-8"&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;h2&gt;Vă&nbsp;rugăm&nbsp;să&nbsp;introduceți&nbsp;datele:&lt;/h2&gt;<br>&lt;form&nbsp;action="display.php"&nbsp;method="POST"&gt;<br>&lt;p&gt;Introduceți&nbsp;numele:&nbsp;&lt;input&nbsp;type="text"&nbsp;name="firstname"&nbsp;/&gt;&lt;/p&gt;<br>&lt;p&gt;Introduceți&nbsp;prenumele:&nbsp;&lt;input&nbsp;type="text"&nbsp;name="lastname"&nbsp;/&gt;&lt;/p&gt;<br>&lt;input&nbsp;type="submit"&nbsp;value="Trimite"&gt;<br>&lt;/form&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">Codul HTML conține un formular cu două câmpuri de text. Când se apasă butonul, datele acestui formular sunt trimise scriptului display.php, deoarece acesta este specificat în atributul action.</p>
- <p class="paragraph">Acum vom crea acest script care va procesa datele. Adăugăm în folderul C:\localhost un nou fișier text. Îl redenumim în display.php. Implicit, fișierele programelor PHP au extensia .php.</p>
- <div class="image-container">
-  <img src="images/image1.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Adăugăm în fișierul display.php următorul cod:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>$name&nbsp;=&nbsp;$_POST["firstname"];<br>$surname&nbsp;=&nbsp;$_POST["lastname"];<br>echo&nbsp;"Numele&nbsp;dumneavoastră:&nbsp;&lt;b&gt;".$name&nbsp;.&nbsp;"&nbsp;"&nbsp;.&nbsp;$surname&nbsp;.&nbsp;"&lt;/b&gt;";<br>?&gt;</code></pre>
- </div>
- <p class="paragraph">Pentru adăugarea expresiilor PHP se folosesc tagurile &lt;?php ..... ?&gt;, între care se află instrucțiunile în limbajul PHP. În codul PHP obținem datele formularului trimis și le afișăm pe pagină.</p>
- <p class="paragraph">Fiecare expresie PHP trebuie să se încheie cu punct și virgulă. În acest caz, avem trei expresii. Două dintre ele obțin datele transmise de formular, de exemplu, $name = $_POST["firstname"];.</p>
- <p class="paragraph">$name este o variabilă care va stoca o anumită valoare. Toate variabilele în PHP sunt precedate de semnul $. Și deoarece formularul de pe pagina index.html folosește metoda POST pentru trimitere, cu ajutorul expresiei $_POST["firstname"] putem obține valoarea introdusă în câmpul de text cu atributul name="firstname". Această valoare ajunge în variabila $name.</p>
- <p class="paragraph">Cu ajutorul operatorului echo putem afișa pe pagină orice valoare sau text care urmează după operator. În acest caz, (echo "Numele dumneavoastră: &lt;b&gt;".$name . " " . $surname . "&lt;/b&gt;") cu ajutorul punctului, textul dintre ghilimele este concatenat cu valorile variabilelor $name și $surname și este afișat pe pagină.</p>
- <p class="paragraph">Acum accesăm formularul de introducere, navigând la adresa http://localhost/index.html (sau http://localhost):</p>
- <div class="image-container">
-  <img src="images/image2.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Introducem câteva date și apăsăm butonul de trimitere:</p>
- <div class="image-container">
-  <img src="images/image3.png" alt="" class="responsive-image">
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Primul website pe PHP</h1>
+     <p class="paragraph">Acum vom crea un mic website care să ofere o înțelegere inițială a lucrului cu PHP.</p>
+     <p class="paragraph">Pentru a crea programe în PHP, avem nevoie de un editor de text. Putem folosi orice editor de text. Cel mai popular în prezent este Visual Studio Code.</p>
+     <p class="paragraph">Vom accesa directorul destinat stocării fișierelor site-ului web (în tema precedentă, acest scop a fost creat directorul C:\localhost). Vom crea în acest director un fișier text și îl vom numi index.html. Îl deschidem în editorul de text și adăugăm următorul cod:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;meta&nbsp;charset="utf-8"&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;h2&gt;Vă&nbsp;rugăm&nbsp;să&nbsp;introduceți&nbsp;datele:&lt;/h2&gt;<br>&lt;form&nbsp;action="display.php"&nbsp;method="POST"&gt;<br>&lt;p&gt;Introduceți&nbsp;numele:&nbsp;&lt;input&nbsp;type="text"&nbsp;name="firstname"&nbsp;/&gt;&lt;/p&gt;<br>&lt;p&gt;Introduceți&nbsp;prenumele:&nbsp;&lt;input&nbsp;type="text"&nbsp;name="lastname"&nbsp;/&gt;&lt;/p&gt;<br>&lt;input&nbsp;type="submit"&nbsp;value="Trimite"&gt;<br>&lt;/form&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Codul HTML conține un formular cu două câmpuri de text. Când se apasă butonul, datele acestui formular sunt trimise scriptului display.php, deoarece acesta este specificat în atributul action.</p>
+     <p class="paragraph">Acum vom crea acest script care va procesa datele. Adăugăm în folderul C:\localhost un nou fișier text. Îl redenumim în display.php. Implicit, fișierele programelor PHP au extensia .php.</p>
+     <div class="image-container">
+      <img th:src="@{/images/PHP/1.Introducere%20in%20PHP/5.Primul%20site%20pe%20PHP/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Adăugăm în fișierul display.php următorul cod:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$name&nbsp;=&nbsp;$_POST["firstname"];<br>$surname&nbsp;=&nbsp;$_POST["lastname"];<br>echo&nbsp;"Numele&nbsp;dumneavoastră:&nbsp;&lt;b&gt;".$name&nbsp;.&nbsp;"&nbsp;"&nbsp;.&nbsp;$surname&nbsp;.&nbsp;"&lt;/b&gt;";<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Pentru adăugarea expresiilor PHP se folosesc tagurile &lt;?php ..... ?&gt;, între care se află instrucțiunile în limbajul PHP. În codul PHP obținem datele formularului trimis și le afișăm pe pagină.</p>
+     <p class="paragraph">Fiecare expresie PHP trebuie să se încheie cu punct și virgulă. În acest caz, avem trei expresii. Două dintre ele obțin datele transmise de formular, de exemplu, $name = $_POST["firstname"];.</p>
+     <p class="paragraph">$name este o variabilă care va stoca o anumită valoare. Toate variabilele în PHP sunt precedate de semnul $. Și deoarece formularul de pe pagina index.html folosește metoda POST pentru trimitere, cu ajutorul expresiei $_POST["firstname"] putem obține valoarea introdusă în câmpul de text cu atributul name="firstname". Această valoare ajunge în variabila $name.</p>
+     <p class="paragraph">Cu ajutorul operatorului echo putem afișa pe pagină orice valoare sau text care urmează după operator. În acest caz, (echo "Numele dumneavoastră: &lt;b&gt;".$name . " " . $surname . "&lt;/b&gt;") cu ajutorul punctului, textul dintre ghilimele este concatenat cu valorile variabilelor $name și $surname și este afișat pe pagină.</p>
+     <p class="paragraph">Acum accesăm formularul de introducere, navigând la adresa http://localhost/index.html (sau http://localhost):</p>
+     <div class="image-container">
+      <img th:src="@{/images/PHP/1.Introducere%20in%20PHP/5.Primul%20site%20pe%20PHP/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Introducem câteva date și apăsăm butonul de trimitere:</p>
+     <div class="image-container">
+      <img th:src="@{/images/PHP/1.Introducere%20in%20PHP/5.Primul%20site%20pe%20PHP/images/image3.png}" alt="" class="responsive-image">
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='2.Structura programului', activeLesson='18.Transmisia parametrilor prin valoare si prin referinta'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Transmisia parametrilor prin valoare și prin referință - Parametri de ieșire</h1>
+     <p class="paragraph">În C# există două moduri de a transmite parametrii într-o metodă: prin valoare și prin referință.</p>
+     <h2 class="subtitle">Transmisia parametrilor prin valoare</h2>
+     <p class="paragraph">Cea mai simplă metodă de a transmite parametrii este prin valoare, adică metoda obișnuită de transmisie a parametrilor:</p>
+     <div class="code-inline">
+      <pre><code>void&nbsp;Increment(int&nbsp;n)<br>{<br>&nbsp;&nbsp;&nbsp;n++;<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Numărul&nbsp;în&nbsp;metoda&nbsp;Increment:&nbsp;{n}");<br>}<br><br>int&nbsp;number&nbsp;=&nbsp;5;<br>Console.WriteLine($"Numărul&nbsp;înainte&nbsp;de&nbsp;metoda&nbsp;Increment:&nbsp;{number}");<br>Increment(number);<br>Console.WriteLine($"Numărul&nbsp;după&nbsp;metoda&nbsp;Increment:&nbsp;{number}");</code></pre>
+     </div>
+     <p class="paragraph">Ieșirea pe consolă:</p>
+     <div class="code-inline">
+      <pre><code>Numărul&nbsp;înainte&nbsp;de&nbsp;metoda&nbsp;Increment:&nbsp;5<br>Numărul&nbsp;în&nbsp;metoda&nbsp;Increment:&nbsp;6<br>Numărul&nbsp;după&nbsp;metoda&nbsp;Increment:&nbsp;5</code></pre>
+     </div>
+     <p class="paragraph">La transmisia argumentelor parametrilor prin valoare, parametrul metodei primește nu variabila propriu-zisă, ci copia acesteia și lucrează cu această copie independent de variabila originală.</p>
+     <p class="paragraph">Astfel, în exemplul de mai sus, la apelul metodei Increment, aceasta primește copia variabilei number și îi mărește valoarea acestei copii. De aceea, în metoda Increment vedem că valoarea parametrului n a crescut cu 1, dar după executarea metodei, variabila number are valoarea inițială - 5. Adică se modifică copia, iar variabila originală rămâne neschimbată.</p>
+     <h2 class="subtitle">Transmisia parametrilor prin referință și modificatorul ref</h2>
+     <p class="paragraph">La transmisia parametrilor prin referință, în fața parametrilor se folosește modificatorul ref:</p>
+     <div class="code-inline">
+      <pre><code>void&nbsp;Increment(ref&nbsp;int&nbsp;n)<br>{<br>&nbsp;&nbsp;&nbsp;n++;<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Numărul&nbsp;în&nbsp;metoda&nbsp;Increment:&nbsp;{n}");<br>}<br><br>int&nbsp;number&nbsp;=&nbsp;5;<br>Console.WriteLine($"Numărul&nbsp;înainte&nbsp;de&nbsp;metoda&nbsp;Increment:&nbsp;{number}");<br>Increment(ref&nbsp;number);<br>Console.WriteLine($"Numărul&nbsp;după&nbsp;metoda&nbsp;Increment:&nbsp;{number}");</code></pre>
+     </div>
+     <p class="paragraph">Ieșirea pe consolă:</p>
+     <div class="code-inline">
+      <pre><code>Numărul&nbsp;înainte&nbsp;de&nbsp;metoda&nbsp;Increment:&nbsp;5<br>Numărul&nbsp;în&nbsp;metoda&nbsp;Increment:&nbsp;6<br>Numărul&nbsp;după&nbsp;metoda&nbsp;Increment:&nbsp;6</code></pre>
+     </div>
+     <p class="paragraph">La transmisia valorilor parametrilor prin referință, metoda primește adresa variabilei în memorie. Astfel, dacă în metodă se modifică valoarea parametrului transmis prin referință, se modifică și valoarea variabilei transmise ca argument.</p>
+     <p class="paragraph">Astfel, în metoda Increment se transmite referința la variabila number din memorie. Dacă valoarea parametrului n din Increment se modifică, aceasta duce și la modificarea variabilei number, deoarece atât parametrul n, cât și variabila number indică aceeași adresă în memorie.</p>
+     <p class="paragraph">Observați că modificatorul ref este specificat atât înaintea parametrului la declarația metodei, cât și la apelul metodei, înaintea argumentului transmis parametrului.</p>
+     <h2 class="subtitle">Parametrii de ieșire - Modificatorul out</h2>
+     <p class="paragraph">Anterior am folosit parametri de intrare. Dar parametrii pot fi și de ieșire. Pentru a face un parametru de ieșire, în fața acestuia se pune modificatorul out:</p>
+     <div class="code-inline">
+      <pre><code>void&nbsp;Sum(int&nbsp;x,&nbsp;int&nbsp;y,&nbsp;out&nbsp;int&nbsp;result)<br>{<br>&nbsp;&nbsp;&nbsp;result&nbsp;=&nbsp;x&nbsp;+&nbsp;y;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici rezultatul se returnează nu prin operatorul return, ci prin parametrul de ieșire result. Utilizarea în program:</p>
+     <div class="code-inline">
+      <pre><code>void&nbsp;Sum(int&nbsp;x,&nbsp;int&nbsp;y,&nbsp;out&nbsp;int&nbsp;result)<br>{<br>&nbsp;&nbsp;&nbsp;result&nbsp;=&nbsp;x&nbsp;+&nbsp;y;<br>}<br><br>int&nbsp;number;<br>Sum(10,&nbsp;15,&nbsp;out&nbsp;number);<br>Console.WriteLine(number);&nbsp;&nbsp;&nbsp;//&nbsp;25</code></pre>
+     </div>
+     <p class="paragraph">La fel ca și în cazul ref, cuvântul cheie out este folosit atât la definirea metodei, cât și la apelul metodei.</p>
+     <p class="paragraph">De asemenea, observați că metodele care folosesc astfel de parametri trebuie să le atribuie o valoare. De exemplu, următorul cod va fi invalid, deoarece pentru parametrul out nu este specificată nicio valoare:</p>
+     <div class="code-inline">
+      <pre><code>void&nbsp;Sum(int&nbsp;x,&nbsp;int&nbsp;y,&nbsp;out&nbsp;int&nbsp;result)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(x&nbsp;+&nbsp;y);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Avantajul utilizării acestor parametri este că putem returna din metodă nu doar o singură valoare, ci mai multe. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>void&nbsp;GetRectangleData(int&nbsp;width,&nbsp;int&nbsp;height,&nbsp;out&nbsp;int&nbsp;rectArea,&nbsp;out&nbsp;int&nbsp;rectPerimeter)<br>{<br>&nbsp;&nbsp;&nbsp;rectArea&nbsp;=&nbsp;width&nbsp;*&nbsp;height;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;aria&nbsp;dreptunghiului&nbsp;-&nbsp;produsul&nbsp;dintre&nbsp;lățime&nbsp;și&nbsp;înălțime<br>&nbsp;&nbsp;&nbsp;rectPerimeter&nbsp;=&nbsp;(width&nbsp;+&nbsp;height)&nbsp;*&nbsp;2;&nbsp;//&nbsp;perimetrul&nbsp;dreptunghiului&nbsp;-&nbsp;suma&nbsp;lungimilor&nbsp;tuturor&nbsp;laturilor<br>}<br><br>int&nbsp;area;<br>int&nbsp;perimeter;<br><br>GetRectangleData(10,&nbsp;20,&nbsp;out&nbsp;area,&nbsp;out&nbsp;perimeter);<br><br>Console.WriteLine($"Aria&nbsp;dreptunghiului:&nbsp;{area}");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;200<br>Console.WriteLine($"Perimetrul&nbsp;dreptunghiului:&nbsp;{perimeter}");&nbsp;&nbsp;&nbsp;//&nbsp;60</code></pre>
+     </div>
+     <p class="paragraph">Aici avem o metodă GetRectangleData, care primește lățimea și înălțimea dreptunghiului (parametrii width și height). Folosim doi parametri de ieșire pentru a calcula aria și perimetrul dreptunghiului.</p>
+     <p class="paragraph">Putem, de asemenea, defini variabilele care sunt transmise parametrilor out direct la apelul metodei. Astfel, putem simplifica exemplul anterior:</p>
+     <div class="code-inline">
+      <pre><code>void&nbsp;GetRectangleData(int&nbsp;width,&nbsp;int&nbsp;height,&nbsp;out&nbsp;int&nbsp;rectArea,&nbsp;out&nbsp;int&nbsp;rectPerimeter)<br>{<br>&nbsp;&nbsp;&nbsp;rectArea&nbsp;=&nbsp;width&nbsp;*&nbsp;height;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;rectPerimeter&nbsp;=&nbsp;(width&nbsp;+&nbsp;height)&nbsp;*&nbsp;2;<br>}<br><br>GetRectangleData(10,&nbsp;20,&nbsp;out&nbsp;int&nbsp;area,&nbsp;out&nbsp;int&nbsp;perimeter);<br><br>Console.WriteLine($"Aria&nbsp;dreptunghiului:&nbsp;{area}");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;200<br>Console.WriteLine($"Perimetrul&nbsp;dreptunghiului:&nbsp;{perimeter}");&nbsp;&nbsp;&nbsp;//&nbsp;60</code></pre>
+     </div>
+     <p class="paragraph">Dacă nu cunoaștem tipul valorilor care vor fi atribuite parametrilor, putem folosi operatorul var pentru a le defini:</p>
+     <div class="code-inline">
+      <pre><code>GetRectangleData(10,&nbsp;20,&nbsp;out&nbsp;var&nbsp;area,&nbsp;out&nbsp;var&nbsp;perimeter);<br><br>Console.WriteLine($"Aria&nbsp;dreptunghiului:&nbsp;{area}");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;200<br>Console.WriteLine($"Perimetrul&nbsp;dreptunghiului:&nbsp;{perimeter}");&nbsp;&nbsp;&nbsp;//&nbsp;60</code></pre>
+     </div>
+     <h2 class="subtitle">Parametrii de intrare - Modificatorul in</h2>
+     <p class="paragraph">Pe lângă parametrii de ieșire cu modificatorul out, o metodă poate folosi și parametri de intrare cu modificatorul in. Modificatorul in indică faptul că acest parametru va fi transmis în metodă prin referință, însă în interiorul metodei valoarea parametrului nu poate fi modificată. De exemplu, să luăm următoarea metodă:</p>
+     <div class="code-inline">
+      <pre><code>void&nbsp;GetRectangleData(in&nbsp;int&nbsp;width,&nbsp;in&nbsp;int&nbsp;height,&nbsp;out&nbsp;int&nbsp;rectArea,&nbsp;out&nbsp;int&nbsp;rectPerimeter)<br>{<br>&nbsp;&nbsp;&nbsp;//width&nbsp;=&nbsp;25;&nbsp;//&nbsp;nu&nbsp;se&nbsp;poate&nbsp;modifica,&nbsp;deoarece&nbsp;width&nbsp;este&nbsp;un&nbsp;parametru&nbsp;de&nbsp;intrare<br>&nbsp;&nbsp;&nbsp;rectArea&nbsp;=&nbsp;width&nbsp;*&nbsp;height;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;rectPerimeter&nbsp;=&nbsp;(width&nbsp;+&nbsp;height)&nbsp;*&nbsp;2;<br>}<br><br>int&nbsp;w&nbsp;=&nbsp;10;<br>int&nbsp;h&nbsp;=&nbsp;20;<br>GetRectangleData(w,&nbsp;h,&nbsp;out&nbsp;var&nbsp;area,&nbsp;out&nbsp;var&nbsp;perimeter);<br><br>Console.WriteLine($"Aria&nbsp;dreptunghiului:&nbsp;{area}");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;200<br>Console.WriteLine($"Perimetrul&nbsp;dreptunghiului:&nbsp;{perimeter}");&nbsp;&nbsp;&nbsp;//&nbsp;60</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, prin parametrii de intrare width și height sunt transmise valorile în metodă, dar în interiorul metodei nu putem modifica valorile acestor parametri, deoarece sunt definiți cu modificatorul in.</p>
+     <p class="paragraph">Transmisia prin referință poate crește performanța în anumite cazuri, iar utilizarea operatorului in garantează că valorile variabilelor transmise parametrilor nu pot fi modificate în această metodă.</p>
+     <h2 class="subtitle">Parametri ref doar pentru citire</h2>
+     <p class="paragraph">În exemplele de mai sus, valorile parametrilor ref puteau fi modificate. Totuși, uneori acest lucru poate fi nedorit. Pentru a garanta că un parametru ref nu-și va schimba valoarea, începând cu versiunea C# 12, se pot folosi parametri ref doar pentru citire. Acești parametri sunt precedați de cuvântul cheie readonly:</p>
+     <div class="code-inline">
+      <pre><code>void&nbsp;Increment(ref&nbsp;readonly&nbsp;int&nbsp;n)<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;n++;&nbsp;//&nbsp;nu&nbsp;se&nbsp;poate,&nbsp;altfel&nbsp;va&nbsp;fi&nbsp;o&nbsp;eroare&nbsp;de&nbsp;compilare<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Numărul&nbsp;în&nbsp;metoda&nbsp;Increment:&nbsp;{n}");<br>}<br>&nbsp;<br>int&nbsp;number&nbsp;=&nbsp;5;<br>Increment(ref&nbsp;number);<br>Console.WriteLine($"Numărul&nbsp;după&nbsp;metoda&nbsp;Increment:&nbsp;{number}");</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, în metoda Increment parametrul n este transmis prin referință și este disponibil doar pentru citire. Încercarea de a modifica valoarea sa va genera o eroare la compilare.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

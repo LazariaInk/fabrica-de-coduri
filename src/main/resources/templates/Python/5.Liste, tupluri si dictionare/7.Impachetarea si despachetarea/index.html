@@ -1,199 +1,189 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Python', activeChapter='5.Liste, tupluri si dictionare', activeLesson='7.Impachetarea si despachetarea'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Împachetarea și despachetarea</h1>
- <h2 class="subtitle">Despachetarea</h2>
- <p class="paragraph">Despachetarea (unpacking, cunoscută și ca Destructurare) reprezintă distribuirea unei colecții (tuplu, listă etc.) în valori separate.</p>
- <p class="paragraph">La fel ca multe alte limbaje de programare, Python suportă conceptul de atribuire multiplă. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>x,&nbsp;y&nbsp;=&nbsp;1,&nbsp;2<br>print(x)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;1<br>print(y)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;2</code></pre>
- </div>
- <p class="paragraph">În acest caz atribuim valori simultan la două variabile. Atribuirea se face pe poziție: variabila x primește valoarea 1, iar variabila y - valoarea 2.</p>
- <p class="paragraph">Acest exemplu reprezintă deja o destructurare sau despachetare. Valorile 1, 2 sunt de fapt un tuplu, deoarece virgulele dintre valori indică faptul că este un tuplu. Am putea scrie și astfel:</p>
- <div class="code-inline">
-  <pre><code>x,&nbsp;y&nbsp;=&nbsp;(1,&nbsp;2)<br>print(x)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;1<br>print(y)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;2</code></pre>
- </div>
- <p class="paragraph">În orice caz, avem de-a face cu destructurare, unde primul element al tuplului este atribuit primei variabile, al doilea element - celei de-a doua variabile și așa mai departe. Adică distribuirea se face pe poziție.</p>
- <p class="paragraph">În mod similar, putem distribui și alte tupluri, de exemplu:</p>
- <div class="code-inline">
-  <pre><code>name,&nbsp;age,&nbsp;company&nbsp;=&nbsp;("Tom",&nbsp;38,&nbsp;"Google")<br>print(name)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Tom<br>print(age)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;38<br>print(company)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Google</code></pre>
- </div>
- <p class="paragraph">Nu ne limităm doar la tupluri și putem "despacheta" și alte colecții, cum ar fi liste:</p>
- <div class="code-inline">
-  <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Sam"]<br>first,&nbsp;second,&nbsp;third&nbsp;=&nbsp;people<br>print(first)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Tom<br>print(second)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Bob<br>print(third)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Sam</code></pre>
- </div>
- <p class="paragraph">La despachetarea unui dicționar, variabilele primesc cheile dicționarului:</p>
- <div class="code-inline">
-  <pre><code>dictionary&nbsp;=&nbsp;{"red":&nbsp;"roșu",&nbsp;"blue":&nbsp;"albastru",&nbsp;"green":&nbsp;"verde"}<br>r,&nbsp;b,&nbsp;g&nbsp;=&nbsp;dictionary<br>print(r)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;red<br>print(b)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;blue<br>print(g)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;green<br>#&nbsp;obținem&nbsp;valoarea&nbsp;după&nbsp;cheie<br>print(dictionary[g])&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;verde</code></pre>
- </div>
- <h2 class="subtitle">Destructurare în cicluri</h2>
- <p class="paragraph">Ciclurile în Python permit distribuirea colecțiilor în componente separate:</p>
- <div class="code-inline">
-  <pre><code>people&nbsp;=&nbsp;[<br>&nbsp;&nbsp;&nbsp;("Tom",&nbsp;38,&nbsp;"Google"),<br>&nbsp;&nbsp;&nbsp;("Bob",&nbsp;42,&nbsp;"Microsoft"),<br>&nbsp;&nbsp;&nbsp;("Sam",&nbsp;29,&nbsp;"JetBrains")<br>]<br><br>for&nbsp;name,&nbsp;age,&nbsp;company&nbsp;in&nbsp;people:<br>&nbsp;&nbsp;&nbsp;print(f"Name:&nbsp;{name},&nbsp;Age:&nbsp;{age},&nbsp;Company:&nbsp;{company}")</code></pre>
- </div>
- <p class="paragraph">Aici parcurgem lista de tupluri people. Fiecare tuplu constă din trei elemente, astfel încât la parcurgere putem să le atribuim variabilelor name, age și company.</p>
- <p class="paragraph">Un alt exemplu este funcția enumerate(). Aceasta primește ca parametru o colecție, creează pentru fiecare element un tuplu și returnează un set de astfel de tupluri. Fiecare tuplu conține un index, care crește cu fiecare iterație:</p>
- <div class="code-inline">
-  <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Sam"]<br>for&nbsp;index,&nbsp;name&nbsp;in&nbsp;enumerate(people):<br>&nbsp;&nbsp;&nbsp;print(f"{index}.{name}")<br><br>#&nbsp;rezultat<br>#&nbsp;0.Tom<br>#&nbsp;1.Bob<br>#&nbsp;2.Sam</code></pre>
- </div>
- <h2 class="subtitle">Ignorarea valorilor</h2>
- <p class="paragraph">Dacă un anumit element al colecției nu este necesar, de obicei pentru el se definește o variabilă cu numele _ (linie):</p>
- <div class="code-inline">
-  <pre><code>person&nbsp;=("Tom",&nbsp;38,&nbsp;"Google")<br>name,&nbsp;_,&nbsp;company&nbsp;=&nbsp;person<br>print(name)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Tom<br>print(company)&nbsp;&nbsp;#&nbsp;Google</code></pre>
- </div>
- <p class="paragraph">Aici nu ne interesează al doilea element al tuplului, așa că pentru el definim variabila _. Deși, în realitate, _ este un nume valabil, la fel ca name și company:</p>
- <div class="code-inline">
-  <pre><code>name,&nbsp;_,&nbsp;company&nbsp;=&nbsp;person<br>print(_)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;38</code></pre>
- </div>
- <h2 class="subtitle">Împachetarea valorilor și operatorul *</h2>
- <p class="paragraph">Operatorul * împachetează valorile într-o colecție. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>num1=1<br>num2=2<br>num3=3<br>*numbers,=num1,num2,num3<br>print(numbers)&nbsp;&nbsp;#[1,&nbsp;2,&nbsp;3]</code></pre>
- </div>
- <p class="paragraph">Aici împachetăm valorile din tuplu (num1,num2,num3) într-o listă numbers. Pentru a obține o listă, după numbers se indică o virgulă.</p>
- <p class="paragraph">În general, împachetarea este utilizată pentru a colecta valorile rămase după atribuirea rezultatelor destructurării. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>head,&nbsp;*tail&nbsp;=&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]<br><br>print(head)&nbsp;&nbsp;#&nbsp;1<br>print(tail)&nbsp;&nbsp;#&nbsp;[2,&nbsp;3,&nbsp;4,&nbsp;5]</code></pre>
- </div>
- <p class="paragraph">Aici variabila head primește primul element al listei, conform poziției. Toate celelalte elemente sunt atribuite variabilei tail. Astfel, variabila tail va reprezenta o listă cu elementele rămase.</p>
- <p class="paragraph">În mod similar, putem obține toate elementele, cu excepția ultimului:</p>
- <div class="code-inline">
-  <pre><code>*head,&nbsp;tail&nbsp;=&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]<br><br>print(head)&nbsp;&nbsp;#&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4]<br>print(tail)&nbsp;&nbsp;#&nbsp;5</code></pre>
- </div>
- <p class="paragraph">Sau elementele din mijloc, cu excepția primului și ultimului:</p>
- <div class="code-inline">
-  <pre><code>head,&nbsp;*middle,&nbsp;tail&nbsp;=&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]<br><br>print(head)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;1<br>print(middle)&nbsp;&nbsp;#&nbsp;[2,&nbsp;3,&nbsp;4]<br>print(tail)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;5</code></pre>
- </div>
- <p class="paragraph">Sau toate, cu excepția primului și al doilea:</p>
- <div class="code-inline">
-  <pre><code>first,&nbsp;second,&nbsp;*other&nbsp;=&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]<br><br>print(first)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;1<br>print(second)&nbsp;&nbsp;&nbsp;#&nbsp;2<br>print(other)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;[3,&nbsp;4,&nbsp;5]</code></pre>
- </div>
- <p class="paragraph">În general, în acest mod putem obține diverse combinații de elemente ale colecției. Și nu doar liste, ci și tupluri, dicționare și alte colecții.</p>
- <p class="paragraph">Un alt exemplu - trebuie să obținem doar primul, al treilea și ultimul element, iar celelalte nu ne interesează. În mod obișnuit, ar trebui să definim variabile pentru toate elementele colecției. Totuși, dacă colecția are 100 de elemente și ne trebuie doar trei, nu vom defini toate cele 100 de variabile. În acest caz, putem aplica împachetarea:</p>
- <div class="code-inline">
-  <pre><code>first,&nbsp;_,&nbsp;third,&nbsp;*_,&nbsp;last&nbsp;=&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5,&nbsp;6,&nbsp;7,&nbsp;8]<br><br>print(first)&nbsp;&nbsp;&nbsp;#&nbsp;1<br>print(third)&nbsp;&nbsp;&nbsp;#&nbsp;3<br>print(last)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;8</code></pre>
- </div>
- <p class="paragraph">Putem, de asemenea, să obținem cheile unui dicționar:</p>
- <div class="code-inline">
-  <pre><code>red,&nbsp;*other,&nbsp;green&nbsp;=&nbsp;{"red":"roșu",&nbsp;"blue":"albastru",&nbsp;"yellow":"galben",&nbsp;"green":"verde"}<br><br>print(red)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;red<br>print(green)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;green<br>print(other)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;['blue',&nbsp;'yellow']</code></pre>
- </div>
- <h2 class="subtitle">Despachetarea și operatorii * și **</h2>
- <p class="paragraph">Operatorul * împreună cu operatorul ** poate fi utilizat și pentru despachetarea valorilor. Operatorul * este utilizat pentru despachetarea tuplurilor, listelor, șirurilor de caractere, mulțimilor, iar operatorul ** - pentru despachetarea dicționarelor. Acest lucru poate fi deosebit de util când se creează alte colecții pe baza unora existente. De exemplu, despachetarea tuplurilor și listelor:</p>
- <div class="code-inline">
-  <pre><code>nums1&nbsp;=&nbsp;[1,&nbsp;2,&nbsp;3]<br>nums2&nbsp;=&nbsp;(4,&nbsp;5,&nbsp;6)<br><br>#&nbsp;despachetăm&nbsp;lista&nbsp;nums1&nbsp;și&nbsp;tuplul&nbsp;nums2<br>nums3&nbsp;=&nbsp;[*nums1,&nbsp;*nums2]<br>print(nums3)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5,&nbsp;6]</code></pre>
- </div>
- <p class="paragraph">Aici despachetăm valorile din lista nums1 și tuplul nums2 și le plasăm în lista nums3.</p>
- <p class="paragraph">În mod similar, se pot despacheta dicționarele, doar că se folosește operatorul **:</p>
- <div class="code-inline">
-  <pre><code>dictionary1&nbsp;=&nbsp;{"red":"roșu",&nbsp;"blue":"albastru"}<br>dictionary2&nbsp;=&nbsp;{"green":"verde",&nbsp;"yellow":"galben"}<br><br>#&nbsp;despachetăm&nbsp;dicționarele<br>dictionary3&nbsp;=&nbsp;{**dictionary1,&nbsp;**dictionary2}<br>print(dictionary3)&nbsp;&nbsp;#&nbsp;{'red':&nbsp;'roșu',&nbsp;'blue':&nbsp;'albastru',&nbsp;'green':&nbsp;'verde',&nbsp;'yellow':&nbsp;'galben'}</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Împachetarea și despachetarea</h1>
+     <h2 class="subtitle">Despachetarea</h2>
+     <p class="paragraph">Despachetarea (unpacking, cunoscută și ca Destructurare) reprezintă distribuirea unei colecții (tuplu, listă etc.) în valori separate.</p>
+     <p class="paragraph">La fel ca multe alte limbaje de programare, Python suportă conceptul de atribuire multiplă. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>x,&nbsp;y&nbsp;=&nbsp;1,&nbsp;2<br>print(x)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;1<br>print(y)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;2</code></pre>
+     </div>
+     <p class="paragraph">În acest caz atribuim valori simultan la două variabile. Atribuirea se face pe poziție: variabila x primește valoarea 1, iar variabila y - valoarea 2.</p>
+     <p class="paragraph">Acest exemplu reprezintă deja o destructurare sau despachetare. Valorile 1, 2 sunt de fapt un tuplu, deoarece virgulele dintre valori indică faptul că este un tuplu. Am putea scrie și astfel:</p>
+     <div class="code-inline">
+      <pre><code>x,&nbsp;y&nbsp;=&nbsp;(1,&nbsp;2)<br>print(x)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;1<br>print(y)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;2</code></pre>
+     </div>
+     <p class="paragraph">În orice caz, avem de-a face cu destructurare, unde primul element al tuplului este atribuit primei variabile, al doilea element - celei de-a doua variabile și așa mai departe. Adică distribuirea se face pe poziție.</p>
+     <p class="paragraph">În mod similar, putem distribui și alte tupluri, de exemplu:</p>
+     <div class="code-inline">
+      <pre><code>name,&nbsp;age,&nbsp;company&nbsp;=&nbsp;("Tom",&nbsp;38,&nbsp;"Google")<br>print(name)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Tom<br>print(age)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;38<br>print(company)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Google</code></pre>
+     </div>
+     <p class="paragraph">Nu ne limităm doar la tupluri și putem "despacheta" și alte colecții, cum ar fi liste:</p>
+     <div class="code-inline">
+      <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Sam"]<br>first,&nbsp;second,&nbsp;third&nbsp;=&nbsp;people<br>print(first)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Tom<br>print(second)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Bob<br>print(third)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Sam</code></pre>
+     </div>
+     <p class="paragraph">La despachetarea unui dicționar, variabilele primesc cheile dicționarului:</p>
+     <div class="code-inline">
+      <pre><code>dictionary&nbsp;=&nbsp;{"red":&nbsp;"roșu",&nbsp;"blue":&nbsp;"albastru",&nbsp;"green":&nbsp;"verde"}<br>r,&nbsp;b,&nbsp;g&nbsp;=&nbsp;dictionary<br>print(r)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;red<br>print(b)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;blue<br>print(g)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;green<br>#&nbsp;obținem&nbsp;valoarea&nbsp;după&nbsp;cheie<br>print(dictionary[g])&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;verde</code></pre>
+     </div>
+     <h2 class="subtitle">Destructurare în cicluri</h2>
+     <p class="paragraph">Ciclurile în Python permit distribuirea colecțiilor în componente separate:</p>
+     <div class="code-inline">
+      <pre><code>people&nbsp;=&nbsp;[<br>&nbsp;&nbsp;&nbsp;("Tom",&nbsp;38,&nbsp;"Google"),<br>&nbsp;&nbsp;&nbsp;("Bob",&nbsp;42,&nbsp;"Microsoft"),<br>&nbsp;&nbsp;&nbsp;("Sam",&nbsp;29,&nbsp;"JetBrains")<br>]<br><br>for&nbsp;name,&nbsp;age,&nbsp;company&nbsp;in&nbsp;people:<br>&nbsp;&nbsp;&nbsp;print(f"Name:&nbsp;{name},&nbsp;Age:&nbsp;{age},&nbsp;Company:&nbsp;{company}")</code></pre>
+     </div>
+     <p class="paragraph">Aici parcurgem lista de tupluri people. Fiecare tuplu constă din trei elemente, astfel încât la parcurgere putem să le atribuim variabilelor name, age și company.</p>
+     <p class="paragraph">Un alt exemplu este funcția enumerate(). Aceasta primește ca parametru o colecție, creează pentru fiecare element un tuplu și returnează un set de astfel de tupluri. Fiecare tuplu conține un index, care crește cu fiecare iterație:</p>
+     <div class="code-inline">
+      <pre><code>people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Sam"]<br>for&nbsp;index,&nbsp;name&nbsp;in&nbsp;enumerate(people):<br>&nbsp;&nbsp;&nbsp;print(f"{index}.{name}")<br><br>#&nbsp;rezultat<br>#&nbsp;0.Tom<br>#&nbsp;1.Bob<br>#&nbsp;2.Sam</code></pre>
+     </div>
+     <h2 class="subtitle">Ignorarea valorilor</h2>
+     <p class="paragraph">Dacă un anumit element al colecției nu este necesar, de obicei pentru el se definește o variabilă cu numele _ (linie):</p>
+     <div class="code-inline">
+      <pre><code>person&nbsp;=("Tom",&nbsp;38,&nbsp;"Google")<br>name,&nbsp;_,&nbsp;company&nbsp;=&nbsp;person<br>print(name)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Tom<br>print(company)&nbsp;&nbsp;#&nbsp;Google</code></pre>
+     </div>
+     <p class="paragraph">Aici nu ne interesează al doilea element al tuplului, așa că pentru el definim variabila _. Deși, în realitate, _ este un nume valabil, la fel ca name și company:</p>
+     <div class="code-inline">
+      <pre><code>name,&nbsp;_,&nbsp;company&nbsp;=&nbsp;person<br>print(_)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;38</code></pre>
+     </div>
+     <h2 class="subtitle">Împachetarea valorilor și operatorul *</h2>
+     <p class="paragraph">Operatorul * împachetează valorile într-o colecție. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>num1=1<br>num2=2<br>num3=3<br>*numbers,=num1,num2,num3<br>print(numbers)&nbsp;&nbsp;#[1,&nbsp;2,&nbsp;3]</code></pre>
+     </div>
+     <p class="paragraph">Aici împachetăm valorile din tuplu (num1,num2,num3) într-o listă numbers. Pentru a obține o listă, după numbers se indică o virgulă.</p>
+     <p class="paragraph">În general, împachetarea este utilizată pentru a colecta valorile rămase după atribuirea rezultatelor destructurării. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>head,&nbsp;*tail&nbsp;=&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]<br><br>print(head)&nbsp;&nbsp;#&nbsp;1<br>print(tail)&nbsp;&nbsp;#&nbsp;[2,&nbsp;3,&nbsp;4,&nbsp;5]</code></pre>
+     </div>
+     <p class="paragraph">Aici variabila head primește primul element al listei, conform poziției. Toate celelalte elemente sunt atribuite variabilei tail. Astfel, variabila tail va reprezenta o listă cu elementele rămase.</p>
+     <p class="paragraph">În mod similar, putem obține toate elementele, cu excepția ultimului:</p>
+     <div class="code-inline">
+      <pre><code>*head,&nbsp;tail&nbsp;=&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]<br><br>print(head)&nbsp;&nbsp;#&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4]<br>print(tail)&nbsp;&nbsp;#&nbsp;5</code></pre>
+     </div>
+     <p class="paragraph">Sau elementele din mijloc, cu excepția primului și ultimului:</p>
+     <div class="code-inline">
+      <pre><code>head,&nbsp;*middle,&nbsp;tail&nbsp;=&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]<br><br>print(head)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;1<br>print(middle)&nbsp;&nbsp;#&nbsp;[2,&nbsp;3,&nbsp;4]<br>print(tail)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;5</code></pre>
+     </div>
+     <p class="paragraph">Sau toate, cu excepția primului și al doilea:</p>
+     <div class="code-inline">
+      <pre><code>first,&nbsp;second,&nbsp;*other&nbsp;=&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5]<br><br>print(first)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;1<br>print(second)&nbsp;&nbsp;&nbsp;#&nbsp;2<br>print(other)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;[3,&nbsp;4,&nbsp;5]</code></pre>
+     </div>
+     <p class="paragraph">În general, în acest mod putem obține diverse combinații de elemente ale colecției. Și nu doar liste, ci și tupluri, dicționare și alte colecții.</p>
+     <p class="paragraph">Un alt exemplu - trebuie să obținem doar primul, al treilea și ultimul element, iar celelalte nu ne interesează. În mod obișnuit, ar trebui să definim variabile pentru toate elementele colecției. Totuși, dacă colecția are 100 de elemente și ne trebuie doar trei, nu vom defini toate cele 100 de variabile. În acest caz, putem aplica împachetarea:</p>
+     <div class="code-inline">
+      <pre><code>first,&nbsp;_,&nbsp;third,&nbsp;*_,&nbsp;last&nbsp;=&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5,&nbsp;6,&nbsp;7,&nbsp;8]<br><br>print(first)&nbsp;&nbsp;&nbsp;#&nbsp;1<br>print(third)&nbsp;&nbsp;&nbsp;#&nbsp;3<br>print(last)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;8</code></pre>
+     </div>
+     <p class="paragraph">Putem, de asemenea, să obținem cheile unui dicționar:</p>
+     <div class="code-inline">
+      <pre><code>red,&nbsp;*other,&nbsp;green&nbsp;=&nbsp;{"red":"roșu",&nbsp;"blue":"albastru",&nbsp;"yellow":"galben",&nbsp;"green":"verde"}<br><br>print(red)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;red<br>print(green)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;green<br>print(other)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;['blue',&nbsp;'yellow']</code></pre>
+     </div>
+     <h2 class="subtitle">Despachetarea și operatorii * și **</h2>
+     <p class="paragraph">Operatorul * împreună cu operatorul ** poate fi utilizat și pentru despachetarea valorilor. Operatorul * este utilizat pentru despachetarea tuplurilor, listelor, șirurilor de caractere, mulțimilor, iar operatorul ** - pentru despachetarea dicționarelor. Acest lucru poate fi deosebit de util când se creează alte colecții pe baza unora existente. De exemplu, despachetarea tuplurilor și listelor:</p>
+     <div class="code-inline">
+      <pre><code>nums1&nbsp;=&nbsp;[1,&nbsp;2,&nbsp;3]<br>nums2&nbsp;=&nbsp;(4,&nbsp;5,&nbsp;6)<br><br>#&nbsp;despachetăm&nbsp;lista&nbsp;nums1&nbsp;și&nbsp;tuplul&nbsp;nums2<br>nums3&nbsp;=&nbsp;[*nums1,&nbsp;*nums2]<br>print(nums3)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5,&nbsp;6]</code></pre>
+     </div>
+     <p class="paragraph">Aici despachetăm valorile din lista nums1 și tuplul nums2 și le plasăm în lista nums3.</p>
+     <p class="paragraph">În mod similar, se pot despacheta dicționarele, doar că se folosește operatorul **:</p>
+     <div class="code-inline">
+      <pre><code>dictionary1&nbsp;=&nbsp;{"red":"roșu",&nbsp;"blue":"albastru"}<br>dictionary2&nbsp;=&nbsp;{"green":"verde",&nbsp;"yellow":"galben"}<br><br>#&nbsp;despachetăm&nbsp;dicționarele<br>dictionary3&nbsp;=&nbsp;{**dictionary1,&nbsp;**dictionary2}<br>print(dictionary3)&nbsp;&nbsp;#&nbsp;{'red':&nbsp;'roșu',&nbsp;'blue':&nbsp;'albastru',&nbsp;'green':&nbsp;'verde',&nbsp;'yellow':&nbsp;'galben'}</code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

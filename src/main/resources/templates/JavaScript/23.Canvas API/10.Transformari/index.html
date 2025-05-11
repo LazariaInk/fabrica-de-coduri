@@ -1,200 +1,190 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='23.Canvas API', activeLesson='10.Transformari'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Transformări</h1>
- <p class="paragraph">Elementul canvas suportă transformări ale figurilor, incluzând deplasarea, rotația și scalarea.</p>
- <h2 class="subtitle">Deplasarea</h2>
- <p class="paragraph">Deplasarea se realizează utilizând metoda translate():</p>
- <div class="code-inline">
-  <pre><code>translate(x,&nbsp;y)</code></pre>
- </div>
- <p class="paragraph">Primul parametru indică deplasarea pe axa X, iar al doilea parametru - deplasarea pe axa Y.</p>
- <p class="paragraph">Exemplu de utilizare pentru deplasare:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;canvas&nbsp;id="canvas"&nbsp;width="400"&nbsp;height="250"&gt;&lt;/canvas&gt;<br>&lt;script&gt;<br>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>context.fillStyle&nbsp;=&nbsp;"blue";<br>context.fillRect(50,&nbsp;50,&nbsp;100,&nbsp;100);<br><br>context.globalAlpha&nbsp;=&nbsp;0.5;&nbsp;//&nbsp;setăm&nbsp;transparența&nbsp;pentru&nbsp;suprapunere<br>context.fillStyle&nbsp;=&nbsp;"red";<br>context.translate(50,&nbsp;25);&nbsp;//&nbsp;deplasăm&nbsp;la&nbsp;50&nbsp;pixeli&nbsp;la&nbsp;dreapta&nbsp;și&nbsp;25&nbsp;pixeli&nbsp;în&nbsp;jos<br>context.fillRect(50,&nbsp;50,&nbsp;100,&nbsp;100);<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">Aici, pe aceeași poziție sunt desenate două dreptunghiuri egale: unul albastru și altul roșu. Totuși, dreptunghiului roșu i se aplică o transformare de deplasare:</p>
- <div class="image-container">
-  <img src="images/image1.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Rotația</h2>
- <p class="paragraph">Rotația figurilor pe canvas se efectuează folosind metoda rotate():</p>
- <div class="code-inline">
-  <pre><code>rotate(angle)</code></pre>
- </div>
- <p class="paragraph">Unghiul de rotație este specificat în radiani, relativ la punctul cu coordonatele (0, 0).</p>
- <p class="paragraph">Exemplu de utilizare pentru rotație:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>context.fillStyle&nbsp;=&nbsp;"blue";<br>context.fillRect(50,&nbsp;20,&nbsp;100,&nbsp;100);<br><br>context.globalAlpha&nbsp;=&nbsp;0.5;<br>context.fillStyle&nbsp;=&nbsp;"red";<br>context.rotate(.52);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;rotim&nbsp;cu&nbsp;0.52&nbsp;radiani&nbsp;sau&nbsp;aproximativ&nbsp;30&nbsp;de&nbsp;grade<br>context.fillRect(50,&nbsp;20,&nbsp;100,&nbsp;100);</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image2.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Scalarea</h2>
- <p class="paragraph">Scalarea se realizează folosind metoda scale():</p>
- <div class="code-inline">
-  <pre><code>scale(xScale,&nbsp;yScale)</code></pre>
- </div>
- <p class="paragraph">Parametrul xScale indică scalarea pe axa X, iar yScale - scalarea pe axa Y.</p>
- <p class="paragraph">Exemplu de utilizare pentru scalare:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>context.fillStyle&nbsp;=&nbsp;"blue";<br>context.fillRect(0,&nbsp;0,&nbsp;100,&nbsp;100);<br><br>context.globalAlpha&nbsp;=&nbsp;0.5;<br>context.fillStyle&nbsp;=&nbsp;"red";<br>context.scale(1.5,&nbsp;1.5);&nbsp;//&nbsp;mărim&nbsp;pe&nbsp;lățime&nbsp;de&nbsp;1.5&nbsp;ori&nbsp;și&nbsp;pe&nbsp;înălțime&nbsp;de&nbsp;1.5&nbsp;ori<br>context.fillRect(0,&nbsp;0,&nbsp;100,&nbsp;100);</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image3.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Matricea de transformare</h2>
- <p class="paragraph">Cand este necesar, putem aplica mai multe transformari in succesiune:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>context.fillStyle&nbsp;=&nbsp;"blue";<br>context.fillRect(0,&nbsp;0,&nbsp;100,&nbsp;100);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>context.globalAlpha&nbsp;=&nbsp;0.5;<br>context.fillStyle&nbsp;=&nbsp;"red";<br>context.scale(1.5,&nbsp;1.5);<br>context.translate(100,&nbsp;10);<br>context.rotate(0.34);<br>context.fillRect(0,&nbsp;0,&nbsp;100,&nbsp;100);</code></pre>
- </div>
- <p class="paragraph">Contextul elementului canvas ofera de asemenea metoda transform(), care permite setarea unei matrice de transformare:</p>
- <div class="code-inline">
-  <pre><code>transform(a,&nbsp;b,&nbsp;c,&nbsp;d,&nbsp;e,&nbsp;f)</code></pre>
- </div>
- <p class="paragraph">Toti parametrii acestei metode reprezinta secvential elementele matricei de transformare, unde:</p>
- <ul class="enumeration">
-  <li>a este scalarea pe axa X</li>
-  <li>b este rotatia in jurul axei X</li>
-  <li>c este rotatia in jurul axei Y</li>
-  <li>d este scalarea pe axa Y</li>
-  <li>e este deplasarea orizontala</li>
-  <li>f este deplasarea verticala</li>
- </ul>
- <p class="paragraph">Exemplu de utilizare:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>context.fillStyle&nbsp;=&nbsp;"blue";<br>context.fillRect(100,&nbsp;30,&nbsp;100,&nbsp;100);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>context.globalAlpha&nbsp;=&nbsp;0.5;<br>context.fillStyle&nbsp;=&nbsp;"red";<br>//&nbsp;aplicam&nbsp;transformarile<br>context.transform(&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Math.cos(Math.PI/6),&nbsp;Math.sin(Math.PI/6),&nbsp;-1&nbsp;*&nbsp;Math.sin(Math.PI/6),<br>&nbsp;&nbsp;&nbsp;Math.cos(Math.PI/6),&nbsp;0,&nbsp;0);<br>context.fillRect(100,&nbsp;30,&nbsp;100,&nbsp;100);</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image4.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Înlocuirea transformării</h2>
- <p class="paragraph">Când se aplică diferite transformări în mod secvențial, acestea sunt aplicate pur și simplu în ordine figurilor. Totuși, poate apărea o situație în care este necesar să aplicăm o transformare nu împreună cu altele, ci în locul altora, adică să înlocuim transformarea. Pentru aceasta se utilizează metoda setTransform():</p>
- <div class="code-inline">
-  <pre><code>setTransform(a,&nbsp;b,&nbsp;c,&nbsp;d,&nbsp;e,&nbsp;f)</code></pre>
- </div>
- <p class="paragraph">Parametrii săi reprezintă matricea de transformare, iar utilizarea sa este similară cu cea a metodei transform(). De exemplu:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>let&nbsp;k&nbsp;=&nbsp;0;<br>for&nbsp;(let&nbsp;x&nbsp;=&nbsp;0;&nbsp;x&nbsp;&lt;&nbsp;30;&nbsp;x++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;k&nbsp;=&nbsp;Math.floor(255&nbsp;/&nbsp;34&nbsp;*&nbsp;x);<br>&nbsp;&nbsp;&nbsp;context.fillStyle&nbsp;=&nbsp;"rgb("&nbsp;+&nbsp;k&nbsp;+&nbsp;","&nbsp;+&nbsp;k&nbsp;+&nbsp;","&nbsp;+&nbsp;k&nbsp;+&nbsp;")";<br>&nbsp;&nbsp;&nbsp;context.fillRect(50,&nbsp;50,&nbsp;200,&nbsp;100);<br>&nbsp;&nbsp;&nbsp;context.setTransform(1,&nbsp;0,&nbsp;0,&nbsp;1,&nbsp;x,&nbsp;x);<br>}</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image5.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Resetarea transformărilor</h2>
- <p class="paragraph">Când se aplică transformări, toate figurile desenate ulterior sunt supuse acestor transformări. Dar poate exista o situație în care, după o singură aplicare a transformării, nu mai avem nevoie de ea. Pentru toate desenele ulterioare, putem reseta transformările utilizând metoda resetTransform():</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>context.fillStyle&nbsp;=&nbsp;"blue";<br>context.fillRect(100,&nbsp;10,&nbsp;100,&nbsp;100);<br><br>context.globalAlpha&nbsp;=&nbsp;0.5;<br>context.fillStyle&nbsp;=&nbsp;"red";<br>context.translate(50,&nbsp;25);<br>//&nbsp;se&nbsp;aplică&nbsp;transformarea<br>context.fillRect(100,&nbsp;10,&nbsp;100,&nbsp;100);<br><br>context.fillStyle&nbsp;=&nbsp;"green";<br>context.resetTransform();<br>//&nbsp;transformarea&nbsp;nu&nbsp;mai&nbsp;este&nbsp;aplicată<br>context.fillRect(0,&nbsp;10,&nbsp;100,&nbsp;100);</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image6.png" alt="" class="responsive-image">
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Transformări</h1>
+     <p class="paragraph">Elementul canvas suportă transformări ale figurilor, incluzând deplasarea, rotația și scalarea.</p>
+     <h2 class="subtitle">Deplasarea</h2>
+     <p class="paragraph">Deplasarea se realizează utilizând metoda translate():</p>
+     <div class="code-inline">
+      <pre><code>translate(x,&nbsp;y)</code></pre>
+     </div>
+     <p class="paragraph">Primul parametru indică deplasarea pe axa X, iar al doilea parametru - deplasarea pe axa Y.</p>
+     <p class="paragraph">Exemplu de utilizare pentru deplasare:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;canvas&nbsp;id="canvas"&nbsp;width="400"&nbsp;height="250"&gt;&lt;/canvas&gt;<br>&lt;script&gt;<br>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>context.fillStyle&nbsp;=&nbsp;"blue";<br>context.fillRect(50,&nbsp;50,&nbsp;100,&nbsp;100);<br><br>context.globalAlpha&nbsp;=&nbsp;0.5;&nbsp;//&nbsp;setăm&nbsp;transparența&nbsp;pentru&nbsp;suprapunere<br>context.fillStyle&nbsp;=&nbsp;"red";<br>context.translate(50,&nbsp;25);&nbsp;//&nbsp;deplasăm&nbsp;la&nbsp;50&nbsp;pixeli&nbsp;la&nbsp;dreapta&nbsp;și&nbsp;25&nbsp;pixeli&nbsp;în&nbsp;jos<br>context.fillRect(50,&nbsp;50,&nbsp;100,&nbsp;100);<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici, pe aceeași poziție sunt desenate două dreptunghiuri egale: unul albastru și altul roșu. Totuși, dreptunghiului roșu i se aplică o transformare de deplasare:</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/10.Transformari/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Rotația</h2>
+     <p class="paragraph">Rotația figurilor pe canvas se efectuează folosind metoda rotate():</p>
+     <div class="code-inline">
+      <pre><code>rotate(angle)</code></pre>
+     </div>
+     <p class="paragraph">Unghiul de rotație este specificat în radiani, relativ la punctul cu coordonatele (0, 0).</p>
+     <p class="paragraph">Exemplu de utilizare pentru rotație:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>context.fillStyle&nbsp;=&nbsp;"blue";<br>context.fillRect(50,&nbsp;20,&nbsp;100,&nbsp;100);<br><br>context.globalAlpha&nbsp;=&nbsp;0.5;<br>context.fillStyle&nbsp;=&nbsp;"red";<br>context.rotate(.52);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;rotim&nbsp;cu&nbsp;0.52&nbsp;radiani&nbsp;sau&nbsp;aproximativ&nbsp;30&nbsp;de&nbsp;grade<br>context.fillRect(50,&nbsp;20,&nbsp;100,&nbsp;100);</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/10.Transformari/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Scalarea</h2>
+     <p class="paragraph">Scalarea se realizează folosind metoda scale():</p>
+     <div class="code-inline">
+      <pre><code>scale(xScale,&nbsp;yScale)</code></pre>
+     </div>
+     <p class="paragraph">Parametrul xScale indică scalarea pe axa X, iar yScale - scalarea pe axa Y.</p>
+     <p class="paragraph">Exemplu de utilizare pentru scalare:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>context.fillStyle&nbsp;=&nbsp;"blue";<br>context.fillRect(0,&nbsp;0,&nbsp;100,&nbsp;100);<br><br>context.globalAlpha&nbsp;=&nbsp;0.5;<br>context.fillStyle&nbsp;=&nbsp;"red";<br>context.scale(1.5,&nbsp;1.5);&nbsp;//&nbsp;mărim&nbsp;pe&nbsp;lățime&nbsp;de&nbsp;1.5&nbsp;ori&nbsp;și&nbsp;pe&nbsp;înălțime&nbsp;de&nbsp;1.5&nbsp;ori<br>context.fillRect(0,&nbsp;0,&nbsp;100,&nbsp;100);</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/10.Transformari/images/image3.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Matricea de transformare</h2>
+     <p class="paragraph">Cand este necesar, putem aplica mai multe transformari in succesiune:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>context.fillStyle&nbsp;=&nbsp;"blue";<br>context.fillRect(0,&nbsp;0,&nbsp;100,&nbsp;100);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>context.globalAlpha&nbsp;=&nbsp;0.5;<br>context.fillStyle&nbsp;=&nbsp;"red";<br>context.scale(1.5,&nbsp;1.5);<br>context.translate(100,&nbsp;10);<br>context.rotate(0.34);<br>context.fillRect(0,&nbsp;0,&nbsp;100,&nbsp;100);</code></pre>
+     </div>
+     <p class="paragraph">Contextul elementului canvas ofera de asemenea metoda transform(), care permite setarea unei matrice de transformare:</p>
+     <div class="code-inline">
+      <pre><code>transform(a,&nbsp;b,&nbsp;c,&nbsp;d,&nbsp;e,&nbsp;f)</code></pre>
+     </div>
+     <p class="paragraph">Toti parametrii acestei metode reprezinta secvential elementele matricei de transformare, unde:</p>
+     <ul class="enumeration">
+      <li>a este scalarea pe axa X</li>
+      <li>b este rotatia in jurul axei X</li>
+      <li>c este rotatia in jurul axei Y</li>
+      <li>d este scalarea pe axa Y</li>
+      <li>e este deplasarea orizontala</li>
+      <li>f este deplasarea verticala</li>
+     </ul>
+     <p class="paragraph">Exemplu de utilizare:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>context.fillStyle&nbsp;=&nbsp;"blue";<br>context.fillRect(100,&nbsp;30,&nbsp;100,&nbsp;100);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>context.globalAlpha&nbsp;=&nbsp;0.5;<br>context.fillStyle&nbsp;=&nbsp;"red";<br>//&nbsp;aplicam&nbsp;transformarile<br>context.transform(&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Math.cos(Math.PI/6),&nbsp;Math.sin(Math.PI/6),&nbsp;-1&nbsp;*&nbsp;Math.sin(Math.PI/6),<br>&nbsp;&nbsp;&nbsp;Math.cos(Math.PI/6),&nbsp;0,&nbsp;0);<br>context.fillRect(100,&nbsp;30,&nbsp;100,&nbsp;100);</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/10.Transformari/images/image4.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Înlocuirea transformării</h2>
+     <p class="paragraph">Când se aplică diferite transformări în mod secvențial, acestea sunt aplicate pur și simplu în ordine figurilor. Totuși, poate apărea o situație în care este necesar să aplicăm o transformare nu împreună cu altele, ci în locul altora, adică să înlocuim transformarea. Pentru aceasta se utilizează metoda setTransform():</p>
+     <div class="code-inline">
+      <pre><code>setTransform(a,&nbsp;b,&nbsp;c,&nbsp;d,&nbsp;e,&nbsp;f)</code></pre>
+     </div>
+     <p class="paragraph">Parametrii săi reprezintă matricea de transformare, iar utilizarea sa este similară cu cea a metodei transform(). De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>let&nbsp;k&nbsp;=&nbsp;0;<br>for&nbsp;(let&nbsp;x&nbsp;=&nbsp;0;&nbsp;x&nbsp;&lt;&nbsp;30;&nbsp;x++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;k&nbsp;=&nbsp;Math.floor(255&nbsp;/&nbsp;34&nbsp;*&nbsp;x);<br>&nbsp;&nbsp;&nbsp;context.fillStyle&nbsp;=&nbsp;"rgb("&nbsp;+&nbsp;k&nbsp;+&nbsp;","&nbsp;+&nbsp;k&nbsp;+&nbsp;","&nbsp;+&nbsp;k&nbsp;+&nbsp;")";<br>&nbsp;&nbsp;&nbsp;context.fillRect(50,&nbsp;50,&nbsp;200,&nbsp;100);<br>&nbsp;&nbsp;&nbsp;context.setTransform(1,&nbsp;0,&nbsp;0,&nbsp;1,&nbsp;x,&nbsp;x);<br>}</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/10.Transformari/images/image5.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Resetarea transformărilor</h2>
+     <p class="paragraph">Când se aplică transformări, toate figurile desenate ulterior sunt supuse acestor transformări. Dar poate exista o situație în care, după o singură aplicare a transformării, nu mai avem nevoie de ea. Pentru toate desenele ulterioare, putem reseta transformările utilizând metoda resetTransform():</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>context.fillStyle&nbsp;=&nbsp;"blue";<br>context.fillRect(100,&nbsp;10,&nbsp;100,&nbsp;100);<br><br>context.globalAlpha&nbsp;=&nbsp;0.5;<br>context.fillStyle&nbsp;=&nbsp;"red";<br>context.translate(50,&nbsp;25);<br>//&nbsp;se&nbsp;aplică&nbsp;transformarea<br>context.fillRect(100,&nbsp;10,&nbsp;100,&nbsp;100);<br><br>context.fillStyle&nbsp;=&nbsp;"green";<br>context.resetTransform();<br>//&nbsp;transformarea&nbsp;nu&nbsp;mai&nbsp;este&nbsp;aplicată<br>context.fillRect(0,&nbsp;10,&nbsp;100,&nbsp;100);</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/10.Transformari/images/image6.png}" alt="" class="responsive-image">
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='23.Canvas API', activeLesson='1.Canvas API'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Canvas API</h1>
+     <h2 class="subtitle">API-ul Canvas și contextul său Desenarea dreptunghiurilor</h2>
+     <p class="paragraph">Unul dintre modurile comune de a lucra cu grafica în limbajul JavaScript este Canvas API, care presupune lucrul cu elementul canvas. Acest element reprezintă o zonă de desen, la care se poate accesa în codul JavaScript și pe care se pot desena diverse forme, plasa imagini, chiar manipula video și altele. În particular, multe jocuri pe HTML5+JavaScript sunt realizate tocmai cu ajutorul Canvas API.</p>
+     <p class="paragraph">Exemplu de definire simplă a elementului canvas pe o pagină web:</p>
+     <div class="code-inline">
+      <pre><code>&lt;canvas&nbsp;id="canvas"&nbsp;width="500"&nbsp;height="300"&gt;&lt;/canvas&gt;</code></pre>
+     </div>
+     <p class="paragraph">De obicei, pentru elementul canvas se specifică un identificator pentru a simplifica selecția acestuia în codul JavaScript. Și, de asemenea, adesea se stabilesc atributele de lățime și înălțime. Dacă aceste atribute sunt omise, atunci implicit canvas va avea o lățime de 300 de pixeli și o înălțime de 150 de pixeli.</p>
+     <h2 class="subtitle">Contextul de randare</h2>
+     <p class="paragraph">Pentru a gestiona zona de desen canvas și conținutul său, este necesar să se obțină contextul de randare folosind metoda getContext() a elementului canvas:</p>
+     <div class="code-inline">
+      <pre><code>canvas.getContext(contextId,&nbsp;[config])</code></pre>
+     </div>
+     <p class="paragraph">Ca prim parametru obligatoriu, această metodă primește identificatorul contextului, iar ca al doilea parametru opțional - un obiect de setări de configurare.</p>
+     <p class="paragraph">Putem folosi următoarele identificatoare de context:</p>
+     <ul class="enumeration">
+      <li>2d: context pentru randarea graficii 2D. La transmiterea acestui identificator metodei getContext(), această metodă returnează un obiect de tip CanvasRenderingContext2D.</li>
+      <li>webgl: context pentru randarea graficii 3D folosind tehnologia WebGL versiunea 1. La transmiterea acestui identificator metodei getContext(), această metodă returnează un obiect de tip WebGLRenderingContext.</li>
+      <li>webgl2: context pentru randarea graficii 3D folosind tehnologia WebGL versiunea 2. La transmiterea acestui identificator metodei getContext(), această metodă returnează un obiect de tip WebGL2RenderingContext.</li>
+     </ul>
+     <p class="paragraph">Este de remarcat că, deși toate browserele moderne suportă mai mult sau mai puțin toate cele trei contexte, de exemplu, suportul pentru ultimul context webgl2 a început să fie implementat din 2017, iar în Safari a fost implementat cel mai recent - în 2021.</p>
+     <p class="paragraph">De exemplu, obținerea contextului 2d pentru desenarea graficii 2D:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");</code></pre>
+     </div>
+     <p class="paragraph">Deoarece WebGL are multe caracteristici specifice, în continuare, lucrul cu Canvas API va fi examinat tocmai pe exemplul contextului 2D. Pentru mai multe detalii despre WebGL se poate citi în ghidul WebGL.</p>
+     <p class="paragraph">Înainte de a trece direct la desenare, este important să înțelegem cum este organizat sistemul de coordonate în canvas.</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/1.Canvas%20API/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Contextul 2D se bazează pe un sistem de coordonate bidimensional. Originea acestui sistem de coordonate este coordonata (0,0) în colțul din stânga sus al zonei de desen. Elementele grafice (dreptunghiuri, cercuri etc.) sunt desenate în zona de desen relativ la această coordonată de origine.</p>
+     <h2 class="subtitle">Desenarea dreptunghiurilor</h2>
+     <p class="paragraph">Pentru desenarea dreptunghiurilor, obiectul CanvasRenderingContext2D oferă o serie de metode:</p>
+     <ul class="enumeration">
+      <li>clearRect(x, y, w, h): curăță o anumită zonă dreptunghiulară, colțul din stânga sus al căreia are coordonatele x și y, lățimea egală cu w, iar înălțimea egală cu h</li>
+      <li>fillRect(x, y, w, h): umple cu culoare un dreptunghi, colțul din stânga sus al căruia are coordonatele x și y, lățimea egală cu w, iar înălțimea egală cu h</li>
+      <li>strokeRect(x, y, w, h): desenează conturul unui dreptunghi fără a-l umple cu o anumită culoare</li>
+     </ul>
+     <p class="paragraph">De exemplu, să desenăm pe o pagină web cel mai simplu dreptunghi folosind fillRect():</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;canvas&nbsp;id="canvas"&nbsp;width="400"&nbsp;height="250"&gt;&lt;/canvas&gt;<br>&lt;script&gt;<br>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>context.fillRect&nbsp;(10,&nbsp;10,&nbsp;100,&nbsp;100);<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici umplem o zonă dreptunghiulară cu o lățime de 100 de pixeli și o înălțime de 100 de pixeli, colțul din stânga sus al căreia este situat la punctul (x=10, y=10).</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/1.Canvas%20API/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Prin default, pentru umplere se aplică culoarea neagră. În articolul următor vom vedea cum se poate seta culoarea.</p>
+     <p class="paragraph">Metoda fillRect() umple zona fără a desena o graniță, metoda strokeRect, dimpotrivă, desenează doar granița. De exemplu, să modificăm codul JavaScript în modul următor:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>context.strokeRect&nbsp;(10,&nbsp;10,&nbsp;100,&nbsp;100);</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/1.Canvas%20API/images/image3.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Aici desenăm un dreptunghi cu coordonate, lățime și înălțime similare, doar cu o graniță și fără umplere. De asemenea, prin default, pentru culoarea conturului se aplică culoarea neagră.</p>
+     <p class="paragraph">Spre deosebire de strokeRect și fillRect, metoda clearRect curăță o anumită zonă. De fapt, această zonă dobândește culoarea pe care ar fi avut-o dacă nu s-ar aplica funcțiile strokeRect și fillRect. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>context.fillRect&nbsp;(10,&nbsp;10,&nbsp;100,&nbsp;100);<br>context.clearRect(15,&nbsp;15,&nbsp;90,&nbsp;90);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, mai întâi umplem cu culoare neagră o zonă dreptunghiulară, apoi în interiorul acesteia curățăm cu clearRect o zonă dreptunghiulară mai mică.</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/1.Canvas%20API/images/image4.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">În mod similar, putem crea compoziții mai complexe:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br>context.fillRect&nbsp;(10,&nbsp;10,&nbsp;80,&nbsp;80);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Desenăm&nbsp;capul&nbsp;&nbsp;<br>context.clearRect&nbsp;(20,&nbsp;20,&nbsp;60,&nbsp;20);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Curățăm&nbsp;locul&nbsp;pentru&nbsp;ochi&nbsp;&nbsp;&nbsp;&nbsp;<br>context.fillRect&nbsp;(30,&nbsp;25,&nbsp;10,&nbsp;10);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Desenăm&nbsp;ochiul&nbsp;stâng&nbsp;&nbsp;&nbsp;&nbsp;<br>context.fillRect&nbsp;(60,&nbsp;25,&nbsp;10,&nbsp;10);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Desenăm&nbsp;ochiul&nbsp;drept&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>context.clearRect&nbsp;(25,&nbsp;60,&nbsp;50,&nbsp;10);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Desenăm&nbsp;gura</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/1.Canvas%20API/images/image5.png}" alt="" class="responsive-image">
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

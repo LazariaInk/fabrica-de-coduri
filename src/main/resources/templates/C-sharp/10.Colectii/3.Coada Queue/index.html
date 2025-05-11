@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='10.Colectii', activeLesson='3.Coada Queue'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Coada Queue</h1>
+     <p class="paragraph">Clasa Queue&lt;T&gt; reprezintă o coadă obișnuită, care funcționează conform algoritmului FIFO ("primul venit - primul plecat").</p>
+     <h2 class="subtitle">Crearea unei cozi</h2>
+     <p class="paragraph">Pentru a crea o coadă, se poate folosi unul dintre cei trei constructori ai săi. În primul rând, putem crea o coadă goală:</p>
+     <div class="code-inline">
+      <pre><code>Queue&lt;string&gt;&nbsp;people&nbsp;=&nbsp;new&nbsp;Queue&lt;string&gt;();</code></pre>
+     </div>
+     <p class="paragraph">La crearea unei cozi goale, se poate specifica capacitatea cozii:</p>
+     <div class="code-inline">
+      <pre><code>Queue&lt;string&gt;&nbsp;people&nbsp;=&nbsp;new&nbsp;Queue&lt;string&gt;(16);</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, se poate inițializa coada cu elemente dintr-o altă colecție sau array:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;employees&nbsp;=&nbsp;new&nbsp;List&lt;string&gt;&nbsp;{&nbsp;"Tom",&nbsp;"Sam",&nbsp;"Bob"&nbsp;};<br>Queue&lt;string&gt;&nbsp;people&nbsp;=&nbsp;new&nbsp;Queue&lt;string&gt;(employees);<br>foreach&nbsp;(var&nbsp;person&nbsp;in&nbsp;people)&nbsp;Console.WriteLine(person);<br><br>Console.WriteLine(people.Count);&nbsp;//&nbsp;3</code></pre>
+     </div>
+     <p class="paragraph">Pentru parcurgerea cozii se poate folosi ciclul standard foreach.</p>
+     <p class="paragraph">Pentru a obține numărul de elemente din coadă, clasa are proprietatea Count.</p>
+     <h2 class="subtitle">Metode Queue</h2>
+     <p class="paragraph">Clasa Queue&lt;T&gt; are următoarele metode importante:</p>
+     <ul class="enumeration">
+      <li>void Clear(): șterge toate elementele din coadă</li>
+      <li>bool Contains(T item): returnează true dacă elementul item este prezent în coadă</li>
+      <li>T Dequeue(): extrage și returnează primul element din coadă</li>
+      <li>void Enqueue(T item): adaugă un element la sfârșitul cozii</li>
+      <li>T Peek(): returnează primul element din coadă fără a-l șterge</li>
+     </ul>
+     <p class="paragraph">Să vedem aplicarea cozii în practică:</p>
+     <div class="code-inline">
+      <pre><code><br>var&nbsp;people&nbsp;=&nbsp;new&nbsp;Queue&lt;string&gt;();<br><br>//&nbsp;adăugăm&nbsp;elemente<br>people.Enqueue("Tom");&nbsp;&nbsp;//&nbsp;people&nbsp;=&nbsp;{&nbsp;Tom&nbsp;}<br>people.Enqueue("Bob");&nbsp;&nbsp;//&nbsp;people&nbsp;=&nbsp;{&nbsp;Tom,&nbsp;Bob&nbsp;}<br>people.Enqueue("Sam");&nbsp;&nbsp;//&nbsp;people&nbsp;=&nbsp;{&nbsp;Tom,&nbsp;Bob,&nbsp;Sam&nbsp;}<br><br>//&nbsp;obținem&nbsp;elementul&nbsp;din&nbsp;capul&nbsp;cozii<br>var&nbsp;firstPerson&nbsp;=&nbsp;people.Peek();<br>Console.WriteLine(firstPerson);&nbsp;//&nbsp;Tom<br><br>//&nbsp;ștergem&nbsp;elemente<br>var&nbsp;person1&nbsp;=&nbsp;people.Dequeue();&nbsp;&nbsp;//&nbsp;people&nbsp;=&nbsp;{&nbsp;Bob,&nbsp;Sam&nbsp;}<br>Console.WriteLine(person1);&nbsp;//&nbsp;Tom<br>var&nbsp;person2&nbsp;=&nbsp;people.Dequeue();&nbsp;&nbsp;//&nbsp;people&nbsp;=&nbsp;{&nbsp;Sam&nbsp;}<br>Console.WriteLine(person2);&nbsp;//&nbsp;Bob<br>var&nbsp;person3&nbsp;=&nbsp;people.Dequeue();&nbsp;&nbsp;//&nbsp;people&nbsp;=&nbsp;{&nbsp;}<br>Console.WriteLine(person3);&nbsp;//&nbsp;Sam</code></pre>
+     </div>
+     <p class="paragraph">Este de remarcat că, dacă folosim metodele Peek sau Dequeue pentru a obține primul element dintr-o coadă goală, programul va arunca o excepție. Prin urmare, înainte de a obține un element, putem verifica numărul de elemente din coadă:</p>
+     <div class="code-inline">
+      <pre><code>if(people.Count&nbsp;&gt;&nbsp;0)<br>{<br>&nbsp;&nbsp;&nbsp;var&nbsp;person&nbsp;=&nbsp;people.Peek();<br>&nbsp;&nbsp;&nbsp;people.Dequeue();<br>}</code></pre>
+     </div>
+     <p class="paragraph">Sau putem folosi perechea de metode:</p>
+     <ul class="enumeration">
+      <li>bool TryDequeue(out T result): atribuie în variabila result primul element din coadă și îl șterge, returnează true dacă coada nu este goală și elementul a fost obținut cu succes</li>
+      <li>bool TryPeek(out T result): atribuie în variabila result primul element din coadă fără a-l șterge, returnează true dacă coada nu este goală și elementul a fost obținut cu succes</li>
+     </ul>
+     <p class="paragraph">Aplicarea metodelor:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;people&nbsp;=&nbsp;new&nbsp;Queue&lt;string&gt;();<br><br>//&nbsp;adăugăm&nbsp;elemente<br>people.Enqueue("Tom");&nbsp;&nbsp;//&nbsp;people&nbsp;=&nbsp;{&nbsp;Tom&nbsp;}<br><br>//&nbsp;ștergem&nbsp;elemente<br>var&nbsp;success1&nbsp;=&nbsp;people.TryDequeue(out&nbsp;var&nbsp;person1);&nbsp;&nbsp;//&nbsp;success1&nbsp;=&nbsp;true<br>if&nbsp;(success1)&nbsp;Console.WriteLine(person1);&nbsp;//&nbsp;Tom<br><br>var&nbsp;success2&nbsp;=&nbsp;people.TryPeek(out&nbsp;var&nbsp;person2);&nbsp;&nbsp;//&nbsp;success2&nbsp;=&nbsp;false<br>if&nbsp;(success2)&nbsp;Console.WriteLine(person2);</code></pre>
+     </div>
+     <p class="paragraph">Cozile sunt structuri des întâlnite în viața reală. De exemplu, o coadă de pacienți la medic. Să implementăm această situație:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;patients&nbsp;=&nbsp;new&nbsp;Queue&lt;Person&gt;();<br>patients.Enqueue(new&nbsp;Person("Tom"));<br>patients.Enqueue(new&nbsp;Person("Bob"));<br>patients.Enqueue(new&nbsp;Person("Sam"));<br><br>var&nbsp;practitioner&nbsp;=&nbsp;new&nbsp;Doctor();<br>practitioner.TakePatients(patients);<br><br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name)&nbsp;=&gt;&nbsp;Name&nbsp;=&nbsp;name;<br>}<br><br>class&nbsp;Doctor<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;TakePatients(Queue&lt;Person&gt;&nbsp;patients)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(patients.Count&nbsp;&gt;&nbsp;0)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;patient&nbsp;=&nbsp;patients.Dequeue();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Consultația&nbsp;pacientului&nbsp;{patient.Name}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Doctorul&nbsp;a&nbsp;terminat&nbsp;consultațiile&nbsp;pacienților");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici, clasa medic - clasa Doctor, în metoda TakePatients, primește o coadă de pacienți sub formă de obiecte Person. Și, cât timp există obiecte în coadă, extrage câte un obiect pe rând. Rezultatul în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Consultația&nbsp;pacientului&nbsp;Tom<br>Consultația&nbsp;pacientului&nbsp;Bob<br>Consultația&nbsp;pacientului&nbsp;Sam<br>Doctorul&nbsp;a&nbsp;terminat&nbsp;consultațiile&nbsp;pacienților</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

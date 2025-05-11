@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='4.Programare orientata pe obiecte', activeLesson='8.Generalizari'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Generalizări</h1>
+     <p class="paragraph">Pe lângă tipurile obișnuite, cadrul .NET suportă și tipurile generice (generics), precum și crearea metodelor generice. Pentru a înțelege particularitățile acestui fenomen, să analizăm mai întâi problema care putea apărea înainte de introducerea tipurilor generice. Să luăm un exemplu. Să presupunem că definim o clasă pentru stocarea datelor unui utilizator:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Id&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(int&nbsp;id,&nbsp;string&nbsp;name)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Id&nbsp;=&nbsp;id;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Clasa Person definește două proprietăți: Id - identificatorul unic al utilizatorului și Name - numele utilizatorului.</p>
+     <p class="paragraph">Aici identificatorul utilizatorului este specificat ca o valoare numerică, adică valorile vor fi 1, 2, 3, 4 și așa mai departe.</p>
+     <p class="paragraph">Totuși, de multe ori pentru identificator se folosesc și valori de tip șir de caractere. Și valorile numerice, și cele de tip șir au avantajele și dezavantajele lor. Și în momentul scrierii clasei, nu putem ști sigur ce este mai bine să alegem pentru stocarea identificatorului - șiruri sau numere.</p>
+     <p class="paragraph">Sau, poate, această clasă va fi folosită de alți dezvoltatori, care ar putea avea propria opinie asupra problemei, de exemplu, ar putea crea o clasă specială pentru reprezentarea identificatorului.</p>
+     <p class="paragraph">La prima vedere, pentru a ieși din această situație, putem defini proprietatea Id ca o proprietate de tip object. Deoarece tipul object este un tip universal din care derivă toate tipurile, în proprietățile de acest tip putem stoca și șiruri, și numere:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;object&nbsp;Id&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(object&nbsp;id,&nbsp;string&nbsp;name)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Id&nbsp;=&nbsp;id;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Apoi această clasă poate fi folosită pentru a crea utilizatori în program:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person(546,&nbsp;"Tom");<br>Person&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person("abc123",&nbsp;"Bob");<br><br>int&nbsp;tomId&nbsp;=&nbsp;(int)tom.Id;<br>string&nbsp;bobId&nbsp;=&nbsp;(string)&nbsp;bob.Id;<br><br>Console.WriteLine(tomId);&nbsp;&nbsp;&nbsp;//&nbsp;546<br>Console.WriteLine(bobId);&nbsp;&nbsp;&nbsp;//&nbsp;abc123</code></pre>
+     </div>
+     <p class="paragraph">Totul pare să funcționeze perfect, dar o astfel de soluție nu este foarte optimă. Problema este că în acest caz ne confruntăm cu fenomene precum boxing și unboxing.</p>
+     <p class="paragraph">Astfel, la transmiterea unei valori de tip int în constructor, are loc boxing-ul acestei valori în tipul Object:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person(546,&nbsp;"Tom");&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;boxing&nbsp;al&nbsp;valorii&nbsp;int&nbsp;în&nbsp;tipul&nbsp;Object</code></pre>
+     </div>
+     <p class="paragraph">Pentru a obține din nou datele într-o variabilă de tip int, trebuie să efectuăm unboxing:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;tomId&nbsp;=&nbsp;(int)tom.Id;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;unboxing&nbsp;în&nbsp;tipul&nbsp;int</code></pre>
+     </div>
+     <p class="paragraph">Boxing-ul presupune transformarea unui obiect de tip valoare (de exemplu, tipul int) într-un tip object. La boxing, mediul de execuție .NET înfășoară valoarea într-un obiect de tip System.Object și o stochează în heap-ul gestionat.</p>
+     <p class="paragraph">Unboxing-ul, pe de altă parte, presupune transformarea unui obiect de tip object într-un tip valoare. Boxing-ul și unboxing-ul duc la scăderea performanței, deoarece sistemul trebuie să realizeze transformările necesare.</p>
+     <p class="paragraph">În plus, există o altă problemă - problema siguranței tipurilor. Astfel, vom obține o eroare la rularea programului dacă scriem următorul cod:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person(546,&nbsp;"Tom");<br>string&nbsp;tomId&nbsp;=&nbsp;(string)tom.Id;&nbsp;&nbsp;//&nbsp;!Eroare&nbsp;-&nbsp;Excepție&nbsp;InvalidCastException<br>Console.WriteLine(tomId);&nbsp;&nbsp;&nbsp;//&nbsp;546</code></pre>
+     </div>
+     <p class="paragraph">Nu putem ști ce tip reprezintă Id, și la încercarea de a obține un număr în acest caz ne vom confrunta cu excepția InvalidCastException. Mai mult, această excepție apare în timpul execuției programului.</p>
+     <p class="paragraph">Pentru a rezolva aceste probleme, în limbajul C# a fost adăugat suportul pentru tipurile generice (adesea numite și tipuri universale). Tipurile generice permit specificarea unui tip concret care va fi utilizat. Prin urmare, să definim clasa Person ca generică:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person&lt;T&gt;<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;T&nbsp;Id&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(T&nbsp;id,&nbsp;string&nbsp;name)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Id&nbsp;=&nbsp;id;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Parantezele unghiulare din descrierea class Person&lt;T&gt; indică faptul că clasa este generică, iar tipul T, încadrat în parantezele unghiulare, va fi utilizat de această clasă. Nu este obligatoriu să folosim litera T, poate fi orice altă literă sau set de caractere.</p>
+     <p class="paragraph">De fapt, la momentul scrierii codului, nu știm ce tip va fi - poate fi orice tip. De aceea, parametrul T din parantezele unghiulare se mai numește și parametru universal, deoarece în locul lui poate fi înlocuit cu orice tip.</p>
+     <p class="paragraph">De exemplu, în locul parametrului T putem folosi obiectul int, adică un număr care reprezintă numărul utilizatorului. De asemenea, poate fi un obiect string sau orice altă clasă sau structură:</p>
+     <div class="code-inline">
+      <pre><code>Person&lt;int&gt;&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person&lt;int&gt;(546,&nbsp;"Tom");&nbsp;&nbsp;//&nbsp;boxing&nbsp;nu&nbsp;este&nbsp;necesar<br>Person&lt;string&gt;&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person&lt;string&gt;("abc123",&nbsp;"Bob");<br><br>int&nbsp;tomId&nbsp;=&nbsp;tom.Id;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;unboxing&nbsp;nu&nbsp;este&nbsp;necesar<br>string&nbsp;bobId&nbsp;=&nbsp;bob.Id;&nbsp;&nbsp;//&nbsp;conversia&nbsp;tipurilor&nbsp;nu&nbsp;este&nbsp;necesară<br><br>Console.WriteLine(tomId);&nbsp;&nbsp;&nbsp;//&nbsp;546<br>Console.WriteLine(bobId);&nbsp;&nbsp;&nbsp;//&nbsp;abc123</code></pre>
+     </div>
+     <p class="paragraph">Deoarece clasa Person este generică, la definirea variabilei după numele tipului în parantezele unghiulare trebuie să specificăm tipul care va fi utilizat în locul parametrului universal T. În acest caz, obiectele Person sunt tipizate cu tipurile int și string:</p>
+     <div class="code-inline">
+      <pre><code>Person&lt;int&gt;&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person&lt;int&gt;(546,&nbsp;"Tom");&nbsp;&nbsp;//&nbsp;boxing&nbsp;nu&nbsp;este&nbsp;necesar<br>Person&lt;string&gt;&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person&lt;string&gt;("abc123",&nbsp;"Bob");</code></pre>
+     </div>
+     <p class="paragraph">Astfel, la primul obiect tom, proprietatea Id va avea tipul int, iar la obiectul bob - tipul string. Și în cazul tipului int, boxing-ul nu va avea loc.</p>
+     <p class="paragraph">La încercarea de a transmite o valoare de alt tip pentru parametrul id, vom obține o eroare de compilare:</p>
+     <div class="code-inline">
+      <pre><code>Person&lt;int&gt;&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person&lt;int&gt;("546",&nbsp;"Tom");&nbsp;&nbsp;//&nbsp;eroare&nbsp;de&nbsp;compilare</code></pre>
+     </div>
+     <p class="paragraph">Iar la obținerea valorii din Id, nu mai este necesară operația de conversie a tipurilor și nici unboxing-ul nu va fi aplicat:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;tomId&nbsp;=&nbsp;tom.Id;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;unboxing&nbsp;nu&nbsp;este&nbsp;necesar</code></pre>
+     </div>
+     <p class="paragraph">Astfel, evităm problemele legate de siguranța tipurilor. Prin utilizarea unei versiuni generice a clasei, reducem timpul de execuție și numărul de erori potențiale.</p>
+     <p class="paragraph">În același timp, parametrul universal poate reprezenta și un tip generic:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;clasa&nbsp;companiei<br>class&nbsp;Company&lt;P&gt;<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;P&nbsp;CEO&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}&nbsp;&nbsp;//&nbsp;președintele&nbsp;companiei<br>&nbsp;&nbsp;&nbsp;public&nbsp;Company(P&nbsp;ceo)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CEO&nbsp;=&nbsp;ceo;<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;Person&lt;T&gt;<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;T&nbsp;Id&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(T&nbsp;id,&nbsp;string&nbsp;name)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Id&nbsp;=&nbsp;id;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici, clasa Company definește proprietatea CEO, care stochează președintele companiei. Și putem transmite pentru această proprietate o valoare de tip Person, tipizată cu un tip oarecare:</p>
+     <div class="code-inline">
+      <pre><code>Person&lt;int&gt;&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person&lt;int&gt;(546,&nbsp;"Tom");<br>Company&lt;Person&lt;int&gt;&gt;&nbsp;microsoft&nbsp;=&nbsp;new&nbsp;Company&lt;Person&lt;int&gt;&gt;(tom);<br><br>Console.WriteLine(microsoft.CEO.Id);&nbsp;&nbsp;//&nbsp;546<br>Console.WriteLine(microsoft.CEO.Name);&nbsp;&nbsp;//&nbsp;Tom</code></pre>
+     </div>
+     <h2 class="subtitle">Câmpuri statice ale claselor generice</h2>
+     <p class="paragraph">La tipizarea unei clase generice cu un anumit tip, va fi creat un set de membri statici specifici. De exemplu, în clasa Person este definit următorul câmp static:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person&lt;T&gt;<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;T?&nbsp;code;<br>&nbsp;&nbsp;&nbsp;public&nbsp;T&nbsp;Id&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(T&nbsp;id,&nbsp;string&nbsp;name)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Id&nbsp;=&nbsp;id;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Acum tipizăm clasa cu două tipuri int și string:</p>
+     <div class="code-inline">
+      <pre><code>Person&lt;int&gt;&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person&lt;int&gt;(546,&nbsp;"Tom");<br>Person&lt;int&gt;.code&nbsp;=&nbsp;1234;<br><br>Person&lt;string&gt;&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person&lt;string&gt;("abc",&nbsp;"Bob");<br>Person&lt;string&gt;.code&nbsp;=&nbsp;"meta";<br><br>Console.WriteLine(Person&lt;int&gt;.code);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;1234<br>Console.WriteLine(Person&lt;string&gt;.code);&nbsp;&nbsp;&nbsp;//&nbsp;meta</code></pre>
+     </div>
+     <p class="paragraph">În cele din urmă, pentru Person&lt;string&gt; și pentru Person&lt;int&gt; va fi creată propria variabilă code.</p>
+     <h2 class="subtitle">Utilizarea mai multor parametri universali</h2>
+     <p class="paragraph">Genericele pot folosi mai mulți parametri universali simultan, care pot reprezenta tipuri identice sau diferite:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person&lt;T,&nbsp;K&gt;<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;T&nbsp;Id&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;K&nbsp;Password&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(T&nbsp;id,&nbsp;K&nbsp;password,&nbsp;string&nbsp;name)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Id&nbsp;=&nbsp;id;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Password&nbsp;=&nbsp;password;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici, clasa Person folosește doi parametri universali: un parametru pentru identificator și altul pentru proprietatea Password. Aplicăm această clasă:</p>
+     <div class="code-inline">
+      <pre><code>Person&lt;int,&nbsp;string&gt;&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person&lt;int,&nbsp;string&gt;(546,&nbsp;"qwerty",&nbsp;"Tom");<br>Console.WriteLine(tom.Id);&nbsp;&nbsp;//&nbsp;546<br>Console.WriteLine(tom.Password);&nbsp;//&nbsp;qwerty</code></pre>
+     </div>
+     <p class="paragraph">Aici, obiectul Person este tipizat cu tipurile int și string. Adică, pentru parametrul universal T se folosește tipul int, iar pentru parametrul K - tipul string.</p>
+     <h2 class="subtitle">Metode generice</h2>
+     <p class="paragraph">Pe lângă clasele generice, putem crea și metode generice, care la fel vor folosi parametri universali. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;x&nbsp;=&nbsp;7;<br>int&nbsp;y&nbsp;=&nbsp;25;<br>Swap&lt;int&gt;(ref&nbsp;x,&nbsp;ref&nbsp;y);&nbsp;//&nbsp;sau&nbsp;așa&nbsp;Swap(ref&nbsp;x,&nbsp;ref&nbsp;y);<br>Console.WriteLine($"x={x}&nbsp;&nbsp;&nbsp;&nbsp;y={y}");&nbsp;&nbsp;&nbsp;//&nbsp;x=25&nbsp;&nbsp;&nbsp;y=7<br><br>string&nbsp;s1&nbsp;=&nbsp;"hello";<br>string&nbsp;s2&nbsp;=&nbsp;"bye";<br>Swap&lt;string&gt;(ref&nbsp;s1,&nbsp;ref&nbsp;s2);&nbsp;//&nbsp;sau&nbsp;așa&nbsp;Swap(ref&nbsp;s1,&nbsp;ref&nbsp;s2);<br>Console.WriteLine($"s1={s1}&nbsp;&nbsp;&nbsp;&nbsp;s2={s2}");&nbsp;//&nbsp;s1=bye&nbsp;&nbsp;&nbsp;s2=hello<br><br>void&nbsp;Swap&lt;T&gt;(ref&nbsp;T&nbsp;x,&nbsp;ref&nbsp;T&nbsp;y)<br>{<br>&nbsp;&nbsp;&nbsp;T&nbsp;temp&nbsp;=&nbsp;x;<br>&nbsp;&nbsp;&nbsp;x&nbsp;=&nbsp;y;<br>&nbsp;&nbsp;&nbsp;y&nbsp;=&nbsp;temp;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici este definită o metodă generică Swap, care primește parametri prin referință și le schimbă valorile. În acest caz, nu contează ce tip reprezintă acești parametri.</p>
+     <p class="paragraph">La apelarea metodei Swap, o tipizăm cu un anumit tip și îi transmitem valorile corespunzătoare acestui tip.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

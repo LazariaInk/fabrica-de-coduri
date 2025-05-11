@@ -1,176 +1,166 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='17.Asincronitate, promise, async si await', activeLesson='3.Obtinerea rezultatului operatiei intr-un Promise'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Obținerea rezultatului operației într-un Promise</h1>
- <p class="paragraph">Anterior, am examinat cum putem transmite rezultatul unei operațiuni asincrone dintr-o funcție promise:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;myPromise&nbsp;=&nbsp;new&nbsp;Promise(function(resolve){<br>&nbsp;&nbsp;&nbsp;console.log("Executarea&nbsp;operațiunii&nbsp;asincrone");<br>&nbsp;&nbsp;&nbsp;resolve("Salut&nbsp;lume!");<br>});</code></pre>
- </div>
- <p class="paragraph">Acum să obținem această valoare. Pentru a obține rezultatul operației unui promise se utilizează funcția then() a obiectului Promise:</p>
- <div class="code-inline">
-  <pre><code>then(onFulfilled,&nbsp;onRejected);</code></pre>
- </div>
- <p class="paragraph">Primul parametru al funcției - onFulfilled reprezintă funcția care se execută la finalizarea cu succes a promise-ului și primește ca parametru datele transmise în resolve().</p>
- <p class="paragraph">Al doilea parametru al funcției - onRejected reprezintă funcția care se execută la apariția unei erori și primește ca parametru datele transmise în reject().</p>
- <p class="paragraph">Funcția then() returnează de asemenea un obiect Promise.</p>
- <p class="paragraph">Astfel, obținem datele transmise:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;myPromise&nbsp;=&nbsp;new&nbsp;Promise(function(resolve){<br>&nbsp;&nbsp;&nbsp;console.log("Executarea&nbsp;operațiunii&nbsp;asincrone");<br>&nbsp;&nbsp;&nbsp;resolve("Salut&nbsp;lume!");<br>});<br>myPromise.then(function(value){<br>&nbsp;&nbsp;&nbsp;console.log(`Date&nbsp;obținute&nbsp;din&nbsp;promise:&nbsp;${value}`);<br>})</code></pre>
- </div>
- <p class="paragraph">Adică, parametrul value aici va reprezenta șirul "Salut lume!", care este transmis în resolve("Salut lume!"). În final, ieșirea în consolă va arăta astfel:</p>
- <div class="code-inline">
-  <pre><code>Executarea&nbsp;operațiunii&nbsp;asincrone<br>Date&nbsp;obținute&nbsp;din&nbsp;promise:&nbsp;Salut&nbsp;lume!</code></pre>
- </div>
- <p class="paragraph">Pentru exemplu, să apelăm mai multe promise-uri, pentru a vedea asincronitatea în acțiune:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;myPromise3000&nbsp;=&nbsp;new&nbsp;Promise(function(resolve){<br>&nbsp;&nbsp;&nbsp;console.log("[myPromise3000]&nbsp;Executarea&nbsp;operațiunii&nbsp;asincrone");<br>&nbsp;&nbsp;&nbsp;setTimeout(()=&gt;{resolve("[myPromise3000]&nbsp;Salut&nbsp;lume!")},&nbsp;3000);<br>});<br>const&nbsp;myPromise1000&nbsp;=&nbsp;new&nbsp;Promise(function(resolve){<br>&nbsp;&nbsp;&nbsp;console.log("[myPromise1000]&nbsp;Executarea&nbsp;operațiunii&nbsp;asincrone");<br>&nbsp;&nbsp;&nbsp;setTimeout(()=&gt;{resolve("[myPromise1000]&nbsp;Salut&nbsp;lume!")},&nbsp;1000);<br>});<br>const&nbsp;myPromise2000&nbsp;=&nbsp;new&nbsp;Promise(function(resolve){<br>&nbsp;&nbsp;&nbsp;console.log("[myPromise2000]&nbsp;Executarea&nbsp;operațiunii&nbsp;asincrone");<br>&nbsp;&nbsp;&nbsp;setTimeout(()=&gt;{resolve("[myPromise2000]&nbsp;Salut&nbsp;lume!")},&nbsp;2000);<br>});<br><br>myPromise3000.then((value)=&gt;console.log(value));<br>myPromise1000.then((value)=&gt;console.log(value));<br>myPromise2000.then((value)=&gt;console.log(value));</code></pre>
- </div>
- <p class="paragraph">Aici sunt definite trei promise-uri identice. Pentru ca fiecare dintre ele să nu se execute imediat, folosesc funcția setTimeout și stabilesc valoarea returnată doar după câteva secunde. Durata întârzierii variază pentru diferite promise-uri. Și în acest caz vom obține următoarea ieșire în consolă:</p>
- <div class="code-inline">
-  <pre><code>[myPromise3000]&nbsp;Executarea&nbsp;operațiunii&nbsp;asincrone<br>[myPromise1000]&nbsp;Executarea&nbsp;operațiunii&nbsp;asincrone<br>[myPromise2000]&nbsp;Executarea&nbsp;operațiunii&nbsp;asincrone<br>[myPromise1000]&nbsp;Salut&nbsp;lume!<br>[myPromise2000]&nbsp;Salut&nbsp;lume!<br>[myPromise3000]&nbsp;Salut&nbsp;lume!</code></pre>
- </div>
- <p class="paragraph">Aici vedem că primul a început să se execute promise-ul myPromise3000, dar el s-a și terminat ultimul, deoarece pentru el este stabilit cel mai lung timp de întârziere - 3 secunde. Totuși, întârzierea sa nu a împiedicat executarea celorlalte promise-uri.</p>
- <p class="paragraph">În același timp, nu este necesar să transmitem în resolve() nicio valoare. Poate operațiunea asincronă se execută pur și simplu și nu transmite niciun rezultat în exterior.</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;x&nbsp;=&nbsp;4;<br>const&nbsp;y&nbsp;=&nbsp;8;<br>const&nbsp;myPromise&nbsp;=&nbsp;new&nbsp;Promise(function(){<br>&nbsp;&nbsp;&nbsp;console.log("Executarea&nbsp;operațiunii&nbsp;asincrone");<br>&nbsp;&nbsp;&nbsp;const&nbsp;z&nbsp;=&nbsp;x&nbsp;+&nbsp;y;<br>&nbsp;&nbsp;&nbsp;console.log(`Rezultatul&nbsp;operațiunii:&nbsp;${z}`)<br>});<br>myPromise.then();</code></pre>
- </div>
- <p class="paragraph">În acest caz, funcția din promise calculează suma numerelor x și y și afișează rezultatul în consolă.</p>
- <h2 class="subtitle">Metoda Promise.resolve</h2>
- <p class="paragraph">Uneori este necesar să returnăm pur și simplu dintr-un promise o anumită valoare. Pentru aceasta se poate folosi metoda Promise.resolve(). În această metodă se transmite valoarea returnată din promise. Metoda Promise.resolve() returnează un obiect Promise:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;myPromise&nbsp;=&nbsp;Promise.resolve("Salut&nbsp;lume!");<br><br>myPromise.then(value&nbsp;=&gt;&nbsp;console.log(value));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Salut&nbsp;lume!</code></pre>
- </div>
- <h2 class="subtitle">Definirea unui promise prin intermediul unei funcții</h2>
- <p class="paragraph">Adesea, un promise este definit printr-o funcție care returnează un obiect Promise. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;sum(x,&nbsp;y){<br>&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;Promise(function(resolve){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;result&nbsp;=&nbsp;x&nbsp;+&nbsp;y;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resolve(result);<br>&nbsp;&nbsp;&nbsp;})<br>}<br>sum(3,&nbsp;5).then(function(value){&nbsp;console.log("Rezultatul&nbsp;operațiunii:",&nbsp;value);});<br>sum(25,&nbsp;4).then(function(value){&nbsp;console.log("Suma&nbsp;numerelor:",&nbsp;value);});</code></pre>
- </div>
- <p class="paragraph">Aici, funcția sum() acceptă două numere și returnează un promise care încapsulează operația de adunare a acestor numere. După calcularea sumei, aceasta este transmisă în resolve(), astfel încât ulterior o putem obține prin metoda then(). Definirea unui promise printr-o funcție ne permite, pe de o parte, să transmitem diferite valori la apelul funcției. Iar pe de altă parte, să lucrăm cu rezultatul acestei funcții ca și cum ar fi un promise și să configurăm la fiecare apel concret procesarea valorii obținute.</p>
- <p class="paragraph">Rezultatul execuției programului:</p>
- <div class="code-inline">
-  <pre><code>Rezultatul&nbsp;operațiunii:&nbsp;8<br>Suma&nbsp;numerelor:&nbsp;29</code></pre>
- </div>
- <p class="paragraph">Totuși, ce se întâmplă dacă avem același principiu de procesare a valorii obținute dintr-o funcție asincronă?</p>
- <div class="code-inline">
-  <pre><code>sum(3,&nbsp;5).then(function(value){&nbsp;console.log("Rezultatul&nbsp;operațiunii:",&nbsp;value);});<br>sum(25,&nbsp;4).then(function(value){&nbsp;console.log("Rezultatul&nbsp;operațiunii:",&nbsp;value);});</code></pre>
- </div>
- <p class="paragraph">În acest caz, logica de procesare se va repeta. Dar, deoarece metoda then() returnează de asemenea un obiect Promise, putem proceda în felul următor:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;sum(x,&nbsp;y){<br>&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;Promise(function(resolve){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;result&nbsp;=&nbsp;x&nbsp;+&nbsp;y;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resolve(result);<br>&nbsp;&nbsp;&nbsp;}).then(function(value){&nbsp;console.log("Rezultatul&nbsp;operațiunii:",&nbsp;value);});<br>}<br>sum(3,&nbsp;5);<br>sum(25,&nbsp;4);</code></pre>
- </div>
- <h2 class="subtitle">Configurare flexibilă a funcției</h2>
- <p class="paragraph">Și ce se întâmplă dacă dorim ca programatorul să aibă posibilitatea de alegere: dacă dorește, poate să definească propriul handler, iar dacă nu, se aplică un handler implicit. În acest caz, putem defini funcția handler ca parametru al funcției, iar dacă nu este transmis, să stabilim handlerul implicit:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;sum(x,&nbsp;y,&nbsp;func){<br>&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;handlerul&nbsp;nu&nbsp;este&nbsp;stabilit,&nbsp;atunci&nbsp;stabilim&nbsp;handlerul&nbsp;implicit<br>&nbsp;&nbsp;&nbsp;if(func===undefined)&nbsp;func&nbsp;=&nbsp;function(value){&nbsp;console.log("Rezultatul&nbsp;operațiunii:",&nbsp;value);};<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;Promise(function(resolve){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;result&nbsp;=&nbsp;x&nbsp;+&nbsp;y;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resolve(result);<br>&nbsp;&nbsp;&nbsp;}).then(func);<br>}<br>sum(3,&nbsp;5);<br>sum(25,&nbsp;4,&nbsp;function(value){&nbsp;console.log("Suma:",&nbsp;value);});</code></pre>
- </div>
- <p class="paragraph">Aici, la prima apelare a funcției sum() (sum(3, 5)), va acționa handlerul implicit. În al doilea caz, handlerul este transmis explicit prin al treilea parametru, respectiv el va fi utilizat sum(25, 4, function(value){ console.log("Suma:", value);}).</p>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Obținerea rezultatului operației într-un Promise</h1>
+     <p class="paragraph">Anterior, am examinat cum putem transmite rezultatul unei operațiuni asincrone dintr-o funcție promise:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;myPromise&nbsp;=&nbsp;new&nbsp;Promise(function(resolve){<br>&nbsp;&nbsp;&nbsp;console.log("Executarea&nbsp;operațiunii&nbsp;asincrone");<br>&nbsp;&nbsp;&nbsp;resolve("Salut&nbsp;lume!");<br>});</code></pre>
+     </div>
+     <p class="paragraph">Acum să obținem această valoare. Pentru a obține rezultatul operației unui promise se utilizează funcția then() a obiectului Promise:</p>
+     <div class="code-inline">
+      <pre><code>then(onFulfilled,&nbsp;onRejected);</code></pre>
+     </div>
+     <p class="paragraph">Primul parametru al funcției - onFulfilled reprezintă funcția care se execută la finalizarea cu succes a promise-ului și primește ca parametru datele transmise în resolve().</p>
+     <p class="paragraph">Al doilea parametru al funcției - onRejected reprezintă funcția care se execută la apariția unei erori și primește ca parametru datele transmise în reject().</p>
+     <p class="paragraph">Funcția then() returnează de asemenea un obiect Promise.</p>
+     <p class="paragraph">Astfel, obținem datele transmise:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;myPromise&nbsp;=&nbsp;new&nbsp;Promise(function(resolve){<br>&nbsp;&nbsp;&nbsp;console.log("Executarea&nbsp;operațiunii&nbsp;asincrone");<br>&nbsp;&nbsp;&nbsp;resolve("Salut&nbsp;lume!");<br>});<br>myPromise.then(function(value){<br>&nbsp;&nbsp;&nbsp;console.log(`Date&nbsp;obținute&nbsp;din&nbsp;promise:&nbsp;${value}`);<br>})</code></pre>
+     </div>
+     <p class="paragraph">Adică, parametrul value aici va reprezenta șirul "Salut lume!", care este transmis în resolve("Salut lume!"). În final, ieșirea în consolă va arăta astfel:</p>
+     <div class="code-inline">
+      <pre><code>Executarea&nbsp;operațiunii&nbsp;asincrone<br>Date&nbsp;obținute&nbsp;din&nbsp;promise:&nbsp;Salut&nbsp;lume!</code></pre>
+     </div>
+     <p class="paragraph">Pentru exemplu, să apelăm mai multe promise-uri, pentru a vedea asincronitatea în acțiune:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;myPromise3000&nbsp;=&nbsp;new&nbsp;Promise(function(resolve){<br>&nbsp;&nbsp;&nbsp;console.log("[myPromise3000]&nbsp;Executarea&nbsp;operațiunii&nbsp;asincrone");<br>&nbsp;&nbsp;&nbsp;setTimeout(()=&gt;{resolve("[myPromise3000]&nbsp;Salut&nbsp;lume!")},&nbsp;3000);<br>});<br>const&nbsp;myPromise1000&nbsp;=&nbsp;new&nbsp;Promise(function(resolve){<br>&nbsp;&nbsp;&nbsp;console.log("[myPromise1000]&nbsp;Executarea&nbsp;operațiunii&nbsp;asincrone");<br>&nbsp;&nbsp;&nbsp;setTimeout(()=&gt;{resolve("[myPromise1000]&nbsp;Salut&nbsp;lume!")},&nbsp;1000);<br>});<br>const&nbsp;myPromise2000&nbsp;=&nbsp;new&nbsp;Promise(function(resolve){<br>&nbsp;&nbsp;&nbsp;console.log("[myPromise2000]&nbsp;Executarea&nbsp;operațiunii&nbsp;asincrone");<br>&nbsp;&nbsp;&nbsp;setTimeout(()=&gt;{resolve("[myPromise2000]&nbsp;Salut&nbsp;lume!")},&nbsp;2000);<br>});<br><br>myPromise3000.then((value)=&gt;console.log(value));<br>myPromise1000.then((value)=&gt;console.log(value));<br>myPromise2000.then((value)=&gt;console.log(value));</code></pre>
+     </div>
+     <p class="paragraph">Aici sunt definite trei promise-uri identice. Pentru ca fiecare dintre ele să nu se execute imediat, folosesc funcția setTimeout și stabilesc valoarea returnată doar după câteva secunde. Durata întârzierii variază pentru diferite promise-uri. Și în acest caz vom obține următoarea ieșire în consolă:</p>
+     <div class="code-inline">
+      <pre><code>[myPromise3000]&nbsp;Executarea&nbsp;operațiunii&nbsp;asincrone<br>[myPromise1000]&nbsp;Executarea&nbsp;operațiunii&nbsp;asincrone<br>[myPromise2000]&nbsp;Executarea&nbsp;operațiunii&nbsp;asincrone<br>[myPromise1000]&nbsp;Salut&nbsp;lume!<br>[myPromise2000]&nbsp;Salut&nbsp;lume!<br>[myPromise3000]&nbsp;Salut&nbsp;lume!</code></pre>
+     </div>
+     <p class="paragraph">Aici vedem că primul a început să se execute promise-ul myPromise3000, dar el s-a și terminat ultimul, deoarece pentru el este stabilit cel mai lung timp de întârziere - 3 secunde. Totuși, întârzierea sa nu a împiedicat executarea celorlalte promise-uri.</p>
+     <p class="paragraph">În același timp, nu este necesar să transmitem în resolve() nicio valoare. Poate operațiunea asincronă se execută pur și simplu și nu transmite niciun rezultat în exterior.</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;x&nbsp;=&nbsp;4;<br>const&nbsp;y&nbsp;=&nbsp;8;<br>const&nbsp;myPromise&nbsp;=&nbsp;new&nbsp;Promise(function(){<br>&nbsp;&nbsp;&nbsp;console.log("Executarea&nbsp;operațiunii&nbsp;asincrone");<br>&nbsp;&nbsp;&nbsp;const&nbsp;z&nbsp;=&nbsp;x&nbsp;+&nbsp;y;<br>&nbsp;&nbsp;&nbsp;console.log(`Rezultatul&nbsp;operațiunii:&nbsp;${z}`)<br>});<br>myPromise.then();</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, funcția din promise calculează suma numerelor x și y și afișează rezultatul în consolă.</p>
+     <h2 class="subtitle">Metoda Promise.resolve</h2>
+     <p class="paragraph">Uneori este necesar să returnăm pur și simplu dintr-un promise o anumită valoare. Pentru aceasta se poate folosi metoda Promise.resolve(). În această metodă se transmite valoarea returnată din promise. Metoda Promise.resolve() returnează un obiect Promise:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;myPromise&nbsp;=&nbsp;Promise.resolve("Salut&nbsp;lume!");<br><br>myPromise.then(value&nbsp;=&gt;&nbsp;console.log(value));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Salut&nbsp;lume!</code></pre>
+     </div>
+     <h2 class="subtitle">Definirea unui promise prin intermediul unei funcții</h2>
+     <p class="paragraph">Adesea, un promise este definit printr-o funcție care returnează un obiect Promise. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;sum(x,&nbsp;y){<br>&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;Promise(function(resolve){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;result&nbsp;=&nbsp;x&nbsp;+&nbsp;y;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resolve(result);<br>&nbsp;&nbsp;&nbsp;})<br>}<br>sum(3,&nbsp;5).then(function(value){&nbsp;console.log("Rezultatul&nbsp;operațiunii:",&nbsp;value);});<br>sum(25,&nbsp;4).then(function(value){&nbsp;console.log("Suma&nbsp;numerelor:",&nbsp;value);});</code></pre>
+     </div>
+     <p class="paragraph">Aici, funcția sum() acceptă două numere și returnează un promise care încapsulează operația de adunare a acestor numere. După calcularea sumei, aceasta este transmisă în resolve(), astfel încât ulterior o putem obține prin metoda then(). Definirea unui promise printr-o funcție ne permite, pe de o parte, să transmitem diferite valori la apelul funcției. Iar pe de altă parte, să lucrăm cu rezultatul acestei funcții ca și cum ar fi un promise și să configurăm la fiecare apel concret procesarea valorii obținute.</p>
+     <p class="paragraph">Rezultatul execuției programului:</p>
+     <div class="code-inline">
+      <pre><code>Rezultatul&nbsp;operațiunii:&nbsp;8<br>Suma&nbsp;numerelor:&nbsp;29</code></pre>
+     </div>
+     <p class="paragraph">Totuși, ce se întâmplă dacă avem același principiu de procesare a valorii obținute dintr-o funcție asincronă?</p>
+     <div class="code-inline">
+      <pre><code>sum(3,&nbsp;5).then(function(value){&nbsp;console.log("Rezultatul&nbsp;operațiunii:",&nbsp;value);});<br>sum(25,&nbsp;4).then(function(value){&nbsp;console.log("Rezultatul&nbsp;operațiunii:",&nbsp;value);});</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, logica de procesare se va repeta. Dar, deoarece metoda then() returnează de asemenea un obiect Promise, putem proceda în felul următor:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;sum(x,&nbsp;y){<br>&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;Promise(function(resolve){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;result&nbsp;=&nbsp;x&nbsp;+&nbsp;y;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resolve(result);<br>&nbsp;&nbsp;&nbsp;}).then(function(value){&nbsp;console.log("Rezultatul&nbsp;operațiunii:",&nbsp;value);});<br>}<br>sum(3,&nbsp;5);<br>sum(25,&nbsp;4);</code></pre>
+     </div>
+     <h2 class="subtitle">Configurare flexibilă a funcției</h2>
+     <p class="paragraph">Și ce se întâmplă dacă dorim ca programatorul să aibă posibilitatea de alegere: dacă dorește, poate să definească propriul handler, iar dacă nu, se aplică un handler implicit. În acest caz, putem defini funcția handler ca parametru al funcției, iar dacă nu este transmis, să stabilim handlerul implicit:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;sum(x,&nbsp;y,&nbsp;func){<br>&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;handlerul&nbsp;nu&nbsp;este&nbsp;stabilit,&nbsp;atunci&nbsp;stabilim&nbsp;handlerul&nbsp;implicit<br>&nbsp;&nbsp;&nbsp;if(func===undefined)&nbsp;func&nbsp;=&nbsp;function(value){&nbsp;console.log("Rezultatul&nbsp;operațiunii:",&nbsp;value);};<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;Promise(function(resolve){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;result&nbsp;=&nbsp;x&nbsp;+&nbsp;y;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resolve(result);<br>&nbsp;&nbsp;&nbsp;}).then(func);<br>}<br>sum(3,&nbsp;5);<br>sum(25,&nbsp;4,&nbsp;function(value){&nbsp;console.log("Suma:",&nbsp;value);});</code></pre>
+     </div>
+     <p class="paragraph">Aici, la prima apelare a funcției sum() (sum(3, 5)), va acționa handlerul implicit. În al doilea caz, handlerul este transmis explicit prin al treilea parametru, respectiv el va fi utilizat sum(25, 4, function(value){ console.log("Suma:", value);}).</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

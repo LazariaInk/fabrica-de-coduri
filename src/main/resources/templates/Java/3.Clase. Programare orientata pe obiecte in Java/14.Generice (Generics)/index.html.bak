@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Java', activeChapter='3.Clase. Programare orientata pe obiecte in Java', activeLesson='14.Generice (Generics)'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Generice (Generics)</h1>
+     <p class="paragraph">Genericele sau tipurile și metodele generice permit utilizarea unor tipuri de date flexibile, evitând definirea strictă a tipurilor utilizate. Să analizăm o problemă în care genericele ne pot fi utile.</p>
+     <p class="paragraph">Să presupunem că definim o clasă pentru reprezentarea unui cont bancar. De exemplu, aceasta ar putea arăta astfel:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Account&nbsp;{<br>&nbsp;&nbsp;&nbsp;private&nbsp;int&nbsp;id;<br>&nbsp;&nbsp;&nbsp;private&nbsp;int&nbsp;sum;<br><br>&nbsp;&nbsp;&nbsp;Account(int&nbsp;id,&nbsp;int&nbsp;sum)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.id&nbsp;=&nbsp;id;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.sum&nbsp;=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;getId()&nbsp;{&nbsp;return&nbsp;id;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;getSum()&nbsp;{&nbsp;return&nbsp;sum;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;setSum(int&nbsp;sum)&nbsp;{&nbsp;this.sum&nbsp;=&nbsp;sum;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Clasa Account are două câmpuri: id - identificatorul unic al contului și sum - suma din cont.</p>
+     <p class="paragraph">În acest caz, identificatorul este setat ca o valoare numerică întreagă, de exemplu, 1, 2, 3, 4 și așa mai departe. Totuși, destul de frecvent se folosesc și valori de tip șir de caractere pentru identificator. Atât valorile numerice, cât și cele de tip șir au avantajele și dezavantajele lor.</p>
+     <p class="paragraph">În momentul scrierii clasei, este posibil să nu știm exact ce este mai bine să alegem pentru stocarea identificatorului - șiruri de caractere sau numere. De asemenea, este posibil ca această clasă să fie utilizată de alți dezvoltatori, care ar putea avea propria opinie cu privire la această problemă. De exemplu, aceștia ar putea dori să folosească propriul lor tip de clasă pentru identificator.</p>
+     <p class="paragraph">Și la prima vedere putem rezolva această problemă în felul următor: să atribuim id-ului tipul Object, care este un supertip universal și de bază pentru toate celelalte tipuri:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;class&nbsp;Program{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Account&nbsp;acc1&nbsp;=&nbsp;new&nbsp;Account(2334,&nbsp;5000);&nbsp;//&nbsp;id&nbsp;-&nbsp;număr<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;acc1Id&nbsp;=&nbsp;(int)acc1.getId();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(acc1Id);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Account&nbsp;acc2&nbsp;=&nbsp;new&nbsp;Account("sid5523",&nbsp;5000);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;id&nbsp;-&nbsp;șir<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(acc2.getId());<br>&nbsp;&nbsp;&nbsp;}<br>}<br>class&nbsp;Account{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;private&nbsp;Object&nbsp;id;<br>&nbsp;&nbsp;&nbsp;private&nbsp;int&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Account(Object&nbsp;id,&nbsp;int&nbsp;sum){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.id&nbsp;=&nbsp;id;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.sum&nbsp;=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;Object&nbsp;getId()&nbsp;{&nbsp;return&nbsp;id;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;getSum()&nbsp;{&nbsp;return&nbsp;sum;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;setSum(int&nbsp;sum)&nbsp;{&nbsp;this.sum&nbsp;=&nbsp;sum;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, totul funcționează perfect. Totuși, ne confruntăm cu o problemă legată de securitatea tipurilor. De exemplu, în următorul caz vom primi o eroare:</p>
+     <div class="code-inline">
+      <pre><code>Account&nbsp;acc1&nbsp;=&nbsp;new&nbsp;Account("2345",&nbsp;5000);<br>int&nbsp;acc1Id&nbsp;=&nbsp;(int)acc1.getId();&nbsp;//&nbsp;java.lang.ClassCastException<br>System.out.println(acc1Id);</code></pre>
+     </div>
+     <p class="paragraph">Problema poate părea artificială, deoarece în acest caz vedem că în constructor se transmite un șir de caractere, așa că este puțin probabil să încercăm să-l convertim în tipul int.</p>
+     <p class="paragraph">Totuși, în timpul dezvoltării, este posibil să nu știm exact ce tip reprezintă valoarea din id și, atunci când încercăm să obținem un număr, ne vom confrunta cu o excepție java.lang.ClassCastException.</p>
+     <p class="paragraph">Să scriem câte o versiune separată a clasei Account pentru fiecare tip nu este o soluție bună, deoarece ar duce la redundanță.</p>
+     <p class="paragraph">Aceste probleme au fost soluționate cu ajutorul generalizărilor sau generics. Generalizările permit utilizarea unor tipuri nespecificate. Așadar, să definim clasa Account ca o clasă generică:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Account&lt;T&gt;{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;private&nbsp;T&nbsp;id;<br>&nbsp;&nbsp;&nbsp;private&nbsp;int&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Account(T&nbsp;id,&nbsp;int&nbsp;sum){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.id&nbsp;=&nbsp;id;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.sum&nbsp;=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;T&nbsp;getId()&nbsp;{&nbsp;return&nbsp;id;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;getSum()&nbsp;{&nbsp;return&nbsp;sum;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;setSum(int&nbsp;sum)&nbsp;{&nbsp;this.sum&nbsp;=&nbsp;sum;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Cu ajutorul literei T în definiția clasei class Account&lt;T&gt;, indicăm faptul că tipul T va fi folosit de această clasă. Parametrul T din parantezele unghiulare se numește parametru universal, deoarece în locul lui se poate introduce orice tip. Momentan nu știm ce tip va fi: String, int sau altul. Litera T este aleasă în mod convențional, dar poate fi orice altă literă sau set de caractere.</p>
+     <p class="paragraph">După ce am declarat clasa, putem aplica parametrul universal T: astfel, în clasă se declară o variabilă de acest tip, căreia i se atribuie o valoare în constructor.</p>
+     <p class="paragraph">Metoda getId() returnează valoarea variabilei id, iar deoarece această variabilă reprezintă tipul T, metoda va returna un obiect de tipul T: public T getId().</p>
+     <p class="paragraph">Să utilizăm această clasă:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;class&nbsp;Program{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Account&lt;String&gt;&nbsp;acc1&nbsp;=&nbsp;new&nbsp;Account&lt;String&gt;("2345",&nbsp;5000);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;acc1Id&nbsp;=&nbsp;acc1.getId();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(acc1Id);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Account&lt;Integer&gt;&nbsp;acc2&nbsp;=&nbsp;new&nbsp;Account&lt;Integer&gt;(2345,&nbsp;5000);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Integer&nbsp;acc2Id&nbsp;=&nbsp;acc2.getId();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(acc2Id);<br>&nbsp;&nbsp;&nbsp;}<br>}<br>class&nbsp;Account&lt;T&gt;{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;private&nbsp;T&nbsp;id;<br>&nbsp;&nbsp;&nbsp;private&nbsp;int&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Account(T&nbsp;id,&nbsp;int&nbsp;sum){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.id&nbsp;=&nbsp;id;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.sum&nbsp;=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;T&nbsp;getId()&nbsp;{&nbsp;return&nbsp;id;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;getSum()&nbsp;{&nbsp;return&nbsp;sum;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;setSum(int&nbsp;sum)&nbsp;{&nbsp;this.sum&nbsp;=&nbsp;sum;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">La definirea variabilei acestui tip de clasă și la crearea obiectului, după numele clasei, în parantezele unghiulare trebuie să specificăm ce tip va fi folosit în locul parametrului universal. Trebuie să luăm în considerare că acestea funcționează doar cu obiecte, nu și cu tipuri primitive.</p>
+     <p class="paragraph">De exemplu, putem scrie Account&lt;Integer&gt;, dar nu putem folosi tipul int sau double, de exemplu Account&lt;int&gt;. În locul tipurilor primitive trebuie să folosim clasele-înveliș: Integer în loc de int, Double în loc de double, etc.</p>
+     <p class="paragraph">De exemplu, primul obiect va folosi tipul String, așa că în loc de T va fi utilizat String:</p>
+     <div class="code-inline">
+      <pre><code>Account&lt;String&gt;&nbsp;acc1&nbsp;=&nbsp;new&nbsp;Account&lt;String&gt;("2345",&nbsp;5000);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, primul parametru transmis în constructor va fi un șir de caractere.</p>
+     <p class="paragraph">Al doilea obiect folosește tipul int (Integer):</p>
+     <div class="code-inline">
+      <pre><code>Account&lt;Integer&gt;&nbsp;acc2&nbsp;=&nbsp;new&nbsp;Account&lt;Integer&gt;(2345,&nbsp;5000);</code></pre>
+     </div>
+     <h2 class="subtitle">Interfețele generice</h2>
+     <p class="paragraph">Interfețele, la fel ca și clasele, pot fi generice. Să creăm o interfață generică Accountable și să o folosim în program:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;class&nbsp;Program{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Accountable&lt;String&gt;&nbsp;acc1&nbsp;=&nbsp;new&nbsp;Account("1235rwr",&nbsp;5000);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Account&nbsp;acc2&nbsp;=&nbsp;new&nbsp;Account("2373",&nbsp;4300);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(acc1.getId());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(acc2.getId());<br>&nbsp;&nbsp;&nbsp;}<br>}<br>interface&nbsp;Accountable&lt;T&gt;{<br>&nbsp;&nbsp;&nbsp;T&nbsp;getId();<br>&nbsp;&nbsp;&nbsp;int&nbsp;getSum();<br>&nbsp;&nbsp;&nbsp;void&nbsp;setSum(int&nbsp;sum);<br>}<br>class&nbsp;Account&nbsp;implements&nbsp;Accountable&lt;String&gt;{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;id;<br>&nbsp;&nbsp;&nbsp;private&nbsp;int&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Account(String&nbsp;id,&nbsp;int&nbsp;sum){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.id&nbsp;=&nbsp;id;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.sum&nbsp;=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;String&nbsp;getId()&nbsp;{&nbsp;return&nbsp;id;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;getSum()&nbsp;{&nbsp;return&nbsp;sum;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;setSum(int&nbsp;sum)&nbsp;{&nbsp;this.sum&nbsp;=&nbsp;sum;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">La implementarea unei astfel de interfețe există două strategii. În acest caz, am implementat prima strategie, unde pentru parametrul universal al interfeței s-a stabilit un tip concret, ca de exemplu String. Astfel, clasa care implementează interfața este fixată pe acest tip.</p>
+     <p class="paragraph">A doua strategie constă în definirea unei clase generice, care folosește același parametru universal:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;class&nbsp;Program{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Account&lt;String&gt;&nbsp;acc1&nbsp;=&nbsp;new&nbsp;Account&lt;String&gt;("1235rwr",&nbsp;5000);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Account&lt;String&gt;&nbsp;acc2&nbsp;=&nbsp;new&nbsp;Account&lt;String&gt;("2373",&nbsp;4300);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(acc1.getId());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(acc2.getId());<br>&nbsp;&nbsp;&nbsp;}<br>}<br>interface&nbsp;Accountable&lt;T&gt;{<br>&nbsp;&nbsp;&nbsp;T&nbsp;getId();<br>&nbsp;&nbsp;&nbsp;int&nbsp;getSum();<br>&nbsp;&nbsp;&nbsp;void&nbsp;setSum(int&nbsp;sum);<br>}<br>class&nbsp;Account&lt;T&gt;&nbsp;implements&nbsp;Accountable&lt;T&gt;{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;private&nbsp;T&nbsp;id;<br>&nbsp;&nbsp;&nbsp;private&nbsp;int&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Account(T&nbsp;id,&nbsp;int&nbsp;sum){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.id&nbsp;=&nbsp;id;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.sum&nbsp;=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;T&nbsp;getId()&nbsp;{&nbsp;return&nbsp;id;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;getSum()&nbsp;{&nbsp;return&nbsp;sum;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;setSum(int&nbsp;sum)&nbsp;{&nbsp;this.sum&nbsp;=&nbsp;sum;&nbsp;}<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Metode generice</h2>
+     <p class="paragraph">Pe lângă tipurile generice, putem crea și metode generice, care vor folosi parametri universali. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;class&nbsp;Program{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Printer&nbsp;printer&nbsp;=&nbsp;new&nbsp;Printer();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String[]&nbsp;people&nbsp;=&nbsp;{"Tom",&nbsp;"Alice",&nbsp;"Sam",&nbsp;"Kate",&nbsp;"Bob",&nbsp;"Helen"};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Integer[]&nbsp;numbers&nbsp;=&nbsp;{23,&nbsp;4,&nbsp;5,&nbsp;2,&nbsp;13,&nbsp;456,&nbsp;4};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printer.&lt;String&gt;print(people);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printer.&lt;Integer&gt;print(numbers);<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;Printer{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;&lt;T&gt;&nbsp;void&nbsp;print(T[]&nbsp;items){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(T&nbsp;item:&nbsp;items){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(item);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">O particularitate a metodei generice este utilizarea parametrului universal în definiția metodei, după toți modificatorii și înainte de tipul de returnare.</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;&lt;T&gt;&nbsp;void&nbsp;print(T[]&nbsp;items)</code></pre>
+     </div>
+     <p class="paragraph">Apoi, în interiorul metodei, toate valorile de tipul T vor reprezenta acest parametru universal.</p>
+     <p class="paragraph">La apelarea metodei, înainte de numele ei, în parantezele unghiulare indicăm ce tip va fi transmis în locul parametrului universal:</p>
+     <div class="code-inline">
+      <pre><code>printer.&lt;String&gt;print(people);<br>printer.&lt;Integer&gt;print(numbers);</code></pre>
+     </div>
+     <h2 class="subtitle">Utilizarea mai multor parametri universali</h2>
+     <p class="paragraph">Putem defini mai mulți parametri universali simultan:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;class&nbsp;Program{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Account&lt;String,&nbsp;Double&gt;&nbsp;acc1&nbsp;=&nbsp;new&nbsp;Account&lt;String,&nbsp;Double&gt;("354",&nbsp;5000.87);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;id&nbsp;=&nbsp;acc1.getId();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Double&nbsp;sum&nbsp;=&nbsp;acc1.getSum();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("Id:&nbsp;%s&nbsp;&nbsp;Sum:&nbsp;%f&nbsp;\n",&nbsp;id,&nbsp;sum);<br>&nbsp;&nbsp;&nbsp;}<br>}<br>class&nbsp;Account&lt;T,&nbsp;S&gt;{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;private&nbsp;T&nbsp;id;<br>&nbsp;&nbsp;&nbsp;private&nbsp;S&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Account(T&nbsp;id,&nbsp;S&nbsp;sum){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.id&nbsp;=&nbsp;id;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.sum&nbsp;=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;T&nbsp;getId()&nbsp;{&nbsp;return&nbsp;id;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;S&nbsp;getSum()&nbsp;{&nbsp;return&nbsp;sum;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;setSum(S&nbsp;sum)&nbsp;{&nbsp;this.sum&nbsp;=&nbsp;sum;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, tipul String va fi transmis în locul parametrului T, iar tipul Double - în locul parametrului S.</p>
+     <h2 class="subtitle">Constructori generici</h2>
+     <p class="paragraph">Constructorii, la fel ca metodele, pot fi și ei generici. În acest caz, înainte de constructor se indică în parantezele unghiulare parametrii universali:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;class&nbsp;Program{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Account&nbsp;acc1&nbsp;=&nbsp;new&nbsp;Account("cid2373",&nbsp;5000);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Account&nbsp;acc2&nbsp;=&nbsp;new&nbsp;Account(53757,&nbsp;4000);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(acc1.getId());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(acc2.getId());<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;Account{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;id;<br>&nbsp;&nbsp;&nbsp;private&nbsp;int&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&lt;T&gt;Account(T&nbsp;id,&nbsp;int&nbsp;sum){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.id&nbsp;=&nbsp;id.toString();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.sum&nbsp;=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;String&nbsp;getId()&nbsp;{&nbsp;return&nbsp;id;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;getSum()&nbsp;{&nbsp;return&nbsp;sum;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;setSum(int&nbsp;sum)&nbsp;{&nbsp;this.sum&nbsp;=&nbsp;sum;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, constructorul acceptă parametrul id, care reprezintă tipul T. În constructor, valoarea lui este convertită în șir de caractere și stocată într-o variabilă locală.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

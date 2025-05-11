@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Java', activeChapter='3.Clase. Programare orientata pe obiecte in Java', activeLesson='16.Mostenirea si generalizarile'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Moștenirea și generalizările</h1>
+     <p class="paragraph">Clasele generice pot fi implicate în ierarhia de moștenire: pot fi fie moștenite, fie pot juca rolul de clase de bază. Să analizăm diferite situații.</p>
+     <h2 class="subtitle">Clasa de bază generică</h2>
+     <p class="paragraph">Atunci când o clasă derivată moștenește o clasă generică, trebuie să specifice tipul în construcția clasei de bază:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Account&lt;T&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;private&nbsp;T&nbsp;_id;<br>&nbsp;&nbsp;&nbsp;T&nbsp;getId(){&nbsp;return&nbsp;_id;&nbsp;}<br>&nbsp;&nbsp;&nbsp;Account(T&nbsp;id)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_id&nbsp;=&nbsp;id;<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;DepositAccount&lt;T&gt;&nbsp;extends&nbsp;Account&lt;T&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;DepositAccount(T&nbsp;id){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super(id);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În constructorul clasei DepositAccount, se face referire la constructorul clasei de bază, unde sunt transmise datele de tip.</p>
+     <p class="paragraph">Exemple de utilizare a claselor:</p>
+     <div class="code-inline">
+      <pre><code>DepositAccount&lt;Integer&gt;&nbsp;dAccount1&nbsp;=&nbsp;new&nbsp;DepositAccount&lt;&gt;(20);<br>System.out.println(dAccount1.getId());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>DepositAccount&lt;String&gt;&nbsp;dAccount2&nbsp;=&nbsp;new&nbsp;DepositAccount&lt;&gt;("12345");<br>System.out.println(dAccount2.getId());</code></pre>
+     </div>
+     <p class="paragraph">Clasa derivată poate adăuga și utiliza propriile sale parametri de tip:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Account&lt;T&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;private&nbsp;T&nbsp;_id;<br>&nbsp;&nbsp;&nbsp;T&nbsp;getId(){&nbsp;return&nbsp;_id;&nbsp;}<br>&nbsp;&nbsp;&nbsp;Account(T&nbsp;id)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_id&nbsp;=&nbsp;id;<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;DepositAccount&lt;T,&nbsp;S&gt;&nbsp;extends&nbsp;Account&lt;T&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;private&nbsp;S&nbsp;_name;<br>&nbsp;&nbsp;&nbsp;S&nbsp;getName(){&nbsp;return&nbsp;_name;&nbsp;}<br>&nbsp;&nbsp;&nbsp;DepositAccount(T&nbsp;id,&nbsp;S&nbsp;name)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super(id);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this._name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Exemple de utilizare:</p>
+     <div class="code-inline">
+      <pre><code>DepositAccount&lt;Integer,&nbsp;String&gt;&nbsp;dAccount1&nbsp;=&nbsp;new&nbsp;DepositAccount&lt;&gt;(20,&nbsp;"Tom");<br>System.out.println(dAccount1.getId()&nbsp;+&nbsp;"&nbsp;:&nbsp;"&nbsp;+&nbsp;dAccount1.getName());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>DepositAccount&lt;String,&nbsp;Integer&gt;&nbsp;dAccount2&nbsp;=&nbsp;new&nbsp;DepositAccount&lt;&gt;("12345",&nbsp;23456);<br>System.out.println(dAccount2.getId()&nbsp;+&nbsp;"&nbsp;:&nbsp;"&nbsp;+&nbsp;dAccount2.getName());</code></pre>
+     </div>
+     <p class="paragraph">În altă situație, clasa derivată poate să nu fie deloc generică:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Account&lt;T&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;private&nbsp;T&nbsp;_id;<br>&nbsp;&nbsp;&nbsp;T&nbsp;getId(){&nbsp;return&nbsp;_id;&nbsp;}<br>&nbsp;&nbsp;&nbsp;Account(T&nbsp;id)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_id&nbsp;=&nbsp;id;<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;DepositAccount&nbsp;extends&nbsp;Account&lt;Integer&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;DepositAccount()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super(5);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici, la moștenire, este specificat explicit tipul care va fi utilizat de clasa de bază, adică tipul Integer. Apoi, în constructorul clasei de bază, este transmisă o valoare de acest tip – în acest caz, numărul 5.</p>
+     <p class="paragraph">Exemplu de utilizare:</p>
+     <div class="code-inline">
+      <pre><code>DepositAccount&nbsp;dAccount1&nbsp;=&nbsp;new&nbsp;DepositAccount();<br>System.out.println(dAccount1.getId());</code></pre>
+     </div>
+     <h2 class="subtitle">Clasa derivată generică</h2>
+     <p class="paragraph">Poate apărea situația în care clasa de bază este o clasă obișnuită, fără generalizări. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Account&nbsp;{<br>&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;_name;<br>&nbsp;&nbsp;&nbsp;String&nbsp;getName(){&nbsp;return&nbsp;_name;&nbsp;}<br>&nbsp;&nbsp;&nbsp;Account(String&nbsp;name)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;DepositAccount&lt;T&gt;&nbsp;extends&nbsp;Account&nbsp;{<br>&nbsp;&nbsp;&nbsp;private&nbsp;T&nbsp;_id;<br>&nbsp;&nbsp;&nbsp;T&nbsp;getId(){&nbsp;return&nbsp;_id;&nbsp;}<br>&nbsp;&nbsp;&nbsp;DepositAccount(String&nbsp;name,&nbsp;T&nbsp;id)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super(name);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_id&nbsp;=&nbsp;id;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, utilizarea construcțiilor clasei de bază în clasa derivată are loc ca de obicei.</p>
+     <h2 class="subtitle">Conversia tipurilor generice</h2>
+     <p class="paragraph">Un obiect de un tip generic poate fi convertit într-un alt tip, dacă folosesc același tip de bază. Să analizăm conversia tipurilor pe baza următoarelor două clase generice:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Account&lt;T&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;private&nbsp;T&nbsp;_id;<br>&nbsp;&nbsp;&nbsp;T&nbsp;getId(){&nbsp;return&nbsp;_id;&nbsp;}<br>&nbsp;&nbsp;&nbsp;Account(T&nbsp;id)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_id&nbsp;=&nbsp;id;<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;DepositAccount&lt;T&gt;&nbsp;extends&nbsp;Account&lt;T&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;DepositAccount(T&nbsp;id)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super(id);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Putem converti un obiect DepositAccount&lt;Integer&gt; în Account&lt;Integer&gt; sau DepositAccount&lt;String&gt; în Account&lt;String&gt;:</p>
+     <div class="code-inline">
+      <pre><code>DepositAccount&lt;Integer&gt;&nbsp;depAccount&nbsp;=&nbsp;new&nbsp;DepositAccount&lt;&gt;(10);<br>Account&lt;Integer&gt;&nbsp;account&nbsp;=&nbsp;(Account&lt;Integer&gt;)&nbsp;depAccount;<br>System.out.println(account.getId());</code></pre>
+     </div>
+     <p class="paragraph">Însă nu putem face același lucru cu obiecte de tipuri diferite. De exemplu, următorul cod nu va funcționa:</p>
+     <div class="code-inline">
+      <pre><code>DepositAccount&lt;Integer&gt;&nbsp;depAccount&nbsp;=&nbsp;new&nbsp;DepositAccount&lt;&gt;(10);<br>Account&lt;String&gt;&nbsp;account&nbsp;=&nbsp;(Account&lt;String&gt;)&nbsp;depAccount;</code></pre>
+     </div>
+     <p class="paragraph">Această încercare de conversie va produce o eroare, deoarece cele două tipuri generice nu sunt compatibile între ele.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

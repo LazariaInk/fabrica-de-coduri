@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='6.Delegati, evenimente si lambda', activeLesson='1.Delegati'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Delegați</h1>
+     <p class="paragraph">Delegații reprezintă obiecte care indică spre metode. Cu alte cuvinte, delegații sunt pointeri către metode și cu ajutorul delegaților putem apela aceste metode.</p>
+     <h2 class="subtitle">Definirea delegaților</h2>
+     <p class="paragraph">Pentru a declara un delegat se folosește cuvântul cheie delegate, urmat de tipul returnat, numele și parametrii. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>delegate&nbsp;void&nbsp;Message();</code></pre>
+     </div>
+     <p class="paragraph">Delegatul Message are tipul de returnare void (adică nu returnează nimic) și nu acceptă niciun parametru. Acest lucru înseamnă că acest delegat poate indica orice metodă care nu acceptă parametri și nu returnează nimic.</p>
+     <p class="paragraph">Să vedem cum putem folosi acest delegat:</p>
+     <div class="code-inline">
+      <pre><code>Message&nbsp;mes;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;2.&nbsp;Creăm&nbsp;o&nbsp;variabilă&nbsp;delegat<br>mes&nbsp;=&nbsp;Hello;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;3.&nbsp;Atribuim&nbsp;acestei&nbsp;variabile&nbsp;adresa&nbsp;metodei<br>mes();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;4.&nbsp;Apelăm&nbsp;metoda<br><br>void&nbsp;Hello()&nbsp;=&gt;&nbsp;Console.WriteLine("Hello&nbsp;FDC.COM");<br><br>delegate&nbsp;void&nbsp;Message();&nbsp;//&nbsp;1.&nbsp;Declarăm&nbsp;delegatul</code></pre>
+     </div>
+     <p class="paragraph">Primul pas este definirea delegatului:</p>
+     <div class="code-inline">
+      <pre><code>delegate&nbsp;void&nbsp;Message();&nbsp;//&nbsp;1.&nbsp;Declarăm&nbsp;delegatul</code></pre>
+     </div>
+     <p class="paragraph">Pentru a utiliza delegatul, declarăm o variabilă a acestui delegat:</p>
+     <div class="code-inline">
+      <pre><code>Message&nbsp;mes;&nbsp;//&nbsp;2.&nbsp;Creăm&nbsp;o&nbsp;variabilă&nbsp;delegat</code></pre>
+     </div>
+     <p class="paragraph">Apoi, atribuim delegatului adresa unei metode (în cazul nostru, metoda Hello). Observați că această metodă are același tip de returnare și același set de parametri (în acest caz, lipsa parametrilor) ca și delegatul.</p>
+     <div class="code-inline">
+      <pre><code>mes&nbsp;=&nbsp;Hello;&nbsp;//&nbsp;3.&nbsp;Atribuim&nbsp;acestei&nbsp;variabile&nbsp;adresa&nbsp;metodei</code></pre>
+     </div>
+     <p class="paragraph">Apoi, apelăm metoda prin intermediul delegatului:</p>
+     <div class="code-inline">
+      <pre><code>mes();&nbsp;//&nbsp;4.&nbsp;Apelăm&nbsp;metoda</code></pre>
+     </div>
+     <p class="paragraph">Apelul delegatului se face similar cu apelul unei metode.</p>
+     <p class="paragraph">Delegații nu trebuie neapărat să indice doar metode definite în aceeași clasă în care este definită variabila delegatului. Aceștia pot indica și metode din alte clase și structuri.</p>
+     <div class="code-inline">
+      <pre><code>Message&nbsp;message1&nbsp;=&nbsp;Welcome.Print;<br>Message&nbsp;message2&nbsp;=&nbsp;new&nbsp;Hello().Display;<br><br>message1();&nbsp;//&nbsp;Welcome<br>message2();&nbsp;//&nbsp;Привет<br><br>delegate&nbsp;void&nbsp;Message();<br><br>class&nbsp;Welcome<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;Print()&nbsp;=&gt;&nbsp;Console.WriteLine("Welcome");<br>}<br>class&nbsp;Hello<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Display()&nbsp;=&gt;&nbsp;Console.WriteLine("Salut");<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Locul definirii delegatului</h2>
+     <p class="paragraph">Dacă definim un delegat într-un program de nivel superior (top-level program), care este reprezentat implicit de fișierul Program.cs începând cu versiunea C# 10, ca în exemplul de mai sus, atunci delegatul se definește la sfârșitul codului, la fel ca și alte tipuri. Totuși, delegatul poate fi definit și în interiorul unei clase:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Program<br>{<br>&nbsp;&nbsp;&nbsp;delegate&nbsp;void&nbsp;Message();&nbsp;//&nbsp;1.&nbsp;Declarăm&nbsp;delegatul<br>&nbsp;&nbsp;&nbsp;static&nbsp;void&nbsp;Main()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Message&nbsp;mes;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;2.&nbsp;Creăm&nbsp;o&nbsp;variabilă&nbsp;delegat<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mes&nbsp;=&nbsp;Hello;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;3.&nbsp;Atribuim&nbsp;acestei&nbsp;variabile&nbsp;adresa&nbsp;metodei<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mes();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;4.&nbsp;Apelăm&nbsp;metoda<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;Hello()&nbsp;=&gt;&nbsp;Console.WriteLine("Hello&nbsp;FDC.COM");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Sau în afara clasei:</p>
+     <div class="code-inline">
+      <pre><code>delegate&nbsp;void&nbsp;Message();&nbsp;//&nbsp;Declarăm&nbsp;delegatul<br><br>class&nbsp;Program<br>{<br>&nbsp;&nbsp;&nbsp;static&nbsp;void&nbsp;Main()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Message&nbsp;mes;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Creăm&nbsp;o&nbsp;variabilă&nbsp;delegat<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mes&nbsp;=&nbsp;Hello;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Atribuim&nbsp;acestei&nbsp;variabile&nbsp;adresa&nbsp;metodei<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mes();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Apelăm&nbsp;metoda<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;Hello()&nbsp;=&gt;&nbsp;Console.WriteLine("Hello&nbsp;FDC.COM");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Parametrii și rezultatul delegatului</h2>
+     <p class="paragraph">Să vedem cum putem defini și utiliza un delegat care acceptă parametri și returnează un rezultat:</p>
+     <div class="code-inline">
+      <pre><code>Operation&nbsp;operation&nbsp;=&nbsp;Add;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;delegatul&nbsp;indică&nbsp;spre&nbsp;metoda&nbsp;Add<br>int&nbsp;result&nbsp;=&nbsp;operation(4,&nbsp;5);&nbsp;&nbsp;&nbsp;//&nbsp;efectiv&nbsp;Add(4,&nbsp;5)<br>Console.WriteLine(result);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;9<br><br>operation&nbsp;=&nbsp;Multiply;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;acum&nbsp;delegatul&nbsp;indică&nbsp;spre&nbsp;metoda&nbsp;Multiply<br>result&nbsp;=&nbsp;operation(4,&nbsp;5);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;efectiv&nbsp;Multiply(4,&nbsp;5)<br>Console.WriteLine(result);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;20<br><br>int&nbsp;Add(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;=&gt;&nbsp;x&nbsp;+&nbsp;y;<br><br>int&nbsp;Multiply(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;=&gt;&nbsp;x&nbsp;*&nbsp;y;<br><br>delegate&nbsp;int&nbsp;Operation(int&nbsp;x,&nbsp;int&nbsp;y);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, delegatul Operation returnează un rezultat de tip int și are doi parametri de tip int. Deci, orice metodă care returnează un int și acceptă doi parametri de tip int corespunde acestui delegat. În acest exemplu, sunt metodele Add și Multiply. Putem atribui oricare dintre aceste metode variabilei delegat și le putem apela.</p>
+     <h2 class="subtitle">Atribuirea unei referințe la metodă</h2>
+     <p class="paragraph">Mai sus, variabilei delegat i s-a atribuit direct o metodă. Există și un alt mod - crearea unui obiect delegat folosind constructorul, în care se transmite metoda necesară:</p>
+     <div class="code-inline">
+      <pre><code>Operation&nbsp;operation1&nbsp;=&nbsp;Add;<br>Operation&nbsp;operation2&nbsp;=&nbsp;new&nbsp;Operation(Add);<br><br>int&nbsp;Add(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;=&gt;&nbsp;x&nbsp;+&nbsp;y;<br><br>delegate&nbsp;int&nbsp;Operation(int&nbsp;x,&nbsp;int&nbsp;y);</code></pre>
+     </div>
+     <p class="paragraph">Ambele metode sunt echivalente.</p>
+     <h2 class="subtitle">Conformitatea metodelor cu delegatul</h2>
+     <p class="paragraph">După cum s-a menționat mai sus, metodele sunt conforme cu delegatul dacă au același tip de returnare și același set de parametri. Dar trebuie să ținem cont de modificatorii ref, in și out. De exemplu, să presupunem că avem un delegat:</p>
+     <div class="code-inline">
+      <pre><code>delegate&nbsp;void&nbsp;SomeDel(int&nbsp;a,&nbsp;double&nbsp;b);</code></pre>
+     </div>
+     <p class="paragraph">Acestui delegat îi corespunde următoarea metodă:</p>
+     <div class="code-inline">
+      <pre><code>void&nbsp;SomeMethod1(int&nbsp;g,&nbsp;double&nbsp;n)&nbsp;{&nbsp;}</code></pre>
+     </div>
+     <p class="paragraph">Următoarele metode NU corespund:</p>
+     <div class="code-inline">
+      <pre><code>double&nbsp;SomeMethod2(int&nbsp;g,&nbsp;double&nbsp;n)&nbsp;{&nbsp;return&nbsp;g&nbsp;+&nbsp;n;&nbsp;}<br>void&nbsp;SomeMethod3(double&nbsp;n,&nbsp;int&nbsp;g)&nbsp;{&nbsp;}<br>void&nbsp;SomeMethod4(ref&nbsp;int&nbsp;g,&nbsp;double&nbsp;n)&nbsp;{&nbsp;}<br>void&nbsp;SomeMethod5(out&nbsp;int&nbsp;g,&nbsp;double&nbsp;n)&nbsp;{&nbsp;g&nbsp;=&nbsp;6;&nbsp;}</code></pre>
+     </div>
+     <p class="paragraph">Aici metoda SomeMethod2 are un alt tip de returnare, diferit de tipul delegatului. SomeMethod3 are un alt set de parametri. Parametrii SomeMethod4 și SomeMethod5 sunt, de asemenea, diferiți de parametrii delegatului, deoarece au modificatori ref și out.</p>
+     <h2 class="subtitle">Adăugarea metodelor la delegat</h2>
+     <p class="paragraph">În exemplele de mai sus, variabila delegat indica spre o singură metodă. În realitate, delegatul poate indica spre mai multe metode care au aceeași semnătură și același tip de returnare. Toate metodele din delegat sunt plasate într-o listă specială - lista de apeluri (invocation list).</p>
+     <p class="paragraph">Și când apelăm delegatul, toate metodele din această listă sunt apelate secvențial. Putem adăuga mai multe metode în această listă. Pentru a adăuga metode la delegat, se folosește operatorul +=:</p>
+     <div class="code-inline">
+      <pre><code>Message&nbsp;message&nbsp;=&nbsp;Hello;<br>message&nbsp;+=&nbsp;HowAreYou;&nbsp;&nbsp;//&nbsp;acum&nbsp;message&nbsp;indică&nbsp;spre&nbsp;două&nbsp;metode<br>message();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;sunt&nbsp;apelate&nbsp;ambele&nbsp;metode&nbsp;-&nbsp;Hello&nbsp;și&nbsp;HowAreYou<br><br>void&nbsp;Hello()&nbsp;=&gt;&nbsp;Console.WriteLine("Hello");<br>void&nbsp;HowAreYou()&nbsp;=&gt;&nbsp;Console.WriteLine("How&nbsp;are&nbsp;you?");<br><br>delegate&nbsp;void&nbsp;Message();</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, lista de apeluri a delegatului message include două metode - Hello și HowAreYou. Și când apelăm message, sunt apelate ambele metode.</p>
+     <p class="paragraph">Trebuie menționat că în realitate se va crea un nou obiect delegat, care va include metodele din copia veche a delegatului și metoda nouă, iar acest nou obiect delegat va fi atribuit variabilei message.</p>
+     <p class="paragraph">La adăugarea delegaților, trebuie să ținem cont de faptul că putem adăuga o referință la aceeași metodă de mai multe ori, iar în lista de apeluri a delegatului vor fi mai multe referințe la aceeași metodă. Prin urmare, la apelarea delegatului, metoda adăugată va fi apelată de atâtea ori cât a fost adăugată:</p>
+     <div class="code-inline">
+      <pre><code>Message&nbsp;message&nbsp;=&nbsp;Hello;<br>message&nbsp;+=&nbsp;HowAreYou;<br>message&nbsp;+=&nbsp;Hello;<br>message&nbsp;+=&nbsp;Hello;<br>message();</code></pre>
+     </div>
+     <p class="paragraph">Output-ul în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Hello<br>How&nbsp;are&nbsp;you?<br>Hello<br>Hello</code></pre>
+     </div>
+     <p class="paragraph">Putem elimina metode din delegat folosind operatorul -=:</p>
+     <div class="code-inline">
+      <pre><code>Message?&nbsp;message&nbsp;=&nbsp;Hello;<br>message&nbsp;+=&nbsp;HowAreYou;<br>message();&nbsp;&nbsp;//&nbsp;sunt&nbsp;apelate&nbsp;toate&nbsp;metodele&nbsp;din&nbsp;message<br>message&nbsp;-=&nbsp;HowAreYou;&nbsp;&nbsp;&nbsp;//&nbsp;eliminăm&nbsp;metoda&nbsp;HowAreYou<br>if&nbsp;(message&nbsp;!=&nbsp;null)&nbsp;message();&nbsp;//&nbsp;este&nbsp;apelată&nbsp;metoda&nbsp;Hello</code></pre>
+     </div>
+     <p class="paragraph">Trebuie să menționăm că la eliminarea metodelor din delegat, se va crea un nou delegat, care va conține în lista de apeluri metodele rămase, mai puțin metoda eliminată.</p>
+     <p class="paragraph">La eliminarea unei metode poate apărea situația în care delegatul să nu mai conțină nicio metodă, și atunci variabila va avea valoarea null. De aceea, în acest caz, variabila este definită nu doar ca o variabilă de tip Message, ci anume Message?, adică un tip care poate reprezenta atât un delegat Message, cât și valoarea null.</p>
+     <p class="paragraph">În plus, înainte de al doilea apel verificăm variabila pentru valoarea null.</p>
+     <p class="paragraph">La eliminare, trebuie să ținem cont de faptul că, dacă delegatul conține mai multe referințe la aceeași metodă, operația -= începe căutarea de la sfârșitul listei de apeluri și elimină doar prima apariție găsită. Dacă o astfel de metodă nu există în lista de apeluri, operația -= nu are niciun efect.</p>
+     <h2 class="subtitle">Unirea delegaților</h2>
+     <p class="paragraph">Delegații pot fi uniți în alți delegați. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>Message&nbsp;mes1&nbsp;=&nbsp;Hello;<br>Message&nbsp;mes2&nbsp;=&nbsp;HowAreYou;<br>Message&nbsp;mes3&nbsp;=&nbsp;mes1&nbsp;+&nbsp;mes2;&nbsp;//&nbsp;Unim&nbsp;delegații<br>mes3();&nbsp;//&nbsp;Sunt&nbsp;apelate&nbsp;toate&nbsp;metodele&nbsp;din&nbsp;mes1&nbsp;și&nbsp;mes2<br><br>void&nbsp;Hello()&nbsp;=&gt;&nbsp;Console.WriteLine("Hello");<br>void&nbsp;HowAreYou()&nbsp;=&gt;&nbsp;Console.WriteLine("How&nbsp;are&nbsp;you?");<br><br>delegate&nbsp;void&nbsp;Message();</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, obiectul mes3 reprezintă unirea delegaților mes1 și mes2. Unirea delegaților înseamnă că lista de apeluri a delegatului mes3 va conține toate metodele din delegații mes1 și mes2. Și la apelarea delegatului mes3, toate aceste metode vor fi apelate simultan.</p>
+     <h2 class="subtitle">Apelarea delegatului</h2>
+     <p class="paragraph">În exemplele de mai sus, delegatul a fost apelat ca o metodă obișnuită. Dacă delegatul primește parametri, atunci la apelare sunt transmise valorile necesare pentru acești parametri:</p>
+     <div class="code-inline">
+      <pre><code>Message&nbsp;mes&nbsp;=&nbsp;Hello;<br>mes();<br>Operation&nbsp;op&nbsp;=&nbsp;Add;<br>int&nbsp;n&nbsp;=&nbsp;op(3,&nbsp;4);<br>Console.WriteLine(n);<br><br>void&nbsp;Hello()&nbsp;=&gt;&nbsp;Console.WriteLine("Hello");<br>int&nbsp;Add(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;=&gt;&nbsp;x&nbsp;+&nbsp;y;<br><br>delegate&nbsp;int&nbsp;Operation(int&nbsp;x,&nbsp;int&nbsp;y);<br>delegate&nbsp;void&nbsp;Message();</code></pre>
+     </div>
+     <p class="paragraph">O altă modalitate de a apela delegatul este utilizarea metodei Invoke():</p>
+     <div class="code-inline">
+      <pre><code>Message&nbsp;mes&nbsp;=&nbsp;Hello;<br>mes.Invoke();&nbsp;//&nbsp;Hello<br>Operation&nbsp;op&nbsp;=&nbsp;Add;<br>int&nbsp;n&nbsp;=&nbsp;op.Invoke(3,&nbsp;4);<br>Console.WriteLine(n);&nbsp;&nbsp;&nbsp;//&nbsp;7<br><br>void&nbsp;Hello()&nbsp;=&gt;&nbsp;Console.WriteLine("Hello");<br>int&nbsp;Add(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;=&gt;&nbsp;x&nbsp;+&nbsp;y;<br><br>delegate&nbsp;int&nbsp;Operation(int&nbsp;x,&nbsp;int&nbsp;y);<br>delegate&nbsp;void&nbsp;Message();</code></pre>
+     </div>
+     <p class="paragraph">Dacă delegatul primește parametri, valorile pentru aceștia sunt transmise metodei Invoke.</p>
+     <p class="paragraph">Trebuie să ținem cont de faptul că, dacă delegatul este gol, adică nu are nicio referință la metode în lista sa de apeluri (deci delegatul este null), atunci la apelarea unui astfel de delegat vom primi o excepție, așa cum se întâmplă în exemplul următor:</p>
+     <div class="code-inline">
+      <pre><code>Message?&nbsp;mes;<br>//mes();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;!&nbsp;Eroare:&nbsp;delegatul&nbsp;este&nbsp;null<br><br>Operation?&nbsp;op&nbsp;=&nbsp;Add;<br>op&nbsp;-=&nbsp;Add;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;delegatul&nbsp;op&nbsp;este&nbsp;gol<br>int&nbsp;n&nbsp;=&nbsp;op(3,&nbsp;4);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;!Eroare:&nbsp;delegatul&nbsp;este&nbsp;null</code></pre>
+     </div>
+     <p class="paragraph">Prin urmare, la apelarea delegatului, este bine să verificăm dacă acesta nu este null. Sau putem folosi metoda Invoke și operatorul condițional null:</p>
+     <div class="code-inline">
+      <pre><code>Message?&nbsp;mes&nbsp;=&nbsp;null;<br>mes?.Invoke();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Nu&nbsp;apare&nbsp;nici&nbsp;o&nbsp;eroare,&nbsp;delegatul&nbsp;pur&nbsp;și&nbsp;simplu&nbsp;nu&nbsp;este&nbsp;apelat<br><br>Operation?&nbsp;op&nbsp;=&nbsp;Add;<br>op&nbsp;-=&nbsp;Add;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;delegatul&nbsp;op&nbsp;este&nbsp;gol<br>int?&nbsp;n&nbsp;=&nbsp;op?.Invoke(3,&nbsp;4);&nbsp;&nbsp;&nbsp;//&nbsp;Nu&nbsp;apare&nbsp;nici&nbsp;o&nbsp;eroare,&nbsp;delegatul&nbsp;pur&nbsp;și&nbsp;simplu&nbsp;nu&nbsp;este&nbsp;apelat,&nbsp;iar&nbsp;n&nbsp;=&nbsp;null</code></pre>
+     </div>
+     <p class="paragraph">Dacă delegatul returnează o valoare, se va returna valoarea ultimei metode din lista de apeluri (dacă lista de apeluri conține mai multe metode). De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>Operation&nbsp;op&nbsp;=&nbsp;Subtract;<br>op&nbsp;+=&nbsp;Multiply;<br>op&nbsp;+=&nbsp;Add;<br>Console.WriteLine(op(7,&nbsp;2));&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Add(7,2)&nbsp;=&nbsp;9<br><br>int&nbsp;Add(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;=&gt;&nbsp;x&nbsp;+&nbsp;y;<br>int&nbsp;Subtract(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;=&gt;&nbsp;x&nbsp;-&nbsp;y;<br>int&nbsp;Multiply(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;=&gt;&nbsp;x&nbsp;*&nbsp;y;<br><br>delegate&nbsp;int&nbsp;Operation(int&nbsp;x,&nbsp;int&nbsp;y);</code></pre>
+     </div>
+     <h2 class="subtitle">Delegați generici</h2>
+     <p class="paragraph">Delegații, la fel ca și alte tipuri, pot fi generici. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>Operation&lt;decimal,&nbsp;int&gt;&nbsp;squareOperation&nbsp;=&nbsp;Square;<br>decimal&nbsp;result1&nbsp;=&nbsp;squareOperation(5);<br>Console.WriteLine(result1);&nbsp;&nbsp;//&nbsp;25<br><br>Operation&lt;int,&nbsp;int&gt;&nbsp;doubleOperation&nbsp;=&nbsp;Double;<br>int&nbsp;result2&nbsp;=&nbsp;doubleOperation(5);<br>Console.WriteLine(result2);&nbsp;&nbsp;//&nbsp;10<br><br>decimal&nbsp;Square(int&nbsp;n)&nbsp;=&gt;&nbsp;n&nbsp;*&nbsp;n;<br>int&nbsp;Double(int&nbsp;n)&nbsp;=&gt;&nbsp;n&nbsp;+&nbsp;n;<br><br>delegate&nbsp;T&nbsp;Operation&lt;T,&nbsp;K&gt;(K&nbsp;val);</code></pre>
+     </div>
+     <p class="paragraph">Aici, delegatul Operation este tipizat cu doi parametri de tip. Parametrul T reprezintă tipul valorii returnate. Parametrul K reprezintă tipul parametrului transmis delegatului. Astfel, acest delegat corespunde unei metode care primește un parametru de orice tip și returnează o valoare de orice tip.</p>
+     <h2 class="subtitle">Delegați ca parametri ai metodelor</h2>
+     <p class="paragraph">Delegații pot fi, de asemenea, parametri ai metodelor. Astfel, o metodă poate primi alte metode ca parametri. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>DoOperation(5,&nbsp;4,&nbsp;Add);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;9<br>DoOperation(5,&nbsp;4,&nbsp;Subtract);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;1<br>DoOperation(5,&nbsp;4,&nbsp;Multiply);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;20<br><br>void&nbsp;DoOperation(int&nbsp;a,&nbsp;int&nbsp;b,&nbsp;Operation&nbsp;op)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(op(a,b));<br>}<br>int&nbsp;Add(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;=&gt;&nbsp;x&nbsp;+&nbsp;y;<br>int&nbsp;Subtract(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;=&gt;&nbsp;x&nbsp;-&nbsp;y;<br>int&nbsp;Multiply(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;=&gt;&nbsp;x&nbsp;+&nbsp;y;<br><br>delegate&nbsp;int&nbsp;Operation(int&nbsp;x,&nbsp;int&nbsp;y);</code></pre>
+     </div>
+     <p class="paragraph">Aici, metoda DoOperation primește ca parametri două numere și o acțiune sub forma unui delegat Operation. În interiorul metodei, apelăm delegatul Operation, transmițându-i numerele din primii doi parametri.</p>
+     <p class="paragraph">La apelarea metodei DoOperation, putem transmite ca al treilea parametru o metodă care corespunde delegatului Operation.</p>
+     <h2 class="subtitle">Returnarea delegaților din metode</h2>
+     <p class="paragraph">Delegații pot fi returnați din metode. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>Operation&nbsp;operation&nbsp;=&nbsp;SelectOperation(OperationType.Add);<br>Console.WriteLine(operation(10,&nbsp;4));&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;14<br><br>operation&nbsp;=&nbsp;SelectOperation(OperationType.Subtract);<br>Console.WriteLine(operation(10,&nbsp;4));&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;6<br><br>operation&nbsp;=&nbsp;SelectOperation(OperationType.Multiply);<br>Console.WriteLine(operation(10,&nbsp;4));&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;40<br><br>Operation&nbsp;SelectOperation(OperationType&nbsp;opType)<br>{<br>&nbsp;&nbsp;&nbsp;switch&nbsp;(opType)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;OperationType.Add:&nbsp;return&nbsp;Add;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;OperationType.Subtract:&nbsp;return&nbsp;Subtract;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;default:&nbsp;return&nbsp;Multiply;<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>int&nbsp;Add(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;=&gt;&nbsp;x&nbsp;+&nbsp;y;<br>int&nbsp;Subtract(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;=&gt;&nbsp;x&nbsp;-&nbsp;y;<br>int&nbsp;Multiply(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;=&gt;&nbsp;x&nbsp;*&nbsp;y;<br><br>enum&nbsp;OperationType<br>{<br>&nbsp;&nbsp;&nbsp;Add,&nbsp;Subtract,&nbsp;Multiply<br>}<br><br>delegate&nbsp;int&nbsp;Operation(int&nbsp;x,&nbsp;int&nbsp;y);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, metoda SelectOperation() primește ca parametru o enumerare de tip OperationType. Această enumerare conține trei constante, fiecare corespunzând unei operațiuni aritmetice. În metoda SelectOperation, în funcție de valoarea parametrului, se returnează o anumită metodă.</p>
+     <p class="paragraph">Deoarece tipul returnat al metodei este delegatul Operation, metoda trebuie să returneze o metodă care corespunde acestui delegat - în acest caz, metodele Add, Subtract și Multiply. De exemplu, dacă parametrul metodei SelectOperation este OperationType.Add, se returnează metoda Add, care efectuează adunarea a două numere:</p>
+     <div class="code-inline">
+      <pre><code>case&nbsp;OperationType.Add:&nbsp;return&nbsp;Add;</code></pre>
+     </div>
+     <p class="paragraph">Când apelăm metoda SelectOperation, putem obține acțiunea dorită în variabila operation:</p>
+     <div class="code-inline">
+      <pre><code>Operation&nbsp;operation&nbsp;=&nbsp;SelectOperation(OperationType.Add);</code></pre>
+     </div>
+     <p class="paragraph">Și când apelăm variabila operation, de fapt, se va apela metoda obținută din SelectOperation:</p>
+     <div class="code-inline">
+      <pre><code>Operation&nbsp;operation&nbsp;=&nbsp;SelectOperation(OperationType.Add);&nbsp;&nbsp;&nbsp;//&nbsp;Aici&nbsp;operation&nbsp;=&nbsp;Add<br>Console.WriteLine(operation(10,&nbsp;4));&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;14</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

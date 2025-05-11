@@ -1,153 +1,143 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='3.Programare functionala', activeLesson='3.Rezultatul functiei'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Rezultatul funcției</h1>
- <p class="paragraph">Funcția poate returna un rezultat. Pentru acest lucru se utilizează instrucțiunea return, după care se specifică valoarea returnată:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;sum&nbsp;(a,&nbsp;b)&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;result&nbsp;=&nbsp;a&nbsp;+&nbsp;b;<br>&nbsp;&nbsp;&nbsp;return&nbsp;result;<br>}</code></pre>
- </div>
- <p class="paragraph">În acest caz, funcția sum() primește doi parametri și returnează suma lor. După instrucțiunea return, urmează valoarea returnată. În acest caz, este valoarea constantei result, în realitate, aceasta poate fi orice expresie, inclusiv rezultatul unei alte funcții.</p>
- <p class="paragraph">După obținerea rezultatului funcției, îl putem atribui unei alte variabile sau constante:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;sum&nbsp;(a,&nbsp;b)&nbsp;{<br>&nbsp;return&nbsp;a&nbsp;+&nbsp;b;<br>}<br>let&nbsp;num1&nbsp;=&nbsp;sum(2,&nbsp;4);<br>console.log(num1);&nbsp;&nbsp;//&nbsp;6<br><br>const&nbsp;num2&nbsp;=&nbsp;sum(6,&nbsp;34);<br>console.log(num2);&nbsp;&nbsp;//&nbsp;40</code></pre>
- </div>
- <p class="paragraph">Funcția poate returna doar o singură valoare. Dacă dorim să returnăm mai multe valori, le putem returna sub formă de array:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;rectangle(width,&nbsp;height)&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;perimetru&nbsp;=&nbsp;width*&nbsp;2&nbsp;+&nbsp;height*&nbsp;2;<br>&nbsp;&nbsp;&nbsp;const&nbsp;arie&nbsp;=&nbsp;width*&nbsp;height;<br>&nbsp;&nbsp;&nbsp;return&nbsp;[perimetru,&nbsp;arie];<br>}<br><br>const&nbsp;dateDreptunghi&nbsp;=&nbsp;rectangle(20,&nbsp;30);<br>console.log(dateDreptunghi[0]);&nbsp;&nbsp;//&nbsp;100&nbsp;-&nbsp;perimetrul&nbsp;dreptunghiului<br>console.log(dateDreptunghi[1]);&nbsp;&nbsp;//&nbsp;600&nbsp;-&nbsp;aria&nbsp;dreptunghiului</code></pre>
- </div>
- <p class="paragraph">În acest exemplu, funcția `rectangle` primește lățimea și înălțimea unui dreptunghi, iar în interiorul funcției, pe baza acestor date, se calculează perimetrul și aria, returnându-le sub formă de array.</p>
- <p class="paragraph">Ca alternativă, putem plasa datele multiple într-un singur obiect:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;rectangle(width,&nbsp;height)&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;perimetru&nbsp;=&nbsp;width*&nbsp;2&nbsp;+&nbsp;height*&nbsp;2;<br>&nbsp;&nbsp;&nbsp;const&nbsp;arie&nbsp;=&nbsp;width*&nbsp;height;<br>&nbsp;&nbsp;&nbsp;return&nbsp;{perimetru:&nbsp;perimetru,&nbsp;arie:&nbsp;arie};<br>}<br><br>const&nbsp;dateDreptunghi&nbsp;=&nbsp;rectangle(20,&nbsp;30);<br>console.log("Perimetru:",&nbsp;dateDreptunghi.perimetru);&nbsp;&nbsp;//&nbsp;100&nbsp;-&nbsp;perimetrul&nbsp;dreptunghiului<br>console.log("Arie:",&nbsp;dateDreptunghi.arie);&nbsp;&nbsp;//&nbsp;600&nbsp;-&nbsp;aria&nbsp;dreptunghiului</code></pre>
- </div>
- <h2 class="subtitle">Revenirea unei funcții dintr-o funcție</h2>
- <p class="paragraph">O funcție poate returna o altă funcție:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;menu(n){<br>&nbsp;&nbsp;&nbsp;if(n==1)&nbsp;return&nbsp;function(x,&nbsp;y){&nbsp;return&nbsp;x&nbsp;+&nbsp;y;}<br>&nbsp;&nbsp;&nbsp;else&nbsp;if(n==2)&nbsp;return&nbsp;function(x,&nbsp;y){&nbsp;return&nbsp;x&nbsp;-&nbsp;y;}<br>&nbsp;&nbsp;&nbsp;else&nbsp;if(n==3)&nbsp;return&nbsp;function(x,&nbsp;y){&nbsp;return&nbsp;x&nbsp;*&nbsp;y;}<br>&nbsp;&nbsp;&nbsp;return&nbsp;function(){&nbsp;return&nbsp;0;}<br>}<br><br>const&nbsp;action&nbsp;=&nbsp;menu(1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;alegem&nbsp;prima&nbsp;opțiune&nbsp;-&nbsp;adunarea<br>const&nbsp;result&nbsp;=&nbsp;action(2,&nbsp;5);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;apelăm&nbsp;funcția&nbsp;și&nbsp;obținem&nbsp;rezultatul&nbsp;în&nbsp;constanta&nbsp;result<br>console.log(result);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;7</code></pre>
- </div>
- <p class="paragraph">În acest caz, funcția menu() returnează una dintre cele trei funcții sau o funcție goală, care pur și simplu returnează numărul 0, în funcție de valoarea transmisă. Ulterior, apelăm funcția menu și obținem rezultatul acestei funcții - o altă funcție în constanta action.</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;action&nbsp;=&nbsp;menu(1);</code></pre>
- </div>
- <p class="paragraph">Deci, aici, action va reprezenta o funcție care primește doi parametri și returnează un număr. Apoi, prin intermediul numelui constantei, putem apela această funcție și obține rezultatul în constanta result:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;result&nbsp;=&nbsp;action(2,&nbsp;5);</code></pre>
- </div>
- <p class="paragraph">Similar, putem obține și alte funcții returnate.</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;menu(n){<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;if(n==1)&nbsp;return&nbsp;function(x,&nbsp;y){&nbsp;return&nbsp;x&nbsp;+&nbsp;y;}<br>&nbsp;&nbsp;&nbsp;else&nbsp;if(n==2)&nbsp;return&nbsp;function(x,&nbsp;y){&nbsp;return&nbsp;x&nbsp;-&nbsp;y;}<br>&nbsp;&nbsp;&nbsp;else&nbsp;if(n==3)&nbsp;return&nbsp;function(x,&nbsp;y){&nbsp;return&nbsp;x&nbsp;*&nbsp;y;}<br>&nbsp;&nbsp;&nbsp;return&nbsp;function(){&nbsp;return&nbsp;0;};<br>}<br><br>let&nbsp;action&nbsp;=&nbsp;menu(1);<br>console.log(action(2,&nbsp;5));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;7<br><br>action&nbsp;=&nbsp;menu(2);<br>console.log(action(2,&nbsp;5));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;-3<br><br>action&nbsp;=&nbsp;menu(3);<br>console.log(action(2,&nbsp;5));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;10<br><br>action&nbsp;=&nbsp;menu(190);<br>console.log(action(2,&nbsp;5));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;0</code></pre>
- </div>
- <p class="paragraph">La fel, poți returna funcții folosind un nume:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;sum(x,&nbsp;y){&nbsp;return&nbsp;x&nbsp;+&nbsp;y;}<br>function&nbsp;subtract(x,&nbsp;y){&nbsp;return&nbsp;x&nbsp;-&nbsp;y;}<br>function&nbsp;multiply(x,&nbsp;y){&nbsp;return&nbsp;x&nbsp;*&nbsp;y;}<br>function&nbsp;zero(){&nbsp;return&nbsp;0;}<br><br>function&nbsp;menu(n){<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;switch(n){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;1:&nbsp;return&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;2:&nbsp;return&nbsp;subtract;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;3:&nbsp;return&nbsp;multiply;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;default:&nbsp;return&nbsp;zero;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>}<br>&nbsp;<br>let&nbsp;action&nbsp;=&nbsp;menu(1);<br>console.log(action(5,&nbsp;4));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;9<br>&nbsp;<br>action&nbsp;=&nbsp;menu(2);<br>console.log(action(5,&nbsp;4));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;1<br>&nbsp;<br>action&nbsp;=&nbsp;menu(3);<br>console.log(action(5,&nbsp;4));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;20<br>&nbsp;<br>action&nbsp;=&nbsp;menu(190);<br>console.log(action(5,&nbsp;4));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;0</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Rezultatul funcției</h1>
+     <p class="paragraph">Funcția poate returna un rezultat. Pentru acest lucru se utilizează instrucțiunea return, după care se specifică valoarea returnată:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;sum&nbsp;(a,&nbsp;b)&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;result&nbsp;=&nbsp;a&nbsp;+&nbsp;b;<br>&nbsp;&nbsp;&nbsp;return&nbsp;result;<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, funcția sum() primește doi parametri și returnează suma lor. După instrucțiunea return, urmează valoarea returnată. În acest caz, este valoarea constantei result, în realitate, aceasta poate fi orice expresie, inclusiv rezultatul unei alte funcții.</p>
+     <p class="paragraph">După obținerea rezultatului funcției, îl putem atribui unei alte variabile sau constante:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;sum&nbsp;(a,&nbsp;b)&nbsp;{<br>&nbsp;return&nbsp;a&nbsp;+&nbsp;b;<br>}<br>let&nbsp;num1&nbsp;=&nbsp;sum(2,&nbsp;4);<br>console.log(num1);&nbsp;&nbsp;//&nbsp;6<br><br>const&nbsp;num2&nbsp;=&nbsp;sum(6,&nbsp;34);<br>console.log(num2);&nbsp;&nbsp;//&nbsp;40</code></pre>
+     </div>
+     <p class="paragraph">Funcția poate returna doar o singură valoare. Dacă dorim să returnăm mai multe valori, le putem returna sub formă de array:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;rectangle(width,&nbsp;height)&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;perimetru&nbsp;=&nbsp;width*&nbsp;2&nbsp;+&nbsp;height*&nbsp;2;<br>&nbsp;&nbsp;&nbsp;const&nbsp;arie&nbsp;=&nbsp;width*&nbsp;height;<br>&nbsp;&nbsp;&nbsp;return&nbsp;[perimetru,&nbsp;arie];<br>}<br><br>const&nbsp;dateDreptunghi&nbsp;=&nbsp;rectangle(20,&nbsp;30);<br>console.log(dateDreptunghi[0]);&nbsp;&nbsp;//&nbsp;100&nbsp;-&nbsp;perimetrul&nbsp;dreptunghiului<br>console.log(dateDreptunghi[1]);&nbsp;&nbsp;//&nbsp;600&nbsp;-&nbsp;aria&nbsp;dreptunghiului</code></pre>
+     </div>
+     <p class="paragraph">În acest exemplu, funcția `rectangle` primește lățimea și înălțimea unui dreptunghi, iar în interiorul funcției, pe baza acestor date, se calculează perimetrul și aria, returnându-le sub formă de array.</p>
+     <p class="paragraph">Ca alternativă, putem plasa datele multiple într-un singur obiect:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;rectangle(width,&nbsp;height)&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;perimetru&nbsp;=&nbsp;width*&nbsp;2&nbsp;+&nbsp;height*&nbsp;2;<br>&nbsp;&nbsp;&nbsp;const&nbsp;arie&nbsp;=&nbsp;width*&nbsp;height;<br>&nbsp;&nbsp;&nbsp;return&nbsp;{perimetru:&nbsp;perimetru,&nbsp;arie:&nbsp;arie};<br>}<br><br>const&nbsp;dateDreptunghi&nbsp;=&nbsp;rectangle(20,&nbsp;30);<br>console.log("Perimetru:",&nbsp;dateDreptunghi.perimetru);&nbsp;&nbsp;//&nbsp;100&nbsp;-&nbsp;perimetrul&nbsp;dreptunghiului<br>console.log("Arie:",&nbsp;dateDreptunghi.arie);&nbsp;&nbsp;//&nbsp;600&nbsp;-&nbsp;aria&nbsp;dreptunghiului</code></pre>
+     </div>
+     <h2 class="subtitle">Revenirea unei funcții dintr-o funcție</h2>
+     <p class="paragraph">O funcție poate returna o altă funcție:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;menu(n){<br>&nbsp;&nbsp;&nbsp;if(n==1)&nbsp;return&nbsp;function(x,&nbsp;y){&nbsp;return&nbsp;x&nbsp;+&nbsp;y;}<br>&nbsp;&nbsp;&nbsp;else&nbsp;if(n==2)&nbsp;return&nbsp;function(x,&nbsp;y){&nbsp;return&nbsp;x&nbsp;-&nbsp;y;}<br>&nbsp;&nbsp;&nbsp;else&nbsp;if(n==3)&nbsp;return&nbsp;function(x,&nbsp;y){&nbsp;return&nbsp;x&nbsp;*&nbsp;y;}<br>&nbsp;&nbsp;&nbsp;return&nbsp;function(){&nbsp;return&nbsp;0;}<br>}<br><br>const&nbsp;action&nbsp;=&nbsp;menu(1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;alegem&nbsp;prima&nbsp;opțiune&nbsp;-&nbsp;adunarea<br>const&nbsp;result&nbsp;=&nbsp;action(2,&nbsp;5);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;apelăm&nbsp;funcția&nbsp;și&nbsp;obținem&nbsp;rezultatul&nbsp;în&nbsp;constanta&nbsp;result<br>console.log(result);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;7</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, funcția menu() returnează una dintre cele trei funcții sau o funcție goală, care pur și simplu returnează numărul 0, în funcție de valoarea transmisă. Ulterior, apelăm funcția menu și obținem rezultatul acestei funcții - o altă funcție în constanta action.</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;action&nbsp;=&nbsp;menu(1);</code></pre>
+     </div>
+     <p class="paragraph">Deci, aici, action va reprezenta o funcție care primește doi parametri și returnează un număr. Apoi, prin intermediul numelui constantei, putem apela această funcție și obține rezultatul în constanta result:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;result&nbsp;=&nbsp;action(2,&nbsp;5);</code></pre>
+     </div>
+     <p class="paragraph">Similar, putem obține și alte funcții returnate.</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;menu(n){<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;if(n==1)&nbsp;return&nbsp;function(x,&nbsp;y){&nbsp;return&nbsp;x&nbsp;+&nbsp;y;}<br>&nbsp;&nbsp;&nbsp;else&nbsp;if(n==2)&nbsp;return&nbsp;function(x,&nbsp;y){&nbsp;return&nbsp;x&nbsp;-&nbsp;y;}<br>&nbsp;&nbsp;&nbsp;else&nbsp;if(n==3)&nbsp;return&nbsp;function(x,&nbsp;y){&nbsp;return&nbsp;x&nbsp;*&nbsp;y;}<br>&nbsp;&nbsp;&nbsp;return&nbsp;function(){&nbsp;return&nbsp;0;};<br>}<br><br>let&nbsp;action&nbsp;=&nbsp;menu(1);<br>console.log(action(2,&nbsp;5));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;7<br><br>action&nbsp;=&nbsp;menu(2);<br>console.log(action(2,&nbsp;5));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;-3<br><br>action&nbsp;=&nbsp;menu(3);<br>console.log(action(2,&nbsp;5));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;10<br><br>action&nbsp;=&nbsp;menu(190);<br>console.log(action(2,&nbsp;5));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;0</code></pre>
+     </div>
+     <p class="paragraph">La fel, poți returna funcții folosind un nume:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;sum(x,&nbsp;y){&nbsp;return&nbsp;x&nbsp;+&nbsp;y;}<br>function&nbsp;subtract(x,&nbsp;y){&nbsp;return&nbsp;x&nbsp;-&nbsp;y;}<br>function&nbsp;multiply(x,&nbsp;y){&nbsp;return&nbsp;x&nbsp;*&nbsp;y;}<br>function&nbsp;zero(){&nbsp;return&nbsp;0;}<br><br>function&nbsp;menu(n){<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;switch(n){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;1:&nbsp;return&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;2:&nbsp;return&nbsp;subtract;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;3:&nbsp;return&nbsp;multiply;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;default:&nbsp;return&nbsp;zero;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>}<br>&nbsp;<br>let&nbsp;action&nbsp;=&nbsp;menu(1);<br>console.log(action(5,&nbsp;4));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;9<br>&nbsp;<br>action&nbsp;=&nbsp;menu(2);<br>console.log(action(5,&nbsp;4));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;1<br>&nbsp;<br>action&nbsp;=&nbsp;menu(3);<br>console.log(action(5,&nbsp;4));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;20<br>&nbsp;<br>action&nbsp;=&nbsp;menu(190);<br>console.log(action(5,&nbsp;4));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;0</code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

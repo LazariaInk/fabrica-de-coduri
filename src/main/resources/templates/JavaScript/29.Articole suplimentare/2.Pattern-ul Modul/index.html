@@ -1,163 +1,153 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='29.Articole suplimentare', activeLesson='2.Pattern-ul Modul'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Pattern-ul Modul</h1>
- <p class="paragraph">Pattern-ul "Modul" se bazează pe închideri (closures) și constă din două componente: o funcție externă, care definește mediul lexical, și un set returnat de funcții interne, care au acces la acest mediu.</p>
- <p class="paragraph">Să definim cel mai simplu modul:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;printer&nbsp;=&nbsp;(function(){<br>&nbsp;&nbsp;&nbsp;const&nbsp;messages&nbsp;=&nbsp;{greeting:&nbsp;"hello"};<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;return&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print:&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(messages.greeting);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>})();<br>printer.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;hello</code></pre>
- </div>
- <p class="paragraph">Aici este definită constanta printer, care reprezintă rezultatul unei funcții anonime. În interiorul acestei funcții este definit un obiect messages cu unele date.</p>
- <p class="paragraph">Funcția anonimă returnează un obiect, care definește funcția print. Obiectul returnat definește API-ul public, prin intermediul căruia putem accesa datele definite în interiorul modulului.</p>
- <div class="code-inline">
-  <pre><code>return&nbsp;{<br>&nbsp;&nbsp;&nbsp;print:&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(messages.greeting);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
- </div>
- <p class="paragraph">Această construcție permite să izolăm un anumit set de date în cadrul funcției-modul și să mediere accesul la acestea printr-un API definit - funcțiile interne returnate.</p>
- <p class="paragraph">Funcțiile returnate pot fi definite în alt loc, nu doar în interiorul funcției anonime:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;printer&nbsp;=&nbsp;(function(){<br>&nbsp;&nbsp;&nbsp;const&nbsp;messages&nbsp;=&nbsp;{greeting:&nbsp;"Hello&nbsp;FDC.COM"};<br>&nbsp;&nbsp;&nbsp;const&nbsp;printMessage&nbsp;=&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(messages.greeting);<br>&nbsp;&nbsp;&nbsp;};<br>&nbsp;&nbsp;&nbsp;return&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print:&nbsp;printMessage&nbsp;//&nbsp;funcția&nbsp;printMessage&nbsp;este&nbsp;definită&nbsp;în&nbsp;afara&nbsp;obiectului<br>&nbsp;&nbsp;&nbsp;}<br>})();<br>printer.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Hello&nbsp;FDC.COM</code></pre>
- </div>
- <p class="paragraph">Dacă există posibilitatea ca modulul să fie deja definit undeva mai devreme în cod sau în fișiere externe incluse, atunci putem folosi următoarea construcție:</p>
- <div class="code-inline">
-  <pre><code>var&nbsp;printer&nbsp;=&nbsp;&nbsp;printer&nbsp;||&nbsp;(function(){<br>&nbsp;&nbsp;&nbsp;const&nbsp;messages&nbsp;=&nbsp;{greeting:&nbsp;"Hello&nbsp;World"};<br>&nbsp;&nbsp;&nbsp;return&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print:&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(messages.greeting);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>})();<br>printer.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Hello&nbsp;World</code></pre>
- </div>
- <p class="paragraph">Definirea var printer = printer || (function(){ ... }) atribuie variabilei valoarea unui anumit obiect printer, dacă există, sau atribuie rezultatul apelării funcției anonime IIFE. Dar cu această definiție nu putem folosi cuvintele cheie let sau const pentru a defini obiectul. Prin urmare, în acest caz, obiectul este definit cu ajutorul var.</p>
- <p class="paragraph">Să examinăm un exemplu puțin mai complex:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;calculator&nbsp;=&nbsp;(function(){<br>&nbsp;&nbsp;&nbsp;const&nbsp;data&nbsp;=&nbsp;{&nbsp;number:&nbsp;0};<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;return&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sum:&nbsp;function(n){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;data.number&nbsp;+=&nbsp;n;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;subtract:&nbsp;function(n){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;data.number&nbsp;-=&nbsp;n;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print:&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Result:&nbsp;",&nbsp;data.number);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>})();<br>calculator.sum(10);<br>calculator.sum(3);<br>calculator.display();&nbsp;&nbsp;&nbsp;//&nbsp;Result:&nbsp;13<br>calculator.subtract(4);<br>calculator.display();&nbsp;&nbsp;&nbsp;//&nbsp;Result:&nbsp;9</code></pre>
- </div>
- <p class="paragraph">Acest modul reprezintă un calculator primitiv, care efectuează trei operații: adunare, scădere și afișarea rezultatului.</p>
- <p class="paragraph">Toate datele sunt încapsulate în obiectul data, care stochează rezultatul operației. Toate operațiile sunt reprezentate de trei funcții returnate: sum, subtract și print. Prin aceste funcții putem controla rezultatul calculatorului din exterior.</p>
- <h2 class="subtitle">Introducerea modulelor externe</h2>
- <p class="paragraph">Prin parametrii funcțiilor IIFE în module se pot introduce unele date, de exemplu, alte module:</p>
- <div class="code-inline">
-  <pre><code>var&nbsp;moduleA&nbsp;=&nbsp;moduleA&nbsp;||&nbsp;(function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;message&nbsp;=&nbsp;"Hello&nbsp;World";<br>&nbsp;&nbsp;&nbsp;return&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printMessage:&nbsp;function()&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(message);&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>})();<br><br>var&nbsp;moduleB&nbsp;=&nbsp;moduleB&nbsp;||&nbsp;(function&nbsp;(moduleA)&nbsp;{<br>&nbsp;&nbsp;&nbsp;return&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print:&nbsp;function()&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;moduleA.printMessage();&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>})(moduleA);<br><br>moduleB.print();</code></pre>
- </div>
- <p class="paragraph">În acest caz, modulul moduleB așteaptă să primească modulul moduleA. În interiorul modulului moduleB se face referire la funcția moduleA.printMessage. Similar, se pot transmite și seturi de module.</p>
- <h2 class="subtitle">Extinderea unui modul</h2>
- <p class="paragraph">Când lucrați cu module, poate apărea necesitatea de a extinde funcționalitatea acestuia - adăugând funcții sau variabile noi. În acest caz, putem folosi o serie de tehnici.</p>
- <div class="code-inline">
-  <pre><code>//&nbsp;prima&nbsp;tehnică<br>var&nbsp;localeModule&nbsp;=&nbsp;&nbsp;localeModule&nbsp;||&nbsp;(function(locale){<br>&nbsp;&nbsp;&nbsp;const&nbsp;enMessage&nbsp;=&nbsp;"Hello&nbsp;World";<br>&nbsp;&nbsp;&nbsp;locale.printEn&nbsp;=&nbsp;function(){console.log(enMessage);};<br>&nbsp;&nbsp;&nbsp;return&nbsp;locale;<br>})(localeModule&nbsp;||&nbsp;{});<br>//&nbsp;a&nbsp;doua&nbsp;tehnică<br>var&nbsp;localeModule&nbsp;=&nbsp;&nbsp;(function(locale){<br>&nbsp;&nbsp;&nbsp;const&nbsp;roMessage&nbsp;=&nbsp;"Salut&nbsp;lume";<br>&nbsp;&nbsp;&nbsp;locale.printRo&nbsp;=&nbsp;function(){console.log(roMessage);};<br>&nbsp;&nbsp;&nbsp;return&nbsp;locale;<br>})(localeModule);<br><br>localeModule.printEn();&nbsp;//&nbsp;Hello&nbsp;World<br>localeModule.printRo();&nbsp;//&nbsp;Salut&nbsp;lume</code></pre>
- </div>
- <p class="paragraph">Pentru a extinde un modul, se pot aplica două tehnici. Prima tehnică presupune că, dacă modulul nu a fost încă creat, atunci ca parametru se transmite un obiect gol:</p>
- <div class="code-inline">
-  <pre><code>var&nbsp;localeModule&nbsp;=&nbsp;&nbsp;localeModule&nbsp;||&nbsp;(function(locale){<br>&nbsp;&nbsp;&nbsp;const&nbsp;enMessage&nbsp;=&nbsp;"Hello&nbsp;World";<br>&nbsp;&nbsp;&nbsp;locale.printEn&nbsp;=&nbsp;function(){console.log(enMessage);};<br>&nbsp;&nbsp;&nbsp;return&nbsp;locale;<br>})(localeModule&nbsp;||&nbsp;{});</code></pre>
- </div>
- <p class="paragraph">În acest caz, dacă modulul localeModule nu există încă, va fi creat un obiect nou, la care va fi adăugată funcția printEn pentru a afișa un anumit mesaj.</p>
- <p class="paragraph">Avantajul acestei tehnici este că scripturile care fac parte din modul pot fi încărcate asincron. Nu contează care script este încărcat primul, deoarece, în caz de îndoială, modulul va fi creat din nou.</p>
- <p class="paragraph">A doua tehnică presupune că modulul există deja:</p>
- <div class="code-inline">
-  <pre><code>var&nbsp;localeModule&nbsp;=&nbsp;&nbsp;(function(locale){<br>&nbsp;&nbsp;&nbsp;const&nbsp;roMessage&nbsp;=&nbsp;"Salut&nbsp;lume";<br>&nbsp;&nbsp;&nbsp;locale.printRo&nbsp;=&nbsp;function(){console.log(roMessage);};<br>&nbsp;&nbsp;&nbsp;return&nbsp;locale;<br>})(localeModule);</code></pre>
- </div>
- <p class="paragraph">Aici suntem siguri că există deja obiectul localeModule, și de asemenea adăugăm o nouă funcție -printRo. În ambele cazuri, modulul returnează ca rezultat un obiect extins cu noua funcționalitate din parametru.</p>
- <p class="paragraph">Totuși, indiferent de tipul de extindere a modulului aplicat, ambele au un dezavantaj comun: funcțiile definite într-un fișier de cod sursă pentru modul nu au acces la variabilele și constantele private definite într-un alt fișier de cod sursă pentru același modul. De exemplu, metoda printRo nu are acces la constanta enMessage.</p>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Pattern-ul Modul</h1>
+     <p class="paragraph">Pattern-ul "Modul" se bazează pe închideri (closures) și constă din două componente: o funcție externă, care definește mediul lexical, și un set returnat de funcții interne, care au acces la acest mediu.</p>
+     <p class="paragraph">Să definim cel mai simplu modul:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;printer&nbsp;=&nbsp;(function(){<br>&nbsp;&nbsp;&nbsp;const&nbsp;messages&nbsp;=&nbsp;{greeting:&nbsp;"hello"};<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;return&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print:&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(messages.greeting);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>})();<br>printer.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;hello</code></pre>
+     </div>
+     <p class="paragraph">Aici este definită constanta printer, care reprezintă rezultatul unei funcții anonime. În interiorul acestei funcții este definit un obiect messages cu unele date.</p>
+     <p class="paragraph">Funcția anonimă returnează un obiect, care definește funcția print. Obiectul returnat definește API-ul public, prin intermediul căruia putem accesa datele definite în interiorul modulului.</p>
+     <div class="code-inline">
+      <pre><code>return&nbsp;{<br>&nbsp;&nbsp;&nbsp;print:&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(messages.greeting);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Această construcție permite să izolăm un anumit set de date în cadrul funcției-modul și să mediere accesul la acestea printr-un API definit - funcțiile interne returnate.</p>
+     <p class="paragraph">Funcțiile returnate pot fi definite în alt loc, nu doar în interiorul funcției anonime:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;printer&nbsp;=&nbsp;(function(){<br>&nbsp;&nbsp;&nbsp;const&nbsp;messages&nbsp;=&nbsp;{greeting:&nbsp;"Hello&nbsp;FDC.COM"};<br>&nbsp;&nbsp;&nbsp;const&nbsp;printMessage&nbsp;=&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(messages.greeting);<br>&nbsp;&nbsp;&nbsp;};<br>&nbsp;&nbsp;&nbsp;return&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print:&nbsp;printMessage&nbsp;//&nbsp;funcția&nbsp;printMessage&nbsp;este&nbsp;definită&nbsp;în&nbsp;afara&nbsp;obiectului<br>&nbsp;&nbsp;&nbsp;}<br>})();<br>printer.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Hello&nbsp;FDC.COM</code></pre>
+     </div>
+     <p class="paragraph">Dacă există posibilitatea ca modulul să fie deja definit undeva mai devreme în cod sau în fișiere externe incluse, atunci putem folosi următoarea construcție:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;printer&nbsp;=&nbsp;&nbsp;printer&nbsp;||&nbsp;(function(){<br>&nbsp;&nbsp;&nbsp;const&nbsp;messages&nbsp;=&nbsp;{greeting:&nbsp;"Hello&nbsp;World"};<br>&nbsp;&nbsp;&nbsp;return&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print:&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(messages.greeting);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>})();<br>printer.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Hello&nbsp;World</code></pre>
+     </div>
+     <p class="paragraph">Definirea var printer = printer || (function(){ ... }) atribuie variabilei valoarea unui anumit obiect printer, dacă există, sau atribuie rezultatul apelării funcției anonime IIFE. Dar cu această definiție nu putem folosi cuvintele cheie let sau const pentru a defini obiectul. Prin urmare, în acest caz, obiectul este definit cu ajutorul var.</p>
+     <p class="paragraph">Să examinăm un exemplu puțin mai complex:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;calculator&nbsp;=&nbsp;(function(){<br>&nbsp;&nbsp;&nbsp;const&nbsp;data&nbsp;=&nbsp;{&nbsp;number:&nbsp;0};<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;return&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sum:&nbsp;function(n){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;data.number&nbsp;+=&nbsp;n;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;subtract:&nbsp;function(n){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;data.number&nbsp;-=&nbsp;n;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print:&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Result:&nbsp;",&nbsp;data.number);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>})();<br>calculator.sum(10);<br>calculator.sum(3);<br>calculator.display();&nbsp;&nbsp;&nbsp;//&nbsp;Result:&nbsp;13<br>calculator.subtract(4);<br>calculator.display();&nbsp;&nbsp;&nbsp;//&nbsp;Result:&nbsp;9</code></pre>
+     </div>
+     <p class="paragraph">Acest modul reprezintă un calculator primitiv, care efectuează trei operații: adunare, scădere și afișarea rezultatului.</p>
+     <p class="paragraph">Toate datele sunt încapsulate în obiectul data, care stochează rezultatul operației. Toate operațiile sunt reprezentate de trei funcții returnate: sum, subtract și print. Prin aceste funcții putem controla rezultatul calculatorului din exterior.</p>
+     <h2 class="subtitle">Introducerea modulelor externe</h2>
+     <p class="paragraph">Prin parametrii funcțiilor IIFE în module se pot introduce unele date, de exemplu, alte module:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;moduleA&nbsp;=&nbsp;moduleA&nbsp;||&nbsp;(function&nbsp;()&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;message&nbsp;=&nbsp;"Hello&nbsp;World";<br>&nbsp;&nbsp;&nbsp;return&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printMessage:&nbsp;function()&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(message);&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>})();<br><br>var&nbsp;moduleB&nbsp;=&nbsp;moduleB&nbsp;||&nbsp;(function&nbsp;(moduleA)&nbsp;{<br>&nbsp;&nbsp;&nbsp;return&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print:&nbsp;function()&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;moduleA.printMessage();&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>})(moduleA);<br><br>moduleB.print();</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, modulul moduleB așteaptă să primească modulul moduleA. În interiorul modulului moduleB se face referire la funcția moduleA.printMessage. Similar, se pot transmite și seturi de module.</p>
+     <h2 class="subtitle">Extinderea unui modul</h2>
+     <p class="paragraph">Când lucrați cu module, poate apărea necesitatea de a extinde funcționalitatea acestuia - adăugând funcții sau variabile noi. În acest caz, putem folosi o serie de tehnici.</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;prima&nbsp;tehnică<br>var&nbsp;localeModule&nbsp;=&nbsp;&nbsp;localeModule&nbsp;||&nbsp;(function(locale){<br>&nbsp;&nbsp;&nbsp;const&nbsp;enMessage&nbsp;=&nbsp;"Hello&nbsp;World";<br>&nbsp;&nbsp;&nbsp;locale.printEn&nbsp;=&nbsp;function(){console.log(enMessage);};<br>&nbsp;&nbsp;&nbsp;return&nbsp;locale;<br>})(localeModule&nbsp;||&nbsp;{});<br>//&nbsp;a&nbsp;doua&nbsp;tehnică<br>var&nbsp;localeModule&nbsp;=&nbsp;&nbsp;(function(locale){<br>&nbsp;&nbsp;&nbsp;const&nbsp;roMessage&nbsp;=&nbsp;"Salut&nbsp;lume";<br>&nbsp;&nbsp;&nbsp;locale.printRo&nbsp;=&nbsp;function(){console.log(roMessage);};<br>&nbsp;&nbsp;&nbsp;return&nbsp;locale;<br>})(localeModule);<br><br>localeModule.printEn();&nbsp;//&nbsp;Hello&nbsp;World<br>localeModule.printRo();&nbsp;//&nbsp;Salut&nbsp;lume</code></pre>
+     </div>
+     <p class="paragraph">Pentru a extinde un modul, se pot aplica două tehnici. Prima tehnică presupune că, dacă modulul nu a fost încă creat, atunci ca parametru se transmite un obiect gol:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;localeModule&nbsp;=&nbsp;&nbsp;localeModule&nbsp;||&nbsp;(function(locale){<br>&nbsp;&nbsp;&nbsp;const&nbsp;enMessage&nbsp;=&nbsp;"Hello&nbsp;World";<br>&nbsp;&nbsp;&nbsp;locale.printEn&nbsp;=&nbsp;function(){console.log(enMessage);};<br>&nbsp;&nbsp;&nbsp;return&nbsp;locale;<br>})(localeModule&nbsp;||&nbsp;{});</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, dacă modulul localeModule nu există încă, va fi creat un obiect nou, la care va fi adăugată funcția printEn pentru a afișa un anumit mesaj.</p>
+     <p class="paragraph">Avantajul acestei tehnici este că scripturile care fac parte din modul pot fi încărcate asincron. Nu contează care script este încărcat primul, deoarece, în caz de îndoială, modulul va fi creat din nou.</p>
+     <p class="paragraph">A doua tehnică presupune că modulul există deja:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;localeModule&nbsp;=&nbsp;&nbsp;(function(locale){<br>&nbsp;&nbsp;&nbsp;const&nbsp;roMessage&nbsp;=&nbsp;"Salut&nbsp;lume";<br>&nbsp;&nbsp;&nbsp;locale.printRo&nbsp;=&nbsp;function(){console.log(roMessage);};<br>&nbsp;&nbsp;&nbsp;return&nbsp;locale;<br>})(localeModule);</code></pre>
+     </div>
+     <p class="paragraph">Aici suntem siguri că există deja obiectul localeModule, și de asemenea adăugăm o nouă funcție -printRo. În ambele cazuri, modulul returnează ca rezultat un obiect extins cu noua funcționalitate din parametru.</p>
+     <p class="paragraph">Totuși, indiferent de tipul de extindere a modulului aplicat, ambele au un dezavantaj comun: funcțiile definite într-un fișier de cod sursă pentru modul nu au acces la variabilele și constantele private definite într-un alt fișier de cod sursă pentru același modul. De exemplu, metoda printRo nu are acces la constanta enMessage.</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

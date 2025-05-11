@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='17.LINQ', activeLesson='9.Unirea colectiilor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Unirea colecțiilor</h1>
+     <p class="paragraph">Unirea în LINQ este utilizată pentru a combina două seturi de tipuri diferite într-unul singur. Pentru unire se folosește operatorul join sau metoda Join(). De obicei, această operațiune se aplică la două seturi care au un criteriu comun.</p>
+     <h2 class="subtitle">Operatorul join</h2>
+     <p class="paragraph">Operatorul join are următoarea sintaxă formală:</p>
+     <div class="code-inline">
+      <pre><code>from&nbsp;obiect1&nbsp;in&nbsp;set1<br>join&nbsp;obiect2&nbsp;in&nbsp;set2&nbsp;on&nbsp;obiect2.proprietate2&nbsp;equals&nbsp;obiect1.proprietate1</code></pre>
+     </div>
+     <p class="paragraph">După operatorul join urmează selecția obiectelor din a doua colecție. După operatorul on se specifică criteriul de unire - proprietatea obiectului din a doua selecție, iar după operatorul equals - proprietatea obiectului din prima selecție, căreia trebuie să-i fie egală proprietatea obiectului din a doua selecție. Dacă aceste proprietăți sunt egale, ambele obiecte ajung în rezultatul final.</p>
+     <p class="paragraph">De exemplu, avem două clase:</p>
+     <div class="code-inline">
+      <pre><code>record&nbsp;class&nbsp;Person(string&nbsp;Name,&nbsp;string&nbsp;Company);<br>record&nbsp;class&nbsp;Company(string&nbsp;Title,&nbsp;string&nbsp;Language);</code></pre>
+     </div>
+     <p class="paragraph">Clasa Person reprezintă un utilizator și stochează două proprietăți: Name (numele utilizatorului) și Company (compania utilizatorului). Clasa Company reprezintă o companie și stochează două proprietăți: Title (numele companiei) și Language (limbajul principal de programare al companiei).</p>
+     <p class="paragraph">Obiectele ambelor clase vor avea un criteriu comun - numele companiei. Vom uni aceste două seturi de obiecte după acest criteriu:</p>
+     <div class="code-inline">
+      <pre><code>Person[]&nbsp;people&nbsp;=<br>{<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person("Tom",&nbsp;"Microsoft"),&nbsp;new&nbsp;Person("Sam",&nbsp;"Google"),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person("Bob",&nbsp;"JetBrains"),&nbsp;new&nbsp;Person("Mike",&nbsp;"Microsoft"),<br>};<br><br>Company[]&nbsp;companies&nbsp;=<br>{<br>&nbsp;&nbsp;&nbsp;new&nbsp;Company("Microsoft",&nbsp;"C#"),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Company("Google",&nbsp;"Go"),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Company("Oracle",&nbsp;"Java")<br>};<br><br>var&nbsp;employees&nbsp;=&nbsp;from&nbsp;p&nbsp;in&nbsp;people<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;join&nbsp;c&nbsp;in&nbsp;companies&nbsp;on&nbsp;p.Company&nbsp;equals&nbsp;c.Title<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select&nbsp;new&nbsp;{&nbsp;Name&nbsp;=&nbsp;p.Name,&nbsp;Company&nbsp;=&nbsp;c.Title,&nbsp;Language&nbsp;=&nbsp;c.Language&nbsp;};<br><br>foreach&nbsp;(var&nbsp;emp&nbsp;in&nbsp;employees)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"{emp.Name}&nbsp;-&nbsp;{emp.Company}&nbsp;({emp.Language})");</code></pre>
+     </div>
+     <p class="paragraph">Folosind expresia:</p>
+     <div class="code-inline">
+      <pre><code>join&nbsp;c&nbsp;in&nbsp;companies&nbsp;on&nbsp;p.Company&nbsp;equals&nbsp;c.Title</code></pre>
+     </div>
+     <p class="paragraph">obiectul p din lista people (adică obiectul Person) se unește cu obiectul c din lista companies (adică obiectul Company), dacă valoarea proprietății p.Company coincide cu valoarea proprietății c.Title. Rezultatul unirii va fi un obiect de tip anonim care va conține trei proprietăți. Rezultatul afișării:</p>
+     <div class="code-inline">
+      <pre><code>Tom&nbsp;-&nbsp;Microsoft&nbsp;(C#)<br>Sam&nbsp;-&nbsp;Google&nbsp;(Go)<br>Mike&nbsp;-&nbsp;Microsoft&nbsp;(C#)</code></pre>
+     </div>
+     <p class="paragraph">Observați că în array-ul people există obiectul new Person("Bob", "JetBrains"), dar în array-ul companies nu există o companie cu numele "JetBrains", deci acest obiect nu apare în rezultat. La fel, în lista people nu există obiecte Person care să corespundă companiei new Company("Oracle", "Java").</p>
+     <h2 class="subtitle">Metoda Join</h2>
+     <p class="paragraph">Ca alternativă, putem folosi metoda Join():</p>
+     <div class="code-inline">
+      <pre><code>Join(IEnumerable&lt;TInner&gt;&nbsp;inner,<br>&nbsp;&nbsp;&nbsp;Func&lt;TOuter,&nbsp;TKey&gt;&nbsp;outerKeySelector,<br>&nbsp;&nbsp;&nbsp;Func&lt;TInner,&nbsp;TKey&gt;&nbsp;innerKeySelector,<br>&nbsp;&nbsp;&nbsp;Func&lt;TOuter,&nbsp;TInner,&nbsp;TResult&gt;&nbsp;resultSelector);</code></pre>
+     </div>
+     <p class="paragraph">Metoda Join() primește patru parametri:</p>
+     <ul class="enumeration">
+      <li>al doilea set, pe care îl unim cu cel curent</li>
+      <li>delegat care definește proprietatea obiectului din setul curent, după care se face unirea</li>
+      <li>delegat care definește proprietatea obiectului din al doilea set, după care se face unirea</li>
+      <li>delegat care definește noul obiect în rezultatul unirii</li>
+     </ul>
+     <p class="paragraph">Rescriem exemplul anterior folosind metoda Join:</p>
+     <div class="code-inline">
+      <pre><code>Person[]&nbsp;people&nbsp;=<br>{<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person("Tom",&nbsp;"Microsoft"),&nbsp;new&nbsp;Person("Sam",&nbsp;"Google"),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person("Bob",&nbsp;"JetBrains"),&nbsp;new&nbsp;Person("Mike",&nbsp;"Microsoft"),<br>};<br><br>Company[]&nbsp;companies&nbsp;=<br>{<br>&nbsp;&nbsp;&nbsp;new&nbsp;Company("Microsoft",&nbsp;"C#"),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Company("Google",&nbsp;"Go"),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Company("Oracle",&nbsp;"Java")<br>};<br><br>var&nbsp;employees&nbsp;=&nbsp;people.Join(companies,&nbsp;//&nbsp;al&nbsp;doilea&nbsp;set<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p&nbsp;=&gt;&nbsp;p.Company,&nbsp;//&nbsp;proprietatea&nbsp;selector&nbsp;a&nbsp;obiectului&nbsp;din&nbsp;primul&nbsp;set<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c&nbsp;=&gt;&nbsp;c.Title,&nbsp;//&nbsp;proprietatea&nbsp;selector&nbsp;a&nbsp;obiectului&nbsp;din&nbsp;al&nbsp;doilea&nbsp;set<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(p,&nbsp;c)&nbsp;=&gt;&nbsp;new&nbsp;{&nbsp;Name&nbsp;=&nbsp;p.Name,&nbsp;Company&nbsp;=&nbsp;c.Title,&nbsp;Language&nbsp;=&nbsp;c.Language&nbsp;});&nbsp;//&nbsp;rezultat<br><br>foreach&nbsp;(var&nbsp;emp&nbsp;in&nbsp;employees)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"{emp.Name}&nbsp;-&nbsp;{emp.Company}&nbsp;({emp.Language})");</code></pre>
+     </div>
+     <h2 class="subtitle">Metoda GroupJoin</h2>
+     <p class="paragraph">Metoda GroupJoin() nu doar unește secvențele, ci realizează și gruparea.</p>
+     <div class="code-inline">
+      <pre><code>GroupJoin(IEnumerable&lt;TInner&gt;&nbsp;inner,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Func&lt;TOuter,&nbsp;TKey&gt;&nbsp;outerKeySelector,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Func&lt;TInner,&nbsp;TKey&gt;&nbsp;innerKeySelector,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Func&lt;TOuter,&nbsp;IEnumerable&lt;TInner&gt;,&nbsp;TResult&gt;&nbsp;resultSelector);</code></pre>
+     </div>
+     <p class="paragraph">Metoda GroupJoin() primește patru parametri:</p>
+     <ul class="enumeration">
+      <li>al doilea set, pe care îl unim cu cel curent</li>
+      <li>delegat care definește proprietatea obiectului din colecția curentă, după care se face unirea și gruparea</li>
+      <li>delegat care definește proprietatea obiectului din a doua colecție, după care se face unirea</li>
+      <li>delegat care definește noul obiect în rezultatul unirii. Acest delegat primește un grup - obiectul colecției curente, după care se face gruparea, și setul de obiecte din a doua colecție care compun grupul</li>
+     </ul>
+     <p class="paragraph">De exemplu, să luăm array-urile people și companies definite mai sus și să grupăm toți utilizatorii după companii:</p>
+     <div class="code-inline">
+      <pre><code>Person[]&nbsp;people&nbsp;=<br>{<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person("Tom",&nbsp;"Microsoft"),&nbsp;new&nbsp;Person("Sam",&nbsp;"Google"),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person("Bob",&nbsp;"JetBrains"),&nbsp;new&nbsp;Person("Mike",&nbsp;"Microsoft"),<br>};<br><br>Company[]&nbsp;companies&nbsp;=<br>{<br>&nbsp;&nbsp;&nbsp;new&nbsp;Company("Microsoft",&nbsp;"C#"),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Company("Google",&nbsp;"Go"),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Company("Oracle",&nbsp;"Java")<br>};<br><br>var&nbsp;personnel&nbsp;=&nbsp;companies.GroupJoin(people,&nbsp;//&nbsp;al&nbsp;doilea&nbsp;set<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c&nbsp;=&gt;&nbsp;c.Title,&nbsp;//&nbsp;proprietatea&nbsp;selector&nbsp;a&nbsp;obiectului&nbsp;din&nbsp;primul&nbsp;set<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p&nbsp;=&gt;&nbsp;p.Company,&nbsp;//&nbsp;proprietatea&nbsp;selector&nbsp;a&nbsp;obiectului&nbsp;din&nbsp;al&nbsp;doilea&nbsp;set<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(c,&nbsp;employees)&nbsp;=&gt;&nbsp;new&nbsp;&nbsp;&nbsp;//&nbsp;rezultat<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Title&nbsp;=&nbsp;c.Title,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Employees&nbsp;=&nbsp;employees<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;});<br><br>foreach&nbsp;(var&nbsp;company&nbsp;in&nbsp;personnel)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(company.Title);<br>&nbsp;&nbsp;&nbsp;foreach(var&nbsp;emp&nbsp;in&nbsp;company.Employees)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(emp.Name);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;Console.WriteLine();<br>}</code></pre>
+     </div>
+     <p class="paragraph">Rezultatul execuției programului va fi:</p>
+     <div class="code-inline">
+      <pre><code>Microsoft<br>Tom<br>Mike<br><br>Google<br>Sam<br><br>Oracle</code></pre>
+     </div>
+     <p class="paragraph">Metoda GroupJoin, la fel ca metoda Join, primește toți aceiași parametri. Doar că acum, în ultimul parametru - delegat, se transmit obiectul companiei și setul de utilizatori ai acestei companii.</p>
+     <p class="paragraph">Observați că pentru compania "Oracle" în array-ul people nu există utilizatori, totuși pentru aceasta se creează un grup.</p>
+     <h2 class="subtitle">Metoda Zip</h2>
+     <p class="paragraph">Metoda Zip() combină secvențial elementele corespunzătoare ale secvenței curente cu cele ale celei de-a doua secvențe, care este transmisă metodei ca parametru. Adică primul element din prima secvență este combinat cu primul element din a doua secvență, al doilea element din prima secvență este combinat cu al doilea element din a doua secvență și așa mai departe.</p>
+     <p class="paragraph">Rezultatul metodei este o colecție de tupluri, în care fiecare tuplu conține o pereche de elemente corespunzătoare din ambele secvențe:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;courses&nbsp;=&nbsp;new&nbsp;List&lt;Course&gt;&nbsp;{&nbsp;new&nbsp;Course("C#"),&nbsp;new&nbsp;Course("Java")&nbsp;};<br>var&nbsp;students&nbsp;=&nbsp;new&nbsp;List&lt;Student&gt;&nbsp;{&nbsp;new&nbsp;Student("Tom"),&nbsp;new&nbsp;Student("Bob")&nbsp;};<br><br>var&nbsp;enrollments&nbsp;=&nbsp;courses.Zip(students);<br><br>foreach&nbsp;(var&nbsp;enrollment&nbsp;in&nbsp;enrollments)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"{enrollment.First}&nbsp;-&nbsp;{enrollment.Second}");<br><br>record&nbsp;class&nbsp;Course(string&nbsp;Title);&nbsp;&nbsp;//&nbsp;curs<br>record&nbsp;class&nbsp;Student(string&nbsp;Name);&nbsp;&nbsp;//&nbsp;student</code></pre>
+     </div>
+     <p class="paragraph">Aici metoda Zip combină elementele corespunzătoare din listele courses și students. Rezultatul este o nouă colecție care conține un set de tupluri. Fiecare tuplu din ea are două elemente.</p>
+     <p class="paragraph">Primul element, din proprietatea First, reprezintă obiectul colecției curente (în acest caz, obiectul Course), iar al doilea element, din proprietatea Second, reprezintă obiectul celei de-a doua secvențe (în acest caz, obiectul Student). Afișarea pe consolă:</p>
+     <div class="code-inline">
+      <pre><code>Course&nbsp;{&nbsp;Title&nbsp;=&nbsp;C#&nbsp;}&nbsp;-&nbsp;Student&nbsp;{&nbsp;Name&nbsp;=&nbsp;Tom&nbsp;}<br>Course&nbsp;{&nbsp;Title&nbsp;=&nbsp;Java&nbsp;}&nbsp;-&nbsp;Student&nbsp;{&nbsp;Name&nbsp;=&nbsp;Bob&nbsp;}</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

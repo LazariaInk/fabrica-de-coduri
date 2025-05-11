@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='18.Parallel LINQ', activeLesson='2.Metoda AsOrdered'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Metoda AsOrdered</h1>
+     <p class="paragraph">În timpul execuției unei interogări paralele, ordinea datelor în setul de rezultate poate fi imprevizibilă. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>int[]&nbsp;numbers&nbsp;=&nbsp;new&nbsp;int[]&nbsp;{&nbsp;-2,&nbsp;-1,&nbsp;0,&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5,&nbsp;6,&nbsp;7,&nbsp;8,&nbsp;};<br>var&nbsp;squares&nbsp;=&nbsp;from&nbsp;n&nbsp;in&nbsp;numbers.AsParallel()<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;where&nbsp;n&nbsp;&gt;&nbsp;0<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select&nbsp;Square(n);<br><br>foreach&nbsp;(var&nbsp;n&nbsp;in&nbsp;squares)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(n);<br><br>int&nbsp;Square(int&nbsp;n)&nbsp;=&gt;&nbsp;n&nbsp;*&nbsp;n;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, programul calculează pătratele numerelor care sunt mai mari de 0. Totuși, rezultatul programului poate fi neordonat:</p>
+     <div class="code-inline">
+      <pre><code>1<br>16<br>49<br>4<br>25<br>64<br>9<br>36</code></pre>
+     </div>
+     <p class="paragraph">Adică datele sunt unite într-un set comun fără a fi ordonate.</p>
+     <p class="paragraph">Dacă în interogare se aplică operatori sau metode de sortare, datele sunt ordonate automat:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;squares&nbsp;=&nbsp;from&nbsp;n&nbsp;in&nbsp;numbers.AsParallel()<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;where&nbsp;n&nbsp;&gt;&nbsp;0<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;orderby&nbsp;n&nbsp;&nbsp;//&nbsp;sortare<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select&nbsp;Square(n);</code></pre>
+     </div>
+     <p class="paragraph">Totuși, operatorul orderby sau metoda OrderBy nu sunt întotdeauna folosite în interogări. Mai mult, acestea ordonează setul de rezultate conform rezultatelor și nu conform secvenței inițiale. În aceste cazuri, putem aplica metoda AsOrdered():</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;squares&nbsp;=&nbsp;from&nbsp;n&nbsp;in&nbsp;numbers.AsParallel().AsOrdered()<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;where&nbsp;n&nbsp;&gt;&nbsp;0<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select&nbsp;Square(n);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, rezultatul va fi ordonat conform modului în care elementele sunt dispuse în secvența inițială:</p>
+     <div class="code-inline">
+      <pre><code>1<br>4<br>9<br>16<br>25<br>36<br>49<br>64</code></pre>
+     </div>
+     <p class="paragraph">Totuși, trebuie să înțelegem că ordonarea în cadrul unei operațiuni paralele crește costurile, astfel încât o astfel de interogare va fi executată mai încet decât una neordonată. Dacă sarcina nu necesită returnarea unui set ordonat, este mai bine să nu se aplice metoda AsOrdered.</p>
+     <p class="paragraph">În plus, dacă în program urmează să se efectueze anumite manipulări cu setul de date obținut, dar ordonarea nu mai este necesară, putem aplica metoda AsUnordered():</p>
+     <div class="code-inline">
+      <pre><code>int[]&nbsp;numbers&nbsp;=&nbsp;new&nbsp;int[]&nbsp;{&nbsp;-2,&nbsp;-1,&nbsp;0,&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5,&nbsp;6,&nbsp;7,&nbsp;8,&nbsp;};<br>var&nbsp;squares&nbsp;=&nbsp;from&nbsp;n&nbsp;in&nbsp;numbers.AsParallel().AsOrdered()<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;where&nbsp;n&nbsp;&gt;&nbsp;0<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select&nbsp;Square(n);<br><br>//&nbsp;selectăm&nbsp;numerele&nbsp;mai&nbsp;mari&nbsp;de&nbsp;4&nbsp;fără&nbsp;a&nbsp;ordona&nbsp;rezultatul<br>var&nbsp;query&nbsp;=&nbsp;from&nbsp;n&nbsp;in&nbsp;squares.AsUnordered()<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;where&nbsp;n&nbsp;&gt;&nbsp;4<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select&nbsp;n;<br><br>foreach&nbsp;(var&nbsp;n&nbsp;in&nbsp;query)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(n);<br><br>int&nbsp;Square(int&nbsp;n)&nbsp;=&gt;&nbsp;n&nbsp;*&nbsp;n;</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

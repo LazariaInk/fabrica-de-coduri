@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='14.Multithreading', activeLesson='2.Crearea thread-urilor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Crearea thread-urilor - Delegatul ThreadStart</h1>
+     <p class="paragraph">Limbajul C# permite rularea și executarea în cadrul aplicației a mai multor thread-uri care se vor executa simultan.</p>
+     <p class="paragraph">Pentru crearea unui thread se folosește unul dintre constructorii clasei Thread:</p>
+     <ul class="enumeration">
+      <li>Thread(ThreadStart): ca parametru primește un obiect de delegat ThreadStart, care reprezintă acțiunea ce va fi executată în thread</li>
+      <li>Thread(ThreadStart, Int32): în plus față de delegatul ThreadStart, primește o valoare numerică ce stabilește dimensiunea stivei alocate pentru acest thread</li>
+      <li>Thread(ParameterizedThreadStart): ca parametru primește un obiect de delegat ParameterizedThreadStart, care reprezintă acțiunea ce va fi executată în thread</li>
+      <li>Thread(ParameterizedThreadStart, Int32): împreună cu delegatul ParameterizedThreadStart, primește o valoare numerică ce stabilește dimensiunea stivei pentru acest thread</li>
+     </ul>
+     <p class="paragraph">Indiferent de constructorul folosit pentru creare, trebuie să definim acțiunea ce va fi executată în thread. În acest articol, vom examina utilizarea delegatului ThreadStart. Acest delegat reprezintă o acțiune care nu primește niciun parametru și nu returnează nicio valoare:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;delegate&nbsp;void&nbsp;ThreadStart();</code></pre>
+     </div>
+     <p class="paragraph">Adică, pentru acest delegat, trebuie să definim o metodă de tip void care nu primește niciun parametru. Exemple de definire a thread-urilor:</p>
+     <div class="code-inline">
+      <pre><code>Thread&nbsp;myThread1&nbsp;=&nbsp;new&nbsp;Thread(Print);<br>Thread&nbsp;myThread2&nbsp;=&nbsp;new&nbsp;Thread(new&nbsp;ThreadStart(Print));<br>Thread&nbsp;myThread3&nbsp;=&nbsp;new&nbsp;Thread(()=&gt;Console.WriteLine("Hello&nbsp;Threads"));<br><br>void&nbsp;Print()&nbsp;=&gt;&nbsp;Console.WriteLine("Hello&nbsp;Threads");</code></pre>
+     </div>
+     <p class="paragraph">Pentru a porni un nou thread, se folosește metoda Start a clasei Thread:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Threading;<br><br>//&nbsp;creăm&nbsp;un&nbsp;nou&nbsp;thread<br>Thread&nbsp;myThread1&nbsp;=&nbsp;new&nbsp;Thread(Print);<br>Thread&nbsp;myThread2&nbsp;=&nbsp;new&nbsp;Thread(new&nbsp;ThreadStart(Print));<br>Thread&nbsp;myThread3&nbsp;=&nbsp;new&nbsp;Thread(()=&gt;Console.WriteLine("Hello&nbsp;Threads"));<br><br>myThread1.Start();&nbsp;&nbsp;//&nbsp;pornim&nbsp;thread-ul&nbsp;myThread1<br>myThread2.Start();&nbsp;&nbsp;//&nbsp;pornim&nbsp;thread-ul&nbsp;myThread2<br>myThread3.Start();&nbsp;&nbsp;//&nbsp;pornim&nbsp;thread-ul&nbsp;myThread3<br><br>void&nbsp;Print()&nbsp;=&gt;&nbsp;Console.WriteLine("Hello&nbsp;Threads");</code></pre>
+     </div>
+     <p class="paragraph">Avantajul thread-urilor este că ele pot fi executate simultan. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Threading;<br><br>//&nbsp;creăm&nbsp;un&nbsp;nou&nbsp;thread<br>Thread&nbsp;myThread&nbsp;=&nbsp;new&nbsp;Thread(Print);<br>//&nbsp;pornim&nbsp;thread-ul&nbsp;myThread<br>myThread.Start();<br><br>//&nbsp;acțiuni&nbsp;executate&nbsp;în&nbsp;thread-ul&nbsp;principal<br>for&nbsp;(int&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;5;&nbsp;i++)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Thread-ul&nbsp;principal:&nbsp;{i}");<br>&nbsp;&nbsp;&nbsp;Thread.Sleep(300);<br>}<br><br>//&nbsp;acțiuni&nbsp;executate&nbsp;în&nbsp;al&nbsp;doilea&nbsp;thread<br>void&nbsp;Print()<br>{<br>&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;5;&nbsp;i++)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Al&nbsp;doilea&nbsp;thread:&nbsp;{i}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread.Sleep(400);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici, noul thread va executa acțiunile definite în metoda Print, adică va afișa pe consolă numerele de la 0 la 4. După fiecare afișare, se va produce o întârziere de 400 milisecunde.</p>
+     <p class="paragraph">În thread-ul principal - în metoda Main - creăm și pornim un nou thread în care se execută metoda Print:</p>
+     <div class="code-inline">
+      <pre><code>Thread&nbsp;myThread&nbsp;=&nbsp;new&nbsp;Thread(Print);<br>myThread.Start();</code></pre>
+     </div>
+     <p class="paragraph">În plus, în thread-ul principal, efectuăm acțiuni similare - afișăm pe consolă numerele de la 0 la 4 cu o întârziere de 300 milisecunde.</p>
+     <p class="paragraph">Astfel, în programul nostru, vor rula simultan thread-ul principal, reprezentat de metoda Main, și al doilea thread, în care se execută metoda Print. De îndată ce toate thread-urile își vor încheia execuția, programul se va încheia. În final, vom obține următoarea ieșire pe consolă:</p>
+     <div class="code-inline">
+      <pre><code>Thread-ul&nbsp;principal:&nbsp;0<br>Al&nbsp;doilea&nbsp;thread:&nbsp;0<br>Thread-ul&nbsp;principal:&nbsp;1<br>Al&nbsp;doilea&nbsp;thread:&nbsp;1<br>Thread-ul&nbsp;principal:&nbsp;2<br>Al&nbsp;doilea&nbsp;thread:&nbsp;2<br>Thread-ul&nbsp;principal:&nbsp;3<br>Al&nbsp;doilea&nbsp;thread:&nbsp;3<br>Thread-ul&nbsp;principal:&nbsp;4<br>Al&nbsp;doilea&nbsp;thread:&nbsp;4</code></pre>
+     </div>
+     <p class="paragraph">În mod similar, putem crea și porni trei, patru sau un set întreg de noi thread-uri care vor putea rezolva diverse sarcini.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

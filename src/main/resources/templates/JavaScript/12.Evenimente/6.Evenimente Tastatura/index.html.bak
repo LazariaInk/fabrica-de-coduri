@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='12.Evenimente', activeLesson='6.Evenimente Tastatura'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Evenimente Tastatură</h1>
+     <p class="paragraph">Un alt tip comun de evenimente sunt evenimentele tastaturii.</p>
+     <ul class="enumeration">
+      <li>keydown: apare când este apăsată o tastă a tastaturii și durează atâta timp cât este apăsată tasta</li>
+      <li>keyup: apare când este eliberată o tastă a tastaturii</li>
+      <li>keypress: apare la apăsarea unei taste a tastaturii, dar după evenimentul keydown și înainte de keyup. Trebuie să se țină cont că acest eveniment este generat doar pentru acele taste care produc un caracter, de exemplu, la scrierea de caractere. Apăsările pe alte taste, de exemplu, pe Alt, nu sunt luate în considerare.</li>
+     </ul>
+     <p class="paragraph">Pentru lucrul cu evenimentele tastaturii este definit obiectul KeyboardEvent, care adaugă o serie de proprietăți specifice tastaturii la proprietățile obiectului Event:</p>
+     <ul class="enumeration">
+      <li>altKey: returnează true dacă a fost apăsată tasta Alt în timpul generării evenimentului</li>
+      <li>key: returnează simbolul tastei apăsate, de exemplu, la apăsarea tastei "T" această proprietate va conține "T". Iar dacă este apăsată tasta "Z", atunci această proprietate va conține "Z"</li>
+      <li>code: returnează reprezentarea ca șir de caractere a tastei fizice apăsate a tastaturii QWERTY, de exemplu, la apăsarea tastei "T" această proprietate va conține "KeyT", iar la apăsarea tastei ";" (punct și virgulă), proprietatea va returna "Semicolon".</li>
+     </ul>
+     <p class="paragraph">Când se folosește această proprietate, trebuie luate în considerare câteva aspecte. În primul rând, se folosește tastatura QWERTY.</p>
+     <p class="paragraph">Adică, dacă schimbăm configurația tastaturii, de exemplu, la una în limba rusă și apăsăm pe tasta "Я", valoarea va fi "KeyZ" - pe tastatura QWERTY, tasta Z reprezintă aceeași tastă ca și "Я" în configurația în limba rusă.</p>
+     <p class="paragraph">Un alt aspect - se ia în considerare chiar tastatura fizică. Dacă este apăsată o tastă pe o tastatură virtuală, valoarea returnată va fi stabilită de browser în funcție de ce tastă de pe tastatura fizică corespunde apăsării.</p>
+     <ul class="enumeration">
+      <li>ctrlKey: returnează true dacă a fost apăsată tasta Ctrl în timpul generării evenimentului</li>
+      <li>metaKey: returnează true dacă a fost apăsată o metatastă a tastaturii în timpul generării evenimentului</li>
+      <li>shiftKey: returnează true dacă a fost apăsată tasta Shift în timpul generării evenimentului</li>
+     </ul>
+     <p class="paragraph">De exemplu, putem folosi tastele de pe tastatură pentru a muta un element pe o pagină web:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&nbsp;&nbsp;&nbsp;&lt;style&gt;<br>&nbsp;&nbsp;&nbsp;#blueRect{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:100px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:100px;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:blue;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/style&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;div&nbsp;id="blueRect"&gt;&lt;/div&gt;<br><br>&lt;script&gt;<br>const&nbsp;blueRect&nbsp;=&nbsp;document.getElementById("blueRect");<br>//&nbsp;obținem&nbsp;stilul&nbsp;pentru&nbsp;blueRect<br>const&nbsp;blueRectStyle&nbsp;=&nbsp;window.get<br><br>ComputedStyle(blueRect);<br>//&nbsp;stabilim&nbsp;handler-ul&nbsp;pentru&nbsp;apăsarea&nbsp;tastei<br>window.addEventListener("keydown",&nbsp;moveRect);<br><br>function&nbsp;moveRect(e){<br>&nbsp;&nbsp;&nbsp;const&nbsp;left&nbsp;=&nbsp;parseInt(blueRectStyle.marginLeft);&nbsp;//deplasarea&nbsp;față&nbsp;de&nbsp;marginea&nbsp;stângă<br>&nbsp;&nbsp;&nbsp;const&nbsp;top&nbsp;=&nbsp;parseInt(blueRectStyle.marginTop);&nbsp;&nbsp;//&nbsp;deplasarea&nbsp;față&nbsp;de&nbsp;marginea&nbsp;superioară<br><br>&nbsp;&nbsp;&nbsp;switch(e.key){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;"ArrowLeft":&nbsp;&nbsp;//&nbsp;dacă&nbsp;este&nbsp;apăsată&nbsp;tasta&nbsp;stânga<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(left&nbsp;&gt;&nbsp;0)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blueRect.style.marginLeft&nbsp;=&nbsp;left&nbsp;-&nbsp;10&nbsp;+&nbsp;"px";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;"ArrowUp":&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;este&nbsp;apăsată&nbsp;tasta&nbsp;sus<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(top&nbsp;&gt;&nbsp;0)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blueRect.style.marginTop&nbsp;=&nbsp;top&nbsp;-&nbsp;10&nbsp;+&nbsp;"px";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;"ArrowRight":&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;este&nbsp;apăsată&nbsp;tasta&nbsp;dreapta<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(left&nbsp;&lt;&nbsp;document.documentElement.clientWidth&nbsp;-&nbsp;100)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blueRect.style.marginLeft&nbsp;=&nbsp;left&nbsp;+&nbsp;10&nbsp;+&nbsp;"px";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;"ArrowDown":&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;este&nbsp;apăsată&nbsp;tasta&nbsp;jos<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(top&nbsp;&lt;&nbsp;document.documentElement.clientHeight&nbsp;-&nbsp;100)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blueRect.style.marginTop&nbsp;=&nbsp;top&nbsp;+&nbsp;10&nbsp;+&nbsp;"px";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;}<br>}<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, se procesează evenimentul keydown, în handler-ul căruia controlăm proprietățile de stil ale elementului blueRect. Deoarece la atașarea handler-ului stilul elementului poate să nu fie setat, îl calculăm explicit folosind metoda window.getComputedStyle():</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;blueRectStyle&nbsp;=&nbsp;window.getComputedStyle(blueRect);</code></pre>
+     </div>
+     <p class="paragraph">În handler-ul evenimentului, selectăm valorile proprietăților marginLeft și marginTop din acest stil:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;left&nbsp;=&nbsp;parseInt(blueRectStyle.marginLeft);&nbsp;//deplasarea&nbsp;față&nbsp;de&nbsp;marginea&nbsp;stângă<br>const&nbsp;top&nbsp;=&nbsp;parseInt(blueRectStyle.marginTop);&nbsp;&nbsp;//&nbsp;deplasarea&nbsp;față&nbsp;de&nbsp;marginea&nbsp;superioară</code></pre>
+     </div>
+     <p class="paragraph">Apoi, folosind proprietatea e.key, obținem tasta apăsată. Lista codurilor tastelor poate fi găsită pe pagina https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values.</p>
+     <p class="paragraph">Ne interesează patru taste: sus, jos, stânga, dreapta. Acestea corespund denumirilor "ArrowUp", "ArrowDown", "ArrowLeft" și "ArrowRight". Dacă una dintre ele este apăsată, efectuăm acțiunile: mărirea sau micșorarea spațiului elementului față de marginea superioară sau stângă.</p>
+     <p class="paragraph">Pentru a preveni ca elementul să iasă din limitele ferestrei, verificăm valorile maxime folosind document.documentElement.clientWidth (lățimea elementului rădăcină) și document.documentElement.clientHeight (înălțimea elementului rădăcină).</p>
+     <p class="paragraph">Merită de menționat că acest cod nu este foarte optim, deoarece pentru a verifica valorile trebuie să calculăm poziția elementului blueRect pe orizontală și verticală.</p>
+     <p class="paragraph">În plus, la fiecare apel al handler-ului, trebuie să verificăm marginea dreaptă (document.documentElement.clientWidth - 100) și marginea inferioară (document.documentElement.clientHeight - 100) a documentului, pentru a preveni ca blueRect să iasă din spațiul vizibil.</p>
+     <p class="paragraph">În acest caz, putem adăuga abstracții suplimentare sub forma coordonatelor curente ale blueRect și poziției marginilor drepte și inferioare ale zonei vizibile. Modificăm codul JavaScript în modul următor:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;blueRect&nbsp;=&nbsp;document.getElementById("blueRect");<br>const&nbsp;position&nbsp;=&nbsp;[20,&nbsp;20];&nbsp;&nbsp;//&nbsp;poziția&nbsp;blueRect<br><br>//&nbsp;mutăm&nbsp;blueRect&nbsp;la&nbsp;poziția&nbsp;din&nbsp;position<br>function&nbsp;setPosition()&nbsp;{<br>&nbsp;&nbsp;&nbsp;blueRect.style.marginLeft&nbsp;=&nbsp;position[0]&nbsp;+&nbsp;"px";&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;blueRect.style.marginTop&nbsp;=&nbsp;position[1]&nbsp;+&nbsp;"px";&nbsp;&nbsp;<br>}<br><br>function&nbsp;init(){<br>&nbsp;&nbsp;&nbsp;const&nbsp;rightLimit&nbsp;=&nbsp;document.documentElement.clientWidth&nbsp;-&nbsp;100;&nbsp;&nbsp;//&nbsp;marginea&nbsp;dreaptă<br>&nbsp;&nbsp;&nbsp;const&nbsp;bottomLimit&nbsp;=&nbsp;document.documentElement.clientHeight&nbsp;-&nbsp;100;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;marginea&nbsp;inferioară<br><br>&nbsp;&nbsp;&nbsp;setPosition();&nbsp;&nbsp;//&nbsp;setăm&nbsp;poziția&nbsp;inițială&nbsp;pentru&nbsp;blueRect<br><br>&nbsp;&nbsp;&nbsp;function&nbsp;moveRect(e){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;switch(e.key){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;"ArrowLeft":&nbsp;&nbsp;//<br><br>dacă&nbsp;este&nbsp;apăsată&nbsp;tasta&nbsp;stânga<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(position[0]&nbsp;&gt;&nbsp;0)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;position[0]&nbsp;=&nbsp;position[0]&nbsp;-&nbsp;10;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;"ArrowUp":&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;este&nbsp;apăsată&nbsp;tasta&nbsp;sus<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(position[1]&nbsp;&gt;&nbsp;0)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;position[1]&nbsp;=&nbsp;position[1]&nbsp;-&nbsp;10;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;"ArrowRight":&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;este&nbsp;apăsată&nbsp;tasta&nbsp;dreapta<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(position[0]&nbsp;&lt;&nbsp;rightLimit)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;position[0]&nbsp;=&nbsp;position[0]&nbsp;+&nbsp;10;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;"ArrowDown":&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;este&nbsp;apăsată&nbsp;tasta&nbsp;jos<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(position[1]&nbsp;&lt;&nbsp;bottomLimit)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;position[1]&nbsp;=&nbsp;position[1]&nbsp;+&nbsp;10;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setPosition();<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;window.addEventListener("keydown",&nbsp;moveRect);<br>}<br>//&nbsp;La&nbsp;încărcarea&nbsp;paginii,&nbsp;executăm&nbsp;funcția&nbsp;init<br>window.addEventListener("load",&nbsp;init);</code></pre>
+     </div>
+     <p class="paragraph">Acum coordonatele blueRect sunt stocate în array-ul position, unde prima valoare este distanța de la stânga, iar a doua valoare este distanța de sus. Pentru a stabili poziția reală a blueRect pe pagină, este definită funcția setPosition.</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;position&nbsp;=&nbsp;[20,&nbsp;20];&nbsp;&nbsp;//&nbsp;poziția&nbsp;blueRect<br><br>//&nbsp;mutăm&nbsp;blueRect&nbsp;la&nbsp;poziția&nbsp;din&nbsp;position<br>function&nbsp;setPosition()&nbsp;{<br>&nbsp;&nbsp;&nbsp;blueRect.style.marginLeft&nbsp;=&nbsp;position[0]&nbsp;+&nbsp;"px";&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;blueRect.style.marginTop&nbsp;=&nbsp;position[1]&nbsp;+&nbsp;"px";&nbsp;&nbsp;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Atașăm la evenimentul de încărcare a ferestrei - load - handler-ul - funcția init:</p>
+     <div class="code-inline">
+      <pre><code>window.addEventListener("load",&nbsp;init);</code></pre>
+     </div>
+     <p class="paragraph">În funcția init definim marginea dreaptă și inferioară pentru mișcarea blueRect, și setăm poziția sa inițială:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;rightLimit&nbsp;=&nbsp;document.documentElement.clientWidth&nbsp;-&nbsp;100;&nbsp;&nbsp;//&nbsp;marginea&nbsp;dreaptă<br>const&nbsp;bottomLimit&nbsp;=&nbsp;document.documentElement.clientHeight&nbsp;-&nbsp;100;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;marginea&nbsp;inferioară<br>setPosition();&nbsp;&nbsp;//&nbsp;setăm&nbsp;poziția&nbsp;inițială&nbsp;pentru&nbsp;blueRect</code></pre>
+     </div>
+     <p class="paragraph">Apoi, definim handler-ul moveRect, în care modificăm valorile din array-ul position:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;moveRect(e){<br>&nbsp;&nbsp;&nbsp;switch(e.key){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;"ArrowLeft":&nbsp;&nbsp;//&nbsp;dacă&nbsp;este&nbsp;apăsată&nbsp;tasta&nbsp;stânga<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(position[0]&nbsp;&gt;&nbsp;0)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;position[0]&nbsp;=&nbsp;position[0]&nbsp;-&nbsp;10;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//............<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;setPosition();<br>}</code></pre>
+     </div>
+     <p class="paragraph">Și după toate modificările, resetăm poziția cu funcția setPosition.</p>
+     <p class="paragraph">În final, atașăm handler-ul la evenimentul de apăsare a unei taste a tastaturii:</p>
+     <div class="code-inline">
+      <pre><code>window.addEventListener("keydown",&nbsp;moveRect);</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

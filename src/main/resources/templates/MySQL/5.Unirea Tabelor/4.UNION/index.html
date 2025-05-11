@@ -1,158 +1,148 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='MySQL', activeChapter='5.Unirea Tabelor', activeLesson='4.UNION'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Operatorul UNION</h1>
- <p class="paragraph">Operatorul UNION permite să unești două selecții de același tip. Aceste selecții pot proveni din tabele diferite sau din aceeași tabelă. Sintaxa formală a uniunii este:</p>
- <div class="code-inline">
-  <pre><code>SELECT_expresie1<br>UNION&nbsp;[ALL]&nbsp;SELECT_expresie2<br>[UNION&nbsp;[ALL]&nbsp;SELECT_expresieN]</code></pre>
- </div>
- <p class="paragraph">De exemplu, să presupunem că în baza de date există două tabele separate pentru clienții băncii (tabela Customers) și pentru angajații băncii (tabela Employees):</p>
- <div class="code-inline">
-  <pre><code>CREATE&nbsp;TABLE&nbsp;Customers<br>(<br>&nbsp;&nbsp;&nbsp;Id&nbsp;INT&nbsp;AUTO_INCREMENT&nbsp;PRIMARY&nbsp;KEY,<br>&nbsp;&nbsp;&nbsp;FirstName&nbsp;VARCHAR(20)&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;LastName&nbsp;VARCHAR(20)&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;AccountSum&nbsp;DECIMAL<br>);<br>CREATE&nbsp;TABLE&nbsp;Employees<br>(<br>&nbsp;&nbsp;&nbsp;Id&nbsp;INT&nbsp;AUTO_INCREMENT&nbsp;PRIMARY&nbsp;KEY,<br>&nbsp;&nbsp;&nbsp;FirstName&nbsp;VARCHAR(20)&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;LastName&nbsp;VARCHAR(20)&nbsp;NOT&nbsp;NULL<br>);<br>&nbsp;<br>INSERT&nbsp;INTO&nbsp;Customers(FirstName,&nbsp;LastName,&nbsp;AccountSum)<br>VALUES<br>('Tom',&nbsp;'Smith',&nbsp;2000),<br>('Sam',&nbsp;'Brown',&nbsp;3000),<br>('Mark',&nbsp;'Adams',&nbsp;2500),<br>('Paul',&nbsp;'Ins',&nbsp;4200),<br>('John',&nbsp;'Smith',&nbsp;2800),<br>('Tim',&nbsp;'Cook',&nbsp;2800);<br>&nbsp;<br>INSERT&nbsp;INTO&nbsp;Employees(FirstName,&nbsp;LastName)<br>VALUES<br>('Homer',&nbsp;'Simpson'),<br>('Tom',&nbsp;'Smith'),<br>('Mark',&nbsp;'Adams'),<br>('Nick',&nbsp;'Svensson');</code></pre>
- </div>
- <p class="paragraph">Aici putem observa că ambele tabele, în ciuda datelor diferite, pot fi caracterizate prin două atribute comune - nume (FirstName) și prenume (LastName). Vom selecta imediat toți clienții băncii și angajații săi din ambele tabele:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;FirstName,&nbsp;LastName<br>FROM&nbsp;Customers<br>UNION&nbsp;SELECT&nbsp;FirstName,&nbsp;LastName&nbsp;FROM&nbsp;Employees;</code></pre>
- </div>
- <p class="paragraph">Aici, din prima tabelă sunt selectate două valori - numele și prenumele clientului. Din a doua tabelă, Employees, sunt de asemenea selectate două valori - numele și prenumele angajaților. Deci, la unirea acestora, numărul de coloane selectate și tipurile acestora coincid pentru ambele selecții.</p>
- <div class="image-container">
-  <img src="images/image1.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">În acest caz, numele coloanelor din selecția combinată vor coincide cu numele coloanelor din prima selecție. Dacă dorim să efectuăm și sortarea, expresiile ORDER BY trebuie să se orienteze către numele coloanelor din prima selecție:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;FirstName&nbsp;AS&nbsp;FName,&nbsp;LastName<br>FROM&nbsp;Customers<br>UNION&nbsp;SELECT&nbsp;FirstName,&nbsp;LastName<br>FROM&nbsp;Employees<br>ORDER&nbsp;BY&nbsp;FName&nbsp;DESC;</code></pre>
- </div>
- <p class="paragraph">Fiecare selecție are o coloană numită FName din prima selecție. Cu toate acestea, în timpul sortării, va fi luat în considerare și valoarea coloanei FirstName din a doua selecție:</p>
- <div class="image-container">
-  <img src="images/image2.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Dacă una dintre selecții are mai multe coloane decât cealaltă, ele nu pot fi unite. De exemplu, în următorul caz, unirea va eșua cu o eroare:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;FirstName,&nbsp;LastName,&nbsp;AccountSum<br>FROM&nbsp;Customers<br>UNION&nbsp;SELECT&nbsp;FirstName,&nbsp;LastName<br>FROM&nbsp;Employees;</code></pre>
- </div>
- <p class="paragraph">Dacă ambele seturi de date care urmează să fie unite conțin valori identice în rânduri, atunci la unire, rândurile duplicate vor fi eliminate. De exemplu, în cazul tabelelor Customers și Employees, angajații băncii pot fi simultan clienți și pot apărea în ambele tabele.</p>
- <p class="paragraph">În exemplele anterioare, la unirea acestora, toate rândurile duplicate au fost eliminate. Dacă este necesar să se păstreze toate rândurile, inclusiv cele duplicate, la unire, trebuie să utilizați operatorul ALL:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;FirstName,&nbsp;LastName<br>FROM&nbsp;Customers<br>UNION&nbsp;ALL&nbsp;SELECT&nbsp;FirstName,&nbsp;LastName<br>FROM&nbsp;Employees<br>ORDER&nbsp;BY&nbsp;FirstName;</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image3.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Se pot uni selecții chiar și din aceeași tabelă. De exemplu, în funcție de suma din contul unui client, poate fi necesar să i se calculeze anumite procente:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;FirstName,&nbsp;LastName,&nbsp;AccountSum&nbsp;+&nbsp;AccountSum&nbsp;*&nbsp;0.1&nbsp;AS&nbsp;TotalSum<br>FROM&nbsp;Customers&nbsp;WHERE&nbsp;AccountSum&nbsp;&lt;&nbsp;3000<br>UNION&nbsp;SELECT&nbsp;FirstName,&nbsp;LastName,&nbsp;AccountSum&nbsp;+&nbsp;AccountSum&nbsp;*&nbsp;0.3&nbsp;AS&nbsp;TotalSum<br>FROM&nbsp;Customers&nbsp;WHERE&nbsp;AccountSum&nbsp;&gt;=&nbsp;3000;</code></pre>
- </div>
- <p class="paragraph">În acest caz, dacă suma este mai mică de 3000, se vor aplica procente în valoare de 10% din suma din cont. Dacă suma este mai mare de 3000, procentele se vor majora la 30%.</p>
- <div class="image-container">
-  <img src="images/image4.png" alt="" class="responsive-image">
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Operatorul UNION</h1>
+     <p class="paragraph">Operatorul UNION permite să unești două selecții de același tip. Aceste selecții pot proveni din tabele diferite sau din aceeași tabelă. Sintaxa formală a uniunii este:</p>
+     <div class="code-inline">
+      <pre><code>SELECT_expresie1<br>UNION&nbsp;[ALL]&nbsp;SELECT_expresie2<br>[UNION&nbsp;[ALL]&nbsp;SELECT_expresieN]</code></pre>
+     </div>
+     <p class="paragraph">De exemplu, să presupunem că în baza de date există două tabele separate pentru clienții băncii (tabela Customers) și pentru angajații băncii (tabela Employees):</p>
+     <div class="code-inline">
+      <pre><code>CREATE&nbsp;TABLE&nbsp;Customers<br>(<br>&nbsp;&nbsp;&nbsp;Id&nbsp;INT&nbsp;AUTO_INCREMENT&nbsp;PRIMARY&nbsp;KEY,<br>&nbsp;&nbsp;&nbsp;FirstName&nbsp;VARCHAR(20)&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;LastName&nbsp;VARCHAR(20)&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;AccountSum&nbsp;DECIMAL<br>);<br>CREATE&nbsp;TABLE&nbsp;Employees<br>(<br>&nbsp;&nbsp;&nbsp;Id&nbsp;INT&nbsp;AUTO_INCREMENT&nbsp;PRIMARY&nbsp;KEY,<br>&nbsp;&nbsp;&nbsp;FirstName&nbsp;VARCHAR(20)&nbsp;NOT&nbsp;NULL,<br>&nbsp;&nbsp;&nbsp;LastName&nbsp;VARCHAR(20)&nbsp;NOT&nbsp;NULL<br>);<br>&nbsp;<br>INSERT&nbsp;INTO&nbsp;Customers(FirstName,&nbsp;LastName,&nbsp;AccountSum)<br>VALUES<br>('Tom',&nbsp;'Smith',&nbsp;2000),<br>('Sam',&nbsp;'Brown',&nbsp;3000),<br>('Mark',&nbsp;'Adams',&nbsp;2500),<br>('Paul',&nbsp;'Ins',&nbsp;4200),<br>('John',&nbsp;'Smith',&nbsp;2800),<br>('Tim',&nbsp;'Cook',&nbsp;2800);<br>&nbsp;<br>INSERT&nbsp;INTO&nbsp;Employees(FirstName,&nbsp;LastName)<br>VALUES<br>('Homer',&nbsp;'Simpson'),<br>('Tom',&nbsp;'Smith'),<br>('Mark',&nbsp;'Adams'),<br>('Nick',&nbsp;'Svensson');</code></pre>
+     </div>
+     <p class="paragraph">Aici putem observa că ambele tabele, în ciuda datelor diferite, pot fi caracterizate prin două atribute comune - nume (FirstName) și prenume (LastName). Vom selecta imediat toți clienții băncii și angajații săi din ambele tabele:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;FirstName,&nbsp;LastName<br>FROM&nbsp;Customers<br>UNION&nbsp;SELECT&nbsp;FirstName,&nbsp;LastName&nbsp;FROM&nbsp;Employees;</code></pre>
+     </div>
+     <p class="paragraph">Aici, din prima tabelă sunt selectate două valori - numele și prenumele clientului. Din a doua tabelă, Employees, sunt de asemenea selectate două valori - numele și prenumele angajaților. Deci, la unirea acestora, numărul de coloane selectate și tipurile acestora coincid pentru ambele selecții.</p>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/5.Unirea%20Tabelor/4.UNION/images/union-sql-combinare-clienti-angajati.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">În acest caz, numele coloanelor din selecția combinată vor coincide cu numele coloanelor din prima selecție. Dacă dorim să efectuăm și sortarea, expresiile ORDER BY trebuie să se orienteze către numele coloanelor din prima selecție:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;FirstName&nbsp;AS&nbsp;FName,&nbsp;LastName<br>FROM&nbsp;Customers<br>UNION&nbsp;SELECT&nbsp;FirstName,&nbsp;LastName<br>FROM&nbsp;Employees<br>ORDER&nbsp;BY&nbsp;FName&nbsp;DESC;</code></pre>
+     </div>
+     <p class="paragraph">Fiecare selecție are o coloană numită FName din prima selecție. Cu toate acestea, în timpul sortării, va fi luat în considerare și valoarea coloanei FirstName din a doua selecție:</p>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/5.Unirea%20Tabelor/4.UNION/images/union-sql-sortare-desc-nume-prenume.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Dacă una dintre selecții are mai multe coloane decât cealaltă, ele nu pot fi unite. De exemplu, în următorul caz, unirea va eșua cu o eroare:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;FirstName,&nbsp;LastName,&nbsp;AccountSum<br>FROM&nbsp;Customers<br>UNION&nbsp;SELECT&nbsp;FirstName,&nbsp;LastName<br>FROM&nbsp;Employees;</code></pre>
+     </div>
+     <p class="paragraph">Dacă ambele seturi de date care urmează să fie unite conțin valori identice în rânduri, atunci la unire, rândurile duplicate vor fi eliminate. De exemplu, în cazul tabelelor Customers și Employees, angajații băncii pot fi simultan clienți și pot apărea în ambele tabele.</p>
+     <p class="paragraph">În exemplele anterioare, la unirea acestora, toate rândurile duplicate au fost eliminate. Dacă este necesar să se păstreze toate rândurile, inclusiv cele duplicate, la unire, trebuie să utilizați operatorul ALL:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;FirstName,&nbsp;LastName<br>FROM&nbsp;Customers<br>UNION&nbsp;ALL&nbsp;SELECT&nbsp;FirstName,&nbsp;LastName<br>FROM&nbsp;Employees<br>ORDER&nbsp;BY&nbsp;FirstName;</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/5.Unirea%20Tabelor/4.UNION/images/union-all-sql-rezultate-duplicate.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Se pot uni selecții chiar și din aceeași tabelă. De exemplu, în funcție de suma din contul unui client, poate fi necesar să i se calculeze anumite procente:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;FirstName,&nbsp;LastName,&nbsp;AccountSum&nbsp;+&nbsp;AccountSum&nbsp;*&nbsp;0.1&nbsp;AS&nbsp;TotalSum<br>FROM&nbsp;Customers&nbsp;WHERE&nbsp;AccountSum&nbsp;&lt;&nbsp;3000<br>UNION&nbsp;SELECT&nbsp;FirstName,&nbsp;LastName,&nbsp;AccountSum&nbsp;+&nbsp;AccountSum&nbsp;*&nbsp;0.3&nbsp;AS&nbsp;TotalSum<br>FROM&nbsp;Customers&nbsp;WHERE&nbsp;AccountSum&nbsp;&gt;=&nbsp;3000;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, dacă suma este mai mică de 3000, se vor aplica procente în valoare de 10% din suma din cont. Dacă suma este mai mare de 3000, procentele se vor majora la 30%.</p>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/5.Unirea%20Tabelor/4.UNION/images/union-sql-conditii-si-calcul-total-clienti.png}" alt="" class="responsive-image">
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

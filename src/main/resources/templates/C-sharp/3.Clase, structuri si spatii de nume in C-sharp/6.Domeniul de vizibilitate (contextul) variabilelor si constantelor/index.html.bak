@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='3.Clase, structuri si spatii de nume in C-sharp', activeLesson='6.Domeniul de vizibilitate (contextul) variabilelor si constantelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Domeniul de vizibilitate (contextul) variabilelor și constantelor</h1>
+     <p class="paragraph">Fiecare variabilă este accesibilă în cadrul unui anumit context sau domeniu de vizibilitate. În afara acestui context, variabila nu mai există.</p>
+     <p class="paragraph">Există diverse contexte:</p>
+     <ul class="enumeration">
+      <li>Contextul clasei. Variabilele definite la nivelul clasei sunt accesibile în orice metodă a acestei clase. Acestea sunt numite și variabile globale sau câmpuri</li>
+      <li>Contextul metodei. Variabilele definite la nivelul metodei sunt locale și sunt accesibile doar în cadrul metodei respective. În alte metode, acestea nu sunt accesibile</li>
+      <li>Contextul blocului de cod. Variabilele definite la nivelul blocului de cod sunt de asemenea locale și sunt accesibile doar în cadrul blocului respectiv. În afara blocului de cod, acestea nu sunt accesibile</li>
+     </ul>
+     <p class="paragraph">De exemplu, să presupunem că codul programului este definit astfel:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;tom&nbsp;=&nbsp;new();<br>tom.PrintName();<br>tom.PrintSurname();<br><br>class&nbsp;Person&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;începutul&nbsp;contextului&nbsp;clasei<br>{<br>&nbsp;&nbsp;&nbsp;string&nbsp;type&nbsp;=&nbsp;"Person";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;variabilă&nbsp;la&nbsp;nivelul&nbsp;clasei<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;PrintName()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;începutul&nbsp;contextului&nbsp;metodei&nbsp;PrintName<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;name&nbsp;=&nbsp;"Tom";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;variabilă&nbsp;la&nbsp;nivelul&nbsp;metodei<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;începutul&nbsp;contextului&nbsp;blocului&nbsp;de&nbsp;cod<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;shortName&nbsp;=&nbsp;"Tomas";&nbsp;//&nbsp;variabilă&nbsp;la&nbsp;nivelul&nbsp;blocului&nbsp;de&nbsp;cod<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(type);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;în&nbsp;bloc&nbsp;este&nbsp;accesibilă&nbsp;variabila&nbsp;clasei<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(name);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;în&nbsp;bloc&nbsp;este&nbsp;accesibilă&nbsp;variabila&nbsp;metodei&nbsp;înconjurătoare<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(shortName);&nbsp;//&nbsp;în&nbsp;bloc&nbsp;este&nbsp;accesibilă&nbsp;variabila&nbsp;blocului&nbsp;respectiv<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;sfârșitul&nbsp;contextului&nbsp;blocului&nbsp;de&nbsp;cod,&nbsp;variabila&nbsp;shortName&nbsp;este&nbsp;distrusă<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(type);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;în&nbsp;metodă&nbsp;este&nbsp;accesibilă&nbsp;variabila&nbsp;clasei<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(name);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;în&nbsp;metodă&nbsp;este&nbsp;accesibilă&nbsp;variabila&nbsp;metodei&nbsp;respective<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//Console.WriteLine(shortName);&nbsp;//&nbsp;așa&nbsp;nu&nbsp;se&nbsp;poate,&nbsp;variabila&nbsp;shortName&nbsp;este&nbsp;definită&nbsp;în&nbsp;blocul&nbsp;de&nbsp;cod<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//Console.WriteLine(surname);&nbsp;&nbsp;&nbsp;//&nbsp;așa&nbsp;nu&nbsp;se&nbsp;poate,&nbsp;variabila&nbsp;surname&nbsp;este&nbsp;definită&nbsp;în&nbsp;altă&nbsp;metodă<br>&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;sfârșitul&nbsp;contextului&nbsp;metodei&nbsp;PrintName,&nbsp;variabila&nbsp;name&nbsp;este&nbsp;distrusă<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;PrintSurname()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;începutul&nbsp;contextului&nbsp;metodei&nbsp;PrintSurname<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;surname&nbsp;=&nbsp;"Smith";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;variabilă&nbsp;la&nbsp;nivelul&nbsp;metodei<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(type);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;în&nbsp;metodă&nbsp;este&nbsp;accesibilă&nbsp;variabila&nbsp;clasei<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(surname);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;în&nbsp;metodă&nbsp;este&nbsp;accesibilă&nbsp;variabila&nbsp;metodei&nbsp;respective<br>&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;sfârșitul&nbsp;contextului&nbsp;metodei&nbsp;PrintSurname,&nbsp;variabila&nbsp;surname&nbsp;este&nbsp;distrusă<br>}&nbsp;&nbsp;&nbsp;//&nbsp;sfârșitul&nbsp;contextului&nbsp;clasei,&nbsp;variabila&nbsp;type&nbsp;este&nbsp;distrusă</code></pre>
+     </div>
+     <p class="paragraph">Aici sunt definite patru variabile: type, name, shortName și surname. Fiecare dintre ele există în contextul său. Variabila type există în contextul întregii clase Person și este accesibilă în orice loc și bloc de cod din metodele PrintName și PrintSurname.</p>
+     <p class="paragraph">Variabila name există doar în cadrul metodei PrintName. La fel cum variabila surname există în cadrul metodei PrintSurname. În metoda PrintName nu putem accesa variabila surname, deoarece aceasta este în alt context.</p>
+     <p class="paragraph">Variabila shortName există doar în blocul de cod delimitat de acoladele deschise și închise. În afara acestor limite, variabila shortName nu există și nu poate fi accesată.</p>
+     <p class="paragraph">Adesea, limitele diverselor contexte pot fi asociate cu acoladele deschise și închise, ca în acest caz, care stabilesc limitele unui bloc de cod, metodă, clasă.</p>
+     <p class="paragraph">La lucrul cu variabile trebuie de avut în vedere că variabilele locale, definite într-o metodă sau într-un bloc de cod, ascund variabilele la nivel de clasă dacă numele lor coincid:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person&nbsp;<br>{<br>&nbsp;&nbsp;&nbsp;string&nbsp;name&nbsp;=&nbsp;"Tom";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;variabilă&nbsp;la&nbsp;nivelul&nbsp;clasei<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;PrintName()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;name&nbsp;=&nbsp;"Tomas";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;variabilă&nbsp;la&nbsp;nivelul&nbsp;metodei&nbsp;ascunde&nbsp;variabila&nbsp;la&nbsp;nivelul&nbsp;clasei<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(name);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Tomas<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">La declararea variabilelor trebuie avut în vedere că într-un context nu se pot defini mai multe variabile cu același nume.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

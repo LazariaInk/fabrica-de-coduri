@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='5.Tratarea exceptiilor', activeLesson='6.Cautarea blocului catch la tratarea exceptiilor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Căutarea blocului catch la tratarea excepțiilor</h1>
+     <p class="paragraph">Dacă codul care declanșează o excepție nu este plasat într-un bloc try sau este plasat într-o construcție try..catch care nu conține un bloc catch corespunzător pentru tratarea excepției apărute, sistemul va căuta un handler de excepție corespunzător în stiva de apeluri.</p>
+     <p class="paragraph">De exemplu, să considerăm următorul program:</p>
+     <div class="code-inline">
+      <pre><code>try<br>{<br>&nbsp;&nbsp;&nbsp;TestClass.Method1();<br>}<br>catch&nbsp;(DivideByZeroException&nbsp;ex)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Catch&nbsp;în&nbsp;Main&nbsp;:&nbsp;{ex.Message}");<br>}<br>finally<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Bloc&nbsp;finally&nbsp;în&nbsp;Main");<br>}<br>Console.WriteLine("Sfârșitul&nbsp;metodei&nbsp;Main");<br><br>class&nbsp;TestClass<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;Method1()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Method2();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;catch&nbsp;(IndexOutOfRangeException&nbsp;ex)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Catch&nbsp;în&nbsp;Method1&nbsp;:&nbsp;{ex.Message}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;finally<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Bloc&nbsp;finally&nbsp;în&nbsp;Method1");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Sfârșitul&nbsp;metodei&nbsp;Method1");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;static&nbsp;void&nbsp;Method2()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;x&nbsp;=&nbsp;8;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;y&nbsp;=&nbsp;x&nbsp;/&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;finally<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Bloc&nbsp;finally&nbsp;în&nbsp;Method2");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Sfârșitul&nbsp;metodei&nbsp;Method2");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, stiva de apeluri arată astfel: metoda Main apelează metoda Method1, care la rândul său apelează metoda Method2. În metoda Method2 se generează o excepție de tip DivideByZeroException. Vizual, stiva de apeluri poate fi reprezentată astfel:</p>
+     <div class="image-container">
+      <img th:src="@{/images/5.Tratarea%20exceptiilor/6.Cautarea%20blocului%20catch%20la%20tratarea%20exceptiilor/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Ce se întâmplă în acest caz când se generează o excepție?</p>
+     <ul class="enumeration">
+      <li>Metoda Main apelează metoda Method1, iar aceasta apelează metoda Method2, unde se generează excepția DivideByZeroException</li>
+      <li>Sistemul vede că codul care a generat excepția este plasat într-o construcție try..catch:</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>try<br>{<br>&nbsp;&nbsp;&nbsp;int&nbsp;x&nbsp;=&nbsp;8;<br>&nbsp;&nbsp;&nbsp;int&nbsp;y&nbsp;=&nbsp;x&nbsp;/&nbsp;0;<br>}<br>finally<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Bloc&nbsp;finally&nbsp;în&nbsp;Method2");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Sistemul caută în această construcție un bloc catch care să trateze excepția DivideByZeroException. Cu toate acestea, nu există un astfel de bloc catch.</p>
+     <ul class="enumeration">
+      <li>Sistemul coboară în stiva de apeluri în metoda Method1, care a apelat Method2. Aici, apelul Method2 este plasat într-o construcție try..catch:</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>try<br>{<br>&nbsp;&nbsp;&nbsp;Method2();<br>}<br>catch&nbsp;(IndexOutOfRangeException&nbsp;ex)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Catch&nbsp;în&nbsp;Method1&nbsp;:&nbsp;{ex.Message}");<br>}<br>finally<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Bloc&nbsp;finally&nbsp;în&nbsp;Method1");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Sistemul caută și aici un bloc catch care să trateze excepția DivideByZeroException, dar nu găsește unul.</p>
+     <ul class="enumeration">
+      <li>Sistemul coboară mai departe în stiva de apeluri în metoda Main, care a apelat Method1. Aici, apelul Method1 este plasat într-o construcție try..catch:</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>try<br>{<br>&nbsp;&nbsp;&nbsp;TestClass.Method1();<br>}<br>catch&nbsp;(DivideByZeroException&nbsp;ex)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Catch&nbsp;în&nbsp;Main&nbsp;:&nbsp;{ex.Message}");<br>}<br>finally<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Bloc&nbsp;finally&nbsp;în&nbsp;Main");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Sistemul găsește în această construcție un bloc catch care tratează excepția DivideByZeroException.</p>
+     <ul class="enumeration">
+      <li>În cele din urmă, sistemul a găsit blocul catch corespunzător în metoda Main pentru a trata excepția apărută în metoda Method2 - adică în metoda inițială unde a apărut excepția. Dar acest bloc catch NU se execută imediat. Sistemul urcă înapoi pe stiva de apeluri în vârful metodei Method2 și execută blocul finally:</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>finally<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Bloc&nbsp;finally&nbsp;în&nbsp;Method2");<br>}</code></pre>
+     </div>
+     <ul class="enumeration">
+      <li>Apoi, sistemul coboară în stiva de apeluri în metoda Method1 și execută blocul finally:</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>finally<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Bloc&nbsp;finally&nbsp;în&nbsp;Method1");<br>}</code></pre>
+     </div>
+     <ul class="enumeration">
+      <li>Apoi, sistemul coboară în stiva de apeluri în metoda Main și execută blocul catch găsit și blocul finally următor:</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>catch&nbsp;(DivideByZeroException&nbsp;ex)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Catch&nbsp;în&nbsp;Main&nbsp;:&nbsp;{ex.Message}");<br>}<br>finally<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Bloc&nbsp;finally&nbsp;în&nbsp;Main");<br>}</code></pre>
+     </div>
+     <ul class="enumeration">
+      <li>După aceasta, se execută codul care urmează construcției try..catch în metoda Main:</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>Console.WriteLine("Sfârșitul&nbsp;metodei&nbsp;Main");</code></pre>
+     </div>
+     <p class="paragraph">Este important de menționat că codul care urmează după construcția try..catch în metodele Method1 și Method2 nu se execută, deoarece handler-ul de excepții a fost găsit doar în metoda Main.</p>
+     <p class="paragraph">Output-ul în consolă al programului:</p>
+     <div class="code-inline">
+      <pre><code>Bloc&nbsp;finally&nbsp;în&nbsp;Method2<br>Bloc&nbsp;finally&nbsp;în&nbsp;Method1<br>Catch&nbsp;în&nbsp;Main:&nbsp;Attempted&nbsp;to&nbsp;divide&nbsp;by&nbsp;zero<br>Bloc&nbsp;finally&nbsp;în&nbsp;Main<br>Sfârșitul&nbsp;metodei&nbsp;Main</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

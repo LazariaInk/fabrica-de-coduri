@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='14.Multithreading', activeLesson='3.Thread-uri cu parametri si ParameterizedThreadStart'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Thread-uri cu parametri și ParameterizedThreadStart</h1>
+     <p class="paragraph">În articolul precedent am discutat despre cum să rulăm metode fără parametri în thread-uri separate. Dar ce facem dacă trebuie să transmitem anumiți parametri în thread?</p>
+     <p class="paragraph">Pentru acest scop se utilizează delegatul ParameterizedThreadStart, care este transmis în constructorul clasei Thread:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;delegate&nbsp;void&nbsp;ParameterizedThreadStart(object?&nbsp;obj);</code></pre>
+     </div>
+     <p class="paragraph">Utilizarea delegatului ParameterizedThreadStart este foarte similară cu lucrul cu ThreadStart. Să vedem un exemplu:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Threading;<br><br>//&nbsp;creăm&nbsp;noi&nbsp;thread-uri<br>Thread&nbsp;myThread1&nbsp;=&nbsp;new&nbsp;Thread(new&nbsp;ParameterizedThreadStart(Print));<br>Thread&nbsp;myThread2&nbsp;=&nbsp;new&nbsp;Thread(Print);<br>Thread&nbsp;myThread3&nbsp;=&nbsp;new&nbsp;Thread(message&nbsp;=&gt;&nbsp;Console.WriteLine(message));<br><br>//&nbsp;pornim&nbsp;thread-urile<br>myThread1.Start("Hello");<br>myThread2.Start("Aloha");<br>myThread3.Start("Salut");<br><br>void&nbsp;Print(object?&nbsp;message)&nbsp;=&gt;&nbsp;Console.WriteLine(message);</code></pre>
+     </div>
+     <p class="paragraph">La crearea thread-ului, în constructorul clasei Thread este transmis un obiect delegat ParameterizedThreadStart new Thread(new ParameterizedThreadStart(Print)), sau direct metoda care corespunde acestui delegat (new Thread(Print)), inclusiv sub formă de expresie lambda (new Thread(message =&gt; Console.WriteLine(message))).</p>
+     <p class="paragraph">Apoi, la pornirea thread-ului, în metoda Start() se transmite valoarea care este transmisă ca parametru metodei Print. În acest caz, vom obține următorul output pe consolă:</p>
+     <div class="code-inline">
+      <pre><code>Salut<br>Hello<br>Aloha</code></pre>
+     </div>
+     <p class="paragraph">Utilizând ParameterizedThreadStart, ne confruntăm cu o limitare: putem rula în al doilea thread doar o metodă care primește ca unic parametru un obiect de tip object?. Prin urmare, dacă dorim să folosim date de alte tipuri, în metodă trebuie să realizăm conversia tipurilor. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Threading;<br><br>int&nbsp;number&nbsp;=&nbsp;4;<br>//&nbsp;creăm&nbsp;un&nbsp;nou&nbsp;thread<br>Thread&nbsp;myThread&nbsp;=&nbsp;new&nbsp;Thread(Print);<br>myThread.Start(number);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;n&nbsp;*&nbsp;n&nbsp;=&nbsp;16<br><br>//&nbsp;acțiuni&nbsp;executate&nbsp;în&nbsp;al&nbsp;doilea&nbsp;thread<br>void&nbsp;Print(object?&nbsp;obj)<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;aici&nbsp;ne&nbsp;așteptăm&nbsp;să&nbsp;primim&nbsp;un&nbsp;număr<br>&nbsp;&nbsp;&nbsp;if&nbsp;(obj&nbsp;is&nbsp;int&nbsp;n)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"n&nbsp;*&nbsp;n&nbsp;=&nbsp;{n&nbsp;*&nbsp;n}");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, trebuie să convertim suplimentar valoarea transmisă la tipul int pentru a o folosi în calcule.</p>
+     <p class="paragraph">Dar ce facem dacă trebuie să transmitem mai mulți parametri de tipuri diferite? În acest caz, putem defini propriile noastre tipuri:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Threading;<br><br>Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;37);<br>//&nbsp;creăm&nbsp;un&nbsp;nou&nbsp;thread<br>Thread&nbsp;myThread&nbsp;=&nbsp;new&nbsp;Thread(Print);<br>myThread.Start(tom);<br><br>void&nbsp;Print(object?&nbsp;obj)<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;aici&nbsp;ne&nbsp;așteptăm&nbsp;să&nbsp;primim&nbsp;un&nbsp;obiect&nbsp;Person<br>&nbsp;&nbsp;&nbsp;if&nbsp;(obj&nbsp;is&nbsp;Person&nbsp;person)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Name&nbsp;=&nbsp;{person.Name}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Age&nbsp;=&nbsp;{person.Age}");<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>record&nbsp;class&nbsp;Person(string&nbsp;Name,&nbsp;int&nbsp;Age);</code></pre>
+     </div>
+     <p class="paragraph">Mai întâi definim o clasă specială Person, al cărei obiect va fi transmis în al doilea thread, iar în metoda Main îl transmitem în al doilea thread.</p>
+     <p class="paragraph">Totuși, există o limitare: metoda Thread.Start nu este tip-sigură, adică putem transmite orice tip și va trebui să convertim obiectul transmis la tipul dorit. Pentru a rezolva această problemă, este recomandat să declarăm toate metodele și variabilele utilizate într-o clasă specială, iar în programul principal să rulăm thread-ul prin ThreadStart. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Threading;<br><br>Person&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;37);<br>//&nbsp;creăm&nbsp;un&nbsp;nou&nbsp;thread<br>Thread&nbsp;myThread&nbsp;=&nbsp;new&nbsp;Thread(tom.Print);<br>myThread.Start();<br><br>record&nbsp;class&nbsp;Person(string&nbsp;Name,&nbsp;int&nbsp;Age)<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Print()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Name&nbsp;=&nbsp;{Name}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Age&nbsp;=&nbsp;{Age}");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

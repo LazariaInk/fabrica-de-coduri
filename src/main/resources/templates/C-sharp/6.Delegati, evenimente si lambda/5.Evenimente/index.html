@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='6.Delegati, evenimente si lambda', activeLesson='5.Evenimente'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Evenimente</h1>
+     <p class="paragraph">Evenimentele semnalizează sistemului că a avut loc o anumită acțiune. Și dacă trebuie să urmărim aceste acțiuni, putem folosi evenimentele.</p>
+     <p class="paragraph">De exemplu, să luăm următoarea clasă care descrie un cont bancar:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Account<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;suma&nbsp;din&nbsp;cont<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Sum&nbsp;{&nbsp;get;&nbsp;private&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;//&nbsp;în&nbsp;constructor&nbsp;se&nbsp;stabilește&nbsp;suma&nbsp;inițială&nbsp;din&nbsp;cont<br>&nbsp;&nbsp;&nbsp;public&nbsp;Account(int&nbsp;sum)&nbsp;=&gt;&nbsp;Sum&nbsp;=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;//&nbsp;adăugarea&nbsp;de&nbsp;fonduri&nbsp;în&nbsp;cont<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Put(int&nbsp;sum)&nbsp;=&gt;&nbsp;Sum&nbsp;+=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;//&nbsp;retragerea&nbsp;de&nbsp;fonduri&nbsp;din&nbsp;cont<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Take(int&nbsp;sum)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(Sum&nbsp;&gt;=&nbsp;sum)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sum&nbsp;-=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În constructor se stabilește suma inițială, care este păstrată în proprietatea Sum. Cu ajutorul metodei Put putem adăuga fonduri în cont, iar cu ajutorul metodei Take, dimpotrivă, retragem bani din cont. Să încercăm să folosim clasa în program - să creăm un cont, să depunem și să retragem bani din el:</p>
+     <div class="code-inline">
+      <pre><code>Account&nbsp;account&nbsp;=&nbsp;new&nbsp;Account(100);<br>account.Put(20);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;adăugăm&nbsp;în&nbsp;cont&nbsp;20<br>Console.WriteLine($"Suma&nbsp;în&nbsp;cont:&nbsp;{account.Sum}");<br>account.Take(70);&nbsp;&nbsp;&nbsp;//&nbsp;încercăm&nbsp;să&nbsp;retragem&nbsp;din&nbsp;cont&nbsp;70<br>Console.WriteLine($"Suma&nbsp;în&nbsp;cont:&nbsp;{account.Sum}");<br>account.Take(180);&nbsp;&nbsp;//&nbsp;încercăm&nbsp;să&nbsp;retragem&nbsp;din&nbsp;cont&nbsp;180<br>Console.WriteLine($"Suma&nbsp;în&nbsp;cont:&nbsp;{account.Sum}");</code></pre>
+     </div>
+     <p class="paragraph">Ieșirea în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Suma&nbsp;în&nbsp;cont:&nbsp;120<br>Suma&nbsp;în&nbsp;cont:&nbsp;50<br>Suma&nbsp;în&nbsp;cont:&nbsp;50</code></pre>
+     </div>
+     <p class="paragraph">Toate operațiunile funcționează așa cum ar trebui. Dar ce se întâmplă dacă dorim să notificăm utilizatorul despre rezultatele operațiunilor sale? Am putea, de exemplu, să modificăm metoda Put astfel:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;void&nbsp;Put(int&nbsp;sum)&nbsp;&nbsp;&nbsp;&nbsp;<br>{<br>&nbsp;&nbsp;&nbsp;Sum&nbsp;+=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"În&nbsp;cont&nbsp;s-a&nbsp;depus:&nbsp;{sum}");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Acum vom fi notificați despre operațiune, văzând mesajul corespunzător în consolă. Dar există câteva observații. În momentul definirii clasei, este posibil să nu știm exact ce acțiune dorim să realizăm în metoda Put ca răspuns la adăugarea de bani. Poate fi afișare în consolă, sau poate dorim să notificăm utilizatorul prin email sau sms.</p>
+     <p class="paragraph">Mai mult, putem crea o bibliotecă separată de clase care să conțină această clasă și să o adăugăm în alte proiecte. Și deja din aceste proiecte să decidem ce acțiune trebuie realizată. Poate dorim să folosim clasa Account într-o aplicație grafică și să afișăm la adăugarea în cont într-un mesaj grafic, nu în consolă.</p>
+     <p class="paragraph">Sau biblioteca noastră de clase va fi utilizată de un alt dezvoltator, care are propria opinie despre ce trebuie să facă la adăugarea în cont. Toate aceste întrebări le putem rezolva utilizând evenimentele.</p>
+     <h2 class="subtitle">Definirea și apelarea evenimentelor</h2>
+     <p class="paragraph">Evenimentele sunt declarate în clasă cu ajutorul cuvântului cheie event, după care se specifică tipul delegatului care reprezintă evenimentul:</p>
+     <div class="code-inline">
+      <pre><code>delegate&nbsp;void&nbsp;AccountHandler(string&nbsp;message);<br>event&nbsp;AccountHandler&nbsp;Notify;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, mai întâi se definește delegatul AccountHandler, care primește un parametru de tip string. Apoi, cu ajutorul cuvântului cheie event, se definește evenimentul cu numele Notify, care reprezintă delegatul AccountHandler. Numele pentru eveniment poate fi arbitrar, dar în orice caz trebuie să reprezinte un delegat.</p>
+     <p class="paragraph">Definind evenimentul, îl putem apela în program ca o metodă, folosind numele evenimentului:</p>
+     <div class="code-inline">
+      <pre><code>Notify("A&nbsp;avut&nbsp;loc&nbsp;o&nbsp;acțiune");</code></pre>
+     </div>
+     <p class="paragraph">Deoarece evenimentul Notify reprezintă delegatul AccountHandler, care primește un parametru de tip string, la apelarea evenimentului trebuie să transmitem o valoare de tip string.</p>
+     <p class="paragraph">Cu toate acestea, la apelarea evenimentelor, ne putem confrunta cu faptul că evenimentul este null în cazul în care nu este definit un handler. Prin urmare, la apelarea evenimentului, este mai bine să îl verificăm întotdeauna pentru null. De exemplu, astfel:</p>
+     <div class="code-inline">
+      <pre><code>if(Notify&nbsp;!=&nbsp;null)&nbsp;Notify("A&nbsp;avut&nbsp;loc&nbsp;o&nbsp;acțiune");</code></pre>
+     </div>
+     <p class="paragraph">Sau astfel:</p>
+     <div class="code-inline">
+      <pre><code>Notify?.Invoke("A&nbsp;avut&nbsp;loc&nbsp;o&nbsp;acțiune");</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, deoarece evenimentul reprezintă un delegat, îl putem apela folosind metoda Invoke(), transmițând valorile necesare pentru parametri.</p>
+     <p class="paragraph">Să combinăm totul și să creăm și să apelăm un eveniment:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Account<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;delegate&nbsp;void&nbsp;AccountHandler(string&nbsp;message);<br>&nbsp;&nbsp;&nbsp;public&nbsp;event&nbsp;AccountHandler?&nbsp;Notify;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;1.Definirea&nbsp;evenimentului<br>&nbsp;&nbsp;&nbsp;public&nbsp;Account(int&nbsp;sum)&nbsp;=&gt;&nbsp;Sum&nbsp;=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Sum&nbsp;{&nbsp;get;&nbsp;private&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Put(int&nbsp;sum)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sum&nbsp;+=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Notify?.Invoke($"În&nbsp;cont&nbsp;s-a&nbsp;depus:&nbsp;{sum}");&nbsp;&nbsp;&nbsp;//&nbsp;2.Apelarea&nbsp;evenimentului<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Take(int&nbsp;sum)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(Sum&nbsp;&gt;=&nbsp;sum)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sum&nbsp;-=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Notify?.Invoke($"Din&nbsp;cont&nbsp;s-a&nbsp;retras:&nbsp;{sum}");&nbsp;&nbsp;&nbsp;//&nbsp;2.Apelarea&nbsp;evenimentului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Notify?.Invoke($"Nu&nbsp;sunt&nbsp;suficienți&nbsp;bani&nbsp;în&nbsp;cont.&nbsp;Sold&nbsp;curent:&nbsp;{Sum}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Acum, cu ajutorul evenimentului Notify, notificăm sistemul că au fost adăugate fonduri și că fondurile au fost retrase din cont sau că nu sunt suficiente fonduri în cont.</p>
+     <h2 class="subtitle">Adăugarea handler-ului de eveniment</h2>
+     <p class="paragraph">Cu evenimentul poate fi asociat unul sau mai mulți handler-i. Handler-ii de eveniment sunt exact ceea ce se execută la apelarea evenimentelor. De multe ori, ca handler-i de eveniment se folosesc metode.</p>
+     <p class="paragraph">Fiecare handler de eveniment, după lista de parametri și tipul de returnare, trebuie să corespundă delegatului care reprezintă evenimentul. Pentru adăugarea unui handler de eveniment se folosește operația +=:</p>
+     <div class="code-inline">
+      <pre><code>Notify&nbsp;+=&nbsp;handler&nbsp;de&nbsp;eveniment;</code></pre>
+     </div>
+     <p class="paragraph">Să definim handler-i pentru evenimentul Notify pentru a primi notificările dorite în program:</p>
+     <div class="code-inline">
+      <pre><code>Account&nbsp;account&nbsp;=&nbsp;new&nbsp;Account(100);<br>account.Notify&nbsp;+=&nbsp;DisplayMessage;&nbsp;&nbsp;&nbsp;//&nbsp;Adăugăm&nbsp;handler&nbsp;pentru&nbsp;evenimentul&nbsp;Notify<br>account.Put(20);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;adăugăm&nbsp;în&nbsp;cont&nbsp;20<br>Console.WriteLine($"Suma&nbsp;în&nbsp;cont:&nbsp;{account.Sum}");<br>account.Take(70);&nbsp;&nbsp;&nbsp;//&nbsp;încercăm&nbsp;să&nbsp;retragem&nbsp;din&nbsp;cont&nbsp;70<br>Console.WriteLine($"Suma&nbsp;în&nbsp;cont:&nbsp;{account.Sum}");<br>account.Take(180);&nbsp;&nbsp;//&nbsp;încercăm&nbsp;să&nbsp;retragem&nbsp;din&nbsp;cont&nbsp;180<br>Console.WriteLine($"Suma&nbsp;în&nbsp;cont:&nbsp;{account.Sum}");<br><br>void&nbsp;DisplayMessage(string&nbsp;message)&nbsp;=&gt;&nbsp;Console.WriteLine(message);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, ca handler se folosește metoda DisplayMessage, care corespunde după lista de parametri și tipul de returnare delegatului AccountHandler. În final, la apelarea evenimentului Notify?.Invoke() se va apela metoda DisplayMessage, căreia pentru parametrul message i se va transmite șirul transmis la Notify?.Invoke().</p>
+     <p class="paragraph">În DisplayMessage, pur și simplu afișăm mesajul primit de la eveniment, dar am putea defini orice logică.</p>
+     <p class="paragraph">Dacă în acest caz handler-ul nu ar fi fost setat, atunci la apelarea evenimentului Notify?.Invoke() nu s-ar fi întâmplat nimic, deoarece evenimentul Notify ar fi fost egal cu null.</p>
+     <p class="paragraph">Ieșirea în consolă a programului:</p>
+     <div class="code-inline">
+      <pre><code>În&nbsp;cont&nbsp;s-a&nbsp;depus:&nbsp;20<br>Suma&nbsp;în&nbsp;cont:&nbsp;120<br>Din&nbsp;cont&nbsp;s-a&nbsp;retras:&nbsp;70<br>Suma&nbsp;în&nbsp;cont:&nbsp;50<br>Nu&nbsp;sunt&nbsp;suficienți&nbsp;bani&nbsp;în&nbsp;cont.&nbsp;Sold&nbsp;curent:&nbsp;50<br>Suma&nbsp;în&nbsp;cont:&nbsp;50</code></pre>
+     </div>
+     <p class="paragraph">Acum putem să evidențiem clasa Account într-o bibliotecă separată de clase și să o adăugăm în orice proiect.</p>
+     <h2 class="subtitle">Adăugarea și eliminarea handler-ilor</h2>
+     <p class="paragraph">Pentru un eveniment se pot seta mai mulți handler-i și apoi, în orice moment, se pot elimina. Pentru eliminarea handler-ilor se folosește operația -=. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>Account&nbsp;account&nbsp;=&nbsp;new&nbsp;Account(100);<br>account.Notify&nbsp;+=&nbsp;DisplayMessage;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;adăugăm&nbsp;handler-ul&nbsp;DisplayMessage<br>account.Notify&nbsp;+=&nbsp;DisplayRedMessage;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;adăugăm&nbsp;handler-ul&nbsp;Display<br><br>RedMessage<br>account.Put(20);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;adăugăm&nbsp;în&nbsp;cont&nbsp;20<br>account.Notify&nbsp;-=&nbsp;DisplayRedMessage;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;eliminăm&nbsp;handler-ul&nbsp;DisplayRedMessage<br>account.Put(50);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;adăugăm&nbsp;în&nbsp;cont&nbsp;50<br><br>void&nbsp;DisplayMessage(string&nbsp;message)&nbsp;=&gt;&nbsp;Console.WriteLine(message);<br>void&nbsp;DisplayRedMessage(string&nbsp;message)<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;Setăm&nbsp;culoarea&nbsp;roșie&nbsp;pentru&nbsp;caractere<br>&nbsp;&nbsp;&nbsp;Console.ForegroundColor&nbsp;=&nbsp;ConsoleColor.Red;<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(message);<br>&nbsp;&nbsp;&nbsp;//&nbsp;Resetăm&nbsp;setările&nbsp;de&nbsp;culoare<br>&nbsp;&nbsp;&nbsp;Console.ResetColor();<br>}</code></pre>
+     </div>
+     <p class="paragraph">Ieșirea în consolă:</p>
+     <div class="code-inline">
+      <pre><code>În&nbsp;cont&nbsp;s-a&nbsp;depus:&nbsp;20<br>În&nbsp;cont&nbsp;s-a&nbsp;depus:&nbsp;20<br>În&nbsp;cont&nbsp;s-a&nbsp;depus:&nbsp;50</code></pre>
+     </div>
+     <p class="paragraph">Ca handler-i se pot folosi nu doar metode obișnuite, ci și delegați, metode anonime și lambda-uri. Utilizarea delegaților și metodelor:</p>
+     <div class="code-inline">
+      <pre><code>Account&nbsp;acc&nbsp;=&nbsp;new&nbsp;Account(100);<br>//&nbsp;setarea&nbsp;delegatului,&nbsp;care&nbsp;indică&nbsp;spre&nbsp;metoda&nbsp;DisplayMessage<br>acc.Notify&nbsp;+=&nbsp;new&nbsp;Account.AccountHandler(DisplayMessage);<br>//&nbsp;setarea&nbsp;metodei&nbsp;DisplayMessage&nbsp;ca&nbsp;handler<br>acc.Notify&nbsp;+=&nbsp;DisplayMessage;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;adăugăm&nbsp;handler-ul&nbsp;DisplayMessage<br><br>acc.Put(20);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;adăugăm&nbsp;în&nbsp;cont&nbsp;20<br><br>void&nbsp;DisplayMessage(string&nbsp;message)&nbsp;=&gt;&nbsp;Console.WriteLine(message);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, nu va exista nicio diferență între cei doi handler-i.</p>
+     <p class="paragraph">Setarea unei metode anonime ca handler:</p>
+     <div class="code-inline">
+      <pre><code>Account&nbsp;acc&nbsp;=&nbsp;new&nbsp;Account(100);<br>acc.Notify&nbsp;+=&nbsp;delegate&nbsp;(string&nbsp;mes)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(mes);<br>};<br>acc.Put(20);</code></pre>
+     </div>
+     <p class="paragraph">Setarea unei lambda ca handler:</p>
+     <div class="code-inline">
+      <pre><code>Account&nbsp;account&nbsp;=&nbsp;new&nbsp;Account(100);<br>account.Notify&nbsp;+=&nbsp;message&nbsp;=&gt;&nbsp;Console.WriteLine(message);<br>account.Put(20);</code></pre>
+     </div>
+     <h2 class="subtitle">Gestionarea handler-ilor</h2>
+     <p class="paragraph">Cu ajutorul accesoriilor speciale add/remove, putem gestiona adăugarea și eliminarea handler-ilor. De obicei, această funcționalitate este rar necesară, dar totuși o putem folosi. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Account<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;delegate&nbsp;void&nbsp;AccountHandler(string&nbsp;message);<br>&nbsp;&nbsp;&nbsp;AccountHandler?&nbsp;notify;<br>&nbsp;&nbsp;&nbsp;public&nbsp;event&nbsp;AccountHandler&nbsp;Notify<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;notify&nbsp;+=&nbsp;value;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"{value.Method.Name}&nbsp;adăugat");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remove<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;notify&nbsp;-=&nbsp;value;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"{value.Method.Name}&nbsp;eliminat");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Account(int&nbsp;sum)&nbsp;=&gt;&nbsp;Sum&nbsp;=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Sum&nbsp;{&nbsp;get;&nbsp;private&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Put(int&nbsp;sum)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sum&nbsp;+=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;notify?.Invoke($"În&nbsp;cont&nbsp;s-a&nbsp;depus:&nbsp;{sum}");&nbsp;&nbsp;&nbsp;//&nbsp;2.Apelarea&nbsp;evenimentului<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Take(int&nbsp;sum)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(Sum&nbsp;&gt;=&nbsp;sum)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sum&nbsp;-=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;notify?.Invoke($"Din&nbsp;cont&nbsp;s-a&nbsp;retras:&nbsp;{sum}");&nbsp;&nbsp;&nbsp;//&nbsp;2.Apelarea&nbsp;evenimentului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;notify?.Invoke($"Nu&nbsp;sunt&nbsp;suficienți&nbsp;bani&nbsp;în&nbsp;cont.&nbsp;Sold&nbsp;curent:&nbsp;{Sum}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Acum definirea evenimentului se împarte în două părți. Mai întâi se definește o variabilă delegat prin care putem apela handler-ii asociați:</p>
+     <div class="code-inline">
+      <pre><code>AccountHandler&nbsp;notify;</code></pre>
+     </div>
+     <p class="paragraph">În a doua parte, definim accesoriile add și remove. Accesoriul add este apelat la adăugarea unui handler, adică la operația +=. Handler-ul adăugat este accesibil prin cuvântul cheie value. Aici putem obține informații despre handler (de exemplu, numele metodei prin value.Method.Name) și defini o anumită logică. În acest caz, pentru simplitate, doar afișăm un mesaj în consolă:</p>
+     <div class="code-inline">
+      <pre><code>add<br>{<br>&nbsp;&nbsp;&nbsp;notify&nbsp;+=&nbsp;value;<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"{value.Method.Name}&nbsp;adăugat");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Blocul remove este apelat la eliminarea unui handler. În mod similar, putem defini o logică suplimentară:</p>
+     <div class="code-inline">
+      <pre><code>remove<br>{<br>&nbsp;&nbsp;&nbsp;notify&nbsp;-=&nbsp;value;<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"{value.Method.Name}&nbsp;eliminat");<br>}</code></pre>
+     </div>
+     <p class="paragraph">În interiorul clasei, evenimentul este apelat tot prin variabila notify. Dar pentru adăugarea și eliminarea handler-ilor în program se folosește chiar Notify:</p>
+     <div class="code-inline">
+      <pre><code>Account&nbsp;acc&nbsp;=&nbsp;new&nbsp;Account(100);<br>acc.Notify&nbsp;+=&nbsp;DisplayMessage;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;adăugăm&nbsp;handler-ul&nbsp;DisplayMessage<br>acc.Put(20);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;adăugăm&nbsp;în&nbsp;cont&nbsp;20<br>acc.Notify&nbsp;-=&nbsp;DisplayMessage;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;eliminăm&nbsp;handler-ul&nbsp;DisplayMessage<br>acc.Put(20);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;adăugăm&nbsp;în&nbsp;cont&nbsp;20<br><br>void&nbsp;DisplayMessage(string&nbsp;message)&nbsp;=&gt;&nbsp;Console.WriteLine(message);</code></pre>
+     </div>
+     <p class="paragraph">Ieșirea în consolă a programului:</p>
+     <div class="code-inline">
+      <pre><code>DisplayMessage&nbsp;adăugat<br>În&nbsp;cont&nbsp;s-a&nbsp;depus:&nbsp;20<br>DisplayMessage&nbsp;eliminat</code></pre>
+     </div>
+     <h2 class="subtitle">Transmiterea datelor evenimentului</h2>
+     <p class="paragraph">Adesea, la apariția unui eveniment, handler-ului evenimentului i se cere să transmită anumite informații despre eveniment. De exemplu, să adăugăm în programul nostru o nouă clasă AccountEventArgs cu următorul cod:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;AccountEventArgs<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;Mesaj<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Message&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;//&nbsp;Suma&nbsp;cu&nbsp;care&nbsp;s-a&nbsp;modificat&nbsp;contul<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Sum&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;AccountEventArgs(string&nbsp;message,&nbsp;int&nbsp;sum)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Message&nbsp;=&nbsp;message;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sum&nbsp;=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Această clasă are două proprietăți: Message - pentru a stoca mesajul afișat și Sum - pentru a stoca suma cu care s-a modificat contul.</p>
+     <p class="paragraph">Acum folosim clasa AccountEventArgs, modificând clasa Account astfel:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Account<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;delegate&nbsp;void&nbsp;AccountHandler(Account&nbsp;sender,&nbsp;AccountEventArgs&nbsp;e);<br>&nbsp;&nbsp;&nbsp;public&nbsp;event&nbsp;AccountHandler?&nbsp;Notify;<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Sum&nbsp;{&nbsp;get;&nbsp;private&nbsp;set;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;Account(int&nbsp;sum)&nbsp;=&gt;&nbsp;Sum&nbsp;=&nbsp;sum;<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Put(int&nbsp;sum)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sum&nbsp;+=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Notify?.Invoke(this,&nbsp;new&nbsp;AccountEventArgs($"În&nbsp;cont&nbsp;s-a&nbsp;depus&nbsp;{sum}",&nbsp;sum));<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Take(int&nbsp;sum)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(Sum&nbsp;&gt;=&nbsp;sum)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sum&nbsp;-=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Notify?.Invoke(this,&nbsp;new&nbsp;AccountEventArgs($"Suma&nbsp;{sum}&nbsp;retrasă&nbsp;din&nbsp;cont",&nbsp;sum));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Notify?.Invoke(this,&nbsp;new&nbsp;AccountEventArgs("Nu&nbsp;sunt&nbsp;suficienți&nbsp;bani&nbsp;în&nbsp;cont",&nbsp;sum));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Comparativ cu versiunea anterioară a clasei Account, aici s-a modificat doar numărul de parametri ai delegatului și, în consecință, numărul de parametri la apelarea evenimentului. Acum delegatul AccountHandler primește ca prim parametru obiectul care a declanșat evenimentul, adică obiectul curent Account.</p>
+     <p class="paragraph">Iar ca al doilea parametru primește obiectul AccountEventArgs, care stochează informații despre eveniment, obținută prin constructor.</p>
+     <p class="paragraph">Acum modificăm programul principal:</p>
+     <div class="code-inline">
+      <pre><code>Account&nbsp;acc&nbsp;=&nbsp;new&nbsp;Account(100);<br>acc.Notify&nbsp;+=&nbsp;DisplayMessage;<br>acc.Put(20);<br>acc.Take(70);<br>acc.Take(150);<br><br>void&nbsp;DisplayMessage(Account&nbsp;sender,&nbsp;AccountEventArgs&nbsp;e)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Suma&nbsp;tranzacției:&nbsp;{e.Sum}");<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(e.Message);<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Suma&nbsp;curentă&nbsp;în&nbsp;cont:&nbsp;{sender.Sum}");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Comparativ cu varianta anterioară, aici doar modificăm numărul de parametri și utilizarea lor în handler-ul DisplayMessage. Datorită primului parametru, în metodă putem obține informații despre emitentul evenimentului - contul cu care se realizează operația. Iar prin al doilea parametru putem obține informații despre starea operației.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

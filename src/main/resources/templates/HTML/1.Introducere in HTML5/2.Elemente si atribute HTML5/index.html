@@ -1,171 +1,161 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='HTML', activeChapter='1.Introducere in HTML5', activeLesson='2.Elemente si atribute HTML5'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Elemente și atribute HTML5</h1>
- <p class="paragraph">Înainte de a trece direct la crearea paginilor web în HTML5, să examinăm blocurile fundamentale, cărămizile din care este construită o pagină web. Un document HTML5, ca orice document HTML, este compus din elemente, iar elementele sunt compuse din taguri. De obicei, elementele au un tag de deschidere și unul de închidere, care sunt incluse între paranteze unghiulare. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>&lt;div&gt;Textul&nbsp;elementului&nbsp;div&lt;/div&gt;</code></pre>
- </div>
- <p class="paragraph">Aici este definit elementul div, care are un tag de deschidere &lt;div&gt;și unul de închidere &lt;/div&gt;. Între aceste taguri se află conținutul elementului div. În acest caz, conținutul este un text simplu: "Textul elementului div".</p>
- <p class="paragraph">Elementele pot fi de asemenea compuse dintr-un singur tag, de exemplu, elementul br, funcția căruia este să treacă la rândul următor.</p>
- <div class="code-inline">
-  <pre><code>&lt;div&gt;Text&nbsp;&lt;br&nbsp;/&gt;&nbsp;elementul&nbsp;div&lt;/div&gt;</code></pre>
- </div>
- <p class="paragraph">Asemenea elemente sunt denumite și elemente goale (void elements). Deși am folosit slashul de închidere, prezența lui conform specificației nu este obligatorie și este echivalentă cu utilizarea tagului fără slash: &lt;br&gt;.</p>
- <p class="paragraph">Fiecare element în interiorul tagului de deschidere poate avea atribute. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>&lt;div&nbsp;style="color:red;"&gt;Buton&lt;/div&gt;<br>&lt;input&nbsp;type="button"&nbsp;value="Apasă"&gt;</code></pre>
- </div>
- <p class="paragraph">Aici sunt definite două elemente: div și input. Elementul div are atributul style. După semnul egal, în ghilimele, se scrie valoarea atributului: "style=color:red;". În acest caz, valoarea "color:red;" indică faptul că culoarea textului va fi roșie.</p>
- <p class="paragraph">Al doilea element, elementul input, compus dintr-un singur tag, are două atribute: type (indică tipul elementului - buton) și value (definește textul butonului).</p>
- <p class="paragraph">Există atribute globale sau comune pentru toate elementele, ca de exemplu, style, și există specifice, aplicabile anumitor elemente, ca de exemplu, type.</p>
- <p class="paragraph">Pe lângă atributele obișnuite, există și atribute booleane sau logice (boolean attributes). Asemenea atribute pot să nu aibă valoare. De exemplu, la un buton se poate seta atributul disabled:</p>
- <div class="code-inline">
-  <pre><code>&lt;input&nbsp;type="button"&nbsp;value="Apasă"&nbsp;disabled&gt;</code></pre>
- </div>
- <p class="paragraph">Atributul disabled indică faptul că acest element este dezactivat.</p>
- <h2 class="subtitle">Atribute globale</h2>
- <p class="paragraph">În HTML5 există un set de atribute globale aplicabile oricărui element HTML5:</p>
- <ul class="enumeration">
-  <li>accesskey: definește o tastă pentru acces rapid la element</li>
-  <li>class: stabilește clasa CSS care va fi aplicată elementului</li>
-  <li>contenteditable: determină dacă conținutul elementului poate fi editat</li>
-  <li>contextmenu: definește meniul contextual pentru element, care apare la click dreapta pe element</li>
-  <li>dir: stabilește direcția textului în element</li>
-  <li>draggable: determină dacă elementul poate fi tras</li>
-  <li>dropzone: specifică dacă datele transportate pot fi copiate la transportul pe element</li>
-  <li>hidden: ascunde elementul</li>
-  <li>id: identificator unic al elementului. Pe o pagină web, elementele nu trebuie să aibă identificatori repetați</li>
-  <li>lang: specifică limba elementului</li>
-  <li>spellcheck: indică dacă pentru element va fi utilizată verificarea ortografică</li>
-  <li>style: definește stilul elementului</li>
-  <li>tabindex: determină ordinea de navigare prin elemente folosind tasta TAB</li>
-  <li>title: oferă o descriere suplimentară elementului</li>
-  <li>translate: specifică dacă conținutul elementului ar trebui tradus</li>
- </ul>
- <p class="paragraph">Dar, ca regulă, din toată această listă cele mai frecvent utilizate sunt trei: class, id și style.</p>
- <h2 class="subtitle">Atribute personalizate</h2>
- <p class="paragraph">Spre deosebire de versiunea anterioară a limbajului de marcare, în HTML5 au fost adăugate atribute personalizate (custom attributes). Acum, dezvoltatorul sau creatorul paginii web poate defini orice atribut, adăugându-i prefixul data-. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>&lt;input&nbsp;type="button"&nbsp;value="Apasă"&nbsp;data-color="roșu"&gt;</code></pre>
- </div>
- <p class="paragraph">Aici este definit atributul data-color, care are valoarea "red". Deși pentru acest element, nici în HTML în general, nu există un asemenea atribut. Noi îl definim singuri și îi stabilim orice valoare.</p>
- <h2 class="subtitle">Utilizarea ghilimelelor simple sau duble</h2>
- <p class="paragraph">Nu este rar să întâlnim cazuri în care, la definirea valorilor atributelor în HTML, se folosesc atât ghilimele simple, cât și cele duble. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>&lt;input&nbsp;type='button'&nbsp;value='Apasă'&gt;</code></pre>
- </div>
- <p class="paragraph">Și ghilimelele simple, și cele duble sunt acceptabile în acest caz, deși mai frecvent se folosesc cele duble. Totuși, uneori valoarea atributului poate conține ghilimele duble, și în acest caz este mai bine să plasăm întreaga valoare între ghilimele simple:</p>
- <div class="code-inline">
-  <pre><code><br>&lt;input&nbsp;type="button"&nbsp;value='Buton&nbsp;"Salut&nbsp;lume"'&gt;</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Elemente și atribute HTML5</h1>
+     <p class="paragraph">Înainte de a trece direct la crearea paginilor web în HTML5, să examinăm blocurile fundamentale, cărămizile din care este construită o pagină web. Un document HTML5, ca orice document HTML, este compus din elemente, iar elementele sunt compuse din taguri. De obicei, elementele au un tag de deschidere și unul de închidere, care sunt incluse între paranteze unghiulare. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;div&gt;Textul&nbsp;elementului&nbsp;div&lt;/div&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici este definit elementul div, care are un tag de deschidere &lt;div&gt;și unul de închidere &lt;/div&gt;. Între aceste taguri se află conținutul elementului div. În acest caz, conținutul este un text simplu: "Textul elementului div".</p>
+     <p class="paragraph">Elementele pot fi de asemenea compuse dintr-un singur tag, de exemplu, elementul br, funcția căruia este să treacă la rândul următor.</p>
+     <div class="code-inline">
+      <pre><code>&lt;div&gt;Text&nbsp;&lt;br&nbsp;/&gt;&nbsp;elementul&nbsp;div&lt;/div&gt;</code></pre>
+     </div>
+     <p class="paragraph">Asemenea elemente sunt denumite și elemente goale (void elements). Deși am folosit slashul de închidere, prezența lui conform specificației nu este obligatorie și este echivalentă cu utilizarea tagului fără slash: &lt;br&gt;.</p>
+     <p class="paragraph">Fiecare element în interiorul tagului de deschidere poate avea atribute. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;div&nbsp;style="color:red;"&gt;Buton&lt;/div&gt;<br>&lt;input&nbsp;type="button"&nbsp;value="Apasă"&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici sunt definite două elemente: div și input. Elementul div are atributul style. După semnul egal, în ghilimele, se scrie valoarea atributului: "style=color:red;". În acest caz, valoarea "color:red;" indică faptul că culoarea textului va fi roșie.</p>
+     <p class="paragraph">Al doilea element, elementul input, compus dintr-un singur tag, are două atribute: type (indică tipul elementului - buton) și value (definește textul butonului).</p>
+     <p class="paragraph">Există atribute globale sau comune pentru toate elementele, ca de exemplu, style, și există specifice, aplicabile anumitor elemente, ca de exemplu, type.</p>
+     <p class="paragraph">Pe lângă atributele obișnuite, există și atribute booleane sau logice (boolean attributes). Asemenea atribute pot să nu aibă valoare. De exemplu, la un buton se poate seta atributul disabled:</p>
+     <div class="code-inline">
+      <pre><code>&lt;input&nbsp;type="button"&nbsp;value="Apasă"&nbsp;disabled&gt;</code></pre>
+     </div>
+     <p class="paragraph">Atributul disabled indică faptul că acest element este dezactivat.</p>
+     <h2 class="subtitle">Atribute globale</h2>
+     <p class="paragraph">În HTML5 există un set de atribute globale aplicabile oricărui element HTML5:</p>
+     <ul class="enumeration">
+      <li>accesskey: definește o tastă pentru acces rapid la element</li>
+      <li>class: stabilește clasa CSS care va fi aplicată elementului</li>
+      <li>contenteditable: determină dacă conținutul elementului poate fi editat</li>
+      <li>contextmenu: definește meniul contextual pentru element, care apare la click dreapta pe element</li>
+      <li>dir: stabilește direcția textului în element</li>
+      <li>draggable: determină dacă elementul poate fi tras</li>
+      <li>dropzone: specifică dacă datele transportate pot fi copiate la transportul pe element</li>
+      <li>hidden: ascunde elementul</li>
+      <li>id: identificator unic al elementului. Pe o pagină web, elementele nu trebuie să aibă identificatori repetați</li>
+      <li>lang: specifică limba elementului</li>
+      <li>spellcheck: indică dacă pentru element va fi utilizată verificarea ortografică</li>
+      <li>style: definește stilul elementului</li>
+      <li>tabindex: determină ordinea de navigare prin elemente folosind tasta TAB</li>
+      <li>title: oferă o descriere suplimentară elementului</li>
+      <li>translate: specifică dacă conținutul elementului ar trebui tradus</li>
+     </ul>
+     <p class="paragraph">Dar, ca regulă, din toată această listă cele mai frecvent utilizate sunt trei: class, id și style.</p>
+     <h2 class="subtitle">Atribute personalizate</h2>
+     <p class="paragraph">Spre deosebire de versiunea anterioară a limbajului de marcare, în HTML5 au fost adăugate atribute personalizate (custom attributes). Acum, dezvoltatorul sau creatorul paginii web poate defini orice atribut, adăugându-i prefixul data-. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;input&nbsp;type="button"&nbsp;value="Apasă"&nbsp;data-color="roșu"&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici este definit atributul data-color, care are valoarea "red". Deși pentru acest element, nici în HTML în general, nu există un asemenea atribut. Noi îl definim singuri și îi stabilim orice valoare.</p>
+     <h2 class="subtitle">Utilizarea ghilimelelor simple sau duble</h2>
+     <p class="paragraph">Nu este rar să întâlnim cazuri în care, la definirea valorilor atributelor în HTML, se folosesc atât ghilimele simple, cât și cele duble. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;input&nbsp;type='button'&nbsp;value='Apasă'&gt;</code></pre>
+     </div>
+     <p class="paragraph">Și ghilimelele simple, și cele duble sunt acceptabile în acest caz, deși mai frecvent se folosesc cele duble. Totuși, uneori valoarea atributului poate conține ghilimele duble, și în acest caz este mai bine să plasăm întreaga valoare între ghilimele simple:</p>
+     <div class="code-inline">
+      <pre><code><br>&lt;input&nbsp;type="button"&nbsp;value='Buton&nbsp;"Salut&nbsp;lume"'&gt;</code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

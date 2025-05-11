@@ -1,16 +1,14 @@
 package com.lazar.fabrica_de_coduri.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
 @Entity
 public class Lesson {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
+    private int orderNumber;
     private String htmlPath;
 
     @ManyToOne
@@ -19,11 +17,12 @@ public class Lesson {
     public Lesson() {
     }
 
-    public Lesson(Long id, String title, String htmlPath, Chapter chapter) {
+    public Lesson(Long id, String title, int orderNumber, String htmlPath, Chapter chapter) {
         this.id = id;
         this.title = title;
         this.htmlPath = htmlPath;
         this.chapter = chapter;
+        this.orderNumber = orderNumber;
     }
 
     public Long getId() {
@@ -40,6 +39,14 @@ public class Lesson {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public int getOrderNumber() {
+        return orderNumber;
+    }
+
+    public void setOrderNumber(int orderNumber) {
+        this.orderNumber = orderNumber;
     }
 
     public String getHtmlPath() {

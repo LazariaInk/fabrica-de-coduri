@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='3.Clase, structuri si spatii de nume in C-sharp', activeLesson='5.Tipuri de valori si tipuri de referinte'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Tipuri de valori și tipuri de referințe</h1>
+     <p class="paragraph">Anterior am examinat următoarele tipuri elementare de date: int, byte, double, string, object și altele. De asemenea, există tipuri complexe: structuri, enumerări, clase. Toate aceste tipuri de date pot fi împărțite în tipuri de valori, cunoscute și sub denumirea de tipuri valorice (value types) și tipuri de referințe (reference types). Este important să înțelegem diferențele dintre ele.</p>
+     <p class="paragraph">Tipuri de valori:</p>
+     <ul class="enumeration">
+      <li>Tipuri întregi (byte, sbyte, short, ushort, int, uint, long, ulong)</li>
+      <li>Tipuri cu virgulă mobilă (float, double)</li>
+      <li>Tipul decimal</li>
+      <li>Tipul bool</li>
+      <li>Tipul char</li>
+      <li>Enumerări (enum)</li>
+      <li>Structuri (struct)</li>
+     </ul>
+     <p class="paragraph">Tipuri de referințe:</p>
+     <ul class="enumeration">
+      <li>Tipul object</li>
+      <li>Tipul string</li>
+      <li>Clase (class)</li>
+      <li>Interfețe (interface)</li>
+      <li>Delegați (delegate)</li>
+     </ul>
+     <p class="paragraph">Care sunt diferențele dintre ele? Pentru aceasta trebuie să înțelegem organizarea memoriei în .NET. Aici memoria este împărțită în două tipuri: stivă (stack) și grămadă (heap). Parametrii și variabilele metodei, care reprezintă tipuri de valori, își plasează valoarea în stivă.</p>
+     <p class="paragraph">Stiva reprezintă o structură de date care crește de jos în sus: fiecare element nou adăugat este plasat deasupra celui precedent. Durata de viață a variabilelor acestor tipuri este limitată la contextul lor. Fizic, stiva este o anumită zonă de memorie în spațiul de adrese.</p>
+     <p class="paragraph">Când programul este lansat pentru execuție, la sfârșitul blocului de memorie rezervat pentru stivă este setat un indicator al stivei. La plasarea datelor în stivă, indicatorul este resetat astfel încât să indice din nou locul liber.</p>
+     <p class="paragraph">La apelarea fiecărei metode individuale, în stivă va fi alocată o zonă de memorie sau un cadru de stivă unde vor fi stocate valorile parametrilor și variabilelor sale.</p>
+     <p class="paragraph">De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Program<br>{<br>&nbsp;&nbsp;&nbsp;static&nbsp;void&nbsp;Main(string[]&nbsp;args)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Calculate(5);<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;static&nbsp;void&nbsp;Calculate(int&nbsp;t)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;x&nbsp;=&nbsp;6;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;y&nbsp;=&nbsp;7;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;z&nbsp;=&nbsp;y&nbsp;+&nbsp;t;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">La rularea unui astfel de program, în stivă vor fi definite două cadre - pentru metoda Main (deoarece este apelată la lansarea programului) și pentru metoda Calculate:</p>
+     <div class="image-container">
+      <img th:src="@{/images/C-sharp/3.Clase,%20structuri%20si%20spatii%20de%20nume%20in%20C-sharp/5.Tipuri%20de%20valori%20si%20tipuri%20de%20referinte/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">La apelarea metodei Calculate, în cadrul său din stivă vor fi plasate valorile t, x, y și z. Acestea sunt definite în contextul metodei respective. Când metoda se termină, zona de memorie alocată stivei poate fi ulterior utilizată de alte metode.</p>
+     <p class="paragraph">În cazul în care parametrul sau variabila metodei reprezintă un tip valoric, în stivă va fi stocată valoarea directă a acestui parametru sau variabilă. De exemplu, în acest caz, variabilele și parametrii metodei Calculate reprezintă tipul valoric - tipul int, astfel încât în stivă vor fi stocate valorile lor numerice.</p>
+     <p class="paragraph">Tipurile de referințe sunt stocate în grămadă (heap), care poate fi reprezentată ca un set neordonat de obiecte eterogene. Fizic, aceasta este restul memoriei disponibile procesului.</p>
+     <p class="paragraph">La crearea unui obiect de tip referință, în stivă este plasată o referință la adresa din grămadă (heap). Când un obiect de tip referință nu mai este utilizat, intervine colectorul automat de gunoi: acesta observă că nu mai există referințe la obiectul din heap, elimină condiționat acest obiect și eliberează memoria - marcând de fapt că segmentul respectiv de memorie poate fi utilizat pentru stocarea altor date.</p>
+     <p class="paragraph">Astfel, dacă modificăm metoda Calculate astfel:</p>
+     <div class="code-inline">
+      <pre><code>static&nbsp;void&nbsp;Calculate(int&nbsp;t)<br>{<br>&nbsp;&nbsp;&nbsp;object&nbsp;x&nbsp;=&nbsp;6;<br>&nbsp;&nbsp;&nbsp;int&nbsp;y&nbsp;=&nbsp;7;<br>&nbsp;&nbsp;&nbsp;int&nbsp;z&nbsp;=&nbsp;y&nbsp;+&nbsp;t;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Valoarea variabilei x va fi acum stocată în grămadă, deoarece reprezintă tipul de referință object, iar în stivă va fi stocată referința la obiectul din grămadă.</p>
+     <div class="image-container">
+      <img th:src="@{/images/C-sharp/3.Clase,%20structuri%20si%20spatii%20de%20nume%20in%20C-sharp/5.Tipuri%20de%20valori%20si%20tipuri%20de%20referinte/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Structuri compuse</h2>
+     <p class="paragraph">Acum să considerăm situația în care un tip de valori și un tip de referință reprezintă structuri compuse - structura și clasa:</p>
+     <div class="code-inline">
+      <pre><code>State&nbsp;state1&nbsp;=&nbsp;new&nbsp;State();&nbsp;//&nbsp;State&nbsp;-&nbsp;structură,&nbsp;datele&nbsp;sale&nbsp;sunt&nbsp;plasate&nbsp;în&nbsp;stivă<br>Country&nbsp;country1&nbsp;=&nbsp;new&nbsp;Country();&nbsp;//&nbsp;Country&nbsp;-&nbsp;clasă,&nbsp;în&nbsp;stivă&nbsp;este&nbsp;plasată&nbsp;referința&nbsp;la&nbsp;adresa&nbsp;din&nbsp;heap<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;iar&nbsp;în&nbsp;heap&nbsp;sunt&nbsp;plasate&nbsp;toate&nbsp;datele&nbsp;obiectului&nbsp;country1<br>struct&nbsp;State<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;x;<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;y;<br>}<br>class&nbsp;Country<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;x;<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;y;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici, în metoda Main, în stivă este alocată memorie pentru obiectul state1. Apoi, în stivă este creată o referință pentru obiectul country1 (Country country1), iar cu ajutorul constructorului cuvântului cheie new se alocă loc în heap (new Country()).</p>
+     <p class="paragraph">Referința din stivă pentru obiectul country1 va reprezenta adresa locului din heap unde este plasat obiectul respectiv.</p>
+     <div class="image-container">
+      <img th:src="@{/images/C-sharp/3.Clase,%20structuri%20si%20spatii%20de%20nume%20in%20C-sharp/5.Tipuri%20de%20valori%20si%20tipuri%20de%20referinte/images/image3.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Astfel, în stivă vor ajunge toate câmpurile structurii state1 și referința la obiectul country1 din heap.</p>
+     <p class="paragraph">Dar, să presupunem că în structura State este de asemenea definită o variabilă de tip referință Country. Unde va stoca ea valoarea sa dacă este definită în tipul valoric?</p>
+     <div class="code-inline">
+      <pre><code>State&nbsp;state1&nbsp;=&nbsp;new&nbsp;State();<br>Country&nbsp;country1&nbsp;=&nbsp;new&nbsp;Country();<br><br>struct&nbsp;State<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;x;<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;y;<br>&nbsp;&nbsp;&nbsp;public&nbsp;Country&nbsp;country;<br>&nbsp;&nbsp;&nbsp;public&nbsp;State()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;y&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;country&nbsp;=&nbsp;new&nbsp;Country();<br>&nbsp;&nbsp;&nbsp;}<br>}<br>class&nbsp;Country<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;x;<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;y;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Valoarea variabilei state1.country va fi de asemenea stocată în grămadă, deoarece această variabilă reprezintă un tip de referință:</p>
+     <div class="image-container">
+      <img th:src="@{/images/C-sharp/3.Clase,%20structuri%20si%20spatii%20de%20nume%20in%20C-sharp/5.Tipuri%20de%20valori%20si%20tipuri%20de%20referinte/images/image4.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Copierea valorilor</h2>
+     <p class="paragraph">Tipul de date trebuie luat în considerare la copierea valorilor. La atribuirea datelor unui obiect de tip valoric, acesta primește o copie a datelor. La atribuirea datelor unui obiect de tip referință, acesta primește nu o copie a obiectului, ci o referință la acel obiect din heap. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>State&nbsp;state1&nbsp;=&nbsp;new&nbsp;State();&nbsp;//&nbsp;Structura&nbsp;State<br>State&nbsp;state2&nbsp;=&nbsp;new&nbsp;State();<br>state2.x&nbsp;=&nbsp;1;<br>state2.y&nbsp;=&nbsp;2;<br>state1&nbsp;=&nbsp;state2;<br>state2.x&nbsp;=&nbsp;5;&nbsp;//&nbsp;state1.x&nbsp;=&nbsp;1&nbsp;rămâne&nbsp;neschimbat<br>Console.WriteLine(state1.x);&nbsp;//&nbsp;1<br>Console.WriteLine(state2.x);&nbsp;//&nbsp;5<br><br>Country&nbsp;country1&nbsp;=&nbsp;new&nbsp;Country();&nbsp;//&nbsp;Clasa&nbsp;Country<br>Country&nbsp;country2&nbsp;=&nbsp;new&nbsp;Country();<br>country2.x&nbsp;=&nbsp;1;<br>country2.y&nbsp;=&nbsp;4;<br>country1&nbsp;=&nbsp;country2;<br>country2.x&nbsp;=&nbsp;7;&nbsp;//&nbsp;acum&nbsp;și&nbsp;country1.x&nbsp;=&nbsp;7,&nbsp;deoarece&nbsp;ambele&nbsp;referințe&nbsp;și&nbsp;country1&nbsp;și&nbsp;country2<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;indică&nbsp;același&nbsp;obiect&nbsp;din&nbsp;heap<br>Console.WriteLine(country1.x);&nbsp;//&nbsp;7<br>Console.WriteLine(country2.x);&nbsp;//&nbsp;7</code></pre>
+     </div>
+     <p class="paragraph">Deoarece state1 este o structură, la atribuirea state1 = state2 aceasta primește o copie a structurii state2. Iar obiectul clasei country1 la atribuirea country1 = country2 primește o referință la același obiect la care indică country2. Prin urmare, schimbarea country2 va afecta și country1.</p>
+     <h2 class="subtitle">Tipuri de referințe în cadrul tipurilor valorice</h2>
+     <p class="paragraph">Acum să examinăm un exemplu mai complex, în care în cadrul unei structuri avem o variabilă de tip referință, de exemplu, a unei clase:</p>
+     <div class="code-inline">
+      <pre><code>State&nbsp;state1&nbsp;=&nbsp;new&nbsp;State();<br>State&nbsp;state2&nbsp;=&nbsp;new&nbsp;State();<br><br>state2.country.x&nbsp;=&nbsp;5;<br>state1&nbsp;=&nbsp;state2;<br>state2.country.x&nbsp;=&nbsp;8;&nbsp;//&nbsp;acum&nbsp;și&nbsp;state1.country.x&nbsp;=&nbsp;8,&nbsp;deoarece&nbsp;state1.country&nbsp;și&nbsp;state2.country<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;indică&nbsp;același&nbsp;obiect&nbsp;din&nbsp;heap<br>Console.WriteLine(state<br><br>1.country.x);&nbsp;//&nbsp;8<br>Console.WriteLine(state2.country.x);&nbsp;//&nbsp;8<br><br>struct&nbsp;State<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;x;<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;y;<br>&nbsp;&nbsp;&nbsp;public&nbsp;Country&nbsp;country;<br>&nbsp;&nbsp;&nbsp;public&nbsp;State()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;y&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;country&nbsp;=&nbsp;new&nbsp;Country();&nbsp;//&nbsp;alocarea&nbsp;memoriei&nbsp;pentru&nbsp;obiectul&nbsp;Country<br>&nbsp;&nbsp;&nbsp;}<br>}<br>class&nbsp;Country<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;x;<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;y;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Variabilele de tip referință din structuri păstrează în stivă referința la obiectul din heap. Și la atribuirea a două structuri state1 = state2, structura state1 primește de asemenea referința la obiectul country din heap. Prin urmare, schimbarea state2.country va determina de asemenea schimbarea state1.country.</p>
+     <div class="image-container">
+      <img th:src="@{/images/C-sharp/3.Clase,%20structuri%20si%20spatii%20de%20nume%20in%20C-sharp/5.Tipuri%20de%20valori%20si%20tipuri%20de%20referinte/images/image5.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Obiectele claselor ca parametri ai metodelor</h2>
+     <p class="paragraph">Organizarea obiectelor în memorie trebuie luată în considerare la transmiterea parametrilor prin valoare și prin referință. Dacă parametrii metodelor reprezintă obiecte ale claselor, utilizarea parametrilor are anumite particularități. De exemplu, să creăm o metodă care ca parametru primește un obiect Person:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;p&nbsp;=&nbsp;new&nbsp;Person&nbsp;{&nbsp;name&nbsp;=&nbsp;"Tom",&nbsp;age&nbsp;=&nbsp;23&nbsp;};<br>ChangePerson(p);<br><br>Console.WriteLine(p.name);&nbsp;//&nbsp;Alice<br>Console.WriteLine(p.age);&nbsp;//&nbsp;23<br><br>void&nbsp;ChangePerson(Person&nbsp;person)<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;funcționează<br>&nbsp;&nbsp;&nbsp;person.name&nbsp;=&nbsp;"Alice";<br>&nbsp;&nbsp;&nbsp;//&nbsp;funcționează&nbsp;doar&nbsp;în&nbsp;cadrul&nbsp;metodei&nbsp;respective<br>&nbsp;&nbsp;&nbsp;person&nbsp;=&nbsp;new&nbsp;Person&nbsp;{&nbsp;name&nbsp;=&nbsp;"Bill",&nbsp;age&nbsp;=&nbsp;45&nbsp;};<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(person.name);&nbsp;//&nbsp;Bill<br>}<br><br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;name&nbsp;=&nbsp;"";<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;age;<br>}</code></pre>
+     </div>
+     <p class="paragraph">La transmiterea unui obiect al clasei prin valoare, în metodă este transmisă o copie a referinței la obiect. Această copie indică același obiect ca și referința originală, astfel încât putem modifica câmpurile și proprietățile obiectului, dar nu putem modifica obiectul în sine. Prin urmare, în exemplul de mai sus, va funcționa doar linia person.name = "Alice".</p>
+     <p class="paragraph">O altă linie person = new Person { name = "Bill", age = 45 } va crea un nou obiect în memorie, iar person va indica acum noul obiect din memorie. Chiar dacă ulterior îl modificăm, acest lucru nu va afecta referința p din metoda Main, deoarece referința p încă indică vechiul obiect din memorie.</p>
+     <p class="paragraph">Dar, la transmiterea parametrului prin referință (cu ajutorul cuvântului cheie ref) în metodă este transmisă referința la obiectul din memorie. Astfel, putem modifica atât câmpurile și proprietățile obiectului, cât și obiectul în sine:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;p&nbsp;=&nbsp;new&nbsp;Person&nbsp;{&nbsp;name&nbsp;=&nbsp;"Tom",&nbsp;age&nbsp;=&nbsp;23&nbsp;};<br>ChangePerson(ref&nbsp;p);<br><br>Console.WriteLine(p.name);&nbsp;//&nbsp;Bill<br>Console.WriteLine(p.age);&nbsp;//&nbsp;45<br><br>void&nbsp;ChangePerson(ref&nbsp;Person&nbsp;person)<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;funcționează<br>&nbsp;&nbsp;&nbsp;person.name&nbsp;=&nbsp;"Alice";<br>&nbsp;&nbsp;&nbsp;//&nbsp;funcționează<br>&nbsp;&nbsp;&nbsp;person&nbsp;=&nbsp;new&nbsp;Person&nbsp;{&nbsp;name&nbsp;=&nbsp;"Bill",&nbsp;age&nbsp;=&nbsp;45&nbsp;};<br>}<br><br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;name&nbsp;=&nbsp;"";<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;age;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Operația new va crea un nou obiect în memorie, iar referința person (aceeași referință p din metoda Main) va indica acum noul obiect din memorie.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

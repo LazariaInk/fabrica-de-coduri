@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='6.Array-uri', activeLesson='4.Mostenire tablouri'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Moștenirea array-urilor</h1>
+     <p class="paragraph">Array-ul reprezintă cea mai simplă modalitate de definire a unui set de date. Cu toate acestea, uneori, capacitățile de bază ale array-urilor pot fi insuficiente. De exemplu, să definim un array care reprezintă o anumită echipă:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;team&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"];<br>for(const&nbsp;person&nbsp;of&nbsp;team)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(person);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Dar ce facem dacă dorim să adăugăm la echipă anumite atribute suplimentare - numele antrenorului, țara sau orașul unde are sediul echipa, numele, sau alte caracteristici? La prima vedere, am putea defini un obiect complex:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;team&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"Barcelona",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;denumirea<br>&nbsp;&nbsp;&nbsp;members:&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"]&nbsp;&nbsp;//&nbsp;jucători<br>};<br>for(const&nbsp;person&nbsp;of&nbsp;team.members)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(person);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Dar există și o altă soluție, care ne permite să definim propriul tip de colecție: să creăm propria clasă, care va fi moștenită din Array.</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Team&nbsp;extends&nbsp;Array{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;constructor(name,&nbsp;...members){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super(...members);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici presupunem că numele echipei este primul parametru al constructorului clasei, iar al doilea parametru reprezintă lista de jucători a echipei, numărul cărora nu este fix.</p>
+     <p class="paragraph">Datorită moștenirii din Array, putem trata obiectele clasei Team ca seturi de date și putem aplica asupra lor toate operațiile care se aplică array-urilor:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Team&nbsp;extends&nbsp;Array{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;constructor(name,&nbsp;...members){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super(...members);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>}<br>//&nbsp;creăm&nbsp;obiectul&nbsp;echipei<br>const&nbsp;barcelona&nbsp;=&nbsp;new&nbsp;Team("Barcelona",&nbsp;"Tom",&nbsp;"Sam",&nbsp;"Bob");<br>console.log(barcelona);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Team(3)&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"]<br><br>//&nbsp;parcurgere&nbsp;set<br>for(const&nbsp;person&nbsp;of&nbsp;barcelona)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(person);<br>}<br>barcelona.push("Tim");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;adăugăm&nbsp;un&nbsp;element<br>console.log(barcelona);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Team(4)&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob",&nbsp;"Tim"]<br>barcelona.splice(1,&nbsp;1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;ștergem&nbsp;al&nbsp;doilea&nbsp;element<br>console.log(barcelona);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Team(3)&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Tim"]</code></pre>
+     </div>
+     <h2 class="subtitle">Suprascrierea metodelor</h2>
+     <p class="paragraph">La fel ca în moștenire, putem să suprascriem metodele moștenite. De exemplu, vom suprascrie comportamentul metodei push(), care este responsabilă pentru adăugarea la sfârșitul array-ului:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Team&nbsp;extends&nbsp;Array{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;constructor(name,&nbsp;...members){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super(...members);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;push(person){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(person&nbsp;!==&nbsp;"admin")&nbsp;super.push(person);<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>const&nbsp;snowbars&nbsp;=&nbsp;new&nbsp;Team("SnowBars",&nbsp;"Tom",&nbsp;"Sam",&nbsp;"Bob");<br><br>snowbars.push("admin");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;adăugăm&nbsp;un&nbsp;element&nbsp;-&nbsp;admin<br>console.log(snowbars);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Team(3)&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"]<br>snowbars.push("Tim");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;adăugăm&nbsp;un&nbsp;element&nbsp;-&nbsp;Tim<br>console.log(snowbars);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Team(4)&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob",&nbsp;"Tim"]</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, dacă în metodă este transmis orice nume, în afară de "admin", atunci acesta este adăugat la echipă.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

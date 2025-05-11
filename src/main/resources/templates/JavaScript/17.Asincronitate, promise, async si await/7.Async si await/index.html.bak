@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='17.Asincronitate, promise, async si await', activeLesson='7.Async si await'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Async și await</h1>
+     <p class="paragraph">Introducerea standardului ES2017 în JavaScript a adus două noi operatori: async și await, care sunt destinate să simplifice lucrul cu promise-urile.</p>
+     <p class="paragraph">Operatorul async definește o funcție asincronă, în care se presupune că se vor executa una sau mai multe sarcini asincrone:</p>
+     <div class="code-inline">
+      <pre><code>async&nbsp;function&nbsp;nume_funcție(){<br>&nbsp;&nbsp;&nbsp;//&nbsp;operațiuni&nbsp;asincrone<br>}</code></pre>
+     </div>
+     <p class="paragraph">În interiorul unei funcții asincrone putem utiliza operatorul await. Acesta este plasat înaintea apelului unei operațiuni asincrone care returnează un obiect Promise:</p>
+     <div class="code-inline">
+      <pre><code>async&nbsp;function&nbsp;nume_funcție(){<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;await&nbsp;operațiune_asincronă();<br>}</code></pre>
+     </div>
+     <p class="paragraph">Operatorul await suspendă execuția funcției asincrone până când operațiunea asincronă (obiectul Promise) returnează un rezultat.</p>
+     <p class="paragraph">Trebuie să ținem cont că operatorul await poate fi utilizat doar în interiorul unei funcții la care se aplică operatorul async.</p>
+     <p class="paragraph">Să examinăm cel mai simplu exemplu utilizând Promise:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;sum(x,&nbsp;y){<br>&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;Promise(function(resolve){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;result&nbsp;=&nbsp;x&nbsp;+&nbsp;y;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resolve(result);<br>&nbsp;&nbsp;&nbsp;});<br>}<br>sum(5,&nbsp;3).then(function(value){<br>&nbsp;&nbsp;&nbsp;console.log("Rezultatul&nbsp;operațiunii&nbsp;asincrone:",&nbsp;value);<br>});&nbsp;//&nbsp;Rezultatul&nbsp;operațiunii&nbsp;asincrone:&nbsp;8</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, funcția sum() reprezintă o sarcină asincronă. Ea primește două numere și returnează un obiect Promise, în care se realizează adunarea acestor numere. Rezultatul adunării este transmis funcției resolve(). Și apoi, în metoda then(), putem obține acest rezultat și să realizăm diferite acțiuni cu acesta.</p>
+     <p class="paragraph">Acum să rescriem acest exemplu utilizând async/await:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;sum(x,&nbsp;y){<br>&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;Promise(function(resolve){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;result&nbsp;=&nbsp;x&nbsp;+&nbsp;y;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resolve(result);<br>&nbsp;&nbsp;&nbsp;});<br>}<br>//&nbsp;varianta&nbsp;simplificată<br>//&nbsp;function&nbsp;sum(x,&nbsp;y){&nbsp;return&nbsp;Promise.resolve(x&nbsp;+&nbsp;y);}<br><br><br>async&nbsp;function&nbsp;calculate(){<br>&nbsp;&nbsp;&nbsp;const&nbsp;value&nbsp;=&nbsp;await&nbsp;sum(5,&nbsp;3);<br>&nbsp;&nbsp;&nbsp;console.log("Rezultatul&nbsp;operațiunii&nbsp;asincrone:",&nbsp;value);<br>}<br>calculate();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Rezultatul&nbsp;operațiunii&nbsp;asincrone:&nbsp;8</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, funcția sum() reprezintă o sarcină asincronă. Ea primește două numere și returnează un obiect Promise, în care se realizează adunarea acestor numere. Rezultatul adunării este transmis funcției resolve(). Și apoi, în metoda then(), putem obține acest rezultat și să realizăm diferite acțiuni cu acesta.</p>
+     <p class="paragraph">Acum să rescriem acest exemplu utilizând async/await:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;sum(x,&nbsp;y){<br>&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;Promise(function(resolve){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;result&nbsp;=&nbsp;x&nbsp;+&nbsp;y;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resolve(result);<br>&nbsp;&nbsp;&nbsp;});<br>}<br>//&nbsp;varianta&nbsp;simplificată<br>//&nbsp;function&nbsp;sum(x,&nbsp;y){&nbsp;return&nbsp;Promise.resolve(x&nbsp;+&nbsp;y);}<br><br><br>async&nbsp;function&nbsp;calculate(){<br>&nbsp;&nbsp;&nbsp;const&nbsp;value&nbsp;=&nbsp;await&nbsp;sum(5,&nbsp;3);<br>&nbsp;&nbsp;&nbsp;console.log("Rezultatul&nbsp;operațiunii&nbsp;asincrone:",&nbsp;value);<br>}<br>calculate();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Rezultatul&nbsp;operațiunii&nbsp;asincrone:&nbsp;8</code></pre>
+     </div>
+     <p class="paragraph">Aici am definit funcția asincronă calculate(), la care se aplică async:</p>
+     <div class="code-inline">
+      <pre><code>async&nbsp;function&nbsp;calculate(){</code></pre>
+     </div>
+     <p class="paragraph">În interiorul funcției se apelează operațiunea asincronă sum(), căreia i se transmit niște valori. Și la această funcție se aplică operatorul await. Datorită operatorului await, nu mai este necesar să apelăm metoda then() la promise. Rezultatul returnat de Promise poate fi obținut direct din apelul funcției sum și, de exemplu, atribuit unei constante sau unei variabile:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;value&nbsp;=&nbsp;await&nbsp;sum(5,&nbsp;3);</code></pre>
+     </div>
+     <p class="paragraph">Apoi putem apela funcția calculate() ca o funcție obișnuită pentru a executa toate acțiunile sale.</p>
+     <div class="code-inline">
+      <pre><code>calculate();</code></pre>
+     </div>
+     <p class="paragraph">Trebuie să menționăm că pentru o funcție definită cu cuvântul async se creează implicit un obiect Promise. Prin urmare, o putem utiliza și ca un promise:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;sum(x,&nbsp;y){<br>&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;Promise(function(resolve){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;result&nbsp;=&nbsp;x&nbsp;+&nbsp;y;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br><br>resolve(result);<br>&nbsp;&nbsp;&nbsp;});<br>}<br><br>async&nbsp;function&nbsp;calculate(){<br>&nbsp;&nbsp;&nbsp;const&nbsp;result&nbsp;=&nbsp;await&nbsp;sum(5,&nbsp;3);<br>&nbsp;&nbsp;&nbsp;return&nbsp;result;<br>}<br>calculate().then(value=&gt;&nbsp;console.log("Rezultatul&nbsp;operațiunii&nbsp;asincrone:",&nbsp;value));</code></pre>
+     </div>
+     <h2 class="subtitle">Executarea secvențială a operațiunilor asincrone</h2>
+     <p class="paragraph">O funcție asincronă poate conține mai multe operațiuni asincrone la care se aplică operatorul await. În acest caz, toate operațiunile asincrone vor fi executate secvențial:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;sum(x,&nbsp;y){<br>&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;Promise(function(resolve){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;result&nbsp;=&nbsp;x&nbsp;+&nbsp;y;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resolve(result);<br>&nbsp;&nbsp;&nbsp;});<br>}<br><br>async&nbsp;function&nbsp;calculate(){<br>&nbsp;&nbsp;&nbsp;const&nbsp;value1&nbsp;=&nbsp;await&nbsp;sum(5,&nbsp;3);<br>&nbsp;&nbsp;&nbsp;console.log("Rezultatul&nbsp;1&nbsp;al&nbsp;operațiunii&nbsp;asincrone:",&nbsp;value1);<br>&nbsp;&nbsp;&nbsp;const&nbsp;value2&nbsp;=&nbsp;await&nbsp;sum(6,&nbsp;4);<br>&nbsp;&nbsp;&nbsp;console.log("Rezultatul&nbsp;2&nbsp;al&nbsp;operațiunii&nbsp;asincrone:",&nbsp;value2);<br>&nbsp;&nbsp;&nbsp;const&nbsp;value3&nbsp;=&nbsp;await&nbsp;sum(7,&nbsp;5);<br>&nbsp;&nbsp;&nbsp;console.log("Rezultatul&nbsp;3&nbsp;al&nbsp;operațiunii&nbsp;asincrone:",&nbsp;value3);<br>}<br>calculate();&nbsp;&nbsp;&nbsp;&nbsp;<br>//&nbsp;Rezultatul&nbsp;1&nbsp;al&nbsp;operațiunii&nbsp;asincrone:&nbsp;8<br>//&nbsp;Rezultatul&nbsp;2&nbsp;al&nbsp;operațiunii&nbsp;asincrone:&nbsp;10<br>//&nbsp;Rezultatul&nbsp;3&nbsp;al&nbsp;operațiunii&nbsp;asincrone:&nbsp;12</code></pre>
+     </div>
+     <h2 class="subtitle">Tratarea erorilor</h2>
+     <p class="paragraph">Pentru tratarea erorilor care pot apărea în timpul apelului unei operațiuni asincrone se utilizează construcția try..catch..finally.</p>
+     <p class="paragraph">De exemplu, să luăm următorul cod care folosește Promise:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;square(str){<br>&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;Promise((resolve,&nbsp;reject)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;n&nbsp;=&nbsp;parseInt(str);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(isNaN(n))&nbsp;reject("Not&nbsp;a&nbsp;number");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;resolve(n&nbsp;*&nbsp;n);<br>&nbsp;&nbsp;&nbsp;});<br>};<br>function&nbsp;calculate(str){<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;square(str)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.then(value&nbsp;=&gt;&nbsp;console.log("Result:&nbsp;",&nbsp;value))<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.catch(error&nbsp;=&gt;&nbsp;console.log(error));<br>}<br><br>calculate("g8");&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Not&nbsp;a&nbsp;number<br>calculate("4");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Result:&nbsp;&nbsp;16</code></pre>
+     </div>
+     <p class="paragraph">Funcția square() primește o valoare oarecare, iar în promise această valoare este convertită în număr. Și în caz de succes, din promise se returnează pătratul numărului. Dacă valoarea transmisă nu este un număr, atunci se returnează o eroare.</p>
+     <p class="paragraph">La apelarea funcției square() cu metoda catch() putem trata eroarea apărută.</p>
+     <p class="paragraph">Acum să rescriem exemplul folosind async/await:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;square(str){<br>&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;Promise((resolve,&nbsp;reject)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;n&nbsp;=&nbsp;parseInt(str);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(isNaN(n))&nbsp;reject("Not&nbsp;a&nbsp;number");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;resolve(n&nbsp;*&nbsp;n);<br>&nbsp;&nbsp;&nbsp;})<br>};<br><br>async&nbsp;function&nbsp;calculate(str){<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;try{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;value&nbsp;=&nbsp;await&nbsp;square(str);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Result:&nbsp;",&nbsp;value);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;catch(error){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(error);<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>calculate("g8");&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Not&nbsp;a&nbsp;number<br>calculate("4");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Result:&nbsp;&nbsp;16</code></pre>
+     </div>
+     <p class="paragraph">Apelul operațiunii asincrone este plasat în blocul try, iar în blocul catch putem obține eroarea apărută și o putem trata.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

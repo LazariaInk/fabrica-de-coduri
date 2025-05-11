@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='6.Delegati, evenimente si lambda', activeLesson='3.Metode anonime'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Metode anonime</h1>
+     <p class="paragraph">Cu delegații sunt strâns legate metodele anonime. Metodele anonime sunt utilizate pentru a crea instanțe de delegați.</p>
+     <p class="paragraph">Definirea metodelor anonime începe cu cuvântul cheie delegate, după care urmează în paranteze lista de parametri și corpul metodei în acolade:</p>
+     <div class="code-inline">
+      <pre><code>delegate(parametri)<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;instrucțiuni<br>}</code></pre>
+     </div>
+     <p class="paragraph">De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>MessageHandler&nbsp;handler&nbsp;=&nbsp;delegate&nbsp;(string&nbsp;mes)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(mes);<br>};<br>handler("hello&nbsp;world!");<br><br>delegate&nbsp;void&nbsp;MessageHandler(string&nbsp;message);</code></pre>
+     </div>
+     <p class="paragraph">Metoda anonimă nu poate exista de una singură, ea este utilizată pentru inițializarea unei instanțe de delegat, ca în acest caz variabila handler reprezintă o metodă anonimă. Și prin această variabilă delegat se poate apela metoda anonimă.</p>
+     <p class="paragraph">Un alt exemplu de metode anonime este transmiterea ca argument pentru un parametru care reprezintă un delegat:</p>
+     <div class="code-inline">
+      <pre><code>ShowMessage("hello!",&nbsp;delegate&nbsp;(string&nbsp;mes)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(mes);<br>});<br><br>static&nbsp;void&nbsp;ShowMessage(string&nbsp;message,&nbsp;MessageHandler&nbsp;handler)<br>{<br>&nbsp;&nbsp;&nbsp;handler(message);<br>}<br><br>delegate&nbsp;void&nbsp;MessageHandler(string&nbsp;message);</code></pre>
+     </div>
+     <p class="paragraph">Dacă metoda anonimă utilizează parametri, atunci aceștia trebuie să corespundă parametrilor delegatului. Dacă pentru metoda anonimă nu sunt necesari parametri, atunci parantezele cu parametri sunt omise.</p>
+     <p class="paragraph">Astfel, chiar dacă delegatul primește mai mulți parametri, în metoda anonimă se pot omite complet parametrii:</p>
+     <div class="code-inline">
+      <pre><code>MessageHandler&nbsp;handler&nbsp;=&nbsp;delegate<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("metoda&nbsp;anonimă");<br>};<br>handler("hello&nbsp;world!");&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;metoda&nbsp;anonimă<br><br>delegate&nbsp;void&nbsp;MessageHandler(string&nbsp;message);</code></pre>
+     </div>
+     <p class="paragraph">Deci, dacă metoda anonimă conține parametri, aceștia trebuie să corespundă parametrilor delegatului. Sau metoda anonimă poate să nu conțină deloc parametri, caz în care corespunde oricărui delegat care are același tip de valoare returnată.</p>
+     <p class="paragraph">Parametrii metodei anonime nu pot fi omisi, dacă unul sau mai mulți parametri sunt definiți cu modificatorul out.</p>
+     <p class="paragraph">De asemenea, la fel ca metodele obișnuite, metodele anonime pot returna un rezultat:</p>
+     <div class="code-inline">
+      <pre><code>Operation&nbsp;operation&nbsp;=&nbsp;delegate&nbsp;(int&nbsp;x,&nbsp;int&nbsp;y)<br>{<br>&nbsp;&nbsp;&nbsp;return&nbsp;x&nbsp;+&nbsp;y;<br>};<br>int&nbsp;result&nbsp;=&nbsp;operation(4,&nbsp;5);<br>Console.WriteLine(result);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;9<br><br>delegate&nbsp;int&nbsp;Operation(int&nbsp;x,&nbsp;int&nbsp;y);</code></pre>
+     </div>
+     <p class="paragraph">Metoda anonimă are acces la toate variabilele definite în codul exterior:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;z&nbsp;=&nbsp;8;<br>Operation&nbsp;operation&nbsp;=&nbsp;delegate&nbsp;(int&nbsp;x,&nbsp;int&nbsp;y)<br>{<br>&nbsp;&nbsp;&nbsp;return&nbsp;x&nbsp;+&nbsp;y&nbsp;+&nbsp;z;<br>};<br>int&nbsp;result&nbsp;=&nbsp;operation(4,&nbsp;5);<br>Console.WriteLine(result);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;17<br><br>delegate&nbsp;int&nbsp;Operation(int&nbsp;x,&nbsp;int&nbsp;y);</code></pre>
+     </div>
+     <p class="paragraph">În ce situații se utilizează metodele anonime? Când trebuie să definim o acțiune unică, care nu are multe instrucțiuni și nu este utilizată în altă parte. În special, ele pot fi utilizate pentru gestionarea evenimentelor, care vor fi discutate mai departe.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

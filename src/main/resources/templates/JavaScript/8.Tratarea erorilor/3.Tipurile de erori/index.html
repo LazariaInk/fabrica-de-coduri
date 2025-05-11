@@ -1,205 +1,195 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='8.Tratarea erorilor', activeLesson='3.Tipurile de erori'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Tipurile de erori</h1>
- <p class="paragraph">În blocul catch, putem obține informații despre eroare, care este reprezentată printr-un obiect. Toate erorile generate de interpretorul JavaScript oferă un obiect de tip Error, care are o serie de proprietăți:</p>
- <ul class="enumeration">
-  <li>message: mesajul despre eroare</li>
-  <li>name: tipul de eroare</li>
- </ul>
- <p class="paragraph">Trebuie menționat că unele browsere suportă și alte proprietăți, dar comportamentul lor poate varia în funcție de browser:</p>
- <ul class="enumeration">
-  <li>fileName: numele fișierului cu cod JavaScript în care a apărut eroarea</li>
-  <li>lineNumber: linia în fișierul în care a apărut eroarea</li>
-  <li>columnNumber: coloana în linia în care a apărut eroarea</li>
-  <li>stack: stiva de eroare</li>
- </ul>
- <p class="paragraph">Vom obține datele erorii, de exemplu, în cazul apelului unei funcții care nu există:</p>
- <div class="code-inline">
-  <pre><code>try&nbsp;{<br>&nbsp;&nbsp;&nbsp;callSomeFunc();<br>}<br>catch&nbsp;(error)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Tipul&nbsp;erorii:",&nbsp;error.name);<br>&nbsp;&nbsp;&nbsp;console.log("Eroare:",&nbsp;error.message);<br>}</code></pre>
- </div>
- <p class="paragraph">Ieșire în Consolă:</p>
- <div class="code-inline">
-  <pre><code>Tipul&nbsp;erorii:&nbsp;ReferenceError<br>Eroare:&nbsp;callSomeFunc&nbsp;is&nbsp;not&nbsp;defined</code></pre>
- </div>
- <h2 class="subtitle">Tipuri de erori</h2>
- <p class="paragraph">Mai sus am menționat că eroarea generată de interpretor reprezintă un tip Error, însă atunci când se apelează o funcție inexistentă, se generează o eroare de tip ReferenceError. Motivul este că tipul Error reprezintă un tip general de erori. În același timp, există tipuri specifice de erori pentru situații particulare:</p>
- <ul class="enumeration">
-  <li>EvalError: reprezintă o eroare generată la executarea funcției globale eval()</li>
-  <li>RangeError: eroare generată atunci când un parametru sau o variabilă reprezintă un număr care se află în afara unui anumit interval permis</li>
-  <li>ReferenceError: eroare generată atunci când se face referire la o referință inexistentă</li>
-  <li>SyntaxError: reprezintă o eroare de sintaxă</li>
-  <li>TypeError: eroare generată atunci când valoarea unei variabile sau a unui parametru reprezintă un tip incorect sau în încercarea de a modifica o valoare care nu poate fi modificată</li>
-  <li>URIError: eroare generată atunci când funcțiile encodeURI() și decodeURI() primesc valori incorecte</li>
-  <li>AggregateError: furnizează o eroare care combină mai multe erori apărute</li>
- </ul>
- <p class="paragraph">De exemplu, încercarea de a asigna o valoare unei constante pentru a doua oară generează o eroare de tip TypeError:</p>
- <div class="code-inline">
-  <pre><code>try{<br>&nbsp;&nbsp;&nbsp;const&nbsp;num&nbsp;=&nbsp;9;<br>&nbsp;&nbsp;&nbsp;num&nbsp;=&nbsp;7;<br>}<br>catch(error){<br>&nbsp;&nbsp;&nbsp;console.log(error.name);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;TypeError<br>&nbsp;&nbsp;&nbsp;console.log(error.message);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Assignment&nbsp;to&nbsp;constant&nbsp;variable.<br>}</code></pre>
- </div>
- <h2 class="subtitle">Utilizarea tipurilor de erori</h2>
- <p class="paragraph">La generarea erorilor, putem utiliza tipuri de erori încorporate. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>class&nbsp;Person&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;constructor(name,&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(age&nbsp;&lt;&nbsp;0)&nbsp;throw&nbsp;new&nbsp;Error("Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;pozitivă");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;print()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Nume:&nbsp;${this.name}&nbsp;&nbsp;Vârstă:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>try&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;-45);<br>&nbsp;&nbsp;&nbsp;tom.print();<br>}&nbsp;catch&nbsp;(error)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(error.message);&nbsp;//&nbsp;Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;pozitivă<br>}</code></pre>
- </div>
- <p class="paragraph">Aici, constructorul clasei Person primește valorile pentru nume și vârstă. Dacă este furnizată o vârstă negativă, se generează o eroare sub formă de obiect Error. Mesajul de eroare este transmis ca parametru în constructorul Error:</p>
- <div class="code-inline">
-  <pre><code>if&nbsp;(age&nbsp;&lt;&nbsp;0)&nbsp;throw&nbsp;new&nbsp;Error("Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;pozitivă");</code></pre>
- </div>
- <p class="paragraph">Prin urmare, la gestionarea excepției în blocul catch, vom putea obține mesajul de eroare transmis.</p>
- <p class="paragraph">Toate celelalte tipuri de erori, de asemenea, primesc un mesaj de eroare ca prim parametru în constructor. Astfel, generăm câteva tipuri diferite de erori:</p>
- <div class="code-inline">
-  <pre><code>class&nbsp;Person&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;constructor(pName,&nbsp;pAge)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;age&nbsp;=&nbsp;parseInt(pAge);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(isNaN(age))&nbsp;throw&nbsp;new&nbsp;TypeError("Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;un&nbsp;număr");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(age&nbsp;&lt;&nbsp;0&nbsp;||&nbsp;age&nbsp;&gt;&nbsp;120)&nbsp;throw&nbsp;new&nbsp;RangeError("Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;între&nbsp;0&nbsp;și&nbsp;120");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;pName;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;print()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Nume:&nbsp;${this.name}&nbsp;&nbsp;Vârstă:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
- </div>
- <p class="paragraph">Întrucât pentru vârstă se pot furniza nu numai numere, ci și orice alt tip de valoare, la început încercăm să convertim această valoare într-un număr folosind funcția parseInt():</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;age&nbsp;=&nbsp;parseInt(pAge);<br>if&nbsp;(isNaN(age))&nbsp;throw&nbsp;new&nbsp;TypeError("Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;un&nbsp;număr");</code></pre>
- </div>
- <p class="paragraph">Cu ajutorul funcției isNaN(age), verificăm dacă numărul obținut este, de fapt, un număr. Dacă age NU este un număr, această funcție returnează true. Prin urmare, se generează o eroare de tip TypeError.</p>
- <p class="paragraph">Apoi verificăm dacă numărul obținut se încadrează în intervalul permis. În caz contrar, generăm o eroare de tip RangeError:</p>
- <div class="code-inline">
-  <pre><code>if&nbsp;(age&nbsp;&lt;&nbsp;0&nbsp;||&nbsp;age&nbsp;&gt;&nbsp;120)&nbsp;throw&nbsp;new&nbsp;RangeError("Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;între&nbsp;0&nbsp;și&nbsp;120");</code></pre>
- </div>
- <p class="paragraph">Vom verifica generarea excepțiilor:</p>
- <div class="code-inline">
-  <pre><code>try&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;-45);<br>}<br>catch&nbsp;(error)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(error.message);&nbsp;//&nbsp;Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;între&nbsp;0&nbsp;și&nbsp;120<br>}<br><br>try&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person("Bob",&nbsp;"bla&nbsp;bla");<br>}<br>catch&nbsp;(error)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(error.message);&nbsp;//&nbsp;Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;un&nbsp;număr<br>}<br><br>try&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;sam&nbsp;=&nbsp;new&nbsp;Person("Sam",&nbsp;23);<br>&nbsp;&nbsp;&nbsp;sam.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Nume:&nbsp;Sam&nbsp;&nbsp;Vârstă:&nbsp;23<br>}<br>catch&nbsp;(error)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(error.message);<br>}</code></pre>
- </div>
- <p class="paragraph">Ieșire în Consolă:</p>
- <div class="code-inline">
-  <pre><code>Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;între&nbsp;0&nbsp;și&nbsp;120<br>Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;un&nbsp;număr<br>Nume:&nbsp;Sam&nbsp;&nbsp;Vârstă:&nbsp;23</code></pre>
- </div>
- <h2 class="subtitle">Gestionarea Mai Multor Tipuri de Erori</h2>
- <p class="paragraph">În timpul execuției aceluiași cod, pot apărea erori de tipuri diferite.</p>
- <div class="code-inline">
-  <pre><code>lass&nbsp;Person&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;constructor(pName,&nbsp;pAge)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;age&nbsp;=&nbsp;parseInt(pAge);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(isNaN(age))&nbsp;throw&nbsp;new&nbsp;TypeError("Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;un&nbsp;număr");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(age&nbsp;&lt;&nbsp;0&nbsp;||&nbsp;age&nbsp;&gt;&nbsp;120)&nbsp;throw&nbsp;new&nbsp;RangeError("Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;între&nbsp;0&nbsp;și&nbsp;120");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;pName;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;print()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Nume:&nbsp;${this.name}&nbsp;&nbsp;Vârstă:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>try&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;-45);<br>&nbsp;&nbsp;&nbsp;const&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person("Bob",&nbsp;"bla&nbsp;bla");<br>}<br>catch&nbsp;(error)&nbsp;{<br>&nbsp;&nbsp;&nbsp;if&nbsp;(error&nbsp;instanceof&nbsp;TypeError)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Tip&nbsp;de&nbsp;date&nbsp;incorect.");<br>&nbsp;&nbsp;&nbsp;}&nbsp;else&nbsp;if&nbsp;(error&nbsp;instanceof&nbsp;RangeError)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Valoare&nbsp;incorectă");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;console.log(error.message);<br>}</code></pre>
- </div>
- <h2 class="subtitle">Crearea propriilor tipuri de erori</h2>
- <p class="paragraph">Nu suntem limitați doar la tipurile de erori încorporate și, la nevoie, putem crea propriile tipuri de erori destinate anumitor situații specifice. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>class&nbsp;PersonError&nbsp;extends&nbsp;Error&nbsp;{<br>&nbsp;constructor(value,&nbsp;...params)&nbsp;{<br>&nbsp;&nbsp;&nbsp;//&nbsp;restul&nbsp;parametrilor&nbsp;sunt&nbsp;transmiși&nbsp;constructorului&nbsp;clasei&nbsp;de&nbsp;bază<br>&nbsp;&nbsp;&nbsp;super(...params)<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;"PersonError"<br>&nbsp;&nbsp;&nbsp;this.argument&nbsp;=&nbsp;value;<br>&nbsp;}<br>}<br><br>class&nbsp;Person&nbsp;{<br>&nbsp;constructor(pName,&nbsp;pAge)&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;age&nbsp;=&nbsp;parseInt(pAge);<br>&nbsp;&nbsp;&nbsp;if&nbsp;(isNaN(age))&nbsp;throw&nbsp;new&nbsp;PersonError(pAge,&nbsp;"Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;un&nbsp;număr");<br>&nbsp;&nbsp;&nbsp;if&nbsp;(age&nbsp;&lt;&nbsp;0&nbsp;||&nbsp;age&nbsp;&gt;&nbsp;120)&nbsp;throw&nbsp;new&nbsp;PersonError(pAge,&nbsp;"Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;între&nbsp;0&nbsp;și&nbsp;120");<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;pName;<br>&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;}<br>&nbsp;print()&nbsp;{&nbsp;console.log(`Nume:&nbsp;${this.name}&nbsp;&nbsp;Vârstă:&nbsp;${this.age}`);&nbsp;}<br>}<br><br>try&nbsp;{<br>&nbsp;//&nbsp;const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;-45);<br>&nbsp;const&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person("Bob",&nbsp;"bla&nbsp;bla");<br>}<br>catch&nbsp;(error)&nbsp;{<br>&nbsp;if&nbsp;(error&nbsp;instanceof&nbsp;PersonError)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Eroare&nbsp;de&nbsp;tip&nbsp;Person.&nbsp;Valoare&nbsp;incorectă:",&nbsp;error.argument);<br>&nbsp;}<br>&nbsp;console.log(error.message);<br>}</code></pre>
- </div>
- <p class="paragraph">Afișare în consolă:</p>
- <h2 class="subtitle">Eroare de tipul Person</h2>
- <p class="paragraph">Pentru reprezentarea erorii clasei Person, aici este definit tipul PersonError, care moștenește clasa Error:</p>
- <div class="code-inline">
-  <pre><code>class&nbsp;PersonError&nbsp;extends&nbsp;Error&nbsp;{<br>&nbsp;constructor(value,&nbsp;...params)&nbsp;{<br>&nbsp;&nbsp;&nbsp;//&nbsp;restul&nbsp;parametrilor&nbsp;sunt&nbsp;transmiși&nbsp;constructorului&nbsp;clasei&nbsp;de&nbsp;bază<br>&nbsp;&nbsp;&nbsp;super(...params)<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;"PersonError"<br>&nbsp;&nbsp;&nbsp;this.argument&nbsp;=&nbsp;value;<br>&nbsp;}<br>}</code></pre>
- </div>
- <p class="paragraph">În constructor, definim o proprietate suplimentară - argument. Aceasta va stoca valoarea care a generat eroarea. Cu ajutorul parametrului value al constructorului, obținem această valoare. În plus, suprascriem numele tipului cu ajutorul proprietății this.name.</p>
- <p class="paragraph">În clasa Person, folosim acest tip, transmițând în constructorul PersonError valorile corespunzătoare:</p>
- <div class="code-inline">
-  <pre><code>if&nbsp;(isNaN(age))&nbsp;&nbsp;throw&nbsp;new&nbsp;PersonError(age,&nbsp;"Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;un&nbsp;număr");<br>if&nbsp;(age&nbsp;&lt;&nbsp;0&nbsp;||&nbsp;age&nbsp;&gt;&nbsp;120)&nbsp;throw&nbsp;new&nbsp;PersonError(age,&nbsp;"Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;între&nbsp;0&nbsp;și&nbsp;120");</code></pre>
- </div>
- <p class="paragraph">Apoi, în timpul gestionării excepției, putem verifica tipul, iar dacă acesta reprezintă clasa PersonError, putem accesa proprietatea sa argument:</p>
- <div class="code-inline">
-  <pre><code>catch(error){&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;if&nbsp;(error&nbsp;instanceof&nbsp;PersonError)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Eroare&nbsp;de&nbsp;tipul&nbsp;Person.&nbsp;Valoare&nbsp;incorectă:",&nbsp;error.argument);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;console.log(error.message);<br>}</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Tipurile de erori</h1>
+     <p class="paragraph">În blocul catch, putem obține informații despre eroare, care este reprezentată printr-un obiect. Toate erorile generate de interpretorul JavaScript oferă un obiect de tip Error, care are o serie de proprietăți:</p>
+     <ul class="enumeration">
+      <li>message: mesajul despre eroare</li>
+      <li>name: tipul de eroare</li>
+     </ul>
+     <p class="paragraph">Trebuie menționat că unele browsere suportă și alte proprietăți, dar comportamentul lor poate varia în funcție de browser:</p>
+     <ul class="enumeration">
+      <li>fileName: numele fișierului cu cod JavaScript în care a apărut eroarea</li>
+      <li>lineNumber: linia în fișierul în care a apărut eroarea</li>
+      <li>columnNumber: coloana în linia în care a apărut eroarea</li>
+      <li>stack: stiva de eroare</li>
+     </ul>
+     <p class="paragraph">Vom obține datele erorii, de exemplu, în cazul apelului unei funcții care nu există:</p>
+     <div class="code-inline">
+      <pre><code>try&nbsp;{<br>&nbsp;&nbsp;&nbsp;callSomeFunc();<br>}<br>catch&nbsp;(error)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Tipul&nbsp;erorii:",&nbsp;error.name);<br>&nbsp;&nbsp;&nbsp;console.log("Eroare:",&nbsp;error.message);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Ieșire în Consolă:</p>
+     <div class="code-inline">
+      <pre><code>Tipul&nbsp;erorii:&nbsp;ReferenceError<br>Eroare:&nbsp;callSomeFunc&nbsp;is&nbsp;not&nbsp;defined</code></pre>
+     </div>
+     <h2 class="subtitle">Tipuri de erori</h2>
+     <p class="paragraph">Mai sus am menționat că eroarea generată de interpretor reprezintă un tip Error, însă atunci când se apelează o funcție inexistentă, se generează o eroare de tip ReferenceError. Motivul este că tipul Error reprezintă un tip general de erori. În același timp, există tipuri specifice de erori pentru situații particulare:</p>
+     <ul class="enumeration">
+      <li>EvalError: reprezintă o eroare generată la executarea funcției globale eval()</li>
+      <li>RangeError: eroare generată atunci când un parametru sau o variabilă reprezintă un număr care se află în afara unui anumit interval permis</li>
+      <li>ReferenceError: eroare generată atunci când se face referire la o referință inexistentă</li>
+      <li>SyntaxError: reprezintă o eroare de sintaxă</li>
+      <li>TypeError: eroare generată atunci când valoarea unei variabile sau a unui parametru reprezintă un tip incorect sau în încercarea de a modifica o valoare care nu poate fi modificată</li>
+      <li>URIError: eroare generată atunci când funcțiile encodeURI() și decodeURI() primesc valori incorecte</li>
+      <li>AggregateError: furnizează o eroare care combină mai multe erori apărute</li>
+     </ul>
+     <p class="paragraph">De exemplu, încercarea de a asigna o valoare unei constante pentru a doua oară generează o eroare de tip TypeError:</p>
+     <div class="code-inline">
+      <pre><code>try{<br>&nbsp;&nbsp;&nbsp;const&nbsp;num&nbsp;=&nbsp;9;<br>&nbsp;&nbsp;&nbsp;num&nbsp;=&nbsp;7;<br>}<br>catch(error){<br>&nbsp;&nbsp;&nbsp;console.log(error.name);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;TypeError<br>&nbsp;&nbsp;&nbsp;console.log(error.message);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Assignment&nbsp;to&nbsp;constant&nbsp;variable.<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Utilizarea tipurilor de erori</h2>
+     <p class="paragraph">La generarea erorilor, putem utiliza tipuri de erori încorporate. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;constructor(name,&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(age&nbsp;&lt;&nbsp;0)&nbsp;throw&nbsp;new&nbsp;Error("Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;pozitivă");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;print()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Nume:&nbsp;${this.name}&nbsp;&nbsp;Vârstă:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>try&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;-45);<br>&nbsp;&nbsp;&nbsp;tom.print();<br>}&nbsp;catch&nbsp;(error)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(error.message);&nbsp;//&nbsp;Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;pozitivă<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici, constructorul clasei Person primește valorile pentru nume și vârstă. Dacă este furnizată o vârstă negativă, se generează o eroare sub formă de obiect Error. Mesajul de eroare este transmis ca parametru în constructorul Error:</p>
+     <div class="code-inline">
+      <pre><code>if&nbsp;(age&nbsp;&lt;&nbsp;0)&nbsp;throw&nbsp;new&nbsp;Error("Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;pozitivă");</code></pre>
+     </div>
+     <p class="paragraph">Prin urmare, la gestionarea excepției în blocul catch, vom putea obține mesajul de eroare transmis.</p>
+     <p class="paragraph">Toate celelalte tipuri de erori, de asemenea, primesc un mesaj de eroare ca prim parametru în constructor. Astfel, generăm câteva tipuri diferite de erori:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;constructor(pName,&nbsp;pAge)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;age&nbsp;=&nbsp;parseInt(pAge);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(isNaN(age))&nbsp;throw&nbsp;new&nbsp;TypeError("Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;un&nbsp;număr");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(age&nbsp;&lt;&nbsp;0&nbsp;||&nbsp;age&nbsp;&gt;&nbsp;120)&nbsp;throw&nbsp;new&nbsp;RangeError("Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;între&nbsp;0&nbsp;și&nbsp;120");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;pName;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;print()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Nume:&nbsp;${this.name}&nbsp;&nbsp;Vârstă:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Întrucât pentru vârstă se pot furniza nu numai numere, ci și orice alt tip de valoare, la început încercăm să convertim această valoare într-un număr folosind funcția parseInt():</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;age&nbsp;=&nbsp;parseInt(pAge);<br>if&nbsp;(isNaN(age))&nbsp;throw&nbsp;new&nbsp;TypeError("Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;un&nbsp;număr");</code></pre>
+     </div>
+     <p class="paragraph">Cu ajutorul funcției isNaN(age), verificăm dacă numărul obținut este, de fapt, un număr. Dacă age NU este un număr, această funcție returnează true. Prin urmare, se generează o eroare de tip TypeError.</p>
+     <p class="paragraph">Apoi verificăm dacă numărul obținut se încadrează în intervalul permis. În caz contrar, generăm o eroare de tip RangeError:</p>
+     <div class="code-inline">
+      <pre><code>if&nbsp;(age&nbsp;&lt;&nbsp;0&nbsp;||&nbsp;age&nbsp;&gt;&nbsp;120)&nbsp;throw&nbsp;new&nbsp;RangeError("Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;între&nbsp;0&nbsp;și&nbsp;120");</code></pre>
+     </div>
+     <p class="paragraph">Vom verifica generarea excepțiilor:</p>
+     <div class="code-inline">
+      <pre><code>try&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;-45);<br>}<br>catch&nbsp;(error)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(error.message);&nbsp;//&nbsp;Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;între&nbsp;0&nbsp;și&nbsp;120<br>}<br><br>try&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person("Bob",&nbsp;"bla&nbsp;bla");<br>}<br>catch&nbsp;(error)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(error.message);&nbsp;//&nbsp;Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;un&nbsp;număr<br>}<br><br>try&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;sam&nbsp;=&nbsp;new&nbsp;Person("Sam",&nbsp;23);<br>&nbsp;&nbsp;&nbsp;sam.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Nume:&nbsp;Sam&nbsp;&nbsp;Vârstă:&nbsp;23<br>}<br>catch&nbsp;(error)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(error.message);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Ieșire în Consolă:</p>
+     <div class="code-inline">
+      <pre><code>Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;între&nbsp;0&nbsp;și&nbsp;120<br>Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;un&nbsp;număr<br>Nume:&nbsp;Sam&nbsp;&nbsp;Vârstă:&nbsp;23</code></pre>
+     </div>
+     <h2 class="subtitle">Gestionarea Mai Multor Tipuri de Erori</h2>
+     <p class="paragraph">În timpul execuției aceluiași cod, pot apărea erori de tipuri diferite.</p>
+     <div class="code-inline">
+      <pre><code>lass&nbsp;Person&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;constructor(pName,&nbsp;pAge)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;age&nbsp;=&nbsp;parseInt(pAge);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(isNaN(age))&nbsp;throw&nbsp;new&nbsp;TypeError("Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;un&nbsp;număr");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(age&nbsp;&lt;&nbsp;0&nbsp;||&nbsp;age&nbsp;&gt;&nbsp;120)&nbsp;throw&nbsp;new&nbsp;RangeError("Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;între&nbsp;0&nbsp;și&nbsp;120");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;pName;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;print()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Nume:&nbsp;${this.name}&nbsp;&nbsp;Vârstă:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>try&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;-45);<br>&nbsp;&nbsp;&nbsp;const&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person("Bob",&nbsp;"bla&nbsp;bla");<br>}<br>catch&nbsp;(error)&nbsp;{<br>&nbsp;&nbsp;&nbsp;if&nbsp;(error&nbsp;instanceof&nbsp;TypeError)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Tip&nbsp;de&nbsp;date&nbsp;incorect.");<br>&nbsp;&nbsp;&nbsp;}&nbsp;else&nbsp;if&nbsp;(error&nbsp;instanceof&nbsp;RangeError)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Valoare&nbsp;incorectă");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;console.log(error.message);<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Crearea propriilor tipuri de erori</h2>
+     <p class="paragraph">Nu suntem limitați doar la tipurile de erori încorporate și, la nevoie, putem crea propriile tipuri de erori destinate anumitor situații specifice. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;PersonError&nbsp;extends&nbsp;Error&nbsp;{<br>&nbsp;constructor(value,&nbsp;...params)&nbsp;{<br>&nbsp;&nbsp;&nbsp;//&nbsp;restul&nbsp;parametrilor&nbsp;sunt&nbsp;transmiși&nbsp;constructorului&nbsp;clasei&nbsp;de&nbsp;bază<br>&nbsp;&nbsp;&nbsp;super(...params)<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;"PersonError"<br>&nbsp;&nbsp;&nbsp;this.argument&nbsp;=&nbsp;value;<br>&nbsp;}<br>}<br><br>class&nbsp;Person&nbsp;{<br>&nbsp;constructor(pName,&nbsp;pAge)&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;age&nbsp;=&nbsp;parseInt(pAge);<br>&nbsp;&nbsp;&nbsp;if&nbsp;(isNaN(age))&nbsp;throw&nbsp;new&nbsp;PersonError(pAge,&nbsp;"Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;un&nbsp;număr");<br>&nbsp;&nbsp;&nbsp;if&nbsp;(age&nbsp;&lt;&nbsp;0&nbsp;||&nbsp;age&nbsp;&gt;&nbsp;120)&nbsp;throw&nbsp;new&nbsp;PersonError(pAge,&nbsp;"Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;între&nbsp;0&nbsp;și&nbsp;120");<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;pName;<br>&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;}<br>&nbsp;print()&nbsp;{&nbsp;console.log(`Nume:&nbsp;${this.name}&nbsp;&nbsp;Vârstă:&nbsp;${this.age}`);&nbsp;}<br>}<br><br>try&nbsp;{<br>&nbsp;//&nbsp;const&nbsp;tom&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;-45);<br>&nbsp;const&nbsp;bob&nbsp;=&nbsp;new&nbsp;Person("Bob",&nbsp;"bla&nbsp;bla");<br>}<br>catch&nbsp;(error)&nbsp;{<br>&nbsp;if&nbsp;(error&nbsp;instanceof&nbsp;PersonError)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Eroare&nbsp;de&nbsp;tip&nbsp;Person.&nbsp;Valoare&nbsp;incorectă:",&nbsp;error.argument);<br>&nbsp;}<br>&nbsp;console.log(error.message);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Afișare în consolă:</p>
+     <h2 class="subtitle">Eroare de tipul Person</h2>
+     <p class="paragraph">Pentru reprezentarea erorii clasei Person, aici este definit tipul PersonError, care moștenește clasa Error:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;PersonError&nbsp;extends&nbsp;Error&nbsp;{<br>&nbsp;constructor(value,&nbsp;...params)&nbsp;{<br>&nbsp;&nbsp;&nbsp;//&nbsp;restul&nbsp;parametrilor&nbsp;sunt&nbsp;transmiși&nbsp;constructorului&nbsp;clasei&nbsp;de&nbsp;bază<br>&nbsp;&nbsp;&nbsp;super(...params)<br>&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;"PersonError"<br>&nbsp;&nbsp;&nbsp;this.argument&nbsp;=&nbsp;value;<br>&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În constructor, definim o proprietate suplimentară - argument. Aceasta va stoca valoarea care a generat eroarea. Cu ajutorul parametrului value al constructorului, obținem această valoare. În plus, suprascriem numele tipului cu ajutorul proprietății this.name.</p>
+     <p class="paragraph">În clasa Person, folosim acest tip, transmițând în constructorul PersonError valorile corespunzătoare:</p>
+     <div class="code-inline">
+      <pre><code>if&nbsp;(isNaN(age))&nbsp;&nbsp;throw&nbsp;new&nbsp;PersonError(age,&nbsp;"Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;un&nbsp;număr");<br>if&nbsp;(age&nbsp;&lt;&nbsp;0&nbsp;||&nbsp;age&nbsp;&gt;&nbsp;120)&nbsp;throw&nbsp;new&nbsp;PersonError(age,&nbsp;"Vârsta&nbsp;trebuie&nbsp;să&nbsp;fie&nbsp;între&nbsp;0&nbsp;și&nbsp;120");</code></pre>
+     </div>
+     <p class="paragraph">Apoi, în timpul gestionării excepției, putem verifica tipul, iar dacă acesta reprezintă clasa PersonError, putem accesa proprietatea sa argument:</p>
+     <div class="code-inline">
+      <pre><code>catch(error){&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;if&nbsp;(error&nbsp;instanceof&nbsp;PersonError)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Eroare&nbsp;de&nbsp;tipul&nbsp;Person.&nbsp;Valoare&nbsp;incorectă:",&nbsp;error.argument);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;console.log(error.message);<br>}</code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

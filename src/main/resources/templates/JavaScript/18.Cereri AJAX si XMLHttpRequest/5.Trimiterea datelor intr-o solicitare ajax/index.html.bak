@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='18.Cereri AJAX si XMLHttpRequest', activeLesson='5.Trimiterea datelor intr-o solicitare ajax'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Trimiterea datelor într-o solicitare ajax</h1>
+     <p class="paragraph">Pentru a trimite date la server din codul JavaScript într-o solicitare ajax, datele care urmează să fie trimise sunt furnizate metodei send() a obiectului XMLHttpRequest.</p>
+     <p class="paragraph">Pentru testarea trimiterii, la fel ca în articolele anterioare, vom folosi Node.js ca cea mai simplă opțiune de server. Astfel, vom crea fișierul app.js și vom defini în el următorul cod al serverului, care acceptă date:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");<br><br>http.createServer(async&nbsp;(request,&nbsp;response)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;if(request.url&nbsp;==&nbsp;"/user"){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;let&nbsp;userName=&nbsp;"";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;datele&nbsp;într-un&nbsp;șir<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;datele&nbsp;din&nbsp;solicitare&nbsp;și&nbsp;le&nbsp;adăugăm&nbsp;în&nbsp;șir<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;await&nbsp;(const&nbsp;chunk&nbsp;of&nbsp;request)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;userName&nbsp;+=&nbsp;chunk;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;userName&nbsp;=&nbsp;userName&nbsp;+&nbsp;"&nbsp;Smith";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.end(userName);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fs.readFile("index.html",&nbsp;(_,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>&nbsp;&nbsp;&nbsp;}<br>}).listen(3000,&nbsp;()=&gt;console.log("Serverul&nbsp;a&nbsp;fost&nbsp;lansat&nbsp;la&nbsp;adresa&nbsp;http://localhost:3000"));</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, când se accesează adresa "/user", serverul primește toate datele trimise:</p>
+     <div class="code-inline">
+      <pre><code>if(request.url&nbsp;==&nbsp;"/user"){</code></pre>
+     </div>
+     <p class="paragraph">Putem parcurge obiectul solicitării și astfel extragem datele primite:</p>
+     <div class="code-inline">
+      <pre><code>let&nbsp;userName=&nbsp;"";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;datele&nbsp;într-un&nbsp;șir<br>//&nbsp;obținem&nbsp;datele&nbsp;din&nbsp;solicitare&nbsp;și&nbsp;le&nbsp;adăugăm&nbsp;în&nbsp;șir<br>for&nbsp;await&nbsp;(const&nbsp;chunk&nbsp;of&nbsp;request)&nbsp;{<br>&nbsp;&nbsp;&nbsp;userName&nbsp;+=&nbsp;chunk;<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, datele trimise sub forma obiectelor chunk sunt adăugate în șirul userName. Aici presupunem că serverul primește un simplu text, prin urmare fiecare bucată de date chunk va reprezenta un șir.</p>
+     <p class="paragraph">De asemenea, aici presupunem că clientul trimite la server un anumit nume de utilizator. Și, pentru exemplu, la acest nume se adaugă un prenume și numele modificat este trimis înapoi clientului:</p>
+     <div class="code-inline">
+      <pre><code>userName&nbsp;=&nbsp;userName&nbsp;+&nbsp;"&nbsp;Smith";<br>response.end(userName);</code></pre>
+     </div>
+     <p class="paragraph">Acum să definim în pagina index.html codul pentru trimiterea datelor către acest server:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;script&gt;<br>//&nbsp;datele&nbsp;pentru&nbsp;trimitere<br>const&nbsp;user&nbsp;=&nbsp;"Tom";<br><br>const&nbsp;xhr&nbsp;=&nbsp;new&nbsp;XMLHttpRequest();<br><br>//&nbsp;handler&nbsp;pentru&nbsp;primirea&nbsp;răspunsului&nbsp;serverului<br>xhr.onload&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;if&nbsp;(xhr.status&nbsp;==&nbsp;200)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(xhr.responseText);<br>&nbsp;&nbsp;&nbsp;}&nbsp;else&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Răspunsul&nbsp;serverului:&nbsp;",&nbsp;xhr.statusText);<br>&nbsp;&nbsp;&nbsp;}<br>};<br><br>//&nbsp;solicitare&nbsp;POST&nbsp;către&nbsp;resursa&nbsp;/user<br>xhr.open("POST",&nbsp;"/user");<br>xhr.send(user);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;trimitem&nbsp;valoarea&nbsp;user&nbsp;în&nbsp;metoda&nbsp;send<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Pentru trimitere se folosește metoda POST. Ca date de trimis servește un simplu șir "Tom". Adică la server se trimite un text simplu. Și, deoarece serverul răspunde, de asemenea, cu text, pentru obținerea răspunsului aici se folosește proprietatea xhr.responseText. Și la rularea acestei pagini web se va executa trimiterea datelor la server, iar în consola browserului se poate vedea răspunsul primit de la server:</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/18.Cereri%20AJAX%20si%20XMLHttpRequest/5.Trimiterea%20datelor%20intr-o%20solicitare%20ajax/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Trimiterea json</h2>
+     <p class="paragraph">Într-un mod similar se pot trimite date mai complexe. De exemplu, să luăm în considerare trimiterea json. Pentru aceasta, pe partea de node.js, definim următorul server:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");<br><br>http.createServer(async&nbsp;(request,&nbsp;response)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;if(request.url&nbsp;==&nbsp;"/user"){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;reprezentarea&nbsp;șir&nbsp;a&nbsp;răspunsului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;let&nbsp;data="";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;await&nbsp;(const&nbsp;chunk&nbsp;of&nbsp;request)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;data&nbsp;+=&nbsp;chunk;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;așteptăm&nbsp;date&nbsp;de&nbsp;tipul&nbsp;{"name":"value","age":1234}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;user&nbsp;=&nbsp;JSON.parse(data);&nbsp;//&nbsp;parsăm&nbsp;șirul&nbsp;în&nbsp;json<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;pentru&nbsp;test,&nbsp;modificăm&nbsp;datele&nbsp;obiectului&nbsp;primit<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;user.name&nbsp;=&nbsp;user.name&nbsp;+&nbsp;"&nbsp;Smith";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;user.age&nbsp;+=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;trimitem&nbsp;obiectul&nbsp;modificat&nbsp;înapoi&nbsp;la&nbsp;client<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.end(JSON.stringify(user));<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fs.readFile("index.html",&nbsp;(_,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>&nbsp;&nbsp;&nbsp;}<br>}).listen(3000,&nbsp;()=&gt;console.log("Serverul&nbsp;a&nbsp;fost&nbsp;lansat&nbsp;la&nbsp;adresa&nbsp;http://localhost:3000"));</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, serverul așteaptă să primească un obiect în format json, care are două proprietăți - name și age. Pentru exemplu, serverul modifică valorile acestor proprietăți și trimite obiectul modificat înapoi clientului.</p>
+     <p class="paragraph">Pe pagina web stabilim obiectul json pentru trimitere și primim înapoi datele:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;script&gt;<br>//&nbsp;datele&nbsp;pentru&nbsp;trimitere<br>const&nbsp;tom&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;age:&nbsp;37<br>};<br>//&nbsp;codificăm&nbsp;obiectul&nbsp;în&nbsp;format&nbsp;json<br>const&nbsp;data&nbsp;=&nbsp;JSON.stringify(tom);<br>const&nbsp;xhr&nbsp;=&nbsp;new&nbsp;XMLHttpRequest();<br><br>xhr.onload&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;if&nbsp;(xhr.status&nbsp;==&nbsp;200)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;user&nbsp;=&nbsp;JSON.parse(xhr.responseText)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(user.name,&nbsp;"-",&nbsp;user.age);<br>&nbsp;&nbsp;&nbsp;}&nbsp;else&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Răspunsul&nbsp;serverului:&nbsp;",&nbsp;xhr.statusText);<br>&nbsp;&nbsp;&nbsp;}<br>};<br><br>xhr.open("POST",&nbsp;"/user");<br>xhr.setRequestHeader("Content-Type",&nbsp;"application/json");<br><br>xhr.send(data);<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici la server se trimite obiectul tom, care are două proprietăți: name și age. Înainte de trimitere, acesta este codificat în format json folosind funcția JSON.stringify().</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;data&nbsp;=&nbsp;JSON.stringify(tom);</code></pre>
+     </div>
+     <p class="paragraph">La trimitere, prin metoda setRequestHeader() pentru antetul "Content-Type" se stabilește valoarea "application/json", indicând astfel că trimitem date în format json:</p>
+     <div class="code-inline">
+      <pre><code>xhr.setRequestHeader("Content-Type",&nbsp;"application/json");</code></pre>
+     </div>
+     <p class="paragraph">În handlerul evenimentului load, mai întâi decodificăm textul răspunsului din format json într-un obiect JavaScript standard:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;user&nbsp;=&nbsp;JSON.parse(xhr.responseText)</code></pre>
+     </div>
+     <p class="paragraph">Apoi afișăm datele obiectului primit pe consola browserului:</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/18.Cereri%20AJAX%20si%20XMLHttpRequest/5.Trimiterea%20datelor%20intr-o%20solicitare%20ajax/images/image2.png}" alt="" class="responsive-image">
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

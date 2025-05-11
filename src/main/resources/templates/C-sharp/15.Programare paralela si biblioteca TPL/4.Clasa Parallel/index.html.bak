@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='15.Programare paralela si biblioteca TPL', activeLesson='4.Clasa Parallel'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Clasa Parallel</h1>
+     <p class="paragraph">Clasa Parallel face parte din TPL și este concepută pentru a simplifica execuția paralelă a codului. Parallel are o serie de metode care permit paralelizarea unei sarcini.</p>
+     <p class="paragraph">Una dintre metodele care permit execuția paralelă a sarcinilor este metoda Invoke:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;metoda&nbsp;Parallel.Invoke&nbsp;execută&nbsp;trei&nbsp;metode<br>Parallel.Invoke(<br>&nbsp;&nbsp;&nbsp;Print,<br>&nbsp;&nbsp;&nbsp;()&nbsp;=&gt;<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Se&nbsp;execută&nbsp;sarcina&nbsp;{Task.CurrentId}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread.Sleep(3000);<br>&nbsp;&nbsp;&nbsp;},<br>&nbsp;&nbsp;&nbsp;()&nbsp;=&gt;&nbsp;Square(5)<br>);<br><br>void&nbsp;Print()<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Se&nbsp;execută&nbsp;sarcina&nbsp;{Task.CurrentId}");<br>&nbsp;&nbsp;&nbsp;Thread.Sleep(3000);<br>}<br><br>//&nbsp;calculăm&nbsp;pătratul&nbsp;unui&nbsp;număr<br>void&nbsp;Square(int&nbsp;n)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Se&nbsp;execută&nbsp;sarcina&nbsp;{Task.CurrentId}");<br>&nbsp;&nbsp;&nbsp;Thread.Sleep(3000);<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Rezultatul&nbsp;{n&nbsp;*&nbsp;n}");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Metoda Parallel.Invoke primește ca parametru un array de obiecte Action, ceea ce înseamnă că putem transmite în această metodă un set de metode care vor fi apelate la execuția sa. Numărul de metode poate varia, dar în acest caz, am definit trei metode. La fel ca în cazul clasei Task, putem transmite fie numele metodei, fie o expresie lambda.</p>
+     <p class="paragraph">Astfel, dacă mașina țintă are mai multe nuclee, aceste metode vor fi executate în paralel pe diferite nuclee. Ieșire pe consolă a programului:</p>
+     <div class="code-inline">
+      <pre><code>Se&nbsp;execută&nbsp;sarcina&nbsp;1<br>Se&nbsp;execută&nbsp;sarcina&nbsp;3<br>Se&nbsp;execută&nbsp;sarcina&nbsp;2<br>Rezultatul&nbsp;25</code></pre>
+     </div>
+     <h2 class="subtitle">Metoda Parallel.For</h2>
+     <p class="paragraph">Metoda Parallel.For permite execuția paralelă a iterațiilor unui ciclu. Are următoarea definiție:</p>
+     <div class="code-inline">
+      <pre><code>For(int,&nbsp;int,&nbsp;Action&lt;int&gt;)</code></pre>
+     </div>
+     <p class="paragraph">Primul parametru al metodei specifică indexul de început al elementului din ciclu, iar al doilea parametru - indexul final. Al treilea parametru - delegatul Action - specifică metoda care va fi executată o dată pe iterație:</p>
+     <div class="code-inline">
+      <pre><code>Parallel.For(1,&nbsp;5,&nbsp;Square);<br><br>//&nbsp;calculăm&nbsp;pătratul&nbsp;unui&nbsp;număr<br>void&nbsp;Square(int&nbsp;n)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Se&nbsp;execută&nbsp;sarcina&nbsp;{Task.CurrentId}");<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Pătratul&nbsp;numărului&nbsp;{n}&nbsp;este&nbsp;{n&nbsp;*&nbsp;n}");<br>&nbsp;&nbsp;&nbsp;Thread.Sleep(2000);<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, primul parametru transmis metodei Parallel.For este numărul 1, iar al doilea - numărul 5. Astfel, metoda va itera de la 1 la 4 inclusiv. Al treilea parametru reprezintă metoda care calculează pătratul unui număr. Deoarece acest parametru reprezintă tipul Action&lt;int&gt;, metoda trebuie să accepte un parametru de tip int.</p>
+     <p class="paragraph">Parametrul transmis metodei este contorul care parcurge ciclul de la 1 la 4 inclusiv. Metoda Square va fi astfel apelată de 4 ori. Ieșire pe consolă:</p>
+     <div class="code-inline">
+      <pre><code>Se&nbsp;execută&nbsp;sarcina&nbsp;1<br>Se&nbsp;execută&nbsp;sarcina&nbsp;2<br>Pătratul&nbsp;numărului&nbsp;4&nbsp;este&nbsp;16<br>Se&nbsp;execută&nbsp;sarcina&nbsp;4<br>Pătratul&nbsp;numărului&nbsp;1&nbsp;este&nbsp;1<br>Se&nbsp;execută&nbsp;sarcina&nbsp;3<br>Pătratul&nbsp;numărului&nbsp;3&nbsp;este&nbsp;9<br>Pătratul&nbsp;numărului&nbsp;2&nbsp;este&nbsp;4</code></pre>
+     </div>
+     <h2 class="subtitle">Metoda Parallel.ForEach</h2>
+     <p class="paragraph">Metoda Parallel.ForEach realizează iterații pe o colecție care implementează interfața IEnumerable, similar ciclului foreach, dar execută iterațiile în paralel. Are următoarea definiție:</p>
+     <div class="code-inline">
+      <pre><code>ParallelLoopResult&nbsp;ForEach&lt;TSource&gt;(IEnumerable&lt;TSource&gt;&nbsp;source,<br><br>Action&lt;TSource&gt;&nbsp;body)</code></pre>
+     </div>
+     <p class="paragraph">Primul parametru reprezintă colecția care va fi iterată, iar al doilea parametru - delegatul care se execută o dată pe iterație pentru fiecare element al colecției.</p>
+     <p class="paragraph">La ieșire, metoda returnează structura ParallelLoopResult, care conține informații despre execuția ciclului.</p>
+     <div class="code-inline">
+      <pre><code>ParallelLoopResult&nbsp;result&nbsp;=&nbsp;Parallel.ForEach&lt;int&gt;(<br>&nbsp;&nbsp;&nbsp;new&nbsp;List&lt;int&gt;()&nbsp;{&nbsp;1,&nbsp;3,&nbsp;5,&nbsp;8&nbsp;},<br>&nbsp;&nbsp;&nbsp;Square<br>);<br><br>//&nbsp;calculăm&nbsp;pătratul&nbsp;unui&nbsp;număr<br>void&nbsp;Square(int&nbsp;n)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Se&nbsp;execută&nbsp;sarcina&nbsp;{Task.CurrentId}");<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Pătratul&nbsp;numărului&nbsp;{n}&nbsp;este&nbsp;{n&nbsp;*&nbsp;n}");<br>&nbsp;&nbsp;&nbsp;Thread.Sleep(2000);<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, folosim o colecție de obiecte int, astfel că metoda transmisă ca al doilea parametru trebuie să accepte un parametru de tip int. Ieșire pe consolă:</p>
+     <div class="code-inline">
+      <pre><code>Se&nbsp;execută&nbsp;sarcina&nbsp;1<br>Se&nbsp;execută&nbsp;sarcina&nbsp;3<br>Pătratul&nbsp;numărului&nbsp;8&nbsp;este&nbsp;64<br>Se&nbsp;execută&nbsp;sarcina&nbsp;4<br>Pătratul&nbsp;numărului&nbsp;3&nbsp;este&nbsp;9<br>Se&nbsp;execută&nbsp;sarcina&nbsp;2<br>Pătratul&nbsp;numărului&nbsp;5&nbsp;este&nbsp;25<br>Pătratul&nbsp;numărului&nbsp;1&nbsp;este&nbsp;1</code></pre>
+     </div>
+     <h2 class="subtitle">Ieșirea din ciclu</h2>
+     <p class="paragraph">În ciclurile for și foreach standard, ieșirea anticipată din ciclu se face cu ajutorul operatorului break. În metodele Parallel.ForEach și Parallel.For, putem ieși din ciclu înainte de finalizarea acestuia:</p>
+     <div class="code-inline">
+      <pre><code>ParallelLoopResult&nbsp;result&nbsp;=&nbsp;Parallel.For(1,&nbsp;10,&nbsp;Square);<br>if&nbsp;(!result.IsCompleted)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Execuția&nbsp;ciclului&nbsp;s-a&nbsp;terminat&nbsp;la&nbsp;iterația&nbsp;{result.LowestBreakIteration}");<br><br>//&nbsp;calculăm&nbsp;pătratul&nbsp;unui&nbsp;număr<br>void&nbsp;Square(int&nbsp;n,&nbsp;ParallelLoopState&nbsp;pls)<br>{<br>&nbsp;&nbsp;&nbsp;if&nbsp;(n&nbsp;==&nbsp;5)&nbsp;pls.Break();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;parametrul&nbsp;este&nbsp;5,&nbsp;ieșim&nbsp;din&nbsp;ciclu<br><br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Pătratul&nbsp;numărului&nbsp;{n}&nbsp;este&nbsp;{n&nbsp;*&nbsp;n}");<br>&nbsp;&nbsp;&nbsp;Thread.Sleep(2000);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici, metoda Square, care procesează fiecare iterație, acceptă un parametru suplimentar - obiectul ParallelLoopState. Dacă contorul din ciclu ajunge la valoarea 5, se apelează metoda Break. Acest lucru face ca sistemul să iasă din execuția metodei Parallel.For la prima ocazie disponibilă.</p>
+     <p class="paragraph">Metodele Parallel.ForEach și Parallel.For returnează un obiect ParallelLoopResult, care are două proprietăți importante:</p>
+     <ul class="enumeration">
+      <li>IsCompleted: indică dacă execuția completă a ciclului paralel s-a finalizat</li>
+      <li>LowestBreakIteration: returnează indexul la care execuția ciclului a fost întreruptă</li>
+     </ul>
+     <p class="paragraph">Deoarece în exemplul nostru execuția ciclului se întrerupe la indexul 5, proprietatea IsCompleted va avea valoarea false, iar LowestBreakIteration va fi egală cu 5.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

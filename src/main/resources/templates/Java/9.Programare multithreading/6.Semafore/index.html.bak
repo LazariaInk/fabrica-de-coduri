@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Java', activeChapter='9.Programare multithreading', activeLesson='6.Semafore'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Semafoare</h1>
+     <p class="paragraph">Semafoarele reprezintă un alt mijloc de sincronizare pentru accesul la resurse. În Java, semafoarele sunt reprezentate de clasa Semaphore, care face parte din pachetul java.util.concurrent.</p>
+     <p class="paragraph">Pentru a gestiona accesul la o resursă, semaforul folosește un contor care reprezintă numărul de permisiuni disponibile. Dacă valoarea contorului este mai mare decât zero, atunci thread-ul primește acces la resursă, iar contorul scade cu o unitate.</p>
+     <p class="paragraph">După ce thread-ul termină de lucrat cu resursa, eliberează semaforul, iar contorul crește din nou cu o unitate. Dacă contorul este zero, thread-ul se blochează și așteaptă până când semaforul îi va acorda permisiunea.</p>
+     <p class="paragraph">Numărul de permisiuni pentru accesul la resursă poate fi stabilit folosind constructorii clasei Semaphore:</p>
+     <div class="code-inline">
+      <pre><code>Semaphore(int&nbsp;permits)<br>Semaphore(int&nbsp;permits,&nbsp;boolean&nbsp;fair)</code></pre>
+     </div>
+     <p class="paragraph">Parametrul permits specifică numărul de permisiuni admise pentru accesul la resursă. Parametrul fair din cel de-al doilea constructor permite stabilirea ordinii de acces. Dacă acesta este true, permisiunile vor fi acordate thread-urilor care au solicitat accesul în ordinea cererii.</p>
+     <p class="paragraph">Dacă este false, permisiunile vor fi acordate în ordine nedeterminată.</p>
+     <p class="paragraph">Pentru a obține permisiunea de la semafor, trebuie să apelăm metoda acquire(), care are două forme:</p>
+     <div class="code-inline">
+      <pre><code>void&nbsp;acquire()&nbsp;throws&nbsp;InterruptedException<br>void&nbsp;acquire(int&nbsp;permits)&nbsp;throws&nbsp;InterruptedException</code></pre>
+     </div>
+     <p class="paragraph">Prima variantă este utilizată pentru a obține o permisiune, iar cea de-a doua pentru a obține mai multe permisiuni. După apelarea acestei metode, thread-ul se blochează până primește permisiunea.</p>
+     <p class="paragraph">După ce a terminat de lucrat cu resursa, permisiunea obținută anterior trebuie eliberată folosind metoda release():</p>
+     <div class="code-inline">
+      <pre><code>void&nbsp;release()<br>void&nbsp;release(int&nbsp;permits)</code></pre>
+     </div>
+     <p class="paragraph">Prima variantă eliberează o permisiune, iar a doua variantă eliberează un număr de permisiuni specificat prin parametrul permits.</p>
+     <p class="paragraph">Vom folosi un semafor într-un exemplu simplu:</p>
+     <div class="code-inline">
+      <pre><code>import&nbsp;java.util.concurrent.Semaphore;<br><br>public&nbsp;class&nbsp;Program&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Semaphore&nbsp;sem&nbsp;=&nbsp;new&nbsp;Semaphore(1);&nbsp;//&nbsp;1&nbsp;permisiune<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CommonResource&nbsp;res&nbsp;=&nbsp;new&nbsp;CommonResource();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;Thread(new&nbsp;CountThread(res,&nbsp;sem,&nbsp;"CountThread&nbsp;1")).start();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;Thread(new&nbsp;CountThread(res,&nbsp;sem,&nbsp;"CountThread&nbsp;2")).start();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;Thread(new&nbsp;CountThread(res,&nbsp;sem,&nbsp;"CountThread&nbsp;3")).start();<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;CommonResource&nbsp;{<br>&nbsp;&nbsp;&nbsp;int&nbsp;x&nbsp;=&nbsp;0;<br>}<br><br>class&nbsp;CountThread&nbsp;implements&nbsp;Runnable&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;CommonResource&nbsp;res;<br>&nbsp;&nbsp;&nbsp;Semaphore&nbsp;sem;<br>&nbsp;&nbsp;&nbsp;String&nbsp;name;<br>&nbsp;&nbsp;&nbsp;CountThread(CommonResource&nbsp;res,&nbsp;Semaphore&nbsp;sem,&nbsp;String&nbsp;name)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.res&nbsp;=&nbsp;res;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.sem&nbsp;=&nbsp;sem;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;run()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(name&nbsp;+&nbsp;"&nbsp;așteaptă&nbsp;permisiunea");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sem.acquire();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res.x&nbsp;=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;&nbsp;5;&nbsp;i++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(this.name&nbsp;+&nbsp;":&nbsp;"&nbsp;+&nbsp;res.x);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res.x++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread.sleep(100);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;catch&nbsp;(InterruptedException&nbsp;e)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(e.getMessage());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(name&nbsp;+&nbsp;"&nbsp;eliberează&nbsp;permisiunea");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sem.release();<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici avem o resursă comună CommonResource cu un câmp x, care este modificat de fiecare thread. Thread-urile sunt reprezentate de clasa CountThread, care obține semaforul și efectuează anumite operații asupra resursei. În clasa principală a programului, aceste thread-uri sunt lansate. Rezultatul va fi următorul:</p>
+     <div class="code-inline">
+      <pre><code>CountThread&nbsp;1&nbsp;așteaptă&nbsp;permisiunea<br>CountThread&nbsp;2&nbsp;așteaptă&nbsp;permisiunea<br>CountThread&nbsp;3&nbsp;așteaptă&nbsp;permisiunea<br>CountThread&nbsp;1:&nbsp;1<br>CountThread&nbsp;1:&nbsp;2<br>CountThread&nbsp;1:&nbsp;3<br>CountThread&nbsp;1:&nbsp;4<br>CountThread&nbsp;1&nbsp;eliberează&nbsp;permisiunea<br>CountThread&nbsp;3:&nbsp;1<br>CountThread&nbsp;3:&nbsp;2<br>CountThread&nbsp;3:&nbsp;3<br>CountThread&nbsp;3:&nbsp;4<br>CountThread&nbsp;3&nbsp;eliberează&nbsp;permisiunea<br>CountThread&nbsp;2:&nbsp;1<br>CountThread&nbsp;2:&nbsp;2<br>CountThread&nbsp;2:&nbsp;3<br>CountThread&nbsp;2:&nbsp;4<br>CountThread&nbsp;2&nbsp;eliberează&nbsp;permisiunea</code></pre>
+     </div>
+     <p class="paragraph">Semafoarele sunt foarte utile pentru rezolvarea problemelor în care trebuie să se limiteze accesul. Un exemplu clasic este problema "filozofilor la masă". Să presupunem că există mai mulți filozofi (de exemplu, cinci), dar simultan la masă pot sta doar doi. Trebuie ca toți filozofii să mănânce fără a crea blocaje reciproce în lupta pentru tacâmuri și farfurii:</p>
+     <div class="code-inline">
+      <pre><code>import&nbsp;java.util.concurrent.Semaphore;<br><br>public&nbsp;class&nbsp;Program&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Semaphore&nbsp;sem&nbsp;=&nbsp;new&nbsp;Semaphore(2);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;&nbsp;6;&nbsp;i++)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;Philosopher(sem,&nbsp;i).start();<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>//&nbsp;Clasa&nbsp;filozofului<br>class&nbsp;Philosopher&nbsp;extends&nbsp;Thread&nbsp;{<br>&nbsp;&nbsp;&nbsp;Semaphore&nbsp;sem;&nbsp;//&nbsp;semaforul&nbsp;care&nbsp;limitează&nbsp;numărul&nbsp;de&nbsp;filozofi<br>&nbsp;&nbsp;&nbsp;int&nbsp;num&nbsp;=&nbsp;0;&nbsp;//&nbsp;numărul&nbsp;de&nbsp;mese<br>&nbsp;&nbsp;&nbsp;int&nbsp;id;&nbsp;//&nbsp;numărul&nbsp;filozofului<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Philosopher(Semaphore&nbsp;sem,&nbsp;int&nbsp;id)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.sem&nbsp;=&nbsp;sem;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.id&nbsp;=&nbsp;id;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;run()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while&nbsp;(num&nbsp;&lt;&nbsp;3)&nbsp;{&nbsp;//&nbsp;până&nbsp;când&nbsp;filozoful&nbsp;nu&nbsp;a&nbsp;mâncat&nbsp;de&nbsp;3&nbsp;ori<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sem.acquire();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Filozoful&nbsp;"&nbsp;+&nbsp;id&nbsp;+&nbsp;"&nbsp;se&nbsp;așază&nbsp;la&nbsp;masă");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;filozoful&nbsp;mănâncă<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sleep(500);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;num++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Filozoful&nbsp;"&nbsp;+&nbsp;id&nbsp;+&nbsp;"&nbsp;pleacă&nbsp;de&nbsp;la&nbsp;masă");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sem.release();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;filozoful&nbsp;se&nbsp;plimbă<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sleep(500);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;catch&nbsp;(InterruptedException&nbsp;e)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Filozoful&nbsp;"&nbsp;+&nbsp;id&nbsp;+&nbsp;"&nbsp;are&nbsp;probleme&nbsp;de&nbsp;sănătate");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În final, doar doi filozofi vor putea sta la masă simultan, iar ceilalți vor aștepta:</p>
+     <div class="code-inline">
+      <pre><code>Filozoful&nbsp;1&nbsp;se&nbsp;așază&nbsp;la&nbsp;masă<br>Filozoful&nbsp;3&nbsp;se&nbsp;așază&nbsp;la&nbsp;masă<br>Filozoful&nbsp;3&nbsp;pleacă&nbsp;de&nbsp;la&nbsp;masă<br>Filozoful&nbsp;1&nbsp;pleacă&nbsp;de&nbsp;la&nbsp;masă<br>Filozoful&nbsp;2&nbsp;se&nbsp;așază&nbsp;la&nbsp;masă<br>Filozoful&nbsp;4&nbsp;se&nbsp;așază&nbsp;la&nbsp;masă<br>Filozoful&nbsp;2&nbsp;pleacă&nbsp;de&nbsp;la&nbsp;masă<br>Filozoful&nbsp;4&nbsp;pleacă&nbsp;de&nbsp;la&nbsp;masă<br>Filozoful&nbsp;5&nbsp;se&nbsp;așază&nbsp;la&nbsp;masă<br>Filozoful&nbsp;1&nbsp;se&nbsp;așază&nbsp;la&nbsp;masă<br>Filozoful&nbsp;1&nbsp;pleacă&nbsp;de&nbsp;la&nbsp;masă<br>Filozoful&nbsp;5&nbsp;pleacă&nbsp;de&nbsp;la&nbsp;masă<br><br>…</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

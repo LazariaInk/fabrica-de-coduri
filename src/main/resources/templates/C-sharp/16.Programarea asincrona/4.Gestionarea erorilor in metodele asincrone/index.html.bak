@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='16.Programarea asincrona', activeLesson='4.Gestionarea erorilor in metodele asincrone'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Gestionarea erorilor în metodele asincrone</h1>
+     <p class="paragraph">Gestionarea erorilor în metodele asincrone care utilizează cuvintele cheie async și await are propriile particularități.</p>
+     <p class="paragraph">Pentru gestionarea erorilor, expresia await este plasată într-un bloc try:</p>
+     <div class="code-inline">
+      <pre><code>try<br>{<br>&nbsp;&nbsp;&nbsp;await&nbsp;PrintAsync("Hello&nbsp;FDC.COM");<br>&nbsp;&nbsp;&nbsp;await&nbsp;PrintAsync("Hi");<br>}<br>catch&nbsp;(Exception&nbsp;ex)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(ex.Message);<br>}<br><br>async&nbsp;Task&nbsp;PrintAsync(string&nbsp;message)<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;lungimea&nbsp;șirului&nbsp;este&nbsp;mai&nbsp;mică&nbsp;de&nbsp;3&nbsp;caractere,&nbsp;generăm&nbsp;o&nbsp;excepție<br>&nbsp;&nbsp;&nbsp;if&nbsp;(message.Length&nbsp;&lt;&nbsp;3)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentException($"Invalid&nbsp;string&nbsp;length:&nbsp;{message.Length}");<br>&nbsp;&nbsp;&nbsp;await&nbsp;Task.Delay(100);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;imitația&nbsp;unei&nbsp;operații&nbsp;de&nbsp;lungă&nbsp;durată<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(message);<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, metoda asincronă PrintAsync generează excepția ArgumentException dacă metoda primește un șir cu lungimea mai mică de 3 caractere.</p>
+     <p class="paragraph">Pentru gestionarea excepției în metoda Main, expresia await este plasată într-un bloc try. În rezultat, la executarea apelului await PrintAsync("Hi"), se va genera o excepție. Totuși, programul nu se va opri în mod avariat, ci va gestiona excepția și va continua calculul.</p>
+     <p class="paragraph">Afișarea pe consolă a programului:</p>
+     <div class="code-inline">
+      <pre><code>Hello&nbsp;FDC.COM<br>Invalid&nbsp;string&nbsp;length:&nbsp;2</code></pre>
+     </div>
+     <p class="paragraph">Trebuie avut în vedere că dacă metoda asincronă are tipul void, atunci excepția nu se transmite în afara metodei, prin urmare, nu vom putea gestiona excepția la apelul metodei:</p>
+     <div class="code-inline">
+      <pre><code>try<br>{<br>&nbsp;&nbsp;&nbsp;PrintAsync("Hello&nbsp;FDC.COM");<br>&nbsp;&nbsp;&nbsp;PrintAsync("Hi");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;aici&nbsp;programul&nbsp;va&nbsp;genera&nbsp;o&nbsp;excepție&nbsp;și&nbsp;se&nbsp;va&nbsp;opri&nbsp;avariat<br>&nbsp;&nbsp;&nbsp;await&nbsp;Task.Delay(1000);&nbsp;//&nbsp;așteptăm&nbsp;finalizarea&nbsp;sarcinilor<br>}<br>catch&nbsp;(Exception&nbsp;ex)&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;excepția&nbsp;NU&nbsp;va&nbsp;fi&nbsp;gestionată<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(ex.Message);<br>}<br><br>async&nbsp;void&nbsp;PrintAsync(string&nbsp;message)<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;lungimea&nbsp;șirului&nbsp;este&nbsp;mai&nbsp;mică&nbsp;de&nbsp;3&nbsp;caractere,&nbsp;generăm&nbsp;o&nbsp;excepție<br>&nbsp;&nbsp;&nbsp;if&nbsp;(message.Length&nbsp;&lt;&nbsp;3)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentException($"Invalid&nbsp;string&nbsp;length:&nbsp;{message.Length}");<br>&nbsp;&nbsp;&nbsp;await&nbsp;Task.Delay(100);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;imitația&nbsp;unei&nbsp;operații&nbsp;de&nbsp;lungă&nbsp;durată<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(message);<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, deși metodele asincrone sunt apelate în blocul try, excepția nu va fi capturată și gestionată. Acesta este unul dintre dezavantajele utilizării metodelor asincrone de tip void. Totuși, în acest caz, putem defini gestionarea excepției în însăși metoda asincronă:</p>
+     <div class="code-inline">
+      <pre><code>PrintAsync("Hello&nbsp;FDC.COM");<br>PrintAsync("Hi");<br>await&nbsp;Task.Delay(1000);&nbsp;//&nbsp;așteptăm&nbsp;finalizarea&nbsp;sarcinilor<br><br>async&nbsp;void&nbsp;PrintAsync(string&nbsp;message)<br>{<br>&nbsp;&nbsp;&nbsp;try<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;lungimea&nbsp;șirului&nbsp;este&nbsp;mai&nbsp;mică&nbsp;de&nbsp;3&nbsp;caractere,&nbsp;generăm&nbsp;o&nbsp;excepție<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(message.Length&nbsp;&lt;&nbsp;3)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentException($"Invalid&nbsp;string&nbsp;length:&nbsp;{message.Length}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;await&nbsp;Task.Delay(100);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;imitația&nbsp;unei&nbsp;operații&nbsp;de&nbsp;lungă&nbsp;durată<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(message);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;catch&nbsp;(Exception&nbsp;ex)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(ex.Message);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Investigarea excepției</h2>
+     <p class="paragraph">În caz de eroare, obiectul Task, care reprezintă sarcina asincronă în care a apărut eroarea, are proprietatea IsFaulted cu valoarea true. În plus, proprietatea Exception a obiectului Task conține toate informațiile despre eroare. Să inspectăm această proprietate:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;task&nbsp;=&nbsp;PrintAsync("Hi");<br>try<br>{<br>&nbsp;&nbsp;&nbsp;await&nbsp;task;<br>}<br>catch<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(task.Exception?.InnerException?.Message);&nbsp;//&nbsp;Invalid&nbsp;string&nbsp;length:&nbsp;2<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"IsFaulted:&nbsp;{task.IsFaulted}");&nbsp;&nbsp;//&nbsp;IsFaulted:&nbsp;True<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Status:&nbsp;{task.Status}");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Status:&nbsp;Faulted<br>}<br><br>async&nbsp;Task&nbsp;PrintAsync(string&nbsp;message)<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;lungimea&nbsp;șirului&nbsp;este&nbsp;mai&nbsp;mică&nbsp;de&nbsp;3&nbsp;caractere,&nbsp;generăm&nbsp;o&nbsp;excepție<br>&nbsp;&nbsp;&nbsp;if&nbsp;(message.Length&nbsp;&lt;&nbsp;3)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentException($"Invalid&nbsp;string&nbsp;length:&nbsp;{message.Length}");<br>&nbsp;&nbsp;&nbsp;await&nbsp;Task.Delay(1000);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;imitația&nbsp;unei&nbsp;operații&nbsp;de&nbsp;lungă&nbsp;durată<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(message);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Și dacă transmitem în metodă un șir cu lungimea mai mică de 3 caractere, task.IsFaulted va fi true.</p>
+     <h2 class="subtitle">Gestionarea mai multor excepții - WhenAll</h2>
+     <p class="paragraph">Dacă așteptăm finalizarea mai multor sarcini simultan, de exemplu, cu ajutorul Task.WhenAll, putem obține mai multe excepții în același timp pentru fiecare sarcină executată. În acest caz, putem obține toate excepțiile din proprietatea Exception.InnerExceptions:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;definim&nbsp;și&nbsp;lansăm&nbsp;sarcinile<br>var&nbsp;task1&nbsp;=&nbsp;PrintAsync("H");<br>var&nbsp;task2&nbsp;=&nbsp;PrintAsync("Hi");<br>var&nbsp;allTasks&nbsp;=&nbsp;Task.WhenAll(task1,&nbsp;task2);<br>try<br>{<br>&nbsp;&nbsp;&nbsp;await&nbsp;allTasks;<br>}<br>catch&nbsp;(Exception&nbsp;ex)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Exception:&nbsp;{ex.Message}");<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"IsFaulted:&nbsp;{allTasks.IsFaulted}");<br>&nbsp;&nbsp;&nbsp;if(allTasks.Exception&nbsp;is&nbsp;not&nbsp;null)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;foreach&nbsp;(var&nbsp;exception&nbsp;in&nbsp;allTasks.Exception.InnerExceptions)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"InnerException:&nbsp;{exception.Message}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>async&nbsp;Task&nbsp;PrintAsync(string&nbsp;message)<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;lungimea&nbsp;șirului&nbsp;este&nbsp;mai&nbsp;mică&nbsp;de&nbsp;3&nbsp;caractere,&nbsp;generăm&nbsp;o&nbsp;excepție<br>&nbsp;&nbsp;&nbsp;if&nbsp;(message.Length&nbsp;&lt;&nbsp;3)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;ArgumentException($"Invalid&nbsp;string:&nbsp;{message}");<br>&nbsp;&nbsp;&nbsp;await&nbsp;Task.Delay(1000);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;imitația&nbsp;unei&nbsp;operații&nbsp;de&nbsp;lungă&nbsp;durată<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(message);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici, în două apeluri ale metodei PrintAsync sunt transmise valori evident incorecte. Astfel, la ambele apeluri se va genera o eroare.</p>
+     <p class="paragraph">Deși blocul catch, prin variabila Exception ex, va primi o singură excepție capturată, cu ajutorul colecției Exception.InnerExceptions, vom putea obține informații despre toate excepțiile apărute.</p>
+     <p class="paragraph">În final, la executarea acestei metode, vom obține următoarea afișare pe consolă:</p>
+     <div class="code-inline">
+      <pre><code>Exception:&nbsp;Invalid&nbsp;string:&nbsp;H<br>IsFaulted:&nbsp;True<br>InnerException:&nbsp;Invalid&nbsp;string:&nbsp;H<br>InnerException:&nbsp;Invalid&nbsp;string:&nbsp;Hi</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

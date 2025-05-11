@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='24.Lucrul cu XML in C sharp', activeLesson='8.Serializarea in XML cu XmlSerializer'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Serializarea în XML cu XmlSerializer</h1>
+     <p class="paragraph">Pentru salvarea și extragerea convenabilă a obiectelor din fișiere XML, se poate folosi clasa XmlSerializer din spațiul de nume System.Xml.Serialization. Această clasă simplifică salvarea obiectelor complexe în format XML și extragerea ulterioară a acestora.</p>
+     <p class="paragraph">Pentru a crea un obiect XmlSerializer, se pot folosi diverși constructori, dar aproape toți necesită specificarea tipului de date care vor fi serializați și deserializați:</p>
+     <div class="code-inline">
+      <pre><code>XmlSerializer&nbsp;xmlSerializer&nbsp;=&nbsp;new&nbsp;XmlSerializer(typeof(Person));<br><br>//&nbsp;[Serializable]<br>class&nbsp;Person&nbsp;{&nbsp;}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, XmlSerializer va lucra doar cu obiecte ale clasei Person.</p>
+     <p class="paragraph">Trebuie luat în considerare că XmlSerializer presupune anumite restricții. De exemplu, clasa supusă serializării trebuie să aibă un constructor standard fără parametri și să fie declarată cu modificatorul de acces public.</p>
+     <p class="paragraph">De asemenea, sunt serializați doar membrii publici. Dacă clasa conține câmpuri sau proprietăți cu modificatorul private, acestea vor fi ignorate în timpul serializării. În plus, proprietățile trebuie să aibă getter și setter accesibile publicului.</p>
+     <h2 class="subtitle">Serializarea</h2>
+     <p class="paragraph">Pentru serializare (adică salvarea în format XML) se folosește metoda Serialize(). Această metodă are mai multe versiuni. Vom lua cea mai simplă dintre ele:</p>
+     <div class="code-inline">
+      <pre><code>void&nbsp;Serialize&nbsp;(Stream&nbsp;stream,&nbsp;object?&nbsp;o);</code></pre>
+     </div>
+     <p class="paragraph">Ca prim parametru, se transmite un flux de tip Stream (de exemplu, un obiect FileStream), în care va avea loc serializarea. Al doilea parametru reprezintă obiectul care va fi salvat în format XML. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Xml.Serialization;<br><br>//&nbsp;obiectul&nbsp;pentru&nbsp;serializare<br>Person&nbsp;person&nbsp;=&nbsp;new&nbsp;Person("Tom",&nbsp;37);<br><br>//&nbsp;transmitem&nbsp;în&nbsp;constructor&nbsp;tipul&nbsp;clasei&nbsp;Person<br>XmlSerializer&nbsp;xmlSerializer&nbsp;=&nbsp;new&nbsp;XmlSerializer(typeof(Person));<br><br>//&nbsp;obținem&nbsp;fluxul&nbsp;în&nbsp;care&nbsp;vom&nbsp;scrie&nbsp;obiectul&nbsp;serializat<br>using&nbsp;(FileStream&nbsp;fs&nbsp;=&nbsp;new&nbsp;FileStream("person.xml",&nbsp;FileMode.OpenOrCreate))<br>{<br>&nbsp;&nbsp;&nbsp;xmlSerializer.Serialize(fs,&nbsp;person);<br><br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Object&nbsp;has&nbsp;been&nbsp;serialized");<br>}<br><br>//&nbsp;[Serializable]<br>public&nbsp;class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}&nbsp;=&nbsp;"Undefined";<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Age&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}&nbsp;=&nbsp;1;<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;Person()&nbsp;{&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name,&nbsp;int&nbsp;age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Așadar, clasa Person este publică, are proprietăți publice și un constructor fără parametri, astfel încât obiectele acestei clase sunt supuse serializării. La crearea obiectului XmlSerializer, transmitem tipul clasei Person în constructor.</p>
+     <p class="paragraph">În metoda Serialize, se transmite fluxul de fișier pentru salvarea datelor în fișierul person.xml și obiectul Person care va fi salvat în acest fișier. După finalizarea programului, dacă deschidem fișierul person.xml, vom vedea conținutul obiectului nostru:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?xml&nbsp;version="1.0"?&gt;<br>&lt;Person&nbsp;xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&nbsp;xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;<br>&nbsp;&lt;Name&gt;Tom&lt;/Name&gt;<br>&nbsp;&lt;Age&gt;37&lt;/Age&gt;<br>&lt;/Person&gt;</code></pre>
+     </div>
+     <h2 class="subtitle">Deserializarea</h2>
+     <p class="paragraph">Pentru deserializarea datelor XML în obiecte C#, se folosește metoda Deserialize(). Una dintre versiunile acestei metode este:</p>
+     <div class="code-inline">
+      <pre><code>object?&nbsp;Deserialize&nbsp;(Stream&nbsp;stream);</code></pre>
+     </div>
+     <p class="paragraph">Ca parametru, în metodă se transmite un obiect Stream care conține datele în format XML. Rezultatul metodei este obiectul deserializat.</p>
+     <p class="paragraph">De exemplu, să deserializăm datele din fișierul person.xml creat anterior:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Xml.Serialization;<br><br>XmlSerializer&nbsp;xmlSerializer&nbsp;=&nbsp;new&nbsp;XmlSerializer(typeof(Person));<br><br>//&nbsp;deserializăm&nbsp;obiectul<br>using&nbsp;(FileStream&nbsp;fs&nbsp;=&nbsp;new&nbsp;FileStream("person.xml",&nbsp;FileMode.OpenOrCreate))<br>{<br>&nbsp;&nbsp;&nbsp;Person?&nbsp;person&nbsp;=&nbsp;xmlSerializer.Deserialize(fs)&nbsp;as&nbsp;Person;<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Name:&nbsp;{person?.Name}&nbsp;&nbsp;Age:&nbsp;{person?.Age}");<br>}<br><br>public&nbsp;class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}&nbsp;=&nbsp;"Undefined";<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Age&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}&nbsp;=&nbsp;1;<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;Person()&nbsp;{&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name,&nbsp;int&nbsp;age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Serializarea și deserializarea colecțiilor</h2>
+     <p class="paragraph">În mod similar, putem serializa un tablou sau o colecție de obiecte:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Xml.Serialization;<br><br>Person[]&nbsp;people&nbsp;=&nbsp;new&nbsp;Person[]<br>{<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person("Tom",&nbsp;37),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person("Bob",&nbsp;41)<br>};<br><br>XmlSerializer&nbsp;formatter&nbsp;=&nbsp;new&nbsp;XmlSerializer(typeof(Person[]));<br>//&nbsp;salvarea&nbsp;tabloului&nbsp;în&nbsp;fișier<br>using&nbsp;(FileStream&nbsp;fs&nbsp;=&nbsp;new&nbsp;FileStream("people.xml",&nbsp;FileMode.OpenOrCreate))<br>{<br>&nbsp;&nbsp;&nbsp;formatter.Serialize(fs,&nbsp;people);<br>}<br>//&nbsp;restaurarea&nbsp;tabloului&nbsp;din&nbsp;fișier<br>using&nbsp;(FileStream&nbsp;fs&nbsp;=&nbsp;new&nbsp;FileStream("people.xml",&nbsp;FileMode.OpenOrCreate))<br>{<br>&nbsp;&nbsp;&nbsp;Person[]?&nbsp;newpeople&nbsp;=&nbsp;formatter.Deserialize(fs)&nbsp;as&nbsp;Person[];<br><br>&nbsp;&nbsp;&nbsp;if(newpeople&nbsp;!=&nbsp;null)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;foreach&nbsp;(Person&nbsp;person&nbsp;in&nbsp;newpeople)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Name:&nbsp;{person.Name}&nbsp;---&nbsp;Age:&nbsp;{person.Age}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>public&nbsp;class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}&nbsp;=&nbsp;"Undefined";<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Age&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}&nbsp;=&nbsp;1;<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;Person()&nbsp;{&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name,&nbsp;int&nbsp;age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Afișarea în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Name:&nbsp;Tom&nbsp;---&nbsp;Age:&nbsp;37<br>Name:&nbsp;Bob&nbsp;---&nbsp;Age:&nbsp;41</code></pre>
+     </div>
+     <p class="paragraph">Acesta a fost un obiect simplu. Totuși, lucrul cu obiecte mai complexe este la fel de simplu. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Xml.Serialization;<br><br>var&nbsp;microsoft&nbsp;=&nbsp;new&nbsp;Company("Microsoft");<br>var&nbsp;google&nbsp;=&nbsp;new&nbsp;Company("Google");<br><br>Person[]&nbsp;people&nbsp;=&nbsp;new&nbsp;Person[]<br>{<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person("Tom",&nbsp;37,&nbsp;microsoft),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person("Bob",&nbsp;41,&nbsp;google)<br>};<br><br>XmlSerializer&nbsp;formatter&nbsp;=&nbsp;new&nbsp;XmlSerializer(typeof(Person[]));<br><br>using&nbsp;(FileStream&nbsp;fs&nbsp;=&nbsp;new&nbsp;FileStream("people.xml",&nbsp;FileMode.OpenOrCreate))<br>{<br>&nbsp;&nbsp;&nbsp;formatter.Serialize(fs,&nbsp;people);<br>}<br><br>using&nbsp;(FileStream&nbsp;fs&nbsp;=&nbsp;new&nbsp;FileStream("people.xml",&nbsp;FileMode.OpenOrCreate))<br>{<br>&nbsp;&nbsp;&nbsp;Person[]?&nbsp;newpeople&nbsp;=&nbsp;formatter.Deserialize(fs)&nbsp;as&nbsp;Person[];<br><br>&nbsp;&nbsp;&nbsp;if(newpeople&nbsp;!=&nbsp;null)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;foreach&nbsp;(Person&nbsp;person&nbsp;in&nbsp;newpeople)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Name:&nbsp;{person.Name}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Age:&nbsp;{person.Age}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Company:&nbsp;{person.Company.Name}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>public&nbsp;class&nbsp;Company<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}&nbsp;=&nbsp;"Undefined";<br><br>&nbsp;&nbsp;&nbsp;//&nbsp;constructor&nbsp;standard&nbsp;fără&nbsp;parametri<br>&nbsp;&nbsp;&nbsp;public&nbsp;Company()&nbsp;{&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;Company(string&nbsp;name)&nbsp;=&gt;&nbsp;Name&nbsp;=&nbsp;name;<br>}<br>public&nbsp;class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}&nbsp;=&nbsp;"Undefined";<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Age&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}&nbsp;=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;public&nbsp;Company&nbsp;Company&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}&nbsp;=&nbsp;new&nbsp;Company();<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;Person()&nbsp;{&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name,&nbsp;int&nbsp;age,&nbsp;Company&nbsp;company)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Company&nbsp;=&nbsp;company;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Clasa Person conține o proprietate Company, care va stoca un obiect al clasei Company. Membrii clasei Company sunt declarați cu modificatorul public, iar constructorul standard fără parametri este, de asemenea, prezent. În cele din urmă, după serializare, vom obține următorul document XML:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?xml&nbsp;version="1.0"?&gt;<br>&lt;ArrayOfPerson&nbsp;xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&nbsp;xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;<br>&nbsp;&lt;Person&gt;<br>&nbsp;&nbsp;&nbsp;&lt;Name&gt;Tom&lt;/Name&gt;<br>&nbsp;&nbsp;&nbsp;&lt;Age&gt;37&lt;/Age&gt;<br>&nbsp;&nbsp;&nbsp;&lt;Company&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Name&gt;Microsoft&lt;/Name&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/Company&gt;<br>&nbsp;&lt;/Person&gt;<br>&nbsp;&lt;Person&gt;<br>&nbsp;&nbsp;&nbsp;&lt;Name&gt;Bob&lt;/Name&gt;<br>&nbsp;&nbsp;&nbsp;&lt;Age&gt;41&lt;/Age&gt;<br>&nbsp;&nbsp;&nbsp;&lt;Company&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Name&gt;Google&lt;/Name&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/Company&gt;<br>&nbsp;&lt;/Person&gt;<br>&lt;/ArrayOfPerson&gt;</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

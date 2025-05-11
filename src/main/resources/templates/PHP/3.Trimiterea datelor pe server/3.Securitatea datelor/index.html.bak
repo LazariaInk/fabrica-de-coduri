@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='PHP', activeChapter='3.Trimiterea datelor pe server', activeLesson='3.Securitatea datelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Securitatea datelor</h1>
+     <p class="paragraph">Securitatea datelor are o mare importanță în PHP. Vom examina câteva mecanisme simple care pot spori securitatea site-ului nostru web.</p>
+     <p class="paragraph">Dar mai întâi, să luăm formularul din tema anterioară:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&lt;title&gt;.COM&lt;/title&gt;<br>&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;?php<br>$name&nbsp;=&nbsp;"ne&nbsp;definit";<br>$age&nbsp;=&nbsp;"ne&nbsp;definit";<br>if(isset($_POST["name"])){<br>&nbsp;&nbsp;&nbsp;$name&nbsp;=&nbsp;$_POST["name"];<br>}<br>if(isset($_POST["age"])){<br>&nbsp;&nbsp;&nbsp;$age&nbsp;=&nbsp;$_POST["age"];<br>}<br>echo&nbsp;"Nume:&nbsp;$name&nbsp;&lt;br&gt;&nbsp;Vârstă:&nbsp;$age";<br>?&gt;<br>&lt;h3&gt;Formular&nbsp;de&nbsp;introducere&nbsp;a&nbsp;datelor&lt;/h3&gt;<br>&lt;form&nbsp;method="POST"&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Nume:&nbsp;&lt;input&nbsp;type="text"&nbsp;name="name"&nbsp;/&gt;&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Vârstă:&nbsp;&lt;input&nbsp;type="number"&nbsp;name="age"&nbsp;/&gt;&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="submit"&nbsp;value="Trimite"&gt;<br>&lt;/form&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Și să încercăm să introducem în ea unele date. De exemplu, să introducem în câmpul pentru nume "&lt;script&gt;alert('hi');&lt;/script&gt;":</p>
+     <div class="image-container">
+      <img th:src="@{/images/PHP/3.Trimiterea%20datelor%20pe%20server/3.Securitatea%20datelor/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/PHP/3.Trimiterea%20datelor%20pe%20server/3.Securitatea%20datelor/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">După trimiterea datelor, în marcare HTML va fi inserat cod JavaScript care afișează o fereastră cu mesaj.</p>
+     <p class="paragraph">Acesta este un script relativ simplu și inofensiv. Totuși, codul inserat poate fi mai dăunător. Și pentru a evita astfel de probleme de securitate, se recomandă utilizarea funcției htmlentities(). Ca parametru, aceasta primește valoarea care trebuie ecranată:</p>
+     <div class="code-inline">
+      <pre><code>$name&nbsp;=&nbsp;"ne&nbsp;definit";<br>$age&nbsp;=&nbsp;"ne&nbsp;definit";<br>if(isset($_POST["name"])){<br>&nbsp;&nbsp;&nbsp;$name&nbsp;=&nbsp;htmlentities($_POST["name"]);<br>}<br>if(isset($_POST["age"])){<br>&nbsp;&nbsp;&nbsp;$age&nbsp;=&nbsp;htmlentities($_POST["age"]);<br>}<br>echo&nbsp;"Nume:&nbsp;$name&nbsp;&lt;br&gt;&nbsp;Vârstă:&nbsp;$age";</code></pre>
+     </div>
+     <p class="paragraph">Și chiar după introducerea codului HTML sau JavaScript, toate etichetele vor fi ecranate, iar noi vom obține următoarea ieșire:</p>
+     <div class="image-container">
+      <img th:src="@{/images/PHP/3.Trimiterea%20datelor%20pe%20server/3.Securitatea%20datelor/images/image3.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">O altă funcție specială - htmlspecialchars() este similară ca acțiune cu htmlentities():</p>
+     <div class="code-inline">
+      <pre><code>$name&nbsp;=&nbsp;"ne&nbsp;definit";<br>$age&nbsp;=&nbsp;"ne&nbsp;definit";<br>if(isset($_POST["name"])){<br>&nbsp;&nbsp;&nbsp;$name&nbsp;=&nbsp;htmlspecialchars($_POST["name"]);<br>}<br>if(isset($_POST["age"])){<br>&nbsp;&nbsp;&nbsp;$age&nbsp;=&nbsp;htmlspecialchars($_POST["age"]);<br>}<br>echo&nbsp;"Nume:&nbsp;$name&nbsp;&lt;br&gt;&nbsp;Vârstă:&nbsp;$age";</code></pre>
+     </div>
+     <p class="paragraph">O altă funcție - strip_tags() permite eliminarea completă a etichetelor HTML:</p>
+     <div class="code-inline">
+      <pre><code>$name&nbsp;=&nbsp;"ne&nbsp;definit";<br>$age&nbsp;=&nbsp;"ne&nbsp;definit";<br>if(isset($_POST["name"])){<br>&nbsp;&nbsp;&nbsp;$name&nbsp;=&nbsp;strip_tags($_POST["name"]);<br>}<br>if(isset($_POST["age"])){<br>&nbsp;&nbsp;&nbsp;$age&nbsp;=&nbsp;strip_tags($_POST["age"]);<br>}<br>echo&nbsp;"Nume:&nbsp;$name&nbsp;&lt;br&gt;&nbsp;Vârstă:&nbsp;$age";</code></pre>
+     </div>
+     <p class="paragraph">Rezultatul funcționării ei, în cazul aceleiași introduceri, va fi următoarea ieșire:</p>
+     <div class="image-container">
+      <img th:src="@{/images/PHP/3.Trimiterea%20datelor%20pe%20server/3.Securitatea%20datelor/images/image4.png}" alt="" class="responsive-image">
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

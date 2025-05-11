@@ -24,7 +24,6 @@ public class PlatformInfoController {
     @Autowired
     private SponsorService sponsorService;
 
-
     @GetMapping("/admin/platform-info")
     public String getPlatformInfo(Model model) {
         PlatformInfo platformInfo = platformInfoService.getPlatformInfo();

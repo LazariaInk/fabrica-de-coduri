@@ -1,256 +1,246 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='10.Colectii si iteratori', activeLesson='2.Generatoare'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Generatoare</h1>
- <p class="paragraph">Generatoarele reprezintă un tip special de funcție folosite pentru generarea de valori. Pentru a defini generatoare, se utilizează simbolul asterisc (*) plasat după cuvântul cheie "function". De exemplu, să definim un generator simplu:</p>
- <div class="code-inline">
-  <pre><code>function*&nbsp;getNumber(){<br>&nbsp;&nbsp;&nbsp;yield&nbsp;5;<br>}<br>const&nbsp;numberGenerator&nbsp;=&nbsp;getNumber();<br>const&nbsp;result&nbsp;=&nbsp;numberGenerator.next();<br>console.log(result);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;{value:&nbsp;5,&nbsp;done:&nbsp;false}</code></pre>
- </div>
- <p class="paragraph">Aici, funcția getNumber() reprezintă un generator. Principalele aspecte ale creării și utilizării unui generator sunt:</p>
- <ul class="enumeration">
-  <li>Generatorul este definit ca o funcție folosind operatorul function* (simbolul asterisc după cuvântul cheie function)</li>
- </ul>
- <div class="code-inline">
-  <pre><code>function*&nbsp;getNumber(){&nbsp;....&nbsp;}</code></pre>
- </div>
- <p class="paragraph">Funcția generatorului returnează un iterator.</p>
- <ul class="enumeration">
-  <li>Pentru a furniza valori din generator, așa cum se face în general în iterații, se utilizează operatorul yield, după care se specifică valoarea care urmează să fie returnată.</li>
- </ul>
- <div class="code-inline">
-  <pre><code>yield&nbsp;5;</code></pre>
- </div>
- <p class="paragraph">Deci, în acest caz, generatorul getNumber() efectiv generează numărul 5.</p>
- <p class="paragraph">Pentru a obține valoarea din generator, se folosește operatorul next().</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;result&nbsp;=&nbsp;numberGenerator.next();</code></pre>
- </div>
- <p class="paragraph">În exemplul dat, apelând funcția getNumber() se creează un obiect iterator sub forma constantei numberGenerator. Utilizând acest obiect, putem obține valori din generator.</p>
- <p class="paragraph">Dacă ne uităm la ieșirea în consolă, vom observa că acest metodă returnează următoarele date:</p>
- <div class="code-inline">
-  <pre><code>{value:&nbsp;5,&nbsp;done:&nbsp;false}</code></pre>
- </div>
- <p class="paragraph">Deci, esențial, se returnează un obiect ale cărui proprietăți includ value, care conține valoarea efectiv generată, și done, care indică dacă am ajuns la finalul generatorului.</p>
- <p class="paragraph">Se poate observa că generatoarele seamănă cu iteratorii, dar, în esență, generatoarele reprezintă o formă specială de iteratori.</p>
- <p class="paragraph">Acum, vom modifica codul:</p>
- <div class="code-inline">
-  <pre><code>function*&nbsp;getNumber(){<br>&nbsp;&nbsp;&nbsp;yield&nbsp;5;<br>}<br>const&nbsp;numberGenerator&nbsp;=&nbsp;getNumber();<br>let&nbsp;next&nbsp;=&nbsp;numberGenerator.next();<br>console.log(next);<br>next&nbsp;=&nbsp;numberGenerator.next();<br>console.log(next);</code></pre>
- </div>
- <p class="paragraph">Aici, apelul metodei next() are loc de două ori:</p>
- <div class="code-inline">
-  <pre><code>{value:&nbsp;5,&nbsp;done:&nbsp;false}<br>{value:&nbsp;undefined,&nbsp;done:&nbsp;true}</code></pre>
- </div>
- <p class="paragraph">Dar funcția generatorului getNumber generează doar o singură valoare - numărul 5. Prin urmare, la apelul repetat, proprietatea value va avea valoarea undefined, iar proprietatea done va fi true, adică lucrul generatorului s-a încheiat.</p>
- <p class="paragraph">Un generator poate crea/genera mai multe valori:</p>
- <div class="code-inline">
-  <pre><code>function*&nbsp;getNumber(){<br>&nbsp;&nbsp;&nbsp;yield&nbsp;5;<br>&nbsp;&nbsp;&nbsp;yield&nbsp;25;<br>&nbsp;&nbsp;&nbsp;yield&nbsp;125;<br>}<br>const&nbsp;numberGenerator&nbsp;=&nbsp;getNumber();<br>console.log(numberGenerator.next());<br>console.log(numberGenerator.next());<br>console.log(numberGenerator.next());<br>console.log(numberGenerator.next());</code></pre>
- </div>
- <p class="paragraph">Ieșirea în consolă:</p>
- <div class="code-inline">
-  <pre><code>{value:&nbsp;5,&nbsp;done:&nbsp;false}<br>{value:&nbsp;25,&nbsp;done:&nbsp;false}<br>{value:&nbsp;125,&nbsp;done:&nbsp;false}<br>{value:&nbsp;undefined,&nbsp;done:&nbsp;true}</code></pre>
- </div>
- <p class="paragraph">Deci, la prima apelare a metodei next() din iterator, se extrage valoarea care urmează după primul operator yield, iar la a doua apelare a metodei next() - valoarea după al doilea operator yield și tot așa.</p>
- <p class="paragraph">Pentru a simplifica, putem returna în generator elemente dintr-un array:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;numbers&nbsp;=&nbsp;[5,&nbsp;25,&nbsp;125,&nbsp;625];<br>function*&nbsp;getNumber(){<br>&nbsp;&nbsp;&nbsp;for(const&nbsp;n&nbsp;of&nbsp;numbers){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yield&nbsp;n;<br>&nbsp;&nbsp;&nbsp;}<br>}<br>const&nbsp;numberGenerator&nbsp;=&nbsp;getNumber();<br>console.log(numberGenerator.next().value);&nbsp;&nbsp;//&nbsp;5<br>console.log(numberGenerator.next().value);&nbsp;&nbsp;//&nbsp;25</code></pre>
- </div>
- <p class="paragraph">În acest context, este important să înțelegem că între două apeluri consecutive ale metodei next() poate trece o anumită perioadă nedeterminată, între ele pot avea loc alte acțiuni, și totuși generatorul va returna următoarea sa valoare.</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;numberGenerator&nbsp;=&nbsp;getNumber();<br>console.log(numberGenerator.next().value);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;5<br>//&nbsp;alte&nbsp;acțiuni&nbsp;în&nbsp;șirul&nbsp;de&nbsp;operațiuni<br><br>console.log(numberGenerator.next().value);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;25</code></pre>
- </div>
- <p class="paragraph">Generatorul nu trebuie neapărat să conțină doar definiții ale operatorilor yield. El poate include, de asemenea, logică mai complexă.</p>
- <p class="paragraph">Cu ajutorul generatoarelor, este convenabil să creați secvențe infinite:</p>
- <div class="code-inline">
-  <pre><code>function*&nbsp;points(){<br><br>&nbsp;&nbsp;&nbsp;let&nbsp;x&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;let&nbsp;y&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;while(true){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yield&nbsp;{x:x,&nbsp;y:y};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x&nbsp;+=&nbsp;2;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;y&nbsp;+=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;}<br>}<br>let&nbsp;pointGenerator&nbsp;=&nbsp;points();<br><br>console.log(pointGenerator.next().value);<br>console.log(pointGenerator.next().value);<br>console.log(pointGenerator.next().value);</code></pre>
- </div>
- <p class="paragraph">Ieșirea în consolă:</p>
- <div class="code-inline">
-  <pre><code>{x:&nbsp;0,&nbsp;y:&nbsp;0}<br>{x:&nbsp;2,&nbsp;y:&nbsp;1}<br>{x:&nbsp;4,&nbsp;y:&nbsp;2}</code></pre>
- </div>
- <h2 class="subtitle">Întoarcerea dintr-un generator și funcția return</h2>
- <p class="paragraph">După cum am văzut mai devreme, fiecare apel ulterior al metodei next() returnează următoarea valoare din generator, însă putem încheia execuția generatorului folosind metoda return():</p>
- <div class="code-inline">
-  <pre><code>function*&nbsp;getNumber(){<br>&nbsp;&nbsp;&nbsp;yield&nbsp;5;<br>&nbsp;&nbsp;&nbsp;yield&nbsp;25;<br>&nbsp;&nbsp;&nbsp;yield&nbsp;125;<br>}<br>const&nbsp;numberGenerator&nbsp;=&nbsp;getNumber();<br>console.log(numberGenerator.next());&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;{value:&nbsp;5,&nbsp;done:&nbsp;false}<br>numberGenerator.return();&nbsp;&nbsp;&nbsp;//&nbsp;finisăm&nbsp;lucrul&nbsp;generatorului<br>console.log(numberGenerator.next());&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;{value:&nbsp;undefined,&nbsp;done:&nbsp;true}</code></pre>
- </div>
- <h2 class="subtitle">Obținerea valorilor din generator într-un ciclu</h2>
- <p class="paragraph">Deoarece pentru obținerea valorilor se folosește un iterator, putem utiliza bucla for...of:</p>
- <div class="code-inline">
-  <pre><code>function*&nbsp;getNumber(){<br>&nbsp;&nbsp;&nbsp;yield&nbsp;5;<br>&nbsp;&nbsp;&nbsp;yield&nbsp;25;<br>&nbsp;&nbsp;&nbsp;yield&nbsp;125;<br>}<br>const&nbsp;numberGenerator&nbsp;=&nbsp;getNumber();<br><br>for(const&nbsp;num&nbsp;of&nbsp;numberGenerator){<br>&nbsp;&nbsp;&nbsp;console.log(num);<br>}</code></pre>
- </div>
- <p class="paragraph">Ieșirea în consolă:</p>
- <div class="code-inline">
-  <pre><code>5<br>25<br>125</code></pre>
- </div>
- <p class="paragraph">De asemenea, putem utiliza și alte tipuri de bucle, de exemplu, bucla while:</p>
- <div class="code-inline">
-  <pre><code>function*&nbsp;getNumber(){<br>&nbsp;&nbsp;&nbsp;yield&nbsp;5;<br>&nbsp;&nbsp;&nbsp;yield&nbsp;25;<br>&nbsp;&nbsp;&nbsp;yield&nbsp;125;<br>}<br>const&nbsp;numberGenerator&nbsp;=&nbsp;getNumber();<br><br>while(!(item&nbsp;=&nbsp;numberGenerator.next()).done){<br>&nbsp;&nbsp;&nbsp;console.log(item.value);<br>}</code></pre>
- </div>
- <h2 class="subtitle">Transmiterea datelor către generator</h2>
- <p class="paragraph">Funcția generatorului, la fel ca orice altă funcție, poate primi parametri. Prin urmare, prin intermediul parametrilor, putem transmite generatorului anumite date. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>function*&nbsp;getNumber(start,&nbsp;end,&nbsp;step){<br>&nbsp;&nbsp;&nbsp;for(let&nbsp;n&nbsp;=&nbsp;start;&nbsp;n&nbsp;&lt;=&nbsp;end;&nbsp;n&nbsp;+=step){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yield&nbsp;n;<br>&nbsp;&nbsp;&nbsp;}<br>}<br>const&nbsp;numberGenerator&nbsp;=&nbsp;getNumber(0,&nbsp;8,&nbsp;2);<br><br>for(num&nbsp;of&nbsp;numberGenerator){<br>&nbsp;&nbsp;&nbsp;console.log(num);<br>}</code></pre>
- </div>
- <p class="paragraph">Aici, în funcția generatorului, sunt transmise valorile de start, stop și pas pentru numere. Ieșirea în consolă:</p>
- <div class="code-inline">
-  <pre><code>0<br>2<br>4<br>6<br>8</code></pre>
- </div>
- <p class="paragraph">Încă un exemplu - să definim un generator care returnează date dintr-un array:</p>
- <div class="code-inline">
-  <pre><code>function*&nbsp;generateFromArray(items){<br>&nbsp;&nbsp;&nbsp;for(item&nbsp;of&nbsp;items)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yield&nbsp;item;<br>}<br>const&nbsp;people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Sam"];<br>const&nbsp;personGenerator&nbsp;=&nbsp;generateFromArray(people);<br>for(person&nbsp;of&nbsp;personGenerator)<br>&nbsp;&nbsp;&nbsp;console.log(person);</code></pre>
- </div>
- <p class="paragraph">În acest caz, un array este transmis generatorului, iar acesta este utilizat pentru generarea valorilor. Ieșirea în consolă:</p>
- <div class="code-inline">
-  <pre><code>Tom<br>Bob<br>Sam</code></pre>
- </div>
- <h2 class="subtitle">Transmiterea datelor în metoda next</h2>
- <p class="paragraph">Cu ajutorul next() se pot transmite date către generator. Datele transmise prin această metodă pot fi obținute în funcția generatorului prin intermediul prealabilului apel al operatorului yield:</p>
- <div class="code-inline">
-  <pre><code>function*&nbsp;getNumber(){<br>&nbsp;&nbsp;&nbsp;const&nbsp;n&nbsp;=&nbsp;yield&nbsp;5;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;primim&nbsp;valoarea&nbsp;numberGenerator.next(2).value<br>&nbsp;&nbsp;&nbsp;console.log("n:",&nbsp;n);<br>&nbsp;&nbsp;&nbsp;const&nbsp;m&nbsp;=&nbsp;yield&nbsp;5&nbsp;*&nbsp;n;&nbsp;&nbsp;/&nbsp;/primim&nbsp;valoarea&nbsp;numberGenerator.next(3).value<br>&nbsp;&nbsp;&nbsp;console.log("m:",&nbsp;m);<br>&nbsp;&nbsp;&nbsp;yield&nbsp;5&nbsp;*&nbsp;m;<br>}<br>const&nbsp;numberGenerator&nbsp;=&nbsp;getNumber();<br><br>console.log(numberGenerator.next().value);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;5<br>console.log(numberGenerator.next(2).value);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;10<br>console.log(numberGenerator.next(3).value);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;15</code></pre>
- </div>
- <p class="paragraph">Ieșirea în consolă:</p>
- <div class="code-inline">
-  <pre><code>5<br>n:&nbsp;2<br>10<br>m:&nbsp;3<br>15</code></pre>
- </div>
- <p class="paragraph">La a doua apelare a metodei next():</p>
- <div class="code-inline">
-  <pre><code>numberGenerator.next(2).value</code></pre>
- </div>
- <p class="paragraph">Putem obține datele transmise prin intermediul acesteia atribuind rezultatul primului apel al operatorului yield:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;n&nbsp;=&nbsp;yield&nbsp;5;</code></pre>
- </div>
- <p class="paragraph">Deci, în acest caz, constanta n va fi egală cu 2, deoarece în metoda next() se transmite numărul 2.</p>
- <p class="paragraph">Ulterior, putem utiliza această valoare, de exemplu, pentru a genera o nouă valoare:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;m&nbsp;=&nbsp;yield&nbsp;5&nbsp;*&nbsp;n;</code></pre>
- </div>
- <p class="paragraph">Prin urmare, constanta m va primi valoarea transmisă prin al treilea apel al metodei next(), adică numărul 3.</p>
- <h2 class="subtitle">Tratarea erorilor în generator</h2>
- <p class="paragraph">Cu ajutorul funcției throw() putem genera o excepție în generator. Ca parametru pentru această funcție, se transmite o valoare arbitrară care reprezintă informații despre eroare:</p>
- <div class="code-inline">
-  <pre><code>function*&nbsp;generateData(){<br>&nbsp;&nbsp;&nbsp;try&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yield&nbsp;"Tom";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yield&nbsp;"Bob";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yield&nbsp;"Hello&nbsp;Work";<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;catch(error)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Error:",&nbsp;error);<br>&nbsp;&nbsp;&nbsp;}<br>}<br>const&nbsp;personGenerator&nbsp;=&nbsp;generateData();<br>console.log(personGenerator.next());&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;{value:&nbsp;"Tom",&nbsp;done:&nbsp;false}<br>personGenerator.throw("Something&nbsp;wrong");&nbsp;&nbsp;&nbsp;//&nbsp;Error:&nbsp;Something&nbsp;wrong<br>console.log(personGenerator.next());&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;{value:&nbsp;undefined,&nbsp;done:&nbsp;true}</code></pre>
- </div>
- <p class="paragraph">În primul rând, în funcția generatorului, pentru a trata o posibilă excepție, folosim construcția try..catch. În blocul catch, cu ajutorul parametrului "error", putem obține informații despre eroare, care sunt transmise prin funcția throw().</p>
- <p class="paragraph">Ulterior, când utilizăm generatorul, putem apela această funcție, transmițându-i informații arbitrare despre eroare (în acest caz, este doar un mesaj de șir de caractere):</p>
- <div class="code-inline">
-  <pre><code>personGenerator.throw("Something&nbsp;wrong");</code></pre>
- </div>
- <p class="paragraph">În final, această apelare va duce la generarea unei excepții în funcția generatorului, iar controlul va trece la blocul catch, care afișează informațiile despre eroare pe consolă:</p>
- <div class="code-inline">
-  <pre><code>catch(error)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Error:",&nbsp;error);<br>}</code></pre>
- </div>
- <p class="paragraph">Ieșirea în consolă a programului:</p>
- <div class="code-inline">
-  <pre><code>{value:&nbsp;"Tom",&nbsp;done:&nbsp;false}<br>Error:&nbsp;Something&nbsp;wrong<br>{value:&nbsp;undefined,&nbsp;done:&nbsp;true}</code></pre>
- </div>
- <p class="paragraph">Este important să menționăm că după apelul funcției throw(), generatorul își încheie execuția, iar ulterior, la apelul metodei next(), vom obține rezultatul {value: undefined, done: true}.</p>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Generatoare</h1>
+     <p class="paragraph">Generatoarele reprezintă un tip special de funcție folosite pentru generarea de valori. Pentru a defini generatoare, se utilizează simbolul asterisc (*) plasat după cuvântul cheie "function". De exemplu, să definim un generator simplu:</p>
+     <div class="code-inline">
+      <pre><code>function*&nbsp;getNumber(){<br>&nbsp;&nbsp;&nbsp;yield&nbsp;5;<br>}<br>const&nbsp;numberGenerator&nbsp;=&nbsp;getNumber();<br>const&nbsp;result&nbsp;=&nbsp;numberGenerator.next();<br>console.log(result);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;{value:&nbsp;5,&nbsp;done:&nbsp;false}</code></pre>
+     </div>
+     <p class="paragraph">Aici, funcția getNumber() reprezintă un generator. Principalele aspecte ale creării și utilizării unui generator sunt:</p>
+     <ul class="enumeration">
+      <li>Generatorul este definit ca o funcție folosind operatorul function* (simbolul asterisc după cuvântul cheie function)</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>function*&nbsp;getNumber(){&nbsp;....&nbsp;}</code></pre>
+     </div>
+     <p class="paragraph">Funcția generatorului returnează un iterator.</p>
+     <ul class="enumeration">
+      <li>Pentru a furniza valori din generator, așa cum se face în general în iterații, se utilizează operatorul yield, după care se specifică valoarea care urmează să fie returnată.</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>yield&nbsp;5;</code></pre>
+     </div>
+     <p class="paragraph">Deci, în acest caz, generatorul getNumber() efectiv generează numărul 5.</p>
+     <p class="paragraph">Pentru a obține valoarea din generator, se folosește operatorul next().</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;result&nbsp;=&nbsp;numberGenerator.next();</code></pre>
+     </div>
+     <p class="paragraph">În exemplul dat, apelând funcția getNumber() se creează un obiect iterator sub forma constantei numberGenerator. Utilizând acest obiect, putem obține valori din generator.</p>
+     <p class="paragraph">Dacă ne uităm la ieșirea în consolă, vom observa că acest metodă returnează următoarele date:</p>
+     <div class="code-inline">
+      <pre><code>{value:&nbsp;5,&nbsp;done:&nbsp;false}</code></pre>
+     </div>
+     <p class="paragraph">Deci, esențial, se returnează un obiect ale cărui proprietăți includ value, care conține valoarea efectiv generată, și done, care indică dacă am ajuns la finalul generatorului.</p>
+     <p class="paragraph">Se poate observa că generatoarele seamănă cu iteratorii, dar, în esență, generatoarele reprezintă o formă specială de iteratori.</p>
+     <p class="paragraph">Acum, vom modifica codul:</p>
+     <div class="code-inline">
+      <pre><code>function*&nbsp;getNumber(){<br>&nbsp;&nbsp;&nbsp;yield&nbsp;5;<br>}<br>const&nbsp;numberGenerator&nbsp;=&nbsp;getNumber();<br>let&nbsp;next&nbsp;=&nbsp;numberGenerator.next();<br>console.log(next);<br>next&nbsp;=&nbsp;numberGenerator.next();<br>console.log(next);</code></pre>
+     </div>
+     <p class="paragraph">Aici, apelul metodei next() are loc de două ori:</p>
+     <div class="code-inline">
+      <pre><code>{value:&nbsp;5,&nbsp;done:&nbsp;false}<br>{value:&nbsp;undefined,&nbsp;done:&nbsp;true}</code></pre>
+     </div>
+     <p class="paragraph">Dar funcția generatorului getNumber generează doar o singură valoare - numărul 5. Prin urmare, la apelul repetat, proprietatea value va avea valoarea undefined, iar proprietatea done va fi true, adică lucrul generatorului s-a încheiat.</p>
+     <p class="paragraph">Un generator poate crea/genera mai multe valori:</p>
+     <div class="code-inline">
+      <pre><code>function*&nbsp;getNumber(){<br>&nbsp;&nbsp;&nbsp;yield&nbsp;5;<br>&nbsp;&nbsp;&nbsp;yield&nbsp;25;<br>&nbsp;&nbsp;&nbsp;yield&nbsp;125;<br>}<br>const&nbsp;numberGenerator&nbsp;=&nbsp;getNumber();<br>console.log(numberGenerator.next());<br>console.log(numberGenerator.next());<br>console.log(numberGenerator.next());<br>console.log(numberGenerator.next());</code></pre>
+     </div>
+     <p class="paragraph">Ieșirea în consolă:</p>
+     <div class="code-inline">
+      <pre><code>{value:&nbsp;5,&nbsp;done:&nbsp;false}<br>{value:&nbsp;25,&nbsp;done:&nbsp;false}<br>{value:&nbsp;125,&nbsp;done:&nbsp;false}<br>{value:&nbsp;undefined,&nbsp;done:&nbsp;true}</code></pre>
+     </div>
+     <p class="paragraph">Deci, la prima apelare a metodei next() din iterator, se extrage valoarea care urmează după primul operator yield, iar la a doua apelare a metodei next() - valoarea după al doilea operator yield și tot așa.</p>
+     <p class="paragraph">Pentru a simplifica, putem returna în generator elemente dintr-un array:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;numbers&nbsp;=&nbsp;[5,&nbsp;25,&nbsp;125,&nbsp;625];<br>function*&nbsp;getNumber(){<br>&nbsp;&nbsp;&nbsp;for(const&nbsp;n&nbsp;of&nbsp;numbers){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yield&nbsp;n;<br>&nbsp;&nbsp;&nbsp;}<br>}<br>const&nbsp;numberGenerator&nbsp;=&nbsp;getNumber();<br>console.log(numberGenerator.next().value);&nbsp;&nbsp;//&nbsp;5<br>console.log(numberGenerator.next().value);&nbsp;&nbsp;//&nbsp;25</code></pre>
+     </div>
+     <p class="paragraph">În acest context, este important să înțelegem că între două apeluri consecutive ale metodei next() poate trece o anumită perioadă nedeterminată, între ele pot avea loc alte acțiuni, și totuși generatorul va returna următoarea sa valoare.</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;numberGenerator&nbsp;=&nbsp;getNumber();<br>console.log(numberGenerator.next().value);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;5<br>//&nbsp;alte&nbsp;acțiuni&nbsp;în&nbsp;șirul&nbsp;de&nbsp;operațiuni<br><br>console.log(numberGenerator.next().value);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;25</code></pre>
+     </div>
+     <p class="paragraph">Generatorul nu trebuie neapărat să conțină doar definiții ale operatorilor yield. El poate include, de asemenea, logică mai complexă.</p>
+     <p class="paragraph">Cu ajutorul generatoarelor, este convenabil să creați secvențe infinite:</p>
+     <div class="code-inline">
+      <pre><code>function*&nbsp;points(){<br><br>&nbsp;&nbsp;&nbsp;let&nbsp;x&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;let&nbsp;y&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;while(true){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yield&nbsp;{x:x,&nbsp;y:y};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x&nbsp;+=&nbsp;2;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;y&nbsp;+=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;}<br>}<br>let&nbsp;pointGenerator&nbsp;=&nbsp;points();<br><br>console.log(pointGenerator.next().value);<br>console.log(pointGenerator.next().value);<br>console.log(pointGenerator.next().value);</code></pre>
+     </div>
+     <p class="paragraph">Ieșirea în consolă:</p>
+     <div class="code-inline">
+      <pre><code>{x:&nbsp;0,&nbsp;y:&nbsp;0}<br>{x:&nbsp;2,&nbsp;y:&nbsp;1}<br>{x:&nbsp;4,&nbsp;y:&nbsp;2}</code></pre>
+     </div>
+     <h2 class="subtitle">Întoarcerea dintr-un generator și funcția return</h2>
+     <p class="paragraph">După cum am văzut mai devreme, fiecare apel ulterior al metodei next() returnează următoarea valoare din generator, însă putem încheia execuția generatorului folosind metoda return():</p>
+     <div class="code-inline">
+      <pre><code>function*&nbsp;getNumber(){<br>&nbsp;&nbsp;&nbsp;yield&nbsp;5;<br>&nbsp;&nbsp;&nbsp;yield&nbsp;25;<br>&nbsp;&nbsp;&nbsp;yield&nbsp;125;<br>}<br>const&nbsp;numberGenerator&nbsp;=&nbsp;getNumber();<br>console.log(numberGenerator.next());&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;{value:&nbsp;5,&nbsp;done:&nbsp;false}<br>numberGenerator.return();&nbsp;&nbsp;&nbsp;//&nbsp;finisăm&nbsp;lucrul&nbsp;generatorului<br>console.log(numberGenerator.next());&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;{value:&nbsp;undefined,&nbsp;done:&nbsp;true}</code></pre>
+     </div>
+     <h2 class="subtitle">Obținerea valorilor din generator într-un ciclu</h2>
+     <p class="paragraph">Deoarece pentru obținerea valorilor se folosește un iterator, putem utiliza bucla for...of:</p>
+     <div class="code-inline">
+      <pre><code>function*&nbsp;getNumber(){<br>&nbsp;&nbsp;&nbsp;yield&nbsp;5;<br>&nbsp;&nbsp;&nbsp;yield&nbsp;25;<br>&nbsp;&nbsp;&nbsp;yield&nbsp;125;<br>}<br>const&nbsp;numberGenerator&nbsp;=&nbsp;getNumber();<br><br>for(const&nbsp;num&nbsp;of&nbsp;numberGenerator){<br>&nbsp;&nbsp;&nbsp;console.log(num);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Ieșirea în consolă:</p>
+     <div class="code-inline">
+      <pre><code>5<br>25<br>125</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, putem utiliza și alte tipuri de bucle, de exemplu, bucla while:</p>
+     <div class="code-inline">
+      <pre><code>function*&nbsp;getNumber(){<br>&nbsp;&nbsp;&nbsp;yield&nbsp;5;<br>&nbsp;&nbsp;&nbsp;yield&nbsp;25;<br>&nbsp;&nbsp;&nbsp;yield&nbsp;125;<br>}<br>const&nbsp;numberGenerator&nbsp;=&nbsp;getNumber();<br><br>while(!(item&nbsp;=&nbsp;numberGenerator.next()).done){<br>&nbsp;&nbsp;&nbsp;console.log(item.value);<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Transmiterea datelor către generator</h2>
+     <p class="paragraph">Funcția generatorului, la fel ca orice altă funcție, poate primi parametri. Prin urmare, prin intermediul parametrilor, putem transmite generatorului anumite date. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>function*&nbsp;getNumber(start,&nbsp;end,&nbsp;step){<br>&nbsp;&nbsp;&nbsp;for(let&nbsp;n&nbsp;=&nbsp;start;&nbsp;n&nbsp;&lt;=&nbsp;end;&nbsp;n&nbsp;+=step){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yield&nbsp;n;<br>&nbsp;&nbsp;&nbsp;}<br>}<br>const&nbsp;numberGenerator&nbsp;=&nbsp;getNumber(0,&nbsp;8,&nbsp;2);<br><br>for(num&nbsp;of&nbsp;numberGenerator){<br>&nbsp;&nbsp;&nbsp;console.log(num);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici, în funcția generatorului, sunt transmise valorile de start, stop și pas pentru numere. Ieșirea în consolă:</p>
+     <div class="code-inline">
+      <pre><code>0<br>2<br>4<br>6<br>8</code></pre>
+     </div>
+     <p class="paragraph">Încă un exemplu - să definim un generator care returnează date dintr-un array:</p>
+     <div class="code-inline">
+      <pre><code>function*&nbsp;generateFromArray(items){<br>&nbsp;&nbsp;&nbsp;for(item&nbsp;of&nbsp;items)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yield&nbsp;item;<br>}<br>const&nbsp;people&nbsp;=&nbsp;["Tom",&nbsp;"Bob",&nbsp;"Sam"];<br>const&nbsp;personGenerator&nbsp;=&nbsp;generateFromArray(people);<br>for(person&nbsp;of&nbsp;personGenerator)<br>&nbsp;&nbsp;&nbsp;console.log(person);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, un array este transmis generatorului, iar acesta este utilizat pentru generarea valorilor. Ieșirea în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Tom<br>Bob<br>Sam</code></pre>
+     </div>
+     <h2 class="subtitle">Transmiterea datelor în metoda next</h2>
+     <p class="paragraph">Cu ajutorul next() se pot transmite date către generator. Datele transmise prin această metodă pot fi obținute în funcția generatorului prin intermediul prealabilului apel al operatorului yield:</p>
+     <div class="code-inline">
+      <pre><code>function*&nbsp;getNumber(){<br>&nbsp;&nbsp;&nbsp;const&nbsp;n&nbsp;=&nbsp;yield&nbsp;5;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;primim&nbsp;valoarea&nbsp;numberGenerator.next(2).value<br>&nbsp;&nbsp;&nbsp;console.log("n:",&nbsp;n);<br>&nbsp;&nbsp;&nbsp;const&nbsp;m&nbsp;=&nbsp;yield&nbsp;5&nbsp;*&nbsp;n;&nbsp;&nbsp;/&nbsp;/primim&nbsp;valoarea&nbsp;numberGenerator.next(3).value<br>&nbsp;&nbsp;&nbsp;console.log("m:",&nbsp;m);<br>&nbsp;&nbsp;&nbsp;yield&nbsp;5&nbsp;*&nbsp;m;<br>}<br>const&nbsp;numberGenerator&nbsp;=&nbsp;getNumber();<br><br>console.log(numberGenerator.next().value);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;5<br>console.log(numberGenerator.next(2).value);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;10<br>console.log(numberGenerator.next(3).value);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;15</code></pre>
+     </div>
+     <p class="paragraph">Ieșirea în consolă:</p>
+     <div class="code-inline">
+      <pre><code>5<br>n:&nbsp;2<br>10<br>m:&nbsp;3<br>15</code></pre>
+     </div>
+     <p class="paragraph">La a doua apelare a metodei next():</p>
+     <div class="code-inline">
+      <pre><code>numberGenerator.next(2).value</code></pre>
+     </div>
+     <p class="paragraph">Putem obține datele transmise prin intermediul acesteia atribuind rezultatul primului apel al operatorului yield:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;n&nbsp;=&nbsp;yield&nbsp;5;</code></pre>
+     </div>
+     <p class="paragraph">Deci, în acest caz, constanta n va fi egală cu 2, deoarece în metoda next() se transmite numărul 2.</p>
+     <p class="paragraph">Ulterior, putem utiliza această valoare, de exemplu, pentru a genera o nouă valoare:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;m&nbsp;=&nbsp;yield&nbsp;5&nbsp;*&nbsp;n;</code></pre>
+     </div>
+     <p class="paragraph">Prin urmare, constanta m va primi valoarea transmisă prin al treilea apel al metodei next(), adică numărul 3.</p>
+     <h2 class="subtitle">Tratarea erorilor în generator</h2>
+     <p class="paragraph">Cu ajutorul funcției throw() putem genera o excepție în generator. Ca parametru pentru această funcție, se transmite o valoare arbitrară care reprezintă informații despre eroare:</p>
+     <div class="code-inline">
+      <pre><code>function*&nbsp;generateData(){<br>&nbsp;&nbsp;&nbsp;try&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yield&nbsp;"Tom";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yield&nbsp;"Bob";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yield&nbsp;"Hello&nbsp;Work";<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;catch(error)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Error:",&nbsp;error);<br>&nbsp;&nbsp;&nbsp;}<br>}<br>const&nbsp;personGenerator&nbsp;=&nbsp;generateData();<br>console.log(personGenerator.next());&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;{value:&nbsp;"Tom",&nbsp;done:&nbsp;false}<br>personGenerator.throw("Something&nbsp;wrong");&nbsp;&nbsp;&nbsp;//&nbsp;Error:&nbsp;Something&nbsp;wrong<br>console.log(personGenerator.next());&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;{value:&nbsp;undefined,&nbsp;done:&nbsp;true}</code></pre>
+     </div>
+     <p class="paragraph">În primul rând, în funcția generatorului, pentru a trata o posibilă excepție, folosim construcția try..catch. În blocul catch, cu ajutorul parametrului "error", putem obține informații despre eroare, care sunt transmise prin funcția throw().</p>
+     <p class="paragraph">Ulterior, când utilizăm generatorul, putem apela această funcție, transmițându-i informații arbitrare despre eroare (în acest caz, este doar un mesaj de șir de caractere):</p>
+     <div class="code-inline">
+      <pre><code>personGenerator.throw("Something&nbsp;wrong");</code></pre>
+     </div>
+     <p class="paragraph">În final, această apelare va duce la generarea unei excepții în funcția generatorului, iar controlul va trece la blocul catch, care afișează informațiile despre eroare pe consolă:</p>
+     <div class="code-inline">
+      <pre><code>catch(error)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Error:",&nbsp;error);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Ieșirea în consolă a programului:</p>
+     <div class="code-inline">
+      <pre><code>{value:&nbsp;"Tom",&nbsp;done:&nbsp;false}<br>Error:&nbsp;Something&nbsp;wrong<br>{value:&nbsp;undefined,&nbsp;done:&nbsp;true}</code></pre>
+     </div>
+     <p class="paragraph">Este important să menționăm că după apelul funcției throw(), generatorul își încheie execuția, iar ulterior, la apelul metodei next(), vom obține rezultatul {value: undefined, done: true}.</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

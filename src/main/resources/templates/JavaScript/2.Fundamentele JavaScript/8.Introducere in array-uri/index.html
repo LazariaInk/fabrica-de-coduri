@@ -1,184 +1,174 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='2.Fundamentele JavaScript', activeLesson='8.Introducere in array-uri'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Introducere în array-uri</h1>
- <p class="paragraph">Pentru lucrul cu seturi de date sunt destinate array-urile. Pentru a crea un array, se folosesc paranteze pătrate []. În interiorul parantezelor pătrate sunt definite elementele array-ului. (Mai târziu, într-un capitol dedicat array-urilor, vom examina metodele suplimentare de creare a array-urilor și, în general, lucrul mai detaliat cu acestea)</p>
- <p class="paragraph">Definiția cea mai simplă a unui array:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;myArray&nbsp;=&nbsp;[];</code></pre>
- </div>
- <p class="paragraph">În acest caz, creăm un array numit myArray. Este gol, deoarece în interiorul parantezelor pătrate nu este definit niciun element. Cu toate acestea, putem adăuga date inițiale în el:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;people&nbsp;=&nbsp;["Tom",&nbsp;"Alice",&nbsp;"Sam"];<br>console.log(people);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;["Tom",&nbsp;"Alice",&nbsp;"Sam"];</code></pre>
- </div>
- <p class="paragraph">În acest caz, array-ul myArray va avea trei elemente. Grafic, poate fi reprezentat astfel:</p>
- <p class="paragraph">Indexul Elementul 0 Tom 1 Alice 2 Sam</p>
- <p class="paragraph">Pentru a accesa elemente individuale ale unui array, se folosesc indecșii. Indexarea începe de la zero, astfel că primul element are indexul 0, iar ultimul are indexul 2:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;people&nbsp;=&nbsp;["Tom",&nbsp;"Alice",&nbsp;"Sam"];<br>console.log(people[0]);&nbsp;//&nbsp;Tom<br>const&nbsp;person3&nbsp;=&nbsp;people[2];&nbsp;//&nbsp;Sam<br>console.log(person3);&nbsp;//&nbsp;Sam</code></pre>
- </div>
- <p class="paragraph">Dacă încercăm să accesăm un element la un index mai mare decât dimensiunea array-ului, vom obține undefined:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;people&nbsp;=&nbsp;["Tom",&nbsp;"Alice",&nbsp;"Sam"];<br>console.log(people[7]);&nbsp;//&nbsp;undefined</code></pre>
- </div>
- <p class="paragraph">De asemenea, se poate seta valoarea pentru elementele unui array utilizând indecși:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;people&nbsp;=&nbsp;["Tom",&nbsp;"Alice",&nbsp;"Sam"];<br>console.log(people[0]);&nbsp;//&nbsp;Tom<br>people[0]&nbsp;=&nbsp;"Bob";<br>console.log(people[0]);&nbsp;//&nbsp;Bob</code></pre>
- </div>
- <p class="paragraph">În deosebire de alte limbaje precum C# sau Java, în JavaScript poți să setezi valoarea pentru un element care inițial nu a fost stabilit:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;people&nbsp;=&nbsp;["Tom",&nbsp;"Alice",&nbsp;"Sam"];<br>console.log(people[7]);&nbsp;//&nbsp;undefined&nbsp;-&nbsp;în&nbsp;&nbsp;array&nbsp;sunt&nbsp;3&nbsp;elemente<br>people[7]&nbsp;=&nbsp;"Bob";<br>console.log(people[7]);&nbsp;//&nbsp;Bob</code></pre>
- </div>
- <p class="paragraph">De asemenea, merită de menționat că, spre deosebire de unele limbaje de programare, în JavaScript array-urile nu sunt strict tipizate, un array poate să stocheze date de diferite tipuri:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;objects&nbsp;=&nbsp;["Tom",&nbsp;12,&nbsp;true,&nbsp;3.14,&nbsp;false];<br>console.log(objects);</code></pre>
- </div>
- <p class="paragraph">Array-urile pot fi unidimensionale sau multidimensionale. Fiecare element într-un array multidimensional poate însemna însuși un alt array. Mai sus, am discutat despre un array unidimensional; acum să creăm un array multidimensional:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;numbers1&nbsp;=&nbsp;[0,&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5&nbsp;];&nbsp;//&nbsp;array&nbsp;unidimensional<br>const&nbsp;numbers2&nbsp;=&nbsp;[[0,&nbsp;1,&nbsp;2],&nbsp;[3,&nbsp;4,&nbsp;5]&nbsp;];&nbsp;//&nbsp;array&nbsp;bidimensional</code></pre>
- </div>
- <p class="paragraph">Vizual, ambele array-uri pot fi reprezentate astfel:</p>
- <h2 class="subtitle">Array-ul unidimensional numbers1:</h2>
- <div class="image-container">
-  <img src="images/image1.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Array-ul bidimensional numbers2:</h2>
- <div class="image-container">
-  <img src="images/image2.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Deoarece array-ul numbers2 este bidimensional, el reprezintă o simplă tabelă. Fiecare element al său poate reprezenta un array separat.</p>
- <p class="paragraph">Să luăm în considerare încă un array bidimensional:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;people&nbsp;=&nbsp;[<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;["Tom",&nbsp;25,&nbsp;false],<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;["Bill",&nbsp;38,&nbsp;true],<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;["Alice",&nbsp;21,&nbsp;false]<br>];<br><br>console.log(people[0]);&nbsp;//&nbsp;["Tom",&nbsp;25,&nbsp;false]<br>console.log(people[1]);&nbsp;//&nbsp;["Bill",&nbsp;38,&nbsp;true]</code></pre>
- </div>
- <p class="paragraph">Array-ul people poate fi reprezentat sub forma următoarei tabele:</p>
- <div class="image-container">
-  <img src="images/image3.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Pentru a obține un element individual al array-ului, se folosește, de asemenea, un index:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;tomInfo&nbsp;=&nbsp;people[0];</code></pre>
- </div>
- <p class="paragraph">Doar acum variabila tomInfo va reprezenta un array. Pentru a obține un element din interiorul array-ului imbricat, trebuie să utilizăm a doua sa dimensiune:</p>
- <div class="code-inline">
-  <pre><code>console.log("Name:&nbsp;",&nbsp;people[0][0]);&nbsp;//&nbsp;Tom<br>console.log("Age:&nbsp;",&nbsp;people[0][1]);&nbsp;//&nbsp;25</code></pre>
- </div>
- <p class="paragraph">Astfel, dacă vizualizăm un array bidimensional sub forma unei tabele, atunci elementul people[0][1] va face referire la celula din tabel situată la intersecția primului rând și celui de-al doilea colț (prima dimensiune - 0 - rândul, a doua dimensiune - 1 - coloana).</p>
- <p class="paragraph">De asemenea, putem realiza o asignare:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;people&nbsp;=&nbsp;[<br>&nbsp;&nbsp;&nbsp;["Tom",&nbsp;25,&nbsp;false],<br>&nbsp;&nbsp;&nbsp;["Bill",&nbsp;38,&nbsp;true],<br>&nbsp;&nbsp;&nbsp;["Alice",&nbsp;21,&nbsp;false]<br>];<br><br>people[0][1]&nbsp;=&nbsp;56;&nbsp;//&nbsp;asignăm&nbsp;o&nbsp;valoare&nbsp;individuală<br>console.log(people[0][1]);&nbsp;//&nbsp;56<br><br>people[1]&nbsp;=&nbsp;["Bob",&nbsp;29,&nbsp;false];&nbsp;//&nbsp;asignăm&nbsp;un&nbsp;array<br>console.log(people[1][0]);&nbsp;//&nbsp;Bob</code></pre>
- </div>
- <p class="paragraph">La crearea array-urilor multidimensionale nu suntem limitați doar la cele bidimensionale, ci putem utiliza array-uri cu dimensiuni mai mari:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;numbers&nbsp;=&nbsp;[];<br>numbers[0]&nbsp;=&nbsp;[];&nbsp;//&nbsp;acum&nbsp;numbers&nbsp;este&nbsp;un&nbsp;array&nbsp;bidimensional<br>numbers[0][0]&nbsp;=&nbsp;[];&nbsp;//&nbsp;acum&nbsp;numbers&nbsp;este&nbsp;un&nbsp;array&nbsp;tridimensional<br>numbers[0][0][0]&nbsp;=&nbsp;5;&nbsp;//&nbsp;primul&nbsp;element&nbsp;al&nbsp;array-ului&nbsp;tridimensional&nbsp;este&nbsp;5<br>console.log(numbers[0][0][0]);</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Introducere în array-uri</h1>
+     <p class="paragraph">Pentru lucrul cu seturi de date sunt destinate array-urile. Pentru a crea un array, se folosesc paranteze pătrate []. În interiorul parantezelor pătrate sunt definite elementele array-ului. (Mai târziu, într-un capitol dedicat array-urilor, vom examina metodele suplimentare de creare a array-urilor și, în general, lucrul mai detaliat cu acestea)</p>
+     <p class="paragraph">Definiția cea mai simplă a unui array:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;myArray&nbsp;=&nbsp;[];</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, creăm un array numit myArray. Este gol, deoarece în interiorul parantezelor pătrate nu este definit niciun element. Cu toate acestea, putem adăuga date inițiale în el:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;people&nbsp;=&nbsp;["Tom",&nbsp;"Alice",&nbsp;"Sam"];<br>console.log(people);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;["Tom",&nbsp;"Alice",&nbsp;"Sam"];</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, array-ul myArray va avea trei elemente. Grafic, poate fi reprezentat astfel:</p>
+     <p class="paragraph">Indexul Elementul 0 Tom 1 Alice 2 Sam</p>
+     <p class="paragraph">Pentru a accesa elemente individuale ale unui array, se folosesc indecșii. Indexarea începe de la zero, astfel că primul element are indexul 0, iar ultimul are indexul 2:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;people&nbsp;=&nbsp;["Tom",&nbsp;"Alice",&nbsp;"Sam"];<br>console.log(people[0]);&nbsp;//&nbsp;Tom<br>const&nbsp;person3&nbsp;=&nbsp;people[2];&nbsp;//&nbsp;Sam<br>console.log(person3);&nbsp;//&nbsp;Sam</code></pre>
+     </div>
+     <p class="paragraph">Dacă încercăm să accesăm un element la un index mai mare decât dimensiunea array-ului, vom obține undefined:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;people&nbsp;=&nbsp;["Tom",&nbsp;"Alice",&nbsp;"Sam"];<br>console.log(people[7]);&nbsp;//&nbsp;undefined</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, se poate seta valoarea pentru elementele unui array utilizând indecși:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;people&nbsp;=&nbsp;["Tom",&nbsp;"Alice",&nbsp;"Sam"];<br>console.log(people[0]);&nbsp;//&nbsp;Tom<br>people[0]&nbsp;=&nbsp;"Bob";<br>console.log(people[0]);&nbsp;//&nbsp;Bob</code></pre>
+     </div>
+     <p class="paragraph">În deosebire de alte limbaje precum C# sau Java, în JavaScript poți să setezi valoarea pentru un element care inițial nu a fost stabilit:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;people&nbsp;=&nbsp;["Tom",&nbsp;"Alice",&nbsp;"Sam"];<br>console.log(people[7]);&nbsp;//&nbsp;undefined&nbsp;-&nbsp;în&nbsp;&nbsp;array&nbsp;sunt&nbsp;3&nbsp;elemente<br>people[7]&nbsp;=&nbsp;"Bob";<br>console.log(people[7]);&nbsp;//&nbsp;Bob</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, merită de menționat că, spre deosebire de unele limbaje de programare, în JavaScript array-urile nu sunt strict tipizate, un array poate să stocheze date de diferite tipuri:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;objects&nbsp;=&nbsp;["Tom",&nbsp;12,&nbsp;true,&nbsp;3.14,&nbsp;false];<br>console.log(objects);</code></pre>
+     </div>
+     <p class="paragraph">Array-urile pot fi unidimensionale sau multidimensionale. Fiecare element într-un array multidimensional poate însemna însuși un alt array. Mai sus, am discutat despre un array unidimensional; acum să creăm un array multidimensional:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;numbers1&nbsp;=&nbsp;[0,&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5&nbsp;];&nbsp;//&nbsp;array&nbsp;unidimensional<br>const&nbsp;numbers2&nbsp;=&nbsp;[[0,&nbsp;1,&nbsp;2],&nbsp;[3,&nbsp;4,&nbsp;5]&nbsp;];&nbsp;//&nbsp;array&nbsp;bidimensional</code></pre>
+     </div>
+     <p class="paragraph">Vizual, ambele array-uri pot fi reprezentate astfel:</p>
+     <h2 class="subtitle">Array-ul unidimensional numbers1:</h2>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/2.Fundamentele%20JavaScript/8.Introducere%20in%20array-uri/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Array-ul bidimensional numbers2:</h2>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/2.Fundamentele%20JavaScript/8.Introducere%20in%20array-uri/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Deoarece array-ul numbers2 este bidimensional, el reprezintă o simplă tabelă. Fiecare element al său poate reprezenta un array separat.</p>
+     <p class="paragraph">Să luăm în considerare încă un array bidimensional:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;people&nbsp;=&nbsp;[<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;["Tom",&nbsp;25,&nbsp;false],<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;["Bill",&nbsp;38,&nbsp;true],<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;["Alice",&nbsp;21,&nbsp;false]<br>];<br><br>console.log(people[0]);&nbsp;//&nbsp;["Tom",&nbsp;25,&nbsp;false]<br>console.log(people[1]);&nbsp;//&nbsp;["Bill",&nbsp;38,&nbsp;true]</code></pre>
+     </div>
+     <p class="paragraph">Array-ul people poate fi reprezentat sub forma următoarei tabele:</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/2.Fundamentele%20JavaScript/8.Introducere%20in%20array-uri/images/image3.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Pentru a obține un element individual al array-ului, se folosește, de asemenea, un index:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;tomInfo&nbsp;=&nbsp;people[0];</code></pre>
+     </div>
+     <p class="paragraph">Doar acum variabila tomInfo va reprezenta un array. Pentru a obține un element din interiorul array-ului imbricat, trebuie să utilizăm a doua sa dimensiune:</p>
+     <div class="code-inline">
+      <pre><code>console.log("Name:&nbsp;",&nbsp;people[0][0]);&nbsp;//&nbsp;Tom<br>console.log("Age:&nbsp;",&nbsp;people[0][1]);&nbsp;//&nbsp;25</code></pre>
+     </div>
+     <p class="paragraph">Astfel, dacă vizualizăm un array bidimensional sub forma unei tabele, atunci elementul people[0][1] va face referire la celula din tabel situată la intersecția primului rând și celui de-al doilea colț (prima dimensiune - 0 - rândul, a doua dimensiune - 1 - coloana).</p>
+     <p class="paragraph">De asemenea, putem realiza o asignare:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;people&nbsp;=&nbsp;[<br>&nbsp;&nbsp;&nbsp;["Tom",&nbsp;25,&nbsp;false],<br>&nbsp;&nbsp;&nbsp;["Bill",&nbsp;38,&nbsp;true],<br>&nbsp;&nbsp;&nbsp;["Alice",&nbsp;21,&nbsp;false]<br>];<br><br>people[0][1]&nbsp;=&nbsp;56;&nbsp;//&nbsp;asignăm&nbsp;o&nbsp;valoare&nbsp;individuală<br>console.log(people[0][1]);&nbsp;//&nbsp;56<br><br>people[1]&nbsp;=&nbsp;["Bob",&nbsp;29,&nbsp;false];&nbsp;//&nbsp;asignăm&nbsp;un&nbsp;array<br>console.log(people[1][0]);&nbsp;//&nbsp;Bob</code></pre>
+     </div>
+     <p class="paragraph">La crearea array-urilor multidimensionale nu suntem limitați doar la cele bidimensionale, ci putem utiliza array-uri cu dimensiuni mai mari:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;numbers&nbsp;=&nbsp;[];<br>numbers[0]&nbsp;=&nbsp;[];&nbsp;//&nbsp;acum&nbsp;numbers&nbsp;este&nbsp;un&nbsp;array&nbsp;bidimensional<br>numbers[0][0]&nbsp;=&nbsp;[];&nbsp;//&nbsp;acum&nbsp;numbers&nbsp;este&nbsp;un&nbsp;array&nbsp;tridimensional<br>numbers[0][0][0]&nbsp;=&nbsp;5;&nbsp;//&nbsp;primul&nbsp;element&nbsp;al&nbsp;array-ului&nbsp;tridimensional&nbsp;este&nbsp;5<br>console.log(numbers[0][0][0]);</code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

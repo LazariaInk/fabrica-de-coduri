@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='19.API-ul Fetch', activeLesson='4.Configurarea parametrilor cererii'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Configurarea parametrilor cererii. Trimiterea datelor</h1>
+     <p class="paragraph">Funcția fetch() poate accepta opțiuni suplimentare ale cererii sub forma celui de-al doilea parametru opțional:</p>
+     <div class="code-inline">
+      <pre><code>fetch(resursa&nbsp;[,&nbsp;init])</code></pre>
+     </div>
+     <p class="paragraph">Parametrul init reprezintă un obiect complex, care poate avea un set larg de opțiuni:</p>
+     <ul class="enumeration">
+      <li>method: metodă de cerere, de exemplu, GET, POST, PUT etc.</li>
+      <li>headers: antetele stabilite în cerere</li>
+      <li>body: corpul cererii - datele care sunt adăugate în cerere</li>
+      <li>mode: modul cererii, de exemplu, cors, no-cors și same-origin</li>
+      <li>credentials: definește acțiunile cu acreditările (cookies, date de autentificare HTTP și certificate client TLS). Acceptă una dintre următoarele valori: - omit: acreditările sunt excluse din cerere, iar orice acreditări trimise în răspuns de server sunt ignorate- same-origin: acreditările sunt incluse doar în acele cereri și sunt acceptate în răspunsuri doar pentru acele cereri, adresa cărora aparține aceluiași domeniu ca și adresa clientului.- include: acreditările sunt incluse în orice cereri și sunt acceptate în răspunsuri pentru orice cereri</li>
+      <li>cache: stabilește principiul interacțiunii cu cache-ul browserului. Valorile posibile: default, no-store, reload, no-cache, force-cache și only-if-cached</li>
+      <li>redirect: stabilește cum să reacționeze la redirecționări. Poate accepta următoarele valori: - follow: aplică automat redirecționarea- error: la redirecționare generează o eroare- manual: prelucrează răspunsul în alt context</li>
+      <li>referrer: definește referentul cererii</li>
+      <li>referrerPolicy: definește politica referentului - cum informația despre referent va fi transmisă în cerere. Poate accepta următoarele valori: no-referrer, no-referrer-when-downgrade, same-origin, origin, strict-origin, origin-when-cross-origin, strict-origin-when-cross-origin și unsafe-url</li>
+      <li>integrity: conține valoarea de control a resursei</li>
+      <li>keepalive: permite cererii să existe mai mult decât durata de viață a paginii web</li>
+      <li>signal: oferă obiectul AbortSignal și permite anularea executării cererii</li>
+     </ul>
+     <p class="paragraph">Exemplu de configurare a opțiunilor:</p>
+     <div class="code-inline">
+      <pre><code>fetch("/user",&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;method:&nbsp;"GET",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;headers:&nbsp;{&nbsp;"Accept":&nbsp;"application/json"&nbsp;}<br>&nbsp;&nbsp;&nbsp;})<br>&nbsp;&nbsp;&nbsp;.then(response&nbsp;=&gt;&nbsp;response.json())<br>&nbsp;&nbsp;&nbsp;.then(user&nbsp;=&gt;&nbsp;console.log(user));</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, setăm metoda de cerere ca "GET" și antetul "Accept" - valoarea sa "application/json" indică faptul că clientul acceptă date în format json.</p>
+     <p class="paragraph">Este de remarcat că proprietatea headers reprezintă un obiect Headers. Putem aplica metodele acestui obiect pentru a seta antetele:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;myHeaders&nbsp;=&nbsp;new&nbsp;Headers();<br>myHeaders.append("Accept",&nbsp;"application/json");<br>fetch("/user",&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;method:&nbsp;"GET",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;headers:&nbsp;myHeaders<br>&nbsp;&nbsp;&nbsp;})<br>&nbsp;&nbsp;&nbsp;.then(response&nbsp;=&gt;&nbsp;response.json())<br>&nbsp;&nbsp;&nbsp;.then(user&nbsp;=&gt;&nbsp;console.log(user));</code></pre>
+     </div>
+     <p class="paragraph">Metoda append() adaugă un anumit antet, al cărui nume este transmis prin primul parametru, iar valoarea antetului - prin al doilea parametru.</p>
+     <p class="paragraph">De asemenea, se poate folosi metoda set() pentru a seta un antet, iar dacă antetul a fost deja adăugat anterior, metoda set() înlocuiește valoarea acestuia. Dacă este necesar să se șteargă un antet adăugat anterior, se poate folosi metoda delete(), care primește numele antetului care trebuie eliminat:</p>
+     <div class="code-inline">
+      <pre><code><br>const&nbsp;myHeaders&nbsp;=&nbsp;new&nbsp;Headers();<br>myHeaders.append("Accept",&nbsp;"application/json");&nbsp;//&nbsp;adăugăm&nbsp;antetul&nbsp;Accept<br>myHeaders.set("Accept",&nbsp;"text/xml");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Modificăm&nbsp;valoarea&nbsp;antetului<br>myHeaders.delete("Accept");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Ștergem&nbsp;antetul</code></pre>
+     </div>
+     <h2 class="subtitle">Trimiterea datelor în cerere</h2>
+     <p class="paragraph">Pentru trimiterea datelor în cerere în funcția fetch(), se utilizează opțiunea body ca parte a celui de-al doilea parametru. Aceste date pot fi de tipurile Blob, BufferSource, FormData, URLSearchParams, USVString și ReadableStream. Este important de reținut că în cererile cu metoda GET și HEAD, această opțiune nu poate fi setată.</p>
+     <p class="paragraph">Pentru testarea trimiterii, vom defini un server simplu în node.js, care acceptă datele:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");<br><br>http.createServer(async&nbsp;(request,&nbsp;response)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;if(request.url&nbsp;==&nbsp;"/user"){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;buffers&nbsp;=&nbsp;[];&nbsp;&nbsp;&nbsp;//&nbsp;buffer&nbsp;pentru&nbsp;datele&nbsp;primite<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;primim&nbsp;datele&nbsp;din&nbsp;cerere&nbsp;în&nbsp;buffer<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;await&nbsp;(const&nbsp;chunk&nbsp;of&nbsp;request)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;buffers.push(chunk);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;reprezentarea&nbsp;ca&nbsp;șir&nbsp;de&nbsp;caractere&nbsp;a&nbsp;răspunsului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;let&nbsp;userName&nbsp;=&nbsp;Buffer.concat(buffers).toString();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;userName&nbsp;=&nbsp;userName&nbsp;+&nbsp;"&nbsp;Smith";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.end(userName);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fs.readFile("index.html",&nbsp;(error,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>&nbsp;&nbsp;&nbsp;}<br>}).listen(3000,&nbsp;()=&gt;console.log("Serverul&nbsp;a&nbsp;fost&nbsp;pornit&nbsp;la&nbsp;adresa&nbsp;http://localhost:3000"));</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, când se accesează adresa "/user", serverul primește toate datele trimise. Obiectul de cerere oferă un iterator pentru extragerea datelor. Și în codul serverului, aceste date sunt transmise într-un array-buffer special:</p>
+     <div class="code-inline">
+      <pre><code>for&nbsp;await&nbsp;(const&nbsp;chunk&nbsp;of&nbsp;request){<br>&nbsp;&nbsp;&nbsp;buffers.push(chunk);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Apoi, folosind metoda Buffer.concat(), combinăm toate datele primite și formăm un șir de caractere din ele:</p>
+     <div class="code-inline">
+      <pre><code>let&nbsp;userName&nbsp;=&nbsp;Buffer.concat(buffers).toString();</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, presupunem că pe server este trimis un simplu text care reprezintă un nume de utilizator. Pentru exemplu, la acest nume se adaugă un prenume și numele modificat este trimis înapoi clientului:</p>
+     <div class="code-inline">
+      <pre><code>userName&nbsp;=&nbsp;userName&nbsp;+&nbsp;"&nbsp;Smith";<br>response.end(userName);</code></pre>
+     </div>
+     <p class="paragraph">Acum, să definim pe pagina index.html codul pentru trimiterea datelor către acest server:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;script&gt;<br>fetch("/user",&nbsp;{&nbsp;method:&nbsp;"POST",&nbsp;body:&nbsp;"Tom"&nbsp;})<br>&nbsp;&nbsp;&nbsp;.then(response&nbsp;=&gt;&nbsp;response.text())<br>&nbsp;&nbsp;&nbsp;.then(userName&nbsp;=&gt;&nbsp;console.log(userName));<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Pentru trimitere se utilizează metoda POST. Ca date trimise se folosește un simplu text "Tom". Astfel, trimitem un text simplu. Și, deoarece serverul răspunde, de asemenea, cu text, pentru obținerea răspunsului aici se folosește metoda response.text(). Și la lansarea acestei pagini web va fi efectuată trimiterea datelor către server, iar în consola browserului vom putea vedea răspunsul primit de la server:</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/19.API-ul%20Fetch/4.Configurarea%20parametrilor%20cererii/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">În mod similar, se pot trimite date mai complexe structural. De exemplu, să luăm în considerare trimiterea datelor JSON. Pentru aceasta, pe partea de Node.js, vom defini următorul server:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");<br><br>http.createServer(async&nbsp;(request,&nbsp;response)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;if(request.url&nbsp;==&nbsp;"/user"){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;buffers&nbsp;=&nbsp;[];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;await&nbsp;(const&nbsp;chunk&nbsp;of&nbsp;request)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;buffers.push(chunk);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;data&nbsp;=&nbsp;Buffer.concat(buffers).toString();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;user&nbsp;=&nbsp;JSON.parse(data);&nbsp;//&nbsp;transformăm&nbsp;șirul&nbsp;în&nbsp;JSON<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;modificăm&nbsp;datele&nbsp;obiectului&nbsp;primit<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;user.name&nbsp;=&nbsp;user.name&nbsp;+&nbsp;"&nbsp;Smith";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;user.age&nbsp;+=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;trimitem&nbsp;obiectul&nbsp;modificat&nbsp;înapoi&nbsp;clientului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.end(JSON.stringify(user));<br>&nbsp;&nbsp;&nbsp;}&nbsp;else&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fs.readFile("index.html",&nbsp;(error,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>&nbsp;&nbsp;&nbsp;}<br>}).listen(3000,&nbsp;()&nbsp;=&gt;&nbsp;console.log("Serverul&nbsp;a&nbsp;fost&nbsp;pornit&nbsp;la&nbsp;adresa&nbsp;http://localhost:3000"));</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, pe server ne așteptăm să primim un obiect în format JSON, care are două proprietăți - name și age. Pentru exemplu, serverul modifică valorile acestor proprietăți și trimite obiectul modificat înapoi clientului.</p>
+     <p class="paragraph">Pe pagina web, setăm un obiect JSON pentru a fi trimis și primim datele înapoi folosind metoda response.json():</p>
+     <div class="code-inline">
+      <pre><code><br>fetch("/user",&nbsp;{<br>&nbsp;&nbsp;&nbsp;method:&nbsp;"POST",<br>&nbsp;&nbsp;&nbsp;headers:&nbsp;{&nbsp;"Accept":&nbsp;"application/json",&nbsp;"Content-Type":&nbsp;"application/json"&nbsp;},<br>&nbsp;&nbsp;&nbsp;body:&nbsp;JSON.stringify({<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name:&nbsp;"Tom",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;age:&nbsp;37<br>&nbsp;&nbsp;&nbsp;})<br>})<br>.then(response&nbsp;=&gt;&nbsp;response.json())<br>.then(user&nbsp;=&gt;&nbsp;console.log(user.name,&nbsp;"-",&nbsp;user.age));</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/19.API-ul%20Fetch/4.Configurarea%20parametrilor%20cererii/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Aceasta demonstrează cum se pot trimite și primi date structurate, cum ar fi JSON, între client și server folosind Node.js și fetch API în JavaScript.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

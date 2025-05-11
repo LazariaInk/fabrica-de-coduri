@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='16.Programarea asincrona', activeLesson='2.Returnarea rezultatului din metoda asincrona'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Returnarea rezultatului din metoda asincronă</h1>
+     <p class="paragraph">Ca tip de returnare în metoda asincronă trebuie să se folosească tipurile void, Task, Task&lt;T&gt; sau ValueTask&lt;T&gt;</p>
+     <h2 class="subtitle">Void</h2>
+     <p class="paragraph">La utilizarea cuvântului cheie void, metoda asincronă nu returnează nimic:</p>
+     <div class="code-inline">
+      <pre><code>PrintAsync("Hello&nbsp;World");<br>PrintAsync("Hello&nbsp;FDC.COM");<br><br>Console.WriteLine("Main&nbsp;End");<br>await&nbsp;Task.Delay(3000);&nbsp;//&nbsp;așteptăm&nbsp;finalizarea&nbsp;sarcinilor<br><br>//&nbsp;definirea&nbsp;metodei&nbsp;asincrone<br>async&nbsp;void&nbsp;PrintAsync(string&nbsp;message)<br>{<br>&nbsp;&nbsp;&nbsp;await&nbsp;Task.Delay(1000);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;imitația&nbsp;unei&nbsp;lucrări&nbsp;de&nbsp;lungă&nbsp;durată<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(message);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Totuși, metodele asincrone void ar trebui evitate și utilizate doar acolo unde astfel de metode reprezintă singura modalitate posibilă de a defini o metodă asincronă. În primul rând, nu putem aplica operatorul await acestor metode.</p>
+     <p class="paragraph">De asemenea, pentru că excepțiile din astfel de metode sunt dificil de gestionat, deoarece nu pot fi capturate în afara metodei. În plus, astfel de metode void sunt greu de testat.</p>
+     <p class="paragraph">Totuși, există situații în care astfel de metode sunt inevitabile - de exemplu, la gestionarea evenimentelor:</p>
+     <div class="code-inline">
+      <pre><code>Account&nbsp;account&nbsp;=&nbsp;new&nbsp;Account();<br>account.Added&nbsp;+=&nbsp;PrintAsync;<br><br>account.Put(500);<br><br>await&nbsp;Task.Delay(2000);&nbsp;//&nbsp;așteptăm&nbsp;finalizarea<br><br>//&nbsp;definirea&nbsp;metodei&nbsp;asincrone<br>async&nbsp;void&nbsp;PrintAsync(object?&nbsp;obj,&nbsp;string&nbsp;message)<br>{<br>&nbsp;&nbsp;&nbsp;await&nbsp;Task.Delay(1000);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;imitația&nbsp;unei&nbsp;lucrări&nbsp;de&nbsp;lungă&nbsp;durată<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(message);<br>}<br><br>class&nbsp;Account<br>{<br>&nbsp;&nbsp;&nbsp;int&nbsp;sum&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;public&nbsp;event&nbsp;EventHandler&lt;string&gt;?&nbsp;Added;<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Put(int&nbsp;sum)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.sum&nbsp;+=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Added?.Invoke(this,&nbsp;$"În&nbsp;cont&nbsp;au&nbsp;fost&nbsp;depuși&nbsp;{sum}&nbsp;$");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, evenimentul Added în clasa Account reprezintă un delegat EventHandler, care are tipul void. În consecință, pentru acest eveniment se poate defini doar o metodă handler cu tipul void.</p>
+     <h2 class="subtitle">Task</h2>
+     <p class="paragraph">Returnarea unui obiect de tip Task:</p>
+     <div class="code-inline">
+      <pre><code>await&nbsp;PrintAsync("Hello&nbsp;FDC.com");<br><br>//&nbsp;definirea&nbsp;metodei&nbsp;asincrone<br>async&nbsp;Task&nbsp;PrintAsync(string&nbsp;message)<br>{<br>&nbsp;&nbsp;&nbsp;await&nbsp;Task.Delay(1000);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;imitația&nbsp;unei&nbsp;lucrări&nbsp;de&nbsp;lungă&nbsp;durată<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(message);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici, formal, metoda PrintAsync nu folosește operatorul return pentru a returna un rezultat. Totuși, dacă în metoda asincronă se execută o operație asincronă în expresia await, putem returna un obiect Task din metodă.</p>
+     <p class="paragraph">Pentru a aștepta finalizarea unei sarcini asincrone se poate folosi operatorul await. De altfel, nu este obligatoriu să-l folosim direct la apelul sarcinii. Îl putem aplica doar acolo unde trebuie să obținem garantat rezultatul sarcinii sau să ne asigurăm că sarcina este finalizată.</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;task&nbsp;=&nbsp;PrintAsync("Hello&nbsp;FDC.com");&nbsp;//&nbsp;sarcina&nbsp;începe&nbsp;să&nbsp;se&nbsp;execute<br>Console.WriteLine("Main&nbsp;Works");<br><br>await&nbsp;task;&nbsp;//&nbsp;așteptăm&nbsp;finalizarea&nbsp;sarcinii<br><br>//&nbsp;definirea&nbsp;metodei&nbsp;asincrone<br>async&nbsp;Task&nbsp;PrintAsync(string&nbsp;message)<br>{<br>&nbsp;&nbsp;&nbsp;await&nbsp;Task.Delay(0);<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(message);<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Task<t></t></h2>
+     <p class="paragraph">Metoda poate returna o anumită valoare. Atunci valoarea returnată este înfășurată într-un obiect Task, iar tipul returnat este Task&lt;T&gt;:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;n1&nbsp;=&nbsp;await&nbsp;SquareAsync(5);<br>int&nbsp;n2&nbsp;=&nbsp;await&nbsp;SquareAsync(6);<br>Console.WriteLine($"n1={n1}&nbsp;&nbsp;n2={n2}");&nbsp;//&nbsp;n1=25&nbsp;&nbsp;n2=36<br><br>async&nbsp;Task&lt;int&gt;&nbsp;SquareAsync(int&nbsp;n)<br>{<br>&nbsp;&nbsp;&nbsp;await&nbsp;Task.Delay(0);<br>&nbsp;&nbsp;&nbsp;return&nbsp;n&nbsp;*&nbsp;n;<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, metoda Square returnează o valoare de tip int - pătratul numărului. Prin urmare, tipul returnat este Task&lt;int&gt;.</p>
+     <p class="paragraph">Pentru a obține rezultatul metodei asincrone aplicăm operatorul await la apelul SquareAsync:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;n1&nbsp;=&nbsp;await&nbsp;SquareAsync(5);</code></pre>
+     </div>
+     <p class="paragraph">În mod similar, putem obține date de alte tipuri:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;person&nbsp;=&nbsp;await&nbsp;GetPersonAsync("Tom");<br>Console.WriteLine(person.Name);&nbsp;//&nbsp;Tom<br><br>//&nbsp;definirea&nbsp;metodei&nbsp;asincrone<br>async&nbsp;Task&lt;Person&gt;&nbsp;GetPersonAsync(string&nbsp;name)<br>{<br>&nbsp;&nbsp;&nbsp;await&nbsp;Task.Delay(0);<br>&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;Person(name);<br>}<br><br>record&nbsp;class&nbsp;Person(string&nbsp;Name);</code></pre>
+     </div>
+     <p class="paragraph">Din nou, obținerea rezultatelor directe ale sarcinii asincrone poate fi amânată până în momentul în care acestea sunt necesare:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;square5&nbsp;=&nbsp;SquareAsync(5);<br>var&nbsp;square6&nbsp;=&nbsp;SquareAsync(6);<br><br>Console.WriteLine("Alte&nbsp;acțiuni&nbsp;în&nbsp;metoda&nbsp;Main");<br><br>int&nbsp;n1&nbsp;=&nbsp;await&nbsp;square5;<br>int&nbsp;n2&nbsp;=&nbsp;await&nbsp;square6;<br>Console.WriteLine($"n1={n1}&nbsp;&nbsp;n2={n2}");&nbsp;//&nbsp;n1=25&nbsp;&nbsp;n2=36<br><br>async&nbsp;Task&lt;int&gt;&nbsp;SquareAsync(int&nbsp;n)<br>{<br>&nbsp;&nbsp;&nbsp;await&nbsp;Task.Delay(0);<br>&nbsp;&nbsp;&nbsp;var&nbsp;result&nbsp;=&nbsp;n&nbsp;*&nbsp;n;<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Pătratul&nbsp;numărului&nbsp;{n}&nbsp;este&nbsp;{result}");<br>&nbsp;&nbsp;&nbsp;return&nbsp;result;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Exemplu de lucru al programului (afișajul nu este determinist):</p>
+     <div class="code-inline">
+      <pre><code>Pătratul&nbsp;numărului&nbsp;5&nbsp;este&nbsp;25<br>Pătratul&nbsp;numărului&nbsp;6&nbsp;este&nbsp;36<br>Alte&nbsp;acțiuni&nbsp;în&nbsp;metoda&nbsp;Main<br>n1=25&nbsp;&nbsp;n2=36</code></pre>
+     </div>
+     <h2 class="subtitle">ValueTask<t></t></h2>
+     <p class="paragraph">Utilizarea tipului ValueTask&lt;T&gt; este în mare parte similară cu utilizarea Task&lt;T&gt;, cu unele diferențe în ceea ce privește gestionarea memoriei, deoarece ValueTask este o structură care conține un număr mai mare de câmpuri. De aceea, utilizarea ValueTask în loc de Task duce la copierea unui număr mai mare de date și, în consecință, generează unele costuri suplimentare.</p>
+     <p class="paragraph">Avantajul ValueTask față de Task este că acest tip permite evitarea alocărilor suplimentare de memorie în heap. De exemplu, uneori este necesar să returnăm sincron o anumită valoare. Să luăm următorul exemplu:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;result&nbsp;=&nbsp;await&nbsp;AddAsync(4,&nbsp;5);<br>Console.WriteLine(result);<br><br>Task&lt;int&gt;&nbsp;AddAsync(int&nbsp;a,&nbsp;int&nbsp;b)<br>{<br>&nbsp;&nbsp;&nbsp;return&nbsp;Task.FromResult(a&nbsp;+&nbsp;b);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici metoda AddAsync returnează sincron o anumită valoare - în acest caz suma a două numere. Cu ajutorul metodei statice Task.FromResult putem returna sincron o anumită valoare.</p>
+     <p class="paragraph">Totuși, utilizarea tipului Task va duce la alocarea unei sarcini suplimentare cu alocările de memorie aferente în heap. ValueTask rezolvă această problemă:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;result&nbsp;=&nbsp;await&nbsp;AddAsync(4,&nbsp;5);<br>Console.WriteLine(result);<br><br>ValueTask&lt;int&gt;&nbsp;AddAsync(int&nbsp;a,&nbsp;int&nbsp;b)<br>{<br>&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;ValueTask&lt;int&gt;(a&nbsp;+&nbsp;b);<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, un obiect Task suplimentar nu va fi creat și, în consecință, memoria suplimentară nu va fi alocată. De aceea, ValueTask este de obicei utilizat atunci când rezultatul operației asincrone este deja disponibil.</p>
+     <p class="paragraph">Dacă este necesar, se poate transforma un ValueTask într-un obiect Task cu ajutorul metodei AsTask():</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;getMessage&nbsp;=&nbsp;GetMessageAsync();<br>string&nbsp;message&nbsp;=&nbsp;await&nbsp;getMessage.AsTask();<br>Console.WriteLine(message);&nbsp;//&nbsp;Hello<br><br>async&nbsp;ValueTask&lt;string&gt;&nbsp;GetMessageAsync()<br>{<br>&nbsp;&nbsp;&nbsp;await&nbsp;Task.Delay(0);<br>&nbsp;&nbsp;&nbsp;return&nbsp;"Hello";<br>}</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

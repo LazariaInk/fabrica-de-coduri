@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='PHP', activeChapter='6.Tratarea exceptiilor', activeLesson='1.Tratarea exceptiilor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Tratarea excepțiilor</h1>
+     <p class="paragraph">În timpul rulării unui program pot apărea diverse erori care pot întrerupe funcționarea programului. De exemplu, să luăm următoarea situație:</p>
+     <div class="code-inline">
+      <pre><code>$a&nbsp;=&nbsp;5;<br>$b&nbsp;=&nbsp;0;<br>$result&nbsp;=&nbsp;$a&nbsp;/&nbsp;$b;<br>echo&nbsp;$result;<br>echo&nbsp;"Sfârșitul&nbsp;programului";</code></pre>
+     </div>
+     <p class="paragraph">Programul afișează rezultatul împărțirii. Deoarece împărțitorul este 0, iar împărțirea la zero nu este permisă, la execuția împărțirii, programul se va opri, și în browser vom vedea ceva de genul:</p>
+     <div class="code-inline">
+      <pre><code>Fatal&nbsp;error:&nbsp;Uncaught&nbsp;DivisionByZeroError:&nbsp;Division&nbsp;by&nbsp;zero&nbsp;in&nbsp;C:\localhost\hello.php:11&nbsp;Stack&nbsp;trace:&nbsp;#0&nbsp;{main}&nbsp;thrown&nbsp;in&nbsp;C:\localhost\hello.php&nbsp;on&nbsp;line&nbsp;11</code></pre>
+     </div>
+     <p class="paragraph">Browserul ne va afișa eroarea apărută și, după linia cu împărțirea, programul nu va mai fi executat.</p>
+     <p class="paragraph">Cineva ar putea spune că situația este artificială, deoarece noi înșine am definit împărțitorul egal cu zero. Dar datele pot fi primite din exterior. În plus, pe lângă împărțirea la zero, există diverse alte situații în care pot apărea erori. Totuși, PHP oferă o serie de posibilități pentru tratarea acestor situații.</p>
+     <p class="paragraph">Pentru a trata excepțiile în PHP se folosește construcția try-catch:</p>
+     <div class="code-inline">
+      <pre><code>try<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;codul&nbsp;care&nbsp;poate&nbsp;genera&nbsp;o&nbsp;excepție<br>}<br>catch(Tip_excepție&nbsp;$ex)<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;tratarea&nbsp;excepției<br>}</code></pre>
+     </div>
+     <p class="paragraph">Această construcție, în varianta sa generală, constă din două blocuri - try și catch. În blocul try se plasează codul care potențial poate genera o excepție.</p>
+     <p class="paragraph">ar în blocul catch se plasează tratarea excepției apărute. Pentru fiecare tip de excepție putem defini o logică de tratare diferită. Tipul concret al excepției pe care dorim să o tratăm se specifică în paranteze după operatorul catch:</p>
+     <div class="code-inline">
+      <pre><code>catch(Tip_excepție&nbsp;$ex)</code></pre>
+     </div>
+     <p class="paragraph">După numele tipului se specifică o variabilă de acest tip (în acest caz $ex), care va conține informații despre excepție și pe care o putem folosi la tratarea acesteia.</p>
+     <p class="paragraph">Dacă în blocul try, la execuția codului, apare o eroare, blocul try oprește execuția și transferă controlul către blocul catch, care tratează eroarea. După finalizarea execuției codului din blocul catch, programul continuă să execute instrucțiunile plasate după blocul catch.</p>
+     <p class="paragraph">Dacă în blocul try, la execuția codului, nu apar erori, blocul catch nu se execută, iar după finalizarea blocului try, programul continuă să execute instrucțiunile plasate după blocul catch.</p>
+     <p class="paragraph">De exemplu, să tratăm eroarea împărțirii la zero:</p>
+     <div class="code-inline">
+      <pre><code>try<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;codul&nbsp;care&nbsp;poate&nbsp;genera&nbsp;o&nbsp;excepție<br>&nbsp;&nbsp;&nbsp;$a&nbsp;=&nbsp;5;<br>&nbsp;&nbsp;&nbsp;$b&nbsp;=&nbsp;0;<br>&nbsp;&nbsp;&nbsp;$result&nbsp;=&nbsp;$a&nbsp;/&nbsp;$b;<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$result;<br>}<br>catch(DivisionByZeroError&nbsp;$ex)<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;tratarea&nbsp;excepției<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"A&nbsp;apărut&nbsp;o&nbsp;excepție:&lt;br&gt;";<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$ex&nbsp;.&nbsp;"&lt;br&gt;";<br>}<br>echo&nbsp;"Sfârșitul&nbsp;programului";</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, codul de împărțire la zero, deoarece poate genera o eroare, este plasat în blocul try.</p>
+     <p class="paragraph">În blocul catch se tratează eroarea de tip DivisionByZeroError, care se generează la împărțirea la zero. Întreaga tratare constă în afișarea informației pe ecran.</p>
+     <p class="paragraph">În cele din urmă, la execuție, programul va afișa următoarele:</p>
+     <div class="code-inline">
+      <pre><code>A&nbsp;apărut&nbsp;o&nbsp;excepție:<br>DivisionByZeroError:&nbsp;Division&nbsp;by&nbsp;zero&nbsp;in&nbsp;C:\localhost\hello.php:14&nbsp;Stack&nbsp;trace:&nbsp;#0&nbsp;{main}<br>Sfârșitul&nbsp;programului</code></pre>
+     </div>
+     <p class="paragraph">După cum se vede din afișarea programului, acesta nu se oprește brusc la împărțirea la zero, ci continuă execuția.</p>
+     <h2 class="subtitle">Tipuri de erori și excepții</h2>
+     <p class="paragraph">În PHP există mai multe tipuri care descriu diverse situații de eroare. Toate aceste tipuri încorporate implementează interfața Throwable:</p>
+     <div class="image-container">
+      <img th:src="@{/images/PHP/6.Tratarea%20exceptiilor/1.Tratarea%20exceptiilor/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Toate tipurile se împart în două grupuri: erorile propriu-zise (clasa Error) și excepțiile propriu-zise (clasa Exception). Clasele de erori și excepții care descriu situații concrete moștenesc din clasele Error și Exception.</p>
+     <p class="paragraph">De exemplu, clasa ArithmeticError moștenește din clasa Error și descrie erorile care apar la efectuarea operațiilor aritmetice. Iar clasa DivisionByZeroError moștenește din ArithmeticError și reprezintă eroarea de împărțire la zero.</p>
+     <h2 class="subtitle">Blocul catch</h2>
+     <p class="paragraph">Construcția try..catch permite definirea mai multor blocuri catch pentru a trata diverse tipuri de erori și excepții:</p>
+     <div class="code-inline">
+      <pre><code>try<br>{<br>&nbsp;&nbsp;&nbsp;$result&nbsp;=&nbsp;5&nbsp;/&nbsp;0;<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$result;<br>}<br>catch(ParseError&nbsp;$p)<br>{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"A&nbsp;apărut&nbsp;o&nbsp;eroare&nbsp;de&nbsp;parsare";<br>}<br>catch(DivisionByZeroError&nbsp;$d)<br>{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Împărțirea&nbsp;la&nbsp;zero&nbsp;nu&nbsp;este&nbsp;permisă";<br>}</code></pre>
+     </div>
+     <p class="paragraph">La apariția unei erori, pentru tratarea ei se va selecta blocul catch corespunzător tipului erorii. Astfel, în acest caz, la împărțirea la zero se va executa al doilea bloc catch.</p>
+     <p class="paragraph">Dacă în blocul try ar apărea o eroare care nu corespunde tipurilor din blocurile catch (în acest caz - tipurile DivisionByZeroError și ParseError), o astfel de eroare nu ar fi tratată, și, în consecință, programul s-ar opri brusc.</p>
+     <p class="paragraph">Blocurile catch cu tipuri mai specifice de erori și excepții trebuie să fie plasate la început, iar cele cu tipuri mai generale - la sfârșit:</p>
+     <div class="code-inline">
+      <pre><code>try<br>{<br>&nbsp;&nbsp;&nbsp;$result&nbsp;=&nbsp;5&nbsp;/&nbsp;0;<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$result;<br>}<br>catch(DivisionByZeroError&nbsp;$ex)<br>{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Împărțirea&nbsp;la&nbsp;zero&nbsp;nu&nbsp;este&nbsp;permisă";<br>}<br>catch(ArithmeticError&nbsp;$ex)<br>{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Eroare&nbsp;la&nbsp;efectuarea&nbsp;operațiilor&nbsp;aritmetice";<br>}<br>catch(Error&nbsp;$ex)<br>{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"A&nbsp;apărut&nbsp;o&nbsp;eroare";<br>}<br>catch(Throwable&nbsp;$ex)<br>{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Eroare&nbsp;la&nbsp;execuția&nbsp;programului";<br>}</code></pre>
+     </div>
+     <p class="paragraph">Clasa DivisionByZeroError se moștenește din ArithmeticError, care la rândul său se moștenește din Error, care implementează interfața Throwable. De aceea, clasa DivisionByZeroError reprezintă un tip mai specific și erorile reprezentate de această clasă trebuie tratate mai întâi.</p>
+     <p class="paragraph">Tipul Throwable reprezintă cel mai general tip, deoarece toate erorile și excepțiile posibile îi corespund, așa că blocurile catch cu acest tip trebuie plasate la sfârșit.</p>
+     <p class="paragraph">În acest caz, în blocul try apare o eroare de împărțire la zero. Dar această eroare corespunde tuturor celor patru blocuri catch. PHP va alege primul bloc care corespunde tipului de eroare, în acest caz, blocul pentru tratarea erorii de tip DivisionByZeroError.</p>
+     <p class="paragraph">Dacă trebuie să tratăm în principiu toate erorile și excepțiile, putem defini doar tratarea tipului general pentru toate, adică Throwable:</p>
+     <div class="code-inline">
+      <pre><code>try<br>{<br>&nbsp;&nbsp;&nbsp;$result&nbsp;=&nbsp;5&nbsp;/&nbsp;0;<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$result;<br>}<br>catch(Throwable&nbsp;$ex)<br>{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Eroare&nbsp;la&nbsp;execuția&nbsp;programului";<br>}</code></pre>
+     </div>
+     <p class="paragraph">Începând cu versiunea PHP 8.0, în blocul catch putem specifica doar tipul excepției tratate, fără a defini o variabilă:</p>
+     <div class="code-inline">
+      <pre><code>catch(DivisionByZeroError)<br>{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"A&nbsp;apărut&nbsp;o&nbsp;excepție:&nbsp;împărțirea&nbsp;la&nbsp;zero";<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Obținerea informațiilor despre erori și excepții</h2>
+     <p class="paragraph">Interfața Throwable oferă o serie de metode care permit obținerea unor informații despre excepția apărută:</p>
+     <ul class="enumeration">
+      <li>getMessage(): returnează mesajul de eroare</li>
+      <li>getCode(): returnează codul excepției</li>
+      <li>getFile(): returnează numele fișierului în care a apărut eroarea</li>
+      <li>getLine(): returnează numărul liniei în care a apărut eroarea</li>
+      <li>getTrace(): returnează trasarea stivei</li>
+      <li>getTraceAsString(): returnează trasarea stivei sub formă de șir de caractere</li>
+     </ul>
+     <p class="paragraph">Aplicăm unele dintre aceste metode:</p>
+     <div class="code-inline">
+      <pre><code>try<br>{<br>&nbsp;&nbsp;&nbsp;$result&nbsp;=&nbsp;5&nbsp;/&nbsp;0;<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$result;<br>}<br>catch(DivisionByZeroError&nbsp;$ex)<br>{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Mesaj&nbsp;de&nbsp;eroare:&nbsp;"&nbsp;.&nbsp;$ex-&gt;getMessage()&nbsp;.&nbsp;"&lt;br&gt;";<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Fișier:&nbsp;"&nbsp;.&nbsp;$ex-&gt;getFile()&nbsp;.&nbsp;"&lt;br&gt;";<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Număr&nbsp;linie:&nbsp;"&nbsp;.&nbsp;$ex-&gt;getLine()&nbsp;.&nbsp;"&lt;br&gt;";<br>}</code></pre>
+     </div>
+     <p class="paragraph">Rezultatul execuției:</p>
+     <div class="code-inline">
+      <pre><code>Mesaj&nbsp;de&nbsp;eroare:&nbsp;Division&nbsp;by&nbsp;zero<br>Fișier:&nbsp;D:\localhost\hello.php<br>Număr&nbsp;linie:&nbsp;11</code></pre>
+     </div>
+     <h2 class="subtitle">Blocul finally</h2>
+     <p class="paragraph">Construcția try..catch poate defini și un bloc finally. Acest bloc se execută la sfârșit - după blocul try și catch, indiferent dacă a apărut sau nu o eroare. Adesea, blocul finally este folosit pentru închiderea resurselor utilizate în blocul try.</p>
+     <div class="code-inline">
+      <pre><code>try<br>{<br>&nbsp;&nbsp;&nbsp;$result&nbsp;=&nbsp;5&nbsp;/&nbsp;0;<br>&nbsp;&nbsp;&nbsp;echo&nbsp;$result&nbsp;.&nbsp;"&lt;br&gt;";<br>}<br>catch(Throwable&nbsp;$ex)<br>{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Eroare&nbsp;la&nbsp;execuția&nbsp;programului&lt;br&gt;";<br>}<br>finally<br>{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"Blocul&nbsp;finally&lt;br&gt;";<br>}<br>echo&nbsp;"Sfârșitul&nbsp;programului";</code></pre>
+     </div>
+     <p class="paragraph">Rezultatul programului:</p>
+     <div class="code-inline">
+      <pre><code>Eroare&nbsp;la&nbsp;execuția&nbsp;programului<br>Blocul&nbsp;finally<br>Sfârșitul&nbsp;programului</code></pre>
+     </div>
+     <p class="paragraph">Construcția try..catch..finally poate conține fie toate cele trei blocuri, fie doar două blocuri: try și fie blocul catch, fie blocul finally.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

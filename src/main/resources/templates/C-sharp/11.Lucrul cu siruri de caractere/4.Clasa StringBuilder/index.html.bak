@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='11.Lucrul cu siruri de caractere', activeLesson='4.Clasa StringBuilder'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Clasa StringBuilder</h1>
+     <p class="paragraph">Deși clasa System.String ne oferă o funcționalitate extinsă pentru lucrul cu șiruri de caractere, are totuși câteva dezavantaje. În primul rând, obiectul String reprezintă un șir imutabil. Când executăm o metodă a clasei String, sistemul creează un nou obiect în memorie, alocându-i suficient spațiu.</p>
+     <p class="paragraph">Ștergerea primului caracter nu este cea mai costisitoare operație. Cu toate acestea, când astfel de operații sunt numeroase și volumul textului pentru care trebuie efectuate aceste operații este semnificativ, pierderile de performanță devin mai importante.</p>
+     <p class="paragraph">Pentru a rezolva această problemă, în cadrul .NET a fost adăugată o nouă clasă, StringBuilder, care se află în spațiul de nume System.Text. Această clasă reprezintă un șir dinamic.</p>
+     <h2 class="subtitle">Crearea unui StringBuilder</h2>
+     <p class="paragraph">Pentru a crea un obiect StringBuilder, putem folosi mai mulți constructori. În primul rând, putem crea un StringBuilder gol:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Text;<br><br>StringBuilder&nbsp;sb&nbsp;=&nbsp;new&nbsp;StringBuilder();</code></pre>
+     </div>
+     <p class="paragraph">Putem inițializa direct obiectul cu un șir definit:</p>
+     <div class="code-inline">
+      <pre><code>StringBuilder&nbsp;sb&nbsp;=&nbsp;new&nbsp;StringBuilder("Salut&nbsp;lume");</code></pre>
+     </div>
+     <p class="paragraph">Cu ajutorul metodei ToString() putem obține șirul stocat în StringBuilder:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;sb&nbsp;=&nbsp;new&nbsp;StringBuilder("Hello&nbsp;World");<br>Console.WriteLine(sb.ToString());&nbsp;//&nbsp;Hello&nbsp;World</code></pre>
+     </div>
+     <p class="paragraph">Sau putem pur și simplu să transmitem obiectul StringBuilder:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;sb&nbsp;=&nbsp;new&nbsp;StringBuilder("Hello&nbsp;World");<br>Console.WriteLine(sb);&nbsp;//&nbsp;Hello&nbsp;World</code></pre>
+     </div>
+     <h2 class="subtitle">Lungimea și capacitatea StringBuilder</h2>
+     <p class="paragraph">Pentru a stoca lungimea șirului în clasa StringBuilder, este definită proprietatea Length. Cu toate acestea, există și o a doua valoare - capacitatea memoriei alocate. Această valoare este stocată în proprietatea Capacity.</p>
+     <p class="paragraph">Capacitatea este memoria alocată pentru obiect. Setarea capacității permite reducerea alocărilor de memorie și, astfel, îmbunătățirea performanței.</p>
+     <p class="paragraph">Dacă șirul transmis constructorului StringBuilder are o lungime de 16 caractere sau mai puțin, capacitatea inițială în StringBuilder este de 16. Dacă șirul inițial este mai mare de 16 caractere, capacitatea inițială a StringBuilder va fi egală cu lungimea șirului.</p>
+     <p class="paragraph">De exemplu, să vedem ce conțin aceste proprietăți:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Text;<br><br>StringBuilder&nbsp;sb&nbsp;=&nbsp;new&nbsp;StringBuilder("Salut&nbsp;lume");<br>Console.WriteLine($"Lungime:&nbsp;{sb.Length}");&nbsp;//&nbsp;Lungime:&nbsp;10<br>Console.WriteLine($"Capacitate:&nbsp;{sb.Capacity}");&nbsp;//&nbsp;Capacitate:&nbsp;16</code></pre>
+     </div>
+     <p class="paragraph">Deși în acest caz lungimea este de 10 caractere, capacitatea reală va fi implicit de 16 caractere. Adică vedem că la crearea șirului StringBuilder se alocă mai multă memorie decât este necesar acestui șir.</p>
+     <p class="paragraph">Când șirul din StringBuilder se mărește și numărul de caractere depășește capacitatea inițială, capacitatea se dublează sau mai mult.</p>
+     <p class="paragraph">Dacă știm dinainte dimensiunea maximă a obiectului, putem seta direct capacitatea folosind unul dintre constructori și astfel evităm alocările suplimentare de memorie ulterioare.</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;sb&nbsp;=&nbsp;new&nbsp;StringBuilder(32);</code></pre>
+     </div>
+     <p class="paragraph">StringBuilder permite de asemenea să setăm direct șirul și capacitatea:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;sb&nbsp;=&nbsp;new&nbsp;StringBuilder("Salut&nbsp;lume",&nbsp;32);</code></pre>
+     </div>
+     <h2 class="subtitle">Operații cu șiruri în StringBuilder</h2>
+     <p class="paragraph">Pentru operațiile asupra șirurilor, clasa StringBuilder definește mai multe metode:</p>
+     <ul class="enumeration">
+      <li>Append: adaugă un subșir la obiectul StringBuilder</li>
+      <li>Insert: inserează un subșir în obiectul StringBuilder, începând de la un anumit index</li>
+      <li>Remove: elimină un număr specific de caractere, începând de la un anumit index</li>
+      <li>Replace: înlocuiește toate aparițiile unui caracter sau subșir cu alt caracter sau subșir</li>
+      <li>AppendFormat: adaugă un subșir la sfârșitul obiectului StringBuilder</li>
+     </ul>
+     <p class="paragraph">Acum să vedem un exemplu de utilizare a metodei Append() și avantajele clasei StringBuilder:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Text;<br><br>var&nbsp;sb&nbsp;=&nbsp;new&nbsp;StringBuilder("Titlu:&nbsp;");<br>Console.WriteLine(sb);&nbsp;//&nbsp;Titlu:<br>Console.WriteLine($"Lungime:&nbsp;{sb.Length}");&nbsp;//&nbsp;7<br>Console.WriteLine($"Capacitate:&nbsp;{sb.Capacity}");&nbsp;//&nbsp;16<br><br>sb.Append("&nbsp;Ghid");<br>Console.WriteLine(sb);&nbsp;//&nbsp;Titlu:&nbsp;Ghid<br>Console.WriteLine($"Lungime:&nbsp;{sb.Length}");&nbsp;//&nbsp;12<br>Console.WriteLine($"Capacitate:&nbsp;{sb.Capacity}");&nbsp;//&nbsp;16<br><br>sb.Append("&nbsp;de&nbsp;C#");<br>Console.WriteLine(sb);&nbsp;//&nbsp;Titlu:&nbsp;Ghid&nbsp;de&nbsp;C#<br>Console.WriteLine($"Lungime:&nbsp;{sb.Length}");&nbsp;//&nbsp;18<br>Console.WriteLine($"Capacitate:&nbsp;{sb.Capacity}");&nbsp;//&nbsp;32</code></pre>
+     </div>
+     <p class="paragraph">La crearea obiectului StringBuilder, memoria este alocată implicit pentru 16 caractere, deoarece lungimea șirului inițial este mai mică de 16.</p>
+     <p class="paragraph">Apoi, este utilizată metoda Append - această metodă adaugă un subșir la șir. Deoarece la unirea șirurilor lungimea totală - 12 caractere - depășește capacitatea inițială de 16 caractere, capacitatea inițială se dublează la 32 de caractere.</p>
+     <p class="paragraph">Dacă lungimea finală a șirului ar fi fost mai mare de 32 de caractere, capacitatea ar fi fost extinsă pentru a se potrivi lungimii șirului.</p>
+     <p class="paragraph">Apoi, din nou se aplică metoda Append, însă lungimea finală va fi de 18 caractere, ceea ce este mai mic de 32 de caractere și nu se va aloca memorie suplimentară.</p>
+     <p class="paragraph">Să utilizăm și celelalte metode ale StringBuilder:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;sb&nbsp;=&nbsp;new&nbsp;StringBuilder("Salut&nbsp;lume");<br>sb.Append("!");<br>sb.Insert(6,&nbsp;"programare&nbsp;");<br>Console.WriteLine(sb);&nbsp;//&nbsp;Salut&nbsp;programare&nbsp;lume!<br><br>//&nbsp;înlocuim&nbsp;un&nbsp;cuvânt<br>sb.Replace("lume",&nbsp;"world");<br>Console.WriteLine(sb);&nbsp;//&nbsp;Salut&nbsp;programare&nbsp;world!<br><br>//&nbsp;eliminăm&nbsp;11&nbsp;caractere,&nbsp;începând&nbsp;de&nbsp;la&nbsp;al&nbsp;6-lea<br>sb.Remove(6,&nbsp;11);<br>Console.WriteLine(sb);&nbsp;//&nbsp;Salut&nbsp;world!<br><br>//&nbsp;obținem&nbsp;șirul&nbsp;din&nbsp;obiectul&nbsp;StringBuilder<br>string&nbsp;text&nbsp;=&nbsp;sb.ToString();<br>Console.WriteLine(text);&nbsp;//&nbsp;Salut&nbsp;world!</code></pre>
+     </div>
+     <p class="paragraph">Când să utilizăm clasa String și când StringBuilder?</p>
+     <p class="paragraph">Microsoft recomandă utilizarea clasei String în următoarele cazuri:</p>
+     <ul class="enumeration">
+      <li>Pentru un număr mic de operații și modificări asupra șirurilor</li>
+      <li>La efectuarea unui număr fix de operații de unire. În acest caz, compilatorul poate uni toate operațiile de unire într-una singură</li>
+      <li>Când trebuie să efectuăm operații de căutare extinse la construirea unui șir, de exemplu, IndexOf sau StartsWith. Clasa StringBuilder nu are astfel de metode</li>
+     </ul>
+     <p class="paragraph">Clasa StringBuilder este recomandată în următoarele cazuri:</p>
+     <ul class="enumeration">
+      <li>Când numărul de operații și modificări asupra șirurilor este necunoscut în timpul rulării programului</li>
+      <li>Când se preconizează că aplicația va trebui să facă numeroase astfel de operații</li>
+     </ul>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

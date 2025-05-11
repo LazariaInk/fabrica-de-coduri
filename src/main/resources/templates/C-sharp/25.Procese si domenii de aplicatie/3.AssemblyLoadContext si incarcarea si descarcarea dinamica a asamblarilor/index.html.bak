@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='25.Procese si domenii de aplicatie', activeLesson='3.AssemblyLoadContext si incarcarea si descarcarea dinamica a asamblarilor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">AssemblyLoadContext și încărcarea și descărcarea dinamică a asamblărilor</h1>
+     <p class="paragraph">În .NET, pe lângă încărcarea dinamică a asamblărilor, există și posibilitatea de a le descărca, reducând astfel consumul de memorie. Aceasta se realizează prin utilizarea clasei AssemblyLoadContext din spațiul de nume System.Runtime.Loader, care reprezintă contextul de încărcare și descărcare a asamblărilor. Să vedem cum se utilizează acest concept.</p>
+     <p class="paragraph">Să presupunem că avem un proiect de tip consolă numit MyApp, cu următorul fișier Program.cs:</p>
+     <div class="code-inline">
+      <pre><code>namespace&nbsp;MyApp<br>{<br>&nbsp;&nbsp;&nbsp;class&nbsp;Program<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;void&nbsp;Main(string[]&nbsp;args)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;number&nbsp;=&nbsp;5;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;result&nbsp;=&nbsp;Square(number);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Pătratul&nbsp;numărului&nbsp;{number}&nbsp;este&nbsp;{result}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;int&nbsp;Square(int&nbsp;n)&nbsp;=&gt;&nbsp;n&nbsp;*&nbsp;n;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Această aplicație conține metoda Square pentru calculul pătratului unui număr și, implicit, va fi compilată într-o asamblare MyApp.dll. Vom încărca această asamblare pentru a folosi metoda Square.</p>
+     <p class="paragraph">Pentru a crea un obiect AssemblyLoadContext, se utilizează următorul constructor:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;AssemblyLoadContext(string?&nbsp;name,&nbsp;bool&nbsp;isCollectible&nbsp;=&nbsp;false);</code></pre>
+     </div>
+     <p class="paragraph">Primul parametru setează numele contextului, iar al doilea parametru, isCollectible, indică dacă asamblările încărcate pot fi descărcate. Valoarea true permite descărcarea asamblărilor.</p>
+     <p class="paragraph">Clasa AssemblyLoadContext oferă mai multe metode pentru încărcarea asamblărilor. Printre acestea:</p>
+     <ul class="enumeration">
+      <li>Assembly LoadFromAssemblyName(AssemblyName assemblyName): încarcă o anumită asamblare după numele său, care este reprezentat de tipul System.Reflection.AssemblyName</li>
+      <li>Assembly LoadFromAssemblyPath(string assemblyPath): încarcă o asamblare de la un anumit path (calea trebuie să fie absolută)</li>
+      <li>Assembly LoadFromStream(System.IO.Stream stream): încarcă o asamblare dintr-un flux Stream</li>
+     </ul>
+     <p class="paragraph">După ce am terminat de utilizat asamblarea, putem apela metoda Unload() a AssemblyLoadContext pentru a descărca contextul împreună cu toate asamblările încărcate, reducând astfel consumul de memorie și sporind performanța generală.</p>
+     <p class="paragraph">Exemplu complet:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Reflection;<br>using&nbsp;System.Runtime.Loader;<br><br>Square(8);<br>//&nbsp;curățare&nbsp;memorie<br>GC.Collect();<br>GC.WaitForPendingFinalizers();<br><br>Console.WriteLine();<br>//&nbsp;verificăm&nbsp;ce&nbsp;asamblări&nbsp;sunt&nbsp;încărcate&nbsp;după&nbsp;descărcare<br>foreach&nbsp;(Assembly&nbsp;asm&nbsp;in&nbsp;AppDomain.CurrentDomain.GetAssemblies())<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(asm.GetName().Name);<br><br><br>void&nbsp;Square(int&nbsp;number)<br>{<br>&nbsp;&nbsp;&nbsp;var&nbsp;context&nbsp;=&nbsp;new&nbsp;AssemblyLoadContext(name:&nbsp;"Square",&nbsp;isCollectible:&nbsp;true);<br>&nbsp;&nbsp;&nbsp;//&nbsp;setarea&nbsp;unui&nbsp;handler&nbsp;pentru&nbsp;descărcare<br>&nbsp;&nbsp;&nbsp;context.Unloading&nbsp;+=&nbsp;Context_Unloading;<br><br>&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;calea&nbsp;către&nbsp;asamblarea&nbsp;MyApp<br>&nbsp;&nbsp;&nbsp;var&nbsp;assemblyPath&nbsp;=&nbsp;Path.Combine(Directory.GetCurrentDirectory(),&nbsp;"MyApp.dll");<br>&nbsp;&nbsp;&nbsp;//&nbsp;încărcăm&nbsp;asamblarea<br>&nbsp;&nbsp;&nbsp;Assembly&nbsp;assembly&nbsp;=&nbsp;context.LoadFromAssemblyPath(assemblyPath);<br><br>&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;tipul&nbsp;Program&nbsp;din&nbsp;asamblarea&nbsp;MyApp.dll<br>&nbsp;&nbsp;&nbsp;var&nbsp;type&nbsp;=&nbsp;assembly.GetType("MyApp.Program");<br>&nbsp;&nbsp;&nbsp;if&nbsp;(type&nbsp;!=&nbsp;null)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;metoda&nbsp;Square<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;squareMethod&nbsp;=&nbsp;type.GetMethod("Square",&nbsp;BindingFlags.Static&nbsp;|&nbsp;BindingFlags.NonPublic);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;apelăm&nbsp;metoda<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;result&nbsp;=&nbsp;squareMethod?.Invoke(null,&nbsp;new&nbsp;object[]&nbsp;{&nbsp;number&nbsp;});<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(result&nbsp;is&nbsp;int)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;afișăm&nbsp;rezultatul&nbsp;metodei&nbsp;în&nbsp;consolă<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Pătratul&nbsp;numărului&nbsp;{number}&nbsp;este&nbsp;{result}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;//&nbsp;verificăm&nbsp;ce&nbsp;asamblări&nbsp;sunt&nbsp;încărcate<br>&nbsp;&nbsp;&nbsp;foreach&nbsp;(Assembly&nbsp;asm&nbsp;in&nbsp;AppDomain.CurrentDomain.GetAssemblies())<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(asm.GetName().Name);<br><br>&nbsp;&nbsp;&nbsp;//&nbsp;descărcăm&nbsp;contextul<br>&nbsp;&nbsp;&nbsp;context.Unload();<br>}<br><br>//&nbsp;handler&nbsp;pentru&nbsp;descărcarea&nbsp;contextului<br>void&nbsp;Context_Unloading(AssemblyLoadContext&nbsp;obj)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Biblioteca&nbsp;MyApp&nbsp;a&nbsp;fost&nbsp;descărcată");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Toate aceste acțiuni sunt realizate sub forma unei metode separate, Square(). Ca parametru, aceasta primește numărul al cărui pătrat trebuie calculat.</p>
+     <p class="paragraph">La început, în metodă se creează un obiect AssemblyLoadContext:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;context&nbsp;=&nbsp;new&nbsp;AssemblyLoadContext(name:&nbsp;"Square",&nbsp;isCollectible:&nbsp;true);</code></pre>
+     </div>
+     <p class="paragraph">Observați că parametrului isCollectible i se atribuie valoarea true, ceea ce va permite descărcarea adunărilor încărcate anterior.</p>
+     <p class="paragraph">Clasa AssemblyLoadContext definește un eveniment Unloading, astfel încât putem adăuga un handler și putem determina momentul descărcării contextului.</p>
+     <div class="code-inline">
+      <pre><code>context.Unloading&nbsp;+=&nbsp;Context_Unloading;</code></pre>
+     </div>
+     <p class="paragraph">Apoi, se utilizează metoda LoadFromAssemblyPath pentru a încărca adunarea MyApp.dll de la un drum absolut. În acest caz, se presupune că fișierul adunării se află în același folder cu aplicația curentă.</p>
+     <div class="code-inline">
+      <pre><code>assembly:&nbsp;Assembly&nbsp;assembly&nbsp;=&nbsp;context.LoadFromAssemblyPath(assemblyPath);</code></pre>
+     </div>
+     <p class="paragraph">După ce am obținut adunarea, folosim reflecția pentru a accesa metoda Square și a obține pătratul numărului.</p>
+     <p class="paragraph">Apoi, verificăm ce adunări sunt încărcate în domeniul curent. Printre ele, vom putea găsi și MyApp.dll. La final, descărcăm contextul:</p>
+     <div class="code-inline">
+      <pre><code>context.Unload();</code></pre>
+     </div>
+     <p class="paragraph">Această metodă Square este apelată în metoda Main:</p>
+     <div class="code-inline">
+      <pre><code>Square(8);<br>GC.Collect();<br>GC.WaitForPendingFinalizers();</code></pre>
+     </div>
+     <p class="paragraph">Dar, rețineți că descărcarea contextului în sine nu înseamnă curățarea imediată a memoriei. Apelul metodei Unload doar inițiază procesul de descărcare, descărcarea reală va avea loc doar atunci când colectorul automat de gunoi va interveni și va elimina obiectele corespunzătoare. Prin urmare, pentru o curățare mai rapidă, la final se apelează metodele GC.Collect() și GC.WaitForPendingFinalizers().</p>
+     <p class="paragraph">Outputul din consolă:</p>
+     <div class="code-inline">
+      <pre><code>Pătratul&nbsp;numărului&nbsp;8&nbsp;este&nbsp;64<br><br>System.Private.CoreLib<br>HelloApp<br>System.Runtime<br>Microsoft.Extensions.DotNetDeltaApplier<br>System.IO.Pipes<br>System.Linq<br>System.Collections<br>System.Console<br>System.Runtime.Loader<br>MyApp<br>System.Collections.Concurrent<br>System.Threading<br>System.Text.Encoding.Extensions<br>Biblioteca&nbsp;MyApp&nbsp;a&nbsp;fost&nbsp;descărcată<br><br>System.Private.CoreLib<br>HelloApp<br>System.Runtime<br>Microsoft.Extensions.DotNetDeltaApplier<br>System.IO.Pipes<br>System.Linq<br>System.Collections<br>System.Console<br>System.Runtime.Loader<br>System.Threading.Overlapped<br>System.Collections.Concurrent<br>System.Threading<br>System.Text.Encoding.Extensions</code></pre>
+     </div>
+     <p class="paragraph">După cum se poate observa, după descărcarea contextului AssemblyLoadContext, adunarea MyApp nu mai apare în lista adunărilor încărcate.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

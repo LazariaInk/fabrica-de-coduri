@@ -1,151 +1,141 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Java', activeChapter='9.Programare multithreading', activeLesson='1.Clasa Thread'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Programare multithreading</h1>
- <p class="paragraph">Majoritatea limbajelor de programare susțin o funcționalitate importantă precum multithreading-ul, iar Java nu face excepție în acest sens. Cu ajutorul multithreading-ului, putem aloca în aplicație mai multe fire de execuție, care vor efectua diverse sarcini simultan.</p>
- <p class="paragraph">Dacă avem, de exemplu, o aplicație grafică ce trimite o solicitare către un server sau citește și procesează un fișier mare, fără multithreading, interfața grafică ar fi blocată pe durata executării sarcinii.</p>
- <p class="paragraph">Datorită firelor de execuție, putem delega trimiterea solicitării sau orice altă sarcină care poate dura mult timp într-un fir separat. De aceea, majoritatea aplicațiilor reale pe care le utilizăm sunt aproape de neconceput fără multithreading.</p>
- <h2 class="subtitle">Clasa Thread</h2>
- <p class="paragraph">În Java, funcționalitatea unui fir de execuție separat este oferită de clasa Thread. Pentru a crea un nou fir, trebuie să creăm un obiect al acestei clase. Dar toate firele nu sunt create de la sine. Când programul pornește, începe să ruleze firul principal al acestuia. Din acest fir principal se generează toate celelalte fire fiice.</p>
- <p class="paragraph">Cu ajutorul metodei statice Thread.currentThread(), putem obține firul de execuție curent:</p>
- <div class="code-inline">
-  <pre><code>public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Thread&nbsp;t&nbsp;=&nbsp;Thread.currentThread();&nbsp;//&nbsp;obținem&nbsp;firul&nbsp;principal<br>&nbsp;&nbsp;&nbsp;System.out.println(t.getName());&nbsp;//&nbsp;main<br>}</code></pre>
- </div>
- <p class="paragraph">Implicit, numele firului principal va fi main.</p>
- <p class="paragraph">Pentru gestionarea firului, clasa Thread oferă și o serie de alte metode. Cele mai utilizate dintre ele sunt:</p>
- <ul class="enumeration">
-  <li>getName(): returnează numele firului</li>
-  <li>setName(String name): setează numele firului</li>
-  <li>getPriority(): returnează prioritatea firului</li>
-  <li>setPriority(int priority): setează prioritatea firului. Prioritatea este unul dintre factorii cheie pentru alegerea firului de către sistem din mulțimea de fire pentru execuție. În această metodă, se transmite ca parametru o valoare numerică a priorității - de la 1 la 10. Implicit, firului principal i se atribuie o prioritate medie - 5</li>
-  <li>isAlive(): returnează true dacă firul este activ</li>
-  <li>isInterrupted(): returnează true dacă firul a fost întrerupt</li>
-  <li>join(): așteaptă finalizarea firului</li>
-  <li>run(): definește punctul de intrare în fir</li>
-  <li>sleep(): suspendă firul pentru un număr specificat de milisecunde</li>
-  <li>start(): pornește firul, apelând metoda sa run()</li>
- </ul>
- <p class="paragraph">Putem afișa toate informațiile despre fir:</p>
- <div class="code-inline">
-  <pre><code>public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Thread&nbsp;t&nbsp;=&nbsp;Thread.currentThread();&nbsp;//&nbsp;obținem&nbsp;firul&nbsp;principal<br>&nbsp;&nbsp;&nbsp;System.out.println(t);&nbsp;//&nbsp;main<br>}</code></pre>
- </div>
- <p class="paragraph">Ieșirea în consolă:</p>
- <div class="code-inline">
-  <pre><code>Thread[main,5,main]</code></pre>
- </div>
- <p class="paragraph">Primul main reprezintă numele firului (ce poate fi obținut prin t.getName()), valoarea 5 reprezintă prioritatea firului (de asemenea, poate fi obținută prin t.getPriority()), iar ultimul main reprezintă numele grupului de fire căruia îi aparține firul curent - implicit tot main (poate fi obținut prin t.getThreadGroup().getName()).</p>
- <h2 class="subtitle">Dezavantajele utilizării firelor de execuție</h2>
- <p class="paragraph">În continuare, vom analiza cum să creăm și să utilizăm firele de execuție. Acest lucru este destul de simplu. Cu toate acestea, la crearea unei aplicații multithreading, trebuie să ținem cont de o serie de factori care pot afecta negativ funcționarea aplicației.</p>
- <p class="paragraph">Pe unele platforme, pornirea de noi fire poate încetini funcționarea aplicației. Acest lucru poate fi important dacă performanța aplicației este critică.</p>
- <p class="paragraph">Pentru fiecare fir, se creează propria sa stivă de memorie, unde sunt plasate toate variabilele locale și alte date legate de execuția firului. Astfel, cu cât se creează mai multe fire, cu atât se utilizează mai multă memorie.</p>
- <p class="paragraph">Trebuie să ne amintim că, în orice sistem, dimensiunea memoriei utilizate este limitată. În plus, multe sisteme pot avea o limită a numărului de fire. Dar chiar dacă nu există o astfel de limitare, există întotdeauna o limitare naturală sub forma vitezei maxime a procesorului.</p>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Programare multithreading</h1>
+     <p class="paragraph">Majoritatea limbajelor de programare susțin o funcționalitate importantă precum multithreading-ul, iar Java nu face excepție în acest sens. Cu ajutorul multithreading-ului, putem aloca în aplicație mai multe fire de execuție, care vor efectua diverse sarcini simultan.</p>
+     <p class="paragraph">Dacă avem, de exemplu, o aplicație grafică ce trimite o solicitare către un server sau citește și procesează un fișier mare, fără multithreading, interfața grafică ar fi blocată pe durata executării sarcinii.</p>
+     <p class="paragraph">Datorită firelor de execuție, putem delega trimiterea solicitării sau orice altă sarcină care poate dura mult timp într-un fir separat. De aceea, majoritatea aplicațiilor reale pe care le utilizăm sunt aproape de neconceput fără multithreading.</p>
+     <h2 class="subtitle">Clasa Thread</h2>
+     <p class="paragraph">În Java, funcționalitatea unui fir de execuție separat este oferită de clasa Thread. Pentru a crea un nou fir, trebuie să creăm un obiect al acestei clase. Dar toate firele nu sunt create de la sine. Când programul pornește, începe să ruleze firul principal al acestuia. Din acest fir principal se generează toate celelalte fire fiice.</p>
+     <p class="paragraph">Cu ajutorul metodei statice Thread.currentThread(), putem obține firul de execuție curent:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Thread&nbsp;t&nbsp;=&nbsp;Thread.currentThread();&nbsp;//&nbsp;obținem&nbsp;firul&nbsp;principal<br>&nbsp;&nbsp;&nbsp;System.out.println(t.getName());&nbsp;//&nbsp;main<br>}</code></pre>
+     </div>
+     <p class="paragraph">Implicit, numele firului principal va fi main.</p>
+     <p class="paragraph">Pentru gestionarea firului, clasa Thread oferă și o serie de alte metode. Cele mai utilizate dintre ele sunt:</p>
+     <ul class="enumeration">
+      <li>getName(): returnează numele firului</li>
+      <li>setName(String name): setează numele firului</li>
+      <li>getPriority(): returnează prioritatea firului</li>
+      <li>setPriority(int priority): setează prioritatea firului. Prioritatea este unul dintre factorii cheie pentru alegerea firului de către sistem din mulțimea de fire pentru execuție. În această metodă, se transmite ca parametru o valoare numerică a priorității - de la 1 la 10. Implicit, firului principal i se atribuie o prioritate medie - 5</li>
+      <li>isAlive(): returnează true dacă firul este activ</li>
+      <li>isInterrupted(): returnează true dacă firul a fost întrerupt</li>
+      <li>join(): așteaptă finalizarea firului</li>
+      <li>run(): definește punctul de intrare în fir</li>
+      <li>sleep(): suspendă firul pentru un număr specificat de milisecunde</li>
+      <li>start(): pornește firul, apelând metoda sa run()</li>
+     </ul>
+     <p class="paragraph">Putem afișa toate informațiile despre fir:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Thread&nbsp;t&nbsp;=&nbsp;Thread.currentThread();&nbsp;//&nbsp;obținem&nbsp;firul&nbsp;principal<br>&nbsp;&nbsp;&nbsp;System.out.println(t);&nbsp;//&nbsp;main<br>}</code></pre>
+     </div>
+     <p class="paragraph">Ieșirea în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Thread[main,5,main]</code></pre>
+     </div>
+     <p class="paragraph">Primul main reprezintă numele firului (ce poate fi obținut prin t.getName()), valoarea 5 reprezintă prioritatea firului (de asemenea, poate fi obținută prin t.getPriority()), iar ultimul main reprezintă numele grupului de fire căruia îi aparține firul curent - implicit tot main (poate fi obținut prin t.getThreadGroup().getName()).</p>
+     <h2 class="subtitle">Dezavantajele utilizării firelor de execuție</h2>
+     <p class="paragraph">În continuare, vom analiza cum să creăm și să utilizăm firele de execuție. Acest lucru este destul de simplu. Cu toate acestea, la crearea unei aplicații multithreading, trebuie să ținem cont de o serie de factori care pot afecta negativ funcționarea aplicației.</p>
+     <p class="paragraph">Pe unele platforme, pornirea de noi fire poate încetini funcționarea aplicației. Acest lucru poate fi important dacă performanța aplicației este critică.</p>
+     <p class="paragraph">Pentru fiecare fir, se creează propria sa stivă de memorie, unde sunt plasate toate variabilele locale și alte date legate de execuția firului. Astfel, cu cât se creează mai multe fire, cu atât se utilizează mai multă memorie.</p>
+     <p class="paragraph">Trebuie să ne amintim că, în orice sistem, dimensiunea memoriei utilizate este limitată. În plus, multe sisteme pot avea o limită a numărului de fire. Dar chiar dacă nu există o astfel de limitare, există întotdeauna o limitare naturală sub forma vitezei maxime a procesorului.</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

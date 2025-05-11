@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='17.Asincronitate, promise, async si await', activeLesson='9.Generatoare Asincrone'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Generatoare Asincrone</h1>
+     <p class="paragraph">Iteratoarele asincrone ne deschid calea către crearea generatoarelor asincrone. Generatoarele asincrone ne permit să folosim operatorul await, să primim și să returnăm date într-un mod asincron.</p>
+     <p class="paragraph">Pentru a defini un generator asincron, se pune operatorul async înaintea funcției generator:</p>
+     <div class="code-inline">
+      <pre><code>async&nbsp;function*&nbsp;nume_funcție_generator(){<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;yield&nbsp;valoare_returnată;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Să examinăm cel mai simplu generator:</p>
+     <div class="code-inline">
+      <pre><code>async&nbsp;function*&nbsp;generatePersonAsync(){<br>&nbsp;&nbsp;&nbsp;yield&nbsp;"Tom";&nbsp;&nbsp;&nbsp;&nbsp;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici este definit un generator asincron generatePersonAsync, în care se returnează o singură valoare - șirul "Tom".</p>
+     <p class="paragraph">Particularitatea generatorului asincron este că la apelarea metodei sale next() se returnează un obiect Promise. Și obiectul Promise, la rândul său, returnează un obiect cu două proprietăți { value, done }, unde value deține valoarea returnată și done indică dacă în generator mai sunt date disponibile.</p>
+     <p class="paragraph">De exemplu, să luăm generatorul asincron definit mai sus:</p>
+     <div class="code-inline">
+      <pre><code>async&nbsp;function*&nbsp;generatePersonAsync(){<br>&nbsp;&nbsp;&nbsp;yield&nbsp;"Tom";&nbsp;&nbsp;&nbsp;&nbsp;<br>}<br>const&nbsp;personGenerator&nbsp;=&nbsp;generatePersonAsync();<br>personGenerator.next();&nbsp;//&nbsp;Promise</code></pre>
+     </div>
+     <p class="paragraph">Aici, prin metoda next() obținem un promise. Apoi, prin metoda then() putem obține obiectul din promise:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;personGenerator&nbsp;=&nbsp;generatePersonAsync();<br>personGenerator.next()<br>&nbsp;&nbsp;&nbsp;.then(data&nbsp;=&gt;&nbsp;console.log(data));&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;{value:&nbsp;"Tom",&nbsp;done:&nbsp;false}</code></pre>
+     </div>
+     <p class="paragraph">Și la accesarea proprietății value a obiectului obținut din promise, putem obține datele:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;personGenerator&nbsp;=&nbsp;generatePersonAsync();<br>personGenerator.next()<br>&nbsp;&nbsp;&nbsp;.then(data&nbsp;=&gt;&nbsp;console.log(data.value));&nbsp;&nbsp;//&nbsp;Tom</code></pre>
+     </div>
+     <p class="paragraph">Cu ajutorul operatorului await putem obține datele din metoda next() a generatorului:</p>
+     <div class="code-inline">
+      <pre><code>async&nbsp;function*&nbsp;generatePersonAsync(){<br>&nbsp;&nbsp;&nbsp;yield&nbsp;"Tom";<br>&nbsp;&nbsp;&nbsp;yield&nbsp;"Sam";<br>&nbsp;&nbsp;&nbsp;yield&nbsp;"Bob";<br>}<br>async&nbsp;function&nbsp;printPeopleAsync(){<br>&nbsp;&nbsp;&nbsp;const&nbsp;personGenerator&nbsp;=&nbsp;generatePersonAsync();<br>&nbsp;&nbsp;&nbsp;while(!(person&nbsp;=&nbsp;await&nbsp;personGenerator.next()).done){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(person.value);<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>printPeopleAsync();</code></pre>
+     </div>
+     <p class="paragraph">Output-ul în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Tom<br>Sam<br>Bob</code></pre>
+     </div>
+     <p class="paragraph">Deoarece generatorul asincron reprezintă un iterator asincron, datele generatorului pot fi, de asemenea, obținute prin ciclul for-await-of:</p>
+     <div class="code-inline">
+      <pre><code>async&nbsp;function*&nbsp;generatePersonAsync(){<br>&nbsp;&nbsp;&nbsp;yield&nbsp;"Tom";<br>&nbsp;&nbsp;&nbsp;yield&nbsp;"Sam";<br>&nbsp;&nbsp;&nbsp;yield&nbsp;"Bob";<br>}<br>async&nbsp;function&nbsp;printPeopleAsync(){<br>&nbsp;&nbsp;&nbsp;const&nbsp;personGenerator&nbsp;=&nbsp;generatePersonAsync();<br>&nbsp;&nbsp;&nbsp;for&nbsp;await(person&nbsp;of&nbsp;personGenerator){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(person);<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>printPeopleAsync();<br>//&nbsp;Tom<br>//&nbsp;Sam<br>//&nbsp;Bob</code></pre>
+     </div>
+     <h2 class="subtitle">await în generatoarele asincrone</h2>
+     <p class="paragraph">Principalul avantaj al generatoarelor asincrone este că putem folosi operatorul await în ele și, în consecință, putem obține date din surse de date care folosesc API-uri asincrone.</p>
+     <div class="code-inline">
+      <pre><code>async&nbsp;function*&nbsp;generatePersonAsync(people){<br>&nbsp;&nbsp;&nbsp;for(const&nbsp;person&nbsp;of&nbsp;people)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yield&nbsp;await&nbsp;new&nbsp;Promise(resolve&nbsp;=&gt;&nbsp;setTimeout(()&nbsp;=&gt;&nbsp;resolve(person),&nbsp;2000));<br>}<br>async&nbsp;function&nbsp;printPeopleAsync(people){<br>&nbsp;&nbsp;&nbsp;for&nbsp;await&nbsp;(const&nbsp;item&nbsp;of&nbsp;generatePersonAsync(people))&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(item);<br>&nbsp;&nbsp;&nbsp;}<br>}<br>printPeopleAsync(["Tom",&nbsp;"Sam",&nbsp;"Bob"]);</code></pre>
+     </div>
+     <p class="paragraph">Aici, pentru a imita obținerea datelor dintr-o sursă de date asincronă, se utilizează un promise care returnează unul dintre elementele array-ului care este transmis în funcția generatorului după 2000 de secunde:</p>
+     <div class="code-inline">
+      <pre><code>yield&nbsp;await&nbsp;new&nbsp;Promise(resolve&nbsp;=&gt;&nbsp;setTimeout(()&nbsp;=&gt;&nbsp;resolve(person),&nbsp;2000));</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

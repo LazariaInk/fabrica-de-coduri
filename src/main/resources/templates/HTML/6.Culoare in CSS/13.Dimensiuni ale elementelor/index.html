@@ -1,185 +1,175 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='HTML', activeChapter='6.Culoare in CSS', activeLesson='13.Dimensiuni ale elementelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Dimensiuni ale elementelor</h1>
- <p class="paragraph">Dimensiunile elementelor se setează folosind proprietățile width (lățime) și height (înălțime).</p>
- <p class="paragraph">Valoarea implicită pentru aceste proprietăți este auto, ceea ce înseamnă că browser-ul determină automat lățimea și înălțimea elementului. De asemenea, dimensiunile pot fi setate explicit folosind unități de măsură (pixeli, em) sau folosind procente:</p>
- <div class="code-inline">
-  <pre><code>width:&nbsp;150px;&nbsp;&nbsp;<br>width:&nbsp;75%;&nbsp;&nbsp;<br>height:&nbsp;15em;</code></pre>
- </div>
- <p class="paragraph">Pixelii determină lățimea și înălțimea exacte. Unitatea de măsură em depinde de înălțimea fontului din element. Dacă dimensiunea fontului elementului, de exemplu, este de 16 pixeli, atunci 1 em pentru acest element va fi egal cu 16 pixeli. Astfel, dacă se stabilește lățimea elementului la 15em, aceasta va fi de fapt 15 * 16 = 230 pixeli.</p>
- <p class="paragraph">Dacă elementului nu i se stabilește dimensiunea fontului, atunci aceasta va fi moștenită din parametri sau va fi valoarea implicită.</p>
- <p class="paragraph">Valorile procentuale pentru proprietatea width se calculează pe baza lățimii elementului-container. Dacă, de exemplu, lățimea elementului body pe pagina web este de 1000 pixeli, iar un element &lt;div&gt; inclus în acesta are o lățime de 75%, atunci lățimea efectivă a acestui &lt;div&gt; va fi 1000 * 0.75 = 750 pixeli.</p>
- <p class="paragraph">Dacă utilizatorul schimbă dimensiunea ferestrei browser-ului, lățimea elementului body și, în consecință, lățimea blocului div inclus se vor schimba, de asemenea.</p>
- <p class="paragraph">Valorile procentuale pentru proprietatea height funcționează similar cu proprietatea width, doar că acum înălțimea se calculează în funcție de înălțimea elementului-container.</p>
- <p class="paragraph">De exemplu:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;&nbsp;<br>&lt;html&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&lt;head&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;Dimensiuni&nbsp;în&nbsp;CSS3&lt;/title&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;style&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div.outer{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:&nbsp;75%;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;200px;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;margin:&nbsp;10px;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;solid&nbsp;#ccc;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;#eee;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div.inner{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:&nbsp;80%;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;80%;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;margin:&nbsp;auto;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;solid&nbsp;red;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;blue;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/style&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&lt;/head&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&lt;body&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="outer"&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="inner"&gt;&lt;/div&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&lt;/body&gt;&nbsp;<br>&lt;/html&gt;&nbsp;</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image1.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">În același timp, dimensiunile reale ale elementului pot diferi de cele stabilite în proprietățile width și height. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;&nbsp;<br>&lt;html&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&lt;head&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;Dimensiuni&nbsp;în&nbsp;CSS3&lt;/title&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;style&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div.outer{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:&nbsp;200px;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;100px;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;margin:&nbsp;10px;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;padding:&nbsp;10px;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;5px&nbsp;solid&nbsp;#ccc;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;#eee;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/style&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&lt;/head&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&lt;body&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="outer"&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Determinarea&nbsp;dimensiunii&nbsp;reale&nbsp;în&nbsp;CSS&nbsp;3&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&lt;/body&gt;&nbsp;<br>&lt;/html&gt;</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image2.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Așa cum se vede în captură, în realitate valoarea proprietății width - 200px - determină doar lățimea conținutului intern al elementului, iar pentru blocul propriu-zis al elementului va fi alocat spațiu a cărui lățime este egală cu lățimea conținutului intern (proprietatea width) + spațiile interioare (proprietatea padding) + lățimea graniței (proprietatea border-width) + spațiile exterioare (proprietatea margin).</p>
- <p class="paragraph">Cu alte cuvinte, elementul va avea o lățime de 230 pixeli, iar lățimea blocului elementului, luând în considerare spațiile exterioare, va fi de 250 pixeli.</p>
- <p class="paragraph">Astfel de calcule ar trebui luate în considerare la stabilirea dimensiunilor elementelor.</p>
- <p class="paragraph">Cu ajutorul unui set suplimentar de proprietăți, pot fi stabilite dimensiunile minime și maxime:</p>
- <ul class="enumeration">
-  <li>min-width: lățimea minimă</li>
-  <li>max-width: lățimea maximă</li>
-  <li>min-height: înălțimea minimă</li>
-  <li>max-height: înălțimea maximă</li>
- </ul>
- <div class="code-inline">
-  <pre><code>min-width:&nbsp;200px;&nbsp;&nbsp;<br>width:50%;&nbsp;&nbsp;<br>max-width:&nbsp;300px;</code></pre>
- </div>
- <p class="paragraph">În acest caz, lățimea elementului este egală cu 50% din lățimea elementului-container, însă nu poate fi mai mică de 200 pixeli și mai mare de 300 pixeli.</p>
- <h2 class="subtitle">Redefinirea lățimii blocului</h2>
- <p class="paragraph">Proprietatea box-sizing permite redefinirea dimensiunilor stabilite ale elementelor. Aceasta poate lua una dintre următoarele valori:</p>
- <ul class="enumeration">
-  <li>content-box: valoarea implicită, la care browser-ul pentru determinarea lățimii și înălțimii reale ale elementelor adaugă valorile proprietăților width și height ale elementului</li>
- </ul>
- <p class="paragraph">De exemplu:</p>
- <div class="code-inline">
-  <pre><code>width:&nbsp;200px;&nbsp;&nbsp;<br>height:&nbsp;100px;&nbsp;&nbsp;<br>margin:&nbsp;10px;&nbsp;&nbsp;<br>padding:&nbsp;10px;&nbsp;&nbsp;<br>border:&nbsp;5px&nbsp;solid&nbsp;#ccc;&nbsp;&nbsp;<br>background-color:&nbsp;#eee;&nbsp;&nbsp;<br>box-sizing:&nbsp;content-box;</code></pre>
- </div>
- <p class="paragraph">În acest caz, elementul va avea o lățime de 200 pixeli și o înălțime de 100 pixeli.</p>
- <ul class="enumeration">
-  <li>padding-box: indică browser-ului web că lățimea și înălțimea elementului trebuie să includă spațiile interioare ca parte a valorii sale. De exemplu, să presupunem că avem următorul stil:</li>
- </ul>
- <div class="code-inline">
-  <pre><code>width:&nbsp;200px;<br>height:&nbsp;100px;<br>margin:&nbsp;10px;<br>padding:&nbsp;10px;<br>border:&nbsp;5px&nbsp;solid&nbsp;#ccc;<br>background-color:&nbsp;#eee;&nbsp;&nbsp;<br>box-sizing:&nbsp;padding-box;</code></pre>
- </div>
- <p class="paragraph">Aici, lățimea reală a conținutului intern al blocului va fi egală cu 200px (width) - 10px (padding-left) - 10px (padding-right) = 180px.</p>
- <p class="paragraph">Este de remarcat faptul că majoritatea browser-elor moderne nu suportă această proprietate.</p>
- <ul class="enumeration">
-  <li>border-box: indică browser-ului web că lățimea și înălțimea elementului trebuie să includă spațiile interioare și granițele ca parte a valorii sale. De exemplu, să presupunem că avem următorul stil:</li>
- </ul>
- <div class="code-inline">
-  <pre><code>width:&nbsp;200px;<br>height:&nbsp;100px;<br>margin:&nbsp;10px;<br>padding:&nbsp;10px;<br>border:&nbsp;5px&nbsp;solid&nbsp;#ccc;<br>background-color:&nbsp;#eee;<br>box-sizing:&nbsp;border-box;</code></pre>
- </div>
- <p class="paragraph">Aici, lățimea reală a conținutului intern al blocului va fi egală cu 200px (width) - 10px (padding-left) - 10px (padding-right) - 5px (border-left-width) - 5px (border-right-width) = 170px.</p>
- <p class="paragraph">De exemplu, să definim două blocuri care diferă doar prin valoarea proprietății box-sizing:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;&nbsp;<br>&lt;html&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&lt;head&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;Dimensiuni&nbsp;în&nbsp;CSS3&lt;/title&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;style&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:&nbsp;200px;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;100px;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;margin:&nbsp;10px;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;padding:&nbsp;10px;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;5px&nbsp;solid&nbsp;#ccc;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;#eee;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div.outer1{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;box-sizing:&nbsp;content-box;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div.outer2{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;box-sizing:&nbsp;border-box;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/style&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&lt;/head&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&lt;body&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="outer1"&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Determinarea&nbsp;dimensiunii&nbsp;reale&nbsp;în&nbsp;CSS&nbsp;3&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="outer2"&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Determinarea&nbsp;dimensiunii&nbsp;reale&nbsp;în&nbsp;CSS&nbsp;3&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&lt;/body&gt;&nbsp;<br>&lt;/html&gt;&nbsp;</code></pre>
- </div>
- <p class="paragraph">În primul caz, la determinarea dimensiunilor blocului, grosimea graniței, precum și spațiile interioare și exterioare, vor fi adăugate la proprietățile width și height, deci primul bloc va fi mai mare:</p>
- <div class="image-container">
-  <img src="images/image3.png" alt="" class="responsive-image">
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Dimensiuni ale elementelor</h1>
+     <p class="paragraph">Dimensiunile elementelor se setează folosind proprietățile width (lățime) și height (înălțime).</p>
+     <p class="paragraph">Valoarea implicită pentru aceste proprietăți este auto, ceea ce înseamnă că browser-ul determină automat lățimea și înălțimea elementului. De asemenea, dimensiunile pot fi setate explicit folosind unități de măsură (pixeli, em) sau folosind procente:</p>
+     <div class="code-inline">
+      <pre><code>width:&nbsp;150px;&nbsp;&nbsp;<br>width:&nbsp;75%;&nbsp;&nbsp;<br>height:&nbsp;15em;</code></pre>
+     </div>
+     <p class="paragraph">Pixelii determină lățimea și înălțimea exacte. Unitatea de măsură em depinde de înălțimea fontului din element. Dacă dimensiunea fontului elementului, de exemplu, este de 16 pixeli, atunci 1 em pentru acest element va fi egal cu 16 pixeli. Astfel, dacă se stabilește lățimea elementului la 15em, aceasta va fi de fapt 15 * 16 = 230 pixeli.</p>
+     <p class="paragraph">Dacă elementului nu i se stabilește dimensiunea fontului, atunci aceasta va fi moștenită din parametri sau va fi valoarea implicită.</p>
+     <p class="paragraph">Valorile procentuale pentru proprietatea width se calculează pe baza lățimii elementului-container. Dacă, de exemplu, lățimea elementului body pe pagina web este de 1000 pixeli, iar un element &lt;div&gt; inclus în acesta are o lățime de 75%, atunci lățimea efectivă a acestui &lt;div&gt; va fi 1000 * 0.75 = 750 pixeli.</p>
+     <p class="paragraph">Dacă utilizatorul schimbă dimensiunea ferestrei browser-ului, lățimea elementului body și, în consecință, lățimea blocului div inclus se vor schimba, de asemenea.</p>
+     <p class="paragraph">Valorile procentuale pentru proprietatea height funcționează similar cu proprietatea width, doar că acum înălțimea se calculează în funcție de înălțimea elementului-container.</p>
+     <p class="paragraph">De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;&nbsp;<br>&lt;html&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&lt;head&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;Dimensiuni&nbsp;în&nbsp;CSS3&lt;/title&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;style&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div.outer{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:&nbsp;75%;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;200px;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;margin:&nbsp;10px;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;solid&nbsp;#ccc;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;#eee;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div.inner{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:&nbsp;80%;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;80%;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;margin:&nbsp;auto;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;1px&nbsp;solid&nbsp;red;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;blue;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/style&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&lt;/head&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&lt;body&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="outer"&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="inner"&gt;&lt;/div&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&lt;/body&gt;&nbsp;<br>&lt;/html&gt;&nbsp;</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/HTML/6.Culoare%20in%20CSS/13.Dimensiuni%20ale%20elementelor/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">În același timp, dimensiunile reale ale elementului pot diferi de cele stabilite în proprietățile width și height. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;&nbsp;<br>&lt;html&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&lt;head&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;Dimensiuni&nbsp;în&nbsp;CSS3&lt;/title&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;style&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div.outer{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:&nbsp;200px;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;100px;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;margin:&nbsp;10px;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;padding:&nbsp;10px;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;5px&nbsp;solid&nbsp;#ccc;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;#eee;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/style&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&lt;/head&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&lt;body&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="outer"&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Determinarea&nbsp;dimensiunii&nbsp;reale&nbsp;în&nbsp;CSS&nbsp;3&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&lt;/body&gt;&nbsp;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/HTML/6.Culoare%20in%20CSS/13.Dimensiuni%20ale%20elementelor/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Așa cum se vede în captură, în realitate valoarea proprietății width - 200px - determină doar lățimea conținutului intern al elementului, iar pentru blocul propriu-zis al elementului va fi alocat spațiu a cărui lățime este egală cu lățimea conținutului intern (proprietatea width) + spațiile interioare (proprietatea padding) + lățimea graniței (proprietatea border-width) + spațiile exterioare (proprietatea margin).</p>
+     <p class="paragraph">Cu alte cuvinte, elementul va avea o lățime de 230 pixeli, iar lățimea blocului elementului, luând în considerare spațiile exterioare, va fi de 250 pixeli.</p>
+     <p class="paragraph">Astfel de calcule ar trebui luate în considerare la stabilirea dimensiunilor elementelor.</p>
+     <p class="paragraph">Cu ajutorul unui set suplimentar de proprietăți, pot fi stabilite dimensiunile minime și maxime:</p>
+     <ul class="enumeration">
+      <li>min-width: lățimea minimă</li>
+      <li>max-width: lățimea maximă</li>
+      <li>min-height: înălțimea minimă</li>
+      <li>max-height: înălțimea maximă</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>min-width:&nbsp;200px;&nbsp;&nbsp;<br>width:50%;&nbsp;&nbsp;<br>max-width:&nbsp;300px;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, lățimea elementului este egală cu 50% din lățimea elementului-container, însă nu poate fi mai mică de 200 pixeli și mai mare de 300 pixeli.</p>
+     <h2 class="subtitle">Redefinirea lățimii blocului</h2>
+     <p class="paragraph">Proprietatea box-sizing permite redefinirea dimensiunilor stabilite ale elementelor. Aceasta poate lua una dintre următoarele valori:</p>
+     <ul class="enumeration">
+      <li>content-box: valoarea implicită, la care browser-ul pentru determinarea lățimii și înălțimii reale ale elementelor adaugă valorile proprietăților width și height ale elementului</li>
+     </ul>
+     <p class="paragraph">De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>width:&nbsp;200px;&nbsp;&nbsp;<br>height:&nbsp;100px;&nbsp;&nbsp;<br>margin:&nbsp;10px;&nbsp;&nbsp;<br>padding:&nbsp;10px;&nbsp;&nbsp;<br>border:&nbsp;5px&nbsp;solid&nbsp;#ccc;&nbsp;&nbsp;<br>background-color:&nbsp;#eee;&nbsp;&nbsp;<br>box-sizing:&nbsp;content-box;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, elementul va avea o lățime de 200 pixeli și o înălțime de 100 pixeli.</p>
+     <ul class="enumeration">
+      <li>padding-box: indică browser-ului web că lățimea și înălțimea elementului trebuie să includă spațiile interioare ca parte a valorii sale. De exemplu, să presupunem că avem următorul stil:</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>width:&nbsp;200px;<br>height:&nbsp;100px;<br>margin:&nbsp;10px;<br>padding:&nbsp;10px;<br>border:&nbsp;5px&nbsp;solid&nbsp;#ccc;<br>background-color:&nbsp;#eee;&nbsp;&nbsp;<br>box-sizing:&nbsp;padding-box;</code></pre>
+     </div>
+     <p class="paragraph">Aici, lățimea reală a conținutului intern al blocului va fi egală cu 200px (width) - 10px (padding-left) - 10px (padding-right) = 180px.</p>
+     <p class="paragraph">Este de remarcat faptul că majoritatea browser-elor moderne nu suportă această proprietate.</p>
+     <ul class="enumeration">
+      <li>border-box: indică browser-ului web că lățimea și înălțimea elementului trebuie să includă spațiile interioare și granițele ca parte a valorii sale. De exemplu, să presupunem că avem următorul stil:</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>width:&nbsp;200px;<br>height:&nbsp;100px;<br>margin:&nbsp;10px;<br>padding:&nbsp;10px;<br>border:&nbsp;5px&nbsp;solid&nbsp;#ccc;<br>background-color:&nbsp;#eee;<br>box-sizing:&nbsp;border-box;</code></pre>
+     </div>
+     <p class="paragraph">Aici, lățimea reală a conținutului intern al blocului va fi egală cu 200px (width) - 10px (padding-left) - 10px (padding-right) - 5px (border-left-width) - 5px (border-right-width) = 170px.</p>
+     <p class="paragraph">De exemplu, să definim două blocuri care diferă doar prin valoarea proprietății box-sizing:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;&nbsp;<br>&lt;html&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&lt;head&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;Dimensiuni&nbsp;în&nbsp;CSS3&lt;/title&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;style&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:&nbsp;200px;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:&nbsp;100px;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;margin:&nbsp;10px;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;padding:&nbsp;10px;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border:&nbsp;5px&nbsp;solid&nbsp;#ccc;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background-color:&nbsp;#eee;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div.outer1{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;box-sizing:&nbsp;content-box;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;div.outer2{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;box-sizing:&nbsp;border-box;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/style&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&lt;/head&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&lt;body&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="outer1"&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Determinarea&nbsp;dimensiunii&nbsp;reale&nbsp;în&nbsp;CSS&nbsp;3&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="outer2"&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Determinarea&nbsp;dimensiunii&nbsp;reale&nbsp;în&nbsp;CSS&nbsp;3&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&lt;/body&gt;&nbsp;<br>&lt;/html&gt;&nbsp;</code></pre>
+     </div>
+     <p class="paragraph">În primul caz, la determinarea dimensiunilor blocului, grosimea graniței, precum și spațiile interioare și exterioare, vor fi adăugate la proprietățile width și height, deci primul bloc va fi mai mare:</p>
+     <div class="image-container">
+      <img th:src="@{/images/HTML/6.Culoare%20in%20CSS/13.Dimensiuni%20ale%20elementelor/images/image3.png}" alt="" class="responsive-image">
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

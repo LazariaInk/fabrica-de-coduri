@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='24.IndexDB API', activeLesson='8.Stergerea datelor din depozit'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Ștergerea datelor din depozit</h1>
+     <p class="paragraph">Pentru ștergerea datelor din depozit în IndexDB se utilizează metodele delete() și clear() ale obiectului IDBObjectStore.</p>
+     <p class="paragraph">Metoda delete() șterge toate obiectele după cheile specificate care sunt transmise ca parametru.</p>
+     <div class="code-inline">
+      <pre><code>delete(key)</code></pre>
+     </div>
+     <p class="paragraph">Ca valoare a parametrului se poate transmite o valoare specifică sau un interval de chei sub forma unui obiect IDBKeyRange.</p>
+     <p class="paragraph">Această metodă returnează un obiect IDBRequest. Dacă metoda se execută cu succes pentru obiectul IDBRequest se generează evenimentul success, iar proprietatea sa result conține valoarea undefined. În cazul apariției unei erori la obiectul IDBRequest, se declanșează evenimentul error, iar proprietatea sa error conține informații despre eroare. Pentru a gestiona aceste evenimente se pot folosi respectiv proprietățile onsuccess și onerror.</p>
+     <p class="paragraph">De exemplu să ștergem obiectul cu cheia egală cu 1:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;request&nbsp;=&nbsp;indexedDB.open("test",&nbsp;5)&nbsp;//&nbsp;ne&nbsp;conectăm&nbsp;la&nbsp;baza&nbsp;de&nbsp;date&nbsp;test<br><br>request.onupgradeneeded&nbsp;=&nbsp;(event)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;db&nbsp;=&nbsp;event.target.result&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;db.createObjectStore("users",&nbsp;{&nbsp;keyPath:&nbsp;"id",&nbsp;autoIncrement:&nbsp;true&nbsp;})<br>&nbsp;&nbsp;&nbsp;userStore.add({name:&nbsp;"Tom",&nbsp;age:&nbsp;39})<br>&nbsp;&nbsp;&nbsp;userStore.add({name:&nbsp;"Bob",&nbsp;age:&nbsp;43})<br>&nbsp;&nbsp;&nbsp;userStore.add({name:&nbsp;"Sam",&nbsp;age:&nbsp;28})<br>}<br>request.onsuccess&nbsp;=&nbsp;(event)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;db&nbsp;=&nbsp;event.target.result&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;transaction&nbsp;=&nbsp;db.transaction(["users"],&nbsp;"readwrite")<br>&nbsp;&nbsp;&nbsp;const&nbsp;userStore&nbsp;=&nbsp;transaction.objectStore("users")&nbsp;&nbsp;<br><br>&nbsp;&nbsp;&nbsp;const&nbsp;deleteRequest&nbsp;=&nbsp;userStore.delete(1)<br>&nbsp;&nbsp;&nbsp;deleteRequest.onsuccess&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;console.log("Successfully&nbsp;deleted")<br>&nbsp;&nbsp;&nbsp;deleteRequest.onerror&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;&nbsp;console.log(deleteRequest.error)<br>}</code></pre>
+     </div>
+     <p class="paragraph">Pentru crearea unui interval de chei se utilizează următoarele metode statice ale interfeței IDBKeyRange:</p>
+     <ul class="enumeration">
+      <li>IDBKeyRange.bound() creează un interval de chei cu valorile minimă și maximă specificate</li>
+      <li>IDBKeyRange.only() creează un interval de chei care conține doar o valoare specifică</li>
+      <li>IDBKeyRange.lowerBound() creează un interval de chei cu o valoare minimă specificată</li>
+      <li>IDBKeyRange.upperBound() creează un interval de chei cu o valoare maximă specificată</li>
+     </ul>
+     <p class="paragraph">Intervalele de chei create prin aceste metode pot fi descrise în tabelul următor:</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/24.IndexDB%20API/8.Stergerea%20datelor%20din%20depozit/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">De exemplu, pentru a șterge toate obiectele ale căror valoare a cheii nu este mai mare de 2:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;deleteRequest&nbsp;=&nbsp;userStore.delete(IDBKeyRange.upperBound(2));<br>deleteRequest.onsuccess&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;console.log("Successfully&nbsp;deleted");</code></pre>
+     </div>
+     <h2 class="subtitle">Ștergerea tuturor datelor</h2>
+     <p class="paragraph">Pentru ștergerea absolut tuturor datelor din depozitul bazei de date se aplică metoda clear(). Aceasta nu acceptă niciun parametru și returnează un obiect IDBRequest. La executarea cu succes proprietatea result a IDBRequest este de asemenea egală cu undefined</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;deleteRequest&nbsp;=&nbsp;userStore.clear()&nbsp;&nbsp;<br>deleteRequest.onsuccess&nbsp;=&nbsp;()&nbsp;=&gt;&nbsp;console.log("Successfully&nbsp;deleted")</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

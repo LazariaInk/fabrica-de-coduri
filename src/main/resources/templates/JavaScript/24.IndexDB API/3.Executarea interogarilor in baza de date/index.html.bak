@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='24.IndexDB API', activeLesson='3.Executarea interogarilor in baza de date'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Executarea interogărilor în baza de date</h1>
+     <p class="paragraph">Toate operațiunile cu baza de date IndexDB sunt încapsulate în tranzacții, care reprezintă tipul IDBTransaction. Pentru a crea obiecte de acest tip, la obiectul bazei de date IDBDatabase se apelează metoda transaction():</p>
+     <div class="code-inline">
+      <pre><code>transaction(storeNames)<br>transaction(storeNames,&nbsp;mode)</code></pre>
+     </div>
+     <p class="paragraph">Această metodă acceptă următoarele parametri:</p>
+     <ul class="enumeration">
+      <li>storeNames: un array de nume ale magazinelor de obiecte, la care se accesează în tranzacție.</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>const&nbsp;request&nbsp;=&nbsp;indexedDB.open("test",&nbsp;3);&nbsp;//&nbsp;ne&nbsp;conectăm&nbsp;la&nbsp;bd&nbsp;test<br><br>request.onsuccess&nbsp;=&nbsp;(event)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;db&nbsp;=&nbsp;event.target.result;&nbsp;&nbsp;//&nbsp;obținem&nbsp;bd<br>&nbsp;&nbsp;&nbsp;//&nbsp;creăm&nbsp;tranzacție<br>&nbsp;&nbsp;&nbsp;const&nbsp;transaction&nbsp;=&nbsp;db.transaction("users");&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;accesăm&nbsp;magazinul&nbsp;"users"<br>&nbsp;&nbsp;&nbsp;console.log(transaction);<br>};</code></pre>
+     </div>
+     <p class="paragraph">Dacă trebuie să implicăm mai multe magazine, atunci sunt definite într-un array:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;transaction&nbsp;=&nbsp;db.transaction(["users",&nbsp;"companies"]);&nbsp;//&nbsp;accesăm&nbsp;magazinele&nbsp;"users"&nbsp;și&nbsp;"companies"</code></pre>
+     </div>
+     <p class="paragraph">Dacă trebuie să specificăm toate magazinele de obiecte ale bazei de date, atunci se poate folosi proprietatea IDBDatabase.objectStoreNames:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;transaction&nbsp;=&nbsp;db.transaction(db.objectStoreNames);</code></pre>
+     </div>
+     <p class="paragraph">Mode: un parametru opțional, stabilește tipul de acces la baza de date. Poate lua următoarele valori:</p>
+     <ul class="enumeration">
+      <li>readonly: datele sunt accesibile doar pentru citire. Această valoare este utilizată implicit, dacă parametrul mode nu este specificat explicit</li>
+      <li>readwrite: datele sunt accesibile atât pentru citire, cât și pentru scriere</li>
+      <li>versionchange: sunt permise citirea și scrierea, precum și operațiunile de ștergere sau creare a magazinelor și indexurilor de obiecte</li>
+     </ul>
+     <p class="paragraph">Exemplu de utilizare:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;transaction&nbsp;=&nbsp;db.transaction("users",&nbsp;"readwrite");</code></pre>
+     </div>
+     <p class="paragraph">Cu ajutorul proprietăților IDBTransaction se poate obține anumite informații despre tranzacție:</p>
+     <ul class="enumeration">
+      <li>db: obiectul bazei de date (IDBDatabase)</li>
+      <li>error: informații despre eroare sub forma unui obiect DOMException</li>
+      <li>mode: modul de acces la baza de date, dacă nu este setat, atunci implicit readonly</li>
+      <li>objectStoreNames: lista magazinelor implicate în tranzacție (obiect DOMStringList), unde fiecare magazin reprezintă un obiect IDBObjectStore</li>
+     </ul>
+     <p class="paragraph">De exemplu, obținerea datelor:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;request&nbsp;=&nbsp;indexedDB.open("test",&nbsp;3);&nbsp;//&nbsp;ne&nbsp;conectăm&nbsp;la&nbsp;bd&nbsp;test<br><br>request.onsuccess&nbsp;=&nbsp;(event)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;db&nbsp;=&nbsp;event.target.result;&nbsp;&nbsp;//&nbsp;obținem&nbsp;bd<br>&nbsp;&nbsp;&nbsp;//&nbsp;creăm&nbsp;tranzacție<br>&nbsp;&nbsp;&nbsp;const&nbsp;transaction&nbsp;=&nbsp;db.transaction(["users"],&nbsp;"readwrite");<br>&nbsp;&nbsp;&nbsp;console.log(transaction.db.name);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;test<br>&nbsp;&nbsp;&nbsp;console.log(transaction.mode);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;readwrite<br>&nbsp;&nbsp;&nbsp;console.log(transaction.objectStoreNames);&nbsp;&nbsp;//&nbsp;DOMStringList&nbsp;{0:&nbsp;"users",&nbsp;length:&nbsp;1}<br>};</code></pre>
+     </div>
+     <h2 class="subtitle">Obținerea magazinului</h2>
+     <p class="paragraph">Pentru a efectua operațiuni propriu-zise cu magazinul în cadrul tranzacției se utilizează diferite metode ale obiectului IDBObjectStore, care de fapt reprezintă magazinul. Pentru a obține obiectul IDBObjectStore la obiectul tranzacției IDBTransaction se apelează metoda objectStore():</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;userStore&nbsp;=&nbsp;transaction.objectStore("users");&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;magazinul&nbsp;users</code></pre>
+     </div>
+     <p class="paragraph">Trebuie menționat că magazinul trebuie să fie creat anterior cu ajutorul metodei createObjectStore() a obiectului IDBDatabase. Crearea unui magazin se poate face la crearea sau modificarea versiunii bazei de date:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;request&nbsp;=&nbsp;indexedDB.open("test",&nbsp;5);&nbsp;//&nbsp;ne&nbsp;conectăm&nbsp;la&nbsp;bd&nbsp;test<br><br>request.onupgradeneeded&nbsp;=&nbsp;(event)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;db&nbsp;=&nbsp;event.target.result;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;if&nbsp;(db.objectStoreNames.contains("users"))&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;db.deleteObjectStore("users");&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;const&nbsp;userStore&nbsp;=&nbsp;db.createObjectStore("users",&nbsp;{&nbsp;keyPath:&nbsp;"id",&nbsp;autoIncrement:&nbsp;true&nbsp;});<br>&nbsp;&nbsp;&nbsp;console.log(userStore);<br>};<br><br>request.onsuccess&nbsp;=&nbsp;(event)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;db&nbsp;=&nbsp;event.target.result;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;transaction&nbsp;=&nbsp;db.transaction(["users"],&nbsp;"readwrite");<br>&nbsp;&nbsp;&nbsp;const&nbsp;userStore&nbsp;=&nbsp;transaction.objectStore("users");&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;console.log(userStore);<br>};</code></pre>
+     </div>
+     <p class="paragraph">Tipul IDBObjectStore oferă următoarea serie de metode pentru operații asupra datelor din magazin:</p>
+     <ul class="enumeration">
+      <li>add - adaugă noi obiecte în magazin</li>
+      <li>clear - curăță magazinul șterge toate obiectele</li>
+      <li>count - returnează numărul total de obiecte</li>
+      <li>createIndex - creează un nou index</li>
+      <li>delete - șterge din magazin obiectul cu cheia specificată</li>
+      <li>deleteIndex - șterge indexul specificat</li>
+      <li>get - returnează obiectul cu cheia specificată</li>
+      <li>getKey - returnează cheia obiectului</li>
+      <li>getAll - returnează toate obiectele din magazin</li>
+      <li>getAllKeys - returnează cheile obiectelor</li>
+      <li>index - returnează indexul magazinului</li>
+      <li>openCursor - este folosit pentru a itera prin magazinul de obiecte pe baza cheii primare cu ajutorul unui cursor</li>
+      <li>openKeyCursor - returnează un cursor pentru a itera prin magazinul de obiecte</li>
+      <li>put - actualizează obiectele existente în magazin</li>
+     </ul>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

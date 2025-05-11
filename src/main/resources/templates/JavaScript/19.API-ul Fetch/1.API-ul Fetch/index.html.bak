@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='19.API-ul Fetch', activeLesson='1.API-ul Fetch'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">API-ul Fetch</h1>
+     <h2 class="subtitle">Funcția fetch</h2>
+     <p class="paragraph">API-ul Fetch oferă un instrument simplificat, dar în același timp flexibil și puternic, pentru accesarea resurselor de rețea comparativ cu XMLHttpRequest-ul standard.</p>
+     <p class="paragraph">Elementul cheie al acestui API Fetch este funcția fetch(). Ea este implementată în diferite contexte. În particular, în browser, este implementată de interfața Window.</p>
+     <p class="paragraph">Funcția fetch are următorea sintaxă:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;fetchPromise&nbsp;=&nbsp;fetch(resource&nbsp;[,&nbsp;init])</code></pre>
+     </div>
+     <p class="paragraph">Ca parametru obligatoriu, resource, funcția acceptă parametrii resursei căreia funcția va accesa. Ca parametru opțional, init, funcția poate accepta un obiect cu setări suplimentare ale solicitării.</p>
+     <p class="paragraph">Funcția fetch() returnează un obiect Promise, care primește un răspuns după finalizarea solicitării către resursa de rețea.</p>
+     <h2 class="subtitle">Definirea resursei pe server</h2>
+     <p class="paragraph">Să examinăm cel mai simplu exemplu. Așadar, mai întâi de toate, vom avea nevoie de o anumită resursă de rețea la care să accesăm. Pentru a emula o resursă de rețea, vom folosi un server web local.</p>
+     <p class="paragraph">Serverul web poate fi oricare. În acest caz, vom folosi varianta cea mai simplă - Node.js, deci înainte de a crea aplicația, este necesar să instalăm Node.js. Dar, din nou, în loc de Node.js, ar putea fi orice altă tehnologie de server - php, asp.net, python etc., sau un anumit server web cum ar fi Apache sau IIS.</p>
+     <p class="paragraph">Deci, să creăm pe discul dur un folder pentru fișierele serverului web. De exemplu, în cazul meu este folderul C:\app. Apoi, în acest folder, definim fișierul serverului. Să presupunem că se numește server.js și are următorul cod:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");<br><br>http.createServer(function(request,&nbsp;response){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;if(request.url&nbsp;==&nbsp;"/hello"){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;response.end("Fetch&nbsp;pe&nbsp;FDC.COM");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fs.readFile("index.html",&nbsp;(error,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>&nbsp;&nbsp;&nbsp;}<br>}).listen(3000,&nbsp;()=&gt;console.log("Serverul&nbsp;a&nbsp;fost&nbsp;lansat&nbsp;la&nbsp;adresa&nbsp;http://localhost:3000"));</code></pre>
+     </div>
+     <p class="paragraph">Acesta este cel mai primitiv server, care este suficient pentru sarcina noastră. Să trecem rapid prin cod. Mai întâi, sunt conectate pachetele cu funcționalitatea pe care intenționăm să o folosim:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;http&nbsp;=&nbsp;require("http");&nbsp;&nbsp;&nbsp;//&nbsp;pentru&nbsp;procesarea&nbsp;solicitărilor&nbsp;de&nbsp;intrare<br>const&nbsp;fs&nbsp;=&nbsp;require("fs");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;pentru&nbsp;citirea&nbsp;fișierului&nbsp;index.html&nbsp;de&nbsp;pe&nbsp;discul&nbsp;dur</code></pre>
+     </div>
+     <p class="paragraph">Pentru a crea serverul se folosește funcția http.createServer(). Acestei funcții i se transmite un handler, care este apelat de fiecare dată când serverul primește o solicitare. Handler-ul are doi parametri: request (conține datele solicitării) și response (gestionează trimiterea răspunsului).</p>
+     <p class="paragraph">În handler-ul solicitării, folosind proprietatea request.url, putem afla la ce resursă de pe server s-a făcut solicitarea. Astfel, în acest caz, dacă a venit o solicitare pe calea "/hello" (condițional la resursa "/hello"), atunci trimitem ca răspuns cu metoda response.end() textul "Fetch pe FDC.COM":</p>
+     <div class="code-inline">
+      <pre><code>if(request.url&nbsp;==&nbsp;"/hello"){<br>&nbsp;&nbsp;&nbsp;response.end("Fetch&nbsp;pe&nbsp;FDC.COM");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Dacă solicitarea a venit la o altă resursă, atunci trimitem fișierul index.html, pe care îl vom defini mai departe:</p>
+     <div class="code-inline">
+      <pre><code>else{<br>&nbsp;&nbsp;&nbsp;fs.readFile("index.html",&nbsp;(error,&nbsp;data)&nbsp;=&gt;&nbsp;response.end(data));<br>}</code></pre>
+     </div>
+     <p class="paragraph">Pentru citirea fișierelor se folosește funcția încorporată fs.readFile(). Primul parametru al funcției este adresa fișierului (în acest caz se presupune că fișierul index.html se află în aceeași directorie cu fișierul serverului server.js). Al doilea parametru este o funcție care este apelată după citirea fișierului și primește conținutul acestuia prin al doilea parametru data. Apoi, conținutul citit poate fi trimis folosind funcția response.end(data).</p>
+     <p class="paragraph">La final, folosind funcția listen() lansăm serverul web pe portul 3000. Astfel, serverul va fi accesibil la adresa http://localhost:3000/</p>
+     <h2 class="subtitle">Apelul funcției fetch()</h2>
+     <p class="paragraph">Acum, în directorul serverului, definim un fișier simplu index.html</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/19.API-ul%20Fetch/1.API-ul%20Fetch/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Definim următorul conținut în acest fișier:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;script&gt;<br>fetch("/hello")<br>&nbsp;&nbsp;&nbsp;.then(response&nbsp;=&gt;&nbsp;response.text())<br>&nbsp;&nbsp;&nbsp;.then(responseText&nbsp;=&gt;&nbsp;console.log(responseText));<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">În funcția fetch() este transmisă adresa resursei - în acest caz "/hello".</p>
+     <div class="code-inline">
+      <pre><code>fetch("/hello")</code></pre>
+     </div>
+     <p class="paragraph">Deoarece fetch() returnează un obiect Promise, pentru a obține rezultatul solicitării, putem apela metoda then()</p>
+     <div class="code-inline">
+      <pre><code>fetch("/hello").then(response&nbsp;=&gt;&nbsp;response.text())</code></pre>
+     </div>
+     <p class="paragraph">În metoda then() este transmisă o funcție callback care, ca parametru response, primește răspunsul de la server. Cu toate acestea, răspunsul serverului reprezintă un obiect complex, care încapsulează multe informații diferite. Ne interesează doar textul trimis de server. Pentru a obține acest text, se apelează metoda response.text() a obiectului response.</p>
+     <p class="paragraph">Metoda response.text() returnează, de asemenea, un Promise. Și pentru a obține textul răspunsului propriu-zis, atașăm o altă metodă then(), în care în funcția callback obținem textul răspunsului:</p>
+     <div class="code-inline">
+      <pre><code>.then(responseText&nbsp;=&gt;&nbsp;console.log(responseText));</code></pre>
+     </div>
+     <p class="paragraph">Acum, în consolă, ne mutăm în directorul serverului folosind comanda cd și lansăm serverul folosind comanda:</p>
+     <div class="code-inline">
+      <pre><code>node&nbsp;server.js</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/19.API-ul%20Fetch/1.API-ul%20Fetch/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">După lansarea serverului, putem accesa în browser adresa http://localhost:3000, unde ne va fi afișată pagina, iar în codul JavaScript al acesteia, cu ajutorul funcției fetch(), se va realiza o solicitare către resursa "/hello":</p>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/19.API-ul%20Fetch/1.API-ul%20Fetch/images/image3.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">În final, la accesarea resursei "/hello", serverul va trimite șirul "Fetch pe FDC.COM", pe care îl vom putea obține pe pagina web.</p>
+     <p class="paragraph">În exemplul de mai sus s-a folosit un path relativ, dar se putea utiliza și un path absolut cu specificarea protocolului, adresei serverului și portului:</p>
+     <div class="code-inline">
+      <pre><code>fetch("http://localhost:3000/hello")<br>&nbsp;&nbsp;&nbsp;.then(response&nbsp;=&gt;&nbsp;response.text())<br>&nbsp;&nbsp;&nbsp;.then(responseText&nbsp;=&gt;&nbsp;console.log(responseText));</code></pre>
+     </div>
+     <h2 class="subtitle">fetch cu async/await</h2>
+     <p class="paragraph">Deoarece funcția fetch() returnează un Promise, în loc să folosim lanțul de metode then(), putem folosi operatorii async/await pentru a extrage răspunsul. Să rescriem exemplul anterior:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;script&gt;<br>async&nbsp;function&nbsp;getText()&nbsp;{<br>&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;obiectul&nbsp;răspuns<br>&nbsp;&nbsp;&nbsp;const&nbsp;response&nbsp;=&nbsp;await&nbsp;fetch("/hello");<br>&nbsp;&nbsp;&nbsp;//&nbsp;extragem&nbsp;textul&nbsp;răspunsului&nbsp;din&nbsp;obiectul&nbsp;răspuns<br>&nbsp;&nbsp;&nbsp;const&nbsp;responseText&nbsp;=&nbsp;await&nbsp;response.text();<br>&nbsp;&nbsp;&nbsp;console.log(responseText);<br>}<br><br>getText();<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

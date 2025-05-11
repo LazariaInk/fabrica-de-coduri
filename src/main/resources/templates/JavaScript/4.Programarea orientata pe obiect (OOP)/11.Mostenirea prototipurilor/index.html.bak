@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='4.Programarea orientata pe obiect (OOP)', activeLesson='11.Mostenirea prototipurilor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Moștenirea prototipurilor</h1>
+     <p class="paragraph">JavaScript suportă moștenirea, permițându-ne să creăm noi tipuri de obiecte și să moștenim funcționalitatea lor de la obiecte deja existente. Cu toate acestea, trebuie să înțelegem că moștenirea în JavaScript diferă de cea din alte limbaje populare precum Java, C++, C# și altele.</p>
+     <p class="paragraph">În JavaScript, moștenirea este bazată pe obiecte (nu pe clase sau tipuri), fiind cunoscută și sub denumirea de moștenire a prototipurilor sau moștenire prototipală.</p>
+     <p class="paragraph">Pentru a crea un obiect bazat pe un anumit prototip, se folosește funcția Object.create(), la care se transmite prototipul ce urmează să fie moștenit:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;person&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"",<br>&nbsp;&nbsp;&nbsp;age:&nbsp;0,&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;print:&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;}<br>};<br><br>const&nbsp;employee&nbsp;=&nbsp;Object.create(person);&nbsp;&nbsp;//&nbsp;employeefolosește&nbsp;prototipul&nbsp;obiectului&nbsp;person<br><br>//primim&nbsp;prototipul<br>console.log(employee.__proto__);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;{name:&nbsp;"",&nbsp;age:&nbsp;0,&nbsp;print:&nbsp;ƒ}<br><br>employee.name&nbsp;=&nbsp;"Tom";<br>employee.age&nbsp;=&nbsp;39;<br>employee.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;Age:&nbsp;39</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, obiectul "employee" este creat pe baza prototipului obiectului "person", esențialmente, obiectul "employee" moștenește prototipul obiectului "person". Datorită acestei moșteniri, obiectul "employee" dispune de aceleași proprietăți și metode definite în obiectul "person".</p>
+     <p class="paragraph">În plus, obiectele pot defini propriile lor proprietăți și metode. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;person&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"",<br>&nbsp;&nbsp;&nbsp;age:&nbsp;0,<br>&nbsp;&nbsp;&nbsp;print:&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;}<br>};<br><br>const&nbsp;employee&nbsp;=&nbsp;Object.create(person);&nbsp;&nbsp;//&nbsp;Employee&nbsp;folosește&nbsp;prototipul&nbsp;obiectului&nbsp;"person"<br><br>employee.name&nbsp;=&nbsp;"Tom";<br>employee.age&nbsp;=&nbsp;39;<br>employee.company&nbsp;=&nbsp;"Google";&nbsp;&nbsp;//&nbsp;proprietate&nbsp;nouă<br>//&nbsp;metodă&nbsp;nouă<br>employee.work&nbsp;=&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;console.log(`${this.name}&nbsp;lucrează&nbsp;la&nbsp;${this.company}`);<br>}<br>employee.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;Age:&nbsp;39<br>employee.work();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Tom&nbsp;lucrează&nbsp;la&nbsp;Google</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, obiectul "employee" definește în plus proprietatea "company" și metoda "work".</p>
+     <p class="paragraph">La nevoie, se pot redefini metodele moștenite:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;person&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"",<br>&nbsp;&nbsp;&nbsp;age:&nbsp;0,&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;print:&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;}<br>};<br>const&nbsp;employee&nbsp;=&nbsp;Object.create(person);<br><br>employee.name&nbsp;=&nbsp;"Tom";<br>employee.age&nbsp;=&nbsp;39;<br>employee.company&nbsp;=&nbsp;"Google";<br>//&nbsp;redefinim&nbsp;metoda&nbsp;print<br>employee.print&nbsp;=&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}&nbsp;Company:&nbsp;${this.company}`);<br>}<br>employee.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;Age:&nbsp;39&nbsp;&nbsp;Company:&nbsp;Google</code></pre>
+     </div>
+     <p class="paragraph">Aici redefinim funcția "print" pentru a afișa și compania angajatului. Se poate merge și mai departe și extinde lanțul de moștenire:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;person&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"",<br>&nbsp;&nbsp;&nbsp;age:&nbsp;0,&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;print:&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;}<br>};<br>//&nbsp;Obiectul&nbsp;"employee"&nbsp;moștenește&nbsp;prototipul&nbsp;obiectului&nbsp;"person"<br>const&nbsp;employee&nbsp;=&nbsp;Object.create(person);<br>employee.company&nbsp;=&nbsp;"";<br><br>//&nbsp;Obiectul&nbsp;"manager"&nbsp;moștenește&nbsp;prototipul&nbsp;obiectului&nbsp;"employee"<br>const&nbsp;manager&nbsp;=&nbsp;Object.create(employee);<br>//&nbsp;Redefinim&nbsp;metoda&nbsp;"print"<br>manager.print&nbsp;=&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}\nManager&nbsp;in&nbsp;${this.company}`);<br>}<br>manager.name&nbsp;=&nbsp;"Bob";<br>manager.age&nbsp;=&nbsp;43;<br>manager.company&nbsp;=&nbsp;"Microsoft";<br>manager.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Bob&nbsp;&nbsp;Age:&nbsp;43&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Manager&nbsp;in&nbsp;Microsoft</code></pre>
+     </div>
+     <p class="paragraph">Astfel, obținem un lanț de prototipuri - person-employee-manager: employee moștenește prototipul de la person, manager moștenește prototipul de la employee.</p>
+     <h2 class="subtitle">Apelarea metodelor din prototipul de bază</h2>
+     <p class="paragraph">Uneori poate fi necesar să apelăm metodele care sunt definite în prototip. Acest lucru poate fi util pentru scurtarea codului și reducerea duplicării, în special atunci când codul unei metode redefinite repetă logica metodei din prototip. Prin obținerea prototipului obiectului, putem apela metodele sale folosind funcția call():</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;person&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"",<br>&nbsp;&nbsp;&nbsp;age:&nbsp;0,&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;print:&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`Name:&nbsp;${this.name}&nbsp;&nbsp;Age:&nbsp;${this.age}`);<br>&nbsp;&nbsp;&nbsp;}<br>};<br>//&nbsp;Obiectul&nbsp;"employee"&nbsp;moștenește&nbsp;prototipul&nbsp;obiectului&nbsp;"person"<br>const&nbsp;employee&nbsp;=&nbsp;Object.create(person);<br>employee.name&nbsp;=&nbsp;"Tom";<br>employee.age&nbsp;=&nbsp;39;<br>employee.company&nbsp;=&nbsp;"Google";<br>//&nbsp;Redefinim&nbsp;metoda&nbsp;"print"<br>employee.print&nbsp;=&nbsp;function(){<br>&nbsp;&nbsp;&nbsp;this.__proto__.print.call(this);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;apelăm&nbsp;versiunea&nbsp;metodei&nbsp;din&nbsp;person<br>&nbsp;&nbsp;&nbsp;//&nbsp;Object.getPrototypeOf(this).print.call(this);&nbsp;&nbsp;//&nbsp;variantă&nbsp;alternativă<br>&nbsp;&nbsp;&nbsp;console.log(`Company:&nbsp;${this.company}`);<br>}<br><br>employee.print();&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;Age:&nbsp;39<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Company:&nbsp;Google</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, în metoda suprascrisă "print" a tipului "employee", apelăm versiunea metodei "print" din "person" folosind prototipul.</p>
+     <h2 class="subtitle">Verificarea moștenirii prototipurilor și Object.isPrototypeOf()</h2>
+     <p class="paragraph">Cu ajutorul metodei Object.isPrototypeOf() puteți verifica dacă un obiect este prototipul altui obiect.</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;person&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"",<br>&nbsp;&nbsp;&nbsp;print:&nbsp;()=&gt;console.log("Name:",&nbsp;this.name)<br>};<br>const&nbsp;user&nbsp;=&nbsp;{<br>&nbsp;&nbsp;&nbsp;name:&nbsp;"",<br>&nbsp;&nbsp;&nbsp;print:&nbsp;()=&gt;console.log("Name:",&nbsp;this.name)<br>};<br><br>//&nbsp;Obiectul&nbsp;"employee"&nbsp;moștenește&nbsp;prototipul&nbsp;obiectului&nbsp;"person".<br>const&nbsp;employee&nbsp;=&nbsp;Object.create(person);<br><br>console.log(person.isPrototypeOf(employee));&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;true<br>console.log(user.isPrototypeOf(employee));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;false</code></pre>
+     </div>
+     <p class="paragraph">Aici, obiectul "employee" moștenește prototipul de la "person". Prin urmare, apelul person.isPrototypeOf(employee) va returna true. Însă, obiectul "user" nu este prototipul pentru "employee", chiar dacă au aceeași structură de metode și proprietăți.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

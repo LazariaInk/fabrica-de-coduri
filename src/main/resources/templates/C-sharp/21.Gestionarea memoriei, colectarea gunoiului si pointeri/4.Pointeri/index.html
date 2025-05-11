@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='21.Gestionarea memoriei, colectarea gunoiului si pointeri', activeLesson='4.Pointeri'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Pointeri</h1>
+     <p class="paragraph">Dacă ați programat în C/C++, este posibil să fiți familiarizat cu conceptul de pointeri. Pointerii permit accesul la o anumită locație din memorie și efectuarea unor operațiuni asupra valorii stocate în acea locație.</p>
+     <p class="paragraph">În limbajul C#, pointerii sunt folosiți rar, dar în anumite cazuri pot fi utilizați pentru optimizarea aplicațiilor. Codul care folosește pointeri este numit cod nesigur (unsafe).</p>
+     <p class="paragraph">Totuși, acest lucru nu înseamnă că prezintă un pericol. Pur și simplu, atunci când lucrăm cu acest tip de cod, toate acțiunile legate de utilizarea memoriei, inclusiv eliberarea ei, revin în totalitate programatorului, nu mediului CLR. Din punctul de vedere al CLR, acest cod nu este sigur, deoarece mediul nu poate verifica acest cod, ceea ce crește probabilitatea de erori de diverse tipuri.</p>
+     <p class="paragraph">Pentru a utiliza cod nesigur în C#, trebuie să specificăm proiectului că va lucra cu cod nesigur. Pentru aceasta, trebuie să activăm setarea corespunzătoare în setările proiectului - din meniul Project (Proiect) selectăm Properties (Proprietăți). Apoi, în meniul Build, bifăm caseta Unsafe code (Cod nesigur):</p>
+     <div class="image-container">
+      <img th:src="@{/images/21.Gestionarea%20memoriei,%20colectarea%20gunoiului%20si%20pointeri/4.Pointeri/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Cuvântul cheie unsafe</h2>
+     <p class="paragraph">Un bloc de cod sau o metodă care utilizează pointeri este marcată cu cuvântul cheie unsafe:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;bloc&nbsp;de&nbsp;cod&nbsp;care&nbsp;utilizează&nbsp;pointeri<br>unsafe<br>{<br>&nbsp;&nbsp;&nbsp;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Metodă care folosește pointeri:</p>
+     <div class="code-inline">
+      <pre><code>unsafe&nbsp;void&nbsp;Test()<br>{<br><br>}</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, cu ajutorul unsafe putem declara structuri și clase:</p>
+     <div class="code-inline">
+      <pre><code>unsafe&nbsp;struct&nbsp;State<br>{<br><br>}<br><br>unsafe&nbsp;class&nbsp;Person<br>{<br><br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Operațiile * și &amp;</h2>
+     <p class="paragraph">Operația centrală în lucrul cu pointerii este operația *, numită și operație de dereferențiere. Operația de dereferențiere permite obținerea sau setarea valorii la adresa indicată de pointer. Pentru a obține adresa unei variabile, se folosește operația &amp;:</p>
+     <div class="code-inline">
+      <pre><code>unsafe<br>{<br>&nbsp;&nbsp;&nbsp;int*&nbsp;x;&nbsp;//&nbsp;definirea&nbsp;unui&nbsp;pointer<br>&nbsp;&nbsp;&nbsp;int&nbsp;y&nbsp;=&nbsp;10;&nbsp;//&nbsp;definim&nbsp;o&nbsp;variabilă<br><br>&nbsp;&nbsp;&nbsp;x&nbsp;=&nbsp;&amp;y;&nbsp;//&nbsp;pointerul&nbsp;x&nbsp;acum&nbsp;indică&nbsp;adresa&nbsp;variabilei&nbsp;y<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(*x);&nbsp;//&nbsp;10<br><br>&nbsp;&nbsp;&nbsp;y&nbsp;=&nbsp;y&nbsp;+&nbsp;20;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;schimbăm&nbsp;valoarea<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(*x);&nbsp;//&nbsp;30<br><br>&nbsp;&nbsp;&nbsp;*x&nbsp;=&nbsp;50;<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(y);&nbsp;//&nbsp;variabila&nbsp;y=50<br>}</code></pre>
+     </div>
+     <p class="paragraph">La declararea unui pointer, indicăm tipul: int* x; - în acest caz, se declară un pointer către un număr întreg. Dar, pe lângă tipul int, se pot folosi și altele: sbyte, byte, short, ushort, int, uint, long, ulong, char, float, double, decimal sau bool. De asemenea, se pot declara pointeri către tipuri enum, structuri și alți pointeri.</p>
+     <p class="paragraph">Expresia x = &amp;y; ne permite să obținem adresa variabilei y și să setăm pointerul x la acea adresă. Înainte de aceasta, pointerul x nu indica nimic.</p>
+     <p class="paragraph">După aceasta, toate operațiile asupra lui y vor afecta valoarea obținută prin pointerul x și invers, deoarece ambele indică aceeași zonă din memorie.</p>
+     <p class="paragraph">Pentru a obține valoarea stocată în zona de memorie la care indică pointerul x, se folosește expresia *x.</p>
+     <h2 class="subtitle">Obținerea adresei</h2>
+     <p class="paragraph">Folosind conversia pointerului într-un tip numeric întreg, putem obține adresa din memorie la care indică pointerul:</p>
+     <div class="code-inline">
+      <pre><code>int*&nbsp;x;&nbsp;//&nbsp;definirea&nbsp;unui&nbsp;pointer<br>int&nbsp;y&nbsp;=&nbsp;10;&nbsp;//&nbsp;definim&nbsp;o&nbsp;variabilă<br><br>x&nbsp;=&nbsp;&amp;y;&nbsp;//&nbsp;pointerul&nbsp;x&nbsp;acum&nbsp;indică&nbsp;adresa&nbsp;variabilei&nbsp;y<br><br>//&nbsp;obținem&nbsp;adresa&nbsp;variabilei&nbsp;y<br>ulong&nbsp;addr&nbsp;=&nbsp;(ulong)x;<br>Console.WriteLine($"Adresa&nbsp;variabilei&nbsp;y:&nbsp;{addr}");</code></pre>
+     </div>
+     <p class="paragraph">Pentru a obține adresa, se folosește conversia într-un tip uint, long sau ulong. Deoarece valoarea unei adrese este un număr întreg, iar pe sistemele pe 32 de biți, intervalul de adrese este de la 0 la 4.000.000.000, adresa poate fi stocată într-o variabilă de tip uint/int.</p>
+     <p class="paragraph">Pe sistemele pe 64 de biți, intervalul adreselor disponibile este mult mai mare, deci în acest caz este mai bine să se folosească ulong pentru a evita eroarea de depășire.</p>
+     <h2 class="subtitle">Pointer către alt pointer</h2>
+     <p class="paragraph">Declarația și utilizarea unui pointer către alt pointer:</p>
+     <div class="code-inline">
+      <pre><code>unsafe<br>{<br>&nbsp;&nbsp;&nbsp;int*&nbsp;x;&nbsp;//&nbsp;definirea&nbsp;unui&nbsp;pointer<br>&nbsp;&nbsp;&nbsp;int&nbsp;y&nbsp;=&nbsp;10;&nbsp;//&nbsp;definim&nbsp;o&nbsp;variabilă<br><br>&nbsp;&nbsp;&nbsp;x&nbsp;=&nbsp;&amp;y;&nbsp;//&nbsp;pointerul&nbsp;x&nbsp;acum&nbsp;indică&nbsp;adresa&nbsp;variabilei&nbsp;y<br>&nbsp;&nbsp;&nbsp;int&nbsp;z&nbsp;=&nbsp;&amp;x;&nbsp;//&nbsp;pointerul&nbsp;z&nbsp;acum&nbsp;indică&nbsp;adresa&nbsp;pointerului&nbsp;x<br>&nbsp;&nbsp;&nbsp;z&nbsp;=&nbsp;z&nbsp;+&nbsp;40;&nbsp;//&nbsp;schimbarea&nbsp;pointerului&nbsp;z&nbsp;va&nbsp;duce&nbsp;la&nbsp;schimbarea&nbsp;variabilei&nbsp;y<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(y);&nbsp;//&nbsp;variabila&nbsp;y=50<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(z);&nbsp;//&nbsp;variabila&nbsp;z=50<br>}</code></pre>
+     </div>
+     <p class="paragraph">Acest cod ilustrează cum pointerul z, care indică adresa pointerului x, poate fi folosit pentru a modifica valoarea la care indică x, afectând astfel și valoarea variabilei y.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

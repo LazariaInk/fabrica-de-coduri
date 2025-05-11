@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='17.Asincronitate, promise, async si await', activeLesson='4.Tratarea erorilor in Promise'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Tratarea erorilor în Promise</h1>
+     <p class="paragraph">Unul dintre avantajele promise-urilor este gestionarea mai simplă a erorilor. Pentru a primi și a trata o eroare, putem folosi funcția catch() a obiectului Promise, care acceptă ca parametru o funcție de tratare a erorii:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;myPromise&nbsp;=&nbsp;new&nbsp;Promise(function(resolve,&nbsp;reject){<br>&nbsp;&nbsp;&nbsp;console.log("Executarea&nbsp;operațiunii&nbsp;asincrone");<br>&nbsp;&nbsp;&nbsp;reject("Au&nbsp;fost&nbsp;transmise&nbsp;date&nbsp;incorecte");<br>});<br>myPromise.catch(&nbsp;function(error){<br>&nbsp;&nbsp;&nbsp;console.log(error);<br>});</code></pre>
+     </div>
+     <p class="paragraph">Funcția catch() acceptă ca parametru un handler de erori. Parametrul acestei funcții-handler este valoarea care este transmisă în reject().</p>
+     <p class="paragraph">Ieșirea în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Executarea&nbsp;operațiunii&nbsp;asincrone<br>Au&nbsp;fost&nbsp;transmise&nbsp;date&nbsp;incorecte</code></pre>
+     </div>
+     <h2 class="subtitle">Generarea erorilor</h2>
+     <p class="paragraph">Mai sus, pentru a notifica despre o eroare care a apărut, a fost apelată funcția reject(). Dar trebuie de menționat că o eroare poate apărea și fără apelarea funcției reject(). Și dacă în operația executată în promise se generează o eroare din diferite motive, atunci întreaga operație se finalizează de asemenea cu o eroare. De exemplu, în următorul cod este apelată o funcție nedefinită getSomeWork():</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;myPromise&nbsp;=&nbsp;new&nbsp;Promise(function(resolve){<br>&nbsp;&nbsp;&nbsp;console.log("Executarea&nbsp;operațiunii&nbsp;asincrone");<br>&nbsp;&nbsp;&nbsp;getSomeWork();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;apelarea&nbsp;unei&nbsp;funcții&nbsp;inexistente<br>&nbsp;&nbsp;&nbsp;resolve("Salut&nbsp;lume!");<br>});<br>myPromise.catch(&nbsp;function(error){<br>&nbsp;&nbsp;&nbsp;console.log(error);<br>});</code></pre>
+     </div>
+     <p class="paragraph">Deoarece funcția getSomeWork() nu este declarată nicăieri, executarea sarcinii asincrone se va finaliza cu o eroare și nu va ajunge la apelul resolve("Salut lume!"). Prin urmare, va fi activată funcția de tratare a erorilor din catch(), care prin parametrul error va primi informații despre eroarea apărută, și în consola browserului vom vedea un mesaj despre eroare:</p>
+     <div class="code-inline">
+      <pre><code>Executarea&nbsp;operațiunii&nbsp;asincrone<br>ReferenceError:&nbsp;getSomeWork&nbsp;is&nbsp;not&nbsp;defined<br>&nbsp;&nbsp;&nbsp;la&nbsp;index.html:39<br>&nbsp;&nbsp;&nbsp;în&nbsp;new&nbsp;Promise&nbsp;(&lt;anonymous&gt;)<br>&nbsp;&nbsp;&nbsp;la&nbsp;index.html:37</code></pre>
+     </div>
+     <h2 class="subtitle">Operatorul throw</h2>
+     <p class="paragraph">De asemenea, o eroare poate fi rezultatul apelării operatorului throw, care generează o eroare:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;myPromise&nbsp;=&nbsp;new&nbsp;Promise(function(resolve,&nbsp;reject){<br>&nbsp;&nbsp;&nbsp;console.log("Executarea&nbsp;operațiunii&nbsp;asincrone");<br>&nbsp;&nbsp;&nbsp;const&nbsp;parsed&nbsp;=&nbsp;parseInt("Salut");<br>&nbsp;&nbsp;&nbsp;if&nbsp;(isNaN(parsed))&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;"Nu&nbsp;este&nbsp;un&nbsp;număr";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Generăm&nbsp;o&nbsp;eroare<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;resolve(parsed);<br>});<br>myPromise.catch(&nbsp;function(error){<br>&nbsp;&nbsp;&nbsp;console.log(error);<br>});</code></pre>
+     </div>
+     <p class="paragraph">Aici se parsează în număr un șir aleatoriu. Și dacă rezultatul parsării nu reprezintă un număr, atunci prin intermediul operatorului throw generăm o eroare. Aceasta va duce la finalizarea întregii funcții cu o eroare. Și în final, rezultatul va fi tratat de funcția catch:</p>
+     <div class="code-inline">
+      <pre><code>Executarea&nbsp;operațiunii&nbsp;asincrone<br>Nu&nbsp;este&nbsp;un&nbsp;număr</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, funcția handler primește mesajul despre eroare, care este specificat după operatorul throw.</p>
+     <p class="paragraph">Această situație poate părea artificială, deoarece nu are sens să generăm o eroare în codul de mai sus cu ajutorul throw, deoarece în acest caz putem de asemenea transmite un mesaj despre eroare în funcția reject:</p>
+     <div class="code-inline">
+      <pre><code>if&nbsp;(isNaN(parsed))&nbsp;{<br>&nbsp;&nbsp;&nbsp;reject("Nu&nbsp;este&nbsp;un&nbsp;număr");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Totuși, acest operator poate fi folosit într-o funcție externă, pe care o apelăm în cod:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;getNumber(str){<br>&nbsp;&nbsp;&nbsp;const&nbsp;parsed&nbsp;=&nbsp;parseInt(str);<br>&nbsp;&nbsp;&nbsp;if&nbsp;(isNaN(parsed))&nbsp;throw&nbsp;"Nu&nbsp;este&nbsp;un&nbsp;număr";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Generăm&nbsp;o&nbsp;eroare<br>&nbsp;&nbsp;&nbsp;else&nbsp;return&nbsp;parsed;<br>}<br>const&nbsp;myPromise&nbsp;=&nbsp;new&nbsp;Promise(function(resolve){<br>&nbsp;&nbsp;&nbsp;console.log("Executarea&nbsp;operațiunii&nbsp;asincrone");<br>&nbsp;&nbsp;&nbsp;const&nbsp;result&nbsp;=&nbsp;getNumber("salut");<br>&nbsp;&nbsp;&nbsp;resolve(result);<br>});<br>myPromise.catch(&nbsp;function(error){<br>&nbsp;&nbsp;&nbsp;console.log(error);<br>});</code></pre>
+     </div>
+     <p class="paragraph">Aici parsarea șirului în număr este externalizată în funcția - getNumber, totuși, la apelarea acestei funcții în promise, de asemenea din operatorul throw va rezulta o eroare. Și, în consecință, va fi executată funcția catch(), unde va avea loc tratarea erorii.</p>
+     <h2 class="subtitle">try..catch</h2>
+     <p class="paragraph">Ca și în cazul general, operațiile care pot genera erori pot fi plasate în construcția try..catch, iar la apariția unei excepții în blocul catch se poate apela funcția reject():</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;myPromise&nbsp;=&nbsp;new&nbsp;Promise(function(resolve,&nbsp;reject){<br>&nbsp;&nbsp;&nbsp;try{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Executarea&nbsp;operațiunii&nbsp;asincrone");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;getSomeWork();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;apelul&nbsp;unei&nbsp;funcții&nbsp;inexistente<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resolve("Salut&nbsp;lume!");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;catch(err){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reject(`A&nbsp;apărut&nbsp;o&nbsp;eroare:&nbsp;${err.message}`);<br>&nbsp;&nbsp;&nbsp;}<br>});<br>myPromise.catch(&nbsp;function(error){<br>&nbsp;&nbsp;&nbsp;console.log(error);<br>});</code></pre>
+     </div>
+     <p class="paragraph">Ieșirea în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Executarea&nbsp;operațiunii&nbsp;asincrone<br>A&nbsp;apărut&nbsp;o&nbsp;eroare:&nbsp;getSomeWork&nbsp;is&nbsp;not&nbsp;defined</code></pre>
+     </div>
+     <h2 class="subtitle">Tratarea erorilor cu ajutorul funcției then</h2>
+     <p class="paragraph">În afară de funcția catch pentru primirea informațiilor despre eroare și tratarea ei, de asemenea se poate folosi funcția then() - al doilea său parametru reprezintă handlerul de erori, care primește ca parametru valoarea transmisă din funcția reject:</p>
+     <div class="code-inline">
+      <pre><code>promise<br>&nbsp;.then(function(value){<br>&nbsp;&nbsp;&nbsp;//&nbsp;primirea&nbsp;valorii<br>&nbsp;},<br>&nbsp;function(error){<br>&nbsp;&nbsp;&nbsp;//&nbsp;tratarea&nbsp;erorii<br>&nbsp;});</code></pre>
+     </div>
+     <p class="paragraph">Al doilea parametru al funcției then() reprezintă funcția de tratare a erorilor. Prin intermediul parametrului error în funcția-handler putem primi valoarea transmisă în reject sau informații despre eroarea apărută.</p>
+     <p class="paragraph">Să examinăm următorul exemplu:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;generateNumber(str){<br>&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;Promise(function(resolve,&nbsp;reject){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;parsed&nbsp;=&nbsp;parseInt(str);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(isNaN(parsed))&nbsp;&nbsp;reject("valoarea&nbsp;nu&nbsp;este&nbsp;un&nbsp;număr")<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;resolve(parsed);<br>&nbsp;&nbsp;&nbsp;})<br>&nbsp;&nbsp;&nbsp;.then(function(value){&nbsp;console.log("Rezultatul&nbsp;operațiunii:",&nbsp;value);},<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;function(error){&nbsp;console.log("A&nbsp;apărut&nbsp;o&nbsp;eroare:",&nbsp;error);});<br>}<br><br>generateNumber("23");<br>generateNumber("salut");</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, pentru ca în promise să se poată transmite date diferite, acesta este definit ca rezultatul returnat al funcției generateNumber(). Adică în acest caz ieșirea în consolă va fi următoarea:</p>
+     <div class="code-inline">
+      <pre><code>Rezultatul&nbsp;operațiunii:&nbsp;23<br>A&nbsp;apărut&nbsp;o&nbsp;eroare:&nbsp;valoarea&nbsp;nu&nbsp;este&nbsp;un&nbsp;număr</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

@@ -1,192 +1,182 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='PHP', activeChapter='2.Elemente de baza PHP', activeLesson='3.Tipuri de date'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Tipuri de date</h1>
- <p class="paragraph">PHP este un limbaj de programare cu tipizare dinamică. Aceasta înseamnă că tipul de date al unei variabile este determinat în timpul execuției, iar spre deosebire de alte limbaje de programare, în PHP nu trebuie să specificăm tipul de date înaintea variabilei.</p>
- <p class="paragraph">În PHP există zece tipuri de date de bază:</p>
- <ul class="enumeration">
-  <li>bool (tip logic)</li>
-  <li>int (numere întregi)</li>
-  <li>float (numere zecimale)</li>
-  <li>string (șiruri de caractere)</li>
-  <li>array (tablouri)</li>
-  <li>object (obiecte)</li>
-  <li>callable (funcții)</li>
-  <li>mixed (orice tip)</li>
-  <li>resource (resurse)</li>
-  <li>null (absența unei valori)</li>
- </ul>
- <p class="paragraph">Dintre aceste tipuri de date, primele patru sunt scalare: bool, int, float, string. Prin urmare, le vom analiza mai întâi pe acestea.</p>
- <h2 class="subtitle">int (tip întreg)</h2>
- <p class="paragraph">Reprezintă un număr întreg cu semn.</p>
- <div class="code-inline">
-  <pre><code>$num&nbsp;=&nbsp;-100;<br>echo&nbsp;$num;</code></pre>
- </div>
- <p class="paragraph">Aici, variabila $num reprezintă un tip întreg, deoarece i se atribuie o valoare întreagă.</p>
- <p class="paragraph">Pe lângă numerele întregi zecimale, PHP permite utilizarea și a numerelor binare, octale și hexazecimale. Modelele de numere pentru alte sisteme sunt:</p>
- <ul class="enumeration">
-  <li>hexazecimale: 0[xX][0-9a-fA-F]</li>
-  <li>octale: 0[0-7]</li>
-  <li>binare: 0b[01]</li>
- </ul>
- <p class="paragraph">De exemplu:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>//&nbsp;Toate&nbsp;numerele&nbsp;în&nbsp;sistem&nbsp;zecimal&nbsp;au&nbsp;valoarea&nbsp;28<br>$num_10&nbsp;=&nbsp;28;&nbsp;//&nbsp;număr&nbsp;zecimal<br>$num_2&nbsp;=&nbsp;0b11100;&nbsp;//&nbsp;număr&nbsp;binar&nbsp;(28&nbsp;în&nbsp;sistem&nbsp;zecimal)<br>$num_8&nbsp;=&nbsp;034;&nbsp;//&nbsp;număr&nbsp;octal&nbsp;(28&nbsp;în&nbsp;zecimal)<br>$num_16&nbsp;=&nbsp;0x1C;&nbsp;//&nbsp;număr&nbsp;hexazecimal&nbsp;(28&nbsp;în&nbsp;zecimal)<br>echo&nbsp;"num_10&nbsp;=&nbsp;$num_10&nbsp;&lt;br&gt;";<br>echo&nbsp;"num_2&nbsp;=&nbsp;$num_2&nbsp;&lt;br&gt;";<br>echo&nbsp;"num_8&nbsp;=&nbsp;$num_8&nbsp;&lt;br&gt;";&nbsp;&nbsp;<br>echo&nbsp;"num_16&nbsp;=&nbsp;$num_16";<br>?&gt;</code></pre>
- </div>
- <p class="paragraph">O variabilă de tip int ocupă 32 de biți în memorie, adică poate lua valori între -2 147 483 648 și 2 147 483 647. Dacă o variabilă primește o valoare numerică în afara acestui interval, atunci aceasta este tratată ca o variabilă de tip float.</p>
- <h2 class="subtitle">Tipul float (numere zecimale)</h2>
- <p class="paragraph">Dimensiunea unui număr zecimal depinde de platformă. Valoarea maximă posibilă este, de obicei, 1.8*10^308 cu o precizie de aproximativ 14 cifre zecimale. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>$a1&nbsp;=&nbsp;1.5;<br>$a2&nbsp;=&nbsp;1.3e4;&nbsp;//&nbsp;1.3&nbsp;*&nbsp;10^4<br>$a3&nbsp;=&nbsp;6E-8;&nbsp;//&nbsp;0.00000006<br>?&gt;</code></pre>
- </div>
- <h2 class="subtitle">Tipul bool (tip logic)</h2>
- <p class="paragraph">Variabilele de tip logic pot lua două valori: true și false sau, altfel spus, adevărat și fals. Cel mai frecvent, valorile logice sunt utilizate în construcțiile condiționale:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>$foo&nbsp;=&nbsp;true;<br>$boo&nbsp;=&nbsp;false;<br>?&gt;</code></pre>
- </div>
- <h2 class="subtitle">Tipul string (șiruri de caractere)</h2>
- <p class="paragraph">Pentru a lucra cu text, se pot folosi șiruri de caractere. Șirurile pot fi de două tipuri: în ghilimele duble și în ghilimele simple. Tipul ghilimelelor influențează modul în care șirurile sunt procesate de interpretator.</p>
- <p class="paragraph">Astfel, variabilele în ghilimele duble sunt înlocuite cu valorile lor, în timp ce variabilele în ghilimele simple rămân neschimbate.</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>$a&nbsp;=&nbsp;10;<br>$b&nbsp;=&nbsp;5;<br>$result&nbsp;=&nbsp;"$a+$b&nbsp;&lt;br&gt;";<br>echo&nbsp;$result;<br>$result&nbsp;=&nbsp;'$a+$b';<br>echo&nbsp;$result;<br>?&gt;</code></pre>
- </div>
- <p class="paragraph">În acest caz, vom obține următorul rezultat:</p>
- <div class="code-inline">
-  <pre><code>10+5&nbsp;<br>$a+$b</code></pre>
- </div>
- <p class="paragraph">Pe lângă caracterele obișnuite, șirul poate conține și caractere speciale, care pot fi interpretate greșit. De exemplu, dacă trebuie să adăugăm un ghilimele în șir:</p>
- <div class="code-inline">
-  <pre><code>$text&nbsp;=&nbsp;"Modelul&nbsp;"Apple&nbsp;II"";</code></pre>
- </div>
- <p class="paragraph">Această scriere va fi eronată. Pentru a corecta eroarea, putem combina diferite tipuri de ghilimele ('Modelul "Apple II"' sau "Modelul 'Apple III'") sau putem folosi caracterul backslash pentru a introduce ghilimele în șir:</p>
- <div class="code-inline">
-  <pre><code>$text&nbsp;=&nbsp;"Modelul&nbsp;\"Apple&nbsp;II\"";</code></pre>
- </div>
- <h2 class="subtitle">Valoarea specială null</h2>
- <p class="paragraph">Valoarea null indică faptul că o variabilă nu are nicio valoare. Utilizarea acestei valori este utilă atunci când dorim să indicăm că o variabilă nu are nicio valoare. De exemplu, dacă pur și simplu definim o variabilă fără a o inițializa și apoi încercăm să o folosim, interpretatorul ne va afișa un mesaj că variabila nu este setată:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>$a;<br>echo&nbsp;$a;<br>?&gt;</code></pre>
- </div>
- <p class="paragraph">Utilizarea valorii null ajută la evitarea acestei situații. În plus, putem verifica existența unei valori și, în funcție de rezultatele verificării, să efectuăm anumite acțiuni:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>$a&nbsp;=&nbsp;null;<br>echo&nbsp;"a&nbsp;=&nbsp;$a";<br>?&gt;</code></pre>
- </div>
- <p class="paragraph">Constanta null nu este case-sensitive, așa că putem scrie și astfel:</p>
- <div class="code-inline">
-  <pre><code>$a&nbsp;=&nbsp;NULL;</code></pre>
- </div>
- <h2 class="subtitle">Tipizare dinamică</h2>
- <p class="paragraph">Deoarece PHP este un limbaj cu tipizare dinamică, putem atribui aceleași variabile valori de diferite tipuri:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>$id&nbsp;=&nbsp;123;<br>echo&nbsp;"&lt;p&gt;id&nbsp;=&nbsp;$id&lt;/p&gt;";<br>$id&nbsp;=&nbsp;"jhveruuyeru";<br>echo&nbsp;"&lt;p&gt;id&nbsp;=&nbsp;$id&lt;/p&gt;";<br>?&gt;</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Tipuri de date</h1>
+     <p class="paragraph">PHP este un limbaj de programare cu tipizare dinamică. Aceasta înseamnă că tipul de date al unei variabile este determinat în timpul execuției, iar spre deosebire de alte limbaje de programare, în PHP nu trebuie să specificăm tipul de date înaintea variabilei.</p>
+     <p class="paragraph">În PHP există zece tipuri de date de bază:</p>
+     <ul class="enumeration">
+      <li>bool (tip logic)</li>
+      <li>int (numere întregi)</li>
+      <li>float (numere zecimale)</li>
+      <li>string (șiruri de caractere)</li>
+      <li>array (tablouri)</li>
+      <li>object (obiecte)</li>
+      <li>callable (funcții)</li>
+      <li>mixed (orice tip)</li>
+      <li>resource (resurse)</li>
+      <li>null (absența unei valori)</li>
+     </ul>
+     <p class="paragraph">Dintre aceste tipuri de date, primele patru sunt scalare: bool, int, float, string. Prin urmare, le vom analiza mai întâi pe acestea.</p>
+     <h2 class="subtitle">int (tip întreg)</h2>
+     <p class="paragraph">Reprezintă un număr întreg cu semn.</p>
+     <div class="code-inline">
+      <pre><code>$num&nbsp;=&nbsp;-100;<br>echo&nbsp;$num;</code></pre>
+     </div>
+     <p class="paragraph">Aici, variabila $num reprezintă un tip întreg, deoarece i se atribuie o valoare întreagă.</p>
+     <p class="paragraph">Pe lângă numerele întregi zecimale, PHP permite utilizarea și a numerelor binare, octale și hexazecimale. Modelele de numere pentru alte sisteme sunt:</p>
+     <ul class="enumeration">
+      <li>hexazecimale: 0[xX][0-9a-fA-F]</li>
+      <li>octale: 0[0-7]</li>
+      <li>binare: 0b[01]</li>
+     </ul>
+     <p class="paragraph">De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>//&nbsp;Toate&nbsp;numerele&nbsp;în&nbsp;sistem&nbsp;zecimal&nbsp;au&nbsp;valoarea&nbsp;28<br>$num_10&nbsp;=&nbsp;28;&nbsp;//&nbsp;număr&nbsp;zecimal<br>$num_2&nbsp;=&nbsp;0b11100;&nbsp;//&nbsp;număr&nbsp;binar&nbsp;(28&nbsp;în&nbsp;sistem&nbsp;zecimal)<br>$num_8&nbsp;=&nbsp;034;&nbsp;//&nbsp;număr&nbsp;octal&nbsp;(28&nbsp;în&nbsp;zecimal)<br>$num_16&nbsp;=&nbsp;0x1C;&nbsp;//&nbsp;număr&nbsp;hexazecimal&nbsp;(28&nbsp;în&nbsp;zecimal)<br>echo&nbsp;"num_10&nbsp;=&nbsp;$num_10&nbsp;&lt;br&gt;";<br>echo&nbsp;"num_2&nbsp;=&nbsp;$num_2&nbsp;&lt;br&gt;";<br>echo&nbsp;"num_8&nbsp;=&nbsp;$num_8&nbsp;&lt;br&gt;";&nbsp;&nbsp;<br>echo&nbsp;"num_16&nbsp;=&nbsp;$num_16";<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">O variabilă de tip int ocupă 32 de biți în memorie, adică poate lua valori între -2 147 483 648 și 2 147 483 647. Dacă o variabilă primește o valoare numerică în afara acestui interval, atunci aceasta este tratată ca o variabilă de tip float.</p>
+     <h2 class="subtitle">Tipul float (numere zecimale)</h2>
+     <p class="paragraph">Dimensiunea unui număr zecimal depinde de platformă. Valoarea maximă posibilă este, de obicei, 1.8*10^308 cu o precizie de aproximativ 14 cifre zecimale. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$a1&nbsp;=&nbsp;1.5;<br>$a2&nbsp;=&nbsp;1.3e4;&nbsp;//&nbsp;1.3&nbsp;*&nbsp;10^4<br>$a3&nbsp;=&nbsp;6E-8;&nbsp;//&nbsp;0.00000006<br>?&gt;</code></pre>
+     </div>
+     <h2 class="subtitle">Tipul bool (tip logic)</h2>
+     <p class="paragraph">Variabilele de tip logic pot lua două valori: true și false sau, altfel spus, adevărat și fals. Cel mai frecvent, valorile logice sunt utilizate în construcțiile condiționale:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$foo&nbsp;=&nbsp;true;<br>$boo&nbsp;=&nbsp;false;<br>?&gt;</code></pre>
+     </div>
+     <h2 class="subtitle">Tipul string (șiruri de caractere)</h2>
+     <p class="paragraph">Pentru a lucra cu text, se pot folosi șiruri de caractere. Șirurile pot fi de două tipuri: în ghilimele duble și în ghilimele simple. Tipul ghilimelelor influențează modul în care șirurile sunt procesate de interpretator.</p>
+     <p class="paragraph">Astfel, variabilele în ghilimele duble sunt înlocuite cu valorile lor, în timp ce variabilele în ghilimele simple rămân neschimbate.</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$a&nbsp;=&nbsp;10;<br>$b&nbsp;=&nbsp;5;<br>$result&nbsp;=&nbsp;"$a+$b&nbsp;&lt;br&gt;";<br>echo&nbsp;$result;<br>$result&nbsp;=&nbsp;'$a+$b';<br>echo&nbsp;$result;<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, vom obține următorul rezultat:</p>
+     <div class="code-inline">
+      <pre><code>10+5&nbsp;<br>$a+$b</code></pre>
+     </div>
+     <p class="paragraph">Pe lângă caracterele obișnuite, șirul poate conține și caractere speciale, care pot fi interpretate greșit. De exemplu, dacă trebuie să adăugăm un ghilimele în șir:</p>
+     <div class="code-inline">
+      <pre><code>$text&nbsp;=&nbsp;"Modelul&nbsp;"Apple&nbsp;II"";</code></pre>
+     </div>
+     <p class="paragraph">Această scriere va fi eronată. Pentru a corecta eroarea, putem combina diferite tipuri de ghilimele ('Modelul "Apple II"' sau "Modelul 'Apple III'") sau putem folosi caracterul backslash pentru a introduce ghilimele în șir:</p>
+     <div class="code-inline">
+      <pre><code>$text&nbsp;=&nbsp;"Modelul&nbsp;\"Apple&nbsp;II\"";</code></pre>
+     </div>
+     <h2 class="subtitle">Valoarea specială null</h2>
+     <p class="paragraph">Valoarea null indică faptul că o variabilă nu are nicio valoare. Utilizarea acestei valori este utilă atunci când dorim să indicăm că o variabilă nu are nicio valoare. De exemplu, dacă pur și simplu definim o variabilă fără a o inițializa și apoi încercăm să o folosim, interpretatorul ne va afișa un mesaj că variabila nu este setată:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$a;<br>echo&nbsp;$a;<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Utilizarea valorii null ajută la evitarea acestei situații. În plus, putem verifica existența unei valori și, în funcție de rezultatele verificării, să efectuăm anumite acțiuni:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$a&nbsp;=&nbsp;null;<br>echo&nbsp;"a&nbsp;=&nbsp;$a";<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Constanta null nu este case-sensitive, așa că putem scrie și astfel:</p>
+     <div class="code-inline">
+      <pre><code>$a&nbsp;=&nbsp;NULL;</code></pre>
+     </div>
+     <h2 class="subtitle">Tipizare dinamică</h2>
+     <p class="paragraph">Deoarece PHP este un limbaj cu tipizare dinamică, putem atribui aceleași variabile valori de diferite tipuri:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$id&nbsp;=&nbsp;123;<br>echo&nbsp;"&lt;p&gt;id&nbsp;=&nbsp;$id&lt;/p&gt;";<br>$id&nbsp;=&nbsp;"jhveruuyeru";<br>echo&nbsp;"&lt;p&gt;id&nbsp;=&nbsp;$id&lt;/p&gt;";<br>?&gt;</code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

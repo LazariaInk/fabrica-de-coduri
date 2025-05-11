@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Python', activeChapter='8.Pattern matching', activeLesson='5.Clase in pattern matching'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Clase în pattern matching</h1>
+     <p class="paragraph">Python permite utilizarea obiectelor de clasă în pattern matching ca șabloane. Să examinăm un exemplu:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name,&nbsp;age):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.name&nbsp;=&nbsp;name<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.age&nbsp;=&nbsp;age<br><br><br>def&nbsp;print_person(person):<br>&nbsp;&nbsp;&nbsp;match&nbsp;person:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Person(name="Tom",&nbsp;age=37):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print("Default&nbsp;Person")<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Person(name=name,&nbsp;age=37):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"Nume:&nbsp;{name}")<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Person(name="Tom",&nbsp;age=age):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"Vârstă:&nbsp;{age}")<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Person(name=name,&nbsp;age=age):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"Nume:&nbsp;{name}&nbsp;&nbsp;Vârstă:&nbsp;{age}")<br><br><br>print_person(Person("Tom",&nbsp;37))&nbsp;&nbsp;#&nbsp;Default&nbsp;person<br>print_person(Person("Tom",&nbsp;22))&nbsp;&nbsp;#&nbsp;Vârstă:&nbsp;22<br>print_person(Person("Sam",&nbsp;37))&nbsp;&nbsp;#&nbsp;Nume:&nbsp;Sam<br>print_person(Person("Bob",&nbsp;41))&nbsp;&nbsp;#&nbsp;Nume:&nbsp;Bob&nbsp;&nbsp;Vârstă:&nbsp;41</code></pre>
+     </div>
+     <p class="paragraph">Aici este definită clasa Person, care, prin constructor, primește valori pentru atributele self.name și self.age.</p>
+     <p class="paragraph">Funcția print_person primește parametrul Person, care, așa cum se presupune, reprezintă un obiect al clasei Person. În interiorul funcției, construcția match compară valoarea parametrului person cu o serie de șabloane. Fiecare șablon reprezintă o definiție a clasei Person, în care fiecărui atribut i se asociază o anumită valoare. De exemplu, primul șablon stabilește strict valorile ambelor atribute:</p>
+     <div class="code-inline">
+      <pre><code>case&nbsp;Person(name="Tom",&nbsp;age=37):<br>&nbsp;&nbsp;&nbsp;print("Default&nbsp;Person")</code></pre>
+     </div>
+     <p class="paragraph">Acest șablon corespunde obiectului Person dacă atributul name al acestuia are valoarea "Tom", iar atributul age are valoarea 37.</p>
+     <p class="paragraph">Este important de menționat că acest șablon nu este un apel al constructorului Person. Șablonul doar stabilește cum se asociază atributele cu valorile.</p>
+     <p class="paragraph">Al doilea șablon stabilește strict valoarea doar pentru atributul age:</p>
+     <div class="code-inline">
+      <pre><code>case&nbsp;Person(name=name,&nbsp;age=37):<br>&nbsp;&nbsp;&nbsp;print(f"Nume:&nbsp;{name}")</code></pre>
+     </div>
+     <p class="paragraph">Pentru ca acest șablon să se potrivească, atributul age trebuie să fie egal cu 37, iar atributul name poate avea orice valoare. Această valoare este transmisă variabilei name. În acest caz, atât atributul, cât și variabila au aceeași valoare, dar acest lucru nu este obligatoriu, și pentru variabilă se putea folosi un alt nume, de exemplu:</p>
+     <div class="code-inline">
+      <pre><code>case&nbsp;Person(name=person_name,&nbsp;age=37):&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;variabilei&nbsp;person_name&nbsp;i&nbsp;se&nbsp;transmite&nbsp;valoarea&nbsp;atributului&nbsp;name<br>&nbsp;&nbsp;&nbsp;print(f"Nume:&nbsp;{person_name}")</code></pre>
+     </div>
+     <p class="paragraph">Al treilea șablon corespunde unui obiect Person al cărui atribut name este egal cu șirul "Tom", iar valoarea atributului age este transmisă variabilei age:</p>
+     <div class="code-inline">
+      <pre><code>case&nbsp;Person(name="Tom",&nbsp;age=age):<br>&nbsp;&nbsp;&nbsp;print(f"Vârstă:&nbsp;{age}")</code></pre>
+     </div>
+     <p class="paragraph">În ultimul șablon, atributele name și age pot avea orice valori, iar aceste valori sunt transmise variabilelor cu același nume:</p>
+     <div class="code-inline">
+      <pre><code>case&nbsp;Person(name=name,&nbsp;age=age):<br>&nbsp;&nbsp;&nbsp;print(f"Nume:&nbsp;{name}&nbsp;&nbsp;Vârstă:&nbsp;{age}")</code></pre>
+     </div>
+     <p class="paragraph">Nu este necesar să folosim toate atributele obiectului Person. De asemenea, putem folosi pattern-ul _ dacă trebuie să gestionăm cazuri care nu corespund niciunui șablon:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name,&nbsp;age):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.name&nbsp;=&nbsp;name<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.age&nbsp;=&nbsp;age<br><br><br>def&nbsp;print_person(person):<br>&nbsp;&nbsp;&nbsp;match&nbsp;person:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Person(name="Tom"):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print("Default&nbsp;Person")<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Person(name=person_name):&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;obținem&nbsp;doar&nbsp;atributul&nbsp;name<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"Nume:&nbsp;{person_name}")<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;_:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print("Nu&nbsp;este&nbsp;un&nbsp;Person")<br><br><br>print_person(Person("Tom",&nbsp;37))&nbsp;&nbsp;#&nbsp;Default&nbsp;person<br>print_person(Person("Sam",&nbsp;37))&nbsp;&nbsp;#&nbsp;Nume:&nbsp;Sam<br>print_person("Tom")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Nu&nbsp;este&nbsp;un&nbsp;Person</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, al doilea șablon Person(name=person_name) corespunde oricărui obiect Person, iar valoarea atributului name este transmisă variabilei person_name.</p>
+     <p class="paragraph">Ultimul șablon gestionează cazurile în care este transmisă o valoare care nu reprezintă un obiect Person.</p>
+     <h2 class="subtitle">Transmiterea unui set de valori</h2>
+     <p class="paragraph">De asemenea, cu ajutorul simbolului vertical | poți defini un set de valori pe care trebuie să le aibă un atribut:</p>
+     <div class="code-inline">
+      <pre><code>def&nbsp;print_person(person):<br>&nbsp;&nbsp;&nbsp;match&nbsp;person:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Person(name="Tom"&nbsp;|&nbsp;"Tomas"&nbsp;|&nbsp;"Tommy"):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print("Default&nbsp;Person")<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Person(name=person_name):&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;obținem&nbsp;doar&nbsp;atributul&nbsp;name<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"Nume:&nbsp;{person_name}")<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;_:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print("Nu&nbsp;este&nbsp;un&nbsp;Person")<br><br><br>print_person(Person("Tom",&nbsp;37))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Default&nbsp;person<br>print_person(Person("Tomas",&nbsp;37))&nbsp;&nbsp;&nbsp;#&nbsp;Default&nbsp;person</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, primul șablon corespunde unui obiect Person al cărui atribut name are una dintre cele trei valori: "Tom", "Tomas" sau "Tommy".</p>
+     <p class="paragraph">De asemenea, poți defini valori alternative pentru întregul șablon, inclusiv folosind obiecte din alte clase:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name,&nbsp;age):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.name&nbsp;=&nbsp;name<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.age&nbsp;=&nbsp;age<br><br><br>class&nbsp;Student:<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.name&nbsp;=&nbsp;name<br><br><br>def&nbsp;print_person(person):<br>&nbsp;&nbsp;&nbsp;match&nbsp;person:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Person(name="Tom")&nbsp;|&nbsp;Student(name="Tomas"):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print("Default&nbsp;Person/Student")<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Person(name=name)&nbsp;|&nbsp;Student(name=name):&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;obținem&nbsp;doar&nbsp;atributul&nbsp;name<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"Nume:&nbsp;{name}")<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;_:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print("Nu&nbsp;este&nbsp;un&nbsp;Person&nbsp;sau&nbsp;Student")<br><br><br>print_person(Person("Tom",&nbsp;37))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Default&nbsp;Person/Student<br>print_person(Student("Tomas"))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Default&nbsp;Person/Student<br><br><br>print_person(Person("Bob",&nbsp;41))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Nume:&nbsp;Bob<br>print_person(Student("Mike"))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Nume:&nbsp;Mike<br><br>print_person("Tom")&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;Nu&nbsp;este&nbsp;un&nbsp;Person&nbsp;sau&nbsp;Student</code></pre>
+     </div>
+     <p class="paragraph">Aici primul șablon:</p>
+     <div class="code-inline">
+      <pre><code>case&nbsp;Person(name="Tom")&nbsp;|&nbsp;Student(name="Tomas")</code></pre>
+     </div>
+     <p class="paragraph">corespunde oricărui obiect Person al cărui atribut name este "Tom" și oricărui obiect Student al cărui atribut name este "Tomas".</p>
+     <p class="paragraph">Al doilea șablon - case Person(name=name) | Student(name=name) corespunde oricărui obiect Person și Student.</p>
+     <h2 class="subtitle">Parametrii poziționali</h2>
+     <p class="paragraph">În exemplele de mai sus, pentru a specifica atributele, s-a folosit numele lor: case Person(name="Tom", age=37). Însă, dacă se utilizează mai multe șabloane și în fiecare este necesar să se asocieze atributele obiectului cu anumite valori sau variabile, menționarea constantă a atributelor poate îngreuna codul. Python permite, de asemenea, utilizarea parametrilor poziționali:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person:<br>&nbsp;&nbsp;&nbsp;__match_args__&nbsp;=&nbsp;("name",&nbsp;"age")<br>&nbsp;&nbsp;&nbsp;def&nbsp;__init__(self,&nbsp;name,&nbsp;age):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.name&nbsp;=&nbsp;name<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.age&nbsp;=&nbsp;age<br><br><br>def&nbsp;print_person(person):<br>&nbsp;&nbsp;&nbsp;match&nbsp;person:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Person("Tom",&nbsp;37):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print("Default&nbsp;Person")<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Person(person_name,&nbsp;37):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"Nume:&nbsp;{person_name}")<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Person("Tom",&nbsp;person_age):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"Vârstă:&nbsp;{person_age}")<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Person(person_name,&nbsp;person_age):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"Nume:&nbsp;{person_name}&nbsp;&nbsp;Vârstă:&nbsp;{person_age}")<br><br><br>print_person(Person("Tom",&nbsp;37))&nbsp;&nbsp;#&nbsp;Default&nbsp;person<br>print_person(Person("Tom",&nbsp;22))&nbsp;&nbsp;#&nbsp;Vârstă:&nbsp;22<br>print_person(Person("Sam",&nbsp;37))&nbsp;&nbsp;#&nbsp;Nume:&nbsp;Sam<br>print_person(Person("Bob",&nbsp;41))&nbsp;&nbsp;#&nbsp;Nume:&nbsp;Bob&nbsp;&nbsp;Vârstă:&nbsp;41</code></pre>
+     </div>
+     <p class="paragraph">Observați în clasa Person apelul funcției:</p>
+     <div class="code-inline">
+      <pre><code>__match_args__&nbsp;=&nbsp;("name",&nbsp;"age")</code></pre>
+     </div>
+     <p class="paragraph">Datorită acestui fapt, Python va ști că atunci când se specifică atributele, atributul name va fi primul, iar atributul age va fi al doilea.</p>
+     <p class="paragraph">Astfel, în șabloane nu este necesar să se specifice numele atributului: case Person("Tom", 37) - Python va asocia atributele și valorile/variabilele pe baza poziției lor.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

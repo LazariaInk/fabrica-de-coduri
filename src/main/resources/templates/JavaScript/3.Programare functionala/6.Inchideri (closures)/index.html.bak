@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='3.Programare functionala', activeLesson='6.Inchideri (closures)'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Închideri (closures) și funcâții IIFE</h1>
+     <h2 class="subtitle">Închideri (closures)</h2>
+     <p class="paragraph">Închiderea (closure) reprezintă o construcție în care o funcție, creată într-un anumit domeniu de vizibilitate, își amintește mediul său lexical chiar și atunci când este executată în afara domeniului său de vizibilitate.</p>
+     <p class="paragraph">Pentru a crea o închidere, sunt necesare trei componente:</p>
+     <ul class="enumeration">
+      <li>Funcția externă, care definește un anumit domeniu de vizibilitate și în care sunt definite unele variabile - mediul lexical.</li>
+      <li>Variabilele (mediul lexical) definite în funcția externă.</li>
+      <li>Funcția imbricată, care utilizează aceste variabile.</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>function&nbsp;externa()&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;funcția&nbsp;externă<br>&nbsp;&nbsp;&nbsp;let&nbsp;n;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;o&nbsp;variabilă<br>&nbsp;&nbsp;&nbsp;return&nbsp;function&nbsp;interna()&nbsp;{&nbsp;&nbsp;//&nbsp;funcția&nbsp;imbricată<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;acțiuni&nbsp;cu&nbsp;variabila&nbsp;n<br>&nbsp;&nbsp;&nbsp;};<br>}</code></pre>
+     </div>
+     <p class="paragraph">Practic, funcția interna reprezintă în acest caz închiderea, care își amintește mediul său lexical - variabila n.</p>
+     <p class="paragraph">Să analizăm închiderile printr-un exemplu simplu:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;outer(){<br>&nbsp;&nbsp;&nbsp;let&nbsp;x&nbsp;=&nbsp;5;<br>&nbsp;&nbsp;&nbsp;function&nbsp;inner(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(x);<br>&nbsp;&nbsp;&nbsp;};<br>&nbsp;&nbsp;&nbsp;return&nbsp;inner;<br>}<br>const&nbsp;fn&nbsp;=&nbsp;outer();&nbsp;//&nbsp;fn&nbsp;=&nbsp;inner,&nbsp;deoarece&nbsp;funcția&nbsp;outer&nbsp;returnează&nbsp;funcția&nbsp;inner<br>//&nbsp;apelăm&nbsp;funcția&nbsp;internă&nbsp;inner<br>fn();&nbsp;&nbsp;&nbsp;//&nbsp;6<br>fn();&nbsp;&nbsp;&nbsp;//&nbsp;7<br>fn();&nbsp;&nbsp;&nbsp;//&nbsp;8</code></pre>
+     </div>
+     <p class="paragraph">Aici, funcția outer stabilește domeniul său de vizibilitate în care sunt definite funcția internă inner și variabila x. Variabila x reprezintă mediul lexical pentru funcția inner. În funcția inner, incrementăm variabila x și afișăm valoarea sa în consolă. La final, funcția outer returnează funcția inner.</p>
+     <p class="paragraph">Apoi, apelăm funcția outer:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;fn&nbsp;=&nbsp;outer();</code></pre>
+     </div>
+     <p class="paragraph">Întrucât funcția outer returnează funcția inner, atunci constanta fn va stoca o referință către funcția inner. Această funcție își amintește mediul său lexical, adică variabila externă x.</p>
+     <p class="paragraph">Ulterior, apelăm efectiv funcția inner de trei ori, iar observăm că variabila x, definită în afara funcției inner, este incrementată:</p>
+     <div class="code-inline">
+      <pre><code>fn();&nbsp;&nbsp;&nbsp;//&nbsp;6<br>fn();&nbsp;&nbsp;&nbsp;//&nbsp;7<br>fn();&nbsp;&nbsp;&nbsp;//&nbsp;8</code></pre>
+     </div>
+     <p class="paragraph">Chiar dacă variabila x este definită în afara funcției inner, aceasta funcție își amintește mediul său și poate să îl utilizeze, chiar dacă este apelată în afara funcției outer, în care a fost inițial definită. Acesta este esența închiderilor (closures).</p>
+     <p class="paragraph">În fiecare copie a închiderii se definește propria copie a mediului lexical:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;definim&nbsp;un&nbsp;obiect&nbsp;spațiu&nbsp;de&nbsp;nume<br>function&nbsp;outer(){<br>&nbsp;&nbsp;&nbsp;let&nbsp;x&nbsp;=&nbsp;5;<br>&nbsp;&nbsp;&nbsp;function&nbsp;inner(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(x);<br>&nbsp;&nbsp;&nbsp;};<br>&nbsp;&nbsp;&nbsp;return&nbsp;inner;<br>}<br>const&nbsp;fn1&nbsp;=&nbsp;outer();<br>const&nbsp;fn2&nbsp;=&nbsp;outer();<br>fn1();&nbsp;&nbsp;//&nbsp;6<br>fn1();&nbsp;&nbsp;//&nbsp;7<br>fn2();&nbsp;&nbsp;//&nbsp;6<br>fn2();&nbsp;&nbsp;//&nbsp;7</code></pre>
+     </div>
+     <p class="paragraph">Aici se observă că pentru fn1 și fn2 există propria lor copie a variabilei x, asupra căreia operează independent una de cealaltă.</p>
+     <p class="paragraph">Să luăm în considerare încă un exemplu:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;multiply(n){<br>&nbsp;&nbsp;&nbsp;let&nbsp;x&nbsp;=&nbsp;n;<br>&nbsp;&nbsp;&nbsp;return&nbsp;function(m){&nbsp;return&nbsp;x&nbsp;*&nbsp;m;};<br>}<br>const&nbsp;fn1&nbsp;=&nbsp;multiply(5);<br>const&nbsp;result1&nbsp;=&nbsp;fn1(6);&nbsp;//&nbsp;30<br>console.log(result1);&nbsp;//&nbsp;30<br><br>const&nbsp;fn2=&nbsp;multiply(4);<br>const&nbsp;result2&nbsp;=&nbsp;fn2(6);&nbsp;//&nbsp;24<br>console.log(result2);&nbsp;//&nbsp;24</code></pre>
+     </div>
+     <p class="paragraph">Desigur, iată traducerea textului:</p>
+     <p class="paragraph">Așadar, aici apelul funcției multiply() duce la apelul unei alte funcții interne. Funcția internă:</p>
+     <div class="code-inline">
+      <pre><code>function(m){&nbsp;return&nbsp;x&nbsp;*&nbsp;m;};</code></pre>
+     </div>
+     <p class="paragraph">Reține mediul în care a fost creată, în special valoarea variabilei x.</p>
+     <p class="paragraph">În cele din urmă, la apelul funcției multiply se definește constanta fn1, care reprezintă un closure, adică combină două lucruri: o funcție și mediul în care funcția a fost creată. Mediul constă în orice variabilă locală care exista în domeniul de aplicare al funcției multiply în momentul creării closure-ului.</p>
+     <p class="paragraph">Cu alte cuvinte, fn1 este un closure care conține atât funcția internă function(m){ return x * m;}, cât și variabila x, care a existat în momentul creării closure-ului.</p>
+     <p class="paragraph">La crearea a două closure-uri, fn1 și fn2, pentru fiecare dintre acestea se creează propria lor mediu.</p>
+     <p class="paragraph">Este important să nu ne confundăm în privința parametrilor. La definirea closure-ului:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;fn1&nbsp;=&nbsp;multiply(5);</code></pre>
+     </div>
+     <p class="paragraph">Numărul 5 este transmis pentru parametrul n al funcției multiply.</p>
+     <p class="paragraph">La apelul funcției interne:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;result1&nbsp;=&nbsp;fn1(6);</code></pre>
+     </div>
+     <p class="paragraph">Numărul 6 este transmis pentru parametrul m al funcției interne function(m){ return x * m;}.</p>
+     <p class="paragraph">De asemenea, putem utiliza și o altă variantă pentru apelarea closure-ului:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;multiply(n){<br>&nbsp;&nbsp;&nbsp;let&nbsp;x&nbsp;=&nbsp;n;<br>&nbsp;&nbsp;&nbsp;return&nbsp;function(m){&nbsp;return&nbsp;x&nbsp;*&nbsp;m;};<br>}<br>const&nbsp;result&nbsp;=&nbsp;multiply(5)(6);&nbsp;//&nbsp;30<br>console.log(result);</code></pre>
+     </div>
+     <h2 class="subtitle">Funcțiile auto-invocate</h2>
+     <p class="paragraph">De obicei, definirea unei funcții este separată de apelul ei: mai întâi definim funcția și apoi o apelăm. Dar acest lucru nu este obligatoriu. Putem crea, de asemenea, funcții care vor fi apelate imediat la momentul definirii. Aceste funcții sunt numite și Immediately Invoked Function Expression sau IIFE. Funcțiile de acest fel sunt încadrate în paranteze, iar după definirea funcției, în paranteze sunt transmise parametri:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;funcție&nbsp;auto-invocată<br>(function(){<br>&nbsp;&nbsp;&nbsp;console.log("Salut,&nbsp;lume!");<br>}());</code></pre>
+     </div>
+     <p class="paragraph">Aici, acest mic program poate fi împărțit în mai multe părți. În paranteze este definită o funcție anonimă:</p>
+     <div class="code-inline">
+      <pre><code>function(){<br>&nbsp;&nbsp;&nbsp;console.log("Salut,&nbsp;lume!");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Este o funcție obișnuită care afișează un șir de caractere. Dar și în paranteze, după definirea funcției, urmează paranteze goale:</p>
+     <div class="code-inline">
+      <pre><code>function(){<br>&nbsp;&nbsp;&nbsp;console.log("Salut,&nbsp;lume!");<br>}()</code></pre>
+     </div>
+     <p class="paragraph">Aceste paranteze reprezintă aceleași paranteze care sunt folosite la apelul funcției și în care sunt plasate valorile pentru parametrii funcției. Cu toate acestea, funcția noastră anonimă nu are parametri, așa că parantezele sunt goale. Cu alte cuvinte, aici avem de fapt apelul funcției imediat după definirea ei. Și întreaga construcție este închisă în paranteze.</p>
+     <p class="paragraph">În final, definim o funcție anonimă și o apelăm imediat.</p>
+     <p class="paragraph">În mod similar, putem crea și apela o funcție care primește parametri:</p>
+     <div class="code-inline">
+      <pre><code>(function&nbsp;(a,&nbsp;b){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;result&nbsp;=&nbsp;a&nbsp;+&nbsp;b;<br>&nbsp;&nbsp;&nbsp;console.log(${a}&nbsp;+&nbsp;${b}&nbsp;=&nbsp;${result});<br>}(4,&nbsp;5));</code></pre>
+     </div>
+     <p class="paragraph">Aici, funcția primește doi parametri, ale căror valori sunt adunate, iar rezultatul este afișat pe consolă. Imediat după definirea funcției, îi transmitem două numere - 4 și 5. Prin urmare, la executarea programului, se va defini și imediat executa funcția care va calcula suma numerelor 4 și 5.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

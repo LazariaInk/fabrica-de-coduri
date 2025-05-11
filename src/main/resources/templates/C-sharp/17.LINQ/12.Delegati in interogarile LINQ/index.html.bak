@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='17.LINQ', activeLesson='12.Delegati in interogarile LINQ'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Delegați în interogările LINQ</h1>
+     <p class="paragraph">Dacă ne uităm la definiția multor metode de extensie LINQ, vom observa că multe dintre ele acceptă delegați ca parametru, de exemplu, Func&lt;TSource, bool&gt;, cum ar fi definiția metodei Where:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;static&nbsp;IEnumerable&lt;TSource&gt;&nbsp;Where&lt;TSource&gt;(<br>&nbsp;&nbsp;&nbsp;this&nbsp;IEnumerable&lt;TSource&gt;&nbsp;source,<br>&nbsp;&nbsp;&nbsp;Func&lt;TSource,&nbsp;bool&gt;&nbsp;predicate<br>)</code></pre>
+     </div>
+     <p class="paragraph">De obicei, ca delegat în astfel de metode, este convenabil să se transmită expresii lambda. Cu toate acestea, putem transmite și metode complete. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>string[]&nbsp;people&nbsp;=&nbsp;{&nbsp;"Tom",&nbsp;"Bob",&nbsp;"Kate",&nbsp;"Tim",&nbsp;"Mike",&nbsp;"Sam"&nbsp;};<br><br>var&nbsp;result&nbsp;=&nbsp;people.Where(LenghtIs3);<br><br>foreach&nbsp;(var&nbsp;person&nbsp;in&nbsp;result)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(person);<br><br>bool&nbsp;LenghtIs3(string&nbsp;name)&nbsp;=&gt;&nbsp;name.Length&nbsp;==&nbsp;3;</code></pre>
+     </div>
+     <p class="paragraph">Aici, metoda LenghtIs3 verifică dacă lungimea șirului este egală cu 3 caractere. Deoarece în acest caz setul de elemente la care se aplică metoda Where conține obiecte string, în metodă se transmite ca parametru un obiect de acest tip. Tipul returnat trebuie să fie de tip bool: dacă este true, obiectul string corespunde condiției și intră în colecția de ieșire.</p>
+     <p class="paragraph">Să examinăm un alt exemplu. Să presupunem că metoda Select() se aplică unei colecții de numere întregi și transformă fiecare număr în pătratul său:</p>
+     <div class="code-inline">
+      <pre><code>int[]&nbsp;numbers&nbsp;=&nbsp;{&nbsp;-2,&nbsp;-1,&nbsp;0,&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5,&nbsp;6,&nbsp;7&nbsp;};<br><br>var&nbsp;result&nbsp;=&nbsp;numbers.Where(i&nbsp;=&gt;&nbsp;i&nbsp;&gt;&nbsp;0).Select(Square);<br><br>foreach&nbsp;(int&nbsp;i&nbsp;in&nbsp;result)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(i);<br><br>int&nbsp;Square(int&nbsp;n)&nbsp;=&gt;&nbsp;n&nbsp;*&nbsp;n;</code></pre>
+     </div>
+     <p class="paragraph">Metoda Select acceptă ca parametru tipul Func&lt;TSource, TResult&gt; selector. Deoarece avem un set de obiecte int, parametru de intrare al delegatului va fi un obiect de tip int. Ca tip de ieșire, alegem int, deoarece pătratul numărului este o valoare întreagă.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

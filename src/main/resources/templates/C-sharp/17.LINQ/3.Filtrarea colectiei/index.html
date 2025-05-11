@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='17.LINQ', activeLesson='3.Filtrarea colectiei'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Filtrarea colecției</h1>
+     <p class="paragraph">Pentru a selecta elemente dintr-un set pe baza unei condiții, se utilizează metoda Where:</p>
+     <div class="code-inline">
+      <pre><code>Where&lt;TSource&gt;&nbsp;(Func&lt;TSource,bool&gt;&nbsp;predicate)</code></pre>
+     </div>
+     <p class="paragraph">Această metodă primește un delegat Func&lt;TSource,bool&gt;, care acceptă fiecare element al secvenței ca parametru și returnează o valoare bool. Dacă elementul corespunde unei anumite condiții, se returnează true și atunci acel element este transmis în colecția returnată de metoda Where.</p>
+     <p class="paragraph">De exemplu, să selectăm toate șirurile a căror lungime este egală cu 3:</p>
+     <div class="code-inline">
+      <pre><code>string[]&nbsp;people&nbsp;=&nbsp;{&nbsp;"Tom",&nbsp;"Alice",&nbsp;"Bob",&nbsp;"Sam",&nbsp;"Tim",&nbsp;"Tomas",&nbsp;"Bill"&nbsp;};<br><br>var&nbsp;selectedPeople&nbsp;=&nbsp;people.Where(p&nbsp;=&gt;&nbsp;p.Length&nbsp;==&nbsp;3);&nbsp;//&nbsp;"Tom",&nbsp;"Bob",&nbsp;"Sam",&nbsp;"Tim"<br><br>foreach&nbsp;(string&nbsp;person&nbsp;in&nbsp;selectedPeople)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(person);</code></pre>
+     </div>
+     <p class="paragraph">Dacă expresia din metoda Where pentru un anumit element este egală cu true (în acest caz expresia p.Length == 3), atunci acel element este inclus în selecția rezultată.</p>
+     <p class="paragraph">O interogare similară folosind operatorii LINQ:</p>
+     <div class="code-inline">
+      <pre><code>string[]&nbsp;people&nbsp;=&nbsp;{&nbsp;"Tom",&nbsp;"Alice",&nbsp;"Bob",&nbsp;"Sam",&nbsp;"Tim",&nbsp;"Tomas",&nbsp;"Bill"&nbsp;};<br><br>var&nbsp;selectedPeople&nbsp;=&nbsp;from&nbsp;p&nbsp;in&nbsp;people<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;where&nbsp;p.Length&nbsp;==&nbsp;3<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select&nbsp;p;</code></pre>
+     </div>
+     <p class="paragraph">Un alt exemplu - să selectăm toate elementele pare care sunt mai mari de 10.</p>
+     <p class="paragraph">Filtrarea folosind operatorii LINQ:</p>
+     <div class="code-inline">
+      <pre><code>int[]&nbsp;numbers&nbsp;=&nbsp;{&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;10,&nbsp;34,&nbsp;55,&nbsp;66,&nbsp;77,&nbsp;88&nbsp;};<br>//&nbsp;metode&nbsp;de&nbsp;extensie<br>var&nbsp;evens1&nbsp;=&nbsp;numbers.Where(i&nbsp;=&gt;&nbsp;i&nbsp;%&nbsp;2&nbsp;==&nbsp;0&nbsp;&amp;&amp;&nbsp;i&nbsp;&gt;&nbsp;10);<br>//&nbsp;operatori&nbsp;de&nbsp;interogare<br>var&nbsp;evens2&nbsp;=&nbsp;from&nbsp;i&nbsp;in&nbsp;numbers<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;where&nbsp;i&nbsp;%&nbsp;2&nbsp;==&nbsp;0&nbsp;&amp;&amp;&nbsp;i&nbsp;&gt;&nbsp;10<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select&nbsp;i;</code></pre>
+     </div>
+     <h2 class="subtitle">Selecția obiectelor complexe</h2>
+     <p class="paragraph">Să presupunem că avem o clasă utilizator:</p>
+     <div class="code-inline">
+      <pre><code>record&nbsp;class&nbsp;Person(string&nbsp;Name,&nbsp;int&nbsp;Age,&nbsp;List&lt;string&gt;&nbsp;Languages);</code></pre>
+     </div>
+     <p class="paragraph">Proprietatea Name reprezintă numele, proprietatea Age - vârsta utilizatorului, iar lista Languages - lista de limbi pe care le cunoaște utilizatorul.</p>
+     <p class="paragraph">Să creăm un set de utilizatori și să selectăm dintre ei pe cei care au vârsta peste 25 de ani:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;people&nbsp;=&nbsp;new&nbsp;List&lt;Person&gt;<br>{<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person&nbsp;("Tom",&nbsp;23,&nbsp;new&nbsp;List&lt;string&gt;&nbsp;{"english",&nbsp;"german"}),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person&nbsp;("Bob",&nbsp;27,&nbsp;new&nbsp;List&lt;string&gt;&nbsp;{"english",&nbsp;"french"&nbsp;}),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person&nbsp;("Sam",&nbsp;29,&nbsp;new&nbsp;List&lt;string&gt;&nbsp;&nbsp;{&nbsp;"english",&nbsp;"spanish"&nbsp;}),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person&nbsp;("Alice",&nbsp;24,&nbsp;new&nbsp;List&lt;string&gt;&nbsp;{"spanish",&nbsp;"german"&nbsp;})<br>};<br><br>var&nbsp;selectedPeople&nbsp;=&nbsp;from&nbsp;p&nbsp;in&nbsp;people<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;where&nbsp;p.Age&nbsp;&gt;&nbsp;25<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select&nbsp;p;<br><br>foreach&nbsp;(Person&nbsp;person&nbsp;in&nbsp;selectedPeople)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"{person.Name}&nbsp;-&nbsp;{person.Age}");</code></pre>
+     </div>
+     <p class="paragraph">Afișarea pe consolă:</p>
+     <div class="code-inline">
+      <pre><code>Bob&nbsp;-&nbsp;27<br>Sam&nbsp;-&nbsp;29</code></pre>
+     </div>
+     <p class="paragraph">O interogare similară folosind metoda de extensie Where:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;selectedPeople&nbsp;=&nbsp;people.Where(p&nbsp;=&gt;&nbsp;p.Age&nbsp;&gt;&nbsp;25);</code></pre>
+     </div>
+     <h2 class="subtitle">Filtre complexe</h2>
+     <p class="paragraph">Acum să analizăm filtre mai complexe. De exemplu, în clasa utilizatorului există o listă de limbi pe care le cunoaște utilizatorul. Ce facem dacă trebuie să filtrăm utilizatorii după limba cunoscută:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;selectedPeople&nbsp;=&nbsp;from&nbsp;person&nbsp;in&nbsp;people<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;from&nbsp;lang&nbsp;in&nbsp;person.Languages<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;where&nbsp;person.Age&nbsp;&lt;&nbsp;28<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;where&nbsp;lang&nbsp;==&nbsp;"english"<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select&nbsp;person;</code></pre>
+     </div>
+     <p class="paragraph">Rezultat:</p>
+     <div class="code-inline">
+      <pre><code>Tom&nbsp;-&nbsp;23<br>Bob&nbsp;-&nbsp;27</code></pre>
+     </div>
+     <p class="paragraph">Pentru a crea o interogare similară folosind metodele de extensie, se aplică metoda SelectMany:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;selectedPeople&nbsp;=&nbsp;people.SelectMany(u&nbsp;=&gt;&nbsp;u.Languages,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(u,&nbsp;l)&nbsp;=&gt;&nbsp;new&nbsp;{&nbsp;Person&nbsp;=&nbsp;u,&nbsp;Lang&nbsp;=&nbsp;l&nbsp;})<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.Where(u&nbsp;=&gt;&nbsp;u.Lang&nbsp;==&nbsp;"english"&nbsp;&amp;&amp;&nbsp;u.Person.Age&nbsp;&lt;&nbsp;28)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.Select(u&nbsp;=&gt;&nbsp;u.Person);</code></pre>
+     </div>
+     <p class="paragraph">Metoda SelectMany() primește ca prim parametru secvența care trebuie proiectată, iar ca al doilea parametru o funcție de transformare care se aplică fiecărui element. La ieșire, ea returnează 8 perechi "utilizator - limbă" (new { Person = u, Lang = l }), la care se aplică apoi filtrul folosind Where.</p>
+     <h2 class="subtitle">Filtrarea după tipul de date</h2>
+     <p class="paragraph">O metodă de extensie suplimentară - OfType() - permite filtrarea datelor colecției după un anumit tip:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;people&nbsp;=&nbsp;new&nbsp;List&lt;Person&gt;<br>{<br>&nbsp;&nbsp;&nbsp;new&nbsp;Student("Tom"),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person("Sam"),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Student("Bob"),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Employee("Mike")<br>};<br><br>var&nbsp;students&nbsp;=&nbsp;people.OfType&lt;Student&gt;();<br><br>foreach&nbsp;(var&nbsp;student&nbsp;in&nbsp;students)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(student.Name);<br><br>record&nbsp;class&nbsp;Person(string&nbsp;Name);<br>record&nbsp;class&nbsp;Student(string&nbsp;Name)&nbsp;:&nbsp;Person(Name);<br>record&nbsp;class&nbsp;Employee(string&nbsp;Name)&nbsp;:&nbsp;Person(Name);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, lista people conține obiecte de trei tipuri - clasa Person și tipurile derivate Student și Employee. Și în exemplu se efectuează filtrarea datelor de tip Student - pentru aceasta, metoda OfType() este tipizată cu tipul Student. Afișarea pe consolă:</p>
+     <div class="code-inline">
+      <pre><code>Tom<br>Bob</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

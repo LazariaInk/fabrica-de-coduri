@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='17.Asincronitate, promise, async si await', activeLesson='1.Asincronitate, promise, async si await'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Asincronitate, promise, async și await</h1>
+     <h2 class="subtitle">Funcții Asincrone și Callback-uri</h2>
+     <p class="paragraph">În execuția standard JavaScript, instrucțiunile sunt executate secvențial, una după alta. Adică, mai întâi se execută prima instrucțiune, apoi a doua și așa mai departe. Cu toate acestea, ce se întâmplă dacă una dintre aceste operațiuni necesită o perioadă îndelungată de timp pentru a se executa? De exemplu, dacă realizează un proces intensiv, cum ar fi o solicitare de rețea sau accesarea unei baze de date, ceea ce ar putea dura un timp nedefinit și uneori îndelungat.</p>
+     <p class="paragraph">În final, în timpul execuției secvențiale, toate operațiunile ulterioare vor aștepta finalizarea acestei operațiuni. Pentru a evita o astfel de situație, JavaScript permite evitarea acestui scenariu prin intermediul funcțiilor asincrone.</p>
+     <p class="paragraph">De exemplu, să definim o simplă funcție asincronă care simulează un proces de durată folosind apelul setTimeout() și o întârziere de 1 secundă, apoi afișează un număr aleatoriu pe consolă:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;asyncFunction()&nbsp;{<br>&nbsp;&nbsp;&nbsp;setTimeout(()=&gt;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;let&nbsp;result&nbsp;=&nbsp;22;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("result:",&nbsp;result);<br>&nbsp;&nbsp;&nbsp;},&nbsp;1000);<br>}<br>asyncFunction();<br>console.log("End&nbsp;of&nbsp;program");</code></pre>
+     </div>
+     <p class="paragraph">În loc de setTimeout(), aici ar putea fi o solicitare către o bază de date sau o resursă de rețea, care ar putea dura un timp îndelungat, iar rezultatul ar fi obținut după un anumit timp. Și, în consecință, numărul ar fi afișat pe consolă la finalul execuției programului:</p>
+     <div class="code-inline">
+      <pre><code>End&nbsp;of&nbsp;program<br>result:&nbsp;22</code></pre>
+     </div>
+     <p class="paragraph">Aici vedem că funcția asincronă nu blochează execuția celorlalte instrucțiuni ale programului. Cu toate acestea, atunci când lucrăm cu astfel de funcții, ne putem confrunta cu o serie de probleme. Astfel, funcțiile asincrone nu returnează rezultatul calculului asincron prin cuvântul cheie return, ci îl transmit ca parametru al funcției de callback.</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;asyncFunction()&nbsp;{<br>&nbsp;&nbsp;&nbsp;let&nbsp;result;<br>&nbsp;&nbsp;&nbsp;setTimeout(()=&gt;{result&nbsp;=&nbsp;22;},&nbsp;1000);<br>&nbsp;&nbsp;&nbsp;return&nbsp;result;<br>}<br>const&nbsp;asyncResult&nbsp;=&nbsp;asyncFunction();<br>console.log("result:",&nbsp;asyncResult)&nbsp;//&nbsp;result:&nbsp;undefined</code></pre>
+     </div>
+     <p class="paragraph">Aici, funcția asincronă asyncFunction este apelată în manieră sincronă, iar în final obținem un rezultat nedefinit. Pentru că variabila asyncResult este stabilită înainte ca funcția asyncFunction să genereze rezultatul.</p>
+     <p class="paragraph">O altă problemă este legată de generarea erorilor prin operatorul throw:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;asyncFunction()&nbsp;{<br>&nbsp;&nbsp;&nbsp;let&nbsp;result;<br>&nbsp;&nbsp;&nbsp;setTimeout(()=&gt;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;=&nbsp;22;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(result&nbsp;&lt;&nbsp;50)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;Error("Valoare&nbsp;incorectă");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;},&nbsp;1000);<br>&nbsp;&nbsp;&nbsp;return&nbsp;result;<br>}<br>try&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;asyncResult&nbsp;=&nbsp;asyncFunction();<br>&nbsp;&nbsp;&nbsp;console.log("result:",&nbsp;asyncResult)<br>}<br>catch(error)&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;console.error("Error:",&nbsp;error);&nbsp;//&nbsp;Această&nbsp;linie&nbsp;NU&nbsp;se&nbsp;execută<br>}<br>console.log("End&nbsp;of&nbsp;program");</code></pre>
+     </div>
+     <p class="paragraph">Aici, gestionarea erorilor în blocul catch nu va funcționa, deoarece la momentul generării erorii, codul apelant a trecut deja și nu mai este nimeni să prindă eroarea.</p>
+     <p class="paragraph">Inițial, gestionarea rezultatelor și a erorilor în funcțiile asincrone presupunea utilizarea funcțiilor de callback, care erau transmise unei alte funcții și erau apelate mai târziu, la un anumit moment în timp. Cel mai simplu model de utilizare a callback-urilor:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;asyncFunction(callback)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log("Before&nbsp;calling&nbsp;callback");&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;callback();&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;console.log("After&nbsp;calling&nbsp;callback");<br>}<br>function&nbsp;callbackFunc()&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;console.log("Calling&nbsp;callback");<br>}<br>asyncFunction(callbackFunc);</code></pre>
+     </div>
+     <p class="paragraph">Aici, funcția asyncFunction (condiționat funcție asincronă) acceptă o funcție de callback și o apelează în cod.</p>
+     <p class="paragraph">De exemplu, folosim un callback pentru a obține și a procesa rezultatul și eroarea unei funcții asincrone:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;handleResult(error,&nbsp;result){&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;if(error)&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;este&nbsp;transmisă&nbsp;o&nbsp;eroare<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.error(error);&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;else&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;funcția&nbsp;asincronă&nbsp;s-a&nbsp;încheiat&nbsp;cu&nbsp;succes<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Result:",&nbsp;result);&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>}<br><br>function&nbsp;asyncFunction(callback)&nbsp;{<br>&nbsp;&nbsp;&nbsp;setTimeout(()=&gt;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;let&nbsp;result&nbsp;=&nbsp;Math.floor(Math.random()&nbsp;*&nbsp;100)&nbsp;+&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(result&nbsp;&lt;&nbsp;50)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;este&nbsp;mai&nbsp;mic&nbsp;de&nbsp;50,&nbsp;setăm&nbsp;eroarea<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;callback(new&nbsp;Error("Valoare&nbsp;incorectă:&nbsp;"&nbsp;+&nbsp;result),&nbsp;null);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;în&nbsp;celelalte&nbsp;cazuri&nbsp;setăm&nbsp;rezultatul<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;callback(null,&nbsp;result);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;},&nbsp;1000);<br>}<br>asyncFunction(handleResult);</code></pre>
+     </div>
+     <p class="paragraph">În calitate de callback în funcția asincronă asyncFunction este transmisă funcția handleResult.</p>
+     <div class="code-inline">
+      <pre><code>asyncFunction(handleResult);</code></pre>
+     </div>
+     <p class="paragraph">Pentru exemplu, pentru ca numărul să reprezinte o valoare aleatorie, aici este folosită metoda Math.random().</p>
+     <div class="code-inline">
+      <pre><code>let&nbsp;result&nbsp;=&nbsp;Math.floor(Math.random()&nbsp;*&nbsp;100)&nbsp;+&nbsp;1;</code></pre>
+     </div>
+     <p class="paragraph">Dacă numărul generat este mai mic de 50, atunci setăm primul parametru al funcției handleResult, care reprezintă eroarea:</p>
+     <div class="code-inline">
+      <pre><code>if(result&nbsp;&lt;&nbsp;50)&nbsp;{<br>&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;este&nbsp;mai&nbsp;mic&nbsp;de&nbsp;50,&nbsp;setăm&nbsp;eroarea<br>&nbsp;&nbsp;&nbsp;callback(new&nbsp;Error("Valoare&nbsp;incorectă:&nbsp;"&nbsp;+&nbsp;result),&nbsp;null);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>}</code></pre>
+     </div>
+     <p class="paragraph">În celelalte cazuri setăm rezultatul, iar pentru eroare transmitem null:</p>
+     <div class="code-inline">
+      <pre><code>else{<br>&nbsp;&nbsp;&nbsp;//&nbsp;în&nbsp;celelalte&nbsp;cazuri&nbsp;setăm&nbsp;rezultatul<br>&nbsp;&nbsp;&nbsp;callback(null,&nbsp;result);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Output-ul consolii la o procesare reușită (când numărul generat este egal sau mai mare de 50):</p>
+     <div class="code-inline">
+      <pre><code>Result:&nbsp;70</code></pre>
+     </div>
+     <p class="paragraph">Dacă numărul generat este mai mic de 50, atunci va fi afișată o eroare:</p>
+     <div class="code-inline">
+      <pre><code>Error:&nbsp;Valoare&nbsp;incorectă:&nbsp;35</code></pre>
+     </div>
+     <p class="paragraph">Aceasta este schema clasică de utilizare a callback-urilor pentru procesarea rezultatului unei funcții asincrone. Cu toate acestea, are cel puțin un mare dezavantaj: utilizarea excesivă a funcțiilor de callback poate duce la crearea unei structuri de cod cunoscută printre dezvoltatorii JavaScript ca "callback hell" (iadul callback-urilor).</p>
+     <p class="paragraph">O astfel de structură de cod apare când un callback într-o funcție asincronă apelează o altă funcție asincronă, callback-ul acesteia, la rândul său, poate apela a treia funcție asincronă și așa mai departe. Un exemplu de astfel de structură:</p>
+     <div class="code-inline">
+      <pre><code>asyncFunction((error,&nbsp;result)&nbsp;=&gt;&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;asyncFunction2((error2,&nbsp;result2)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;asyncFunction3((error3,&nbsp;result3)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;asyncFunction4((error4,&nbsp;result4)&nbsp;=&gt;&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;some&nbsp;code<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;});&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;});&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;});&nbsp;&nbsp;<br>});</code></pre>
+     </div>
+     <p class="paragraph">Și pentru a rezolva această problemă, începând cu standardul ES2015 în JavaScript, a fost adăugată suportul pentru promisiuni (promises), care vor fi analizate mai detaliat în continuare.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

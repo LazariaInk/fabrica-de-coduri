@@ -1,232 +1,222 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='3.Programare functionala', activeLesson='5.Domeniul de vizibilitate al variabilelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Domeniul de vizibilitate al variabilelor</h1>
- <p class="paragraph">Toate variabilele și constantele în JavaScript au o anumită arie de vizibilitate în cadrul căreia pot acționa.</p>
- <h2 class="subtitle">Variabilele globale</h2>
- <p class="paragraph">Toate variabilele și constantele care sunt declarate în afara funcțiilor sunt considerate globale:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;script&gt;<br>var&nbsp;a&nbsp;=&nbsp;5;<br>let&nbsp;b&nbsp;=&nbsp;8;<br>const&nbsp;c&nbsp;=&nbsp;9;<br>function&nbsp;displaySum(){<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;var&nbsp;d&nbsp;=&nbsp;a&nbsp;+&nbsp;b&nbsp;+&nbsp;c;<br>&nbsp;&nbsp;&nbsp;console.log(d);<br>}<br>displaySum();&nbsp;//&nbsp;22<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">Aici variabilele a și b, precum și constanta c, sunt globale. Ele sunt accesibile din orice parte a programului.</p>
- <p class="paragraph">Însă variabila d nu este globală, deoarece este definită în interiorul unei funcții și este vizibilă doar în acea funcție.</p>
- <h2 class="subtitle">Definirea domeniului local de vizibilitate</h2>
- <p class="paragraph">Pentru a defini un domeniu local de vizibilitate în JavaScript, se utilizează acoladele { }, care creează un bloc de cod. Acest bloc de cod poate fi anonim sau poate fi numit, de exemplu, o funcție, sau poate reprezenta o construcție condițională sau ciclică. De exemplu, definirea variabilelor într-un bloc de cod fără nume:</p>
- <div class="code-inline">
-  <pre><code>{<br>&nbsp;&nbsp;&nbsp;var&nbsp;a&nbsp;=&nbsp;5;<br>&nbsp;&nbsp;&nbsp;let&nbsp;b&nbsp;=&nbsp;8;<br>&nbsp;&nbsp;&nbsp;const&nbsp;c&nbsp;=&nbsp;9;<br>}</code></pre>
- </div>
- <p class="paragraph">Cu toate acestea, în acest caz, comportamentul variabilei depinde de modul în care este definită (prin intermediul var sau let) și de tipul blocului. var definește variabile locale la nivelul funcției, în timp ce let definește variabile locale la nivelul blocului de cod (similar, const definește constante la nivelul blocului de cod). Să examinăm care este diferența.</p>
- <h2 class="subtitle">Variabile și constantele funcției</h2>
- <p class="paragraph">Variabilele și constantele definite în interiorul unei funcții sunt vizibile (adică pot fi utilizate) doar în cadrul acelei funcții:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;print(){<br><br>&nbsp;&nbsp;&nbsp;var&nbsp;a&nbsp;=&nbsp;5;<br>&nbsp;&nbsp;&nbsp;let&nbsp;b&nbsp;=&nbsp;8;<br>&nbsp;&nbsp;&nbsp;const&nbsp;c&nbsp;=&nbsp;9;<br>&nbsp;&nbsp;&nbsp;console.log("Function&nbsp;print:&nbsp;a&nbsp;=",&nbsp;a);<br>&nbsp;&nbsp;&nbsp;console.log("Function&nbsp;print:&nbsp;b&nbsp;=",&nbsp;b);<br>&nbsp;&nbsp;&nbsp;console.log("Function&nbsp;print:&nbsp;c&nbsp;=",&nbsp;c);<br>}<br>print();<br>console.log("Global:&nbsp;a&nbsp;=",&nbsp;a);&nbsp;&nbsp;//&nbsp;Uncaught&nbsp;ReferenceError:&nbsp;a&nbsp;is&nbsp;not&nbsp;defined</code></pre>
- </div>
- <p class="paragraph">Variabilele a și b, precum și constanta c, sunt locale; ele există doar în cadrul funcției. În afara funcției, nu pot fi utilizate, așa că vom obține următorul rezultat în consolă:</p>
- <p class="paragraph">Function print: a= 5 Function print: b= 8 Function print: c= 9 Uncaught ReferenceError: a is not defined</p>
- <p class="paragraph">Aici observăm că la încercarea de a accesa variabila a în afara funcției print(), browser-ul afișează o eroare. Această comportare nu depinde de tipul variabilei - fie că este var sau let, sau o constantă. Asemenea comportament este similar pentru toate variabilele și constantele.</p>
- <h2 class="subtitle">Variabile locale în blocurile de cod, condiții și bucle</h2>
- <p class="paragraph">Cu variabilele definite în blocuri de cod fără nume, precum și în bucle și construcții condiționale, situația este puțin mai complicată.</p>
- <h2 class="subtitle">Variabila var</h2>
- <p class="paragraph">Variabila declarată cu ajutorul var poate fi utilizată în afara blocului de cod:</p>
- <div class="code-inline">
-  <pre><code>//&nbsp;Bloc&nbsp;fără&nbsp;nume<br>{<br>&nbsp;&nbsp;&nbsp;var&nbsp;a&nbsp;=&nbsp;5;<br>}<br>console.log("a&nbsp;=",&nbsp;a);&nbsp;&nbsp;//&nbsp;a&nbsp;=&nbsp;5<br><br>//&nbsp;Construcție&nbsp;condițională<br>if&nbsp;(true)&nbsp;{<br>&nbsp;&nbsp;&nbsp;var&nbsp;b&nbsp;=&nbsp;6;<br>}<br>console.log("b&nbsp;=",&nbsp;b);&nbsp;&nbsp;//&nbsp;b&nbsp;=&nbsp;6<br><br>//&nbsp;Buclă<br>for&nbsp;(let&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;5;&nbsp;i++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;var&nbsp;c&nbsp;=&nbsp;7;<br>}<br>console.log("c&nbsp;=",&nbsp;c);&nbsp;&nbsp;//&nbsp;c&nbsp;=&nbsp;7</code></pre>
- </div>
- <p class="paragraph">Unica condiție pentru a inițializa variabila este ca blocul de cod să fie executat. Astfel, în exemplul de mai sus, condițiile în construcția if și în bucla for sunt setate astfel încât blocurile acestor construcții să fie executate. Cu toate acestea, dacă condiția nu este îndeplinită și blocul nu este executat, variabila nu va fi inițializată în afara blocului respectiv. În cazul variabilei c, de exemplu, dacă bucla for nu se execută, atunci încercarea de a accesa c în afara buclei va genera o eroare.</p>
- <div class="code-inline">
-  <pre><code>if(false){<br>&nbsp;&nbsp;&nbsp;var&nbsp;b&nbsp;=&nbsp;6;<br>}<br>console.log("b&nbsp;=",&nbsp;b);&nbsp;&nbsp;//&nbsp;b&nbsp;=&nbsp;undefined<br><br>//&nbsp;bucla<br>for(let&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;&nbsp;0;&nbsp;i++){<br>&nbsp;&nbsp;&nbsp;var&nbsp;c&nbsp;=&nbsp;7;<br>}<br>console.log("c&nbsp;=",&nbsp;c);&nbsp;&nbsp;//&nbsp;c&nbsp;=&nbsp;undefined</code></pre>
- </div>
- <p class="paragraph">În acest caz, putem totuși să facem referire la variabile, dar ele vor avea valoarea undefined.</p>
- <h2 class="subtitle">Variabila let și constantele</h2>
- <p class="paragraph">Acum să vedem cum se comportă într-o situație similară variabilele definite cu ajutorul let:</p>
- <div class="code-inline">
-  <pre><code>{<br>&nbsp;&nbsp;&nbsp;let&nbsp;a&nbsp;=&nbsp;5;<br>}<br>console.log("a&nbsp;=",&nbsp;a);&nbsp;&nbsp;//&nbsp;Uncaught&nbsp;ReferenceError:&nbsp;a&nbsp;is&nbsp;not&nbsp;defined</code></pre>
- </div>
- <p class="paragraph">În acest caz, vom obține o eroare. Putem utiliza variabilele let definite în interiorul unui bloc de cod doar în cadrul acelui bloc de cod.</p>
- <p class="paragraph">Același lucru se aplică și pentru constante:</p>
- <div class="code-inline">
-  <pre><code>{<br>&nbsp;&nbsp;&nbsp;const&nbsp;b&nbsp;=&nbsp;5;<br>}<br>console.log("b&nbsp;=",&nbsp;b);&nbsp;&nbsp;//&nbsp;Uncaught&nbsp;ReferenceError:&nbsp;b&nbsp;is&nbsp;not&nbsp;defined</code></pre>
- </div>
- <h2 class="subtitle">Ascunderea variabilelor</h2>
- <p class="paragraph">Ce se întâmplă dacă avem două variabile - una globală și cealaltă locală, care au același nume:</p>
- <div class="code-inline">
-  <pre><code>var&nbsp;z&nbsp;=&nbsp;89;<br>function&nbsp;print(){<br><br>&nbsp;&nbsp;&nbsp;var&nbsp;z&nbsp;=&nbsp;10;<br>&nbsp;&nbsp;&nbsp;console.log(z);&nbsp;//&nbsp;10<br>}<br>print();&nbsp;//&nbsp;10</code></pre>
- </div>
- <p class="paragraph">În acest caz, în funcție se va utiliza variabila z care este definită direct în funcție. Cu alte cuvinte, variabila locală va ascunde variabila globală. Cu toate acestea, comportamentul specific al ascunderii depinde de modul în care este definită variabila.</p>
- <h2 class="subtitle">Ascunderea variabilei var</h2>
- <p class="paragraph">Mai sus a fost menționat că var definește variabila la nivelul funcției. Prin urmare, cu ajutorul operatorului var, NU putem defini simultan două variabile cu același nume într-o funcție și într-un bloc de cod în acea funcție. Dacă o facem, la declararea variabilei la nivelul blocului, schimbăm valoarea variabilei la nivelul funcției:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;displayZ(){<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;var&nbsp;z&nbsp;=&nbsp;20;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;z&nbsp;=&nbsp;30;&nbsp;//&nbsp;Nu&nbsp;definește&nbsp;o&nbsp;variabilă&nbsp;nouă,&nbsp;ci&nbsp;schimbă&nbsp;valoarea&nbsp;variabilei&nbsp;z&nbsp;la&nbsp;nivelul&nbsp;funcției<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Block:",&nbsp;z);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;console.log("Function:",&nbsp;z);<br>}<br>displayZ();</code></pre>
- </div>
- <p class="paragraph">Aici, definirea variabilei z în interiorul blocului de fapt va echivala cu modificarea valorii variabilei la nivelul funcției și, practic, aceasta va fi aceeași variabilă. Afișajul în consolă:</p>
- <p class="paragraph">Block: 30 Function: 30</p>
- <h2 class="subtitle">Ascunderea variabilei let</h2>
- <p class="paragraph">După cum s-a menționat mai sus, operatorul let definește variabile la nivelul blocului de cod. Cu alte cuvinte, fiecare bloc de cod definește o nouă zonă de vizibilitate în care există variabila. În afara blocului de cod în care este definită variabila, aceasta nu există. Prin urmare, putem defini simultan o variabilă la nivelul blocului de cod și la nivelul funcției (spre deosebire de var):</p>
- <div class="code-inline">
-  <pre><code>let&nbsp;z&nbsp;=&nbsp;10;<br>function&nbsp;displayZ(){<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;let&nbsp;z&nbsp;=&nbsp;20;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;let&nbsp;z&nbsp;=&nbsp;30;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Block:",&nbsp;z);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;console.log("Function:",&nbsp;z);<br>}<br><br>displayZ();<br>console.log("Global:",&nbsp;z);</code></pre>
- </div>
- <p class="paragraph">În acest caz, în cadrul funcției displayZ este definit un bloc de cod în care este declarată variabila z. Acest bloc ascunde variabila globală și variabila z definită la nivelul funcției.</p>
- <p class="paragraph">Și în acest context, vom obține următorul rezultat în consolă.</p>
- <p class="paragraph">Block: 30 Function: 20 Global: 10</p>
- <h2 class="subtitle">Constante</h2>
- <p class="paragraph">Tot ce a fost menționat despre operatorul let se aplică și operatorului const, care definește constante la nivelul blocului de cod. Blocurile de cod stabilesc domeniul de vizibilitate pentru constante, iar constantele definite în blocuri imbricate ascund constantele exterioare cu același nume:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;z&nbsp;=&nbsp;10;<br>function&nbsp;displayZ(){<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;z&nbsp;=&nbsp;20;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;z&nbsp;=&nbsp;30;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Block:",&nbsp;z);&nbsp;&nbsp;&nbsp;//&nbsp;30<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;console.log("Function:",&nbsp;z);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;20<br>}<br><br>displayZ();<br>console.log("Global:",&nbsp;z);&nbsp;&nbsp;//&nbsp;10</code></pre>
- </div>
- <h2 class="subtitle">Lanțul de vizibilitate</h2>
- <p class="paragraph">Când rulează codul, atunci când interpretorul se confruntă cu un anumit identificator (numele variabilei, constantei, funcției), el caută mai întâi definiția acestui identificator în domeniul de vizibilitate curent. Acesta este modul în care funcționează ascunderea variabilelor și constantelor. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;z&nbsp;=&nbsp;10;<br>function&nbsp;displayZ(){<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;z&nbsp;=&nbsp;20;<br>&nbsp;&nbsp;&nbsp;console.log(z);&nbsp;//&nbsp;20<br>}<br><br>displayZ();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;20</code></pre>
- </div>
- <p class="paragraph">Aici interpretorul va observa că în funcția displayZ există o referire la identificatorul z și va căuta definiția acestui identificator în interiorul funcției displayZ. Și deoarece în această funcție există o definiție pentru constanta const z = 20, această constantă va fi utilizată.</p>
- <p class="paragraph">Alt exemplu:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;z&nbsp;=&nbsp;10;<br>function&nbsp;displayZ(){<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;console.log(z);&nbsp;//&nbsp;10<br>}<br><br>displayZ();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;10</code></pre>
- </div>
- <p class="paragraph">Acum, în interiorul funcției displayZ, nu există o definiție pentru identificatorul z, astfel că pentru a-l găsi, se aplică lanțul de vizibilitate - interpretorul se adresează domeniului său de vizibilitate înconjurător și efectuează căutarea acolo. Mai precis, se urmăresc domeniile de vizibilitate în lanț, începând de la cel actual și mergând către cele exterioare, până la domeniul de vizibilitate global.</p>
- <h2 class="subtitle">Variabilele nedeclarate</h2>
- <p class="paragraph">La definirea variabilelor în JavaScript, putem să nu folosim cuvântul cheie let sau var. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;username&nbsp;=&nbsp;"Tom";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(username);&nbsp;&nbsp;//&nbsp;nu&nbsp;există&nbsp;erori<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(username);&nbsp;&nbsp;//&nbsp;nu&nbsp;există&nbsp;erori,&nbsp;accesibil&nbsp;în&nbsp;interiorul&nbsp;altor&nbsp;blocuri&nbsp;de&nbsp;cod<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">Dacă nu folosim cuvintele cheie let/var la definirea unei variabile într-o funcție, atunci acea variabilă va deveni globală. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;setAge(){<br>&nbsp;&nbsp;&nbsp;userage&nbsp;=&nbsp;39;<br>}<br>setAge();<br>console.log(userage);&nbsp;&nbsp;&nbsp;//&nbsp;39</code></pre>
- </div>
- <p class="paragraph">La nivelul funcției setAge, variabila userage este accesibilă în afara funcției în contextul global. Singura condiție este să apelăm funcția unde este definită această variabilă.</p>
- <p class="paragraph">Cu toate acestea, dacă nu apelăm funcția, variabila nu va fi definită:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;setAge(){<br>&nbsp;&nbsp;&nbsp;userage&nbsp;=&nbsp;39;<br>}<br><br>//&nbsp;setAge();&nbsp;&nbsp;&nbsp;&nbsp;Funcția&nbsp;NU&nbsp;este&nbsp;apelată<br>console.log(userage);&nbsp;&nbsp;&nbsp;//&nbsp;eroare&nbsp;-&nbsp;Uncaught&nbsp;ReferenceError:&nbsp;userage&nbsp;is&nbsp;not&nbsp;defined</code></pre>
- </div>
- <p class="paragraph">Am obține aceeași eroare dacă nu numai că am atribui o valoare variabilei, ci și dacă am defini-o ca locală față de funcție:</p>
- <div class="code-inline">
-  <pre><code>function&nbsp;setAge(){<br>&nbsp;&nbsp;&nbsp;var&nbsp;userage&nbsp;=&nbsp;39;<br>}<br><br>setAge();<br>console.log(userage);&nbsp;&nbsp;&nbsp;//&nbsp;eroare&nbsp;-&nbsp;Uncaught&nbsp;ReferenceError:&nbsp;userage&nbsp;is&nbsp;not&nbsp;defined</code></pre>
- </div>
- <h2 class="subtitle">strict mode</h2>
- <p class="paragraph">Definirea de variabile globale în funcții poate duce la potențiale erori. Pentru a le evita, se utilizează strict mode sau modul strict. Strict mode poate fi activat în două moduri:</p>
- <ul class="enumeration">
-  <li>Adăugați expresia "use strict" la începutul codului JavaScript, astfel încât strict mode să fie aplicat întregului cod.</li>
-  <li>Adăugați expresia "use strict" la începutul corpului funcției, astfel încât strict mode să fie aplicat doar acelei funcții.</li>
- </ul>
- <p class="paragraph">Aplicarea strict mode la nivel global:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"use&nbsp;strict";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;folosim&nbsp;strict&nbsp;mode<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;username&nbsp;=&nbsp;"Tom";&nbsp;&nbsp;&nbsp;//&nbsp;Uncaught&nbsp;ReferenceError:&nbsp;username&nbsp;is&nbsp;not&nbsp;defined<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(username);<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">În acest caz, vom primi o eroare SyntaxError: Unexpected identifier, care indică faptul că variabila username nu este definită.</p>
- <p class="paragraph">O eroare similară o vom obține la definirea unei variabile globale într-o funcție:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"use&nbsp;strict";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;folosim&nbsp;strict&nbsp;mode<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;function&nbsp;setAge(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;userage&nbsp;=&nbsp;39;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Uncaught&nbsp;ReferenceError:&nbsp;userage&nbsp;is&nbsp;not&nbsp;defined<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setAge();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(userage);<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">Exemplu de utilizare a modului strict la nivelul unei funcții:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;username&nbsp;=&nbsp;"Tom";&nbsp;&nbsp;&nbsp;//&nbsp;normal<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(username);&nbsp;&nbsp;//&nbsp;Tom<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;function&nbsp;setAge(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"use&nbsp;strict";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;se&nbsp;utilizează&nbsp;modul&nbsp;strict&nbsp;la&nbsp;nivelul&nbsp;funcției<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;userage&nbsp;=&nbsp;39;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Uncaught&nbsp;ReferenceError:&nbsp;userage&nbsp;is&nbsp;not&nbsp;defined<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setAge();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(userage);<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Domeniul de vizibilitate al variabilelor</h1>
+     <p class="paragraph">Toate variabilele și constantele în JavaScript au o anumită arie de vizibilitate în cadrul căreia pot acționa.</p>
+     <h2 class="subtitle">Variabilele globale</h2>
+     <p class="paragraph">Toate variabilele și constantele care sunt declarate în afara funcțiilor sunt considerate globale:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;script&gt;<br>var&nbsp;a&nbsp;=&nbsp;5;<br>let&nbsp;b&nbsp;=&nbsp;8;<br>const&nbsp;c&nbsp;=&nbsp;9;<br>function&nbsp;displaySum(){<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;var&nbsp;d&nbsp;=&nbsp;a&nbsp;+&nbsp;b&nbsp;+&nbsp;c;<br>&nbsp;&nbsp;&nbsp;console.log(d);<br>}<br>displaySum();&nbsp;//&nbsp;22<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici variabilele a și b, precum și constanta c, sunt globale. Ele sunt accesibile din orice parte a programului.</p>
+     <p class="paragraph">Însă variabila d nu este globală, deoarece este definită în interiorul unei funcții și este vizibilă doar în acea funcție.</p>
+     <h2 class="subtitle">Definirea domeniului local de vizibilitate</h2>
+     <p class="paragraph">Pentru a defini un domeniu local de vizibilitate în JavaScript, se utilizează acoladele { }, care creează un bloc de cod. Acest bloc de cod poate fi anonim sau poate fi numit, de exemplu, o funcție, sau poate reprezenta o construcție condițională sau ciclică. De exemplu, definirea variabilelor într-un bloc de cod fără nume:</p>
+     <div class="code-inline">
+      <pre><code>{<br>&nbsp;&nbsp;&nbsp;var&nbsp;a&nbsp;=&nbsp;5;<br>&nbsp;&nbsp;&nbsp;let&nbsp;b&nbsp;=&nbsp;8;<br>&nbsp;&nbsp;&nbsp;const&nbsp;c&nbsp;=&nbsp;9;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Cu toate acestea, în acest caz, comportamentul variabilei depinde de modul în care este definită (prin intermediul var sau let) și de tipul blocului. var definește variabile locale la nivelul funcției, în timp ce let definește variabile locale la nivelul blocului de cod (similar, const definește constante la nivelul blocului de cod). Să examinăm care este diferența.</p>
+     <h2 class="subtitle">Variabile și constantele funcției</h2>
+     <p class="paragraph">Variabilele și constantele definite în interiorul unei funcții sunt vizibile (adică pot fi utilizate) doar în cadrul acelei funcții:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;print(){<br><br>&nbsp;&nbsp;&nbsp;var&nbsp;a&nbsp;=&nbsp;5;<br>&nbsp;&nbsp;&nbsp;let&nbsp;b&nbsp;=&nbsp;8;<br>&nbsp;&nbsp;&nbsp;const&nbsp;c&nbsp;=&nbsp;9;<br>&nbsp;&nbsp;&nbsp;console.log("Function&nbsp;print:&nbsp;a&nbsp;=",&nbsp;a);<br>&nbsp;&nbsp;&nbsp;console.log("Function&nbsp;print:&nbsp;b&nbsp;=",&nbsp;b);<br>&nbsp;&nbsp;&nbsp;console.log("Function&nbsp;print:&nbsp;c&nbsp;=",&nbsp;c);<br>}<br>print();<br>console.log("Global:&nbsp;a&nbsp;=",&nbsp;a);&nbsp;&nbsp;//&nbsp;Uncaught&nbsp;ReferenceError:&nbsp;a&nbsp;is&nbsp;not&nbsp;defined</code></pre>
+     </div>
+     <p class="paragraph">Variabilele a și b, precum și constanta c, sunt locale; ele există doar în cadrul funcției. În afara funcției, nu pot fi utilizate, așa că vom obține următorul rezultat în consolă:</p>
+     <p class="paragraph">Function print: a= 5 Function print: b= 8 Function print: c= 9 Uncaught ReferenceError: a is not defined</p>
+     <p class="paragraph">Aici observăm că la încercarea de a accesa variabila a în afara funcției print(), browser-ul afișează o eroare. Această comportare nu depinde de tipul variabilei - fie că este var sau let, sau o constantă. Asemenea comportament este similar pentru toate variabilele și constantele.</p>
+     <h2 class="subtitle">Variabile locale în blocurile de cod, condiții și bucle</h2>
+     <p class="paragraph">Cu variabilele definite în blocuri de cod fără nume, precum și în bucle și construcții condiționale, situația este puțin mai complicată.</p>
+     <h2 class="subtitle">Variabila var</h2>
+     <p class="paragraph">Variabila declarată cu ajutorul var poate fi utilizată în afara blocului de cod:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;Bloc&nbsp;fără&nbsp;nume<br>{<br>&nbsp;&nbsp;&nbsp;var&nbsp;a&nbsp;=&nbsp;5;<br>}<br>console.log("a&nbsp;=",&nbsp;a);&nbsp;&nbsp;//&nbsp;a&nbsp;=&nbsp;5<br><br>//&nbsp;Construcție&nbsp;condițională<br>if&nbsp;(true)&nbsp;{<br>&nbsp;&nbsp;&nbsp;var&nbsp;b&nbsp;=&nbsp;6;<br>}<br>console.log("b&nbsp;=",&nbsp;b);&nbsp;&nbsp;//&nbsp;b&nbsp;=&nbsp;6<br><br>//&nbsp;Buclă<br>for&nbsp;(let&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;5;&nbsp;i++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;var&nbsp;c&nbsp;=&nbsp;7;<br>}<br>console.log("c&nbsp;=",&nbsp;c);&nbsp;&nbsp;//&nbsp;c&nbsp;=&nbsp;7</code></pre>
+     </div>
+     <p class="paragraph">Unica condiție pentru a inițializa variabila este ca blocul de cod să fie executat. Astfel, în exemplul de mai sus, condițiile în construcția if și în bucla for sunt setate astfel încât blocurile acestor construcții să fie executate. Cu toate acestea, dacă condiția nu este îndeplinită și blocul nu este executat, variabila nu va fi inițializată în afara blocului respectiv. În cazul variabilei c, de exemplu, dacă bucla for nu se execută, atunci încercarea de a accesa c în afara buclei va genera o eroare.</p>
+     <div class="code-inline">
+      <pre><code>if(false){<br>&nbsp;&nbsp;&nbsp;var&nbsp;b&nbsp;=&nbsp;6;<br>}<br>console.log("b&nbsp;=",&nbsp;b);&nbsp;&nbsp;//&nbsp;b&nbsp;=&nbsp;undefined<br><br>//&nbsp;bucla<br>for(let&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;&nbsp;0;&nbsp;i++){<br>&nbsp;&nbsp;&nbsp;var&nbsp;c&nbsp;=&nbsp;7;<br>}<br>console.log("c&nbsp;=",&nbsp;c);&nbsp;&nbsp;//&nbsp;c&nbsp;=&nbsp;undefined</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, putem totuși să facem referire la variabile, dar ele vor avea valoarea undefined.</p>
+     <h2 class="subtitle">Variabila let și constantele</h2>
+     <p class="paragraph">Acum să vedem cum se comportă într-o situație similară variabilele definite cu ajutorul let:</p>
+     <div class="code-inline">
+      <pre><code>{<br>&nbsp;&nbsp;&nbsp;let&nbsp;a&nbsp;=&nbsp;5;<br>}<br>console.log("a&nbsp;=",&nbsp;a);&nbsp;&nbsp;//&nbsp;Uncaught&nbsp;ReferenceError:&nbsp;a&nbsp;is&nbsp;not&nbsp;defined</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, vom obține o eroare. Putem utiliza variabilele let definite în interiorul unui bloc de cod doar în cadrul acelui bloc de cod.</p>
+     <p class="paragraph">Același lucru se aplică și pentru constante:</p>
+     <div class="code-inline">
+      <pre><code>{<br>&nbsp;&nbsp;&nbsp;const&nbsp;b&nbsp;=&nbsp;5;<br>}<br>console.log("b&nbsp;=",&nbsp;b);&nbsp;&nbsp;//&nbsp;Uncaught&nbsp;ReferenceError:&nbsp;b&nbsp;is&nbsp;not&nbsp;defined</code></pre>
+     </div>
+     <h2 class="subtitle">Ascunderea variabilelor</h2>
+     <p class="paragraph">Ce se întâmplă dacă avem două variabile - una globală și cealaltă locală, care au același nume:</p>
+     <div class="code-inline">
+      <pre><code>var&nbsp;z&nbsp;=&nbsp;89;<br>function&nbsp;print(){<br><br>&nbsp;&nbsp;&nbsp;var&nbsp;z&nbsp;=&nbsp;10;<br>&nbsp;&nbsp;&nbsp;console.log(z);&nbsp;//&nbsp;10<br>}<br>print();&nbsp;//&nbsp;10</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, în funcție se va utiliza variabila z care este definită direct în funcție. Cu alte cuvinte, variabila locală va ascunde variabila globală. Cu toate acestea, comportamentul specific al ascunderii depinde de modul în care este definită variabila.</p>
+     <h2 class="subtitle">Ascunderea variabilei var</h2>
+     <p class="paragraph">Mai sus a fost menționat că var definește variabila la nivelul funcției. Prin urmare, cu ajutorul operatorului var, NU putem defini simultan două variabile cu același nume într-o funcție și într-un bloc de cod în acea funcție. Dacă o facem, la declararea variabilei la nivelul blocului, schimbăm valoarea variabilei la nivelul funcției:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;displayZ(){<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;var&nbsp;z&nbsp;=&nbsp;20;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;z&nbsp;=&nbsp;30;&nbsp;//&nbsp;Nu&nbsp;definește&nbsp;o&nbsp;variabilă&nbsp;nouă,&nbsp;ci&nbsp;schimbă&nbsp;valoarea&nbsp;variabilei&nbsp;z&nbsp;la&nbsp;nivelul&nbsp;funcției<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Block:",&nbsp;z);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;console.log("Function:",&nbsp;z);<br>}<br>displayZ();</code></pre>
+     </div>
+     <p class="paragraph">Aici, definirea variabilei z în interiorul blocului de fapt va echivala cu modificarea valorii variabilei la nivelul funcției și, practic, aceasta va fi aceeași variabilă. Afișajul în consolă:</p>
+     <p class="paragraph">Block: 30 Function: 30</p>
+     <h2 class="subtitle">Ascunderea variabilei let</h2>
+     <p class="paragraph">După cum s-a menționat mai sus, operatorul let definește variabile la nivelul blocului de cod. Cu alte cuvinte, fiecare bloc de cod definește o nouă zonă de vizibilitate în care există variabila. În afara blocului de cod în care este definită variabila, aceasta nu există. Prin urmare, putem defini simultan o variabilă la nivelul blocului de cod și la nivelul funcției (spre deosebire de var):</p>
+     <div class="code-inline">
+      <pre><code>let&nbsp;z&nbsp;=&nbsp;10;<br>function&nbsp;displayZ(){<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;let&nbsp;z&nbsp;=&nbsp;20;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;let&nbsp;z&nbsp;=&nbsp;30;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Block:",&nbsp;z);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;console.log("Function:",&nbsp;z);<br>}<br><br>displayZ();<br>console.log("Global:",&nbsp;z);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, în cadrul funcției displayZ este definit un bloc de cod în care este declarată variabila z. Acest bloc ascunde variabila globală și variabila z definită la nivelul funcției.</p>
+     <p class="paragraph">Și în acest context, vom obține următorul rezultat în consolă.</p>
+     <p class="paragraph">Block: 30 Function: 20 Global: 10</p>
+     <h2 class="subtitle">Constante</h2>
+     <p class="paragraph">Tot ce a fost menționat despre operatorul let se aplică și operatorului const, care definește constante la nivelul blocului de cod. Blocurile de cod stabilesc domeniul de vizibilitate pentru constante, iar constantele definite în blocuri imbricate ascund constantele exterioare cu același nume:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;z&nbsp;=&nbsp;10;<br>function&nbsp;displayZ(){<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;z&nbsp;=&nbsp;20;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;z&nbsp;=&nbsp;30;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Block:",&nbsp;z);&nbsp;&nbsp;&nbsp;//&nbsp;30<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;console.log("Function:",&nbsp;z);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;20<br>}<br><br>displayZ();<br>console.log("Global:",&nbsp;z);&nbsp;&nbsp;//&nbsp;10</code></pre>
+     </div>
+     <h2 class="subtitle">Lanțul de vizibilitate</h2>
+     <p class="paragraph">Când rulează codul, atunci când interpretorul se confruntă cu un anumit identificator (numele variabilei, constantei, funcției), el caută mai întâi definiția acestui identificator în domeniul de vizibilitate curent. Acesta este modul în care funcționează ascunderea variabilelor și constantelor. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;z&nbsp;=&nbsp;10;<br>function&nbsp;displayZ(){<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;z&nbsp;=&nbsp;20;<br>&nbsp;&nbsp;&nbsp;console.log(z);&nbsp;//&nbsp;20<br>}<br><br>displayZ();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;20</code></pre>
+     </div>
+     <p class="paragraph">Aici interpretorul va observa că în funcția displayZ există o referire la identificatorul z și va căuta definiția acestui identificator în interiorul funcției displayZ. Și deoarece în această funcție există o definiție pentru constanta const z = 20, această constantă va fi utilizată.</p>
+     <p class="paragraph">Alt exemplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;z&nbsp;=&nbsp;10;<br>function&nbsp;displayZ(){<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;console.log(z);&nbsp;//&nbsp;10<br>}<br><br>displayZ();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;10</code></pre>
+     </div>
+     <p class="paragraph">Acum, în interiorul funcției displayZ, nu există o definiție pentru identificatorul z, astfel că pentru a-l găsi, se aplică lanțul de vizibilitate - interpretorul se adresează domeniului său de vizibilitate înconjurător și efectuează căutarea acolo. Mai precis, se urmăresc domeniile de vizibilitate în lanț, începând de la cel actual și mergând către cele exterioare, până la domeniul de vizibilitate global.</p>
+     <h2 class="subtitle">Variabilele nedeclarate</h2>
+     <p class="paragraph">La definirea variabilelor în JavaScript, putem să nu folosim cuvântul cheie let sau var. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;username&nbsp;=&nbsp;"Tom";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(username);&nbsp;&nbsp;//&nbsp;nu&nbsp;există&nbsp;erori<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(username);&nbsp;&nbsp;//&nbsp;nu&nbsp;există&nbsp;erori,&nbsp;accesibil&nbsp;în&nbsp;interiorul&nbsp;altor&nbsp;blocuri&nbsp;de&nbsp;cod<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Dacă nu folosim cuvintele cheie let/var la definirea unei variabile într-o funcție, atunci acea variabilă va deveni globală. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;setAge(){<br>&nbsp;&nbsp;&nbsp;userage&nbsp;=&nbsp;39;<br>}<br>setAge();<br>console.log(userage);&nbsp;&nbsp;&nbsp;//&nbsp;39</code></pre>
+     </div>
+     <p class="paragraph">La nivelul funcției setAge, variabila userage este accesibilă în afara funcției în contextul global. Singura condiție este să apelăm funcția unde este definită această variabilă.</p>
+     <p class="paragraph">Cu toate acestea, dacă nu apelăm funcția, variabila nu va fi definită:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;setAge(){<br>&nbsp;&nbsp;&nbsp;userage&nbsp;=&nbsp;39;<br>}<br><br>//&nbsp;setAge();&nbsp;&nbsp;&nbsp;&nbsp;Funcția&nbsp;NU&nbsp;este&nbsp;apelată<br>console.log(userage);&nbsp;&nbsp;&nbsp;//&nbsp;eroare&nbsp;-&nbsp;Uncaught&nbsp;ReferenceError:&nbsp;userage&nbsp;is&nbsp;not&nbsp;defined</code></pre>
+     </div>
+     <p class="paragraph">Am obține aceeași eroare dacă nu numai că am atribui o valoare variabilei, ci și dacă am defini-o ca locală față de funcție:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;setAge(){<br>&nbsp;&nbsp;&nbsp;var&nbsp;userage&nbsp;=&nbsp;39;<br>}<br><br>setAge();<br>console.log(userage);&nbsp;&nbsp;&nbsp;//&nbsp;eroare&nbsp;-&nbsp;Uncaught&nbsp;ReferenceError:&nbsp;userage&nbsp;is&nbsp;not&nbsp;defined</code></pre>
+     </div>
+     <h2 class="subtitle">strict mode</h2>
+     <p class="paragraph">Definirea de variabile globale în funcții poate duce la potențiale erori. Pentru a le evita, se utilizează strict mode sau modul strict. Strict mode poate fi activat în două moduri:</p>
+     <ul class="enumeration">
+      <li>Adăugați expresia "use strict" la începutul codului JavaScript, astfel încât strict mode să fie aplicat întregului cod.</li>
+      <li>Adăugați expresia "use strict" la începutul corpului funcției, astfel încât strict mode să fie aplicat doar acelei funcții.</li>
+     </ul>
+     <p class="paragraph">Aplicarea strict mode la nivel global:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"use&nbsp;strict";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;folosim&nbsp;strict&nbsp;mode<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;username&nbsp;=&nbsp;"Tom";&nbsp;&nbsp;&nbsp;//&nbsp;Uncaught&nbsp;ReferenceError:&nbsp;username&nbsp;is&nbsp;not&nbsp;defined<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(username);<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, vom primi o eroare SyntaxError: Unexpected identifier, care indică faptul că variabila username nu este definită.</p>
+     <p class="paragraph">O eroare similară o vom obține la definirea unei variabile globale într-o funcție:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"use&nbsp;strict";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;folosim&nbsp;strict&nbsp;mode<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;function&nbsp;setAge(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;userage&nbsp;=&nbsp;39;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Uncaught&nbsp;ReferenceError:&nbsp;userage&nbsp;is&nbsp;not&nbsp;defined<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setAge();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(userage);<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Exemplu de utilizare a modului strict la nivelul unei funcții:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;username&nbsp;=&nbsp;"Tom";&nbsp;&nbsp;&nbsp;//&nbsp;normal<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(username);&nbsp;&nbsp;//&nbsp;Tom<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;function&nbsp;setAge(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"use&nbsp;strict";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;se&nbsp;utilizează&nbsp;modul&nbsp;strict&nbsp;la&nbsp;nivelul&nbsp;funcției<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;userage&nbsp;=&nbsp;39;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Uncaught&nbsp;ReferenceError:&nbsp;userage&nbsp;is&nbsp;not&nbsp;defined<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setAge();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(userage);<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

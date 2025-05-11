@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='22.Lucrul cu sistemul de fisiere', activeLesson='6.Fisiere binare'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Fișiere binare - BinaryWriter și BinaryReader</h1>
+     <p class="paragraph">Pentru lucrul cu fișierele binare sunt destinate două clase: BinaryWriter și BinaryReader. Aceste clase permit citirea și scrierea datelor în format binar.</p>
+     <h2 class="subtitle">BinaryWriter</h2>
+     <p class="paragraph">Pentru a crea un obiect BinaryWriter se pot folosi mai mulți constructori. Unul dintre cei mai simpli este:</p>
+     <div class="code-inline">
+      <pre><code>BinaryWriter(Stream&nbsp;stream)</code></pre>
+     </div>
+     <p class="paragraph">În constructorul său se transmite un obiect Stream (de obicei, acesta este un obiect FileStream).</p>
+     <p class="paragraph">Principalele metode ale clasei BinaryWriter:</p>
+     <ul class="enumeration">
+      <li>Close(): închide fluxul și eliberează resursele</li>
+      <li>Flush(): curăță bufferul, scriind datele rămase din buffer în fișier</li>
+      <li>Seek(): setează poziția în flux</li>
+      <li>Write(): scrie date în flux. Ca parametru, această metodă poate primi valori de tipuri primitive: - Write(bool) - Write(byte) - Write(char) - Write(decimal) - Write(double) - Write(Half) - Write(short) - Write(int) - Write(long) - Write(sbyte) - Write(float) - Write(string) - Write(ushort) - Write(uint) - Write(ulong)</li>
+     </ul>
+     <p class="paragraph">Sau poate primi array-uri de tipuri byte și char:</p>
+     <p class="paragraph">- Write(byte[]), - Write(char[]), - Write(ReadOnlySpan&lt;byte&gt;), - Write(ReadOnlySpan&lt;char&gt;)</p>
+     <p class="paragraph">La scrierea unui array, se poate specifica de la ce element al array-ului trebuie să înceapă scrierea, precum și numărul de elemente care urmează să fie scrise:</p>
+     <ul class="enumeration">
+      <li>Write(byte[], int, int)</li>
+      <li>Write(char[], int, int)</li>
+     </ul>
+     <p class="paragraph">Să vedem un exemplu simplu de scriere a unui fișier binar:</p>
+     <div class="code-inline">
+      <pre><code>string&nbsp;path&nbsp;=&nbsp;"person.dat";<br><br>//&nbsp;creăm&nbsp;un&nbsp;obiect&nbsp;BinaryWriter<br>using&nbsp;(BinaryWriter&nbsp;writer&nbsp;=&nbsp;new&nbsp;BinaryWriter(File.Open(path,&nbsp;FileMode.OpenOrCreate)))<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;scriem&nbsp;în&nbsp;fișier&nbsp;un&nbsp;șir&nbsp;de&nbsp;caractere<br>&nbsp;&nbsp;&nbsp;writer.Write("Tom");<br>&nbsp;&nbsp;&nbsp;//&nbsp;scriem&nbsp;în&nbsp;fișier&nbsp;un&nbsp;număr&nbsp;de&nbsp;tip&nbsp;int<br>&nbsp;&nbsp;&nbsp;writer.Write(37);<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Fișierul&nbsp;a&nbsp;fost&nbsp;scris");<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, în fișierul person.dat sunt scrise două valori: un șir de caractere "Tom" și un număr 37. Pentru crearea obiectului se folosește apelul new BinaryWriter(File.Open(path, FileMode.OpenOrCreate)).</p>
+     <p class="paragraph">Similar, putem salva date mai complexe. De exemplu, să salvăm în fișier un array de obiecte:</p>
+     <div class="code-inline">
+      <pre><code>string&nbsp;path&nbsp;=&nbsp;"people.dat";<br><br>//&nbsp;array&nbsp;pentru&nbsp;scriere<br>Person[]&nbsp;people&nbsp;=<br>{<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person("Tom",&nbsp;37),<br>&nbsp;&nbsp;&nbsp;new&nbsp;Person("Bob",&nbsp;41)<br>};<br><br>using&nbsp;(BinaryWriter&nbsp;writer&nbsp;=&nbsp;new&nbsp;BinaryWriter(File.Open(path,&nbsp;FileMode.OpenOrCreate)))<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;scriem&nbsp;în&nbsp;fișier&nbsp;valoarea&nbsp;fiecărei&nbsp;proprietăți&nbsp;a&nbsp;obiectului<br>&nbsp;&nbsp;&nbsp;foreach&nbsp;(Person&nbsp;person&nbsp;in&nbsp;people)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;writer.Write(person.Name);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;writer.Write(person.Age);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Fișierul&nbsp;a&nbsp;fost&nbsp;scris");<br>}<br><br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Age&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name,&nbsp;int&nbsp;age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest exemplu, salvăm secvențial în fișierul people.dat datele obiectelor Person din array-ul people.</p>
+     <h2 class="subtitle">BinaryReader</h2>
+     <p class="paragraph">Pentru a crea un obiect BinaryReader se pot folosi mai mulți constructori. Una dintre cele mai simple versiuni este:</p>
+     <div class="code-inline">
+      <pre><code>Reader(Stream&nbsp;stream)</code></pre>
+     </div>
+     <p class="paragraph">Constructorul său primește, de asemenea, un obiect Stream (de obicei, un obiect FileStream).</p>
+     <p class="paragraph">Principalele metode ale clasei BinaryReader:</p>
+     <ul class="enumeration">
+      <li>Close(): închide fluxul și eliberează resursele</li>
+      <li>ReadBoolean(): citește o valoare de tip bool și mută pointerul cu un byte înainte</li>
+      <li>ReadByte(): citește un byte și mută pointerul cu un byte înainte</li>
+      <li>ReadChar(): citește o valoare de tip char, adică un caracter, și mută pointerul cu numărul de bytes ocupat de caracter în codificarea curentă</li>
+      <li>ReadDecimal(): citește o valoare de tip decimal și mută pointerul cu 16 bytes înainte</li>
+      <li>ReadDouble(): citește o valoare de tip double și mută pointerul cu 8 bytes înainte</li>
+      <li>ReadInt16(): citește o valoare de tip short și mută pointerul cu 2 bytes înainte</li>
+      <li>ReadInt32(): citește o valoare de tip int și mută pointerul cu 4 bytes înainte</li>
+      <li>ReadInt64(): citește o valoare de tip long și mută pointerul cu 8 bytes înainte</li>
+      <li>ReadSingle(): citește o valoare de tip float și mută pointerul cu 4 bytes înainte</li>
+      <li>ReadString(): citește un șir de caractere. Fiecare șir este precedat de valoarea lungimii sale, care reprezintă un număr întreg de 7 biți</li>
+     </ul>
+     <p class="paragraph">Citirea datelor binare este simplă: metoda corespunzătoare citește datele unui anumit tip și mută pointerul cu dimensiunea acestui tip în bytes. De exemplu, valoarea de tip int ocupă 4 bytes, deci BinaryReader va citi 4 bytes și va muta pointerul cu acești 4 bytes.</p>
+     <p class="paragraph">De exemplu, în exemplul anterior cu BinaryWriter am scris în fișierul person.dat un șir de caractere și un număr. Să le citim cu ajutorul BinaryReader:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;(BinaryReader&nbsp;reader&nbsp;=&nbsp;new&nbsp;BinaryReader(File.Open("person.dat",&nbsp;FileMode.Open)))<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;citim&nbsp;din&nbsp;fișier&nbsp;un&nbsp;șir&nbsp;de&nbsp;caractere<br>&nbsp;&nbsp;&nbsp;string&nbsp;name&nbsp;=&nbsp;reader.ReadString();<br>&nbsp;&nbsp;&nbsp;//&nbsp;citim&nbsp;din&nbsp;fișier&nbsp;un&nbsp;număr<br>&nbsp;&nbsp;&nbsp;int&nbsp;age&nbsp;=&nbsp;reader.ReadInt32();<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Nume:&nbsp;{name}&nbsp;&nbsp;Vârstă:&nbsp;{age}");<br>}</code></pre>
+     </div>
+     <p class="paragraph">Constructorul clasei BinaryReader primește, de asemenea, un obiect de flux, dar în acest caz stabilim modul de deschidere ca FileMode.Open: new BinaryReader(File.Open("person.dat", FileMode.Open)).</p>
+     <p class="paragraph">În ordinea în care datele au fost scrise în fișier, în aceeași ordine le putem citi de acolo. Deci, dacă mai întâi a fost scris un șir de caractere, apoi un număr, atunci în această ordine le putem citi din fișier.</p>
+     <p class="paragraph">Sau, similar, putem citi datele din fișierul people.dat, care a fost scris în exemplul de mai sus și care conține datele obiectelor Person:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;listă&nbsp;pentru&nbsp;datele&nbsp;citite<br>List&lt;Person&gt;&nbsp;people&nbsp;=&nbsp;new&nbsp;List&lt;Person&gt;();<br><br>//&nbsp;creăm&nbsp;un&nbsp;obiect&nbsp;BinaryReader<br>using&nbsp;(BinaryReader&nbsp;reader&nbsp;=&nbsp;new&nbsp;BinaryReader(File.Open("people.dat",&nbsp;FileMode.Open)))<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;până&nbsp;când&nbsp;nu&nbsp;este&nbsp;atins&nbsp;sfârșitul&nbsp;fișierului<br>&nbsp;&nbsp;&nbsp;//&nbsp;citim&nbsp;fiecare&nbsp;valoare&nbsp;din&nbsp;fișier<br>&nbsp;&nbsp;&nbsp;while&nbsp;(reader.PeekChar()&nbsp;&gt;&nbsp;-1)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;name&nbsp;=&nbsp;reader.ReadString();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;age&nbsp;=&nbsp;reader.ReadInt32();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;pe&nbsp;baza&nbsp;datelor&nbsp;citite&nbsp;creăm&nbsp;un&nbsp;obiect&nbsp;Person&nbsp;și&nbsp;îl&nbsp;adăugăm&nbsp;în&nbsp;listă<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;people.Add(new&nbsp;Person(name,&nbsp;age));<br>&nbsp;&nbsp;&nbsp;}<br>}<br>//&nbsp;afișăm&nbsp;conținutul&nbsp;listei&nbsp;people&nbsp;în&nbsp;consolă<br>foreach(Person&nbsp;person&nbsp;in&nbsp;people)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Nume:&nbsp;{person.Name}&nbsp;&nbsp;Vârstă:&nbsp;{person.Age}");<br>}<br><br>class&nbsp;Person<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Age&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name,&nbsp;int&nbsp;age)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici citim datele într-un ciclu while. Pentru a afla sfârșitul fluxului, apelăm metoda PeekChar(). Această metodă citește următorul caracter și returnează reprezentarea sa numerică. Dacă caracterul nu există, metoda returnează -1, ceea ce va indica faptul că am ajuns la sfârșitul fișierului.</p>
+     <p class="paragraph">În ciclu, citim secvențial valorile proprietăților obiectelor Person în aceeași ordine în care au fost scrise.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

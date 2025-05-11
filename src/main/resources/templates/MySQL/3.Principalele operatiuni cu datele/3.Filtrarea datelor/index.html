@@ -1,210 +1,200 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='MySQL', activeChapter='3.Principalele operatiuni cu datele', activeLesson='3.Filtrarea datelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Filtrarea datelor</h1>
- <h2 class="subtitle">Operatorul WHERE</h2>
- <p class="paragraph">Adesea, este necesar să extragem nu toate datele din baza de date, ci doar cele care îndeplinesc o anumită condiție. Pentru filtrarea datelor în comanda SELECT, se utilizează operatorul WHERE, după care se specifică condiția:</p>
- <div class="code-inline">
-  <pre><code>WHERE&nbsp;conditie</code></pre>
- </div>
- <p class="paragraph">Dacă condiția este adevărată, atunci rândul va fi inclus în rezultatul selectării. Pot fi folosite operații de comparație pentru a compara două expresii:</p>
- <ul class="enumeration">
-  <li>= : egalitate</li>
-  <li>!= : inegalitate</li>
-  <li>&lt;&gt; : inegalitate</li>
-  <li>&lt; : mai mic decât</li>
-  <li>&gt; : mai mare decât</li>
-  <li>&lt;= : mai mic sau egal</li>
-  <li>&gt;= : mai mare sau egal</li>
- </ul>
- <p class="paragraph">De exemplu, vom selecta toate produsele ale căror producător este compania Samsung:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Manufacturer&nbsp;=&nbsp;'Samsung';</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image1.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Este important de menționat că pentru MySQL nu contează sensibilitatea la majuscule și minuscule, iar, de exemplu, șirul "Samsung" va fi echivalent cu șirul "SAMSUNG" sau "samSunG".</p>
- <p class="paragraph">Un alt exemplu - vom găsi toate produsele al căror număr este mai mic de 3:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;ProductCount&nbsp;&lt;&nbsp;3;</code></pre>
- </div>
- <p class="paragraph">Criteriul de filtrare poate reprezenta și o expresie complexă compusă. De exemplu, vom găsi toate produsele ale căror valoare totală este mai mare de 100 000:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Price&nbsp;*&nbsp;ProductCount&nbsp;&gt;&nbsp;100000;</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image2.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Operatorii logici</h2>
- <p class="paragraph">Operatorii logici permit combinarea mai multor condiții. În MySQL, puteți utiliza următorii operatori logici:</p>
- <ul class="enumeration">
-  <li>AND: operația logică ȘI. Aceasta combină două expresii:</li>
- </ul>
- <div class="code-inline">
-  <pre><code>expresia1&nbsp;AND&nbsp;expresia2</code></pre>
- </div>
- <p class="paragraph">Doar dacă ambele expresii sunt simultan adevărate, atunci și condiția generală a operatorului AND va fi adevărată. Cu alte cuvinte, dacă atât prima condiție cât și a doua sunt adevărate.</p>
- <ul class="enumeration">
-  <li>OR: operația logică SAU. De asemenea, ea combină două expresii:</li>
- </ul>
- <div class="code-inline">
-  <pre><code>expresia1&nbsp;OR&nbsp;expresia2</code></pre>
- </div>
- <p class="paragraph">Dacă cel puțin una dintre expresii este adevărată, atunci condiția generală a operatorului OR va fi, de asemenea, adevărată. Cu alte cuvinte, dacă fie prima condiție este adevărată, fie a doua.</p>
- <ul class="enumeration">
-  <li>NOT: operația de negare logică. Dacă expresia în această operație este falsă, atunci condiția generală este adevărată</li>
- </ul>
- <div class="code-inline">
-  <pre><code><br>NOT&nbsp;expresia</code></pre>
- </div>
- <p class="paragraph">De exemplu, vom selecta toate produsele ale căror producător este Samsung și, în același timp, prețul este mai mare de 50000:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Manufacturer&nbsp;=&nbsp;'Samsung'&nbsp;AND&nbsp;Price&nbsp;&gt;&nbsp;50000</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image3.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Acum vom schimba operatorul cu OR. Cu alte cuvinte, vom selecta toate produsele ale căror producător este Samsung sau prețul este mai mare de 50000:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Manufacturer&nbsp;=&nbsp;'Samsung'&nbsp;OR&nbsp;Price&nbsp;&gt;&nbsp;50000</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image4.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Aplicarea operatorului NOT - vom selecta toate produsele ale căror producător nu este Samsung:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;NOT&nbsp;Manufacturer&nbsp;=&nbsp;'Samsung';</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image5.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Prioritatea operațiilor</h2>
- <p class="paragraph">Într-o singură condiție, la nevoie, putem combina mai multe operații logice. Cu toate acestea, trebuie să ținem cont că operația NOT este cea mai prioritară, care se execută în primul rând, urmată de AND și operația cu cea mai mică prioritate - OR. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Manufacturer&nbsp;='Samsung'&nbsp;OR&nbsp;NOT&nbsp;Price&nbsp;&gt;&nbsp;30000&nbsp;AND&nbsp;ProductCount&nbsp;&gt;&nbsp;2;</code></pre>
- </div>
- <p class="paragraph">În acest caz, mai întâi se evaluează expresia NOT Price &gt; 30000, adică prețul trebuie să fie mai mic sau egal cu 30000.</p>
- <p class="paragraph">Apoi se evaluează expresia NOT Price &gt; 30000 AND ProductCount &gt; 2, adică prețul trebuie să fie mai mic sau egal cu 30000 și, în același timp, numărul de produse trebuie să fie mai mare de 2.</p>
- <p class="paragraph">În final, se evaluează operatorul OR - fie prețul trebuie să fie mai mic sau egal cu 30000 și, în același timp, numărul de produse să fie mai mare de 2, fie producătorul trebuie să fie Samsung.</p>
- <div class="image-container">
-  <img src="images/image6.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Cu ajutorul parantezelor, puteți redefini prioritățile operațiilor:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Manufacturer&nbsp;='Samsung'&nbsp;OR&nbsp;NOT&nbsp;(Price&nbsp;&gt;&nbsp;30000&nbsp;AND&nbsp;ProductCount&nbsp;&gt;&nbsp;2);</code></pre>
- </div>
- <p class="paragraph">În acest caz, vom găsi produsele ale căror producător este fie Samsung, fie, în același timp, prețul produsului este mai mic sau egal cu 30000 și numărul de produse este mai mic de 3.</p>
- <div class="image-container">
-  <img src="images/image7.png" alt="" class="responsive-image">
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Filtrarea datelor</h1>
+     <h2 class="subtitle">Operatorul WHERE</h2>
+     <p class="paragraph">Adesea, este necesar să extragem nu toate datele din baza de date, ci doar cele care îndeplinesc o anumită condiție. Pentru filtrarea datelor în comanda SELECT, se utilizează operatorul WHERE, după care se specifică condiția:</p>
+     <div class="code-inline">
+      <pre><code>WHERE&nbsp;conditie</code></pre>
+     </div>
+     <p class="paragraph">Dacă condiția este adevărată, atunci rândul va fi inclus în rezultatul selectării. Pot fi folosite operații de comparație pentru a compara două expresii:</p>
+     <ul class="enumeration">
+      <li>= : egalitate</li>
+      <li>!= : inegalitate</li>
+      <li>&lt;&gt; : inegalitate</li>
+      <li>&lt; : mai mic decât</li>
+      <li>&gt; : mai mare decât</li>
+      <li>&lt;= : mai mic sau egal</li>
+      <li>&gt;= : mai mare sau egal</li>
+     </ul>
+     <p class="paragraph">De exemplu, vom selecta toate produsele ale căror producător este compania Samsung:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Manufacturer&nbsp;=&nbsp;'Samsung';</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/3.Principalele%20operatiuni%20cu%20datele/3.Filtrarea%20datelor/images/interogare-sql-produs-samsung-mysql.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Este important de menționat că pentru MySQL nu contează sensibilitatea la majuscule și minuscule, iar, de exemplu, șirul "Samsung" va fi echivalent cu șirul "SAMSUNG" sau "samSunG".</p>
+     <p class="paragraph">Un alt exemplu - vom găsi toate produsele al căror număr este mai mic de 3:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;ProductCount&nbsp;&lt;&nbsp;3;</code></pre>
+     </div>
+     <p class="paragraph">Criteriul de filtrare poate reprezenta și o expresie complexă compusă. De exemplu, vom găsi toate produsele ale căror valoare totală este mai mare de 100 000:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Price&nbsp;*&nbsp;ProductCount&nbsp;&gt;&nbsp;100000;</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/3.Principalele%20operatiuni%20cu%20datele/3.Filtrarea%20datelor/images/filtrare-produse-valoare-stoc-peste-100000-mysql.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Operatorii logici</h2>
+     <p class="paragraph">Operatorii logici permit combinarea mai multor condiții. În MySQL, puteți utiliza următorii operatori logici:</p>
+     <ul class="enumeration">
+      <li>AND: operația logică ȘI. Aceasta combină două expresii:</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>expresia1&nbsp;AND&nbsp;expresia2</code></pre>
+     </div>
+     <p class="paragraph">Doar dacă ambele expresii sunt simultan adevărate, atunci și condiția generală a operatorului AND va fi adevărată. Cu alte cuvinte, dacă atât prima condiție cât și a doua sunt adevărate.</p>
+     <ul class="enumeration">
+      <li>OR: operația logică SAU. De asemenea, ea combină două expresii:</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>expresia1&nbsp;OR&nbsp;expresia2</code></pre>
+     </div>
+     <p class="paragraph">Dacă cel puțin una dintre expresii este adevărată, atunci condiția generală a operatorului OR va fi, de asemenea, adevărată. Cu alte cuvinte, dacă fie prima condiție este adevărată, fie a doua.</p>
+     <ul class="enumeration">
+      <li>NOT: operația de negare logică. Dacă expresia în această operație este falsă, atunci condiția generală este adevărată</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code><br>NOT&nbsp;expresia</code></pre>
+     </div>
+     <p class="paragraph">De exemplu, vom selecta toate produsele ale căror producător este Samsung și, în același timp, prețul este mai mare de 50000:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Manufacturer&nbsp;=&nbsp;'Samsung'&nbsp;AND&nbsp;Price&nbsp;&gt;&nbsp;50000</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/3.Principalele%20operatiuni%20cu%20datele/3.Filtrarea%20datelor/images/sql-select-produse-samsung-pret-mai-mare-50000.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Acum vom schimba operatorul cu OR. Cu alte cuvinte, vom selecta toate produsele ale căror producător este Samsung sau prețul este mai mare de 50000:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Manufacturer&nbsp;=&nbsp;'Samsung'&nbsp;OR&nbsp;Price&nbsp;&gt;&nbsp;50000</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/3.Principalele%20operatiuni%20cu%20datele/3.Filtrarea%20datelor/images/select-or-produse-samsung-sau-pret-peste-50000.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Aplicarea operatorului NOT - vom selecta toate produsele ale căror producător nu este Samsung:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;NOT&nbsp;Manufacturer&nbsp;=&nbsp;'Samsung';</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/3.Principalele%20operatiuni%20cu%20datele/3.Filtrarea%20datelor/images/excludere-produse-samsung-sql-not-mysql.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Prioritatea operațiilor</h2>
+     <p class="paragraph">Într-o singură condiție, la nevoie, putem combina mai multe operații logice. Cu toate acestea, trebuie să ținem cont că operația NOT este cea mai prioritară, care se execută în primul rând, urmată de AND și operația cu cea mai mică prioritate - OR. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Manufacturer&nbsp;='Samsung'&nbsp;OR&nbsp;NOT&nbsp;Price&nbsp;&gt;&nbsp;30000&nbsp;AND&nbsp;ProductCount&nbsp;&gt;&nbsp;2;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, mai întâi se evaluează expresia NOT Price &gt; 30000, adică prețul trebuie să fie mai mic sau egal cu 30000.</p>
+     <p class="paragraph">Apoi se evaluează expresia NOT Price &gt; 30000 AND ProductCount &gt; 2, adică prețul trebuie să fie mai mic sau egal cu 30000 și, în același timp, numărul de produse trebuie să fie mai mare de 2.</p>
+     <p class="paragraph">În final, se evaluează operatorul OR - fie prețul trebuie să fie mai mic sau egal cu 30000 și, în același timp, numărul de produse să fie mai mare de 2, fie producătorul trebuie să fie Samsung.</p>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/3.Principalele%20operatiuni%20cu%20datele/3.Filtrarea%20datelor/images/sql-conditie-complexa-samsung-sau-nu-pret-stoc.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Cu ajutorul parantezelor, puteți redefini prioritățile operațiilor:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Manufacturer&nbsp;='Samsung'&nbsp;OR&nbsp;NOT&nbsp;(Price&nbsp;&gt;&nbsp;30000&nbsp;AND&nbsp;ProductCount&nbsp;&gt;&nbsp;2);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, vom găsi produsele ale căror producător este fie Samsung, fie, în același timp, prețul produsului este mai mic sau egal cu 30000 și numărul de produse este mai mic de 3.</p>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/3.Principalele%20operatiuni%20cu%20datele/3.Filtrarea%20datelor/images/mysql-sql-conditii-or-not-grupate-paranteze.png}" alt="" class="responsive-image">
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

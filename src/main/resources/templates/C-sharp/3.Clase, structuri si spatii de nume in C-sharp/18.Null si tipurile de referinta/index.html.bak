@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='3.Clase, structuri si spatii de nume in C-sharp', activeLesson='18.Null si tipurile de referinta'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Null și tipurile de referință</h1>
+     <p class="paragraph">Pe lângă valorile standard de tip numere, șiruri, limbajul C# are o valoare specială - null, care indică absența unei valori, lipsa datelor. Până acum, valoarea null a fost valoarea implicită pentru tipurile de referință.</p>
+     <p class="paragraph">Până la versiunea C# 8.0, toate tipurile de referință puteau avea valoarea null:</p>
+     <div class="code-inline">
+      <pre><code>string&nbsp;name&nbsp;=&nbsp;null;<br>Console.WriteLine(name);</code></pre>
+     </div>
+     <p class="paragraph">Dar, începând cu versiunea C# 8.0, în limbaj a fost introdusă conceptul de tipuri de referință nullable (nullable reference types) și contextul conștient de nullable - nullable aware context, în care pot fi folosite tipurile de referință nullable.</p>
+     <p class="paragraph">Pentru a defini o variabilă/parametru de tip referință ca fiind nullable, se adaugă semnul de întrebare (?) după numele tipului:</p>
+     <div class="code-inline">
+      <pre><code>string?&nbsp;name&nbsp;=&nbsp;null;<br>Console.WriteLine(name);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;nu&nbsp;va&nbsp;afișa&nbsp;nimic</code></pre>
+     </div>
+     <p class="paragraph">De exemplu, metoda integrată Console.ReadLine(), care citește un șir de la consolă, returnează exact valoarea string?, nu doar string:</p>
+     <div class="code-inline">
+      <pre><code>string?&nbsp;name&nbsp;=&nbsp;Console.ReadLine();</code></pre>
+     </div>
+     <p class="paragraph">De ce este necesară valoarea null? În diverse situații, este convenabil ca obiectele să poată avea valoarea null, adică să fie nedefinite. Un exemplu standard este lucrul cu o bază de date, care poate conține valori null. Și este posibil să nu știm în prealabil ce vom obține din baza de date - o valoare definită sau null.</p>
+     <p class="paragraph">Aceste tipuri de referință nullable sunt disponibile doar în contextul nullable. Caracteristicile contextului nullable includ:</p>
+     <ul class="enumeration">
+      <li>Variabila de tip referință trebuie inițializată cu o valoare concretă, nu trebuie să i se atribuie valoarea null</li>
+      <li>Variabilei de tip referință nullable i se poate atribui valoarea null, dar înainte de utilizare trebuie verificată pentru null</li>
+     </ul>
+     <p class="paragraph">Începând cu .NET 6 și C# 10, contextul nullable este aplicat implicit tuturor fișierelor de cod din proiecte. De exemplu, dacă scriem în Visual Studio 2022 pentru un proiect .NET 6 exemplul anterior, vom primi un avertisment:</p>
+     <div class="image-container">
+      <img th:src="@{/images/C-sharp/3.Clase,%20structuri%20si%20spatii%20de%20nume%20in%20C-sharp/18.Null%20si%20tipurile%20de%20referinta/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Deși contextul nullable este o opțiune pe care o putem gestiona. Să deschidem fișierul proiectului. Pentru aceasta, fie facem dublu click pe proiect, fie facem click dreapta pe proiect și din meniul apărut selectăm Edit Project File.</p>
+     <div class="image-container">
+      <img th:src="@{/images/C-sharp/3.Clase,%20structuri%20si%20spatii%20de%20nume%20in%20C-sharp/18.Null%20si%20tipurile%20de%20referinta/images/image2.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">După aceasta, Visual Studio va deschide fișierul proiectului, care va arăta aproximativ astfel:</p>
+     <div class="code-inline">
+      <pre><code>&lt;Project&nbsp;Sdk="Microsoft.NET.Sdk"&gt;<br>&nbsp;&lt;PropertyGroup&gt;<br>&nbsp;&nbsp;&nbsp;&lt;OutputType&gt;Exe&lt;/OutputType&gt;<br>&nbsp;&nbsp;&nbsp;&lt;TargetFramework&gt;net6.0&lt;/TargetFramework&gt;<br>&nbsp;&nbsp;&nbsp;&lt;ImplicitUsings&gt;enable&lt;/ImplicitUsings&gt;<br>&nbsp;&nbsp;&nbsp;&lt;Nullable&gt;enable&lt;/Nullable&gt;<br>&nbsp;&lt;/PropertyGroup&gt;<br>&lt;/Project&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici, linia:</p>
+     <div class="code-inline">
+      <pre><code>&lt;Nullable&gt;enable&lt;/Nullable&gt;</code></pre>
+     </div>
+     <p class="paragraph">mai precis, elementul &lt;Nullable&gt; cu valoarea enable indică faptul că acest context nullable se va aplica întregului proiect.</p>
+     <p class="paragraph">De ce este problematic null? Deoarece această valoare înseamnă absența datelor. Dar, să presupunem că avem situația în care primim un șir din exterior și încercăm să îi accesăm funcționalitatea. De exemplu, în exemplul de mai jos, metoda ToUpper() este apelată pentru șir, ceea ce convertește toate caracterele șirului în majuscule:</p>
+     <div class="code-inline">
+      <pre><code>string&nbsp;name&nbsp;=&nbsp;null;<br>PrintUpper(name);&nbsp;&nbsp;//&nbsp;!&nbsp;NullReferenceException<br><br>void&nbsp;PrintUpper(string&nbsp;text)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(text.ToUpper());<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici, la executarea apelului PrintUpper(name), ne vom confrunta cu o excepție NullReferenceException, iar programul se va încheia neașteptat. Cineva poate spune că situația este artificială - știm clar că în funcție se transmite null. Totuși, în realitate, datele pot veni din exterior, de exemplu, dintr-o bază de date, de undeva din rețea etc.</p>
+     <p class="paragraph">Și este posibil să nu știm în mod explicit dacă există date sau nu. Utilizarea tipurilor de referință nullable permite rezolvarea parțială a acestei situații. Parțial, deoarece avertismentele nu ne împiedică să compilăm și să rulăm programul de mai sus.</p>
+     <p class="paragraph">Totuși, contextul nullable permite utilizarea posibilităților de analiză statică, prin care putem vedea fragmente de cod potențial periculoase, unde ne putem confrunta cu NullReferenceException.</p>
+     <p class="paragraph">În plus, există posibilitatea ca Microsoft să schimbe abordarea față de null și NullReferenceException, iar astfel de avertismente să devină erori în versiunile viitoare, așa că este mai bine să fim pregătiți pentru aceasta acum.</p>
+     <p class="paragraph">De exemplu, modificăm exemplul anterior astfel:</p>
+     <div class="code-inline">
+      <pre><code>string?&nbsp;name&nbsp;=&nbsp;null;<br>PrintUpper(name);<br><br>void&nbsp;PrintUpper(string?&nbsp;text)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(text.ToUpper());<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici, analiza statică sugerează că în metoda PrintUpper există o situație potențial periculoasă, deoarece parametrul text poate fi egal cu null.</p>
+     <div class="image-container">
+      <img th:src="@{/images/C-sharp/3.Clase,%20structuri%20si%20spatii%20de%20nume%20in%20C-sharp/18.Null%20si%20tipurile%20de%20referinta/images/image3.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Dezactivarea contextului nullable</h2>
+     <p class="paragraph">Pentru a dezactiva contextul nullable în fișierul de configurare a proiectului, este suficient să schimbăm valoarea opțiunii Nullable, de exemplu, la "disable":</p>
+     <div class="code-inline">
+      <pre><code>&lt;Project&nbsp;Sdk="Microsoft.NET.Sdk"&gt;<br>&nbsp;&lt;PropertyGroup&gt;<br>&nbsp;&nbsp;&nbsp;&lt;OutputType&gt;Exe&lt;/OutputType&gt;<br>&nbsp;&nbsp;&nbsp;&lt;TargetFramework&gt;net6.0&lt;/TargetFramework&gt;<br>&nbsp;&nbsp;&nbsp;&lt;ImplicitUsings&gt;enable&lt;/ImplicitUsings&gt;<br>&nbsp;&nbsp;&nbsp;&lt;Nullable&gt;disable&lt;/Nullable&gt;<br>&nbsp;&lt;/PropertyGroup&gt;<br>&lt;/Project&gt;</code></pre>
+     </div>
+     <p class="paragraph">Dezactivând contextul nullable, nu vom mai putea folosi în fișierele de cod din proiect tipurile de referință nullable și, prin urmare, nu vom putea utiliza analiza statică integrată a situațiilor potențial periculoase, unde ne putem confrunta cu NullReferenceException.</p>
+     <h2 class="subtitle">Contextul nullable la nivel de bloc de cod</h2>
+     <p class="paragraph">Putem activa contextul nullable la nivelul unor blocuri de cod individuale folosind directiva #nullable enable. Să presupunem că global avem dezactivat contextul nullable:</p>
+     <div class="code-inline">
+      <pre><code>&lt;Nullable&gt;disable&lt;/Nullable&gt;</code></pre>
+     </div>
+     <p class="paragraph">Definim în fișierul Program.cs următorul cod:</p>
+     <div class="code-inline">
+      <pre><code>#nullable&nbsp;enable&nbsp;//&nbsp;activăm&nbsp;contextul&nbsp;nullable&nbsp;la&nbsp;nivel&nbsp;de&nbsp;fișier<br><br>string?&nbsp;name&nbsp;=&nbsp;null;<br><br>PrintUpper(name);<br><br>void&nbsp;PrintUpper(string?&nbsp;text)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(text.ToUpper());<br>}</code></pre>
+     </div>
+     <p class="paragraph">Prima linie permite activarea contextului nullable la nivelul întregului fișier.</p>
+     <div class="image-container">
+      <img th:src="@{/images/C-sharp/3.Clase,%20structuri%20si%20spatii%20de%20nume%20in%20C-sharp/18.Null%20si%20tipurile%20de%20referinta/images/image4.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Operatorul ! (null-forgiving operator)</h2>
+     <p class="paragraph">Operatorul ! (null-forgiving operator) permite indicarea faptului că o variabilă de tip referință nu este null:</p>
+     <div class="code-inline">
+      <pre><code>string?&nbsp;name&nbsp;=&nbsp;null;<br><br>PrintUpper(name!);<br><br>void&nbsp;PrintUpper(string&nbsp;text)<br>{<br>&nbsp;&nbsp;&nbsp;if(text&nbsp;==&nbsp;null)&nbsp;Console.WriteLine("null");<br>&nbsp;&nbsp;&nbsp;else&nbsp;Console.WriteLine(text.ToUpper());<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici, dacă nu am fi folosit operatorul ! și am fi scris PrintUpper(name), compilatorul ne-ar fi afișat un avertisment. Dar în metodă verificăm deja pentru null, așa că chiar dacă în metodă se transmite null, nu ne vom confrunta cu probleme.</p>
+     <p class="paragraph">Și pentru a elimina avertismentul inutil, se folosește acest operator. Acest operator nu are niciun efect în timpul execuției codului și este destinat doar pentru analiza statică a compilatorului. În timpul execuției, expresia name! va fi echivalentă cu valoarea name.</p>
+     <h2 class="subtitle">Excluderea codului din contextul nullable</h2>
+     <p class="paragraph">Cu ajutorul directivei speciale #nullable disable, putem exclude un anumit bloc de cod din contextul nullable. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>#nullable&nbsp;disable<br>&nbsp;&nbsp;&nbsp;string&nbsp;text&nbsp;=&nbsp;null;&nbsp;//&nbsp;aici&nbsp;contextul&nbsp;nullable&nbsp;nu&nbsp;se&nbsp;aplică<br>#nullable&nbsp;restore<br><br>string?&nbsp;name&nbsp;=&nbsp;null;&nbsp;&nbsp;&nbsp;//&nbsp;aici&nbsp;contextul&nbsp;nullable&nbsp;se&nbsp;aplică&nbsp;din&nbsp;nou</code></pre>
+     </div>
+     <p class="paragraph">Orice cod între directivele #nullable disable și #nullable restore va fi exclus din contextul nullable și, prin urmare, nu va fi supus analizei statice.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

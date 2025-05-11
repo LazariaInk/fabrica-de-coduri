@@ -1,208 +1,198 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='MySQL', activeChapter='4.Cereri', activeLesson='2.Operatorii de filtrare'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Operatorii de filtrare</h1>
- <h2 class="subtitle">Operatorul IN</h2>
- <p class="paragraph">Operatorul IN determină un set de valori pe care trebuie să le aibă coloanele:</p>
- <div class="code-inline">
-  <pre><code>WHERE&nbsp;expresie&nbsp;[NOT]&nbsp;IN&nbsp;(expresie)</code></pre>
- </div>
- <p class="paragraph">Expresia în paranteze după IN determină un set de valori. Acest set poate fi calculat dinamic pe baza, de exemplu, a încă unei interogări, sau pot fi valori constante.</p>
- <p class="paragraph">De exemplu, să selectăm produsele ale căror firme producătoare sunt fie Samsung, fie Xiaomi, fie Huawei:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Manufacturer&nbsp;IN&nbsp;(Samsung,&nbsp;HTC,&nbsp;Huawei);</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image1.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Operatorul NOT, dimpotrivă, permite selectarea tuturor rândurilor ale căror coloane nu au anumite valori:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Manufacturer&nbsp;NOT&nbsp;IN&nbsp;(Samsung,&nbsp;HTC,&nbsp;Huawei);</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image2.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Operatorul BETWEEN</h2>
- <p class="paragraph">Operatorul BETWEEN definește un interval de valori folosind o valoare de început și o valoare de sfârșit la care trebuie să se potrivească expresia:</p>
- <div class="code-inline">
-  <pre><code>WHERE&nbsp;expresie&nbsp;[NOT]&nbsp;BETWEEN&nbsp;valoare_de_iceput&nbsp;AND&nbsp;valoare_finala</code></pre>
- </div>
- <p class="paragraph">De exemplu, vom obține toate produsele cu prețul cuprins între 20 000 și 50 000 (valorile de început și sfârșit sunt, de asemenea, incluse în interval):</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Price&nbsp;BETWEEN&nbsp;20000&nbsp;AND&nbsp;50000;</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image3.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Dacă doriți să selectați rândurile care nu se încadrează în acest interval, se adaugă operatorul NOT:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Price&nbsp;NOT&nbsp;BETWEEN&nbsp;20000&nbsp;AND&nbsp;50000;</code></pre>
- </div>
- <p class="paragraph">De asemenea, puteți utiliza expresii mai complexe. De exemplu, să obținem produsele în funcție de costul total (prețul * cantitatea):</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Price&nbsp;*&nbsp;ProductCount&nbsp;BETWEEN&nbsp;90000&nbsp;AND&nbsp;150000;</code></pre>
- </div>
- <h2 class="subtitle">Operatorii LIKE și REGEXP</h2>
- <p class="paragraph">Operatorul LIKE acceptă un șablon de șir de caractere căruia trebuie să corespundă expresia.</p>
- <div class="code-inline">
-  <pre><code>WHERE&nbsp;expresie&nbsp;[NOT]&nbsp;LIKE&nbsp;sablonul_coloanei</code></pre>
- </div>
- <p class="paragraph">Pentru a defini un șablon, pot fi utilizate anumite caractere speciale de substituție:</p>
- <ul class="enumeration">
-  <li>%: se potrivește oricărei subșiruri care poate avea orice număr de caractere, iar subșirul poate să nu conțină niciun caracter. De exemplu, expresia WHERE ProductName LIKE Galaxy% se potrivește valorilor precum "Galaxy Ace 2" sau "Galaxy S7"</li>
-  <li>_: se potrivește oricărui singur caracter. De exemplu, expresia WHERE ProductName LIKE Galaxy S_ se potrivește valorilor precum "Galaxy S7" sau "Galaxy S8"</li>
- </ul>
- <p class="paragraph">Vom aplica acum operatorul LIKE:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;ProductName&nbsp;LIKE&nbsp;iPhone%;</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image4.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Operatorul REGEXP permite definirea unei expresii regulate (regex) la care trebuie să corespundă valoarea din coloană. Din acest punct de vedere, REGEXP oferă un mod mai sofisticat și complex de filtrare decât operatorul LIKE. REGEXP are un sintaxă similară:</p>
- <div class="image-container">
-  <img src="images/image5.png" alt="" class="responsive-image">
- </div>
- <p class="paragraph">Expresia regulată poate să includă următoarele caractere speciale:</p>
- <ul class="enumeration">
-  <li>^: indică începutul șirului</li>
-  <li>$: indică sfârșitul șirului</li>
-  <li>.: se potrivește oricărui singur caracter</li>
-  <li>[simboluri]: se potrivește oricărui singur caracter din interiorul parantezelor</li>
-  <li>[primul_simbol-simbolul_final]: se potrivește oricărui singur caracter dintr-un interval de caractere</li>
-  <li>|: separă două șabloane de șiruri, iar valoarea trebuie să corespundă unuia dintre aceste șabloane</li>
- </ul>
- <p class="paragraph">Exemple REGEXP:</p>
- <ul class="enumeration">
-  <li>WHERE ProductName REGEXP Phone: șirul trebuie să conțină "Phone", de exemplu, iPhone X, Nokia Phone N, iPhone</li>
-  <li>WHERE ProductName REGEXP ^Phone: șirul trebuie să înceapă cu "Phone", de exemplu, Phone 34, PhoneX</li>
-  <li>WHERE ProductName REGEXP Phone$: șirul trebuie să se termine cu "Phone", de exemplu, iPhone, Nokia Phone</li>
-  <li>WHERE ProductName REGEXP iPhone [78]: șirul trebuie să conțină fie iPhone 7, fie iPhone 8</li>
-  <li>WHERE ProductName REGEXP iPhone [6-8]: șirul trebuie să conțină fie iPhone 6, fie iPhone 7, fie iPhone 8</li>
- </ul>
- <p class="paragraph">De exemplu, să găsim produsele ale căror nume conțin fie "Phone", fie "Galaxy":</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;ProductName&nbsp;REGEXP&nbsp;Phone|Galaxy;</code></pre>
- </div>
- <div class="image-container">
-  <img src="images/image6.png" alt="" class="responsive-image">
- </div>
- <h2 class="subtitle">Operatorul IS NULL</h2>
- <p class="paragraph">Operatorul IS NULL permite selectarea tuturor rândurilor ale căror coloane au valoarea NULL:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;ProductCount&nbsp;IS&nbsp;NULL;</code></pre>
- </div>
- <p class="paragraph">Adăugând operatorul NOT, poți, dimpotrivă, selecta rândurile ale căror coloane nu au valoarea NULL:</p>
- <div class="code-inline">
-  <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;ProductCount&nbsp;IS&nbsp;NOT&nbsp;NULL;</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Operatorii de filtrare</h1>
+     <h2 class="subtitle">Operatorul IN</h2>
+     <p class="paragraph">Operatorul IN determină un set de valori pe care trebuie să le aibă coloanele:</p>
+     <div class="code-inline">
+      <pre><code>WHERE&nbsp;expresie&nbsp;[NOT]&nbsp;IN&nbsp;(expresie)</code></pre>
+     </div>
+     <p class="paragraph">Expresia în paranteze după IN determină un set de valori. Acest set poate fi calculat dinamic pe baza, de exemplu, a încă unei interogări, sau pot fi valori constante.</p>
+     <p class="paragraph">De exemplu, să selectăm produsele ale căror firme producătoare sunt fie Samsung, fie Xiaomi, fie Huawei:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Manufacturer&nbsp;IN&nbsp;(Samsung,&nbsp;HTC,&nbsp;Huawei);</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/4.Cereri/2.Operatorii%20de%20filtrare/images/mysql-select-operator-in.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Operatorul NOT, dimpotrivă, permite selectarea tuturor rândurilor ale căror coloane nu au anumite valori:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Manufacturer&nbsp;NOT&nbsp;IN&nbsp;(Samsung,&nbsp;HTC,&nbsp;Huawei);</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/4.Cereri/2.Operatorii%20de%20filtrare/images/mysql-select-operator-not-in.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Operatorul BETWEEN</h2>
+     <p class="paragraph">Operatorul BETWEEN definește un interval de valori folosind o valoare de început și o valoare de sfârșit la care trebuie să se potrivească expresia:</p>
+     <div class="code-inline">
+      <pre><code>WHERE&nbsp;expresie&nbsp;[NOT]&nbsp;BETWEEN&nbsp;valoare_de_iceput&nbsp;AND&nbsp;valoare_finala</code></pre>
+     </div>
+     <p class="paragraph">De exemplu, vom obține toate produsele cu prețul cuprins între 20 000 și 50 000 (valorile de început și sfârșit sunt, de asemenea, incluse în interval):</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Price&nbsp;BETWEEN&nbsp;20000&nbsp;AND&nbsp;50000;</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/4.Cereri/2.Operatorii%20de%20filtrare/images/mysql-filtrare-pret-between.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Dacă doriți să selectați rândurile care nu se încadrează în acest interval, se adaugă operatorul NOT:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Price&nbsp;NOT&nbsp;BETWEEN&nbsp;20000&nbsp;AND&nbsp;50000;</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, puteți utiliza expresii mai complexe. De exemplu, să obținem produsele în funcție de costul total (prețul * cantitatea):</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;Price&nbsp;*&nbsp;ProductCount&nbsp;BETWEEN&nbsp;90000&nbsp;AND&nbsp;150000;</code></pre>
+     </div>
+     <h2 class="subtitle">Operatorii LIKE și REGEXP</h2>
+     <p class="paragraph">Operatorul LIKE acceptă un șablon de șir de caractere căruia trebuie să corespundă expresia.</p>
+     <div class="code-inline">
+      <pre><code>WHERE&nbsp;expresie&nbsp;[NOT]&nbsp;LIKE&nbsp;sablonul_coloanei</code></pre>
+     </div>
+     <p class="paragraph">Pentru a defini un șablon, pot fi utilizate anumite caractere speciale de substituție:</p>
+     <ul class="enumeration">
+      <li>%: se potrivește oricărei subșiruri care poate avea orice număr de caractere, iar subșirul poate să nu conțină niciun caracter. De exemplu, expresia WHERE ProductName LIKE Galaxy% se potrivește valorilor precum "Galaxy Ace 2" sau "Galaxy S7"</li>
+      <li>_: se potrivește oricărui singur caracter. De exemplu, expresia WHERE ProductName LIKE Galaxy S_ se potrivește valorilor precum "Galaxy S7" sau "Galaxy S8"</li>
+     </ul>
+     <p class="paragraph">Vom aplica acum operatorul LIKE:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;ProductName&nbsp;LIKE&nbsp;iPhone%;</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/4.Cereri/2.Operatorii%20de%20filtrare/images/mysql-operator-like-iphone.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Operatorul REGEXP permite definirea unei expresii regulate (regex) la care trebuie să corespundă valoarea din coloană. Din acest punct de vedere, REGEXP oferă un mod mai sofisticat și complex de filtrare decât operatorul LIKE. REGEXP are un sintaxă similară:</p>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/4.Cereri/2.Operatorii%20de%20filtrare/images/mysql-sintaxa-regexp.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Expresia regulată poate să includă următoarele caractere speciale:</p>
+     <ul class="enumeration">
+      <li>^: indică începutul șirului</li>
+      <li>$: indică sfârșitul șirului</li>
+      <li>.: se potrivește oricărui singur caracter</li>
+      <li>[simboluri]: se potrivește oricărui singur caracter din interiorul parantezelor</li>
+      <li>[primul_simbol-simbolul_final]: se potrivește oricărui singur caracter dintr-un interval de caractere</li>
+      <li>|: separă două șabloane de șiruri, iar valoarea trebuie să corespundă unuia dintre aceste șabloane</li>
+     </ul>
+     <p class="paragraph">Exemple REGEXP:</p>
+     <ul class="enumeration">
+      <li>WHERE ProductName REGEXP Phone: șirul trebuie să conțină "Phone", de exemplu, iPhone X, Nokia Phone N, iPhone</li>
+      <li>WHERE ProductName REGEXP ^Phone: șirul trebuie să înceapă cu "Phone", de exemplu, Phone 34, PhoneX</li>
+      <li>WHERE ProductName REGEXP Phone$: șirul trebuie să se termine cu "Phone", de exemplu, iPhone, Nokia Phone</li>
+      <li>WHERE ProductName REGEXP iPhone [78]: șirul trebuie să conțină fie iPhone 7, fie iPhone 8</li>
+      <li>WHERE ProductName REGEXP iPhone [6-8]: șirul trebuie să conțină fie iPhone 6, fie iPhone 7, fie iPhone 8</li>
+     </ul>
+     <p class="paragraph">De exemplu, să găsim produsele ale căror nume conțin fie "Phone", fie "Galaxy":</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;ProductName&nbsp;REGEXP&nbsp;Phone|Galaxy;</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/MySQL/4.Cereri/2.Operatorii%20de%20filtrare/images/mysql-filtrare-regexp-phone-galaxy.png}" alt="" class="responsive-image">
+     </div>
+     <h2 class="subtitle">Operatorul IS NULL</h2>
+     <p class="paragraph">Operatorul IS NULL permite selectarea tuturor rândurilor ale căror coloane au valoarea NULL:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;ProductCount&nbsp;IS&nbsp;NULL;</code></pre>
+     </div>
+     <p class="paragraph">Adăugând operatorul NOT, poți, dimpotrivă, selecta rândurile ale căror coloane nu au valoarea NULL:</p>
+     <div class="code-inline">
+      <pre><code>SELECT&nbsp;*&nbsp;FROM&nbsp;Products<br>WHERE&nbsp;ProductCount&nbsp;IS&nbsp;NOT&nbsp;NULL;</code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

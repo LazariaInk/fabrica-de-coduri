@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='22.Lucrul cu sistemul de fisiere', activeLesson='3.Lucrul cu fisiere'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Lucrul cu fișiere - Clasele File și FileInfo</h1>
+     <p class="paragraph">Similar cu perechea Directory/DirectoryInfo pentru lucrul cu fișiere, există perechea de clase File și FileInfo. Cu ajutorul acestora putem crea, șterge, muta fișiere, obține proprietățile lor și multe altele</p>
+     <h2 class="subtitle">FileInfo</h2>
+     <p class="paragraph">Câteva metode și proprietăți utile ale clasei FileInfo:</p>
+     <ul class="enumeration">
+      <li>CopyTo(path): copiază fișierul într-o nouă locație specificată de calea path</li>
+      <li>Create(): creează fișierul</li>
+      <li>Delete(): șterge fișierul</li>
+      <li>MoveTo(destFileName): mută fișierul într-o nouă locație</li>
+      <li>Directory: obține directorul părinte sub forma unui obiect DirectoryInfo</li>
+      <li>DirectoryName: obține calea completă către directorul părinte</li>
+      <li>Exists: indică dacă fișierul există</li>
+      <li>Length: obține dimensiunea fișierului</li>
+      <li>Extension: obține extensia fișierului</li>
+      <li>Name: obține numele fișierului</li>
+      <li>FullName: obține numele complet al fișierului</li>
+     </ul>
+     <p class="paragraph">Pentru a crea un obiect FileInfo se folosește constructorul care primește ca parametru calea către fișier:</p>
+     <div class="code-inline">
+      <pre><code>FileInfo&nbsp;fileInf&nbsp;=&nbsp;new&nbsp;FileInfo(@"C:\app\content.txt");</code></pre>
+     </div>
+     <h2 class="subtitle">Clasa File</h2>
+     <p class="paragraph">Clasa File implementează o funcționalitate similară folosind metode statice:</p>
+     <ul class="enumeration">
+      <li>Copy(): copiază fișierul într-o nouă locație</li>
+      <li>Create(): creează fișierul</li>
+      <li>Delete(): șterge fișierul</li>
+      <li>Move: mută fișierul într-o nouă locație</li>
+      <li>Exists(file): determină dacă fișierul există</li>
+     </ul>
+     <h2 class="subtitle">Căi către fișiere</h2>
+     <p class="paragraph">Pentru lucrul cu fișiere, putem folosi atât căi absolute, cât și căi relative:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;căi&nbsp;absolute<br>string&nbsp;path1&nbsp;=&nbsp;@"C:\Users\eugene\Documents\content.txt";&nbsp;&nbsp;//&nbsp;pentru&nbsp;Windows<br>string&nbsp;path2&nbsp;=&nbsp;"C:\\Users\\eugene\\Documents\\content.txt";&nbsp;&nbsp;//&nbsp;pentru&nbsp;Windows<br>string&nbsp;path3&nbsp;=&nbsp;"/Users/eugene/Documents/content.txt";&nbsp;&nbsp;//&nbsp;pentru&nbsp;MacOS/Linux<br><br>//&nbsp;căi&nbsp;relative<br>string&nbsp;path4&nbsp;=&nbsp;"MyDir\\content.txt";&nbsp;&nbsp;//&nbsp;pentru&nbsp;Windows<br>string&nbsp;path5&nbsp;=&nbsp;"MyDir/content.txt";&nbsp;&nbsp;//&nbsp;pentru&nbsp;MacOS/Linux</code></pre>
+     </div>
+     <h2 class="subtitle">Obținerea informațiilor despre un fișier</h2>
+     <div class="code-inline">
+      <pre><code>string&nbsp;path&nbsp;=&nbsp;@"C:\Users\eugene\Documents\content.txt";<br>//&nbsp;string&nbsp;path&nbsp;=&nbsp;"/Users/eugene/Documents/content.txt";&nbsp;&nbsp;//&nbsp;pentru&nbsp;MacOS/Linux<br>FileInfo&nbsp;fileInfo&nbsp;=&nbsp;new&nbsp;FileInfo(path);<br>if&nbsp;(fileInfo.Exists)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Nume&nbsp;fișier:&nbsp;{fileInfo.Name}");<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Timp&nbsp;de&nbsp;creare:&nbsp;{fileInfo.CreationTime}");<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Dimensiune:&nbsp;{fileInfo.Length}");<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Ștergerea unui fișier</h2>
+     <div class="code-inline">
+      <pre><code>string&nbsp;path&nbsp;=&nbsp;@"C:\app\content.txt";<br>FileInfo&nbsp;fileInf&nbsp;=&nbsp;new&nbsp;FileInfo(path);<br>if&nbsp;(fileInf.Exists)<br>{<br>&nbsp;&nbsp;fileInf.Delete();<br>&nbsp;&nbsp;//&nbsp;alternativ&nbsp;folosind&nbsp;clasa&nbsp;File<br>&nbsp;&nbsp;//&nbsp;File.Delete(path);<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Mutarea unui fișier</h2>
+     <div class="code-inline">
+      <pre><code>string&nbsp;path&nbsp;=&nbsp;&nbsp;@"C:\OldDir\content.txt";<br>string&nbsp;newPath&nbsp;=&nbsp;@"C:\NewDir\index.txt";<br>FileInfo&nbsp;fileInf&nbsp;=&nbsp;new&nbsp;FileInfo(path);<br>if&nbsp;(fileInf.Exists)<br>{<br>&nbsp;&nbsp;fileInf.MoveTo(newPath);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;//&nbsp;alternativ&nbsp;folosind&nbsp;clasa&nbsp;File<br>&nbsp;&nbsp;//&nbsp;File.Move(path,&nbsp;newPath);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Dacă fișierul de la noua cale deja există, se poate folosi un parametru suplimentar pentru a specifica dacă fișierul trebuie suprascris (cu valoarea true fișierul este suprascris):</p>
+     <div class="code-inline">
+      <pre><code>string&nbsp;path&nbsp;=&nbsp;&nbsp;@"C:\OldDir\content.txt";<br>string&nbsp;newPath&nbsp;=&nbsp;@"C:\NewDir\index.txt";<br>FileInfo&nbsp;fileInf&nbsp;=&nbsp;new&nbsp;FileInfo(path);<br>if&nbsp;(fileInf.Exists)<br>{<br>&nbsp;&nbsp;fileInf.MoveTo(newPath,&nbsp;true);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;//&nbsp;alternativ&nbsp;folosind&nbsp;clasa&nbsp;File<br>&nbsp;&nbsp;//&nbsp;File.Move(path,&nbsp;newPath,&nbsp;true);<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Copierea unui fișier</h2>
+     <div class="code-inline">
+      <pre><code>string&nbsp;path&nbsp;=&nbsp;&nbsp;@"C:\OldDir\content.txt";<br>string&nbsp;newPath&nbsp;=&nbsp;@"C:\NewDir\index2.txt";<br>FileInfo&nbsp;fileInf&nbsp;=&nbsp;new&nbsp;FileInfo(path);<br>if&nbsp;(fileInf.Exists)<br>{<br>&nbsp;&nbsp;fileInf.CopyTo(newPath,&nbsp;true);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;//&nbsp;alternativ&nbsp;folosind&nbsp;clasa&nbsp;File<br>&nbsp;&nbsp;//&nbsp;File.Copy(path,&nbsp;newPath,&nbsp;true);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Metoda CopyTo a clasei FileInfo primește doi parametri: calea către care fișierul va fi copiat și o valoare booleană care indică dacă fișierul trebuie suprascris la copiere (dacă valoarea este true, fișierul va fi suprascris). Dacă se transmite false ca ultim parametru și un astfel de fișier deja există, aplicația va arunca o eroare.</p>
+     <p class="paragraph">Metoda Copy a clasei File primește trei parametri: calea către fișierul sursă, calea către care fișierul va fi copiat și o valoare booleană care indică dacă fișierul va fi suprascris.</p>
+     <h2 class="subtitle">Citirea și scrierea fișierelor</h2>
+     <p class="paragraph">Pe lângă metodele discutate anterior, clasa File oferă și o serie de metode pentru citirea și scrierea fișierelor text și binare:</p>
+     <ul class="enumeration">
+      <li>AppendAllLines(String, IEnumerable&lt;String&gt;) / AppendAllLinesAsync(String, IEnumerable&lt;String&gt;, CancellationToken): adaugă în fișier un set de linii. Dacă fișierul nu există, acesta este creat</li>
+      <li>AppendAllText(String, String) / AppendAllTextAsync(String, String, CancellationToken): adaugă o linie în fișier. Dacă fișierul nu există, acesta este creat</li>
+      <li>byte[] ReadAllBytes (string path) / Task&lt;byte[]&gt; ReadAllBytesAsync (string path, CancellationToken cancellationToken): citește conținutul fișierului binar într-un array de bytes</li>
+      <li>string[] ReadAllLines (string path) / Task&lt;string[]&gt; ReadAllLinesAsync (string path, CancellationToken cancellationToken): citește conținutul fișierului text într-un array de stringuri</li>
+      <li>string ReadAllText (string path) / Task&lt;string&gt; ReadAllTextAsync (string path, CancellationToken cancellationToken): citește conținutul fișierului text într-un string</li>
+      <li>IEnumerable&lt;string&gt; ReadLines (string path): citește conținutul fișierului text într-o colecție de stringuri</li>
+      <li>void WriteAllBytes (string path, byte[] bytes) / Task WriteAllBytesAsync (string path, byte[] bytes, CancellationToken cancellationToken): scrie un array de bytes într-un fișier binar. Dacă fișierul nu există, acesta este creat. Dacă există, este suprascris</li>
+      <li>void WriteAllLines (string path, string[] contents) / Task WriteAllLinesAsync (string path, IEnumerable&lt;string&gt; contents, CancellationToken cancellationToken): scrie un array de stringuri într-un fișier text. Dacă fișierul nu există, acesta este creat. Dacă există, este suprascris</li>
+      <li>WriteAllText (string path, string? contents) / Task WriteAllTextAsync (string path, string? contents, CancellationToken cancellationToken): scrie un string într-un fișier text. Dacă fișierul nu există, acesta este creat. Dacă există, este suprascris</li>
+     </ul>
+     <p class="paragraph">Aceste metode acoperă practic toate scenariile principale - citirea și scrierea fișierelor text și binare. În funcție de sarcină, se pot folosi metode sincrone sau variantele lor asincrone.</p>
+     <p class="paragraph">De exemplu, să scriem și să citim înapoi un fișier text:</p>
+     <div class="code-inline">
+      <pre><code>string&nbsp;path&nbsp;=&nbsp;@"c:\app\content.txt";<br><br>string&nbsp;originalText&nbsp;=&nbsp;"Hello&nbsp;FDC.com";<br>//&nbsp;scrierea&nbsp;unui&nbsp;string<br>await&nbsp;File.WriteAllTextAsync(path,&nbsp;originalText);<br>//&nbsp;adăugarea&nbsp;la&nbsp;sfârșitul&nbsp;fișierului<br>await&nbsp;File.AppendAllTextAsync(path,&nbsp;"\nHello&nbsp;work");<br><br>//&nbsp;citirea&nbsp;fișierului<br>string&nbsp;fileText&nbsp;=&nbsp;await&nbsp;File.ReadAllTextAsync(path);<br>Console.WriteLine(fileText);</code></pre>
+     </div>
+     <p class="paragraph">Ieșirea în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Hello&nbsp;FDC.com&nbsp;&nbsp;<br>Hello&nbsp;work</code></pre>
+     </div>
+     <p class="paragraph">Este de remarcat faptul că la adăugarea textului am inclus în string secvența "\n", care face trecerea la rândul următor. Datorită acestui fapt, textul adăugat apare pe un nou rând în fișier.</p>
+     <p class="paragraph">Dacă dorim ca adăugarea în fișier să se facă de la început pe un nou rând, ar trebui să folosim metoda WriteAllLines/WriteAllLinesAsync pentru scriere și AppendAllLines/AppendAllLinesAsync pentru adăugare:</p>
+     <div class="code-inline">
+      <pre><code>await&nbsp;File.WriteAllLinesAsync(path,&nbsp;new[]&nbsp;{&nbsp;"Hello&nbsp;FDC.com",&nbsp;"Hello&nbsp;work"&nbsp;});</code></pre>
+     </div>
+     <p class="paragraph">Similar, pentru citirea fișierului, dacă dorim să citim fiecare rând separat, în loc de ReadAllText/ReadAllTextAsync, se aplică ReadAllLines/ReadAllLinesAsync.</p>
+     <h2 class="subtitle">Codificarea</h2>
+     <p class="paragraph">Ca parametru suplimentar, metodele de citire-scriere a fișierelor text permit stabilirea codificării sub forma unui obiect System.Text.Encoding:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Text;<br><br>string&nbsp;path&nbsp;=&nbsp;"/Users/eugene/Documents/app/content.txt";<br><br>string&nbsp;originalText&nbsp;=&nbsp;"Привет&nbsp;FDC.com";<br>//&nbsp;scrierea&nbsp;unui&nbsp;string<br>await&nbsp;File.WriteAllTextAsync(path,&nbsp;originalText,&nbsp;Encoding.Unicode);<br>//&nbsp;adăugarea&nbsp;la&nbsp;sfârșitul&nbsp;fișierului<br>await&nbsp;File.AppendAllTextAsync(path,&nbsp;"\nПривет&nbsp;мир",&nbsp;Encoding.Unicode);<br><br>//&nbsp;citirea&nbsp;fișierului<br>string&nbsp;fileText&nbsp;=&nbsp;await&nbsp;File.ReadAllTextAsync(path,&nbsp;Encoding.Unicode);<br>Console.WriteLine(fileText);</code></pre>
+     </div>
+     <p class="paragraph">Pentru a stabili codificarea la scriere și citire, aici se folosește valoarea predefinită Encoding.Unicode. De asemenea, se poate specifica un nume de codificare, singura condiție fiind să ne asigurăm că sistemul de operare curent suportă codificarea aleasă:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Text;<br><br>string&nbsp;path&nbsp;=&nbsp;@"c:\app\content.txt";<br><br>string&nbsp;originalText&nbsp;=&nbsp;"Hello&nbsp;FDC.com";<br>//&nbsp;scrierea&nbsp;unui&nbsp;string<br>await&nbsp;File.WriteAllTextAsync(path,&nbsp;originalText,&nbsp;Encoding.GetEncoding("iso-8859-1"));<br>//&nbsp;adăugarea&nbsp;la&nbsp;sfârșitul&nbsp;fișierului<br>await&nbsp;File.AppendAllTextAsync(path,&nbsp;"\nHello&nbsp;code",&nbsp;Encoding.GetEncoding("iso-8859-1"));<br><br>//&nbsp;citirea&nbsp;fișierului<br>string&nbsp;fileText&nbsp;=&nbsp;await&nbsp;File.ReadAllTextAsync(path,&nbsp;Encoding.GetEncoding("iso-8859-1"));<br>Console.WriteLine(fileText);</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

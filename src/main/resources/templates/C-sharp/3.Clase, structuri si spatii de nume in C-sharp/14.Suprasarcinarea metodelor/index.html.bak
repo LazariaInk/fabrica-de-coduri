@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='3.Clase, structuri si spatii de nume in C-sharp', activeLesson='14.Suprasarcinarea metodelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Suprasarcinarea metodelor</h1>
+     <p class="paragraph">Uneori apare necesitatea de a crea aceeași metodă, dar cu seturi diferite de parametri. Și în funcție de parametrii disponibili să se aplice o anumită versiune a metodei. Această posibilitate se numește suprasarcinarea metodelor (method overloading).</p>
+     <p class="paragraph">În limbajul C# putem crea în clasă mai multe metode cu același nume, dar cu semnături diferite. Ce este o semnătură? Semnătura este formată din următoarele aspecte:</p>
+     <ul class="enumeration">
+      <li>Numele metodei</li>
+      <li>Numărul parametrilor</li>
+      <li>Tipurile parametrilor</li>
+      <li>Ordinea parametrilor</li>
+      <li>Modificatorii parametrilor</li>
+     </ul>
+     <p class="paragraph">Însă denumirile parametrilor nu fac parte din semnătură. De exemplu, să luăm următoarea metodă:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;int&nbsp;Sum(int&nbsp;x,&nbsp;int&nbsp;y)<br>{<br>&nbsp;&nbsp;&nbsp;return&nbsp;x&nbsp;+&nbsp;y;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Semnătura acestei metode va arăta astfel: Sum(int, int)</p>
+     <p class="paragraph">Suprasarcinarea metodei constă în faptul că metodele au semnături diferite, în care se potrivește doar numele metodei. Adică metodele trebuie să difere în:</p>
+     <ul class="enumeration">
+      <li>Numărul parametrilor</li>
+      <li>Tipul parametrilor</li>
+      <li>Ordinea parametrilor</li>
+      <li>Modificatorii parametrilor</li>
+     </ul>
+     <p class="paragraph">De exemplu, să avem următoarea clasă:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Calculator<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Add(int&nbsp;a,&nbsp;int&nbsp;b)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;result&nbsp;=&nbsp;a&nbsp;+&nbsp;b;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Result&nbsp;is&nbsp;{result}");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Add(int&nbsp;a,&nbsp;int&nbsp;b,&nbsp;int&nbsp;c)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;result&nbsp;=&nbsp;a&nbsp;+&nbsp;b&nbsp;+&nbsp;c;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Result&nbsp;is&nbsp;{result}");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Add(int&nbsp;a,&nbsp;int&nbsp;b,&nbsp;int&nbsp;c,&nbsp;int&nbsp;d)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;result&nbsp;=&nbsp;a&nbsp;+&nbsp;b&nbsp;+&nbsp;c&nbsp;+&nbsp;d;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Result&nbsp;is&nbsp;{result}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;result;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Add(double&nbsp;a,&nbsp;double&nbsp;b)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;double&nbsp;result&nbsp;=&nbsp;a&nbsp;+&nbsp;b;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Result&nbsp;is&nbsp;{result}");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici sunt prezentate patru versiuni diferite ale metodei Add, adică sunt definite patru suprasarcinări ale acestei metode.</p>
+     <p class="paragraph">Primele trei versiuni ale metodei diferă prin numărul de parametri. A patra versiune coincide cu prima prin numărul de parametri, dar diferă prin tipul acestora. Este suficient ca cel puțin un parametru să difere prin tip.</p>
+     <p class="paragraph">Prin urmare, aceasta este o suprasarcinare validă a metodei Add.</p>
+     <p class="paragraph">Putem reprezenta semnăturile acestor metode astfel:</p>
+     <div class="code-inline">
+      <pre><code>Add(int,&nbsp;int)<br><br>Add(int,&nbsp;int,&nbsp;int)<br><br>Add(int,&nbsp;int,&nbsp;int,&nbsp;int)<br><br>Add(double,&nbsp;double)</code></pre>
+     </div>
+     <p class="paragraph">După definirea versiunilor suprasarcinate, le putem folosi în program:</p>
+     <div class="code-inline">
+      <pre><code>Calculator&nbsp;calc&nbsp;=&nbsp;new&nbsp;Calculator();<br>calc.Add(1,&nbsp;2);&nbsp;//&nbsp;3<br>calc.Add(1,&nbsp;2,&nbsp;3);&nbsp;//&nbsp;6<br>calc.Add(1,&nbsp;2,&nbsp;3,&nbsp;4);&nbsp;//&nbsp;10<br>calc.Add(1.4,&nbsp;2.5);&nbsp;//&nbsp;3.9</code></pre>
+     </div>
+     <p class="paragraph">Consola va afișa:</p>
+     <div class="code-inline">
+      <pre><code>Result&nbsp;is&nbsp;3<br><br>Result&nbsp;is&nbsp;6<br><br>Result&nbsp;is&nbsp;10<br><br>Result&nbsp;is&nbsp;3.9</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, metodele suprasarcinate pot diferi prin modificatorii utilizați. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>void&nbsp;Increment(ref&nbsp;int&nbsp;val)<br>{<br>&nbsp;&nbsp;&nbsp;val++;<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(val);<br>}<br><br>void&nbsp;Increment(int&nbsp;val)<br>{<br>&nbsp;&nbsp;&nbsp;val++;<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(val);<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, ambele versiuni ale metodei Increment au același set de parametri de același tip, dar în primul caz parametrul are modificatorul ref. Prin urmare, ambele versiuni ale metodei vor fi suprasarcinări valide ale metodei Increment.</p>
+     <p class="paragraph">Diferențele între metodele prin tipul returnat sau prin denumirile parametrilor nu constituie un temei pentru suprasarcinare. De exemplu, să luăm următorul set de metode:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;Sum(int&nbsp;x,&nbsp;int&nbsp;y)<br>{<br>&nbsp;&nbsp;&nbsp;return&nbsp;x&nbsp;+&nbsp;y;<br>}<br>int&nbsp;Sum(int&nbsp;number1,&nbsp;int&nbsp;number2)<br>{<br>&nbsp;&nbsp;&nbsp;return&nbsp;number1&nbsp;+&nbsp;number2;<br>}<br>void&nbsp;Sum(int&nbsp;x,&nbsp;int&nbsp;y)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(x&nbsp;+&nbsp;y);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Semnătura tuturor acestor metode va fi aceeași:</p>
+     <div class="code-inline">
+      <pre><code>Sum(int,&nbsp;int)</code></pre>
+     </div>
+     <p class="paragraph">De aceea, acest set de metode nu reprezintă suprasarcinări valide ale metodei Sum și nu va funcționa.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

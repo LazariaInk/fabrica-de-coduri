@@ -1,162 +1,152 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Python', activeChapter='2.Bazele Python', activeLesson='3.Introducerea si afisarea in consola'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Introducerea și afișarea în consolă</h1>
- <h2 class="subtitle">Afișarea în consolă</h2>
- <p class="paragraph">Pentru a afișa informații în consolă, se folosește funcția încorporată print(). La apelarea acestei funcții, valoarea care trebuie afișată este transmisă în paranteze:</p>
- <div class="code-inline">
-  <pre><code>print("Hello&nbsp;FdC")</code></pre>
- </div>
- <p class="paragraph">Acest cod va afișa pe consolă șirul de caractere "Hello FdC".</p>
- <p class="paragraph">Caracteristica distinctivă a acestei funcții este că, implicit, ea afișează valoarea pe un rând nou. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>print("Hello&nbsp;World")<br>print("Hello&nbsp;www.fabricadecoduri.com")<br>print("Hello&nbsp;Python")</code></pre>
- </div>
- <p class="paragraph">Aici sunt trei apeluri ale funcției print() care afișează un mesaj. În momentul afișării pe consolă, fiecare mesaj va fi plasat pe o linie separată.</p>
- <div class="code-inline">
-  <pre><code>Hello&nbsp;World<br>Hello&nbsp;www.fabricadecoduri.com<br>Hello&nbsp;Python</code></pre>
- </div>
- <p class="paragraph">Acest comportament nu este întotdeauna convenabil. De exemplu, dorim ca toate valorile să fie afișate pe aceeași linie. Pentru a realiza acest lucru, trebuie să configurăm comportamentul funcției folosind parametrul end. Acest parametru specifică caracterele adăugate la sfârșitul șirului afișat. Atunci când aplicăm parametrul end, apelul funcției print() arată astfel:</p>
- <div class="code-inline">
-  <pre><code>print("Hello&nbsp;World",&nbsp;end="&nbsp;")<br>print("Hello&nbsp;www.fabricadecoduri.com",&nbsp;end="&nbsp;")<br>print("Hello&nbsp;Python")</code></pre>
- </div>
- <p class="paragraph">Deci acum valorile afișate vor fi separate prin spațiu:</p>
- <div class="code-inline">
-  <pre><code>Hello&nbsp;World&nbsp;Hello&nbsp;www.fabricadecoduri.com&nbsp;Hello&nbsp;Python<br><br></code></pre>
- </div>
- <p class="paragraph">"Aceasta poate să fie nu doar un singur caracter, ci o serie de caractere."</p>
- <div class="code-inline">
-  <pre><code>print("Hello&nbsp;World",&nbsp;end="&nbsp;and&nbsp;")<br>print("Hello&nbsp;www.fabricadecoduri.com",&nbsp;end="&nbsp;and&nbsp;")<br>print("Hello&nbsp;Python")</code></pre>
- </div>
- <p class="paragraph">În acest caz, mesajele afișate vor fi separate de cuvântul " și ":</p>
- <div class="code-inline">
-  <pre><code>Hello&nbsp;World&nbsp;and&nbsp;Hello&nbsp;www.fabricadecoduri.com&nbsp;and&nbsp;Hello&nbsp;Python</code></pre>
- </div>
- <h2 class="subtitle">Introducerea în consola</h2>
- <p class="paragraph">Împreună cu afișarea pe consolă, putem să primim și intrări de la utilizator prin consolă, adică să obținem date introduse. În Python, pentru aceasta este definită funcția input(). În această funcție se transmite un prompt pentru introducere. Rezultatul introducerii poate fi apoi salvat într-o variabilă. De exemplu, să definim un cod pentru introducerea numelui utilizatorului:</p>
- <div class="code-inline">
-  <pre><code>name&nbsp;=&nbsp;input("Introduceți&nbsp;numele:&nbsp;")<br>print(f"Numele&nbsp;vostru&nbsp;:&nbsp;{name}")</code></pre>
- </div>
- <p class="paragraph">În acest caz, în funcția input() se transmite un mesaj pentru introducere sub formă de șir de caractere "Introduceți numele dvs.: ". Rezultatul funcției - adică introducerea utilizatorului - este stocat în variabila numită name. Apoi putem afișa valoarea acestei variabile pe consolă folosind funcția print(). Un exemplu de funcționare a codului:</p>
- <div class="code-inline">
-  <pre><code>Introduceți&nbsp;numele:&nbsp;Țepeș<br>Numele&nbsp;vostru:&nbsp;Țepeș</code></pre>
- </div>
- <p class="paragraph">Iată încă un exemplu:</p>
- <div class="code-inline">
-  <pre><code>name&nbsp;=&nbsp;input("Your&nbsp;name:&nbsp;")<br>age&nbsp;=&nbsp;input("Your&nbsp;age:&nbsp;")<br>print(f"Name:&nbsp;{name}&nbsp;&nbsp;Age:&nbsp;{age}")</code></pre>
- </div>
- <p class="paragraph">Exemplu de rulare:</p>
- <div class="code-inline">
-  <pre><code>Your&nbsp;name:&nbsp;Tom<br>Your&nbsp;age:&nbsp;37<br>Name:&nbsp;Tom&nbsp;&nbsp;Age:&nbsp;37</code></pre>
- </div>
- <p class="paragraph">Este important să luăm în considerare că toate valorile introduse sunt tratate ca șiruri de caractere (str), adică string-uri. Chiar și atunci când introducem un număr, așa cum este cazul în a doua situație din codul de mai sus, Python va trata valoarea introdusă tot ca un șir de caractere, nu ca un număr, dar pe viitor vom vedea, că dacă avem nevoie de aceste inputuri să se folosim, poate, în niște calcule matematice - exista o soluție pentru aceste cazuri și le vom studia în următoarele lecții!</p>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Introducerea și afișarea în consolă</h1>
+     <h2 class="subtitle">Afișarea în consolă</h2>
+     <p class="paragraph">Pentru a afișa informații în consolă, se folosește funcția încorporată print(). La apelarea acestei funcții, valoarea care trebuie afișată este transmisă în paranteze:</p>
+     <div class="code-inline">
+      <pre><code>print("Hello&nbsp;FdC")</code></pre>
+     </div>
+     <p class="paragraph">Acest cod va afișa pe consolă șirul de caractere "Hello FdC".</p>
+     <p class="paragraph">Caracteristica distinctivă a acestei funcții este că, implicit, ea afișează valoarea pe un rând nou. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>print("Hello&nbsp;World")<br>print("Hello&nbsp;www.fabricadecoduri.com")<br>print("Hello&nbsp;Python")</code></pre>
+     </div>
+     <p class="paragraph">Aici sunt trei apeluri ale funcției print() care afișează un mesaj. În momentul afișării pe consolă, fiecare mesaj va fi plasat pe o linie separată.</p>
+     <div class="code-inline">
+      <pre><code>Hello&nbsp;World<br>Hello&nbsp;www.fabricadecoduri.com<br>Hello&nbsp;Python</code></pre>
+     </div>
+     <p class="paragraph">Acest comportament nu este întotdeauna convenabil. De exemplu, dorim ca toate valorile să fie afișate pe aceeași linie. Pentru a realiza acest lucru, trebuie să configurăm comportamentul funcției folosind parametrul end. Acest parametru specifică caracterele adăugate la sfârșitul șirului afișat. Atunci când aplicăm parametrul end, apelul funcției print() arată astfel:</p>
+     <div class="code-inline">
+      <pre><code>print("Hello&nbsp;World",&nbsp;end="&nbsp;")<br>print("Hello&nbsp;www.fabricadecoduri.com",&nbsp;end="&nbsp;")<br>print("Hello&nbsp;Python")</code></pre>
+     </div>
+     <p class="paragraph">Deci acum valorile afișate vor fi separate prin spațiu:</p>
+     <div class="code-inline">
+      <pre><code>Hello&nbsp;World&nbsp;Hello&nbsp;www.fabricadecoduri.com&nbsp;Hello&nbsp;Python<br><br></code></pre>
+     </div>
+     <p class="paragraph">"Aceasta poate să fie nu doar un singur caracter, ci o serie de caractere."</p>
+     <div class="code-inline">
+      <pre><code>print("Hello&nbsp;World",&nbsp;end="&nbsp;and&nbsp;")<br>print("Hello&nbsp;www.fabricadecoduri.com",&nbsp;end="&nbsp;and&nbsp;")<br>print("Hello&nbsp;Python")</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, mesajele afișate vor fi separate de cuvântul " și ":</p>
+     <div class="code-inline">
+      <pre><code>Hello&nbsp;World&nbsp;and&nbsp;Hello&nbsp;www.fabricadecoduri.com&nbsp;and&nbsp;Hello&nbsp;Python</code></pre>
+     </div>
+     <h2 class="subtitle">Introducerea în consola</h2>
+     <p class="paragraph">Împreună cu afișarea pe consolă, putem să primim și intrări de la utilizator prin consolă, adică să obținem date introduse. În Python, pentru aceasta este definită funcția input(). În această funcție se transmite un prompt pentru introducere. Rezultatul introducerii poate fi apoi salvat într-o variabilă. De exemplu, să definim un cod pentru introducerea numelui utilizatorului:</p>
+     <div class="code-inline">
+      <pre><code>name&nbsp;=&nbsp;input("Introduceți&nbsp;numele:&nbsp;")<br>print(f"Numele&nbsp;vostru&nbsp;:&nbsp;{name}")</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, în funcția input() se transmite un mesaj pentru introducere sub formă de șir de caractere "Introduceți numele dvs.: ". Rezultatul funcției - adică introducerea utilizatorului - este stocat în variabila numită name. Apoi putem afișa valoarea acestei variabile pe consolă folosind funcția print(). Un exemplu de funcționare a codului:</p>
+     <div class="code-inline">
+      <pre><code>Introduceți&nbsp;numele:&nbsp;Țepeș<br>Numele&nbsp;vostru:&nbsp;Țepeș</code></pre>
+     </div>
+     <p class="paragraph">Iată încă un exemplu:</p>
+     <div class="code-inline">
+      <pre><code>name&nbsp;=&nbsp;input("Your&nbsp;name:&nbsp;")<br>age&nbsp;=&nbsp;input("Your&nbsp;age:&nbsp;")<br>print(f"Name:&nbsp;{name}&nbsp;&nbsp;Age:&nbsp;{age}")</code></pre>
+     </div>
+     <p class="paragraph">Exemplu de rulare:</p>
+     <div class="code-inline">
+      <pre><code>Your&nbsp;name:&nbsp;Tom<br>Your&nbsp;age:&nbsp;37<br>Name:&nbsp;Tom&nbsp;&nbsp;Age:&nbsp;37</code></pre>
+     </div>
+     <p class="paragraph">Este important să luăm în considerare că toate valorile introduse sunt tratate ca șiruri de caractere (str), adică string-uri. Chiar și atunci când introducem un număr, așa cum este cazul în a doua situație din codul de mai sus, Python va trata valoarea introdusă tot ca un șir de caractere, nu ca un număr, dar pe viitor vom vedea, că dacă avem nevoie de aceste inputuri să se folosim, poate, în niște calcule matematice - exista o soluție pentru aceste cazuri și le vom studia în următoarele lecții!</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

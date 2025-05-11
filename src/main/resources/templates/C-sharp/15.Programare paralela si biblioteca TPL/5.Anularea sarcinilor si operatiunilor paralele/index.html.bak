@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='15.Programare paralela si biblioteca TPL', activeLesson='5.Anularea sarcinilor si operatiunilor paralele'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Anularea sarcinilor și operațiunilor paralele - CancellationToken</h1>
+     <p class="paragraph">Execuția paralelă a sarcinilor poate dura mult timp. Uneori poate apărea necesitatea de a întrerupe o sarcină în execuție. Pentru aceasta, platforma .NET oferă structura CancellationToken din namespace-ul System.Threading.</p>
+     <p class="paragraph">Algoritmul general pentru anularea unei sarcini presupune următorii pași:</p>
+     <ul class="enumeration">
+      <li>Crearea unui obiect CancellationTokenSource, care gestionează și trimite notificarea de anulare către token</li>
+      <li>Obținerea token-ului prin proprietatea CancellationTokenSource.Token și transmiterea acestuia către sarcina ce poate fi anulată</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>CancellationTokenSource&nbsp;cancelTokenSource&nbsp;=&nbsp;new&nbsp;CancellationTokenSource();<br>CancellationToken&nbsp;token&nbsp;=&nbsp;cancelTokenSource.Token;</code></pre>
+     </div>
+     <p class="paragraph">Pentru a transmite token-ul către sarcină, se poate folosi unul dintre constructorii clasei Task:</p>
+     <div class="code-inline">
+      <pre><code>CancellationTokenSource&nbsp;cancelTokenSource&nbsp;=&nbsp;new&nbsp;CancellationTokenSource();<br>CancellationToken&nbsp;token&nbsp;=&nbsp;cancelTokenSource.Token;<br>Task&nbsp;task&nbsp;=&nbsp;new&nbsp;Task(()&nbsp;=&gt;&nbsp;{&nbsp;acțiuni_de_executat&nbsp;},&nbsp;token);</code></pre>
+     </div>
+     <ul class="enumeration">
+      <li>Definirea acțiunilor în sarcină pentru cazul anulării acesteia</li>
+      <li>Apelăm metoda CancellationTokenSource.Cancel(), care setează proprietatea CancellationToken.IsCancellationRequested la valoarea true. Este important de înțeles că metoda CancellationTokenSource.Cancel() nu anulează sarcina în sine, ci doar trimite o notificare de anulare prin setarea proprietății CancellationToken.IsCancellationRequested. Modul în care se va realiza ieșirea din sarcină este decis de către dezvoltator.</li>
+      <li>Clasa CancellationTokenSource implementează interfața IDisposable. Când lucrul cu obiectul CancellationTokenSource este finalizat, trebuie apelată metoda Dispose pentru a elibera toate resursele utilizate asociate cu acesta. (În locul apelării explicite a metodei Dispose se poate utiliza construcția using).</li>
+     </ul>
+     <p class="paragraph">Acum referitor la al treilea punct - definirea acțiunilor de anulare a sarcinii. Cum anume să se încheie sarcina? Acțiunile specifice depind în totalitate de dezvoltator, totuși există două variante generale de ieșire:</p>
+     <ul class="enumeration">
+      <li>La primirea semnalului de anulare ieșirea din metoda sarcinii, de exemplu, cu ajutorul operatorului return sau construind logica metodei în mod corespunzător. Dar trebuie avut în vedere că în acest caz sarcina va trece în starea TaskStatus.RanToCompletion, și nu în starea TaskStatus.Canceled.</li>
+      <li>La primirea semnalului de anulare generarea unei excepții OperationCanceledException, apelând metoda ThrowIfCancellationRequested() a tokenului. După aceasta sarcina va trece în starea TaskStatus.Canceled.</li>
+     </ul>
+     <h2 class="subtitle">Ieșire ușoară din sarcină fără excepția OperationCanceledException</h2>
+     <p class="paragraph">Mai întâi vom examina prima variantă - ieșirea "ușoară":</p>
+     <div class="code-inline">
+      <pre><code>CancellationTokenSource&nbsp;cancelTokenSource&nbsp;=&nbsp;new&nbsp;CancellationTokenSource():<br>CancellationToken&nbsp;token&nbsp;=&nbsp;cancelTokenSource.Token:<br><br>Task&nbsp;task&nbsp;=&nbsp;new&nbsp;Task(()&nbsp;=&gt;<br>{<br>&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;&nbsp;10;&nbsp;i++)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(token.IsCancellationRequested)&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Operațiunea&nbsp;a&nbsp;fost&nbsp;întreruptă"):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return:&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Pătratul&nbsp;numărului&nbsp;{i}&nbsp;este&nbsp;{i&nbsp;*&nbsp;i}"):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread.Sleep(200):<br>&nbsp;&nbsp;&nbsp;}<br>},&nbsp;token):<br>task.Start():<br><br>Thread.Sleep(1000):<br>cancelTokenSource.Cancel():<br>Thread.Sleep(1000):<br>Console.WriteLine($"Task&nbsp;Status:&nbsp;{task.Status}"):<br>cancelTokenSource.Dispose():</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, sarcina task calculează și afișează pe consolă pătratele numerelor de la 1 la 9. Pentru a anula sarcina, trebuie să creăm și să folosim un token. La început se creează un obiect CancellationTokenSource:</p>
+     <div class="code-inline">
+      <pre><code>CancellationTokenSource&nbsp;cancelTokenSource&nbsp;=&nbsp;new&nbsp;CancellationTokenSource():</code></pre>
+     </div>
+     <p class="paragraph">Apoi obținem token-ul:</p>
+     <div class="code-inline">
+      <pre><code>CancellationToken&nbsp;token&nbsp;=&nbsp;cancelTokenSource.Token:</code></pre>
+     </div>
+     <p class="paragraph">Pentru a anula operațiunea, este necesar să apelăm metoda Cancel() a obiectului CancellationTokenSource:</p>
+     <div class="code-inline">
+      <pre><code>cancelTokenSource.Cancel():</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, anularea sarcinii este declanșată după o secundă pentru ca sarcina să efectueze câteva acțiuni.</p>
+     <p class="paragraph">În metoda sarcinii, în ciclu, putem intercepta semnalul de anulare verificând proprietatea token.IsCancellationRequested:</p>
+     <div class="code-inline">
+      <pre><code>if&nbsp;(token.IsCancellationRequested)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Operațiunea&nbsp;a&nbsp;fost&nbsp;întreruptă"):<br>&nbsp;&nbsp;&nbsp;return:<br>}</code></pre>
+     </div>
+     <p class="paragraph">Dacă a fost apelată metoda cancelTokenSource.Cancel(), expresia token.IsCancellationRequested va întoarce true.</p>
+     <p class="paragraph">După finalizarea sarcinii, verificăm starea acesteia:</p>
+     <div class="code-inline">
+      <pre><code>Console.WriteLine($"Task&nbsp;Status:&nbsp;{task.Status}"):</code></pre>
+     </div>
+     <p class="paragraph">Deoarece sarcina a fost finalizată cu succes, aceasta va avea statusul RanToCompletion.</p>
+     <p class="paragraph">La sfârșit, apelăm metoda Dispose a obiectului CancellationTokenSource:</p>
+     <div class="code-inline">
+      <pre><code>cancelTokenSource.Dispose():</code></pre>
+     </div>
+     <p class="paragraph">Ieșirea consolei programului:</p>
+     <div class="code-inline">
+      <pre><code>Pătratul&nbsp;numărului&nbsp;1&nbsp;este<br>Pătratul&nbsp;numărului&nbsp;2&nbsp;este&nbsp;4:<br>Pătratul&nbsp;numărului&nbsp;3&nbsp;este&nbsp;9:<br>Pătratul&nbsp;numărului&nbsp;4&nbsp;este&nbsp;16:<br>Pătratul&nbsp;numărului&nbsp;5&nbsp;este&nbsp;25:<br>Operațiunea&nbsp;a&nbsp;fost&nbsp;întreruptă:<br>Task&nbsp;Status:&nbsp;RanToCompletion:<br><br></code></pre>
+     </div>
+     <h2 class="subtitle">Anularea sarcinii cu generarea unei excepții</h2>
+     <p class="paragraph">Al doilea mod de a finaliza o sarcină este generarea unei excepții OperationCanceledException. Pentru aceasta se folosește metoda ThrowIfCancellationRequested() a obiectului CancellationToken:</p>
+     <div class="code-inline">
+      <pre><code>CancellationTokenSource&nbsp;cancelTokenSource&nbsp;=&nbsp;new&nbsp;CancellationTokenSource():<br>CancellationToken&nbsp;token&nbsp;=&nbsp;cancelTokenSource.Token:<br><br>Task&nbsp;task&nbsp;=&nbsp;new&nbsp;Task(()&nbsp;=&gt;<br>{<br>&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;&nbsp;10;&nbsp;i++)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(token.IsCancellationRequested)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;token.ThrowIfCancellationRequested():<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Pătratul&nbsp;numărului&nbsp;{i}&nbsp;este&nbsp;{i&nbsp;*&nbsp;i}"):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread.Sleep(200):<br>&nbsp;&nbsp;&nbsp;}<br>},&nbsp;token):<br>try<br>{<br>&nbsp;&nbsp;&nbsp;task.Start():<br>&nbsp;&nbsp;&nbsp;Thread.Sleep(1000):<br>&nbsp;&nbsp;&nbsp;cancelTokenSource.Cancel():<br><br>&nbsp;&nbsp;&nbsp;task.Wait():<br>}<br>catch&nbsp;(AggregateException&nbsp;ae)<br>{<br>&nbsp;&nbsp;&nbsp;foreach&nbsp;(Exception&nbsp;e&nbsp;in&nbsp;ae.InnerExceptions)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(e&nbsp;is&nbsp;TaskCanceledException)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Operațiunea&nbsp;a&nbsp;fost&nbsp;întreruptă"):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(e.Message):<br>&nbsp;&nbsp;&nbsp;}<br>}<br>finally<br>{<br>&nbsp;&nbsp;&nbsp;cancelTokenSource.Dispose():<br>}<br><br>Console.WriteLine($"Task&nbsp;Status:&nbsp;{task.Status}"):</code></pre>
+     </div>
+     <p class="paragraph">Din nou, verificăm valoarea proprietății IsCancellationRequested și, dacă este true, generăm o excepție:</p>
+     <div class="code-inline">
+      <pre><code>if&nbsp;(token.IsCancellationRequested)<br>&nbsp;&nbsp;&nbsp;token.ThrowIfCancellationRequested():</code></pre>
+     </div>
+     <p class="paragraph">Pentru a gestiona excepția, plasăm întregul cod de lucru cu sarcina în construcția try..catch și, de asemenea, apelăm metoda cancelTokenSource.Cancel() pentru a trimite mesajul de anulare a sarcinii.</p>
+     <p class="paragraph">Este de remarcat faptul că excepția generată va fi ascunsă în obiectul AggregateException, care reprezintă de fapt un set de excepții. Dacă motivul excepției constă în anularea sarcinii, putem găsi în acest set de excepții o excepție de tipul TaskCanceledException.</p>
+     <div class="code-inline">
+      <pre><code>catch&nbsp;(AggregateException&nbsp;ae)<br>{<br>&nbsp;&nbsp;&nbsp;foreach&nbsp;(Exception&nbsp;e&nbsp;in&nbsp;ae.InnerExceptions)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(e&nbsp;is&nbsp;TaskCanceledException)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Operațiunea&nbsp;a&nbsp;fost&nbsp;întreruptă"):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(e.Message):<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Clasa TaskCanceledException este derivată din OperationCanceledException. Excepția de tip TaskCanceledException apare dacă sarcinii i se setează statusul Canceled.</p>
+     <p class="paragraph">Ieșirea consolei programului:</p>
+     <div class="code-inline">
+      <pre><code>Pătratul&nbsp;numărului&nbsp;1&nbsp;este<br>Pătratul&nbsp;numărului&nbsp;2&nbsp;este&nbsp;4<br>Pătratul&nbsp;numărului&nbsp;3&nbsp;este&nbsp;9<br>Pătratul&nbsp;numărului&nbsp;4&nbsp;este&nbsp;16<br>Pătratul&nbsp;numărului&nbsp;5&nbsp;este&nbsp;25<br>Operațiunea&nbsp;a&nbsp;fost&nbsp;întreruptă<br>Task&nbsp;Status:&nbsp;Canceled:</code></pre>
+     </div>
+     <p class="paragraph">Este de remarcat faptul că excepția apare numai atunci când oprim firul curent și așteptăm finalizarea sarcinii folosind metodele Wait sau WaitAll. Dacă aceste metode nu sunt utilizate pentru a aștepta sarcina, sarcinii i se setează pur și simplu starea Canceled. De exemplu, în următorul caz, excepția nu va apărea:</p>
+     <p class="paragraph">CancellationTokenSource cancelTokenSource = new CancellationTokenSource(): CancellationToken token = cancelTokenSource.Token:</p>
+     <div class="code-inline">
+      <pre><code>Task&nbsp;task&nbsp;=&nbsp;new&nbsp;Task(()&nbsp;=&gt;<br>{<br>&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;&nbsp;10;&nbsp;i++)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(token.IsCancellationRequested)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;token.ThrowIfCancellationRequested():<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Pătratul&nbsp;numărului&nbsp;{i}&nbsp;este&nbsp;{i&nbsp;*&nbsp;i}"):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread.Sleep(200):<br>&nbsp;&nbsp;&nbsp;}<br>},&nbsp;token):<br>try<br>{<br>&nbsp;&nbsp;&nbsp;task.Start():<br>&nbsp;&nbsp;&nbsp;Thread.Sleep(1000):<br>&nbsp;&nbsp;&nbsp;cancelTokenSource.Cancel():<br><br>&nbsp;&nbsp;&nbsp;Thread.Sleep(1000):<br>}<br>catch&nbsp;(AggregateException&nbsp;ae)<br>{<br>&nbsp;&nbsp;&nbsp;foreach&nbsp;(Exception&nbsp;e&nbsp;in&nbsp;ae.InnerExceptions)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(e&nbsp;is&nbsp;TaskCanceledException)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Operațiunea&nbsp;a&nbsp;fost&nbsp;întreruptă"):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(e.Message):<br>&nbsp;&nbsp;&nbsp;}<br>}<br>finally<br>{<br>&nbsp;&nbsp;&nbsp;cancelTokenSource.Dispose():<br>}<br><br>Console.WriteLine($"Task&nbsp;Status:&nbsp;{task.Status}"):</code></pre>
+     </div>
+     <p class="paragraph">Ieșirea consolei programului:</p>
+     <div class="code-inline">
+      <pre><code>Pătratul&nbsp;numărului&nbsp;1&nbsp;este<br>Pătratul&nbsp;numărului&nbsp;2&nbsp;este&nbsp;4<br>Pătratul&nbsp;numărului&nbsp;3&nbsp;este&nbsp;9<br>Pătratul&nbsp;numărului&nbsp;4&nbsp;este&nbsp;16<br>Pătratul&nbsp;numărului&nbsp;5&nbsp;este&nbsp;25<br>Task&nbsp;Status:&nbsp;Canceled:</code></pre>
+     </div>
+     <h2 class="subtitle">Înregistrarea unui handler de anulare a sarcinii</h2>
+     <p class="paragraph">Mai sus, pentru a verifica semnalul de anulare, s-a folosit proprietatea IsCancellationRequested. Dar există și o altă metodă de a afla că a fost trimis un semnal de anulare a sarcinii. Metoda Register() permite înregistrarea unui handler de anulare a sarcinii sub forma unui delegat Action:</p>
+     <div class="code-inline">
+      <pre><code>CancellationTokenSource&nbsp;cancelTokenSource&nbsp;=&nbsp;new&nbsp;CancellationTokenSource():<br>CancellationToken&nbsp;token&nbsp;=&nbsp;cancelTokenSource.Token:<br><br>Task&nbsp;task&nbsp;=&nbsp;new&nbsp;Task(()&nbsp;=&gt;<br>{<br>&nbsp;&nbsp;&nbsp;int&nbsp;i&nbsp;=<br>&nbsp;&nbsp;&nbsp;token.Register(()&nbsp;=&gt;<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Operațiunea&nbsp;a&nbsp;fost&nbsp;întreruptă"):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i&nbsp;=&nbsp;10:<br>&nbsp;&nbsp;&nbsp;}):<br>&nbsp;&nbsp;&nbsp;for&nbsp;(;&nbsp;i&nbsp;&lt;&nbsp;10;&nbsp;i++)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Pătratul&nbsp;numărului&nbsp;{i}&nbsp;este&nbsp;{i&nbsp;*&nbsp;i}"):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread.Sleep(400):<br>&nbsp;&nbsp;&nbsp;}<br>},&nbsp;token):<br>task.Start():<br><br>Thread.Sleep(1000):<br>cancelTokenSource.Cancel():<br>Thread.Sleep(1000):<br>Console.WriteLine($"Task&nbsp;Status:&nbsp;{task.Status}"):<br>cancelTokenSource.Dispose():</code></pre>
+     </div>
+     <p class="paragraph">Aici handler-ul de anulare este reprezentat de o expresie lambda:</p>
+     <div class="code-inline">
+      <pre><code>token.Register(()&nbsp;=&gt;<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Operațiunea&nbsp;a&nbsp;fost&nbsp;întreruptă"):<br>&nbsp;&nbsp;&nbsp;i&nbsp;=&nbsp;10:<br>}):</code></pre>
+     </div>
+     <p class="paragraph">Deoarece acțiunea sarcinii este reprezentată de un ciclu care se execută la valoarea i mai mică de 10, setarea acestei variabile în handler-ul de anulare va duce la ieșirea din ciclu și, în consecință, la finalizarea sarcinii.</p>
+     <h2 class="subtitle">Transmiterea token-ului într-o metodă externă</h2>
+     <p class="paragraph">Dacă operațiunea care se efectuează în sarcină reprezintă o metodă externă, îi putem transmite token-ul ca unul dintre parametri:</p>
+     <div class="code-inline">
+      <pre><code>CancellationTokenSource&nbsp;cancelTokenSource&nbsp;=&nbsp;new&nbsp;CancellationTokenSource():<br>CancellationToken&nbsp;token&nbsp;=&nbsp;cancelTokenSource.Token:<br><br>Task&nbsp;task&nbsp;=&nbsp;new&nbsp;Task(()&nbsp;=&gt;PrintSquares(token),&nbsp;token):<br>try<br>{<br>&nbsp;&nbsp;&nbsp;task.Start():<br>&nbsp;&nbsp;&nbsp;Thread.Sleep(1000):<br>&nbsp;&nbsp;&nbsp;cancelTokenSource.Cancel():<br><br>&nbsp;&nbsp;&nbsp;task.Wait():<br>}<br>catch&nbsp;(AggregateException&nbsp;ae)<br>{<br>&nbsp;&nbsp;&nbsp;foreach&nbsp;(Exception&nbsp;e&nbsp;in&nbsp;ae.InnerExceptions)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(e&nbsp;is&nbsp;TaskCanceledException)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Operațiunea&nbsp;a&nbsp;fost&nbsp;întreruptă"):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(e.Message):<br>&nbsp;&nbsp;&nbsp;}<br>}<br>finally<br>{<br>&nbsp;&nbsp;&nbsp;cancelTokenSource.Dispose():<br>}<br><br>Console.WriteLine($"Task&nbsp;Status:&nbsp;{task.Status}"):<br><br>void&nbsp;PrintSquares(CancellationToken&nbsp;token)<br>{<br>&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;&nbsp;10;&nbsp;i++)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(token.IsCancellationRequested)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;token.ThrowIfCancellationRequested():<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Pătratul&nbsp;numărului&nbsp;{i}&nbsp;este&nbsp;{i&nbsp;*&nbsp;i}"):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread.Sleep(200):<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Anularea operațiunilor paralele Parallel</h2>
+     <p class="paragraph">Pentru a anula executarea operațiunilor paralele, lansate cu ajutorul metodelor Parallel.For() și Parallel.ForEach(), se pot folosi versiuni supraîncărcate ale acestor metode, care acceptă ca parametru un obiect ParallelOptions. Acest obiect permite setarea token-ului:</p>
+     <div class="code-inline">
+      <pre><code>CancellationTokenSource&nbsp;cancelTokenSource&nbsp;=&nbsp;new&nbsp;CancellationTokenSource():<br>CancellationToken&nbsp;token&nbsp;=&nbsp;cancelTokenSource.Token:<br><br>new&nbsp;Task(()&nbsp;=&gt;<br>{<br>&nbsp;&nbsp;&nbsp;Thread.Sleep(400):<br>&nbsp;&nbsp;&nbsp;cancelTokenSource.Cancel():<br>}).Start():<br><br>try<br>{<br>&nbsp;&nbsp;&nbsp;Parallel.ForEach&lt;int&gt;(new&nbsp;List&lt;int&gt;()&nbsp;{&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5},<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;ParallelOptions&nbsp;{&nbsp;CancellationToken&nbsp;=&nbsp;token&nbsp;},&nbsp;Square):<br>&nbsp;&nbsp;&nbsp;//&nbsp;sau&nbsp;așa<br>&nbsp;&nbsp;&nbsp;//Parallel.For(1,&nbsp;5,&nbsp;new&nbsp;ParallelOptions&nbsp;{&nbsp;CancellationToken&nbsp;=&nbsp;token&nbsp;},&nbsp;Square):<br>}<br>catch&nbsp;(OperationCanceledException)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine("Operațiunea&nbsp;a&nbsp;fost&nbsp;întreruptă"):<br>}<br>finally<br>{<br>&nbsp;&nbsp;&nbsp;cancelTokenSource.Dispose():<br>}<br><br>void&nbsp;Square(int&nbsp;n)<br>{<br>&nbsp;&nbsp;&nbsp;Thread.Sleep(3000):<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Pătratul&nbsp;numărului&nbsp;{n}&nbsp;este&nbsp;{n&nbsp;*&nbsp;n}"):<br>}</code></pre>
+     </div>
+     <p class="paragraph">În sarcina paralelă lansată, după 400 de milisecunde, are loc apelarea metodei cancelTokenSource.Cancel(), rezultând că programul aruncă excepția OperationCanceledException, iar executarea operațiunilor paralele se oprește.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

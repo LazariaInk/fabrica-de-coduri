@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='8.Tratarea erorilor', activeLesson='4.Procesarea erorilor si stiva apelurilor de functii'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Procesarea erorilor și stiva apelurilor de funcții</h1>
+     <p class="paragraph">Dacă în interiorul unei funcții apare o eroare care nu este tratată, interpretorul JavaScript iese din această funcție și revine la codul extern în căutarea unui gestionar de erori. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;A(){<br>&nbsp;&nbsp;&nbsp;console.log("func&nbsp;A&nbsp;starts");<br>&nbsp;&nbsp;&nbsp;callSomeFunc();<br>&nbsp;&nbsp;&nbsp;console.log("func&nbsp;A&nbsp;ends");<br>}<br>console.log("program&nbsp;ends");</code></pre>
+     </div>
+     <p class="paragraph">Aici, funcția A apelează o funcție nedefinită callSomeFunc(). Prin urmare, la executarea programului, când funcția A este apelată, aceasta este întreruptă. Interpretorul iese în codul extern în căutarea unui gestionar de erori.</p>
+     <p class="paragraph">Totuși, în codul extern în jurul apelului funcției A nu există nicio structură try..catch definită, așa că întreaga execuție a programului se va încheia în mod necorespunzător. Ieșirea la consolă:</p>
+     <div class="code-inline">
+      <pre><code>func&nbsp;A&nbsp;starts<br>Uncaught&nbsp;ReferenceError:&nbsp;callSomeFunc&nbsp;is&nbsp;not&nbsp;defined<br>&nbsp;&nbsp;&nbsp;&nbsp;at&nbsp;A&nbsp;(index.html:11:2)<br>&nbsp;&nbsp;&nbsp;&nbsp;at&nbsp;index.html:30:6</code></pre>
+     </div>
+     <p class="paragraph">Aceeași situație se aplică și pentru apelurile de funcții înglobate. Dacă într-o funcție înglobată apare o eroare și nu este tratată, interpretorul iese în contextul extern - funcția exterioară.</p>
+     <p class="paragraph">Dacă eroarea nu este tratată nici în acea funcție, interpretorul iese din nou în contextul extern, până găsește un gestionar de erori. Dacă eroarea nu este tratată în nicio funcție sau în codul global, programul se încheie în mod necorespunzător.</p>
+     <p class="paragraph">De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;A(){<br>&nbsp;&nbsp;&nbsp;console.log("func&nbsp;A&nbsp;starts");<br>&nbsp;&nbsp;&nbsp;callSomeFunc();<br>&nbsp;&nbsp;&nbsp;console.log("func&nbsp;A&nbsp;ends");<br>}<br>function&nbsp;B(){<br>&nbsp;&nbsp;&nbsp;console.log("func&nbsp;B&nbsp;starts");<br>&nbsp;&nbsp;&nbsp;A();<br>&nbsp;&nbsp;&nbsp;console.log("func&nbsp;B&nbsp;ends");<br>}<br>function&nbsp;C(){<br>&nbsp;&nbsp;&nbsp;console.log("func&nbsp;C&nbsp;starts");<br>&nbsp;&nbsp;&nbsp;B();<br>&nbsp;&nbsp;&nbsp;console.log("func&nbsp;C&nbsp;ends");<br>}<br>C();<br>console.log("program&nbsp;ends");</code></pre>
+     </div>
+     <p class="paragraph">Aici, funcția C este apelată, care apoi apelează funcția B, care la rândul său apelează funcția A, iar aceasta din urmă apelează o funcție inexistentă callSomeFunc. Ca rezultat, în funcția A apare o eroare.</p>
+     <p class="paragraph">Deoarece funcția A nu tratează eroarea, interpretorul caută în mod secvențial un gestionar de erori în funcția B, apoi în funcția C și, în final, în contextul global. Totuși, deoarece niciunde eroarea nu este tratată, executarea programului se va încheia după apariția erorii:</p>
+     <div class="code-inline">
+      <pre><code>func&nbsp;C&nbsp;starts<br>func&nbsp;B&nbsp;starts<br>func&nbsp;A&nbsp;starts<br>Uncaught&nbsp;ReferenceError:&nbsp;callSomeFunc&nbsp;is&nbsp;not&nbsp;defined<br>&nbsp;&nbsp;&nbsp;&nbsp;at&nbsp;A&nbsp;(index.html:11:2)<br>&nbsp;&nbsp;&nbsp;&nbsp;at&nbsp;B&nbsp;(index.html:16:2)<br>&nbsp;&nbsp;&nbsp;&nbsp;at&nbsp;C&nbsp;(index.html:27:2)<br>&nbsp;&nbsp;&nbsp;&nbsp;at&nbsp;index.html:31:1</code></pre>
+     </div>
+     <p class="paragraph">Acum vom defini un gestionar de erori în una dintre funcții, de exemplu, în funcția C:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;A(){<br>&nbsp;&nbsp;&nbsp;console.log("func&nbsp;A&nbsp;starts");<br>&nbsp;&nbsp;&nbsp;callSomeFunc();<br>&nbsp;&nbsp;&nbsp;console.log("func&nbsp;A&nbsp;ends");<br>}<br>function&nbsp;B(){<br>&nbsp;&nbsp;&nbsp;console.log("func&nbsp;B&nbsp;starts");<br>&nbsp;&nbsp;&nbsp;A();<br>&nbsp;&nbsp;&nbsp;console.log("func&nbsp;B&nbsp;ends");<br>}<br>function&nbsp;C(){<br>&nbsp;&nbsp;&nbsp;console.log("func&nbsp;C&nbsp;starts");<br>&nbsp;&nbsp;&nbsp;try{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B();<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;catch{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Error&nbsp;occured");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;console.log("func&nbsp;C&nbsp;ends");<br>}<br><br>C();<br>console.log("program&nbsp;ends");</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, când apare o eroare în funcția A, interpretorul caută un gestionar de erori în acea funcție. Fiindcă funcția A nu tratează eroarea, interpretorul se uită în funcția B și apoi în funcția C. În funcția C se găsește un gestionar de erori, astfel că programul continuă să ruleze după tratarea erorii.</p>
+     <div class="code-inline">
+      <pre><code>func&nbsp;C&nbsp;starts<br>func&nbsp;B&nbsp;starts<br>func&nbsp;A&nbsp;starts<br>Error&nbsp;occured<br>func&nbsp;C&nbsp;ends<br>program&nbsp;ends</code></pre>
+     </div>
+     <p class="paragraph">În acest context, deoarece funcțiile A și B nu tratează eroarea, ele nu mai continuă execuția.</p>
+     <h2 class="subtitle">Propagarea erorii în sus pe stiva apelurilor de funcții</h2>
+     <p class="paragraph">Uneori, erorile sunt tratate într-unul din apelurile înglobate ale altor funcții. De exemplu, luăm următoarea situație:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;clasă&nbsp;pentru&nbsp;o&nbsp;bază&nbsp;de&nbsp;date&nbsp;condițională<br>class&nbsp;Database{<br>&nbsp;&nbsp;&nbsp;constructor(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.data&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"];<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;//&nbsp;obținerea&nbsp;datelor<br>&nbsp;&nbsp;&nbsp;getItem(index){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(index&nbsp;&gt;&nbsp;0&nbsp;&amp;&amp;&nbsp;index&nbsp;&lt;&nbsp;this.data.length)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;this.data[index];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;indexul&nbsp;este&nbsp;incorect&nbsp;-&nbsp;generăm&nbsp;o&nbsp;eroare<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;RangeError("Index&nbsp;invalid");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;//&nbsp;deschiderea&nbsp;bazei&nbsp;de&nbsp;date<br>&nbsp;&nbsp;&nbsp;open(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Baza&nbsp;de&nbsp;date&nbsp;a&nbsp;fost&nbsp;deschisă");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;//&nbsp;închiderea&nbsp;bazei&nbsp;de&nbsp;date<br>&nbsp;&nbsp;&nbsp;close(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Baza&nbsp;de&nbsp;date&nbsp;a&nbsp;fost&nbsp;închisă");<br>&nbsp;&nbsp;&nbsp;}<br>}<br>//&nbsp;funcție&nbsp;de&nbsp;înveliș&nbsp;pentru&nbsp;obținerea&nbsp;unui&nbsp;obiect&nbsp;din&nbsp;baza&nbsp;de&nbsp;date&nbsp;pe&nbsp;baza&nbsp;indexului<br>function&nbsp;get(index)&nbsp;{<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;db&nbsp;=&nbsp;new&nbsp;Database();<br>&nbsp;&nbsp;&nbsp;db.open();&nbsp;&nbsp;//&nbsp;deschidem&nbsp;condiționat&nbsp;baza&nbsp;de&nbsp;date<br>&nbsp;&nbsp;&nbsp;try&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;db.getItem(index);&nbsp;&nbsp;&nbsp;//&nbsp;returnăm&nbsp;elementul&nbsp;obținut<br>&nbsp;&nbsp;&nbsp;}&nbsp;catch(err)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.error(err);&nbsp;//&nbsp;dacă&nbsp;apare&nbsp;o&nbsp;eroare,&nbsp;o&nbsp;gestionăm<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;db.close();&nbsp;//&nbsp;închidem&nbsp;condiționat&nbsp;baza&nbsp;de&nbsp;date<br>}<br>//&nbsp;afișarea&nbsp;rezultatului<br>function&nbsp;printResult(){<br>&nbsp;&nbsp;&nbsp;const&nbsp;item&nbsp;=&nbsp;get(5);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;încercăm&nbsp;să&nbsp;obținem&nbsp;elementul&nbsp;cu&nbsp;indexul&nbsp;5<br>&nbsp;&nbsp;&nbsp;console.log("Obținut&nbsp;din&nbsp;baza&nbsp;de&nbsp;date:",&nbsp;item);&nbsp;//&nbsp;afișăm&nbsp;elementul&nbsp;obținut&nbsp;pe&nbsp;consolă<br>}<br>printResult();</code></pre>
+     </div>
+     <p class="paragraph">Aici este definită o clasă de bază a unei baze de date fictive numită Database. Pentru a interacționa cu datele, sunt definite trei funcții. Funcțiile simulate de deschidere și închidere a bazei de date - funcțiile open și close, respectiv - și funcția getItem, care returnează un element specificat prin index din array-ul de date.</p>
+     <p class="paragraph">Totuși, dacă indexul furnizat nu este corect - mai mic decât 0 sau mai mare decât indexul permis - atunci se generează o eroare de tip RangeError.</p>
+     <p class="paragraph">Mai trebuie menționat că aceasta nu este singura abordare pentru implementarea unui astfel de funcțional. Uneori, se folosește o altă strategie, în care, în cazul unui index sau ID incorect, funcția returnează null, ceea ce în anumite situații poate fi mai preferabil.</p>
+     <p class="paragraph">Însă, în acest caz, pentru scopuri demonstrative, ne oprim la generarea unei excepții în cazul unui index incorect.</p>
+     <p class="paragraph">Convenim că, pentru a interacționa cu baza de date, trebuie să o "deschidem" inițial cu ajutorul metodei open, iar după finalizarea lucrului cu ea, să o "închidem" cu ajutorul metodei close - o abordare destul de comună în lucrul cu bazele de date.</p>
+     <p class="paragraph">Totuși, pentru a abstractiza de toate aceste detalii, definim o funcție suplimentară numită get, care primește un ID și accesează baza de date pentru a obține elementul corespunzător ID-ului.</p>
+     <p class="paragraph">Și deoarece la apelul metodei getItem poate apărea o eroare, aceasta este gestionată într-o structură try..catch.</p>
+     <div class="code-inline">
+      <pre><code>try&nbsp;{<br>&nbsp;&nbsp;&nbsp;return&nbsp;db.getItem(index);&nbsp;&nbsp;&nbsp;//&nbsp;returnăm&nbsp;elementul&nbsp;obținut<br>}&nbsp;catch(err)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.error(err);&nbsp;//&nbsp;dacă&nbsp;apare&nbsp;o&nbsp;eroare,&nbsp;o&nbsp;gestionăm<br>}</code></pre>
+     </div>
+     <p class="paragraph">Apoi, această funcție este apelată din altă funcție numită printResult, care afișează rezultatul obținut:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;printResult(){<br>&nbsp;&nbsp;&nbsp;const&nbsp;item&nbsp;=&nbsp;get(5);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;încercăm&nbsp;să&nbsp;obținem&nbsp;elementul&nbsp;cu&nbsp;indexul&nbsp;5<br>&nbsp;&nbsp;&nbsp;console.log("Obținut&nbsp;din&nbsp;baza&nbsp;de&nbsp;date:",&nbsp;item);&nbsp;//&nbsp;afișăm&nbsp;elementul&nbsp;obținut&nbsp;pe&nbsp;consolă<br>}</code></pre>
+     </div>
+     <p class="paragraph">Dacă privim la ieșirea programului:</p>
+     <div class="code-inline">
+      <pre><code>Baza&nbsp;de&nbsp;date&nbsp;a&nbsp;fost&nbsp;deschisă<br>RangeError:&nbsp;Index&nbsp;invalid<br>&nbsp;&nbsp;&nbsp;&nbsp;la&nbsp;Database.getItem&nbsp;(index.html:19:19)<br>&nbsp;&nbsp;&nbsp;&nbsp;la&nbsp;get&nbsp;(index.html:36:19)<br>&nbsp;&nbsp;&nbsp;&nbsp;la&nbsp;printResult&nbsp;(index.html:44:18)<br>&nbsp;&nbsp;&nbsp;&nbsp;la&nbsp;index.html:47:1<br>get&nbsp;@&nbsp;index.html:38<br>printResult&nbsp;@&nbsp;index.html:44<br>(anonymous)&nbsp;@&nbsp;index.html:47<br><br>Baza&nbsp;de&nbsp;date&nbsp;a&nbsp;fost&nbsp;închisă<br>Obținut&nbsp;din&nbsp;baza&nbsp;de&nbsp;date:&nbsp;undefined</code></pre>
+     </div>
+     <p class="paragraph">Dacă observăm că atunci când se furnizează un index incorect, pe de o parte, eroarea este gestionată, dar pe de altă parte, în funcția printResult obținem un rezultat nedefinit (valoare undefined), iar noi nu avem idee despre ce s-a întâmplat.</p>
+     <p class="paragraph">Această informație poate fi obținută doar din ieșirea consolei în timpul execuției. Cu toate acestea, funcția get nu trebuie neapărat să afișeze eroarea în consolă; eroarea poate fi gestionată în alt mod.</p>
+     <p class="paragraph">Prin urmare, există nevoia de a transmite informații despre eroare în sus pe stiva de apeluri a funcțiilor (până la funcția printResult).</p>
+     <p class="paragraph">Pentru a realiza acest lucru, vom modifica codul pentru a propaga eroarea în sus pe stiva de apeluri a funcțiilor:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Database{<br>&nbsp;&nbsp;&nbsp;constructor(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.data&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob"];<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;getItem(index){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(index&nbsp;&gt;&nbsp;0&nbsp;&amp;&amp;&nbsp;index&nbsp;&lt;&nbsp;this.data.length)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;this.data[index];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;RangeError("Index&nbsp;invalid");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;open(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Baza&nbsp;de&nbsp;date&nbsp;a&nbsp;fost&nbsp;deschisă");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;close(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Baza&nbsp;de&nbsp;date&nbsp;a&nbsp;fost&nbsp;închisă");<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>function&nbsp;get(index)&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;db&nbsp;=&nbsp;new&nbsp;Database();<br>&nbsp;&nbsp;&nbsp;db.open();<br>&nbsp;&nbsp;&nbsp;try&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;db.getItem(index);<br>&nbsp;&nbsp;&nbsp;}&nbsp;catch(err)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.error(err);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;Error(err.message);&nbsp;&nbsp;&nbsp;//&nbsp;generăm&nbsp;din&nbsp;nou&nbsp;aceeași&nbsp;eroare<br>&nbsp;&nbsp;&nbsp;}&nbsp;finally&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;db.close();<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>function&nbsp;printResult(){<br>&nbsp;&nbsp;&nbsp;try&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;item&nbsp;=&nbsp;get(5);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Obținut&nbsp;din&nbsp;baza&nbsp;de&nbsp;date:",&nbsp;item);<br>&nbsp;&nbsp;&nbsp;}&nbsp;catch(err)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(err);&nbsp;&nbsp;&nbsp;//&nbsp;gestionăm&nbsp;eroarea&nbsp;din&nbsp;funcția&nbsp;get<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>printResult();</code></pre>
+     </div>
+     <p class="paragraph">În funcția get, după gestionarea erorii, se generează din nou o eroare folosind operatorul throw:</p>
+     <div class="code-inline">
+      <pre><code>try&nbsp;{<br>&nbsp;&nbsp;&nbsp;return&nbsp;db.getItem(index);<br>}&nbsp;catch(err)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.error(err);<br>&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;Error(err.message);<br>}<br>finally{<br>&nbsp;&nbsp;&nbsp;db.close();<br>}</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, merită de menționat că apelul db.close(), care în mod condiționat închide baza de date, este plasat în blocul finally. Acest lucru garantează că, chiar dacă se generează o eroare, operația respectivă va fi totuși executată.</p>
+     <p class="paragraph">Astfel, dacă a avut loc o eroare la apelul db.getItem, atunci când apelăm funcția get, va avea loc, de asemenea, o eroare, astfel încât putem gestiona această eroare în funcția printResult:</p>
+     <div class="code-inline">
+      <pre><code>function&nbsp;printResult(){<br>&nbsp;&nbsp;&nbsp;try&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;item&nbsp;=&nbsp;get(5);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Obținut&nbsp;din&nbsp;baza&nbsp;de&nbsp;date:",&nbsp;item);<br>&nbsp;&nbsp;&nbsp;}&nbsp;catch(err)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(err);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

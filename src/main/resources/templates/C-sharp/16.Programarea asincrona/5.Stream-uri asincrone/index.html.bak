@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='16.Programarea asincrona', activeLesson='5.Stream-uri asincrone'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Stream-uri asincrone</h1>
+     <p class="paragraph">Începând cu versiunea C# 8.0, în C# au fost adăugate stream-urile asincrone, care simplifică lucrul cu fluxurile de date în mod asincron. Deși asincronitatea în C# există de mult timp, metodele asincrone permiteau până acum obținerea unui singur obiect, atunci când operația asincronă era pregătită să furnizeze rezultatul.</p>
+     <p class="paragraph">Pentru returnarea mai multor valori în C# pot fi folosiți iteratori, dar aceștia au o natură sincronă, blochează firul apelant și nu pot fi utilizați în context asincron. Stream-urile asincrone evită această problemă, permițând obținerea mai multor valori și returnarea acestora pe măsură ce sunt disponibile în mod asincron.</p>
+     <p class="paragraph">În esență, un stream asincron reprezintă o metodă care are trei caracteristici:</p>
+     <ul class="enumeration">
+      <li>Metoda are modificatorul async</li>
+      <li>Metoda returnează un obiect IAsyncEnumerable&lt;T&gt;. Interfața IAsyncEnumerable definește metoda GetAsyncEnumerator, care returnează IAsyncEnumerator:</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>public&nbsp;interface&nbsp;IAsyncEnumerable&lt;out&nbsp;T&gt;<br>{<br>&nbsp;&nbsp;&nbsp;IAsyncEnumerator&lt;T&gt;&nbsp;GetAsyncEnumerator(CancellationToken&nbsp;cancellationToken&nbsp;=&nbsp;default);<br>}<br><br>public&nbsp;interface&nbsp;IAsyncEnumerator&lt;out&nbsp;T&gt;&nbsp;:&nbsp;IAsyncDisposable<br>{<br>&nbsp;&nbsp;&nbsp;T&nbsp;Current&nbsp;{&nbsp;get;&nbsp;}<br>&nbsp;&nbsp;&nbsp;ValueTask&lt;bool&gt;&nbsp;MoveNextAsync();<br>}<br><br>public&nbsp;interface&nbsp;IAsyncDisposable<br>{<br>&nbsp;&nbsp;&nbsp;ValueTask&nbsp;DisposeAsync();<br>}</code></pre>
+     </div>
+     <ul class="enumeration">
+      <li>Metoda conține expresii yield return pentru obținerea secvențială a elementelor din stream-ul asincron</li>
+     </ul>
+     <p class="paragraph">De fapt, stream-ul asincron combină asincronitatea și iteratorii. Să analizăm un exemplu simplu:</p>
+     <div class="code-inline">
+      <pre><code>await&nbsp;foreach&nbsp;(var&nbsp;number&nbsp;in&nbsp;GetNumbersAsync())<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(number);<br>}<br><br>async&nbsp;IAsyncEnumerable&lt;int&gt;&nbsp;GetNumbersAsync()<br>{<br>&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;10;&nbsp;i++)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;await&nbsp;Task.Delay(100);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yield&nbsp;return&nbsp;i;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Metoda GetNumbersAsync() reprezintă de fapt un stream asincron. Această metodă este asincronă. Tipul său returnat este IAsyncEnumerable&lt;int&gt;. Metoda returnează cu ajutorul yield return câte un număr la fiecare 100 de milisecunde. Astfel, metoda trebuie să returneze 10 numere de la 0 la 9 cu o pauză de 100 de milisecunde între ele.</p>
+     <p class="paragraph">Pentru a obține date din stream în metoda Main, se folosește ciclul foreach:</p>
+     <div class="code-inline">
+      <pre><code>await&nbsp;foreach&nbsp;(var&nbsp;number&nbsp;in&nbsp;GetNumbersAsync())</code></pre>
+     </div>
+     <p class="paragraph">Este important de menționat că ciclul este precedat de operatorul await. Astfel, de fiecare dată când stream-ul asincron va returna un nou număr, ciclul îl va prelua și îl va afișa pe consolă.</p>
+     <p class="paragraph">Unde pot fi utilizate stream-urile asincrone? Stream-urile asincrone pot fi utilizate pentru obținerea datelor dintr-un depozit extern. De exemplu, să presupunem că avem următoarea clasă a unui depozit:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Repository<br>{<br>&nbsp;&nbsp;&nbsp;string[]&nbsp;data&nbsp;=&nbsp;{&nbsp;"Tom",&nbsp;"Sam",&nbsp;"Kate",&nbsp;"Alice",&nbsp;"Bob"&nbsp;};<br>&nbsp;&nbsp;&nbsp;public&nbsp;async&nbsp;IAsyncEnumerable&lt;string&gt;&nbsp;GetDataAsync()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;data.Length;&nbsp;i++)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Obținem&nbsp;elementul&nbsp;{i&nbsp;+&nbsp;1}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;await&nbsp;Task.Delay(500);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yield&nbsp;return&nbsp;data[i];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Pentru simplificarea exemplului, datele sunt reprezentate aici sub forma unui simplu array intern de șiruri de caractere. Pentru a imita întârzierea în obținerea datelor, se folosește metoda Task.Delay.</p>
+     <p class="paragraph">Să obținem aceste date în program:</p>
+     <div class="code-inline">
+      <pre><code>Repository&nbsp;repo&nbsp;=&nbsp;new&nbsp;Repository();<br>IAsyncEnumerable&lt;string&gt;&nbsp;data&nbsp;=&nbsp;repo.GetDataAsync();<br>await&nbsp;foreach&nbsp;(var&nbsp;name&nbsp;in&nbsp;data)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(name);<br>}<br><br>class&nbsp;Repository<br>{<br>&nbsp;&nbsp;&nbsp;string[]&nbsp;data&nbsp;=&nbsp;{&nbsp;"Tom",&nbsp;"Sam",&nbsp;"Kate",&nbsp;"Alice",&nbsp;"Bob"&nbsp;};<br>&nbsp;&nbsp;&nbsp;public&nbsp;async&nbsp;IAsyncEnumerable&lt;string&gt;&nbsp;GetDataAsync()<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;data.Length;&nbsp;i++)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Obținem&nbsp;elementul&nbsp;{i&nbsp;+&nbsp;1}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;await&nbsp;Task.Delay(500);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yield&nbsp;return&nbsp;data[i];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest exemplu, se creează o instanță a clasei Repository și se obțin datele asincron folosind metoda GetDataAsync(). Folosind await foreach, se iterează prin elementele returnate de stream-ul asincron și se afișează pe consolă.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='15.Programare paralela si biblioteca TPL', activeLesson='3.Sarcini de continuare'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Sarcini de continuare</h1>
+     <p class="paragraph">Sarcinile de continuare sau continuation tasks permit definirea sarcinilor care se execută după finalizarea altor sarcini. Astfel, putem lansa mai multe sarcini după finalizarea uneia, putem stabili condițiile pentru lansarea acestora și putem transmite date din sarcina anterioară în următoarea.</p>
+     <p class="paragraph">Sarcinile de continuare sunt similare cu metodele de callback, dar sunt de fapt sarcini obișnuite Task. Să vedem un exemplu:</p>
+     <div class="code-inline">
+      <pre><code>Task&nbsp;task1&nbsp;=&nbsp;new&nbsp;Task(()&nbsp;=&gt;<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Id-ul&nbsp;sarcinii:&nbsp;{Task.CurrentId}");<br>});<br><br>//&nbsp;sarcină&nbsp;de&nbsp;continuare&nbsp;-&nbsp;task2&nbsp;se&nbsp;execută&nbsp;după&nbsp;task1<br>Task&nbsp;task2&nbsp;=&nbsp;task1.ContinueWith(PrintTask);<br><br>task1.Start();<br><br>//&nbsp;așteptăm&nbsp;finalizarea&nbsp;celei&nbsp;de-a&nbsp;doua&nbsp;sarcini<br>task2.Wait();<br>Console.WriteLine("Sfârșitul&nbsp;metodei&nbsp;Main");<br><br>void&nbsp;PrintTask(Task&nbsp;t)<br>{<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Id-ul&nbsp;sarcinii:&nbsp;{Task.CurrentId}");<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Id-ul&nbsp;sarcinii&nbsp;anterioare:&nbsp;{t.Id}");<br>&nbsp;&nbsp;&nbsp;Thread.Sleep(3000);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Prima sarcină este definită folosind o expresie lambda care afișează doar id-ul acestei sarcini. A doua sarcină - sarcina de continuare - este definită folosind metoda ContinueWith, care primește ca parametru un delegat Action&lt;Task&gt;. Astfel, metoda PrintTask, care este transmisă în apelul ContinueWith, trebuie să accepte un parametru de tip Task.</p>
+     <p class="paragraph">Prin transmiterea în metodă a parametrului Task, putem accesa diverse proprietăți ale sarcinii anterioare, cum ar fi id-ul acesteia.</p>
+     <p class="paragraph">După finalizarea sarcinii task1, sarcina task2 va fi lansată imediat. Ieșire pe consolă a programului:</p>
+     <div class="code-inline">
+      <pre><code>Id-ul&nbsp;sarcinii:&nbsp;1<br>Id-ul&nbsp;sarcinii:&nbsp;2<br>Id-ul&nbsp;sarcinii&nbsp;anterioare:&nbsp;1<br>Sfârșitul&nbsp;metodei&nbsp;Main</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, putem transmite rezultatul specific al sarcinii anterioare:</p>
+     <div class="code-inline">
+      <pre><code>Task&lt;int&gt;&nbsp;sumTask&nbsp;=&nbsp;new&nbsp;Task&lt;int&gt;(()&nbsp;=&gt;&nbsp;Sum(4,&nbsp;5));<br><br>//&nbsp;sarcină&nbsp;de&nbsp;continuare<br>Task&nbsp;printTask&nbsp;=&nbsp;sumTask.ContinueWith(task&nbsp;=&gt;&nbsp;PrintResult(task.Result));<br><br>sumTask.Start();<br><br>//&nbsp;așteptăm&nbsp;finalizarea&nbsp;celei&nbsp;de-a&nbsp;doua&nbsp;sarcini<br>printTask.Wait();<br>Console.WriteLine("Sfârșitul&nbsp;metodei&nbsp;Main");<br><br>int&nbsp;Sum(int&nbsp;a,&nbsp;int&nbsp;b)&nbsp;=&gt;&nbsp;a&nbsp;+&nbsp;b;<br>void&nbsp;PrintResult(int&nbsp;sum)&nbsp;=&gt;&nbsp;Console.WriteLine($"Suma:&nbsp;{sum}");</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, sarcina sumTask execută metoda Sum și returnează rezultatul acesteia. Sarcina printTask este sarcina de continuare, care se execută imediat după sumTask și primește rezultatul acesteia. Astfel, în apelul:</p>
+     <div class="code-inline">
+      <pre><code>Task&nbsp;printTask&nbsp;=&nbsp;sumTask.ContinueWith(task&nbsp;=&gt;&nbsp;PrintResult(task.Result));</code></pre>
+     </div>
+     <p class="paragraph">Parametrul task din expresia lambda reprezintă efectiv sarcina sumTask, din care extragem rezultatul.</p>
+     <p class="paragraph">În mod similar, putem construi un lanț de sarcini care se execută secvențial:</p>
+     <div class="code-inline">
+      <pre><code>Task&nbsp;task1&nbsp;=&nbsp;new&nbsp;Task(()&nbsp;=&gt;&nbsp;Console.WriteLine($"Sarcina&nbsp;curentă:&nbsp;{Task.CurrentId}"));<br><br>//&nbsp;sarcină&nbsp;de&nbsp;continuare<br>Task&nbsp;task2&nbsp;=&nbsp;task1.ContinueWith(t&nbsp;=&gt;<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Sarcina&nbsp;curentă:&nbsp;{Task.CurrentId}&nbsp;&nbsp;Sarcina&nbsp;anterioară:&nbsp;{t.Id}"));<br><br>Task&nbsp;task3&nbsp;=&nbsp;task2.ContinueWith(t&nbsp;=&gt;<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Sarcina&nbsp;curentă:&nbsp;{Task.CurrentId}&nbsp;&nbsp;Sarcina&nbsp;anterioară:&nbsp;{t.Id}"));<br><br>Task&nbsp;task4&nbsp;=&nbsp;task3.ContinueWith(t&nbsp;=&gt;<br>&nbsp;&nbsp;&nbsp;Console.WriteLine($"Sarcina&nbsp;curentă:&nbsp;{Task.CurrentId}&nbsp;&nbsp;Sarcina&nbsp;anterioară:&nbsp;{t.Id}"));<br><br>task1.Start();<br><br>task4.Wait();&nbsp;&nbsp;&nbsp;//&nbsp;așteptăm&nbsp;finalizarea&nbsp;ultimei&nbsp;sarcini<br>Console.WriteLine("Sfârșitul&nbsp;metodei&nbsp;Main");</code></pre>
+     </div>
+     <p class="paragraph">Aici, sarcinile task1, task2, task3 și task4 se execută una după alta. Ieșire pe consolă a programului:</p>
+     <div class="code-inline">
+      <pre><code>Sarcina&nbsp;curentă:&nbsp;1<br>Sarcina&nbsp;curentă:&nbsp;2&nbsp;&nbsp;Sarcina&nbsp;anterioară:&nbsp;1<br>Sarcina&nbsp;curentă:&nbsp;3&nbsp;&nbsp;Sarcina&nbsp;anterioară:&nbsp;2<br>Sarcina&nbsp;curentă:&nbsp;4&nbsp;&nbsp;Sarcina&nbsp;anterioară:&nbsp;3<br>Sfârșitul&nbsp;metodei&nbsp;Main</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

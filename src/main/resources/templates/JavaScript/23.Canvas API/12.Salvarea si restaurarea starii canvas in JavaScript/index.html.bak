@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='23.Canvas API', activeLesson='12.Salvarea si restaurarea starii canvas in JavaScript'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Salvarea și restaurarea stării canvas în JavaScript</h1>
+     <p class="paragraph">Când se aplică metode precum fillRect() sau fillText(), poate fi necesar să se configureze în prealabil culoarea de umplere, fontul și alte proprietăți global pentru întregul obiect. Pentru a salva aceste setări, obiectul context oferă metoda save(). De fiecare dată când se apelează această metodă, setările curente ale canvas-ului sunt plasate într-un stivă și se salvează.</p>
+     <p class="paragraph">Pentru a recupera setările salvate ulterior, se utilizează metoda restore(). Această salvare și restaurare a setărilor poate fi utilă când trebuie să aplicăm setări globale comune unei părți din figuri și setări locale altor părți.</p>
+     <p class="paragraph">De exemplu, definim următoarea pagină:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&lt;canvas&nbsp;id="canvas"&nbsp;width="400"&nbsp;height="250"&nbsp;style="background-color:#eee;&nbsp;border:&nbsp;1px&nbsp;solid&nbsp;#ccc;&nbsp;margin:10px;"&gt;&lt;/canvas&gt;<br>&lt;script&gt;<br>const&nbsp;canvas&nbsp;=&nbsp;document.getElementById("canvas");<br>const&nbsp;context&nbsp;=&nbsp;canvas.getContext("2d");<br><br>//&nbsp;Desenăm&nbsp;un&nbsp;dreptunghi&nbsp;cu&nbsp;setările&nbsp;implicite<br>//&nbsp;Culoarea&nbsp;de&nbsp;umplere&nbsp;implicită&nbsp;-&nbsp;negru<br>context.fillRect(0,&nbsp;0,&nbsp;150,&nbsp;150);<br>//&nbsp;Salvăm&nbsp;starea&nbsp;curentă&nbsp;(o&nbsp;numim&nbsp;starea&nbsp;1)<br>context.save();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br><br>//&nbsp;Schimbăm&nbsp;setările&nbsp;-&nbsp;stabilim&nbsp;culoarea&nbsp;de&nbsp;umplere&nbsp;-&nbsp;verde<br>context.fillStyle&nbsp;=&nbsp;"#7ed6df";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>context.fillRect(15,&nbsp;15,&nbsp;120,&nbsp;120);&nbsp;&nbsp;//&nbsp;desenăm&nbsp;un&nbsp;dreptunghi&nbsp;cu&nbsp;noile&nbsp;setări<br>//&nbsp;Salvăm&nbsp;starea&nbsp;curentă&nbsp;(o&nbsp;numim&nbsp;starea&nbsp;2)<br>context.save();<br><br>//&nbsp;Schimbăm&nbsp;setările&nbsp;-&nbsp;stabilim&nbsp;culoarea&nbsp;de&nbsp;umplere&nbsp;-&nbsp;roșu<br>context.fillStyle&nbsp;=&nbsp;"#ff7979";<br>context.fillRect(30,&nbsp;30,&nbsp;90,&nbsp;90);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Desenăm&nbsp;un&nbsp;dreptunghi&nbsp;cu&nbsp;noile&nbsp;setări&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br><br>context.restore();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Încărcăm&nbsp;starea&nbsp;precedentă&nbsp;(starea&nbsp;2)&nbsp;&nbsp;<br>context.fillRect(45,&nbsp;45,&nbsp;60,&nbsp;60);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Desenăm&nbsp;un&nbsp;dreptunghi&nbsp;cu&nbsp;setările&nbsp;anterioare&nbsp;(culoarea&nbsp;verde)<br><br>context.restore();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Încărcăm&nbsp;starea&nbsp;precedentă&nbsp;(starea&nbsp;1)&nbsp;&nbsp;<br>context.fillRect(60,&nbsp;60,&nbsp;30,&nbsp;30);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Desenăm&nbsp;un&nbsp;dreptunghi&nbsp;cu&nbsp;setările&nbsp;anterioare&nbsp;(culoarea&nbsp;neagră)<br>&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <div class="image-container">
+      <img th:src="@{/images/JavaScript/23.Canvas%20API/12.Salvarea%20si%20restaurarea%20starii%20canvas%20in%20JavaScript/images/image1.png}" alt="" class="responsive-image">
+     </div>
+     <p class="paragraph">Aici, inițial se creează un pătrat cu înălțimea și lățimea de 150 de pixeli folosind setările implicite (culoarea de umplere implicită este negru). Prin apelarea lui save(), salvăm aceste valori implicite în stivă. Apoi, culoarea de umplere este setată la "#7ed6df" (o nuanță de verde), și se creează un pătrat cu dimensiuni ușor mai mici (decalate pe orizontală și verticală). Apelând din nou save(), se vor salva și aceste setări în stivă. Ulterior, culoarea de fundal este setată la "#ff7979" (o nuanță de roșu), și din nou se desenează un pătrat mai mic.</p>
+     <p class="paragraph">Apoi, apelând restore(), se încarcă setările care au fost salvate ultima dată în stivă, adică cele în care culoarea de umplere a fost setată la verde (deci, pătratul desenat ulterior are această culoare). În mod similar, al doilea apel al funcției restore() va încărca setările inițiale, unde se aplică culoarea neagră.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

@@ -1,183 +1,173 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='2.Fundamentele JavaScript', activeLesson='7.Transformarea datelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Transformarea datelor</h1>
- <p class="paragraph">Nu rareori apare necesitatea de a transforma un set de date în altul. Unele transformări sunt efectuate automat de către JavaScript. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;number1&nbsp;=&nbsp;"56";<br>const&nbsp;number2&nbsp;=&nbsp;4;<br>cont&nbsp;result&nbsp;=&nbsp;number1&nbsp;+&nbsp;number2;<br>console.log(result);&nbsp;//&nbsp;564</code></pre>
- </div>
- <p class="paragraph">Aici, constanta number1 reprezintă un șir de caractere, mai precis, reprezentarea sub formă de șir a unui număr. În schimb, constanta number2 reprezintă un număr. În rezultat, nu vom obține numărul 60, ci șirul "564".</p>
- <p class="paragraph">La adunare, conversiile în JavaScript sunt efectuate după următorul principiu:</p>
- <ul class="enumeration">
-  <li>Dacă ambii operanzi sunt reprezentări numerice, atunci are loc adunarea aritmetică obișnuită.</li>
-  <li>Dacă condiția anterioară nu este îndeplinită, atunci ambii operanzi sunt convertiți în șiruri și se realizează concatenarea acestora.</li>
- </ul>
- <p class="paragraph">Prin urmare, în exemplul de mai sus, deoarece primul operand este un șir, atunci și al doilea operand, care este un număr, este convertit într-un șir, rezultând șirul "564", nu numărul 60. Practic, obținem:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;number1&nbsp;=&nbsp;"56";<br>const&nbsp;number2&nbsp;=&nbsp;4;<br>const&nbsp;result&nbsp;=&nbsp;number1&nbsp;+&nbsp;String(number2);<br>console.log(result);&nbsp;//&nbsp;564</code></pre>
- </div>
- <p class="paragraph">Expresia String(number2) permite obținerea unei reprezentări sub formă de șir a constantei number2, adică, din numărul 4, obținem șirul "4".</p>
- <p class="paragraph">Cu toate acestea, comportamentul implicit nu este întotdeauna dorit. De exemplu, în exemplul de mai sus, dorim ca valorile să fie adunate nu ca șiruri, ci ca numere. În acest caz, putem utiliza funcțiile de conversie.</p>
- <h2 class="subtitle">parseInt().</h2>
- <p class="paragraph">Pentru a converti un șir într-un număr întreg, se folosește funcția parseInt():</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;number1&nbsp;=&nbsp;"56";<br>const&nbsp;number2&nbsp;=&nbsp;4;<br>const&nbsp;result&nbsp;=&nbsp;parseInt(number1)&nbsp;+&nbsp;number2;<br>console.log(result);&nbsp;//&nbsp;60</code></pre>
- </div>
- <p class="paragraph">Cu toate acestea, șirul poate să aibă conținut mixt, de exemplu, "123hello", adică în acest caz există cifre, dar există și caractere obișnuite. Funcția parseInt() totuși va încerca să efectueze conversia - ea citeste în mod secvențial cifrele începând cu primul caracter, până când întâlnește primul caracter care nu este o cifră:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;num1&nbsp;=&nbsp;"123hello";<br>const&nbsp;num2&nbsp;=&nbsp;parseInt(num1);<br>console.log(num2);&nbsp;//&nbsp;123</code></pre>
- </div>
- <p class="paragraph">Trebuie să se țină cont de faptul că valoarea care este convertită într-un număr, este întotdeauna mai întâi convertită într-un șir. Acest lucru poate duce la rezultate aparent neașteptate la prima vedere:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;number1&nbsp;=&nbsp;parseInt(0.000005);&nbsp;&nbsp;&nbsp;//&nbsp;0;<br>console.log(number1);<br><br>const&nbsp;number2&nbsp;=&nbsp;parseInt(0.0000005);&nbsp;&nbsp;//&nbsp;5<br>console.log(number2);</code></pre>
- </div>
- <p class="paragraph">Mai sus, sunt furnizate numere fractionare funcției parseInt, și ne așteptăm să obținem valoarea 0 în ambele cazuri. Cu toate acestea, la conversia lui number2, obținem valoarea 5. De ce?</p>
- <p class="paragraph">Exemplul de mai sus va fi echivalent cu următorul:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;number1&nbsp;=&nbsp;parseInt(String(0.000005));&nbsp;&nbsp;&nbsp;//&nbsp;0;<br>console.log(number1);<br><br>const&nbsp;number2&nbsp;=&nbsp;parseInt(String(0.0000005));&nbsp;&nbsp;//&nbsp;5<br>console.log(number2);</code></pre>
- </div>
- <p class="paragraph">Pentru numere fractionare mai mici de 10^(-6) (0,000001), este utilizată notația expoțială, adică numărul 0,0000005 este reprezentat ca 5e-7:</p>
- <div class="code-inline">
-  <pre><code>console.log(0.0000005);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;5e-7</code></pre>
- </div>
- <p class="paragraph">Ulterior, numărul 5e-7 este transformat în șirul "5e-7", iar acest șir este încercat să fie convertit înapoi într-un număr folosind parseInt. Prin urmare, rezultatul este numărul 5.</p>
- <p class="paragraph">Același principiu se aplică și pentru numere extrem de mari, cum ar fi 999999999999999999999, care sunt reprezentate în forma exponențială.</p>
- <h2 class="subtitle">NaN și isNaN</h2>
- <p class="paragraph">Dacă funcția parseInt() nu poate efectua conversia, ea returnează valoarea NaN (Not a Number), ceea ce indică faptul că șirul nu reprezintă un număr și nu poate fi convertit.</p>
- <div class="code-inline">
-  <pre><code>console.log(parseInt("abc"));&nbsp;&nbsp;&nbsp;//&nbsp;NaN<br>cont&nbsp;type&nbsp;=&nbsp;typeof&nbsp;NaN;<br>console.log(type);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;number</code></pre>
- </div>
- <p class="paragraph">Ceea ce este interesant, valoarea NaN (Not a Number) în sine reprezintă tipul number, adică este o valoare numerică.</p>
- <p class="paragraph">Cu ajutorul funcției speciale isNaN(), se poate verifica dacă un șir reprezintă un număr. Dacă șirul nu reprezintă un număr, atunci funcția returnează true, iar dacă este un număr, returnează false:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;num1&nbsp;=&nbsp;"javascript";<br>const&nbsp;num2&nbsp;=&nbsp;"22";<br>let&nbsp;result&nbsp;=&nbsp;isNaN(num1);<br>console.log(result);&nbsp;//&nbsp;true&nbsp;-&nbsp;num1&nbsp;nu&nbsp;este&nbsp;o&nbsp;cifra<br>&nbsp;&nbsp;&nbsp;<br>result&nbsp;=&nbsp;isNaN(num2);<br>console.log(result);&nbsp;//&nbsp;&nbsp;false&nbsp;-&nbsp;num2&nbsp;-&nbsp;este&nbsp;cifra</code></pre>
- </div>
- <h2 class="subtitle">parseFloat.</h2>
- <p class="paragraph">Pentru a converti șiruri în numere fractionare, se utilizează funcția parseFloat(), care funcționează în mod similar:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;number1&nbsp;=&nbsp;"46.07";<br>const&nbsp;number2&nbsp;=&nbsp;"4.98";<br>let&nbsp;result&nbsp;=&nbsp;parseFloat(number1)&nbsp;+&nbsp;parseFloat(number2);<br>console.log(result);&nbsp;//51.05</code></pre>
- </div>
- <h2 class="subtitle">Conversia de la șir la număr și operatorul +</h2>
- <p class="paragraph">Este de remarcat faptul că, pentru a converti un șir într-un număr în JavaScript, putem folosi operatorul de adunare unară (+) înaintea valorii de convertit:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;number1&nbsp;=&nbsp;"56";<br>const&nbsp;number2&nbsp;=&nbsp;4;<br>const&nbsp;result&nbsp;=&nbsp;+number1&nbsp;-&nbsp;number2;<br>console.log(result);&nbsp;//&nbsp;52</code></pre>
- </div>
- <p class="paragraph">Aici, expresia +number1 transformă șirul "56" în numărul 56.</p>
- <p class="paragraph">Dacă se dorește obținerea unei reprezentări negative a numărului, se aplică în mod similar semnul minus unar (înaintea numerelor negative):</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;number1&nbsp;=&nbsp;"56";<br>const&nbsp;number2&nbsp;=&nbsp;4;<br>const&nbsp;result&nbsp;=&nbsp;-number1&nbsp;-&nbsp;number2;&nbsp;&nbsp;//&nbsp;-56&nbsp;-&nbsp;4&nbsp;=&nbsp;-60<br>console.log(result);&nbsp;//&nbsp;-60</code></pre>
- </div>
- <p class="paragraph">Cu toate acestea, în exemplele anterioare, șirul number1 ar fi putut fi convertit într-un număr. Dacă aceasta nu este posibil, rezultatul conversiei va fi valoarea NaN (Not a Number):</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;number1&nbsp;=&nbsp;"56hek";<br>console.log(+number1);&nbsp;//&nbsp;NaN</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Transformarea datelor</h1>
+     <p class="paragraph">Nu rareori apare necesitatea de a transforma un set de date în altul. Unele transformări sunt efectuate automat de către JavaScript. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;number1&nbsp;=&nbsp;"56";<br>const&nbsp;number2&nbsp;=&nbsp;4;<br>cont&nbsp;result&nbsp;=&nbsp;number1&nbsp;+&nbsp;number2;<br>console.log(result);&nbsp;//&nbsp;564</code></pre>
+     </div>
+     <p class="paragraph">Aici, constanta number1 reprezintă un șir de caractere, mai precis, reprezentarea sub formă de șir a unui număr. În schimb, constanta number2 reprezintă un număr. În rezultat, nu vom obține numărul 60, ci șirul "564".</p>
+     <p class="paragraph">La adunare, conversiile în JavaScript sunt efectuate după următorul principiu:</p>
+     <ul class="enumeration">
+      <li>Dacă ambii operanzi sunt reprezentări numerice, atunci are loc adunarea aritmetică obișnuită.</li>
+      <li>Dacă condiția anterioară nu este îndeplinită, atunci ambii operanzi sunt convertiți în șiruri și se realizează concatenarea acestora.</li>
+     </ul>
+     <p class="paragraph">Prin urmare, în exemplul de mai sus, deoarece primul operand este un șir, atunci și al doilea operand, care este un număr, este convertit într-un șir, rezultând șirul "564", nu numărul 60. Practic, obținem:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;number1&nbsp;=&nbsp;"56";<br>const&nbsp;number2&nbsp;=&nbsp;4;<br>const&nbsp;result&nbsp;=&nbsp;number1&nbsp;+&nbsp;String(number2);<br>console.log(result);&nbsp;//&nbsp;564</code></pre>
+     </div>
+     <p class="paragraph">Expresia String(number2) permite obținerea unei reprezentări sub formă de șir a constantei number2, adică, din numărul 4, obținem șirul "4".</p>
+     <p class="paragraph">Cu toate acestea, comportamentul implicit nu este întotdeauna dorit. De exemplu, în exemplul de mai sus, dorim ca valorile să fie adunate nu ca șiruri, ci ca numere. În acest caz, putem utiliza funcțiile de conversie.</p>
+     <h2 class="subtitle">parseInt().</h2>
+     <p class="paragraph">Pentru a converti un șir într-un număr întreg, se folosește funcția parseInt():</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;number1&nbsp;=&nbsp;"56";<br>const&nbsp;number2&nbsp;=&nbsp;4;<br>const&nbsp;result&nbsp;=&nbsp;parseInt(number1)&nbsp;+&nbsp;number2;<br>console.log(result);&nbsp;//&nbsp;60</code></pre>
+     </div>
+     <p class="paragraph">Cu toate acestea, șirul poate să aibă conținut mixt, de exemplu, "123hello", adică în acest caz există cifre, dar există și caractere obișnuite. Funcția parseInt() totuși va încerca să efectueze conversia - ea citeste în mod secvențial cifrele începând cu primul caracter, până când întâlnește primul caracter care nu este o cifră:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;num1&nbsp;=&nbsp;"123hello";<br>const&nbsp;num2&nbsp;=&nbsp;parseInt(num1);<br>console.log(num2);&nbsp;//&nbsp;123</code></pre>
+     </div>
+     <p class="paragraph">Trebuie să se țină cont de faptul că valoarea care este convertită într-un număr, este întotdeauna mai întâi convertită într-un șir. Acest lucru poate duce la rezultate aparent neașteptate la prima vedere:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;number1&nbsp;=&nbsp;parseInt(0.000005);&nbsp;&nbsp;&nbsp;//&nbsp;0;<br>console.log(number1);<br><br>const&nbsp;number2&nbsp;=&nbsp;parseInt(0.0000005);&nbsp;&nbsp;//&nbsp;5<br>console.log(number2);</code></pre>
+     </div>
+     <p class="paragraph">Mai sus, sunt furnizate numere fractionare funcției parseInt, și ne așteptăm să obținem valoarea 0 în ambele cazuri. Cu toate acestea, la conversia lui number2, obținem valoarea 5. De ce?</p>
+     <p class="paragraph">Exemplul de mai sus va fi echivalent cu următorul:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;number1&nbsp;=&nbsp;parseInt(String(0.000005));&nbsp;&nbsp;&nbsp;//&nbsp;0;<br>console.log(number1);<br><br>const&nbsp;number2&nbsp;=&nbsp;parseInt(String(0.0000005));&nbsp;&nbsp;//&nbsp;5<br>console.log(number2);</code></pre>
+     </div>
+     <p class="paragraph">Pentru numere fractionare mai mici de 10^(-6) (0,000001), este utilizată notația expoțială, adică numărul 0,0000005 este reprezentat ca 5e-7:</p>
+     <div class="code-inline">
+      <pre><code>console.log(0.0000005);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;5e-7</code></pre>
+     </div>
+     <p class="paragraph">Ulterior, numărul 5e-7 este transformat în șirul "5e-7", iar acest șir este încercat să fie convertit înapoi într-un număr folosind parseInt. Prin urmare, rezultatul este numărul 5.</p>
+     <p class="paragraph">Același principiu se aplică și pentru numere extrem de mari, cum ar fi 999999999999999999999, care sunt reprezentate în forma exponențială.</p>
+     <h2 class="subtitle">NaN și isNaN</h2>
+     <p class="paragraph">Dacă funcția parseInt() nu poate efectua conversia, ea returnează valoarea NaN (Not a Number), ceea ce indică faptul că șirul nu reprezintă un număr și nu poate fi convertit.</p>
+     <div class="code-inline">
+      <pre><code>console.log(parseInt("abc"));&nbsp;&nbsp;&nbsp;//&nbsp;NaN<br>cont&nbsp;type&nbsp;=&nbsp;typeof&nbsp;NaN;<br>console.log(type);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;number</code></pre>
+     </div>
+     <p class="paragraph">Ceea ce este interesant, valoarea NaN (Not a Number) în sine reprezintă tipul number, adică este o valoare numerică.</p>
+     <p class="paragraph">Cu ajutorul funcției speciale isNaN(), se poate verifica dacă un șir reprezintă un număr. Dacă șirul nu reprezintă un număr, atunci funcția returnează true, iar dacă este un număr, returnează false:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;num1&nbsp;=&nbsp;"javascript";<br>const&nbsp;num2&nbsp;=&nbsp;"22";<br>let&nbsp;result&nbsp;=&nbsp;isNaN(num1);<br>console.log(result);&nbsp;//&nbsp;true&nbsp;-&nbsp;num1&nbsp;nu&nbsp;este&nbsp;o&nbsp;cifra<br>&nbsp;&nbsp;&nbsp;<br>result&nbsp;=&nbsp;isNaN(num2);<br>console.log(result);&nbsp;//&nbsp;&nbsp;false&nbsp;-&nbsp;num2&nbsp;-&nbsp;este&nbsp;cifra</code></pre>
+     </div>
+     <h2 class="subtitle">parseFloat.</h2>
+     <p class="paragraph">Pentru a converti șiruri în numere fractionare, se utilizează funcția parseFloat(), care funcționează în mod similar:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;number1&nbsp;=&nbsp;"46.07";<br>const&nbsp;number2&nbsp;=&nbsp;"4.98";<br>let&nbsp;result&nbsp;=&nbsp;parseFloat(number1)&nbsp;+&nbsp;parseFloat(number2);<br>console.log(result);&nbsp;//51.05</code></pre>
+     </div>
+     <h2 class="subtitle">Conversia de la șir la număr și operatorul +</h2>
+     <p class="paragraph">Este de remarcat faptul că, pentru a converti un șir într-un număr în JavaScript, putem folosi operatorul de adunare unară (+) înaintea valorii de convertit:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;number1&nbsp;=&nbsp;"56";<br>const&nbsp;number2&nbsp;=&nbsp;4;<br>const&nbsp;result&nbsp;=&nbsp;+number1&nbsp;-&nbsp;number2;<br>console.log(result);&nbsp;//&nbsp;52</code></pre>
+     </div>
+     <p class="paragraph">Aici, expresia +number1 transformă șirul "56" în numărul 56.</p>
+     <p class="paragraph">Dacă se dorește obținerea unei reprezentări negative a numărului, se aplică în mod similar semnul minus unar (înaintea numerelor negative):</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;number1&nbsp;=&nbsp;"56";<br>const&nbsp;number2&nbsp;=&nbsp;4;<br>const&nbsp;result&nbsp;=&nbsp;-number1&nbsp;-&nbsp;number2;&nbsp;&nbsp;//&nbsp;-56&nbsp;-&nbsp;4&nbsp;=&nbsp;-60<br>console.log(result);&nbsp;//&nbsp;-60</code></pre>
+     </div>
+     <p class="paragraph">Cu toate acestea, în exemplele anterioare, șirul number1 ar fi putut fi convertit într-un număr. Dacă aceasta nu este posibil, rezultatul conversiei va fi valoarea NaN (Not a Number):</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;number1&nbsp;=&nbsp;"56hek";<br>console.log(+number1);&nbsp;//&nbsp;NaN</code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

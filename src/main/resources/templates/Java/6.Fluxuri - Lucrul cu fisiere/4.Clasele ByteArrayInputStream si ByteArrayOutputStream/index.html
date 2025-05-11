@@ -1,146 +1,136 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Java', activeChapter='6.Fluxuri - Lucrul cu fisiere', activeLesson='4.Clasele ByteArrayInputStream si ByteArrayOutputStream'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Clasele ByteArrayInputStream și ByteArrayOutputStream</h1>
- <p class="paragraph">Pentru lucrul cu tablouri de octeți - citirea și scrierea acestora - se utilizează clasele ByteArrayInputStream și ByteArrayOutputStream.</p>
- <h2 class="subtitle">Citirea unui tablou de octeți și clasa ByteArrayInputStream</h2>
- <p class="paragraph">Clasa ByteArrayInputStream reprezintă un flux de intrare care utilizează un tablou de octeți ca sursă de date. Aceasta are următorii constructori:</p>
- <div class="code-inline">
-  <pre><code>ByteArrayInputStream(byte[]&nbsp;buf)&nbsp;&nbsp;<br>ByteArrayInputStream(byte[]&nbsp;buf,&nbsp;int&nbsp;offset,&nbsp;int&nbsp;length)&nbsp;</code></pre>
- </div>
- <p class="paragraph">Constructorii folosesc ca parametri un tablou de octeți buf, din care se face citirea, un offset relativ la începutul tabloului și numărul de caractere citite, length.</p>
- <p class="paragraph">Să citim un tablou de octeți și să-l afișăm pe ecran:</p>
- <div class="code-inline">
-  <pre><code>import&nbsp;java.io.*;<br><br>public&nbsp;class&nbsp;Program&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;byte[]&nbsp;array1&nbsp;=&nbsp;new&nbsp;byte[]{1,&nbsp;3,&nbsp;5,&nbsp;7};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ByteArrayInputStream&nbsp;byteStream1&nbsp;=&nbsp;new&nbsp;ByteArrayInputStream(array1);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;b;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while&nbsp;((b&nbsp;=&nbsp;byteStream1.read())&nbsp;!=&nbsp;-1)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(b);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;text&nbsp;=&nbsp;"Hello&nbsp;world!";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;byte[]&nbsp;array2&nbsp;=&nbsp;text.getBytes();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;citim&nbsp;5&nbsp;caractere<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ByteArrayInputStream&nbsp;byteStream2&nbsp;=&nbsp;new&nbsp;ByteArrayInputStream(array2,&nbsp;0,&nbsp;5);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;c;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while&nbsp;((c&nbsp;=&nbsp;byteStream2.read())&nbsp;!=&nbsp;-1)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println((char)&nbsp;c);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
- </div>
- <p class="paragraph">Spre deosebire de alte clase de fluxuri, nu este necesar să apelăm metoda close pentru închiderea unui obiect ByteArrayInputStream.</p>
- <h2 class="subtitle">Scrierea unui tablou de octeți și clasa ByteArrayOutputStream</h2>
- <p class="paragraph">Clasa ByteArrayOutputStream reprezintă un flux de ieșire care utilizează un tablou de octeți ca loc de scriere.</p>
- <p class="paragraph">Pentru a crea un obiect din această clasă, putem folosi unul dintre constructorii săi:</p>
- <div class="code-inline">
-  <pre><code>ByteArrayOutputStream()&nbsp;&nbsp;<br>ByteArrayOutputStream(int&nbsp;size)</code></pre>
- </div>
- <p class="paragraph">Prima versiune creează un tablou de octeți cu o lungime de 32 de octeți, iar a doua versiune creează un tablou cu lungimea size.</p>
- <p class="paragraph">Să analizăm utilizarea clasei:</p>
- <div class="code-inline">
-  <pre><code>import&nbsp;java.io.*;<br><br>public&nbsp;class&nbsp;Program&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ByteArrayOutputStream&nbsp;baos&nbsp;=&nbsp;new&nbsp;ByteArrayOutputStream();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;text&nbsp;=&nbsp;"Hello&nbsp;Wolrd!";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;byte[]&nbsp;buffer&nbsp;=&nbsp;text.getBytes();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;baos.write(buffer);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;catch&nbsp;(Exception&nbsp;ex)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(ex.getMessage());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;convertim&nbsp;tabloul&nbsp;de&nbsp;octeți&nbsp;într-un&nbsp;șir&nbsp;de&nbsp;caractere<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(baos.toString());<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;tabloul&nbsp;de&nbsp;octeți&nbsp;și&nbsp;îl&nbsp;afișăm&nbsp;caracter&nbsp;cu&nbsp;caracter<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;byte[]&nbsp;array&nbsp;=&nbsp;baos.toByteArray();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(byte&nbsp;b&nbsp;:&nbsp;array)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.print((char)&nbsp;b);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println();<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
- </div>
- <p class="paragraph">Ca și în alte fluxuri de ieșire, în clasa ByteArrayOutputStream este definită metoda write, care scrie anumite date în flux. În acest caz, scriem în flux un tablou de octeți. Acest tablou este stocat în câmpul protejat buf, care reprezintă tot un tablou de octeți (protected byte[] buf).</p>
- <p class="paragraph">Deoarece metoda write poate genera o excepție, apelul său este plasat într-un bloc try..catch.</p>
- <p class="paragraph">Folosind metodele toString() și toByteArray(), putem obține tabloul de octeți buf fie sub formă de text, fie direct sub forma unui tablou de octeți.</p>
- <p class="paragraph">Cu ajutorul metodei writeTo, putem scrie tabloul de octeți într-un alt flux. Această metodă primește ca parametru un obiect OutputStream în care se face scrierea tabloului de octeți:</p>
- <div class="code-inline">
-  <pre><code>ByteArrayOutputStream&nbsp;baos&nbsp;=&nbsp;new&nbsp;ByteArrayOutputStream();<br>String&nbsp;text&nbsp;=&nbsp;"Hello&nbsp;Wolrd!";<br>byte[]&nbsp;buffer&nbsp;=&nbsp;text.getBytes();<br>try&nbsp;{<br>&nbsp;&nbsp;&nbsp;baos.write(buffer);<br>}&nbsp;catch&nbsp;(Exception&nbsp;ex)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;System.out.println(ex.getMessage());<br>}<br>try&nbsp;(FileOutputStream&nbsp;fos&nbsp;=&nbsp;new&nbsp;FileOutputStream("hello.txt"))&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;baos.writeTo(fos);<br>}&nbsp;catch&nbsp;(IOException&nbsp;e)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;System.out.println(e.getMessage());<br>}</code></pre>
- </div>
- <p class="paragraph">După rularea acestui program, în folderul cu programul va apărea fișierul hello.txt, care va conține șirul "Hello Wolrd!".</p>
- <p class="paragraph">În concluzie, la fel ca în cazul obiectelor ByteArrayInputStream, pentru ByteArrayOutputStream nu este necesar să închidem explicit fluxul folosind metoda close.</p>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Clasele ByteArrayInputStream și ByteArrayOutputStream</h1>
+     <p class="paragraph">Pentru lucrul cu tablouri de octeți - citirea și scrierea acestora - se utilizează clasele ByteArrayInputStream și ByteArrayOutputStream.</p>
+     <h2 class="subtitle">Citirea unui tablou de octeți și clasa ByteArrayInputStream</h2>
+     <p class="paragraph">Clasa ByteArrayInputStream reprezintă un flux de intrare care utilizează un tablou de octeți ca sursă de date. Aceasta are următorii constructori:</p>
+     <div class="code-inline">
+      <pre><code>ByteArrayInputStream(byte[]&nbsp;buf)&nbsp;&nbsp;<br>ByteArrayInputStream(byte[]&nbsp;buf,&nbsp;int&nbsp;offset,&nbsp;int&nbsp;length)&nbsp;</code></pre>
+     </div>
+     <p class="paragraph">Constructorii folosesc ca parametri un tablou de octeți buf, din care se face citirea, un offset relativ la începutul tabloului și numărul de caractere citite, length.</p>
+     <p class="paragraph">Să citim un tablou de octeți și să-l afișăm pe ecran:</p>
+     <div class="code-inline">
+      <pre><code>import&nbsp;java.io.*;<br><br>public&nbsp;class&nbsp;Program&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;byte[]&nbsp;array1&nbsp;=&nbsp;new&nbsp;byte[]{1,&nbsp;3,&nbsp;5,&nbsp;7};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ByteArrayInputStream&nbsp;byteStream1&nbsp;=&nbsp;new&nbsp;ByteArrayInputStream(array1);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;b;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while&nbsp;((b&nbsp;=&nbsp;byteStream1.read())&nbsp;!=&nbsp;-1)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(b);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;text&nbsp;=&nbsp;"Hello&nbsp;world!";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;byte[]&nbsp;array2&nbsp;=&nbsp;text.getBytes();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;citim&nbsp;5&nbsp;caractere<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ByteArrayInputStream&nbsp;byteStream2&nbsp;=&nbsp;new&nbsp;ByteArrayInputStream(array2,&nbsp;0,&nbsp;5);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;c;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while&nbsp;((c&nbsp;=&nbsp;byteStream2.read())&nbsp;!=&nbsp;-1)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println((char)&nbsp;c);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Spre deosebire de alte clase de fluxuri, nu este necesar să apelăm metoda close pentru închiderea unui obiect ByteArrayInputStream.</p>
+     <h2 class="subtitle">Scrierea unui tablou de octeți și clasa ByteArrayOutputStream</h2>
+     <p class="paragraph">Clasa ByteArrayOutputStream reprezintă un flux de ieșire care utilizează un tablou de octeți ca loc de scriere.</p>
+     <p class="paragraph">Pentru a crea un obiect din această clasă, putem folosi unul dintre constructorii săi:</p>
+     <div class="code-inline">
+      <pre><code>ByteArrayOutputStream()&nbsp;&nbsp;<br>ByteArrayOutputStream(int&nbsp;size)</code></pre>
+     </div>
+     <p class="paragraph">Prima versiune creează un tablou de octeți cu o lungime de 32 de octeți, iar a doua versiune creează un tablou cu lungimea size.</p>
+     <p class="paragraph">Să analizăm utilizarea clasei:</p>
+     <div class="code-inline">
+      <pre><code>import&nbsp;java.io.*;<br><br>public&nbsp;class&nbsp;Program&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ByteArrayOutputStream&nbsp;baos&nbsp;=&nbsp;new&nbsp;ByteArrayOutputStream();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;text&nbsp;=&nbsp;"Hello&nbsp;Wolrd!";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;byte[]&nbsp;buffer&nbsp;=&nbsp;text.getBytes();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;baos.write(buffer);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;catch&nbsp;(Exception&nbsp;ex)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(ex.getMessage());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;convertim&nbsp;tabloul&nbsp;de&nbsp;octeți&nbsp;într-un&nbsp;șir&nbsp;de&nbsp;caractere<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(baos.toString());<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;tabloul&nbsp;de&nbsp;octeți&nbsp;și&nbsp;îl&nbsp;afișăm&nbsp;caracter&nbsp;cu&nbsp;caracter<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;byte[]&nbsp;array&nbsp;=&nbsp;baos.toByteArray();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(byte&nbsp;b&nbsp;:&nbsp;array)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.print((char)&nbsp;b);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println();<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Ca și în alte fluxuri de ieșire, în clasa ByteArrayOutputStream este definită metoda write, care scrie anumite date în flux. În acest caz, scriem în flux un tablou de octeți. Acest tablou este stocat în câmpul protejat buf, care reprezintă tot un tablou de octeți (protected byte[] buf).</p>
+     <p class="paragraph">Deoarece metoda write poate genera o excepție, apelul său este plasat într-un bloc try..catch.</p>
+     <p class="paragraph">Folosind metodele toString() și toByteArray(), putem obține tabloul de octeți buf fie sub formă de text, fie direct sub forma unui tablou de octeți.</p>
+     <p class="paragraph">Cu ajutorul metodei writeTo, putem scrie tabloul de octeți într-un alt flux. Această metodă primește ca parametru un obiect OutputStream în care se face scrierea tabloului de octeți:</p>
+     <div class="code-inline">
+      <pre><code>ByteArrayOutputStream&nbsp;baos&nbsp;=&nbsp;new&nbsp;ByteArrayOutputStream();<br>String&nbsp;text&nbsp;=&nbsp;"Hello&nbsp;Wolrd!";<br>byte[]&nbsp;buffer&nbsp;=&nbsp;text.getBytes();<br>try&nbsp;{<br>&nbsp;&nbsp;&nbsp;baos.write(buffer);<br>}&nbsp;catch&nbsp;(Exception&nbsp;ex)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;System.out.println(ex.getMessage());<br>}<br>try&nbsp;(FileOutputStream&nbsp;fos&nbsp;=&nbsp;new&nbsp;FileOutputStream("hello.txt"))&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;baos.writeTo(fos);<br>}&nbsp;catch&nbsp;(IOException&nbsp;e)&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;System.out.println(e.getMessage());<br>}</code></pre>
+     </div>
+     <p class="paragraph">După rularea acestui program, în folderul cu programul va apărea fișierul hello.txt, care va conține șirul "Hello Wolrd!".</p>
+     <p class="paragraph">În concluzie, la fel ca în cazul obiectelor ByteArrayInputStream, pentru ByteArrayOutputStream nu este necesar să închidem explicit fluxul folosind metoda close.</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='24.IndexDB API', activeLesson='1.IndexDB API'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">IndexDB API</h1>
+     <h2 class="subtitle">Crearea, deschiderea și ștergerea bazei de date</h2>
+     <p class="paragraph">Indexed Database API sau IndexedDB API oferă funcționalități pentru lucrul cu o bază de date care se află în browser. Această bază de date se numește IndexedDB. Particularitatea sa este că este o bază de date nereținută (ceea ce se numește NoSQL). Ideea principală a IndexedDB constă în stocarea obiectelor sub anumite chei.</p>
+     <h2 class="subtitle">Deschiderea/crearea bazei de date IndexDB</h2>
+     <p class="paragraph">Pentru a accesa funcționalitatea IndexedDB se utilizează proprietatea indexedDB a obiectului window:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;dbFactory&nbsp;=&nbsp;window.indexedDB;<br>console.log(dbFactory);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;IDBFactory{}</code></pre>
+     </div>
+     <p class="paragraph">Această proprietate reprezintă un obiect de tip IDBFactory, care oferă funcționalitatea pentru lucrul cu baza de date. În special, cu ajutorul metodei sale open() se poate deschide o bază de date.</p>
+     <div class="code-inline">
+      <pre><code>open(name)<br>open(name,&nbsp;version)</code></pre>
+     </div>
+     <p class="paragraph">Ca parametru în metoda open() se transmite numele bazei de date. Ca al doilea parametru opțional se poate transmite numărul versiunii bazei de date, care, de fapt, definește schema bazei de date utilizată pentru stocarea obiectelor.</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;request&nbsp;=&nbsp;indexedDB.open("test");&nbsp;//&nbsp;ne&nbsp;conectăm&nbsp;la&nbsp;bd&nbsp;test</code></pre>
+     </div>
+     <p class="paragraph">În acest cod încercăm să ne conectăm la baza de date "test". Și nu contează că inițial această bază de date nu există - dacă lipsește, ea este automat creată.</p>
+     <p class="paragraph">Valoarea returnată de metoda open() este un obiect de tip IDBOpenDBRequest. Se poate spune că acesta este un obiect de cerere pentru deschiderea corespunzătoare a bazei de date.</p>
+     <p class="paragraph">Pentru a accesa baza de date propriu-zisă la obiectul IDBOpenDBRequest se poate procesa evenimentul success. Acesta apare la deschiderea cu succes a bazei de date. Pentru a seta un handler pentru acest eveniment se poate folosi proprietatea onsuccess:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;request&nbsp;=&nbsp;indexedDB.open("test");&nbsp;//&nbsp;ne&nbsp;conectăm&nbsp;la&nbsp;bd&nbsp;test<br>//&nbsp;la&nbsp;deschiderea&nbsp;reușită&nbsp;se&nbsp;activează&nbsp;evenimentul&nbsp;success<br>//&nbsp;procesăm&nbsp;acest&nbsp;eveniment<br>request.onsuccess&nbsp;=&nbsp;(event)&nbsp;=&gt;&nbsp;{&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;const&nbsp;database&nbsp;=&nbsp;event.target.result;&nbsp;&nbsp;//&nbsp;accesăm&nbsp;baza&nbsp;de&nbsp;date&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;console.log(database.name);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;"Test"&nbsp;&nbsp;<br>};</code></pre>
+     </div>
+     <p class="paragraph">În interiorul handlerului evenimentului, prin proprietatea event.target.result putem obține baza de date, care reprezintă un obiect IDBDatabase.</p>
+     <h2 class="subtitle">Procesarea erorilor la deschiderea bazei de date</h2>
+     <p class="paragraph">Totuși, la încercarea de a deschide baza de date poate apărea și o eroare - evenimentul error, de exemplu, când utilizatorul nu are permisiuni în browser pentru acces la baza de date. În acest caz putem defini un handler pentru evenimentul error prin proprietatea onerror:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;request&nbsp;=&nbsp;indexedDB.open("test");&nbsp;//&nbsp;ne&nbsp;conectăm&nbsp;la&nbsp;bd&nbsp;test<br>//&nbsp;procesăm&nbsp;eroarea<br>request.onerror&nbsp;=&nbsp;(event)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;const&nbsp;error&nbsp;=&nbsp;event.target.error;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Obținem&nbsp;informații&nbsp;despre&nbsp;eroare&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;console.error(error.message);<br>};</code></pre>
+     </div>
+     <h2 class="subtitle">Urmărirea creării bazei de date</h2>
+     <p class="paragraph">La deschiderea bazei de date, dacă aceasta lipsește, ea este automat creată. Prin urmare, în acest sens nu contează dacă avem sau nu baza de date. Totuși, uneori este necesar să urmărim crearea bazei de date. În acest caz putem folosi evenimentul upgradeneeded, care este apelat de fiecare dată când baza de date solicitată încă nu există și prin urmare este creată, sau când baza de date solicitată încă nu există în această versiune specifică.</p>
+     <p class="paragraph">În ambele cazuri, handlerul evenimentului apelat primește ca parametru un obiect de tip IDBVersionChangeEvent. Acest obiect permite obținerea versiunii vechi și a celei noi a bd. Pentru a seta un handler pentru eveniment se poate folosi proprietatea onupgradeneeded:</p>
+     <div class="code-inline">
+      <pre><code>request.onupgradeneeded&nbsp;=&nbsp;(event)&nbsp;=&gt;&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(event.oldVersion);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;versiunea&nbsp;veche&nbsp;a&nbsp;bazei&nbsp;de&nbsp;date<br>&nbsp;&nbsp;&nbsp;console.log(event.newVersion);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;versiunea&nbsp;nouă&nbsp;a&nbsp;bazei&nbsp;de&nbsp;date<br>&nbsp;&nbsp;&nbsp;const&nbsp;database&nbsp;=&nbsp;event.target.result;&nbsp;&nbsp;//&nbsp;accesăm&nbsp;baza&nbsp;de&nbsp;date&nbsp;propriu-zisă<br>};</code></pre>
+     </div>
+     <p class="paragraph">Deoarece acest handler este apelat la crearea bazei de date, el reprezintă un loc convenabil pentru efectuarea diferitelor setări și inițializări ale bd, în special, pentru crearea spațiilor de stocare ale acesteia.</p>
+     <h2 class="subtitle">Obținerea bazelor de date</h2>
+     <p class="paragraph">Metoda databases() a obiectului IDBFactory permite obținerea unei liste a tuturor bazelor de date existente. Această metodă returnează un promise, din care se pot obține date sub forma unui array, unde fiecare element reprezintă un obiect cu două proprietăți - name (numele bazei de date) și version (versiunea bazei de date):</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;promise&nbsp;=&nbsp;indexedDB.databases();<br>promise.then((databases)&nbsp;=&gt;&nbsp;console.log(databases));</code></pre>
+     </div>
+     <p class="paragraph">De exemplu, outputul în cazul meu:</p>
+     <div class="code-inline">
+      <pre><code>(2)&nbsp;[{...},&nbsp;{...}]<br>0:&nbsp;{name:&nbsp;'test',&nbsp;version:&nbsp;1}<br>1:&nbsp;{name:&nbsp;'test2',&nbsp;version:&nbsp;1}<br>length:&nbsp;2<br>[[Prototype]]:&nbsp;Array(0)</code></pre>
+     </div>
+     <p class="paragraph">În acest caz se vede că am două baze de date - test și test2, fiecare având versiunea 1.</p>
+     <h2 class="subtitle">Ștergerea bazei de date</h2>
+     <p class="paragraph">Pentru ștergerea bazei de date la obiectul IDBFactory se utilizează metoda deleteDatabase(), în care se transmite numele bazei de date care urmează să fie ștearsă:</p>
+     <div class="code-inline">
+      <pre><code>indexedDB.deleteDatabase("test2");</code></pre>
+     </div>
+     <p class="paragraph">Este de menționat că această metodă ca rezultat returnează un obiect IDBOpenDBRequest (menționat mai sus). Astfel putem procesa evenimentele success și error, pentru a determina dacă ștergerea a avut loc cu succes sau a apărut o eroare:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;DBDeleteRequest&nbsp;=&nbsp;indexedDB.deleteDatabase("test2");<br><br>DBDeleteRequest.onerror&nbsp;=&nbsp;(event)&nbsp;=&gt;&nbsp;{<br>&nbsp;console.error("Error&nbsp;deleting&nbsp;database.");<br>};<br><br>DBDeleteRequest.onsuccess&nbsp;=&nbsp;(event)&nbsp;=&gt;&nbsp;{<br>&nbsp;console.log("Database&nbsp;deleted&nbsp;successfully");<br><br>&nbsp;console.log(event.result);&nbsp;//&nbsp;ar&nbsp;trebui&nbsp;să&nbsp;fie&nbsp;undefined<br>};</code></pre>
+     </div>
+     <p class="paragraph">Dacă baza de date a fost ștearsă cu succes, atunci proprietatea result a argumentului în handlerul evenimentului success nu va fi setată.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

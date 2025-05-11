@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Java', activeChapter='3.Clase. Programare orientata pe obiecte in Java', activeLesson='15.Limitarile generalizarilor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Limitările generalizărilor</h1>
+     <p class="paragraph">Atunci când specificăm un parametru universal în cazul generalizărilor, implicit acesta poate reprezenta orice tip. Totuși, uneori este necesar ca parametrul să corespundă doar unui set limitat de tipuri. În acest caz, se folosesc limitările, care permit indicarea unei clase de bază la care trebuie să corespundă parametrul.</p>
+     <p class="paragraph">Pentru a seta o limitare, după parametrul universal se utilizează cuvântul „extends”, urmat de clasa de bază a limitării:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Account{&nbsp;}<br>class&nbsp;Transaction&lt;T&nbsp;extends&nbsp;Account&gt;{&nbsp;}</code></pre>
+     </div>
+     <p class="paragraph">De exemplu, în acest caz, pentru parametrul T din Transaction, limitarea este clasa Account. Astfel, în locul parametrului T putem transmite fie clasa Account, fie una dintre clasele ei derivare.</p>
+     <p class="paragraph">Să analizăm următorul program:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;class&nbsp;Program{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Account&nbsp;acc1&nbsp;=&nbsp;new&nbsp;Account("1876",&nbsp;4500);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Account&nbsp;acc2&nbsp;=&nbsp;new&nbsp;Account("3476",&nbsp;1500);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Transaction&lt;Account&gt;&nbsp;tran1&nbsp;=&nbsp;new&nbsp;Transaction&lt;Account&gt;(acc1,&nbsp;acc2,&nbsp;4000);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tran1.execute();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tran1&nbsp;=&nbsp;new&nbsp;Transaction&lt;Account&gt;(acc1,&nbsp;acc2,&nbsp;4000);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tran1.execute();<br>&nbsp;&nbsp;&nbsp;}<br>}<br>class&nbsp;Transaction&lt;T&nbsp;extends&nbsp;Account&gt;{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;private&nbsp;T&nbsp;from;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;de&nbsp;la&nbsp;ce&nbsp;cont&nbsp;se&nbsp;face&nbsp;transferul<br>&nbsp;&nbsp;&nbsp;private&nbsp;T&nbsp;to;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;la&nbsp;ce&nbsp;cont&nbsp;se&nbsp;face&nbsp;transferul<br>&nbsp;&nbsp;&nbsp;private&nbsp;int&nbsp;sum;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;suma&nbsp;transferului<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Transaction(T&nbsp;from,&nbsp;T&nbsp;to,&nbsp;int&nbsp;sum){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.from&nbsp;=&nbsp;from;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.to&nbsp;=&nbsp;to;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.sum&nbsp;=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;execute(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(from.getSum()&nbsp;&gt;&nbsp;sum)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;from.setSum(from.getSum()&nbsp;-&nbsp;sum);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to.setSum(to.getSum()&nbsp;+&nbsp;sum);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("Account&nbsp;%s:&nbsp;%d&nbsp;\nAccount&nbsp;%s:&nbsp;%d&nbsp;\n",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;from.getId(),&nbsp;from.getSum(),&nbsp;to.getId(),&nbsp;to.getSum());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("Operation&nbsp;is&nbsp;invalid");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}<br>class&nbsp;Account{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;id;<br>&nbsp;&nbsp;&nbsp;private&nbsp;int&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Account(String&nbsp;id,&nbsp;int&nbsp;sum){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.id&nbsp;=&nbsp;id;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.sum&nbsp;=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;String&nbsp;getId()&nbsp;{&nbsp;return&nbsp;id;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;getSum()&nbsp;{&nbsp;return&nbsp;sum;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;setSum(int&nbsp;sum)&nbsp;{&nbsp;this.sum&nbsp;=&nbsp;sum;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, clasa Transaction, care reprezintă o operațiune de transfer între două conturi, este tipizată cu parametrul T, având ca limitare clasa Account. La crearea unui obiect Transaction, în constructor se transmit două obiecte Account – cele două conturi între care trebuie realizat transferul și suma acestuia.</p>
+     <p class="paragraph">Este important de înțeles că, deoarece am stabilit o astfel de limitare, compilatorul va recunoaște obiectele de tip T ca obiecte de tip Account. În acest caz, putem apela metodele clasei Account asupra obiectelor de tip T. Dacă nu am fi definit această limitare, ar fi apărut o eroare:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Transaction&lt;T&gt;{<br>&nbsp;&nbsp;&nbsp;//&nbsp;conținutul&nbsp;restului&nbsp;codului<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, ar fi apărut o eroare.</p>
+     <h2 class="subtitle">Tipuri generice ca limitări</h2>
+     <p class="paragraph">Și alte tipuri generice, care la rândul lor pot avea limitări, pot fi utilizate ca limitări:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;class&nbsp;Program{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Account&lt;String&gt;&nbsp;acc1&nbsp;=&nbsp;new&nbsp;Account&lt;String&gt;("1876",&nbsp;4500);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Account&lt;String&gt;&nbsp;acc2&nbsp;=&nbsp;new&nbsp;Account&lt;String&gt;("3476",&nbsp;1500);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Transaction&lt;Account&lt;String&gt;&gt;&nbsp;tran1&nbsp;=&nbsp;new&nbsp;Transaction&lt;Account&lt;String&gt;&gt;(acc1,&nbsp;acc2,&nbsp;4000);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tran1.execute();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tran1&nbsp;=&nbsp;new&nbsp;Transaction&lt;Account&lt;String&gt;&gt;(acc1,&nbsp;acc2,&nbsp;4000);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tran1.execute();<br>&nbsp;&nbsp;&nbsp;}<br>}<br>class&nbsp;Transaction&lt;T&nbsp;extends&nbsp;Account&lt;String&gt;&gt;{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;private&nbsp;T&nbsp;from;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;de&nbsp;la&nbsp;ce&nbsp;cont&nbsp;se&nbsp;face&nbsp;transferul<br>&nbsp;&nbsp;&nbsp;private&nbsp;T&nbsp;to;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;la&nbsp;ce&nbsp;cont&nbsp;se&nbsp;face&nbsp;transferul<br>&nbsp;&nbsp;&nbsp;private&nbsp;int&nbsp;sum;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;suma&nbsp;transferului<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Transaction(T&nbsp;from,&nbsp;T&nbsp;to,&nbsp;int&nbsp;sum){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.from&nbsp;=&nbsp;from;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.to&nbsp;=&nbsp;to;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.sum&nbsp;=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;execute(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(from.getSum()&nbsp;&gt;&nbsp;sum)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;from.setSum(from.getSum()&nbsp;-&nbsp;sum);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to.setSum(to.getSum()&nbsp;+&nbsp;sum);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("Account&nbsp;%s:&nbsp;%d&nbsp;\nAccount&nbsp;%s:&nbsp;%d&nbsp;\n",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;from.getId(),&nbsp;from.getSum(),&nbsp;to.getId(),&nbsp;to.getSum());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("Operation&nbsp;is&nbsp;invalid");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}<br>class&nbsp;Account&lt;T&gt;{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;private&nbsp;T&nbsp;id;<br>&nbsp;&nbsp;&nbsp;private&nbsp;int&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Account(T&nbsp;id,&nbsp;int&nbsp;sum){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.id&nbsp;=&nbsp;id;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.sum&nbsp;=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;T&nbsp;getId()&nbsp;{&nbsp;return&nbsp;id;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;getSum()&nbsp;{&nbsp;return&nbsp;sum;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;setSum(int&nbsp;sum)&nbsp;{&nbsp;this.sum&nbsp;=&nbsp;sum;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, limitarea pentru Transaction este tipul Account, care este tipizat cu String.</p>
+     <h2 class="subtitle">Interfețele ca limitări</h2>
+     <p class="paragraph">Interfețele pot fi de asemenea utilizate ca limitări. În acest caz, tipul transmis pentru parametrul universal trebuie să implementeze interfața respectivă:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;class&nbsp;Program{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Account&nbsp;acc1&nbsp;=&nbsp;new&nbsp;Account("1235rwr",&nbsp;5000);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Account&nbsp;acc2&nbsp;=&nbsp;new&nbsp;Account("2373",&nbsp;4300);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Transaction&lt;Account&gt;&nbsp;tran1&nbsp;=&nbsp;new&nbsp;Transaction&lt;Account&gt;(acc1,&nbsp;acc2,&nbsp;1560);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tran1.execute();<br>&nbsp;&nbsp;&nbsp;}<br>}<br>interface&nbsp;Accountable{<br>&nbsp;&nbsp;&nbsp;String&nbsp;getId();<br>&nbsp;&nbsp;&nbsp;int&nbsp;getSum();<br>&nbsp;&nbsp;&nbsp;void&nbsp;setSum(int&nbsp;sum);<br>}<br>class&nbsp;Account&nbsp;implements&nbsp;Accountable{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;id;<br>&nbsp;&nbsp;&nbsp;private&nbsp;int&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Account(String&nbsp;id,&nbsp;int&nbsp;sum){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.id&nbsp;=&nbsp;id;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.sum&nbsp;=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;public&nbsp;String&nbsp;getId()&nbsp;{&nbsp;return&nbsp;id;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;getSum()&nbsp;{&nbsp;return&nbsp;sum;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;setSum(int&nbsp;sum)&nbsp;{&nbsp;this.sum&nbsp;=&nbsp;sum;&nbsp;}<br>}<br>class&nbsp;Transaction&lt;T&nbsp;extends&nbsp;Accountable&gt;{<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;private&nbsp;T&nbsp;from;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;de&nbsp;la&nbsp;ce&nbsp;cont&nbsp;se&nbsp;face&nbsp;transferul<br>&nbsp;&nbsp;&nbsp;private&nbsp;T&nbsp;to;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;la&nbsp;ce&nbsp;cont&nbsp;se&nbsp;face&nbsp;transferul<br>&nbsp;&nbsp;&nbsp;private&nbsp;int&nbsp;sum;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;suma&nbsp;transferului<br>&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;Transaction(T&nbsp;from,&nbsp;T&nbsp;to,&nbsp;int&nbsp;sum){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.from&nbsp;=&nbsp;from;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.to&nbsp;=&nbsp;to;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.sum&nbsp;=&nbsp;sum;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;execute(){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(from.getSum()&nbsp;&gt;&nbsp;sum)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;from.setSum(from.getSum()&nbsp;-&nbsp;sum);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to.setSum(to.getSum()&nbsp;+&nbsp;sum);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("Account&nbsp;%s:&nbsp;%d&nbsp;\nAccount&nbsp;%s:&nbsp;%d&nbsp;\n",<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;from.getId(),&nbsp;from.getSum(),&nbsp;to.getId(),&nbsp;to.getSum());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.printf("Operation&nbsp;is&nbsp;invalid");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Limitări multiple</h2>
+     <p class="paragraph">Putem, de asemenea, să setăm mai multe limitări simultan. De exemplu, să presupunem că clasa Transaction poate funcționa doar cu obiecte care implementează simultan interfața Accountable și sunt moștenite din clasa Person:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person{}<br>interface&nbsp;Accountable{}<br><br>class&nbsp;Transaction&lt;T&nbsp;extends&nbsp;Person&nbsp;&amp;&nbsp;Accountable&gt;{}</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

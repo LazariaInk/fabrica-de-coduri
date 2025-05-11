@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='Python', activeChapter='9.Lucrul cu fisiere', activeLesson='1.Deschiderea si inchiderea fisierelor'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Deschiderea și închiderea fișierelor</h1>
+     <p class="paragraph">Python suportă o multitudine de tipuri diferite de fișiere, dar, în mod convențional, acestea pot fi împărțite în două categorii: textuale și binare. Fișierele textuale sunt, de exemplu, fișiere cu extensia cvs, txt, html, în general orice fișiere care păstrează informații în format text. Fișierele binare sunt imagini, fișiere audio și video etc. În funcție de tipul fișierului, lucrul cu acesta poate diferi ușor.</p>
+     <p class="paragraph">La lucrul cu fișiere, este necesar să respectați o anumită secvență de operații:</p>
+     <ul class="enumeration">
+      <li>Deschiderea fișierului cu metoda open</li>
+      <li>Citirea fișierului cu metoda read sau scrierea în fișier prin metoda write</li>
+      <li>Închiderea fișierului cu metoda close</li>
+     </ul>
+     <h2 class="subtitle">Deschiderea și închiderea fișierului</h2>
+     <p class="paragraph">Pentru a începe lucrul cu un fișier, acesta trebuie deschis cu ajutorul funcției open, care are următoarea definiție formală:</p>
+     <div class="code-inline">
+      <pre><code>open(file,&nbsp;mode)</code></pre>
+     </div>
+     <p class="paragraph">Primul parametru al funcției reprezintă calea către fișier. Calea fișierului poate fi absolută, adică să înceapă cu litera discului, de exemplu, C://somedir/somefile.txt. Sau poate fi relativă, de exemplu, somedir/somefile.txt - în acest caz, căutarea fișierului se va face relativ la locația scriptului Python care a fost pornit.</p>
+     <p class="paragraph">Al doilea argument transmis - mode - stabilește modul de deschidere a fișierului în funcție de ceea ce intenționăm să facem cu el. Există 4 moduri generale:</p>
+     <ul class="enumeration">
+      <li>r (Read) Fișierul este deschis pentru citire. Dacă fișierul nu este găsit, se generează excepția FileNotFoundError</li>
+      <li>w (Write) Fișierul este deschis pentru scriere. Dacă fișierul nu există, acesta este creat. Dacă un fișier similar există deja, acesta este creat din nou, și, în consecință, datele vechi din el sunt șterse</li>
+      <li>a (Append) Fișierul este deschis pentru adăugare. Dacă fișierul nu există, acesta este creat Dacă un fișier similar există deja, datele sunt adăugate la sfârșitul acestuia</li>
+      <li>b (Binary) Se folosește pentru lucrul cu fișiere binare. Se aplică împreună cu alte moduri - w sau r, de exemplu, rb (citirea fișierelor binare) și wb (scrierea fișierelor binare)</li>
+      <li>r+ Fișierul este deschis simultan pentru citire și scriere. Dacă fișierul nu este găsit, se generează excepția FileNotFoundError</li>
+      <li>w+ Fișierul este deschis simultan pentru citire și scriere. Dacă fișierul nu există, acesta este creat automat. Dacă fișierul există, acesta este rescris</li>
+      <li>a+ Fișierul este deschis simultan pentru citire și scriere. Dacă fișierul nu există, acesta este creat automat. Dacă fișierul există, datele sunt adăugate la sfârșitul fișierului</li>
+     </ul>
+     <p class="paragraph">De exemplu, deschiderea unui fișier text pentru scriere:</p>
+     <div class="code-inline">
+      <pre><code>myfile&nbsp;=&nbsp;open("hello.txt",&nbsp;"w")</code></pre>
+     </div>
+     <p class="paragraph">Sau deschiderea unui fișier binar pentru citire:</p>
+     <div class="code-inline">
+      <pre><code>myfile&nbsp;=&nbsp;open("image.png",&nbsp;"rb")</code></pre>
+     </div>
+     <p class="paragraph">După finalizarea lucrului cu fișierul, acesta trebuie închis neapărat prin metoda close. Această metodă va elibera toate resursele utilizate asociate cu fișierul.</p>
+     <p class="paragraph">De exemplu, să deschidem pentru scriere fișierul text "hello.txt":</p>
+     <div class="code-inline">
+      <pre><code>myfile&nbsp;=&nbsp;open("hello.txt",&nbsp;"w")<br>myfile.close()</code></pre>
+     </div>
+     <p class="paragraph">La deschiderea unui fișier sau în timpul lucrului cu acesta, ne putem confrunta cu diverse excepții, de exemplu, fișierul nu este accesibil etc. În acest caz, programul va genera o eroare, iar execuția lui nu va ajunge la apelarea metodei close, și, prin urmare, fișierul nu va fi închis.</p>
+     <p class="paragraph">În acest caz, putem trata excepțiile:</p>
+     <div class="code-inline">
+      <pre><code>try:<br>&nbsp;&nbsp;&nbsp;myfile&nbsp;=&nbsp;open("hello.txt",&nbsp;"w")<br>&nbsp;&nbsp;&nbsp;try:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print("Lucrul&nbsp;cu&nbsp;fișierul")<br>&nbsp;&nbsp;&nbsp;finally:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;myfile.close()<br>except&nbsp;Exception&nbsp;as&nbsp;ex:<br>&nbsp;&nbsp;&nbsp;print(ex)</code></pre>
+     </div>
+     <p class="paragraph">În acest exemplu, tot lucrul cu fișierul se desfășoară într-un bloc try imbricat. Și dacă apare vreo excepție, în orice caz, în blocul finally, fișierul va fi închis.</p>
+     <p class="paragraph">Totuși, există o construcție mai convenabilă - construcția with:</p>
+     <div class="code-inline">
+      <pre><code>with&nbsp;open(file,&nbsp;mode)&nbsp;as&nbsp;myfile:<br>&nbsp;&nbsp;&nbsp;instrucțiuni</code></pre>
+     </div>
+     <p class="paragraph">Această construcție definește pentru fișierul deschis variabila myfile și execută un set de instrucțiuni. După execuția acestora, fișierul este închis automat. Chiar dacă apar excepții în timpul execuției instrucțiunilor din blocul with, fișierul va fi închis oricum.</p>
+     <p class="paragraph">Astfel, să rescriem exemplul anterior:</p>
+     <div class="code-inline">
+      <pre><code>with&nbsp;open("hello.txt",&nbsp;"w")&nbsp;as&nbsp;myfile:<br>&nbsp;&nbsp;&nbsp;print("Lucrul&nbsp;cu&nbsp;fișierul&nbsp;myfile")</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

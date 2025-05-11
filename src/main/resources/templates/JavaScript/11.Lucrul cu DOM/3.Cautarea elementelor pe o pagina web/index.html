@@ -1,236 +1,226 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='JavaScript', activeChapter='11.Lucrul cu DOM', activeLesson='3.Cautarea elementelor pe o pagina web'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">Căutarea elementelor pe o pagină; web</h1>
- <p class="paragraph">Obiectul document oferă o serie de metode pentru căutarea și gestionarea elementelor pe o pagină web:</p>
- <ul class="enumeration">
-  <li>getElementById(value): selectează elementul cu atributul id egal cu value. Dacă nu există un element cu acest identificator, se returnează null</li>
-  <li>getElementsByTagName(value): selectează toate elementele cu eticheta egală cu value. Returnează o listă de elemente (listă de tip NodeList), care este similară cu un array</li>
-  <li>getElementsByClassName(value): selectează toate elementele care au clasa value. Returnează o listă NodeList</li>
-  <li>getElementsByName(value): selectează toate elementele care se numesc value. Returnează o listă NodeList</li>
-  <li>querySelector(value): selectează primul element care corespunde selectorului CSS value</li>
-  <li>querySelectorAll(value): selectează toate elementele care corespund selectorului CSS value. Returnează o listă NodeList</li>
- </ul>
- <h2 class="subtitle">Obținerea elementelor după id</h2>
- <p class="paragraph">De exemplu, să găsim un element după id:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;h1&nbsp;id="header"&gt;Home&nbsp;Page&lt;/h1&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;headerElement&nbsp;=&nbsp;document.getElementById("header");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Text:&nbsp;",&nbsp;headerElement.innerText);&nbsp;//&nbsp;Text:&nbsp;&nbsp;Home&nbsp;Page<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">Folosind apelul document.getElementById("header"), găsim elementul cu id="header". Și prin proprietatea innerText se poate obține textul elementului găsit.</p>
- <p class="paragraph">Este de menționat că, dacă elementul nu este găsit, atunci metoda returnează null. Prin urmare, înainte de a utiliza elementul, se recomandă verificarea acestuia pentru null.</p>
- <p class="paragraph">Căutare după un anumit tag:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;h1&gt;Home&nbsp;Page&lt;/h1&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Primul&nbsp;paragraf&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Al&nbsp;doilea&nbsp;paragraf&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;paragraphs&nbsp;=&nbsp;document.getElementsByTagName("p");<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(p&nbsp;of&nbsp;paragraphs)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(p.innerText);&nbsp;&nbsp;&nbsp;//&nbsp;afișăm&nbsp;textul&nbsp;paragrafului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">Folosind apelul document.getElementsByTagName("p"), găsim toate elementele de tip paragraf. Acest apel returnează o listă de tip NodeList, care în multe moduri este similară cu un array și care conține elementele găsite. Pentru a obține elemente individuale din această listă, se poate parcurge lista într-un ciclu.</p>
- <p class="paragraph">Afișarea la consolă:</p>
- <div class="code-inline">
-  <pre><code>Primul&nbsp;paragraf<br>Al&nbsp;doilea&nbsp;paragraf</code></pre>
- </div>
- <p class="paragraph">Dacă dorim să obținem doar primul element, putem accesa primul element al colecției găsite de obiecte.</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;p&nbsp;=&nbsp;document.getElementsByTagName("p")[0];<br>console.log(p.innerText);</code></pre>
- </div>
- <p class="paragraph">Pentru a itera prin lista, desigur, se pot folosi și alte tipuri de cicluri:</p>
- <div class="code-inline">
-  <pre><code>const&nbsp;paragraphs&nbsp;=&nbsp;document.getElementsByTagName("p");<br>for&nbsp;(let&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;paragraphs.length;&nbsp;i++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(paragraphs[i].innerText);<br>}</code></pre>
- </div>
- <h2 class="subtitle">Obținerea elementelor după clasă</h2>
- <p class="paragraph">Obținerea elementelor după clasă:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;h1&gt;Home&nbsp;Page&lt;/h1&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&nbsp;class="text"&gt;Textul&nbsp;paginii&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&nbsp;class="contacts"&gt;Email:&nbsp;supercorp@zmail.com&lt;/p&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&lt;p&nbsp;class="contacts"&gt;Telefon:&nbsp;+1-234-567-8901&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;contacts&nbsp;=&nbsp;document.getElementsByClassName("contacts");<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(contact&nbsp;of&nbsp;contacts)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(contact.innerText);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">În acest caz, selectăm toate elementele cu clasa "contacts". Afișarea în consolă:</p>
- <div class="code-inline">
-  <pre><code>Email:&nbsp;supercorp@zmail.com<br>Telefon:&nbsp;+1-234-567-8901</code></pre>
- </div>
- <h2 class="subtitle">Căutarea elementelor după atributul name</h2>
- <p class="paragraph">Metoda getElementsByName() permite obținerea unei liste de elemente după nume - atributul name. Această metodă este aplicată elementelor de formular. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;form&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Limbaj:&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="radio"&nbsp;name="lang"&nbsp;value="Java"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;label&gt;Java&lt;/label&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;br&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="radio"&nbsp;name="lang"&nbsp;value="JavaScript"&nbsp;checked&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;label&gt;JavaScript&lt;/label&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;br&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="radio"&nbsp;name="lang"&nbsp;value="PHP"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;label&gt;PHP&lt;/label&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;br&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/form&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;//&nbsp;selectăm&nbsp;toate&nbsp;elementele&nbsp;cu&nbsp;atributul&nbsp;name="lang"<br>&nbsp;&nbsp;&nbsp;const&nbsp;langs&nbsp;=&nbsp;document.getElementsByName("lang");<br>&nbsp;&nbsp;&nbsp;for&nbsp;(lang&nbsp;of&nbsp;langs)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(lang.value);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;valoarea&nbsp;atributului&nbsp;value<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">În acest caz, selectăm toate elementele a căror atribut name este egal cu "lang". În exemplul de mai sus, acestea sunt butoanele radio. Apoi, afișăm în consolă valoarea atributului value a fiecărui element obținut. Afișarea în consolă:</p>
- <div class="code-inline">
-  <pre><code>Java<br>JavaScript<br>PHP</code></pre>
- </div>
- <p class="paragraph">Este de menționat că această metodă poate funcționa puțin diferit în browserele vechi, cum ar fi Internet Explorer sau Opera. În special, selectează elementul dacă nu doar atributul său name corespunde valorii transmise, ci și atributul id.</p>
- <h2 class="subtitle">Căutarea elementelor după selectorul CSS</h2>
- <p class="paragraph">Alegerea după selectorul CSS:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="annotation"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Annotația&nbsp;articolului&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="text"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Primul&nbsp;paragraf&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Al&nbsp;doilea&nbsp;paragraf&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;elem&nbsp;=&nbsp;document.querySelector(".annotation&nbsp;p");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(elem.innerText);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Annotația&nbsp;articolului<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">Expresia document.querySelector(".annotation p") găsește elementul care corespunde selectorului .annotation p. Dacă există mai multe elemente pe pagină care corespund selectorului, metoda va selecta primul dintre ele.</p>
- <p class="paragraph">Pentru a obține toate elementele după selector, se poate utiliza în mod similar metoda document.querySelectorAll, care returnează o listă NodeList cu elementele găsite:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="annotation"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Annotația&nbsp;articolului&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="text"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Primul&nbsp;paragraf&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Al&nbsp;doilea&nbsp;paragraf&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;elems&nbsp;=&nbsp;document.querySelectorAll(".text&nbsp;p");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(elem&nbsp;of&nbsp;elems)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(elem.innerText);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">Afișarea în browser:</p>
- <div class="code-inline">
-  <pre><code>Primul&nbsp;paragraf<br>Al&nbsp;doilea&nbsp;paragraf</code></pre>
- </div>
- <h2 class="subtitle">Căutarea în elemente încorporate</h2>
- <p class="paragraph">În mod similar, putem căuta elemente nu numai în întregul document, ci și în elemente individuale pe o pagină web. De exemplu:</p>
- <div class="code-inline">
-  <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;id="article"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;h1&nbsp;id="header"&gt;Pagina&nbsp;principală&lt;/h1&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&nbsp;class="text"&gt;Textul&nbsp;paginii&nbsp;1&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&nbsp;class="text"&gt;Textul&nbsp;paginii&nbsp;2&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;id="footer"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&nbsp;class="text"&gt;Textul&nbsp;subsolului&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;elementul&nbsp;cu&nbsp;id="article"<br>&nbsp;&nbsp;&nbsp;const&nbsp;article&nbsp;=&nbsp;document.getElementById("article");<br>&nbsp;&nbsp;&nbsp;//&nbsp;în&nbsp;acest&nbsp;element&nbsp;obținem&nbsp;toate&nbsp;elementele&nbsp;cu&nbsp;class="text"<br>&nbsp;&nbsp;&nbsp;const&nbsp;articleContent&nbsp;=&nbsp;article.getElementsByClassName("text");<br>&nbsp;&nbsp;&nbsp;for(p&nbsp;of&nbsp;articleContent){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(p);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
- </div>
- <p class="paragraph">În acest caz, mai întâi obținem elementul cu id="article", apoi în interiorul acestui element căutăm toate elementele cu class="text". Ca rezultat, consola va afișa două elemente:</p>
- <div class="code-inline">
-  <pre><code>-&nbsp;\&lt;p&nbsp;class="text"&gt;Textul&nbsp;paginii&nbsp;1\&lt;/p&gt;<br>-&nbsp;\&lt;p&nbsp;class="text"&gt;Textul&nbsp;paginii&nbsp;2\&lt;/p&gt;</code></pre>
- </div>
- <h2 class="subtitle">Selectori CSS</h2>
- <p class="paragraph">O scurtă enumerare a selectorilor CSS de bază pe care îi putem folosi pentru a căuta elemente:</p>
- <ul class="enumeration">
-  <li>*: selectează toate elementele</li>
-  <li>E: selectează toate elementele de tipul E</li>
-  <li>[a]: selectează toate elementele cu atributul a</li>
-  <li>[a="b"]: selectează toate elementele în care atributul a are valoarea b</li>
-  <li>[a~="b"]: selectează toate elementele în care atributul a conține o listă de valori, una dintre acestea fiind b</li>
-  <li>[a^="b"]: selectează toate elementele în care valoarea atributului a începe cu b</li>
-  <li>[a$="b"]: selectează toate elementele în care valoarea atributului a se termină cu b</li>
-  <li>[a*="b"]: selectează toate elementele în care valoarea atributului a conține subșirul b</li>
-  <li>[a|="b"]: selectează toate elementele în care valoarea atributului a reprezintă o serie de valori separate prin liniuță, iar prima dintre aceste valori este b</li>
-  <li>:root: selectează elementul rădăcină al documentului</li>
-  <li>:nth-child(n): selectează al n-lea element încorporat (numărătoarea începe de la început)</li>
-  <li>:nth-last-child(n): selectează al n-lea element încorporat (numărătoarea începe de la sfârșit)</li>
-  <li>:nth-of-type(n): selectează al n-lea element frate de tipul type (numărătoarea începe de la început)</li>
-  <li>:nth-last-of-type(n): selectează al n-lea element frate de tipul type (numărătoarea începe de la sfârșit)</li>
-  <li>:first-child: selectează primul element încorporat</li>
-  <li>:last-child: selectează ultimul element încorporat</li>
-  <li>:first-of-type: selectează primul element frate de tipul type</li>
-  <li>:last-of-type: selectează ultimul element frate de tipul type</li>
-  <li>:only-child: selectează toate elementele care au doar un singur element încorporat</li>
-  <li>:only-of-type: selectează toate elementele frate de tipul type</li>
-  <li>:empty: selectează toate elementele care nu au elemente încorporate</li>
-  <li>:link: selectează toate linkurile care încă nu au fost</li>
-  <li>:visited: selectează toate linkurile care au fost deja accesate</li>
-  <li>:active: selectează toate linkurile care sunt active în acel moment (apăsate)</li>
-  <li>:hover: selectează toate linkurile peste care cursorul se află în acel moment</li>
-  <li>:focus: selectează toate elementele care au primit focus în acel moment</li>
-  <li>:target: selectează toate elementele la care se poate ajunge utilizând adrese URL în cadrul paginii</li>
-  <li>:lang(en): selectează toate elementele ale căror atribut lang are valoarea "en"</li>
-  <li>:enabled: selectează toate elementele de formular care sunt disponibile pentru interacțiune</li>
-  <li>:disabled: selectează toate elementele de formular care NU sunt disponibile pentru interacțiune</li>
-  <li>:checked: selectează toate căsuțele de bifat (checkbox-uri) și butoanele radio care sunt selectate</li>
-  <li>.class: selectează toate elementele cu clasa class</li>
-  <li>#id: selectează toate elementele cu identificatorul id</li>
-  <li>:not(s): selectează toate elementele care nu corespund selectorului s</li>
-  <li>E F: selectează toate elementele de tipul F care se găsesc în elementele de tipul E.</li>
-  <li>E &gt; F: selectează toate elementele de tipul F care sunt imbricate în elementele de tipul E.</li>
-  <li>E + F: selectează toate elementele de tipul F care se află imediat după elementele de tipul E</li>
-  <li>E ~ F: selectează toate elementele de tipul F care sunt surori cu elementele de tipul E</li>
- </ul>
- <h2 class="subtitle">Observații suplimentare</h2>
- <p class="paragraph">Este de menționat că dintre toate aceste metode, selecția după id este de obicei cea mai rapidă. În toate celelalte condiții, este preferabil să se aleagă metoda getElementById().</p>
- <p class="paragraph">De asemenea, pentru optimizarea lucrului cu DOM-ul, pentru a evita reselecția acelorași elemente, este mai bine să le salvați în constante/variabile la prima selecție.</p>
- <p class="paragraph">O serie de metode - getElementsByTagName(), getElementsByClassName(), getElementsByName(), querySelectorAll() - returnează o listă de elemente sub forma unui obiect NodeList, care este similar unui array și pe care îl putem parcurge pentru a obține fiecare element individual din acest set.</p>
- <p class="paragraph">Cu toate acestea, metoda querySelectorAll() returnează o listă statică NodeList, în timp ce celelalte metode returnează o listă non-statică. Care este diferența? Atunci când se modifică elementele listei non-statice, toate modificările sunt aplicate imediat paginii web. Atunci când se modifică elementele din lista statică, modificările pot să nu fie aplicate imediat.</p>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">Căutarea elementelor pe o pagină; web</h1>
+     <p class="paragraph">Obiectul document oferă o serie de metode pentru căutarea și gestionarea elementelor pe o pagină web:</p>
+     <ul class="enumeration">
+      <li>getElementById(value): selectează elementul cu atributul id egal cu value. Dacă nu există un element cu acest identificator, se returnează null</li>
+      <li>getElementsByTagName(value): selectează toate elementele cu eticheta egală cu value. Returnează o listă de elemente (listă de tip NodeList), care este similară cu un array</li>
+      <li>getElementsByClassName(value): selectează toate elementele care au clasa value. Returnează o listă NodeList</li>
+      <li>getElementsByName(value): selectează toate elementele care se numesc value. Returnează o listă NodeList</li>
+      <li>querySelector(value): selectează primul element care corespunde selectorului CSS value</li>
+      <li>querySelectorAll(value): selectează toate elementele care corespund selectorului CSS value. Returnează o listă NodeList</li>
+     </ul>
+     <h2 class="subtitle">Obținerea elementelor după id</h2>
+     <p class="paragraph">De exemplu, să găsim un element după id:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;h1&nbsp;id="header"&gt;Home&nbsp;Page&lt;/h1&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;headerElement&nbsp;=&nbsp;document.getElementById("header");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("Text:&nbsp;",&nbsp;headerElement.innerText);&nbsp;//&nbsp;Text:&nbsp;&nbsp;Home&nbsp;Page<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Folosind apelul document.getElementById("header"), găsim elementul cu id="header". Și prin proprietatea innerText se poate obține textul elementului găsit.</p>
+     <p class="paragraph">Este de menționat că, dacă elementul nu este găsit, atunci metoda returnează null. Prin urmare, înainte de a utiliza elementul, se recomandă verificarea acestuia pentru null.</p>
+     <p class="paragraph">Căutare după un anumit tag:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;h1&gt;Home&nbsp;Page&lt;/h1&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Primul&nbsp;paragraf&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&gt;Al&nbsp;doilea&nbsp;paragraf&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;paragraphs&nbsp;=&nbsp;document.getElementsByTagName("p");<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(p&nbsp;of&nbsp;paragraphs)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(p.innerText);&nbsp;&nbsp;&nbsp;//&nbsp;afișăm&nbsp;textul&nbsp;paragrafului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Folosind apelul document.getElementsByTagName("p"), găsim toate elementele de tip paragraf. Acest apel returnează o listă de tip NodeList, care în multe moduri este similară cu un array și care conține elementele găsite. Pentru a obține elemente individuale din această listă, se poate parcurge lista într-un ciclu.</p>
+     <p class="paragraph">Afișarea la consolă:</p>
+     <div class="code-inline">
+      <pre><code>Primul&nbsp;paragraf<br>Al&nbsp;doilea&nbsp;paragraf</code></pre>
+     </div>
+     <p class="paragraph">Dacă dorim să obținem doar primul element, putem accesa primul element al colecției găsite de obiecte.</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;p&nbsp;=&nbsp;document.getElementsByTagName("p")[0];<br>console.log(p.innerText);</code></pre>
+     </div>
+     <p class="paragraph">Pentru a itera prin lista, desigur, se pot folosi și alte tipuri de cicluri:</p>
+     <div class="code-inline">
+      <pre><code>const&nbsp;paragraphs&nbsp;=&nbsp;document.getElementsByTagName("p");<br>for&nbsp;(let&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;paragraphs.length;&nbsp;i++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;console.log(paragraphs[i].innerText);<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Obținerea elementelor după clasă</h2>
+     <p class="paragraph">Obținerea elementelor după clasă:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;h1&gt;Home&nbsp;Page&lt;/h1&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&nbsp;class="text"&gt;Textul&nbsp;paginii&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;p&nbsp;class="contacts"&gt;Email:&nbsp;supercorp@zmail.com&lt;/p&gt;&nbsp;<br>&nbsp;&nbsp;&nbsp;&lt;p&nbsp;class="contacts"&gt;Telefon:&nbsp;+1-234-567-8901&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;contacts&nbsp;=&nbsp;document.getElementsByClassName("contacts");<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(contact&nbsp;of&nbsp;contacts)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(contact.innerText);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, selectăm toate elementele cu clasa "contacts". Afișarea în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Email:&nbsp;supercorp@zmail.com<br>Telefon:&nbsp;+1-234-567-8901</code></pre>
+     </div>
+     <h2 class="subtitle">Căutarea elementelor după atributul name</h2>
+     <p class="paragraph">Metoda getElementsByName() permite obținerea unei liste de elemente după nume - atributul name. Această metodă este aplicată elementelor de formular. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;form&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Limbaj:&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="radio"&nbsp;name="lang"&nbsp;value="Java"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;label&gt;Java&lt;/label&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;br&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="radio"&nbsp;name="lang"&nbsp;value="JavaScript"&nbsp;checked&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;label&gt;JavaScript&lt;/label&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;br&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type="radio"&nbsp;name="lang"&nbsp;value="PHP"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;label&gt;PHP&lt;/label&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;br&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/form&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;//&nbsp;selectăm&nbsp;toate&nbsp;elementele&nbsp;cu&nbsp;atributul&nbsp;name="lang"<br>&nbsp;&nbsp;&nbsp;const&nbsp;langs&nbsp;=&nbsp;document.getElementsByName("lang");<br>&nbsp;&nbsp;&nbsp;for&nbsp;(lang&nbsp;of&nbsp;langs)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(lang.value);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;valoarea&nbsp;atributului&nbsp;value<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, selectăm toate elementele a căror atribut name este egal cu "lang". În exemplul de mai sus, acestea sunt butoanele radio. Apoi, afișăm în consolă valoarea atributului value a fiecărui element obținut. Afișarea în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Java<br>JavaScript<br>PHP</code></pre>
+     </div>
+     <p class="paragraph">Este de menționat că această metodă poate funcționa puțin diferit în browserele vechi, cum ar fi Internet Explorer sau Opera. În special, selectează elementul dacă nu doar atributul său name corespunde valorii transmise, ci și atributul id.</p>
+     <h2 class="subtitle">Căutarea elementelor după selectorul CSS</h2>
+     <p class="paragraph">Alegerea după selectorul CSS:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="annotation"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Annotația&nbsp;articolului&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="text"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Primul&nbsp;paragraf&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Al&nbsp;doilea&nbsp;paragraf&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;elem&nbsp;=&nbsp;document.querySelector(".annotation&nbsp;p");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(elem.innerText);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Annotația&nbsp;articolului<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Expresia document.querySelector(".annotation p") găsește elementul care corespunde selectorului .annotation p. Dacă există mai multe elemente pe pagină care corespund selectorului, metoda va selecta primul dintre ele.</p>
+     <p class="paragraph">Pentru a obține toate elementele după selector, se poate utiliza în mod similar metoda document.querySelectorAll, care returnează o listă NodeList cu elementele găsite:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="annotation"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Annotația&nbsp;articolului&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;class="text"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Primul&nbsp;paragraf&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Al&nbsp;doilea&nbsp;paragraf&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;elems&nbsp;=&nbsp;document.querySelectorAll(".text&nbsp;p");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(elem&nbsp;of&nbsp;elems)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(elem.innerText);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">Afișarea în browser:</p>
+     <div class="code-inline">
+      <pre><code>Primul&nbsp;paragraf<br>Al&nbsp;doilea&nbsp;paragraf</code></pre>
+     </div>
+     <h2 class="subtitle">Căutarea în elemente încorporate</h2>
+     <p class="paragraph">În mod similar, putem căuta elemente nu numai în întregul document, ci și în elemente individuale pe o pagină web. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>&lt;!DOCTYPE&nbsp;html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset="utf-8"&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&lt;title&gt;FDC.COM&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;id="article"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;h1&nbsp;id="header"&gt;Pagina&nbsp;principală&lt;/h1&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&nbsp;class="text"&gt;Textul&nbsp;paginii&nbsp;1&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&nbsp;class="text"&gt;Textul&nbsp;paginii&nbsp;2&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;div&nbsp;id="footer"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&nbsp;class="text"&gt;Textul&nbsp;subsolului&lt;/p&gt;<br>&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>&nbsp;&nbsp;&nbsp;&lt;script&gt;<br>&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;elementul&nbsp;cu&nbsp;id="article"<br>&nbsp;&nbsp;&nbsp;const&nbsp;article&nbsp;=&nbsp;document.getElementById("article");<br>&nbsp;&nbsp;&nbsp;//&nbsp;în&nbsp;acest&nbsp;element&nbsp;obținem&nbsp;toate&nbsp;elementele&nbsp;cu&nbsp;class="text"<br>&nbsp;&nbsp;&nbsp;const&nbsp;articleContent&nbsp;=&nbsp;article.getElementsByClassName("text");<br>&nbsp;&nbsp;&nbsp;for(p&nbsp;of&nbsp;articleContent){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(p);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, mai întâi obținem elementul cu id="article", apoi în interiorul acestui element căutăm toate elementele cu class="text". Ca rezultat, consola va afișa două elemente:</p>
+     <div class="code-inline">
+      <pre><code>-&nbsp;\&lt;p&nbsp;class="text"&gt;Textul&nbsp;paginii&nbsp;1\&lt;/p&gt;<br>-&nbsp;\&lt;p&nbsp;class="text"&gt;Textul&nbsp;paginii&nbsp;2\&lt;/p&gt;</code></pre>
+     </div>
+     <h2 class="subtitle">Selectori CSS</h2>
+     <p class="paragraph">O scurtă enumerare a selectorilor CSS de bază pe care îi putem folosi pentru a căuta elemente:</p>
+     <ul class="enumeration">
+      <li>*: selectează toate elementele</li>
+      <li>E: selectează toate elementele de tipul E</li>
+      <li>[a]: selectează toate elementele cu atributul a</li>
+      <li>[a="b"]: selectează toate elementele în care atributul a are valoarea b</li>
+      <li>[a~="b"]: selectează toate elementele în care atributul a conține o listă de valori, una dintre acestea fiind b</li>
+      <li>[a^="b"]: selectează toate elementele în care valoarea atributului a începe cu b</li>
+      <li>[a$="b"]: selectează toate elementele în care valoarea atributului a se termină cu b</li>
+      <li>[a*="b"]: selectează toate elementele în care valoarea atributului a conține subșirul b</li>
+      <li>[a|="b"]: selectează toate elementele în care valoarea atributului a reprezintă o serie de valori separate prin liniuță, iar prima dintre aceste valori este b</li>
+      <li>:root: selectează elementul rădăcină al documentului</li>
+      <li>:nth-child(n): selectează al n-lea element încorporat (numărătoarea începe de la început)</li>
+      <li>:nth-last-child(n): selectează al n-lea element încorporat (numărătoarea începe de la sfârșit)</li>
+      <li>:nth-of-type(n): selectează al n-lea element frate de tipul type (numărătoarea începe de la început)</li>
+      <li>:nth-last-of-type(n): selectează al n-lea element frate de tipul type (numărătoarea începe de la sfârșit)</li>
+      <li>:first-child: selectează primul element încorporat</li>
+      <li>:last-child: selectează ultimul element încorporat</li>
+      <li>:first-of-type: selectează primul element frate de tipul type</li>
+      <li>:last-of-type: selectează ultimul element frate de tipul type</li>
+      <li>:only-child: selectează toate elementele care au doar un singur element încorporat</li>
+      <li>:only-of-type: selectează toate elementele frate de tipul type</li>
+      <li>:empty: selectează toate elementele care nu au elemente încorporate</li>
+      <li>:link: selectează toate linkurile care încă nu au fost</li>
+      <li>:visited: selectează toate linkurile care au fost deja accesate</li>
+      <li>:active: selectează toate linkurile care sunt active în acel moment (apăsate)</li>
+      <li>:hover: selectează toate linkurile peste care cursorul se află în acel moment</li>
+      <li>:focus: selectează toate elementele care au primit focus în acel moment</li>
+      <li>:target: selectează toate elementele la care se poate ajunge utilizând adrese URL în cadrul paginii</li>
+      <li>:lang(en): selectează toate elementele ale căror atribut lang are valoarea "en"</li>
+      <li>:enabled: selectează toate elementele de formular care sunt disponibile pentru interacțiune</li>
+      <li>:disabled: selectează toate elementele de formular care NU sunt disponibile pentru interacțiune</li>
+      <li>:checked: selectează toate căsuțele de bifat (checkbox-uri) și butoanele radio care sunt selectate</li>
+      <li>.class: selectează toate elementele cu clasa class</li>
+      <li>#id: selectează toate elementele cu identificatorul id</li>
+      <li>:not(s): selectează toate elementele care nu corespund selectorului s</li>
+      <li>E F: selectează toate elementele de tipul F care se găsesc în elementele de tipul E.</li>
+      <li>E &gt; F: selectează toate elementele de tipul F care sunt imbricate în elementele de tipul E.</li>
+      <li>E + F: selectează toate elementele de tipul F care se află imediat după elementele de tipul E</li>
+      <li>E ~ F: selectează toate elementele de tipul F care sunt surori cu elementele de tipul E</li>
+     </ul>
+     <h2 class="subtitle">Observații suplimentare</h2>
+     <p class="paragraph">Este de menționat că dintre toate aceste metode, selecția după id este de obicei cea mai rapidă. În toate celelalte condiții, este preferabil să se aleagă metoda getElementById().</p>
+     <p class="paragraph">De asemenea, pentru optimizarea lucrului cu DOM-ul, pentru a evita reselecția acelorași elemente, este mai bine să le salvați în constante/variabile la prima selecție.</p>
+     <p class="paragraph">O serie de metode - getElementsByTagName(), getElementsByClassName(), getElementsByName(), querySelectorAll() - returnează o listă de elemente sub forma unui obiect NodeList, care este similar unui array și pe care îl putem parcurge pentru a obține fiecare element individual din acest set.</p>
+     <p class="paragraph">Cu toate acestea, metoda querySelectorAll() returnează o listă statică NodeList, în timp ce celelalte metode returnează o listă non-statică. Care este diferența? Atunci când se modifică elementele listei non-statice, toate modificările sunt aplicate imediat paginii web. Atunci când se modifică elementele din lista statică, modificările pot să nu fie aplicate imediat.</p>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

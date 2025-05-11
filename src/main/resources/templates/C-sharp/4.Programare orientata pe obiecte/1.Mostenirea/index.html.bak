@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='4.Programare orientata pe obiecte', activeLesson='1.Mostenirea'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Moștenirea</h1>
+     <p class="paragraph">Moștenirea (inheritance) este unul dintre punctele cheie ale programării orientate pe obiecte (OOP). Prin moștenire, o clasă poate prelua funcționalitățile unei alte clase.</p>
+     <p class="paragraph">Să presupunem că avem clasa Person, care descrie o persoană:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person&nbsp;{<br>&nbsp;&nbsp;&nbsp;private&nbsp;string&nbsp;_name&nbsp;=&nbsp;"";<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get&nbsp;{&nbsp;return&nbsp;_name;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set&nbsp;{&nbsp;_name&nbsp;=&nbsp;value;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Print()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(Name);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Dar, la un moment dat, avem nevoie de o clasă care să descrie un angajat al unei companii - clasa Employee. Având în vedere că această clasă va implementa aceleași funcționalități ca și clasa Person, deoarece un angajat este, de asemenea, o persoană, ar fi rațional să facem clasa Employee o subclasă (sau moștenitor) a clasei Person, care, la rândul ei, este numită clasa de bază sau părinte (sau superclasă):</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Employee&nbsp;:&nbsp;Person&nbsp;{<br><br>}</code></pre>
+     </div>
+     <p class="paragraph">După punctul dublu specificăm clasa de bază pentru clasa dată. Pentru clasa Employee, clasa de bază este Person, și prin urmare clasa Employee moștenește toate proprietățile, metodele și câmpurile care există în clasa Person. Singurul lucru care nu se transmite la moștenire sunt constructorii clasei de bază cu parametri.</p>
+     <p class="paragraph">Astfel, moștenirea implementează relația „este-un” (is-a), obiectul clasei Employee este de asemenea un obiect al clasei Person:</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;person&nbsp;=&nbsp;new&nbsp;Person&nbsp;{&nbsp;Name&nbsp;=&nbsp;"Tom"&nbsp;};<br>person.Print();&nbsp;&nbsp;&nbsp;//&nbsp;Tom<br>person&nbsp;=&nbsp;new&nbsp;Employee&nbsp;{&nbsp;Name&nbsp;=&nbsp;"Sam"&nbsp;};<br>person.Print();&nbsp;&nbsp;&nbsp;//&nbsp;Sam</code></pre>
+     </div>
+     <p class="paragraph">Și, deoarece obiectul Employee este, de asemenea, un obiect al clasei Person, putem defini variabila astfel: Person p = new Employee().</p>
+     <p class="paragraph">În mod implicit, toate clasele sunt moștenite din clasa de bază Object, chiar dacă nu stabilim explicit moștenirea. Prin urmare, clasele definite mai sus, Person și Employee, pe lângă metodele lor proprii, vor avea și metodele clasei Object: ToString(), Equals(), GetHashCode() și GetType().</p>
+     <p class="paragraph">Toate clasele pot fi moștenite în mod implicit. Totuși, există unele restricții:</p>
+     <ul class="enumeration">
+      <li>Nu se suportă moștenirea multiplă, o clasă poate moșteni doar de la o singură clasă</li>
+      <li>La crearea unei clase derivate trebuie să luăm în considerare tipul de acces al clasei de bază - tipul de acces al clasei derivate trebuie să fie același sau mai strict decât cel al clasei de bază. De exemplu, dacă clasa de bază are tipul de acces internal, atunci clasa derivată poate avea tipul de acces internal sau private, dar nu public</li>
+     </ul>
+     <p class="paragraph">De asemenea, trebuie să luăm în considerare faptul că, dacă clasa de bază și clasa derivată se află în asamblări diferite, atunci clasa derivată poate moșteni doar de la o clasă care are modificatorul public.</p>
+     <ul class="enumeration">
+      <li>Dacă o clasă este declarată cu modificatorul sealed, nu se poate moșteni acea clasă și nu se pot crea clase derivate. De exemplu, clasa următoare nu permite crearea de moștenitori:</li>
+     </ul>
+     <div class="code-inline">
+      <pre><code>sealed&nbsp;class&nbsp;Admin&nbsp;{<br>}</code></pre>
+     </div>
+     <ul class="enumeration">
+      <li>Nu se poate moșteni o clasă de la o clasă statică</li>
+     </ul>
+     <h2 class="subtitle">Accesul la membrii clasei de bază din clasa derivată</h2>
+     <p class="paragraph">Să ne întoarcem la clasele noastre Person și Employee. Deși Employee moștenește toată funcționalitatea clasei Person, să vedem ce se întâmplă în următorul caz:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Employee&nbsp;:&nbsp;Person&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;PrintName()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(_name);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Acest cod nu va funcționa și va genera o eroare, deoarece variabila _name este declarată cu modificatorul private și, prin urmare, doar clasa Person are acces la ea. Însă, în clasa Person este definită proprietatea publică Name, pe care o putem folosi, astfel încât următorul cod va funcționa corect:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Employee&nbsp;:&nbsp;Person&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;PrintName()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(Name);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Astfel, clasa derivată poate avea acces doar la acei membri ai clasei de bază care sunt definiți cu modificatorii private protected (dacă clasa de bază și clasa derivată se află în aceeași asamblare), public, internal (dacă clasa de bază și clasa derivată se află în aceeași asamblare), protected și protected internal.</p>
+     <h2 class="subtitle">Cuvântul cheie base</h2>
+     <p class="paragraph">Acum să adăugăm constructori în clasele noastre:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Print()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(Name);<br>&nbsp;&nbsp;&nbsp;}<br>}<br><br>class&nbsp;Employee&nbsp;:&nbsp;Person&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Company&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Employee(string&nbsp;name,&nbsp;string&nbsp;company)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;base(name)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Company&nbsp;=&nbsp;company;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Clasa Person are un constructor care setează proprietatea Name. Deoarece clasa Employee moștenește și setează aceeași proprietate Name, ar fi logic să nu rescriem codul de setare de mai multe ori, ci să apelăm codul corespunzător al clasei Person.</p>
+     <p class="paragraph">De asemenea, proprietățile care trebuie setate în constructorul clasei de bază și parametrii pot fi mult mai mulți.</p>
+     <p class="paragraph">Folosind cuvântul cheie base, putem accesa clasa de bază. În cazul nostru, în constructorul clasei Employee trebuie să setăm numele și compania.</p>
+     <p class="paragraph">Dar numele îl transmitem pentru setare în constructorul clasei de bază, adică în constructorul clasei Person, folosind expresia base(name).</p>
+     <div class="code-inline">
+      <pre><code>Person&nbsp;person&nbsp;=&nbsp;new&nbsp;Person("Bob");<br>person.Print();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Bob<br>Employee&nbsp;employee&nbsp;=&nbsp;new&nbsp;Employee("Tom",&nbsp;"Microsoft");<br>employee.Print();&nbsp;&nbsp;&nbsp;//&nbsp;Tom</code></pre>
+     </div>
+     <h2 class="subtitle">Constructorii în clasele derivate</h2>
+     <p class="paragraph">Constructorii nu sunt transmiși clasei derivate prin moștenire. Dacă clasa de bază nu are un constructor implicit fără parametri, ci doar constructori cu parametri (cum este cazul clasei de bază Person), atunci clasa derivată trebuie să apeleze unul dintre acești constructori prin cuvântul cheie base.</p>
+     <p class="paragraph">De exemplu, dacă eliminăm definiția constructorului din clasa Employee, va apărea o eroare deoarece clasa Employee nu apelează constructorul clasei de bază. Chiar dacă am adăuga un constructor care să seteze aceleași proprietăți, tot am întâmpina o eroare:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Employee&nbsp;:&nbsp;Person&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Company&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}&nbsp;=&nbsp;"";<br>}</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, vom primi o eroare pentru că clasa Employee nu corespunde clasei Person, adică nu apelează constructorul clasei de bază. Dacă am adăuga un constructor care să seteze aceleași proprietăți, tot am întâmpina o eroare:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Employee&nbsp;:&nbsp;Person&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Company&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}&nbsp;=&nbsp;"";<br>&nbsp;&nbsp;&nbsp;public&nbsp;Employee(string&nbsp;name,&nbsp;string&nbsp;company)&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Eroare!<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Company&nbsp;=&nbsp;company;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Deci, în clasa Employee trebuie să apelăm explicit constructorul clasei Person prin cuvântul cheie base:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Employee&nbsp;:&nbsp;Person&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Company&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}&nbsp;=&nbsp;"";<br>&nbsp;&nbsp;&nbsp;public&nbsp;Employee(string&nbsp;name,&nbsp;string&nbsp;company)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;base(name)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Company&nbsp;=&nbsp;company;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Alternativ, am putea defini în clasa de bază un constructor fără parametri:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person&nbsp;{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Name&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;//&nbsp;Constructor&nbsp;fără&nbsp;parametri<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;"Tom";<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Apel&nbsp;constructor&nbsp;fără&nbsp;parametri");<br>&nbsp;&nbsp;&nbsp;}<br><br><br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Print()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(Name);<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Atunci, orice constructor din clasa derivată care nu apelează un constructor al clasei de bază ar apela implicit acest constructor implicit. De exemplu, următorul constructor:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;Employee(string&nbsp;company)&nbsp;{<br>&nbsp;&nbsp;&nbsp;Company&nbsp;=&nbsp;company;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Ar fi echivalent cu următorul constructor:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;Employee(string&nbsp;company)<br>&nbsp;&nbsp;&nbsp;:&nbsp;base()&nbsp;{<br>&nbsp;&nbsp;&nbsp;Company&nbsp;=&nbsp;company;<br>}</code></pre>
+     </div>
+     <h2 class="subtitle">Ordinea apelării constructorilor</h2>
+     <p class="paragraph">Când se apelează un constructor al unei clase, mai întâi se execută constructorii claselor de bază și abia apoi cei ai claselor derivate. De exemplu, să luăm următoarele clase:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Person&nbsp;{<br>&nbsp;&nbsp;&nbsp;string&nbsp;name;<br>&nbsp;&nbsp;&nbsp;int&nbsp;age;<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Person(string&nbsp;name)");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Person(string&nbsp;name,&nbsp;int&nbsp;age)&nbsp;:&nbsp;this(name)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Person(string&nbsp;name,&nbsp;int&nbsp;age)");<br>&nbsp;&nbsp;&nbsp;}<br>}<br>class&nbsp;Employee&nbsp;:&nbsp;Person&nbsp;{<br>&nbsp;&nbsp;&nbsp;string&nbsp;company;<br><br>&nbsp;&nbsp;&nbsp;public&nbsp;Employee(string&nbsp;name,&nbsp;int&nbsp;age,&nbsp;string&nbsp;company)&nbsp;:&nbsp;base(name,&nbsp;age)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.company&nbsp;=&nbsp;company;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Employee(string&nbsp;name,&nbsp;int&nbsp;age,&nbsp;string&nbsp;company)");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Când creăm un obiect Employee:</p>
+     <div class="code-inline">
+      <pre><code>Employee&nbsp;tom&nbsp;=&nbsp;new&nbsp;Employee("Tom",&nbsp;22,&nbsp;"Microsoft");</code></pre>
+     </div>
+     <p class="paragraph">Vom obține următorul output la consolă:</p>
+     <div class="code-inline">
+      <pre><code>Person(string&nbsp;name)<br>Person(string&nbsp;name,&nbsp;int&nbsp;age)<br>Employee(string&nbsp;name,&nbsp;int&nbsp;age,&nbsp;string&nbsp;company)</code></pre>
+     </div>
+     <p class="paragraph">În final, obținem următoarea secvență de execuții:</p>
+     <ul class="enumeration">
+      <li>La început, se apelează constructorul Employee(string name, int age, string company). Acesta deleghează execuția constructorului Person(string name, int age)</li>
+      <li>Se apelează constructorul Person(string name, int age), care la rândul său nu se execută imediat și trece execuția constructorului Person(string name)</li>
+      <li>Se apelează constructorul Person(string name), care trece execuția constructorului clasei System.Object, deoarece acesta este clasa de bază implicită pentru Person</li>
+      <li>Se execută constructorul System.Object.Object(), apoi execuția se întoarce constructorului Person(string name)</li>
+      <li>Se execută corpul constructorului Person(string name), apoi execuția se întoarce constructorului Person(string name, int age)</li>
+      <li>Se execută corpul constructorului Person(string name, int age), apoi execuția se întoarce constructorului Employee(string name, int age, string company)</li>
+      <li>Se execută corpul constructorului Employee(string name, int age, string company). În final, se creează obiectul Employee</li>
+     </ul>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

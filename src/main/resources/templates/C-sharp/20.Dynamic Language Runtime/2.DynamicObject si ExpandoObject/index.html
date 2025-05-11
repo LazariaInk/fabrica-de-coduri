@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='20.Dynamic Language Runtime', activeLesson='2.DynamicObject si ExpandoObject'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">DynamicObject și ExpandoObject</h1>
+     <p class="paragraph">C# și .NET oferă interesante posibilități de dezvoltare folosind DLR (Dynamic Language Runtime), printre care se numără și utilizarea spațiului de nume System.Dynamic, în special clasa ExpandoObject. Aceasta permite crearea de obiecte dinamice, similare celor utilizate în JavaScript:</p>
+     <div class="code-inline">
+      <pre><code>//&nbsp;definim&nbsp;un&nbsp;obiect&nbsp;care&nbsp;va&nbsp;stoca&nbsp;diverse&nbsp;valori<br>dynamic&nbsp;person&nbsp;=&nbsp;new&nbsp;System.Dynamic.ExpandoObject();<br>person.Name&nbsp;=&nbsp;"Tom";<br>person.Age&nbsp;=&nbsp;46;<br>person.Languages&nbsp;=&nbsp;new&nbsp;List&lt;string&gt;&nbsp;{&nbsp;"english",&nbsp;"german",&nbsp;"french"&nbsp;};<br><br>Console.WriteLine($"{person.Name}&nbsp;-&nbsp;{person.Age}");<br>foreach&nbsp;(var&nbsp;lang&nbsp;in&nbsp;person.Languages)<br>&nbsp;&nbsp;&nbsp;Console.WriteLine(lang);<br><br>//&nbsp;declarăm&nbsp;o&nbsp;metodă<br>person.IncrementAge&nbsp;=&nbsp;(Action&lt;int&gt;)(x&nbsp;=&gt;&nbsp;person.Age&nbsp;+=&nbsp;x);<br>person.IncrementAge(6);&nbsp;//&nbsp;creștem&nbsp;vârsta&nbsp;cu&nbsp;6&nbsp;ani<br>Console.WriteLine($"{person.Name}&nbsp;-&nbsp;{person.Age}");</code></pre>
+     </div>
+     <p class="paragraph">Ieșirea în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Tom&nbsp;-&nbsp;46<br>english<br>german<br>french<br>Tom&nbsp;-&nbsp;52</code></pre>
+     </div>
+     <p class="paragraph">Cu ExpandoObject, putem declara orice proprietăți, cum ar fi Name, Age, Languages, care pot reprezenta diverse tipuri de obiecte. În plus, putem defini metode folosind delegați. Aceste metode pot fi invocate la fel de simplu cum sunt invocate metodele definite într-o clasă tradițională.</p>
+     <h2 class="subtitle">DynamicObject</h2>
+     <p class="paragraph">Pe lângă ExpandoObject, o altă clasă importantă este DynamicObject, care permite crearea de obiecte dinamice, dar oferă mai mult control și flexibilitate decât ExpandoObject, fiind potrivit pentru situații mai complexe.</p>
+     <p class="paragraph">Pentru a folosi DynamicObject, trebuie să creăm o clasă care să moștenească DynamicObject și să suprascrie metodele sale, cum ar fi:</p>
+     <ul class="enumeration">
+      <li>TryBinaryOperation(): efectuează o operație binară între două obiecte</li>
+      <li>TryConvert(): efectuează o conversie la un anumit tip</li>
+      <li>TryCreateInstance(): creează o instanță a obiectului</li>
+      <li>TryDeleteIndex(): șterge un indexator</li>
+      <li>TryDeleteMember(): șterge o proprietate sau metodă</li>
+      <li>TryGetIndex(): obține un element prin indexator</li>
+      <li>TryGetMember(): obține valoarea unei proprietăți</li>
+      <li>TryInvoke(): invocă un obiect ca delegat</li>
+      <li>TryInvokeMember(): invocă o metodă</li>
+      <li>TrySetIndex(): setează un element prin indexator</li>
+      <li>TrySetMember(): setează o proprietate</li>
+      <li>TryUnaryOperation(): efectuează o operație unară</li>
+     </ul>
+     <p class="paragraph">Fiecare dintre aceste metode are același model de definire: toate returnează o valoare logică, indicând dacă operația a reușit. Ca prim parametru, toate acceptă un obiect binder. Dacă metoda reprezintă un apel al unui indexator sau al unei metode a unui obiect care poate primi parametri, ca al doilea parametru se folosește un array object[] – acesta stochează argumentele transmise metodei sau indexatorului.</p>
+     <p class="paragraph">Aproape toate operațiile, cu excepția setării și eliminării proprietăților și indexatorilor, returnează o valoare specifică (de exemplu, dacă obținem valoarea unei proprietăți). În acest caz, se folosește al treilea parametru out object value, care este destinat stocării obiectului returnat.</p>
+     <p class="paragraph">De exemplu, definiția metodei TryInvokeMember():</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;virtual&nbsp;bool&nbsp;TryInvokeMember&nbsp;(InvokeMemberBinder&nbsp;binder,&nbsp;object?[]?&nbsp;args,&nbsp;out&nbsp;object?&nbsp;result)</code></pre>
+     </div>
+     <p class="paragraph">Parametrul InvokeMemberBinder binder este un binder – obține proprietățile și metodele obiectului, object?[]? args stochează argumentele transmise, out object? result este destinat stocării rezultatului final.</p>
+     <p class="paragraph">Să analizăm un exemplu. Să creăm o clasă pentru un obiect dinamic:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Dynamic;<br><br>class&nbsp;PersonObject&nbsp;:&nbsp;DynamicObject<br>{<br>&nbsp;&nbsp;&nbsp;//&nbsp;dicționar&nbsp;pentru&nbsp;stocarea&nbsp;tuturor&nbsp;proprietăților<br>&nbsp;&nbsp;&nbsp;Dictionary&lt;string,&nbsp;object&gt;&nbsp;members&nbsp;=&nbsp;new&nbsp;Dictionary&lt;string,&nbsp;object&gt;();<br><br>&nbsp;&nbsp;&nbsp;//&nbsp;setarea&nbsp;unei&nbsp;proprietăți<br>&nbsp;&nbsp;&nbsp;public&nbsp;override&nbsp;bool&nbsp;TrySetMember(SetMemberBinder&nbsp;binder,&nbsp;object?&nbsp;value)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(value&nbsp;is&nbsp;not&nbsp;null)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;members[binder.Name]&nbsp;=&nbsp;value;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;true;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;false;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;//&nbsp;obținerea&nbsp;unei&nbsp;proprietăți<br>&nbsp;&nbsp;&nbsp;public&nbsp;override&nbsp;bool&nbsp;TryGetMember(GetMemberBinder&nbsp;binder,&nbsp;out&nbsp;object?&nbsp;result)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;=&nbsp;null;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(members.ContainsKey(binder.Name))<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;=&nbsp;members[binder.Name];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;true;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;false;<br>&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;//&nbsp;apelarea&nbsp;unei&nbsp;metode<br>&nbsp;&nbsp;&nbsp;public&nbsp;override&nbsp;bool&nbsp;TryInvokeMember(InvokeMemberBinder&nbsp;binder,&nbsp;object?[]?&nbsp;args,&nbsp;out&nbsp;object?&nbsp;result)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;=&nbsp;null;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(args?[0]&nbsp;is&nbsp;int&nbsp;number)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;metoda&nbsp;după&nbsp;nume<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dynamic&nbsp;method&nbsp;=&nbsp;members[binder.Name];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;apelăm&nbsp;metoda,&nbsp;transmițându-i&nbsp;valoarea&nbsp;args?[0]<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;=&nbsp;method(number);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;result&nbsp;nu&nbsp;este&nbsp;null,&nbsp;apelul&nbsp;metodei&nbsp;a&nbsp;fost&nbsp;reușit<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;result&nbsp;!=&nbsp;null;<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Clasa moștenește din DynamicObject, deoarece nu putem crea direct obiecte de tip DynamicObject. De asemenea, aici sunt suprascrise trei metode moștenite.</p>
+     <p class="paragraph">Pentru stocarea tuturor membrilor clasei, atât proprietăți, cât și metode, este definit un dicționar Dictionary&lt;string, object&gt; members. Cheile sunt numele proprietăților și metodelor, iar valorile – valorile acestor proprietăți.</p>
+     <p class="paragraph">În metoda TrySetMember() are loc setarea unei proprietăți:</p>
+     <div class="code-inline">
+      <pre><code>bool&nbsp;TrySetMember(SetMemberBinder&nbsp;binder,&nbsp;object?&nbsp;value)</code></pre>
+     </div>
+     <p class="paragraph">Parametrul binder stochează numele proprietății care se setează (binder.Name), iar value – valoarea care trebuie setată.</p>
+     <p class="paragraph">Pentru obținerea valorii unei proprietăți, este suprascrisă metoda TryGetMember:</p>
+     <div class="code-inline">
+      <pre><code>bool&nbsp;TryGetMember(GetMemberBinder&nbsp;binder,&nbsp;out&nbsp;object?&nbsp;result)</code></pre>
+     </div>
+     <p class="paragraph">Din nou, binder conține numele proprietății, iar parametrul result va conține valoarea proprietății obținute.</p>
+     <p class="paragraph">Pentru apelul metodelor, este definită metoda TryInvokeMember:</p>
+     <div class="code-inline">
+      <pre><code>public&nbsp;override&nbsp;bool&nbsp;TryInvokeMember(InvokeMemberBinder&nbsp;binder,&nbsp;object?[]?&nbsp;args,&nbsp;out&nbsp;object?&nbsp;result)<br>{<br>&nbsp;&nbsp;&nbsp;result&nbsp;=&nbsp;null;<br>&nbsp;&nbsp;&nbsp;if(args?[0]&nbsp;is&nbsp;int&nbsp;number)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;metoda&nbsp;după&nbsp;nume<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dynamic&nbsp;method&nbsp;=&nbsp;members[binder.Name];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;apelăm&nbsp;metoda,&nbsp;transmițându-i&nbsp;valoarea&nbsp;args?[0]<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;=&nbsp;method(number);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;result&nbsp;nu&nbsp;este&nbsp;null,&nbsp;apelul&nbsp;metodei&nbsp;a&nbsp;fost&nbsp;reușit<br>&nbsp;&nbsp;&nbsp;return&nbsp;result&nbsp;!=&nbsp;null;<br>}</code></pre>
+     </div>
+     <p class="paragraph">Mai întâi, obținem metoda folosind binderul, apoi îi transmitem argumentul args[0], convertindu-l anterior la tipul int, și setăm rezultatul metodei în parametrul result. Așadar, în acest caz, se presupune că metoda va primi un parametru de tip int și va returna un rezultat. Dacă metoda returnează true, considerăm că apelul metodei a fost reușit.</p>
+     <p class="paragraph">Acum să folosim clasa în program:</p>
+     <div class="code-inline">
+      <pre><code>using&nbsp;System.Dynamic;<br><br>//&nbsp;creăm&nbsp;obiectul<br>dynamic&nbsp;person&nbsp;=&nbsp;new&nbsp;PersonObject();<br>//&nbsp;setăm&nbsp;o&nbsp;serie&nbsp;de&nbsp;proprietăți<br>person.Name&nbsp;=&nbsp;"Tom";<br>person.Age&nbsp;=&nbsp;23;<br>//&nbsp;definim&nbsp;o&nbsp;metodă&nbsp;pentru&nbsp;a&nbsp;modifica&nbsp;proprietatea&nbsp;Age<br>Func&lt;int,&nbsp;int&gt;&nbsp;increment&nbsp;=&nbsp;(int&nbsp;n)&nbsp;=&gt;&nbsp;{&nbsp;person.Age&nbsp;+=&nbsp;n;&nbsp;return&nbsp;person.Age;&nbsp;};<br>person.IncrementAge&nbsp;=&nbsp;increment;<br><br>Console.WriteLine($"{person.Name}&nbsp;-&nbsp;{person.Age}");&nbsp;//&nbsp;Tom&nbsp;-&nbsp;23<br>person.IncrementAge(4);&nbsp;//&nbsp;aplicăm&nbsp;metoda<br>Console.WriteLine($"{person.Name}&nbsp;-&nbsp;{person.Age}");&nbsp;//&nbsp;Tom&nbsp;-&nbsp;27</code></pre>
+     </div>
+     <p class="paragraph">Expresia person.Name = "Tom" va apela metoda TrySetMember, în care al doilea parametru va fi șirul de caractere "Tom".</p>
+     <p class="paragraph">Expresia return person.Age; va apela metoda TryGetMember.</p>
+     <p class="paragraph">De asemenea, obiectul person are definită metoda IncrementAge, care reprezintă acțiunile expresiei lambda (int n) =&gt; { person.Age += n; return person.Age; };. Această expresie primește un număr n, mărește cu acest număr proprietatea Age și returnează noua valoare a lui person.Age. Și, la apelul acestei metode, se va apela metoda TryInvokeMember. Astfel, va avea loc incrementarea valorii proprietății person.Age.</p>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

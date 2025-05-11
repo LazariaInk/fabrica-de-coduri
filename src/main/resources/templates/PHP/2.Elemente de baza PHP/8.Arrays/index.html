@@ -1,226 +1,216 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>body { background: #ffffff; }</style>
-</head>
-<body>
-<button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-<nav class="nav">
-  <div class="logo"><a th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Logo" class="logo-img"></a></div>
-  <div class="menu"><a th:href="@{/}">Home</a><a href="javascript:void(0)" onclick="openPopup()">Donează</a></div>
-  <div class="hamburger" onclick="document.querySelector('.menu').classList.toggle('active')">
-    <div class="hamburger-line"></div><div class="hamburger-line"></div><div class="hamburger-line"></div>
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>body { background: #ffffff; }</style>
+ </head>
+ <body th:with="activeTopic='PHP', activeChapter='2.Elemente de baza PHP', activeLesson='8.Arrays'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
   </div>
-</nav>
-<div class="top-nav">
-  <th:block th:each="topic : ${topics}">
-    <a th:href="@{'/topics/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-  </th:block>
-</div>
-<div class="layout">
-  <div class="mobile-sidebar" id="mobileSidebar">
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
     <button class="close-btn" onclick="toggleSidebar()">✖</button>
     <ul class="chapter-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-title" onclick="toggleChapter(this)">
-            <strong th:text="${chapter.title}"></strong><span class="arrow">▼</span>
-          </div>
-          <ul class="lesson-list">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li>
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}"></a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </div>
-  <aside class="sidebar">
+   </div>
+   <aside class="sidebar">
     <ul class="sidebar-list">
-      <th:block th:each="chapter : ${chapters}">
-        <li class="chapter-item">
-          <div class="chapter-toggle" onclick="toggleLessons(this)">
-            <span th:text="${chapter.title}">Chapter</span>
-          </div>
-          <ul class="lesson-list hidden">
-            <th:block th:each="lesson : ${chapter.lessons}">
-              <li class="lesson-item">
-                <a th:href="@{'/lessons/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-                ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }"
-                   th:text="${lesson.title}">Lesson</a>
-              </li>
-            </th:block>
-          </ul>
-        </li>
-      </th:block>
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
     </ul>
-  </aside>
-  <main class="content">
+   </aside>
+   <main class="content">
     <div class="document-container">
- <h1 class="main-title">array-uri (masive)</h1>
- <p class="paragraph">Anterior am discutat cum putem salva o singură valoare într-o variabilă, de exemplu, un număr sau un șir de caractere. Dar, pe lângă asta, putem salva într-o variabilă un set de valori. Pentru asta folosim array-uri (masive).</p>
- <p class="paragraph">Există mai multe moduri de a defini array-uri. Primul mod utilizează funcția array():</p>
- <div class="code-inline">
-  <pre><code>$numbers&nbsp;=&nbsp;array();</code></pre>
- </div>
- <p class="paragraph">În acest caz, definim un array gol $numbers.</p>
- <p class="paragraph">Al doilea mod utilizează paranteze pătrate []:</p>
- <div class="code-inline">
-  <pre><code>$numbers&nbsp;=&nbsp;[];</code></pre>
- </div>
- <p class="paragraph">La definirea unui array, putem să îi atribuim imediat date inițiale. Dacă folosim paranteze pătrate, elementele array-ului sunt transmise în interiorul parantezelor:</p>
- <div class="code-inline">
-  <pre><code>$numbers&nbsp;=&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4];</code></pre>
- </div>
- <p class="paragraph">Definirea echivalentă a unui array folosind funcția array():</p>
- <div class="code-inline">
-  <pre><code>$numbers&nbsp;=&nbsp;array(1,&nbsp;2,&nbsp;3,&nbsp;4);</code></pre>
- </div>
- <p class="paragraph">Elementele array-ului pot fi de orice tip.</p>
- <p class="paragraph">Pentru a accesa elementele unui array, folosim chei. O cheie poate fi un număr sau un șir de caractere sau simultan atât numere, cât și șiruri.</p>
- <p class="paragraph">Pentru array-urile obișnuite, cheia este un număr. Cheile numerice mai sunt numite și indici. Numerotarea indicilor începe de la zero, adică primul element al array-ului are indicele 0, al doilea element - indicele 1 și așa mai departe.</p>
- <p class="paragraph">De exemplu, să accesăm al treilea element al array-ului:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>$numbers&nbsp;=&nbsp;[1,&nbsp;4,&nbsp;9,&nbsp;16];<br>echo&nbsp;$numbers[2];&nbsp;&nbsp;&nbsp;//&nbsp;9<br>?&gt;</code></pre>
- </div>
- <p class="paragraph">Deoarece numerotarea indicilor începe de la zero, pentru a accesa al treilea element, trebuie să folosim indicele 2.</p>
- <p class="paragraph">Astfel obținem valoarea elementului array-ului. Dar, de asemenea, putem să o schimbăm:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>$numbers&nbsp;=&nbsp;[1,&nbsp;4,&nbsp;9,&nbsp;16];<br>$numbers[1]&nbsp;=&nbsp;6;<br>echo&nbsp;$numbers[1];&nbsp;&nbsp;&nbsp;//&nbsp;6<br>?&gt;</code></pre>
- </div>
- <p class="paragraph">Trebuie să ținem cont de numărul de elemente din array. Nu putem accesa un element cu un indice inexistent:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>$numbers&nbsp;=&nbsp;[1,&nbsp;4,&nbsp;9,&nbsp;16];<br>echo&nbsp;$numbers[4];<br>?&gt;</code></pre>
- </div>
- <p class="paragraph">În acest caz, array-ul $numbers are doar 4 elemente, deci indicele ultimului element va fi 3. Astfel, elementul cu indicele 4 nu există, iar încercarea de a accesa valoarea sa echo $numbers[4] va genera un avertisment în PHP.</p>
- <p class="paragraph">Cu toate acestea, dacă dorim să setăm un element la un indice inexistent, putem face asta:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>$numbers&nbsp;=&nbsp;[1,&nbsp;4,&nbsp;9,&nbsp;16];<br>$numbers[5]&nbsp;=&nbsp;76;<br>echo&nbsp;$numbers[5];&nbsp;&nbsp;&nbsp;//&nbsp;76<br>?&gt;</code></pre>
- </div>
- <p class="paragraph">Aici setăm un element la indicele 5. După ce l-am setat, putem obține valoarea sa. Elementul cu indicele 4 tot nu va exista.</p>
- <p class="paragraph">Pentru a adăuga un nou element în array, putem, ca în exemplul de mai sus, să setăm un nou element la un indice neutilizat. Dar există și alt mod:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>$numbers&nbsp;=&nbsp;[1,&nbsp;4,&nbsp;9,&nbsp;16];<br>$numbers[]&nbsp;=&nbsp;25;<br>echo&nbsp;$numbers[4];&nbsp;&nbsp;&nbsp;//&nbsp;25<br>?&gt;</code></pre>
- </div>
- <p class="paragraph">Prin această metodă, un nou element este adăugat la sfârșitul array-ului, deci pentru a accesa noul element, trebuie să folosim indicele 4.</p>
- <p class="paragraph">Pentru a obține o reprezentare completă a modului în care cheile și valorile elementelor sunt asociate într-un anumit array, putem folosi funcția print_r, care primește array-ul ca parametru:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>$numbers&nbsp;=&nbsp;[1,&nbsp;4,&nbsp;9,&nbsp;16];<br>$numbers[]&nbsp;=&nbsp;25;<br>print_r($numbers);<br>?&gt;</code></pre>
- </div>
- <p class="paragraph">Rezultatul scriptului:</p>
- <div class="code-inline">
-  <pre><code>Array&nbsp;(&nbsp;[0]&nbsp;=&gt;&nbsp;1&nbsp;[1]&nbsp;=&gt;&nbsp;4&nbsp;[2]&nbsp;=&gt;&nbsp;9&nbsp;[3]&nbsp;=&gt;&nbsp;16&nbsp;[4]&nbsp;=&gt;&nbsp;25&nbsp;)</code></pre>
- </div>
- <p class="paragraph">De asemenea, nu este necesar să inițializăm special o variabilă de tip array - putem adăuga elemente în array pe parcurs:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>$numbers[]&nbsp;=&nbsp;20;<br>$numbers[]&nbsp;=&nbsp;120;<br>$numbers[]&nbsp;=&nbsp;720;<br>print_r($numbers);&nbsp;&nbsp;//&nbsp;Array&nbsp;(&nbsp;[0]&nbsp;=&gt;&nbsp;20&nbsp;[1]&nbsp;=&gt;&nbsp;120&nbsp;[2]&nbsp;=&gt;&nbsp;720&nbsp;)<br>?&gt;</code></pre>
- </div>
- <h2 class="subtitle">Operatorul =&gt;</h2>
- <p class="paragraph">Operatorul =&gt; permite asocierea unei chei cu o anumită valoare. Deși la definirea array-ului de mai sus nu am avut nevoie de acest operator, putem să îl folosim. De exemplu, următorul array:</p>
- <div class="code-inline">
-  <pre><code>$numbers&nbsp;=&nbsp;[1,&nbsp;4,&nbsp;9,&nbsp;16];</code></pre>
- </div>
- <p class="paragraph">Este echivalent cu următorul array:</p>
- <div class="code-inline">
-  <pre><code>$numbers&nbsp;=&nbsp;[0&nbsp;=&gt;&nbsp;1,&nbsp;1&nbsp;=&gt;&nbsp;4,&nbsp;2&nbsp;=&gt;&nbsp;9,&nbsp;3&nbsp;=&gt;&nbsp;16];<br>//&nbsp;$numbers&nbsp;=&nbsp;array(0&nbsp;=&gt;&nbsp;1,&nbsp;1&nbsp;=&gt;&nbsp;4,&nbsp;2&nbsp;=&gt;&nbsp;9,&nbsp;3&nbsp;=&gt;&nbsp;16);</code></pre>
- </div>
- <p class="paragraph">Fiecare element este definit în formatul: cheie =&gt; valoare.</p>
- <p class="paragraph">În continuare, putem accesa elementele acestui array.</p>
- <p class="paragraph">Acest operator poate fi util dacă dorim să redefinim ordinea indicilor. În mod implicit, numerotarea indicilor începe de la zero și fiecare element următor are indicele elementului anterior + 1. Operatorul =&gt; permite definirea indicilor manual, nu neapărat de la zero și nu neapărat în ordine:</p>
- <div class="code-inline">
-  <pre><code>$numbers&nbsp;=&nbsp;[1&nbsp;=&gt;&nbsp;1,&nbsp;2&nbsp;=&gt;&nbsp;4,&nbsp;5&nbsp;=&gt;&nbsp;25,&nbsp;4&nbsp;=&gt;&nbsp;16];<br>echo&nbsp;$numbers[2];&nbsp;&nbsp;&nbsp;//&nbsp;4</code></pre>
- </div>
- <p class="paragraph">De asemenea, putem seta indicele doar pentru un element, iar pentru elementele următoare indicele va crește automat cu o unitate:</p>
- <div class="code-inline">
-  <pre><code>$numbers&nbsp;=&nbsp;[4&nbsp;=&gt;&nbsp;16,&nbsp;25,&nbsp;36,&nbsp;49,&nbsp;64];<br>print_r($numbers);</code></pre>
- </div>
- <p class="paragraph">În acest caz, numerotarea începe de la 4 - acesta este indicele elementului 16. Indicele pentru elementul 25 va fi 5 și așa mai departe.</p>
- <p class="paragraph">Rezultatul:</p>
- <div class="code-inline">
-  <pre><code>Array&nbsp;(&nbsp;[4]&nbsp;=&gt;&nbsp;16&nbsp;[5]&nbsp;=&gt;&nbsp;25&nbsp;[6]&nbsp;=&gt;&nbsp;36&nbsp;[7]&nbsp;=&gt;&nbsp;49&nbsp;[8]&nbsp;=&gt;&nbsp;64&nbsp;)</code></pre>
- </div>
- <h2 class="subtitle">Parcurgerea unui array</h2>
- <p class="paragraph">Pentru parcurgerea unui array, putem folosi metoda standard for:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>$users&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob",&nbsp;"Alice"];<br>$num&nbsp;=&nbsp;count($users);<br>for&nbsp;($i&nbsp;=&nbsp;0;&nbsp;$i&nbsp;&lt;&nbsp;$num;&nbsp;$i++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"$users[$i]&nbsp;&lt;br&nbsp;/&gt;";<br>}<br>?&gt;</code></pre>
- </div>
- <p class="paragraph">În acest caz, nu definim manual indicii elementelor, astfel numerotarea începe de la zero și crește cu o unitate pentru fiecare element următor. Putem folosi variabila $i în ciclu pentru a transmite indicele, începând de la zero.</p>
- <p class="paragraph">Singura dificultate poate fi cum să determinăm indicele ultimului element, pentru a stabili limita pentru variabila $i. În acest caz, putem folosi funcția integrată count() pentru a obține lungimea array-ului. Această funcție primește array-ul ca parametru și returnează lungimea sa.</p>
- <p class="paragraph">Rezultatul scriptului:</p>
- <div class="code-inline">
-  <pre><code>Tom<br>Sam<br>Bob<br>Alice</code></pre>
- </div>
- <h2 class="subtitle">Ciclu foreach</h2>
- <p class="paragraph">Cu toate acestea, metoda de parcurgere de mai sus nu va fi de ajutor dacă indicii sunt definiți manual și diferă de vecinii lor cu o valoare arbitrară. În acest caz, putem folosi ciclul special - foreach:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>$users&nbsp;=&nbsp;[1&nbsp;=&gt;&nbsp;"Tom",&nbsp;4&nbsp;=&gt;&nbsp;"Sam",&nbsp;5&nbsp;=&gt;&nbsp;"Bob",&nbsp;21&nbsp;=&gt;&nbsp;"Alice"];<br>foreach&nbsp;($users&nbsp;as&nbsp;$element)&nbsp;{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"$element&lt;br&nbsp;/&gt;";<br>}<br>?&gt;</code></pre>
- </div>
- <p class="paragraph">În ciclul foreach, toate elementele sunt extrase secvențial din array și valoarea lor este plasată în variabila specificată după cuvântul cheie as.</p>
- <p class="paragraph">În acest caz, în variabila $element sunt plasate pe rând toate cele patru valori din array-ul $users. Când ultimul element este extras din array, ciclul se termină.</p>
- <p class="paragraph">În final, obținem același rezultat:</p>
- <div class="code-inline">
-  <pre><code>Tom<br>Sam<br>Bob<br>Alice</code></pre>
- </div>
- <p class="paragraph">Ciclul foreach permite extragerea nu doar a valorilor, ci și a cheilor elementelor:</p>
- <div class="code-inline">
-  <pre><code>&lt;?php<br>$users&nbsp;=&nbsp;[1&nbsp;=&gt;&nbsp;"Tom",&nbsp;4&nbsp;=&gt;&nbsp;"Sam",&nbsp;5&nbsp;=&gt;&nbsp;"Bob",&nbsp;21&nbsp;=&gt;&nbsp;"Alice"];<br>foreach&nbsp;($users&nbsp;as&nbsp;$key&nbsp;=&gt;&nbsp;$value)&nbsp;{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"$key&nbsp;-&nbsp;$value&lt;br&nbsp;/&gt;";<br>}<br>?&gt;</code></pre>
- </div>
- <p class="paragraph">În acest exemplu, la parcurgerea elementelor din ciclu, în variabila $key se va transmite cheia elementului, iar în variabila $value - valoarea acestuia.</p>
- <p class="paragraph">Rezultatul scriptului:</p>
- <div class="code-inline">
-  <pre><code>1&nbsp;-&nbsp;Tom<br>4&nbsp;-&nbsp;Sam<br>5&nbsp;-&nbsp;Bob<br>21&nbsp;-&nbsp;Alice</code></pre>
- </div>
-</div>
-  </main>
-  <aside class="ad-section">
-    <div class="ad-box"><p>Google Ad Here</p></div>
-    <div class="ad-box"><p>Promo: SQL Beginner Guide</p></div>
-  </aside>
-</div>
-<footer>
-  <div class="footer-separator"></div>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h3>Linkuri rapide</h3>
-      <ul><li><a th:href="@{/}">Home</a></li><li><a href="javascript:void(0)" onclick="openPopup()">Donează acum</a></li></ul>
+     <h1 class="main-title">array-uri (masive)</h1>
+     <p class="paragraph">Anterior am discutat cum putem salva o singură valoare într-o variabilă, de exemplu, un număr sau un șir de caractere. Dar, pe lângă asta, putem salva într-o variabilă un set de valori. Pentru asta folosim array-uri (masive).</p>
+     <p class="paragraph">Există mai multe moduri de a defini array-uri. Primul mod utilizează funcția array():</p>
+     <div class="code-inline">
+      <pre><code>$numbers&nbsp;=&nbsp;array();</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, definim un array gol $numbers.</p>
+     <p class="paragraph">Al doilea mod utilizează paranteze pătrate []:</p>
+     <div class="code-inline">
+      <pre><code>$numbers&nbsp;=&nbsp;[];</code></pre>
+     </div>
+     <p class="paragraph">La definirea unui array, putem să îi atribuim imediat date inițiale. Dacă folosim paranteze pătrate, elementele array-ului sunt transmise în interiorul parantezelor:</p>
+     <div class="code-inline">
+      <pre><code>$numbers&nbsp;=&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4];</code></pre>
+     </div>
+     <p class="paragraph">Definirea echivalentă a unui array folosind funcția array():</p>
+     <div class="code-inline">
+      <pre><code>$numbers&nbsp;=&nbsp;array(1,&nbsp;2,&nbsp;3,&nbsp;4);</code></pre>
+     </div>
+     <p class="paragraph">Elementele array-ului pot fi de orice tip.</p>
+     <p class="paragraph">Pentru a accesa elementele unui array, folosim chei. O cheie poate fi un număr sau un șir de caractere sau simultan atât numere, cât și șiruri.</p>
+     <p class="paragraph">Pentru array-urile obișnuite, cheia este un număr. Cheile numerice mai sunt numite și indici. Numerotarea indicilor începe de la zero, adică primul element al array-ului are indicele 0, al doilea element - indicele 1 și așa mai departe.</p>
+     <p class="paragraph">De exemplu, să accesăm al treilea element al array-ului:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$numbers&nbsp;=&nbsp;[1,&nbsp;4,&nbsp;9,&nbsp;16];<br>echo&nbsp;$numbers[2];&nbsp;&nbsp;&nbsp;//&nbsp;9<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Deoarece numerotarea indicilor începe de la zero, pentru a accesa al treilea element, trebuie să folosim indicele 2.</p>
+     <p class="paragraph">Astfel obținem valoarea elementului array-ului. Dar, de asemenea, putem să o schimbăm:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$numbers&nbsp;=&nbsp;[1,&nbsp;4,&nbsp;9,&nbsp;16];<br>$numbers[1]&nbsp;=&nbsp;6;<br>echo&nbsp;$numbers[1];&nbsp;&nbsp;&nbsp;//&nbsp;6<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Trebuie să ținem cont de numărul de elemente din array. Nu putem accesa un element cu un indice inexistent:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$numbers&nbsp;=&nbsp;[1,&nbsp;4,&nbsp;9,&nbsp;16];<br>echo&nbsp;$numbers[4];<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, array-ul $numbers are doar 4 elemente, deci indicele ultimului element va fi 3. Astfel, elementul cu indicele 4 nu există, iar încercarea de a accesa valoarea sa echo $numbers[4] va genera un avertisment în PHP.</p>
+     <p class="paragraph">Cu toate acestea, dacă dorim să setăm un element la un indice inexistent, putem face asta:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$numbers&nbsp;=&nbsp;[1,&nbsp;4,&nbsp;9,&nbsp;16];<br>$numbers[5]&nbsp;=&nbsp;76;<br>echo&nbsp;$numbers[5];&nbsp;&nbsp;&nbsp;//&nbsp;76<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Aici setăm un element la indicele 5. După ce l-am setat, putem obține valoarea sa. Elementul cu indicele 4 tot nu va exista.</p>
+     <p class="paragraph">Pentru a adăuga un nou element în array, putem, ca în exemplul de mai sus, să setăm un nou element la un indice neutilizat. Dar există și alt mod:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$numbers&nbsp;=&nbsp;[1,&nbsp;4,&nbsp;9,&nbsp;16];<br>$numbers[]&nbsp;=&nbsp;25;<br>echo&nbsp;$numbers[4];&nbsp;&nbsp;&nbsp;//&nbsp;25<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Prin această metodă, un nou element este adăugat la sfârșitul array-ului, deci pentru a accesa noul element, trebuie să folosim indicele 4.</p>
+     <p class="paragraph">Pentru a obține o reprezentare completă a modului în care cheile și valorile elementelor sunt asociate într-un anumit array, putem folosi funcția print_r, care primește array-ul ca parametru:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$numbers&nbsp;=&nbsp;[1,&nbsp;4,&nbsp;9,&nbsp;16];<br>$numbers[]&nbsp;=&nbsp;25;<br>print_r($numbers);<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">Rezultatul scriptului:</p>
+     <div class="code-inline">
+      <pre><code>Array&nbsp;(&nbsp;[0]&nbsp;=&gt;&nbsp;1&nbsp;[1]&nbsp;=&gt;&nbsp;4&nbsp;[2]&nbsp;=&gt;&nbsp;9&nbsp;[3]&nbsp;=&gt;&nbsp;16&nbsp;[4]&nbsp;=&gt;&nbsp;25&nbsp;)</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, nu este necesar să inițializăm special o variabilă de tip array - putem adăuga elemente în array pe parcurs:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$numbers[]&nbsp;=&nbsp;20;<br>$numbers[]&nbsp;=&nbsp;120;<br>$numbers[]&nbsp;=&nbsp;720;<br>print_r($numbers);&nbsp;&nbsp;//&nbsp;Array&nbsp;(&nbsp;[0]&nbsp;=&gt;&nbsp;20&nbsp;[1]&nbsp;=&gt;&nbsp;120&nbsp;[2]&nbsp;=&gt;&nbsp;720&nbsp;)<br>?&gt;</code></pre>
+     </div>
+     <h2 class="subtitle">Operatorul =&gt;</h2>
+     <p class="paragraph">Operatorul =&gt; permite asocierea unei chei cu o anumită valoare. Deși la definirea array-ului de mai sus nu am avut nevoie de acest operator, putem să îl folosim. De exemplu, următorul array:</p>
+     <div class="code-inline">
+      <pre><code>$numbers&nbsp;=&nbsp;[1,&nbsp;4,&nbsp;9,&nbsp;16];</code></pre>
+     </div>
+     <p class="paragraph">Este echivalent cu următorul array:</p>
+     <div class="code-inline">
+      <pre><code>$numbers&nbsp;=&nbsp;[0&nbsp;=&gt;&nbsp;1,&nbsp;1&nbsp;=&gt;&nbsp;4,&nbsp;2&nbsp;=&gt;&nbsp;9,&nbsp;3&nbsp;=&gt;&nbsp;16];<br>//&nbsp;$numbers&nbsp;=&nbsp;array(0&nbsp;=&gt;&nbsp;1,&nbsp;1&nbsp;=&gt;&nbsp;4,&nbsp;2&nbsp;=&gt;&nbsp;9,&nbsp;3&nbsp;=&gt;&nbsp;16);</code></pre>
+     </div>
+     <p class="paragraph">Fiecare element este definit în formatul: cheie =&gt; valoare.</p>
+     <p class="paragraph">În continuare, putem accesa elementele acestui array.</p>
+     <p class="paragraph">Acest operator poate fi util dacă dorim să redefinim ordinea indicilor. În mod implicit, numerotarea indicilor începe de la zero și fiecare element următor are indicele elementului anterior + 1. Operatorul =&gt; permite definirea indicilor manual, nu neapărat de la zero și nu neapărat în ordine:</p>
+     <div class="code-inline">
+      <pre><code>$numbers&nbsp;=&nbsp;[1&nbsp;=&gt;&nbsp;1,&nbsp;2&nbsp;=&gt;&nbsp;4,&nbsp;5&nbsp;=&gt;&nbsp;25,&nbsp;4&nbsp;=&gt;&nbsp;16];<br>echo&nbsp;$numbers[2];&nbsp;&nbsp;&nbsp;//&nbsp;4</code></pre>
+     </div>
+     <p class="paragraph">De asemenea, putem seta indicele doar pentru un element, iar pentru elementele următoare indicele va crește automat cu o unitate:</p>
+     <div class="code-inline">
+      <pre><code>$numbers&nbsp;=&nbsp;[4&nbsp;=&gt;&nbsp;16,&nbsp;25,&nbsp;36,&nbsp;49,&nbsp;64];<br>print_r($numbers);</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, numerotarea începe de la 4 - acesta este indicele elementului 16. Indicele pentru elementul 25 va fi 5 și așa mai departe.</p>
+     <p class="paragraph">Rezultatul:</p>
+     <div class="code-inline">
+      <pre><code>Array&nbsp;(&nbsp;[4]&nbsp;=&gt;&nbsp;16&nbsp;[5]&nbsp;=&gt;&nbsp;25&nbsp;[6]&nbsp;=&gt;&nbsp;36&nbsp;[7]&nbsp;=&gt;&nbsp;49&nbsp;[8]&nbsp;=&gt;&nbsp;64&nbsp;)</code></pre>
+     </div>
+     <h2 class="subtitle">Parcurgerea unui array</h2>
+     <p class="paragraph">Pentru parcurgerea unui array, putem folosi metoda standard for:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$users&nbsp;=&nbsp;["Tom",&nbsp;"Sam",&nbsp;"Bob",&nbsp;"Alice"];<br>$num&nbsp;=&nbsp;count($users);<br>for&nbsp;($i&nbsp;=&nbsp;0;&nbsp;$i&nbsp;&lt;&nbsp;$num;&nbsp;$i++)&nbsp;{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"$users[$i]&nbsp;&lt;br&nbsp;/&gt;";<br>}<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, nu definim manual indicii elementelor, astfel numerotarea începe de la zero și crește cu o unitate pentru fiecare element următor. Putem folosi variabila $i în ciclu pentru a transmite indicele, începând de la zero.</p>
+     <p class="paragraph">Singura dificultate poate fi cum să determinăm indicele ultimului element, pentru a stabili limita pentru variabila $i. În acest caz, putem folosi funcția integrată count() pentru a obține lungimea array-ului. Această funcție primește array-ul ca parametru și returnează lungimea sa.</p>
+     <p class="paragraph">Rezultatul scriptului:</p>
+     <div class="code-inline">
+      <pre><code>Tom<br>Sam<br>Bob<br>Alice</code></pre>
+     </div>
+     <h2 class="subtitle">Ciclu foreach</h2>
+     <p class="paragraph">Cu toate acestea, metoda de parcurgere de mai sus nu va fi de ajutor dacă indicii sunt definiți manual și diferă de vecinii lor cu o valoare arbitrară. În acest caz, putem folosi ciclul special - foreach:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$users&nbsp;=&nbsp;[1&nbsp;=&gt;&nbsp;"Tom",&nbsp;4&nbsp;=&gt;&nbsp;"Sam",&nbsp;5&nbsp;=&gt;&nbsp;"Bob",&nbsp;21&nbsp;=&gt;&nbsp;"Alice"];<br>foreach&nbsp;($users&nbsp;as&nbsp;$element)&nbsp;{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"$element&lt;br&nbsp;/&gt;";<br>}<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">În ciclul foreach, toate elementele sunt extrase secvențial din array și valoarea lor este plasată în variabila specificată după cuvântul cheie as.</p>
+     <p class="paragraph">În acest caz, în variabila $element sunt plasate pe rând toate cele patru valori din array-ul $users. Când ultimul element este extras din array, ciclul se termină.</p>
+     <p class="paragraph">În final, obținem același rezultat:</p>
+     <div class="code-inline">
+      <pre><code>Tom<br>Sam<br>Bob<br>Alice</code></pre>
+     </div>
+     <p class="paragraph">Ciclul foreach permite extragerea nu doar a valorilor, ci și a cheilor elementelor:</p>
+     <div class="code-inline">
+      <pre><code>&lt;?php<br>$users&nbsp;=&nbsp;[1&nbsp;=&gt;&nbsp;"Tom",&nbsp;4&nbsp;=&gt;&nbsp;"Sam",&nbsp;5&nbsp;=&gt;&nbsp;"Bob",&nbsp;21&nbsp;=&gt;&nbsp;"Alice"];<br>foreach&nbsp;($users&nbsp;as&nbsp;$key&nbsp;=&gt;&nbsp;$value)&nbsp;{<br>&nbsp;&nbsp;&nbsp;echo&nbsp;"$key&nbsp;-&nbsp;$value&lt;br&nbsp;/&gt;";<br>}<br>?&gt;</code></pre>
+     </div>
+     <p class="paragraph">În acest exemplu, la parcurgerea elementelor din ciclu, în variabila $key se va transmite cheia elementului, iar în variabila $value - valoarea acestuia.</p>
+     <p class="paragraph">Rezultatul scriptului:</p>
+     <div class="code-inline">
+      <pre><code>1&nbsp;-&nbsp;Tom<br>4&nbsp;-&nbsp;Sam<br>5&nbsp;-&nbsp;Bob<br>21&nbsp;-&nbsp;Alice</code></pre>
+     </div>
     </div>
-    <div class="footer-section">
-      <h3>Topicuri</h3>
-      <ul>
-        <li th:each="topic : ${topics}">
-          <a th:href="@{'/lessons/topic/' + ${topic.id}}" th:text="${topic.name}">Topic</a>
-        </li>
-      </ul>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
     </div>
-    <div class="footer-section">
-      <h3>Rețele Sociale</h3>
-      <ul>
-        <li><a th:href="${platformInfo.tiktokLink}" target="_blank">TikTok</a></li>
-        <li><a th:href="${platformInfo.instagramLink}" target="_blank">Instagram</a></li>
-        <li><a th:href="${platformInfo.youTubeLink}" target="_blank">YouTube</a></li>
-      </ul>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
     </div>
-    <div class="footer-section contact">
-      <h3>Contact</h3>
-      <p>Email: <span th:text="${platformInfo.email}">@fabricadecoduri@gmail.com</span></p>
-    </div>
+   </aside>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Fabrica de Coduri. Toate drepturile rezervate.</p>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
   </div>
-</footer>
-<script th:src="@{/js/script.js}"></script>
-</body>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>

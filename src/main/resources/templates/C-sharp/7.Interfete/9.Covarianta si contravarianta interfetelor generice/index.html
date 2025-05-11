@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='7.Interfete', activeLesson='9.Covarianta si contravarianta interfetelor generice'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Covarianța și contravarianța interfețelor generice</h1>
+     <p class="paragraph">Noțiunile de covarianță și contravarianță sunt legate de posibilitatea utilizării unui tip diferit în locul unui alt tip, care se află mai sus sau mai jos în ierarhia moștenirii.</p>
+     <p class="paragraph">Există trei posibile moduri de comportament:</p>
+     <ul class="enumeration">
+      <li>Covarianța: permite utilizarea unui tip mai specific decât cel definit inițial</li>
+      <li>Contravarianța: permite utilizarea unui tip mai general decât cel definit inițial</li>
+      <li>Invarianța: permite utilizarea doar a tipului definit</li>
+     </ul>
+     <p class="paragraph">C# permite crearea interfețelor generice covariante și contravariante. Această funcționalitate crește flexibilitatea utilizării interfețelor generice în program. Implicit, toate interfețele generice sunt invariante.</p>
+     <p class="paragraph">Pentru a ilustra interfețele covariante și contravariante, să luăm următoarele clase:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Message<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;string&nbsp;Text&nbsp;{&nbsp;get;&nbsp;set;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;Message(string&nbsp;text)&nbsp;=&gt;&nbsp;Text&nbsp;=&nbsp;text;<br>}<br>class&nbsp;EmailMessage&nbsp;:&nbsp;Message<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;EmailMessage(string&nbsp;text):&nbsp;base(text)&nbsp;{&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici este definită clasa Message, care primește textul prin constructor și îl stochează în proprietatea Text. Clasa EmailMessage reprezintă un email și doar apelează constructorul clasei de bază, transmițându-i textul mesajului.</p>
+     <h2 class="subtitle">Interfețe covariante</h2>
+     <p class="paragraph">Interfețele generice pot fi covariante dacă parametrul generic folosește cuvântul cheie out. Un astfel de parametru trebuie să reprezinte tipul obiectului returnat de o metodă. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>interface&nbsp;IMessenger&lt;out&nbsp;T&gt;<br>{<br>&nbsp;&nbsp;&nbsp;T&nbsp;WriteMessage(string&nbsp;text);<br>}<br>class&nbsp;EmailMessenger&nbsp;:&nbsp;IMessenger&lt;EmailMessage&gt;<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;EmailMessage&nbsp;WriteMessage(string&nbsp;text)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;EmailMessage($"Email:&nbsp;{text}");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici, interfața generică IMessenger reprezintă o interfață de mesagerie și definește metoda WriteMessage() pentru a crea un mesaj. În momentul definirii interfeței, nu știm ce tip de obiect va fi returnat de această metodă. Cuvântul cheie out în definiția interfeței indică faptul că aceasta va fi covariantă.</p>
+     <p class="paragraph">Clasa EmailMessenger, care reprezintă o aplicație pentru trimiterea emailurilor, implementează această interfață și returnează un obiect EmailMessage din metoda WriteMessage().</p>
+     <p class="paragraph">Utilizare:</p>
+     <div class="code-inline">
+      <pre><code>IMessenger&lt;Message&gt;&nbsp;outlook&nbsp;=&nbsp;new&nbsp;EmailMessenger();<br>Message&nbsp;message&nbsp;=&nbsp;outlook.WriteMessage("Hello&nbsp;World");<br>Console.WriteLine(message.Text);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Email:&nbsp;Hello&nbsp;World<br><br>IMessenger&lt;EmailMessage&gt;&nbsp;emailClient&nbsp;=&nbsp;new&nbsp;EmailMessenger();<br>IMessenger&lt;Message&gt;&nbsp;messenger&nbsp;=&nbsp;emailClient;<br>Message&nbsp;emailMessage&nbsp;=&nbsp;messenger.WriteMessage("Hi!");<br>Console.WriteLine(emailMessage.Text);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Email:&nbsp;Hi!</code></pre>
+     </div>
+     <p class="paragraph">Putem atribui unui tip mai general, IMessenger&lt;Message&gt;, un obiect de tip mai specific, EmailMessenger sau IMessenger&lt;EmailMessage&gt;.</p>
+     <p class="paragraph">Dacă nu am folosi cuvântul cheie out:</p>
+     <div class="code-inline">
+      <pre><code>interface&nbsp;IMessenger&lt;T&gt;&nbsp;{&nbsp;}</code></pre>
+     </div>
+     <p class="paragraph">Am întâmpina o eroare la linia:</p>
+     <div class="code-inline">
+      <pre><code>IMessenger&lt;Message&gt;&nbsp;outlook&nbsp;=&nbsp;new&nbsp;EmailMessenger();&nbsp;&nbsp;//&nbsp;!&nbsp;Eroare<br><br>IMessenger&lt;EmailMessage&gt;&nbsp;emailClient&nbsp;=&nbsp;new&nbsp;EmailMessenger();<br>IMessenger&lt;Message&gt;&nbsp;messenger&nbsp;=&nbsp;emailClient;&nbsp;&nbsp;//&nbsp;!&nbsp;Eroare</code></pre>
+     </div>
+     <p class="paragraph">În acest caz, nu ar fi posibilă convertirea obiectului IMessenger&lt;EmailMessage&gt; la tipul IMessenger&lt;Message&gt;.</p>
+     <p class="paragraph">La crearea unei interfețe covariante, trebuie să luăm în considerare că parametrul generic poate fi folosit doar ca tipul valorii returnate de metodele interfeței. Nu poate fi folosit ca tip al argumentelor metodei sau în restricțiile metodelor interfeței.</p>
+     <h2 class="subtitle">Interfețe contravariant</h2>
+     <p class="paragraph">Pentru a crea o interfață contravariantă, se folosește cuvântul cheie in. De exemplu, să folosim aceleași clase Message și EmailMessage și să definim următoarele tipuri:</p>
+     <div class="code-inline">
+      <pre><code>interface&nbsp;IMessenger&lt;in&nbsp;T&gt;<br>{<br>&nbsp;&nbsp;&nbsp;void&nbsp;SendMessage(T&nbsp;message);<br>}<br>class&nbsp;SimpleMessenger&nbsp;:&nbsp;IMessenger&lt;Message&gt;<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;SendMessage(Message&nbsp;message)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Trimitere&nbsp;mesaj:&nbsp;{message.Text}");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici, interfața IMessenger definește metoda SendMessage() pentru a trimite un mesaj. Cuvântul cheie in în definiția interfeței indică faptul că aceasta este contravariantă.</p>
+     <p class="paragraph">Clasa SimpleMessenger reprezintă o aplicație de trimitere a mesajelor și implementează această interfață, folosind tipul Message. Deci, SimpleMessenger reprezintă tipul IMessenger&lt;Message&gt;.</p>
+     <p class="paragraph">Utilizare:</p>
+     <div class="code-inline">
+      <pre><code>IMessenger&lt;EmailMessage&gt;&nbsp;outlook&nbsp;=&nbsp;new&nbsp;SimpleMessenger();<br>outlook.SendMessage(new&nbsp;EmailMessage("Hi!"));<br><br>IMessenger&lt;Message&gt;&nbsp;telegram&nbsp;=&nbsp;new&nbsp;SimpleMessenger();<br>IMessenger&lt;EmailMessage&gt;&nbsp;emailClient&nbsp;=&nbsp;telegram;<br>emailClient.SendMessage(new&nbsp;EmailMessage("Hello"));</code></pre>
+     </div>
+     <p class="paragraph">Deoarece interfața IMessenger folosește parametrul generic cu cuvântul cheie in, aceasta este contravariantă, astfel că putem atribui unei variabile de tip IMessenger&lt;EmailMessage&gt; un obiect de tip IMessenger&lt;Message&gt; sau SimpleMessenger.</p>
+     <p class="paragraph">Dacă nu s-ar folosi cuvântul cheie in, nu am putea face acest lucru. Un obiect de interfață cu un tip mai general poate fi convertit la un obiect de interfață cu un tip mai specific.</p>
+     <p class="paragraph">La crearea unei interfețe contravariante, trebuie să luăm în considerare că parametrul generic poate fi folosit doar ca tipul argumentelor metodei, dar nu și ca tipul valorii returnate de metodă.</p>
+     <h2 class="subtitle">Combinarea covarianței și contravarianței</h2>
+     <p class="paragraph">Putem combina covarianța și contravarianța într-o singură interfață. De exemplu:</p>
+     <div class="code-inline">
+      <pre><code>interface&nbsp;IMessenger&lt;in&nbsp;T,&nbsp;out&nbsp;K&gt;<br>{<br>&nbsp;&nbsp;&nbsp;void&nbsp;SendMessage(T&nbsp;message);<br>&nbsp;&nbsp;&nbsp;K&nbsp;WriteMessage(string&nbsp;text);<br>}<br>class&nbsp;SimpleMessenger&nbsp;:&nbsp;IMessenger&lt;Message,&nbsp;EmailMessage&gt;<br>{<br>&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;SendMessage(Message&nbsp;message)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"Trimitere&nbsp;mesaj:&nbsp;{message.Text}");<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;public&nbsp;EmailMessage&nbsp;WriteMessage(string&nbsp;text)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;EmailMessage($"Email:&nbsp;{text}");<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Practic, aici sunt combinate două exemple anterioare. Datorită covarianței/contravarianței, un obiect al clasei SimpleMessenger poate reprezenta tipurile IMessenger&lt;EmailMessage, Message&gt;, IMessenger&lt;Message, EmailMessage&gt;, IMessenger&lt;Message, Message&gt; și IMessenger&lt;EmailMessage, EmailMessage&gt;. Utilizare:</p>
+     <div class="code-inline">
+      <pre><code>IMessenger&lt;EmailMessage,&nbsp;Message&gt;&nbsp;messenger&nbsp;=&nbsp;new&nbsp;SimpleMessenger();<br>Message&nbsp;message&nbsp;=&nbsp;messenger.WriteMessage("Hello&nbsp;World");<br>Console.WriteLine(message.Text);<br>messenger.SendMessage(new&nbsp;EmailMessage("Test"));<br><br>IMessenger&lt;EmailMessage,&nbsp;EmailMessage&gt;&nbsp;outlook&nbsp;=&nbsp;new&nbsp;SimpleMessenger();<br>EmailMessage&nbsp;emailMessage&nbsp;=&nbsp;outlook.WriteMessage("Mesaj&nbsp;din&nbsp;Outlook");<br>outlook.SendMessage(emailMessage);<br><br>IMessenger&lt;Message,&nbsp;Message&gt;&nbsp;telegram&nbsp;=&nbsp;new&nbsp;SimpleMessenger();<br>Message&nbsp;simpleMessage&nbsp;=&nbsp;telegram.WriteMessage("Mesaj&nbsp;din&nbsp;Telegram");<br>telegram.SendMessage(simpleMessage);</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>

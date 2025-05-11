@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+ <head>
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('consent', 'default', {
+        'wait_for_update': 500,
+        'region': ['RO'],
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='14.Multithreading', activeLesson='6.Clasa AutoResetEvent'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}">
+    <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+   </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lessons/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+    ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul></li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Clasa AutoResetEvent</h1>
+     <p class="paragraph">Clasa AutoResetEvent servește și ea scopurilor de sincronizare a thread-urilor. Această clasă reprezintă un eveniment de sincronizare a thread-urilor, care permite la primirea unui semnal să schimbe starea obiectului eveniment dintr-o stare semnalizată într-o stare nesemnalizată.</p>
+     <p class="paragraph">Pentru gestionarea sincronizării, clasa AutoResetEvent oferă o serie de metode:</p>
+     <ul class="enumeration">
+      <li>Reset(): setează starea nesemnalizată a obiectului, blocând thread-urile</li>
+      <li>Set(): setează starea semnalizată a obiectului, permițând unuia sau mai multor thread-uri în așteptare să-și continue activitatea</li>
+      <li>WaitOne(): setează starea nesemnalizată și blochează thread-ul curent până când obiectul AutoResetEvent primește un semnal</li>
+     </ul>
+     <p class="paragraph">Evenimentul de sincronizare poate fi într-o stare semnalizată sau nesemnalizată. Dacă starea evenimentului este nesemnalizată, thread-ul care apelează metoda WaitOne va fi blocat până când starea evenimentului devine semnalizată. Metoda Set setează starea semnalizată a evenimentului.</p>
+     <p class="paragraph">Astfel, în unul dintre exemplele anterioare, pentru sincronizarea thread-urilor s-a utilizat operatorul lock:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;x&nbsp;=&nbsp;0;<br>object&nbsp;locker&nbsp;=&nbsp;new();&nbsp;&nbsp;//&nbsp;obiect&nbsp;placeholder<br><br>//&nbsp;pornim&nbsp;cinci&nbsp;thread-uri<br>for&nbsp;(int&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;&nbsp;6;&nbsp;i++)<br>{<br>&nbsp;&nbsp;&nbsp;Thread&nbsp;myThread&nbsp;=&nbsp;new(Print);<br>&nbsp;&nbsp;&nbsp;myThread.Name&nbsp;=&nbsp;$"Thread&nbsp;{i}";<br>&nbsp;&nbsp;&nbsp;myThread.Start();<br>}<br><br>void&nbsp;Print()<br>{<br>&nbsp;&nbsp;&nbsp;lock&nbsp;(locker)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x&nbsp;=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;&nbsp;6;&nbsp;i++)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"{Thread.CurrentThread.Name}:&nbsp;{x}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread.Sleep(100);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;}<br>}</code></pre>
+     </div>
+     <p class="paragraph">Rescriem acest exemplu utilizând AutoResetEvent:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;x&nbsp;=&nbsp;0;&nbsp;&nbsp;//&nbsp;resursă&nbsp;comună<br><br>AutoResetEvent&nbsp;waitHandler&nbsp;=&nbsp;new&nbsp;AutoResetEvent(true);&nbsp;&nbsp;//&nbsp;obiect-eveniment<br><br>//&nbsp;pornim&nbsp;cinci&nbsp;thread-uri<br>for&nbsp;(int&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;&nbsp;6;&nbsp;i++)<br>{<br>&nbsp;&nbsp;&nbsp;Thread&nbsp;myThread&nbsp;=&nbsp;new(Print);<br>&nbsp;&nbsp;&nbsp;myThread.Name&nbsp;=&nbsp;$"Thread&nbsp;{i}";<br>&nbsp;&nbsp;&nbsp;myThread.Start();<br>}<br><br>void&nbsp;Print()<br>{<br>&nbsp;&nbsp;&nbsp;waitHandler.WaitOne();&nbsp;&nbsp;//&nbsp;așteptăm&nbsp;semnalul<br>&nbsp;&nbsp;&nbsp;x&nbsp;=&nbsp;1;<br>&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;1;&nbsp;i&nbsp;&lt;&nbsp;6;&nbsp;i++)<br>&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($"{Thread.CurrentThread.Name}:&nbsp;{x}");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x++;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread.Sleep(100);<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;waitHandler.Set();&nbsp;&nbsp;//&nbsp;semnalizăm&nbsp;că&nbsp;waitHandler&nbsp;este&nbsp;în&nbsp;stare&nbsp;semnalizată<br>}</code></pre>
+     </div>
+     <p class="paragraph">În primul rând, creăm o variabilă de tip AutoResetEvent. Prin transmiterea valorii true în constructor, indicăm că obiectul creat va fi inițial în stare semnalizată.</p>
+     <p class="paragraph">Când începe să ruleze un thread, prima operație efectuată în metoda Print este apelul waitHandler.WaitOne(). Metoda WaitOne indică faptul că thread-ul curent este pus în stare de așteptare până când obiectul waitHandler va fi setat în stare semnalizată. Astfel, toate thread-urile sunt puse în stare de așteptare.</p>
+     <p class="paragraph">După finalizarea activității, se apelează metoda waitHandler.Set, care notifică toate thread-urile în așteptare că obiectul waitHandler este din nou în stare semnalizată, iar unul dintre thread-uri "capturează" acest obiect, îl trece în stare nesemnalizată și își execută codul. Celelalte thread-uri așteaptă din nou.</p>
+     <p class="paragraph">Deoarece în constructorul AutoResetEvent am indicat că obiectul este inițial în stare semnalizată, primul thread din coadă capturează obiectul și începe să-și execute codul.</p>
+     <p class="paragraph">Dar dacă am fi scris AutoResetEvent waitHandler = new AutoResetEvent(false), obiectul ar fi fost inițial în stare nesemnalizată, iar deoarece toate thread-urile sunt blocate de metoda waitHandler.WaitOne() în așteptarea semnalului, programul ar fi fost blocat și nu ar fi executat nicio acțiune.</p>
+     <p class="paragraph">Dacă în programul nostru sunt utilizate mai multe obiecte AutoResetEvent, putem folosi pentru monitorizarea stării acestor obiecte metodele statice WaitAll și WaitAny, care acceptă ca parametru un array de obiecte de tip WaitHandle - clasa de bază pentru AutoResetEvent.</p>
+     <p class="paragraph">Astfel, putem folosi și WaitAll în exemplul de mai sus. Pentru aceasta, trebuie să înlocuim linia:</p>
+     <div class="code-inline">
+      <pre><code>waitHandler.WaitOne();</code></pre>
+     </div>
+     <p class="paragraph">cu următoarea:</p>
+     <div class="code-inline">
+      <pre><code>AutoResetEvent.WaitAll(new&nbsp;WaitHandle[]&nbsp;{waitHandler});</code></pre>
+     </div>
+    </div>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box">
+     <p>Google Ad Here</p>
+    </div>
+    <div class="ad-box">
+     <p>Promo: SQL Beginner Guide</p>
+    </div>
+   </aside>
+  </div>
+  <div class="lesson-navigation">
+   <th:block th:if="${previousLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a>
+   </th:block> <th:block th:if="${nextLesson != null}">
+    <a th:href="@{'/lessons/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a>
+   </th:block>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
+</html>
