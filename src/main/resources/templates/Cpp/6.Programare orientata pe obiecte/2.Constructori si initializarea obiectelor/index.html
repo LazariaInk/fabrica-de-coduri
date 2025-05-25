@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4253419731329045"
+        crossorigin="anonymous"></script>
+
+    <link rel="canonical" th:href="${canonicalUrl}" />
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function () { dataLayer.push(arguments); };
+        gtag('consent', 'default', {
+            'wait_for_update': 500,
+            'region': ['RO'],
+            'ad_storage': 'denied',
+            'analytics_storage': 'denied',
+            'ad_user_data': 'denied',
+            'ad_personalization': 'denied'
+        });
+        gtag('js', new Date());
+        gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+</head>
+
+<body th:with="activeTopic='C-sharp', activeChapter='10.Colectii', activeLesson='1.Lista List_T_'">
+    <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <div class="top-nav">
+        <th:block th:each="topic : ${topics}">
+            <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}"
+                th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+        </th:block>
+    </div>
+    <div class="layout">
+        <div class="mobile-sidebar" id="mobileSidebar">
+            <button class="close-btn" onclick="toggleSidebar()">✖</button>
+            <ul class="chapter-list">
+                <th:block th:each="chapter : ${chapters}">
+                    <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+                        <div class="chapter-title" onclick="toggleChapter(this)">
+                            <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+                        </div>
+                        <ul class="lesson-list">
+                            <th:block th:each="lesson : ${chapter.lessons}">
+                                <li><a th:href="@{'/lectii/' +
+${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}"
+                                        th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+                            </th:block>
+                        </ul>
+                    </li>
+                </th:block>
+            </ul>
+        </div>
+        <aside class="sidebar">
+            <ul class="sidebar-list">
+                <th:block th:each="chapter : ${chapters}">
+                    <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+                        <div class="chapter-toggle" onclick="toggleLessons(this)">
+                            <span th:text="${chapter.title}">Chapter</span>
+                        </div>
+                        <ul class="lesson-list hidden">
+                            <th:block th:each="lesson : ${chapter.lessons}">
+                                <li><a th:href="@{'/lectii/' +
+${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}"
+                                        th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+                            </th:block>
+                        </ul>
+                    </li>
+                </th:block>
+            </ul>
+        </aside>
+        <main class="content">
+            <div class="document-container">
+
+<h1 class="main-title">Constructori și inițializarea obiectelor</h1>
+<p class="paragraph">Constructorii reprezintă funcții speciale care au același nume ca și clasa, nu returnează niciun tip de valoare și permit inițializarea unui obiect în momentul creării sale. Astfel, se garantează că variabilele membru (câmpurile) ale clasei vor avea valori bine definite. La fiecare creare a unui nou obiect al clasei, se apelează constructorul.</p>
+<p class="paragraph">În lecția anterioară, am folosit următoarea clasă:</p>
+<div class="code-inline"><pre><code>#include&nbsp;&lt;iostream&gt;<br><br>class&nbsp;Person&nbsp;<br>{<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;std::string&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;age;<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;print()&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Name:&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;name&nbsp;&lt;&lt;&nbsp;&quot;\tAge:&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;age&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>};<br><br>int&nbsp;main()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;person;&nbsp;&nbsp;//&nbsp;apelul&nbsp;constructorului<br>&nbsp;&nbsp;&nbsp;&nbsp;person.name&nbsp;=&nbsp;&quot;Tom&quot;;<br>&nbsp;&nbsp;&nbsp;&nbsp;person.age&nbsp;=&nbsp;22;<br>&nbsp;&nbsp;&nbsp;&nbsp;person.print();<br>}</code></pre></div>
+<p class="paragraph">Aici, la linia:</p>
+<div class="code-inline"><pre><code>Person&nbsp;person;</code></pre></div>
+<p class="paragraph">se apelează constructorul implicit. Dacă nu definim manual un constructor în clasă, compilatorul generează automat unul implicit, fără parametri și care nu face nimic special.</p>
+<h2 class="subtitle">Definirea unui constructor personalizat</h2>
+<p class="paragraph">Presupunem că dorim ca valorile name și age să fie setate în momentul creării obiectului. Definim un constructor astfel:</p>
+<div class="code-inline"><pre><code>#include&nbsp;&lt;iostream&gt;<br><br>class&nbsp;Person&nbsp;<br>{<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;std::string&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;age;<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;print()&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Name:&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;name&nbsp;&lt;&lt;&nbsp;&quot;\tAge:&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;age&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;Person(std::string&nbsp;p_name,&nbsp;unsigned&nbsp;p_age)<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name&nbsp;=&nbsp;p_name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;age&nbsp;=&nbsp;p_age;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Person&nbsp;has&nbsp;been&nbsp;created&quot;&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>};<br><br>int&nbsp;main()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;tom(&quot;Tom&quot;,&nbsp;38);&nbsp;&nbsp;//&nbsp;apelul&nbsp;constructorului<br>&nbsp;&nbsp;&nbsp;&nbsp;tom.print();<br>}</code></pre></div>
+<p class="paragraph">Constructorul:</p>
+<div class="code-inline"><pre><code>Person(std::string&nbsp;p_name,&nbsp;unsigned&nbsp;p_age)</code></pre></div>
+<p class="paragraph">primește doi parametri, le atribuie valorile câmpurilor name și age, apoi afișează un mesaj.</p>
+<p class="paragraph">Dacă definim un constructor propriu, compilatorul nu mai generează automat constructorul implicit. Astfel, obiectele trebuie create prin apel explicit:</p>
+<div class="code-inline"><pre><code>Person&nbsp;tom(&quot;Tom&quot;,&nbsp;38);</code></pre></div>
+<p class="paragraph">Alternativ, putem crea obiecte și așa:</p>
+<div class="code-inline"><pre><code>Person&nbsp;tom{&quot;Tom&quot;,&nbsp;38};<br>Person&nbsp;tom&nbsp;=&nbsp;Person(&quot;Tom&quot;,&nbsp;38);</code></pre></div>
+<p class="paragraph">Ieșirea în consolă:</p>
+<div class="code-inline"><pre><code>Person&nbsp;has&nbsp;been&nbsp;created<br>Name:&nbsp;Tom&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age:&nbsp;38</code></pre></div>
+<h2 class="subtitle">Crearea mai multor obiecte</h2>
+<p class="paragraph">Constructorii simplifică crearea mai multor obiecte diferite:</p>
+<div class="code-inline"><pre><code>#include&nbsp;&lt;iostream&gt;<br><br>class&nbsp;Person&nbsp;<br>{<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;std::string&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;age;<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;print()&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Name:&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;name&nbsp;&lt;&lt;&nbsp;&quot;\tAge:&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;age&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;Person(std::string&nbsp;p_name,&nbsp;unsigned&nbsp;p_age)<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name&nbsp;=&nbsp;p_name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;age&nbsp;=&nbsp;p_age;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Person&nbsp;has&nbsp;been&nbsp;created&quot;&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>};<br><br>int&nbsp;main()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;tom{&quot;Tom&quot;,&nbsp;38};<br>&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;bob{&quot;Bob&quot;,&nbsp;42};<br>&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;sam{&quot;Sam&quot;,&nbsp;25};<br>&nbsp;&nbsp;&nbsp;&nbsp;tom.print();<br>&nbsp;&nbsp;&nbsp;&nbsp;bob.print();<br>&nbsp;&nbsp;&nbsp;&nbsp;sam.print();<br>}</code></pre></div>
+<p class="paragraph">Ieșirea:</p>
+<div class="code-inline"><pre><code>Person&nbsp;has&nbsp;been&nbsp;created<br>Person&nbsp;has&nbsp;been&nbsp;created<br>Person&nbsp;has&nbsp;been&nbsp;created<br>Name:&nbsp;Tom&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age:&nbsp;38<br>Name:&nbsp;Bob&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age:&nbsp;42<br>Name:&nbsp;Sam&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age:&nbsp;25</code></pre></div>
+<h2 class="subtitle">Constructori multipli</h2>
+<p class="paragraph">Putem defini constructori multipli pentru flexibilitate:</p>
+<div class="code-inline"><pre><code>#include&nbsp;&lt;iostream&gt;<br><br>class&nbsp;Person&nbsp;<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;std::string&nbsp;name{};<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;age{};<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;print()&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Name:&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;name&nbsp;&lt;&lt;&nbsp;&quot;\tAge:&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;age&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;Person(std::string&nbsp;p_name,&nbsp;unsigned&nbsp;p_age)<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name&nbsp;=&nbsp;p_name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;age&nbsp;=&nbsp;p_age;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;Person(std::string&nbsp;p_name)<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name&nbsp;=&nbsp;p_name;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;age&nbsp;=&nbsp;18;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;Person()<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name&nbsp;=&nbsp;&quot;Undefined&quot;;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;age&nbsp;=&nbsp;18;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>};<br><br>int&nbsp;main()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;tom{&quot;Tom&quot;,&nbsp;38};<br>&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;bob{&quot;Bob&quot;};<br>&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;sam;<br>&nbsp;&nbsp;&nbsp;&nbsp;tom.print();<br>&nbsp;&nbsp;&nbsp;&nbsp;bob.print();<br>&nbsp;&nbsp;&nbsp;&nbsp;sam.print();<br>}</code></pre></div>
+<p class="paragraph">Ieșirea:</p>
+<div class="code-inline"><pre><code>Name:&nbsp;Tom&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age:&nbsp;38<br>Name:&nbsp;Bob&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age:&nbsp;18<br>Name:&nbsp;Undefined&nbsp;Age:&nbsp;18</code></pre></div>
+<h2 class="subtitle">Delegarea constructorilor</h2>
+<p class="paragraph">Pentru a evita repetarea codului, putem apela un constructor din alt constructor:</p>
+<div class="code-inline"><pre><code>#include&nbsp;&lt;iostream&gt;<br><br>class&nbsp;Person&nbsp;<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;std::string&nbsp;name{};<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;age{};<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;print()&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Name:&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;name&nbsp;&lt;&lt;&nbsp;&quot;\tAge:&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;age&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;Person(std::string&nbsp;p_name,&nbsp;unsigned&nbsp;p_age)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;name(p_name),&nbsp;age(p_age)<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;First&nbsp;constructor&quot;&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;Person(std::string&nbsp;p_name)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;Person(p_name,&nbsp;18)&nbsp;&nbsp;//&nbsp;apelă&nbsp;primul&nbsp;constructor<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Second&nbsp;constructor&quot;&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;Person()<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;Person(&quot;Undefined&quot;)&nbsp;&nbsp;//&nbsp;apelă&nbsp;al&nbsp;doilea&nbsp;constructor<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Third&nbsp;constructor&quot;&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>};<br><br>int&nbsp;main()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;sam;&nbsp;&nbsp;//&nbsp;apelează&nbsp;constructorul&nbsp;delegat<br>&nbsp;&nbsp;&nbsp;&nbsp;sam.print();<br>}</code></pre></div>
+<p class="paragraph">Ieșirea:</p>
+<div class="code-inline"><pre><code>First&nbsp;constructor<br>Second&nbsp;constructor<br>Third&nbsp;constructor<br>Name:&nbsp;Undefined&nbsp;&nbsp;&nbsp;&nbsp;Age:&nbsp;18</code></pre></div>
+<p class="paragraph">Această tehnică se numește delegare a constructorilor.</p>
+<h2 class="subtitle">Parametri cu valori implicite</h2>
+<p class="paragraph">Constructorii pot avea valori implicite pentru parametri:</p>
+<div class="code-inline"><pre><code>#include&nbsp;&lt;iostream&gt;<br><br>class&nbsp;Person&nbsp;<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;std::string&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;age;<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;Person(std::string&nbsp;p_name&nbsp;=&nbsp;&quot;Undefined&quot;,&nbsp;unsigned&nbsp;p_age&nbsp;=&nbsp;18)<br>&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name&nbsp;=&nbsp;p_name;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;age&nbsp;=&nbsp;p_age;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;print()&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Name:&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;name&nbsp;&lt;&lt;&nbsp;&quot;\tAge:&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;age&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>};<br><br>int&nbsp;main()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;tom{&quot;Tom&quot;,&nbsp;38};<br>&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;bob{&quot;Bob&quot;};<br>&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;sam;<br>&nbsp;&nbsp;&nbsp;&nbsp;tom.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;&nbsp;Age:&nbsp;38<br>&nbsp;&nbsp;&nbsp;&nbsp;bob.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Bob&nbsp;&nbsp;&nbsp;Age:&nbsp;18<br>&nbsp;&nbsp;&nbsp;&nbsp;sam.print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Undefined&nbsp;&nbsp;&nbsp;Age:&nbsp;18<br>}</code></pre></div>
+<h2 class="subtitle">Inițializarea constantelor și lista de inițializare</h2>
+<p class="paragraph">Pentru câmpuri const, trebuie folosită lista de inițializare, deoarece acestea trebuie inițializate înainte de intrarea în corpul constructorului:</p>
+<div class="code-inline"><pre><code>#include&nbsp;&lt;iostream&gt;<br><br>class&nbsp;Person&nbsp;<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;std::string&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;age{};<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;print()&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Name:&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;name&nbsp;&lt;&lt;&nbsp;&quot;\tAge:&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;age&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;Person(std::string&nbsp;p_name,&nbsp;unsigned&nbsp;p_age)&nbsp;:&nbsp;name{p_name}<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;age&nbsp;=&nbsp;p_age;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>};<br><br>int&nbsp;main()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;tom{&quot;Tom&quot;,&nbsp;38};<br>&nbsp;&nbsp;&nbsp;&nbsp;tom.print();&nbsp;&nbsp;//&nbsp;Name:&nbsp;Tom&nbsp;&nbsp;&nbsp;&nbsp;Age:&nbsp;38<br>}</code></pre></div>
+<p class="paragraph">Listele de inițializare reprezintă enumerări ale inițializatorilor pentru fiecare dintre variabile și constante, plasate după două puncte, după lista de parametri a constructorului:</p>
+<div class="code-inline"><pre><code>Person(std::string&nbsp;p_name,&nbsp;unsigned&nbsp;p_age)&nbsp;:&nbsp;name{p_name}</code></pre></div>
+<p class="paragraph">Aici, expresia name{p_name} permite inițializarea constantei cu valoarea parametrului p_name. Valoarea este plasată între acolade, dar se pot folosi și paranteze rotunde:</p>
+<div class="code-inline"><pre><code>Person(std::string&nbsp;p_name,&nbsp;unsigned&nbsp;p_age)&nbsp;:&nbsp;name(p_name)</code></pre></div>
+<p class="paragraph">Listele de inițializare pot fi utilizate în mod similar și pentru atribuirea valorilor variabilelor:</p>
+<div class="code-inline"><pre><code>class&nbsp;Person&nbsp;<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;std::string&nbsp;name;<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;age;<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;print()&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Name:&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;name&nbsp;&lt;&lt;&nbsp;&quot;\tAge:&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;age&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;Person(std::string&nbsp;p_name,&nbsp;unsigned&nbsp;p_age)&nbsp;:&nbsp;name(p_name),&nbsp;age(p_age)<br>&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;}<br>};</code></pre></div>
+<p class="paragraph">Când se utilizează liste de inițializare, este important să se țină cont de faptul că valorile trebuie transmise în ordinea în care constantele și variabilele sunt definite în clasă. Adică, în acest caz, în clasă mai întâi este definită constanta name, apoi variabila age. În consecință, valorile trebuie transmise în aceeași ordine. Prin urmare, la adăugarea unor câmpuri suplimentare sau la schimbarea ordinii celor existente, trebuie să aveți grijă ca totul să fie inițializat în ordinea corectă.</p>
+            </div>
+        </main>
+        <aside class="ad-section">
+            <div class="ad-box">
+                <p>Google Ad Here</p>
+            </div>
+            <div class="ad-box">
+                <p>Promo: SQL Beginner Guide</p>
+            </div>
+        </aside>
+    </div>
+    <div class="lesson-navigation">
+        <th:block th:if="${previousLesson != null}">
+            <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția
+                anterioară</a>
+        </th:block>
+        <th:block th:if="${nextLesson != null}">
+            <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția
+                următoare →</a>
+        </th:block>
+    </div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <script th:src="@{/js/script.js}" defer></script>
+</body>
+</html>

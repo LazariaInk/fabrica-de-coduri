@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4253419731329045"
+        crossorigin="anonymous"></script>
+
+    <link rel="canonical" th:href="${canonicalUrl}" />
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function () { dataLayer.push(arguments); };
+        gtag('consent', 'default', {
+            'wait_for_update': 500,
+            'region': ['RO'],
+            'ad_storage': 'denied',
+            'analytics_storage': 'denied',
+            'ad_user_data': 'denied',
+            'ad_personalization': 'denied'
+        });
+        gtag('js', new Date());
+        gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+</head>
+
+<body th:with="activeTopic='C-sharp', activeChapter='10.Colectii', activeLesson='1.Lista List_T_'">
+    <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <div class="top-nav">
+        <th:block th:each="topic : ${topics}">
+            <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}"
+                th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+        </th:block>
+    </div>
+    <div class="layout">
+        <div class="mobile-sidebar" id="mobileSidebar">
+            <button class="close-btn" onclick="toggleSidebar()">✖</button>
+            <ul class="chapter-list">
+                <th:block th:each="chapter : ${chapters}">
+                    <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+                        <div class="chapter-title" onclick="toggleChapter(this)">
+                            <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+                        </div>
+                        <ul class="lesson-list">
+                            <th:block th:each="lesson : ${chapter.lessons}">
+                                <li><a th:href="@{'/lectii/' +
+${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}"
+                                        th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+                            </th:block>
+                        </ul>
+                    </li>
+                </th:block>
+            </ul>
+        </div>
+        <aside class="sidebar">
+            <ul class="sidebar-list">
+                <th:block th:each="chapter : ${chapters}">
+                    <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+                        <div class="chapter-toggle" onclick="toggleLessons(this)">
+                            <span th:text="${chapter.title}">Chapter</span>
+                        </div>
+                        <ul class="lesson-list hidden">
+                            <th:block th:each="lesson : ${chapter.lessons}">
+                                <li><a th:href="@{'/lectii/' +
+${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}"
+                                        th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+                            </th:block>
+                        </ul>
+                    </li>
+                </th:block>
+            </ul>
+        </aside>
+        <main class="content">
+            <div class="document-container">
+
+<h1 class="main-title">Restricțiile șabloanelor</h1>
+<h2 class="subtitle">Operatorul requires</h2>
+<p class="paragraph">Restricțiile pentru șabloane (atât pentru funcții, cât și pentru clase) permit limitarea setului de tipuri posibile care vor fi utilizate ca argumente ale șabloanelor. Adăugând restricții pentru parametrii șablonului, se rezolvă următoarele sarcini:</p>
+<ul class="enumeration">
+<li>Din antetul șablonului este clar ce tipuri de argumente sunt permise și ce tipuri nu sunt permise</li>
+<li>Șablonul este creat doar dacă argumentele șablonului satisfac toate restricțiile</li>
+<li>Orice încălcare a restricțiilor șablonului va duce la un mesaj de eroare care va fi mult mai aproape de cauza principală a problemei, și anume încercarea de a folosi un șablon cu argumente incorecte</li>
+</ul>
+<p class="paragraph">Începând cu standardul C++20, limbajul a introdus operatorul requires, care permite stabilirea de restricții pentru parametrii șabloanelor.</p>
+<div class="code-inline"><pre><code>template&nbsp;&lt;parametri&gt;&nbsp;requires&nbsp;restricții<br>conținutul&nbsp;șablonului;</code></pre></div>
+<p class="paragraph">Restricțiile reprezintă expresii condiționale care returnează un rezultat de tip bool - dacă parametrul de tip satisface condiția, atunci se returnează true. Fiecare restricție impune una sau mai multe cerințe pentru unul sau mai mulți parametri ai șablonului.</p>
+<p class="paragraph">De exemplu, să definim o funcție care poate aduna numere:</p>
+<div class="code-inline"><pre><code>#include&nbsp;&lt;iostream&gt;<br>&nbsp;<br>template&nbsp;&lt;typename&nbsp;T&gt;&nbsp;requires&nbsp;std::is_same&lt;T,&nbsp;int&gt;::value&nbsp;||&nbsp;std::is_same&lt;T,&nbsp;double&gt;::value<br>T&nbsp;sum(T&nbsp;a,&nbsp;T&nbsp;b)&nbsp;{&nbsp;return&nbsp;a&nbsp;+&nbsp;b;&nbsp;}<br>&nbsp;<br>int&nbsp;main()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;sum(3,&nbsp;4)&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;sum(12.5,&nbsp;4.3)&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;//std::cout&nbsp;&lt;&lt;&nbsp;sum(5l,&nbsp;7l)&nbsp;&lt;&lt;&nbsp;std::endl;<br>}</code></pre></div>
+<p class="paragraph">Aici, este definit un șablon de funcție sum, care primește valori de tipul T și returnează suma acestora tot ca valoare de tipul T. După cuvântul cheie requires, pentru parametrul `T este stabilită restricția:</p>
+<div class="code-inline"><pre><code>std::is_same&lt;T,&nbsp;int&gt;::value&nbsp;||&nbsp;std::is_same&lt;T,&nbsp;double&gt;::value</code></pre></div>
+<p class="paragraph">Pentru a defini restricțiile, se folosește structura încorporată std::is_same din biblioteca standard C++. Această structură tipizează două tipuri. Variabila value a structurii returnează true dacă cele două tipuri sunt identice. Astfel, expresia std::is_same&lt;T, int&gt;::value va returna true dacă T este de tip int. Similar, stabilim o altă restricție pentru tipul T, folosind std::is_same&lt;T, double&gt;::value. Apoi, folosind operatorul ||, combinăm cele două restricții. Astfel, T poate fi fie int, fie double.</p>
+<p class="paragraph">Ulterior, putem transmite funcției sum() valori de tipuri care satisfac aceste restricții:</p>
+<div class="code-inline"><pre><code>std::cout&nbsp;&lt;&lt;&nbsp;sum(3,&nbsp;4)&nbsp;&lt;&lt;&nbsp;std::endl;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;transmitem&nbsp;int<br>std::cout&nbsp;&lt;&lt;&nbsp;sum(12.5,&nbsp;4.3)&nbsp;&lt;&lt;&nbsp;std::endl;&nbsp;&nbsp;&nbsp;//&nbsp;transmitem&nbsp;double</code></pre></div>
+<p class="paragraph">Valori de alte tipuri nu le putem transmite. De exemplu, în exemplul de mai sus este comentată linia unde funcției sum() i se transmit valori de tip long:</p>
+<div class="code-inline"><pre><code>//std::cout&nbsp;&lt;&lt;&nbsp;sum(5l,&nbsp;7l)&nbsp;&lt;&lt;&nbsp;std::endl;&nbsp;&nbsp;//&nbsp;long&nbsp;nu&nbsp;va&nbsp;funcționa</code></pre></div>
+<p class="paragraph">Dacă această linie este decommentată, compilatorul nu va compila programul și va afișa o eroare care ne va informa că au fost transmise tipuri incorecte pentru funcția sum.</p>
+            </div>
+        </main>
+        <aside class="ad-section">
+            <div class="ad-box">
+                <p>Google Ad Here</p>
+            </div>
+            <div class="ad-box">
+                <p>Promo: SQL Beginner Guide</p>
+            </div>
+        </aside>
+    </div>
+    <div class="lesson-navigation">
+        <th:block th:if="${previousLesson != null}">
+            <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția
+                anterioară</a>
+        </th:block>
+        <th:block th:if="${nextLesson != null}">
+            <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția
+                următoare →</a>
+        </th:block>
+    </div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <script th:src="@{/js/script.js}" defer></script>
+</body>
+</html>

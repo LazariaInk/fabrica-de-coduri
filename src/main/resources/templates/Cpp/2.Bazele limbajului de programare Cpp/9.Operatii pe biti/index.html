@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4253419731329045"
+        crossorigin="anonymous"></script>
+
+    <link rel="canonical" th:href="${canonicalUrl}" />
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function () { dataLayer.push(arguments); };
+        gtag('consent', 'default', {
+            'wait_for_update': 500,
+            'region': ['RO'],
+            'ad_storage': 'denied',
+            'analytics_storage': 'denied',
+            'ad_user_data': 'denied',
+            'ad_personalization': 'denied'
+        });
+        gtag('js', new Date());
+        gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+</head>
+
+<body th:with="activeTopic='C-sharp', activeChapter='10.Colectii', activeLesson='1.Lista List_T_'">
+    <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <div class="top-nav">
+        <th:block th:each="topic : ${topics}">
+            <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}"
+                th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+        </th:block>
+    </div>
+    <div class="layout">
+        <div class="mobile-sidebar" id="mobileSidebar">
+            <button class="close-btn" onclick="toggleSidebar()">✖</button>
+            <ul class="chapter-list">
+                <th:block th:each="chapter : ${chapters}">
+                    <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+                        <div class="chapter-title" onclick="toggleChapter(this)">
+                            <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+                        </div>
+                        <ul class="lesson-list">
+                            <th:block th:each="lesson : ${chapter.lessons}">
+                                <li><a th:href="@{'/lectii/' +
+${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}"
+                                        th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+                            </th:block>
+                        </ul>
+                    </li>
+                </th:block>
+            </ul>
+        </div>
+        <aside class="sidebar">
+            <ul class="sidebar-list">
+                <th:block th:each="chapter : ${chapters}">
+                    <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+                        <div class="chapter-toggle" onclick="toggleLessons(this)">
+                            <span th:text="${chapter.title}">Chapter</span>
+                        </div>
+                        <ul class="lesson-list hidden">
+                            <th:block th:each="lesson : ${chapter.lessons}">
+                                <li><a th:href="@{'/lectii/' +
+${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}"
+                                        th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+                            </th:block>
+                        </ul>
+                    </li>
+                </th:block>
+            </ul>
+        </aside>
+        <main class="content">
+            <div class="document-container">
+
+                <h1 class="main-title">Operații pe biți</h1>
+                <p class="paragraph">Operațiile pe biți se efectuează asupra bitilor individuali ai numerelor. Aceste
+                    operații se aplică doar asupra numerelor întregi. Dar, mai întâi, să vedem pe scurt ce înseamnă
+                    pozițiile (biții) unui număr.</p>
+                <h2 class="subtitle">Reprezentarea binară a numerelor</h2>
+                <p class="paragraph">La nivelul calculatorului, toate datele sunt reprezentate ca un set de biți.
+                    Fiecare bit poate avea două valori: 1 (semnal prezent) și 0 (fără semnal). Toate datele sunt, în
+                    esență, doar șiruri de 0 și 1. 8 biți reprezintă 1 byte. Acest sistem se numește sistem binar.</p>
+                <p class="paragraph">De exemplu, numărul 13 în sistem binar este 1101₂. Cum ajungem la el:</p>
+                <div class="code-inline">
+                    <pre><code>//&nbsp;conversia&nbsp;numărului&nbsp;zecimal&nbsp;13&nbsp;în&nbsp;sistem&nbsp;binar<br>13&nbsp;/&nbsp;2&nbsp;=&nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;rest&nbsp;1&nbsp;(13&nbsp;-&nbsp;6&nbsp;*&nbsp;2&nbsp;=&nbsp;1)&nbsp;&nbsp;<br>6&nbsp;/&nbsp;2&nbsp;=&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;rest&nbsp;0&nbsp;(6&nbsp;-&nbsp;3&nbsp;*&nbsp;2&nbsp;=&nbsp;0)&nbsp;&nbsp;<br>3&nbsp;/&nbsp;2&nbsp;=&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;rest&nbsp;1&nbsp;(3&nbsp;-&nbsp;1&nbsp;*&nbsp;2&nbsp;=&nbsp;1)&nbsp;&nbsp;<br>1&nbsp;/&nbsp;2&nbsp;=&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;rest&nbsp;1&nbsp;(1&nbsp;-&nbsp;0&nbsp;*&nbsp;2&nbsp;=&nbsp;1)</code></pre>
+                </div>
+                <p class="paragraph">Algoritmul general constă în împărțirea succesivă a numărului și a rezultatelor
+                    obținute la 2, reținând resturile până ajungem la 0.</p>
+                <p class="paragraph">Apoi scriem resturile în ordine inversă și astfel obținem reprezentarea binară a
+                    numărului. În acest caz, pas cu pas:
+
+
+
+
+
+
+
+
+                </p>
+                <ul class="enumeration">
+                    <li>Împărțim numărul 13 la 2. Rezultatul împărțirii – 6, restul împărțirii – 1 (deoarece 13 - 6 * 2
+                        = 1)</li>
+                    <li>Apoi împărțim rezultatul operației anterioare – numărul 6 la 2. Rezultatul împărțirii – 3,
+                        restul împărțirii – 0</li>
+                    <li>Împărțim rezultatul operației anterioare – numărul 3 la 2. Rezultatul împărțirii – 1, restul
+                        împărțirii – 1</li>
+                    <li>Împărțim rezultatul operației anterioare – numărul 1 la 2. Rezultatul împărțirii – 0, restul
+                        împărțirii – 1</li>
+                    <li>Ultimul rezultat al împărțirii este 0, deci încheiem procesul și așezăm resturile obținute de la
+                        operațiile de împărțire începând cu ultimul – 1101</li>
+                </ul>
+                <p class="paragraph">La conversia inversă din sistemul binar în sistemul zecimal, înmulțim valoarea
+                    fiecărui bit (1 sau 0) cu 2 la puterea corespunzătoare poziției bitului (numerotarea bitilor începe
+                    de la zero):</p>
+                <div class="code-inline">
+                    <pre><code>//&nbsp;conversia&nbsp;numărului&nbsp;binar&nbsp;1101&nbsp;în&nbsp;sistem&nbsp;zecimal<br>1&nbsp;(bitul&nbsp;3)&nbsp;1&nbsp;(bitul&nbsp;2)&nbsp;0&nbsp;(bitul&nbsp;1)&nbsp;1&nbsp;(bitul&nbsp;0)<br>1&nbsp;*&nbsp;2³&nbsp;+&nbsp;1&nbsp;*&nbsp;2²&nbsp;+&nbsp;0&nbsp;*&nbsp;2¹&nbsp;+&nbsp;1&nbsp;*&nbsp;2⁰<br>=<br>1&nbsp;*&nbsp;8&nbsp;+&nbsp;1&nbsp;*&nbsp;4&nbsp;+&nbsp;0&nbsp;*&nbsp;2&nbsp;+&nbsp;1&nbsp;*&nbsp;1<br>=<br>8&nbsp;+&nbsp;4&nbsp;+&nbsp;0&nbsp;+&nbsp;1<br>=<br>13</code></pre>
+                </div>
+                <h2 class="subtitle">Reprezentarea numerelor negative</h2>
+                <p class="paragraph">Pentru reprezentarea numerelor cu semn în C++ se folosește complementul față de doi
+                    (two&#x27;s complement), unde bitul cel mai semnificativ (cel mai din stânga) este bitul de semn.
+                    Dacă valoarea acestuia este 0, atunci numărul este pozitiv, iar reprezentarea binară nu diferă de
+                    cea a unui număr fără semn.</p>
+                <p class="paragraph">De exemplu, 0000 0001 în sistem zecimal este 1. Dacă bitul cel mai semnificativ
+                    este 1, atunci avem de-a face cu un număr negativ. De exemplu, 1111 1111 în sistem zecimal
+                    reprezintă -1. În mod similar, 1111 0011 reprezintă -13.</p>
+                <p class="paragraph">Pentru a obține un număr negativ dintr-un număr pozitiv, se aplică următorii pași:
+                </p>
+                <ul class="enumeration">
+                    <li>Inversăm toți biții (1 devine 0 și 0 devine 1)</li>
+                    <li>Adăugăm 1 la rezultat</li>
+                </ul>
+                <div class="image-container">
+                    <img th:src="@{/images/Cpp/2.Bazele%20limbajului%20de%20programare%20Cpp/9.Operatii%20pe%20biti/images/inversare_bit_cu_bit_in_cpp.png}"
+                        alt="" class="responsive-image">
+                </div>
+                <p class="paragraph">De exemplu, să obținem numărul -3. Pentru aceasta, mai întâi luăm reprezentarea
+                    binară a numărului 3:</p>
+                <p class="paragraph">3₁₀ = 0000 0011₂</p>
+                <p class="paragraph">Inversăm biții:</p>
+                <p class="paragraph">~0000 0011 = 1111 1100</p>
+                <p class="paragraph">Și adăugăm 1:</p>
+                <p class="paragraph">1111 1100 + 1 = 1111 1101</p>
+                <p class="paragraph">Astfel, numărul 1111 1101 reprezintă în binar valoarea -3.</p>
+                <p class="paragraph">Să analizăm cum are loc adunarea unui număr cu semn și a unuia fără semn. De
+                    exemplu, să adunăm 12 și -8:</p>
+                <div class="code-inline">
+                    <pre><code>12₁₀&nbsp;=&nbsp;00001100₂<br>+<br>-8₁₀&nbsp;=&nbsp;11111000₂&nbsp;&nbsp;&nbsp;(8&nbsp;=&nbsp;00001000,&nbsp;după&nbsp;inversare:&nbsp;11110111,&nbsp;+1&nbsp;=&nbsp;11111000)<br>=<br>4₁₀&nbsp;&nbsp;=&nbsp;00000100₂<br></code></pre>
+                </div>
+                <p class="paragraph">Vedem că în sistem binar am obținut numărul 00000100₂, adică 4 în sistem zecimal.
+                </p>
+                <p class="paragraph">Pentru o mai bună claritate, în C++ este convenabil să folosim scrierea binară a
+                    numerelor, care este precedată de prefixul 0b:</p>
+                <div class="code-inline">
+                    <pre><code>#include&nbsp;&lt;iostream&gt;<br>&nbsp;<br>int&nbsp;main()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;int&nbsp;number{0b0000&#x27;1100};&nbsp;&nbsp;&nbsp;//&nbsp;12<br>&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;number&nbsp;&lt;&lt;&nbsp;std::endl;<br>}</code></pre>
+                </div>
+                <p class="paragraph">În acest caz, variabila number are valoarea 0b0000&#x27;1100, ceea ce corespunde
+                    numărului 12 în sistemul zecimal.</p>
+                <h2 class="subtitle">Operații de deplasare (shift)</h2>
+                <p class="paragraph">Fiecare număr întreg este reprezentat în memorie sub forma unui anumit număr de
+                    biți. Iar operațiile de deplasare permit mutarea reprezentării binare a unui număr cu un anumit
+                    număr de poziții spre dreapta sau spre stânga. Operațiile de deplasare se aplică doar operanzilor
+                    întregi. Există două tipuri de operații:</p>
+                <ul class="enumeration">
+                    <li>&lt;&lt; (Deplasează reprezentarea binară a numărului (primul operand) spre stânga cu un număr
+                        de poziții specificat de al doilea operand)</li>
+                    <li>&gt;&gt; (Deplasează reprezentarea binară a numărului spre dreapta cu un număr de poziții
+                        specificat)</li>
+                </ul>
+                <p class="paragraph">Aplicarea operațiilor:</p>
+                <div class="code-inline">
+                    <pre><code>unsigned&nbsp;int&nbsp;a&nbsp;=&nbsp;2&nbsp;&lt;&lt;&nbsp;2;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;10&nbsp;(în&nbsp;binar)&nbsp;deplasat&nbsp;cu&nbsp;două&nbsp;poziții&nbsp;la&nbsp;stânga&nbsp;=&nbsp;1000&nbsp;→&nbsp;8&nbsp;&nbsp;<br>unsigned&nbsp;int&nbsp;b&nbsp;=&nbsp;16&nbsp;&gt;&gt;&nbsp;3;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;10000&nbsp;(în&nbsp;binar)&nbsp;deplasat&nbsp;cu&nbsp;trei&nbsp;poziții&nbsp;la&nbsp;dreapta&nbsp;=&nbsp;10&nbsp;→&nbsp;2&nbsp;&nbsp;<br></code></pre>
+                </div>
+                <p class="paragraph">Numărul 2 în reprezentare binară este 10. Dacă deplasăm acest număr cu două poziții
+                    spre stânga, obținem 1000, ceea ce în sistem zecimal este 8.</p>
+                <p class="paragraph">Numărul 16 în reprezentare binară este 10000. Dacă deplasăm acest număr cu trei
+                    poziții spre dreapta (ultimele trei biți sunt eliminați), obținem 10, ceea ce în sistem zecimal este
+                    2.</p>
+                <p class="paragraph">Se poate observa că deplasarea cu un bit la stânga este echivalentă cu înmulțirea
+                    cu 2, iar deplasarea cu un bit la dreapta este echivalentă cu împărțirea la 2.</p>
+                <p class="paragraph">Putem generaliza:</p>
+                <ul class="enumeration">
+                    <li>deplasarea la stânga cu n poziții este echivalentă cu înmulțirea numărului cu 2ⁿ,</li>
+                    <li>iar deplasarea la dreapta cu n poziții este echivalentă cu împărțirea la 2ⁿ.</li>
+                </ul>
+                <p class="paragraph">Aceasta se poate folosi în locul operațiilor de înmulțire/împărțire cu puteri ale
+                    lui 2:</p>
+                <div class="code-inline">
+                    <pre><code>#include&nbsp;&lt;iostream&gt;<br>&nbsp;<br>int&nbsp;main()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;int&nbsp;x{3};<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;int&nbsp;number{7};<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;int&nbsp;result{number&nbsp;&lt;&lt;&nbsp;x};&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;7&nbsp;*&nbsp;2*2*2&nbsp;=&nbsp;56<br>&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Result:&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;result&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;number&nbsp;=&nbsp;26;<br>&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;=&nbsp;number&nbsp;&gt;&gt;&nbsp;x;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;26&nbsp;/&nbsp;(2*2*2)&nbsp;=&nbsp;3<br>&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Result:&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;result&nbsp;&lt;&lt;&nbsp;std::endl;<br>}</code></pre>
+                </div>
+                <h2 class="subtitle">Operații pe biți</h2>
+                <p class="paragraph">Operațiile pe biți se efectuează doar asupra pozițiilor corespunzătoare (biților)
+                    ale operanzilor întregi:</p>
+                <ul class="enumeration">
+                    <li>&amp;: conjuncție pe biți (operația ȘI sau înmulțire pe biți). Returnează 1 doar dacă ambii biți
+                        corespunzători ai celor două numere sunt 1</li>
+                    <li>|: disjuncție pe biți (operația SAU sau adunare pe biți). Returnează 1 dacă cel puțin unul
+                        dintre biții corespunzători este 1</li>
+                    <li>^: SAU exclusiv pe biți. Returnează 1 dacă exact unul dintre biții corespunzători este 1</li>
+                    <li>~: negație pe biți sau inversiune. Inversează toți biții operandului. Dacă un bit este 1, devine
+                        0, iar dacă este 0, devine 1</li>
+                </ul>
+                <p class="paragraph">Aplicarea operațiilor:</p>
+                <div class="code-inline">
+                    <pre><code>int&nbsp;a&nbsp;=&nbsp;5&nbsp;|&nbsp;2;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;101&nbsp;|&nbsp;010&nbsp;=&nbsp;111&nbsp;&nbsp;-&nbsp;7<br>int&nbsp;b&nbsp;=&nbsp;6&nbsp;&amp;&nbsp;2;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;110&nbsp;&amp;&nbsp;010&nbsp;=&nbsp;10&nbsp;&nbsp;-&nbsp;2<br>int&nbsp;c&nbsp;=&nbsp;5&nbsp;^&nbsp;2;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;101&nbsp;^&nbsp;010&nbsp;=&nbsp;111&nbsp;-&nbsp;7<br>int&nbsp;d&nbsp;=&nbsp;~9;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;-10</code></pre>
+                </div>
+                <p class="paragraph">De exemplu, expresia 5 | 2 este egală cu 7. Numărul 5 în scriere binară este 101,
+                    iar numărul 2 este 10 sau 010. Adunăm biții corespunzători ai ambelor numere. La adunare, dacă cel
+                    puțin unul dintre biți este 1, suma este 1. Așadar, obținem:</p>
+                <div class="code-inline">
+                    <pre><code>1&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;<br>0&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;<br>1&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;1</code></pre>
+                </div>
+                <p class="paragraph">Rezultatul este 111, adică 7 în sistem zecimal.</p>
+                <p class="paragraph">Să luăm o altă expresie: 6 &amp; 2. Numărul 6 în binar este 110, iar 2 este 010.
+                    Înmulțim biții corespunzători ai ambelor numere. Produsul este 1 doar dacă ambii biți sunt 1.
+                    Altfel, este 0. Obținem:</p>
+                <div class="code-inline">
+                    <pre><code>1&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;<br>0&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;<br>0&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;0</code></pre>
+                </div>
+                <p class="paragraph">Rezultatul este 010, ceea ce în sistem zecimal este 2.</p>
+                <h2 class="subtitle">Exemplu de utilizare practică a operațiilor pe biți</h2>
+                <p class="paragraph">Mulți subestimează operațiile pe biți, neînțelegând la ce pot fi utile. Totuși, ele
+                    pot ajuta la rezolvarea multor tipuri de probleme. În primul rând, ele ne permit să manipulăm datele
+                    la nivel de biți individuali. Un exemplu: avem trei numere, fiecare aflat în intervalul de la 1 la
+                    3:
+
+
+
+
+
+
+
+
+                </p>
+                <div class="code-inline">
+                    <pre><code>int&nbsp;value1&nbsp;{3};&nbsp;&nbsp;//&nbsp;0b0000&#x27;0011<br>int&nbsp;value2&nbsp;{2};&nbsp;&nbsp;//&nbsp;0b0000&#x27;0010<br>int&nbsp;value3&nbsp;{1};&nbsp;&nbsp;//&nbsp;0b0000&#x27;0001</code></pre>
+                </div>
+                <p class="paragraph">Știm că valorile acestor numere nu vor fi mai mari decât 3, și dorim să comprimăm
+                    aceste date cât mai eficient. Putem salva cele trei numere într-un singur număr. Iar în acest caz,
+                    operațiile pe biți ne vor fi de ajutor.</p>
+                <div class="code-inline">
+                    <pre><code>#include&nbsp;&lt;iostream&gt;<br>&nbsp;<br>int&nbsp;main()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;value1&nbsp;{3};&nbsp;&nbsp;//&nbsp;0b0000&#x27;0011<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;value2&nbsp;{2};&nbsp;&nbsp;//&nbsp;0b0000&#x27;0010<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;value3&nbsp;{1};&nbsp;&nbsp;//&nbsp;0b0000&#x27;0001<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;result&nbsp;{0b0000&#x27;0000};<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;salvăm&nbsp;în&nbsp;result&nbsp;valoarea&nbsp;din&nbsp;value1<br>&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;=&nbsp;result&nbsp;|&nbsp;value1;&nbsp;//&nbsp;0b0000&#x27;0011<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;deplasăm&nbsp;biții&nbsp;din&nbsp;result&nbsp;cu&nbsp;2&nbsp;poziții&nbsp;la&nbsp;stânga<br>&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;=&nbsp;result&nbsp;&lt;&lt;&nbsp;2;&nbsp;&nbsp;&nbsp;//&nbsp;0b0000&#x27;1100<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;salvăm&nbsp;în&nbsp;result&nbsp;valoarea&nbsp;din&nbsp;value2<br>&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;=&nbsp;result&nbsp;|&nbsp;value2;&nbsp;&nbsp;//&nbsp;0b0000&#x27;1110<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;deplasăm&nbsp;biții&nbsp;din&nbsp;result&nbsp;cu&nbsp;2&nbsp;poziții&nbsp;la&nbsp;stânga<br>&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;=&nbsp;result&nbsp;&lt;&lt;&nbsp;2;&nbsp;&nbsp;&nbsp;//&nbsp;0b0011&#x27;1000<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;salvăm&nbsp;în&nbsp;result&nbsp;valoarea&nbsp;din&nbsp;value3<br>&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;=&nbsp;result&nbsp;|&nbsp;value3;&nbsp;&nbsp;//&nbsp;0b0011&#x27;1001<br><br>&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;result&nbsp;&lt;&lt;&nbsp;std::endl;&nbsp;&nbsp;&nbsp;//&nbsp;57<br>}</code></pre>
+                </div>
+                <p class="paragraph">Să analizăm acest cod. Mai întâi, sunt definite toate valorile care trebuie
+                    stocate: value1, value2, value3. Pentru stocarea rezultatului este definită variabila result, care
+                    inițial este egală cu 0. Pentru o mai bună claritate, i-a fost atribuită o valoare în format binar:
+                </p>
+                <div class="code-inline">
+                    <pre><code>int&nbsp;result&nbsp;=&nbsp;0b0000&#x27;0000;</code></pre>
+                </div>
+                <p class="paragraph">Salvăm primul număr în result:</p>
+                <div class="code-inline">
+                    <pre><code>result&nbsp;=&nbsp;result&nbsp;|&nbsp;value1;&nbsp;//&nbsp;0b0000&#x27;0011</code></pre>
+                </div>
+                <p class="paragraph">Aici avem de-a face cu o operație logică de adunare pe biți – dacă unul dintre
+                    biții corespunzători este 1, atunci bitul rezultat va fi și el 1. Cu alte cuvinte, practic:</p>
+                <div class="code-inline">
+                    <pre><code>0b0000&#x27;0000<br>+<br>0b0000&#x27;0011<br>=<br>0b0000&#x27;0011</code></pre>
+                </div>
+                <p class="paragraph">Așadar, primul număr a fost salvat în result. Vom salva numerele în ordine. Adică,
+                    mai întâi în result va fi primul număr, apoi al doilea și apoi al treilea. De aceea, deplasăm result
+                    cu două poziții la stânga (deoarece fiecare număr ocupă în memorie cel mult doi biți).</p>
+                <div class="code-inline">
+                    <pre><code>result&nbsp;=&nbsp;result&nbsp;&lt;&lt;&nbsp;2;&nbsp;&nbsp;&nbsp;//&nbsp;0b0000&#x27;1100</code></pre>
+                </div>
+                <p class="paragraph">Adică, practic efectuăm următorul calcul:</p>
+                <div class="code-inline">
+                    <pre><code>0b0000&#x27;0011&nbsp;&lt;&lt;&nbsp;2&nbsp;=&nbsp;0b0000&#x27;1100</code></pre>
+                </div>
+                <p class="paragraph">Apoi repetăm operația logică de adunare, salvăm al doilea număr:</p>
+                <div class="code-inline">
+                    <pre><code>result&nbsp;=&nbsp;result&nbsp;|&nbsp;value2;&nbsp;&nbsp;//&nbsp;0b0000&#x27;1110</code></pre>
+                </div>
+                <p class="paragraph">ceea ce este echivalent cu:</p>
+                <div class="code-inline">
+                    <pre><code>0b0000&#x27;1100&nbsp;&nbsp;<br>+&nbsp;&nbsp;<br>0b0000&#x27;0010&nbsp;&nbsp;<br>=&nbsp;&nbsp;<br>0b0000&#x27;1110</code></pre>
+                </div>
+                <p class="paragraph">Apoi repetăm deplasarea cu două poziții spre stânga și salvăm al treilea număr. În
+                    cele din urmă, vom obține în reprezentare binară numărul 0b0011&#x27;1001. În sistemul zecimal,
+                    acest număr este egal cu 57. Dar acest lucru nu are importanță, deoarece ne interesează biții
+                    specifici ai numărului. Merită menționat că am salvat trei numere într-un singur număr, iar în
+                    variabila result mai există spațiu liber. De altfel, în realitate nu contează câți biți trebuie
+                    salvați exact. În acest exemplu, salvăm doar doi biți.</p>
+                <p class="paragraph">Pentru a restabili datele, vom recurge la ordinea inversă:</p>
+                <div class="code-inline">
+                    <pre><code>#include&nbsp;&lt;iostream&gt;<br><br>int&nbsp;main()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;result&nbsp;{0b0011&#x27;1001};&nbsp;//&nbsp;Valoarea&nbsp;inițială&nbsp;care&nbsp;conține&nbsp;cele&nbsp;3&nbsp;numere&nbsp;ambalate&nbsp;(împachetate)&nbsp;în&nbsp;binar<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;recuperăm&nbsp;ultimii&nbsp;2&nbsp;biți&nbsp;(valoarea&nbsp;3)<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;newValue3&nbsp;=&nbsp;result&nbsp;&amp;&nbsp;0b000&#x27;0011;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;deplasăm&nbsp;spre&nbsp;dreapta&nbsp;cu&nbsp;2&nbsp;biți&nbsp;pentru&nbsp;a&nbsp;extrage&nbsp;următoarea&nbsp;valoare<br>&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;=&nbsp;result&nbsp;&gt;&gt;&nbsp;2;<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;newValue2&nbsp;=&nbsp;result&nbsp;&amp;&nbsp;0b000&#x27;0011;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;din&nbsp;nou,&nbsp;deplasăm&nbsp;spre&nbsp;dreapta&nbsp;cu&nbsp;2&nbsp;biți<br>&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;=&nbsp;result&nbsp;&gt;&gt;&nbsp;2;<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;newValue1&nbsp;=&nbsp;result&nbsp;&amp;&nbsp;0b000&#x27;0011;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Afișăm&nbsp;valorile&nbsp;extrase&nbsp;în&nbsp;ordinea&nbsp;în&nbsp;care&nbsp;au&nbsp;fost&nbsp;împachetate&nbsp;inițial<br>&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;newValue1&nbsp;&lt;&lt;&nbsp;std::endl;&nbsp;&nbsp;&nbsp;//&nbsp;3<br>&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;newValue2&nbsp;&lt;&lt;&nbsp;std::endl;&nbsp;&nbsp;&nbsp;//&nbsp;2<br>&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;newValue3&nbsp;&lt;&lt;&nbsp;std::endl;&nbsp;&nbsp;&nbsp;//&nbsp;1<br>}</code></pre>
+                </div>
+                <p class="paragraph">Obținem numerele în ordine inversă față de cea în care au fost salvate. Deoarece
+                    știm că fiecare număr salvat ocupă doar doi biți, practic trebuie să extragem doar ultimii doi biți.
+                    Pentru aceasta, aplicăm o mască de biți 0b000&#x27;0011 și o operație de „înmulțire logică” (AND
+                    logic), care returnează 1 doar dacă ambii biți corespunzători sunt egali cu 1. Adică, operația:</p>
+                <div class="code-inline">
+                    <pre><code>int&nbsp;newValue3&nbsp;=&nbsp;result&nbsp;&amp;&nbsp;0b000&#x27;0011;</code></pre>
+                </div>
+                <p class="paragraph">este echivalentă cu:</p>
+                <div class="code-inline">
+                    <pre><code>0b0011&#x27;1001<br>*<br>0b0000&#x27;0011<br>=<br>0b0000&#x27;0001</code></pre>
+                </div>
+                <p class="paragraph">Astfel, ultimul număr este egal cu 0b0000&#x27;0001, adică 1 în sistem zecimal.</p>
+                <p class="paragraph">Merită menționat că, dacă știm cu exactitate structura datelor, atunci putem
+                    construi cu ușurință o mască de biți pentru a obține numărul dorit:</p>
+                <div class="code-inline">
+                    <pre><code>#include&nbsp;&lt;iostream&gt;<br>&nbsp;<br>int&nbsp;main()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;result&nbsp;{0b0011&#x27;1001};<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;recreatedValue1&nbsp;=&nbsp;(result&nbsp;&amp;&nbsp;0b0011&#x27;0000)&nbsp;&gt;&gt;&nbsp;4;<br>&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;recreatedValue1&nbsp;&lt;&lt;&nbsp;std::endl;<br>}</code></pre>
+                </div>
+                <p class="paragraph">Aici obținem primul număr, despre care știm că ocupă al treilea și al patrulea bit
+                    din numărul compus. Pentru aceasta, aplicăm o mască de biți 0b0011&#x27;0000. Apoi deplasăm numărul
+                    cu 4 poziții spre dreapta.</p>
+                <div class="code-inline">
+                    <pre><code>0b0011&#x27;1001<br>*<br>0b0011&#x27;0000<br>=<br>0b0011&#x27;0000<br>&gt;&gt;&nbsp;4<br>=<br>0b0000&#x27;0011</code></pre>
+                </div>
+                <p class="paragraph">În mod similar, dacă știm cu exactitate structura după care sunt salvate datele,
+                    atunci am putea salva direct datele în poziția dorită din numărul result:</p>
+                <div class="code-inline">
+                    <pre><code>#include&nbsp;&lt;iostream&gt;<br><br>int&nbsp;main()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;value1&nbsp;{3};&nbsp;&nbsp;//&nbsp;0b0000&#x27;0011<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;value2&nbsp;{2};&nbsp;&nbsp;//&nbsp;0b0000&#x27;0010<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;value3&nbsp;{1};&nbsp;&nbsp;//&nbsp;0b0000&#x27;0001<br>&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;result&nbsp;{0b0000&#x27;0000};&nbsp;&nbsp;//&nbsp;inițializăm&nbsp;rezultatul&nbsp;cu&nbsp;0<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;salvăm&nbsp;value1&nbsp;în&nbsp;biții&nbsp;4&nbsp;și&nbsp;5<br>&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;=&nbsp;result&nbsp;|&nbsp;(value1&nbsp;&lt;&lt;&nbsp;4);<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;salvăm&nbsp;value2&nbsp;în&nbsp;biții&nbsp;2&nbsp;și&nbsp;3<br>&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;=&nbsp;result&nbsp;|&nbsp;(value2&nbsp;&lt;&lt;&nbsp;2);<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;salvăm&nbsp;value3&nbsp;în&nbsp;biții&nbsp;0&nbsp;și&nbsp;1<br>&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;=&nbsp;result&nbsp;|&nbsp;value3;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;rezultat&nbsp;final:&nbsp;0b0011&#x27;1001&nbsp;=&gt;&nbsp;57&nbsp;în&nbsp;zecimal<br>&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;result&nbsp;&lt;&lt;&nbsp;std::endl;&nbsp;&nbsp;&nbsp;//&nbsp;57<br>}</code></pre>
+                </div>
+            </div>
+        </main>
+        <aside class="ad-section">
+            <div class="ad-box">
+                <p>Google Ad Here</p>
+            </div>
+            <div class="ad-box">
+                <p>Promo: SQL Beginner Guide</p>
+            </div>
+        </aside>
+    </div>
+    <div class="lesson-navigation">
+        <th:block th:if="${previousLesson != null}">
+            <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția
+                anterioară</a>
+        </th:block>
+        <th:block th:if="${nextLesson != null}">
+            <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția
+                următoare →</a>
+        </th:block>
+    </div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <script th:src="@{/js/script.js}" defer></script>
+</body>
+
+</html>

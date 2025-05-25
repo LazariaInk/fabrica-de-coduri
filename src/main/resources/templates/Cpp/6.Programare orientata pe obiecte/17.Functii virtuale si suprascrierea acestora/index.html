@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4253419731329045"
+        crossorigin="anonymous"></script>
+
+    <link rel="canonical" th:href="${canonicalUrl}" />
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function () { dataLayer.push(arguments); };
+        gtag('consent', 'default', {
+            'wait_for_update': 500,
+            'region': ['RO'],
+            'ad_storage': 'denied',
+            'analytics_storage': 'denied',
+            'ad_user_data': 'denied',
+            'ad_personalization': 'denied'
+        });
+        gtag('js', new Date());
+        gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+</head>
+
+<body th:with="activeTopic='C-sharp', activeChapter='10.Colectii', activeLesson='1.Lista List_T_'">
+    <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <div class="top-nav">
+        <th:block th:each="topic : ${topics}">
+            <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}"
+                th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+        </th:block>
+    </div>
+    <div class="layout">
+        <div class="mobile-sidebar" id="mobileSidebar">
+            <button class="close-btn" onclick="toggleSidebar()">✖</button>
+            <ul class="chapter-list">
+                <th:block th:each="chapter : ${chapters}">
+                    <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+                        <div class="chapter-title" onclick="toggleChapter(this)">
+                            <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+                        </div>
+                        <ul class="lesson-list">
+                            <th:block th:each="lesson : ${chapter.lessons}">
+                                <li><a th:href="@{'/lectii/' +
+${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}"
+                                        th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+                            </th:block>
+                        </ul>
+                    </li>
+                </th:block>
+            </ul>
+        </div>
+        <aside class="sidebar">
+            <ul class="sidebar-list">
+                <th:block th:each="chapter : ${chapters}">
+                    <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+                        <div class="chapter-toggle" onclick="toggleLessons(this)">
+                            <span th:text="${chapter.title}">Chapter</span>
+                        </div>
+                        <ul class="lesson-list hidden">
+                            <th:block th:each="lesson : ${chapter.lessons}">
+                                <li><a th:href="@{'/lectii/' +
+${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}"
+                                        th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+                            </th:block>
+                        </ul>
+                    </li>
+                </th:block>
+            </ul>
+        </aside>
+        <main class="content">
+            <div class="document-container">
+
+                <h1 class="main-title">Funcții virtuale și suprascrierea lor</h1>
+                <p class="paragraph">Atunci când o funcție este apelată, programul trebuie să determine care
+                    implementare a funcției trebuie utilizată, adică să lege apelul funcției de funcția corespunzătoare.
+                    În C++ există două tipuri de legare: legare statică și legare dinamică.</p>
+                <p class="paragraph">Când apelurile funcțiilor sunt stabilite înainte de rularea programului, în timpul
+                    compilării, acest lucru se numește legare statică (static binding) sau legare timpurie (early
+                    binding). În acest caz, apelul funcției printr-un pointer este determinat doar de tipul pointerului,
+                    nu de obiectul către care pointează. De exemplu:</p>
+                <div class="code-inline">
+                    <pre><code>#include&nbsp;&lt;iostream&gt;<br><br>class&nbsp;Person<br>{<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;Person(std::string&nbsp;name):&nbsp;name{name}&nbsp;{&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;print()&nbsp;const<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Name:&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;name&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>private:<br>&nbsp;&nbsp;&nbsp;&nbsp;std::string&nbsp;name;<br>};<br><br>class&nbsp;Employee:&nbsp;public&nbsp;Person<br>{<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;Employee(std::string&nbsp;name,&nbsp;std::string&nbsp;company):&nbsp;Person{name},&nbsp;company{company}&nbsp;{&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;print()&nbsp;const<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person::print();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Works&nbsp;in&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;company&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>private:<br>&nbsp;&nbsp;&nbsp;&nbsp;std::string&nbsp;company;<br>};<br><br>int&nbsp;main()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;tom&nbsp;{&quot;Tom&quot;};<br>&nbsp;&nbsp;&nbsp;&nbsp;Person*&nbsp;person&nbsp;{&amp;tom};<br>&nbsp;&nbsp;&nbsp;&nbsp;person-&gt;print();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Tom<br><br>&nbsp;&nbsp;&nbsp;&nbsp;Employee&nbsp;bob&nbsp;{&quot;Bob&quot;,&nbsp;&quot;Microsoft&quot;};<br>&nbsp;&nbsp;&nbsp;&nbsp;person&nbsp;=&nbsp;&amp;bob;<br>&nbsp;&nbsp;&nbsp;&nbsp;person-&gt;print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Bob<br>}</code></pre>
+                </div>
+                <p class="paragraph">În acest caz, clasa Employee moștenește clasa Person, dar ambele definesc o funcție
+                    print() care afișează informații despre obiect. În funcția main, creăm două obiecte și le atribuim,
+                    pe rând, unui pointer de tip Person. Apoi apelăm funcția print() prin acel pointer. Chiar dacă
+                    pointerul referă un obiect Employee, tot se va apela implementarea funcției din Person:</p>
+                <div class="code-inline">
+                    <pre><code>Employee&nbsp;bob&nbsp;{&quot;Bob&quot;,&nbsp;&quot;Microsoft&quot;};<br>person&nbsp;=&nbsp;&amp;bob;<br>person-&gt;print();&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Bob</code></pre>
+                </div>
+                <p class="paragraph">Așadar, alegerea implementării funcției se face în funcție de tipul pointerului, nu
+                    de tipul real al obiectului. Ieșirea în consolă va fi:</p>
+                <div class="code-inline">
+                    <pre><code>Name:&nbsp;Tom&nbsp;&nbsp;<br>Name:&nbsp;Bob</code></pre>
+                </div>
+                <h2 class="subtitle">Legare dinamică și funcții virtuale</h2>
+                <p class="paragraph">Celălalt tip de legare este legarea dinamică (dynamic binding), cunoscută și ca
+                    legare târzie (late binding), care permite determinarea la rulare a funcției ce trebuie apelată. În
+                    C++, acest lucru se realizează cu ajutorul funcțiilor virtuale. Pentru a declara o funcție virtuală,
+                    aceasta trebuie precedată de cuvântul cheie virtual în clasa de bază. Această funcție poate fi apoi
+                    suprascrisă în clasa derivată.</p>
+                <p class="paragraph">Să facem funcția print() din clasa Person virtuală:</p>
+                <div class="code-inline">
+                    <pre><code>#include&nbsp;&lt;iostream&gt;<br><br>class&nbsp;Person<br>{<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;Person(std::string&nbsp;name):&nbsp;name{name}&nbsp;{&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;virtual&nbsp;void&nbsp;print()&nbsp;const<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Name:&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;name&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>private:<br>&nbsp;&nbsp;&nbsp;&nbsp;std::string&nbsp;name;<br>};<br><br>class&nbsp;Employee:&nbsp;public&nbsp;Person<br>{<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;Employee(std::string&nbsp;name,&nbsp;std::string&nbsp;company):&nbsp;Person{name},&nbsp;company{company}&nbsp;{&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;print()&nbsp;const<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person::print();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Works&nbsp;in&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;company&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>private:<br>&nbsp;&nbsp;&nbsp;&nbsp;std::string&nbsp;company;<br>};<br><br>int&nbsp;main()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;tom&nbsp;{&quot;Tom&quot;};<br>&nbsp;&nbsp;&nbsp;&nbsp;Person*&nbsp;person&nbsp;{&amp;tom};<br>&nbsp;&nbsp;&nbsp;&nbsp;person-&gt;print();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Tom<br><br>&nbsp;&nbsp;&nbsp;&nbsp;Employee&nbsp;bob&nbsp;{&quot;Bob&quot;,&nbsp;&quot;Microsoft&quot;};<br>&nbsp;&nbsp;&nbsp;&nbsp;person&nbsp;=&nbsp;&amp;bob;<br>&nbsp;&nbsp;&nbsp;&nbsp;person-&gt;print();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Bob<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Works&nbsp;in&nbsp;Microsoft<br>}<br></code></pre>
+                </div>
+                <p class="paragraph">Astfel, clasa de bază Person definește o funcție virtuală print(), iar clasa
+                    derivată Employee o suprascrie. În exemplul anterior, unde print() nu era virtuală, Employee doar o
+                    ascundea, nu o suprascria. Acum, apelând print() printr-un pointer Person* către un obiect Employee,
+                    se va apela implementarea din Employee.</p>
+                <p class="paragraph">Ieșirea va fi:</p>
+                <div class="code-inline">
+                    <pre><code>Name:&nbsp;Tom&nbsp;&nbsp;<br>Name:&nbsp;Bob&nbsp;&nbsp;<br>Works&nbsp;in&nbsp;Microsoft</code></pre>
+                </div>
+                <p class="paragraph">Aceasta este diferența dintre suprascrierea funcțiilor virtuale și ascunderea
+                    funcțiilor.</p>
+                <p class="paragraph">O clasă care definește sau moștenește o funcție virtuală se numește clasă polimorfă
+                    (polymorphic class). Așadar, Person și Employee sunt clase polimorfe.</p>
+                <p class="paragraph">Este important de menționat că apelul unei funcții virtuale prin numele unui obiect
+                    este întotdeauna rezolvat static:</p>
+                <div class="code-inline">
+                    <pre><code>Employee&nbsp;bob&nbsp;{&quot;Bob&quot;,&nbsp;&quot;Microsoft&quot;};<br>Person&nbsp;p&nbsp;=&nbsp;bob;<br>p.print();&nbsp;&nbsp;//&nbsp;Name:&nbsp;Bob&nbsp;–&nbsp;legare&nbsp;statică</code></pre>
+                </div>
+                <p class="paragraph">Legarea dinamică este posibilă doar prin pointer sau referință:</p>
+                <div class="code-inline">
+                    <pre><code>Employee&nbsp;bob&nbsp;{&quot;Bob&quot;,&nbsp;&quot;Microsoft&quot;};<br>Person&nbsp;&amp;p&nbsp;{bob};<br>p.print();&nbsp;&nbsp;//&nbsp;legare&nbsp;dinamică<br><br>Person&nbsp;*ptr&nbsp;{&amp;bob};<br>ptr-&gt;print();&nbsp;&nbsp;//&nbsp;legare&nbsp;dinamică</code></pre>
+                </div>
+                <p class="paragraph">Pentru ca o funcție să participe la legare dinamică, în clasa derivată ea trebuie
+                    să aibă exact aceeași semnătură: aceiași parametri, același tip de retur și aceleași calificatori
+                    (precum const). Dacă semnătura diferă (de exemplu lipsește const), funcția nu este suprascrisă, ci
+                    ascunsă, și se va aplica legarea statică.</p>
+                <p class="paragraph">De asemenea, funcțiile statice nu pot fi virtuale.</p>
+                <h2 class="subtitle">Cuvântul cheie override</h2>
+                <p class="paragraph">Pentru a indica în mod explicit că vrem să suprascriem o funcție (și nu să o
+                    ascundem), putem folosi cuvântul cheie override:</p>
+                <div class="code-inline">
+                    <pre><code>#include&nbsp;&lt;iostream&gt;<br><br>class&nbsp;Person<br>{<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;Person(std::string&nbsp;name):&nbsp;name{name}&nbsp;{&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;virtual&nbsp;void&nbsp;print()&nbsp;const<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Name:&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;name&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>private:<br>&nbsp;&nbsp;&nbsp;&nbsp;std::string&nbsp;name;<br>};<br><br>class&nbsp;Employee:&nbsp;public&nbsp;Person<br>{<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;Employee(std::string&nbsp;name,&nbsp;std::string&nbsp;company):&nbsp;Person{name},&nbsp;company{company}&nbsp;{&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;print()&nbsp;const&nbsp;override<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person::print();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Works&nbsp;in&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;company&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>private:<br>&nbsp;&nbsp;&nbsp;&nbsp;std::string&nbsp;company;<br>};<br><br>int&nbsp;main()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;tom&nbsp;{&quot;Tom&quot;};<br>&nbsp;&nbsp;&nbsp;&nbsp;Person*&nbsp;person&nbsp;{&amp;tom};<br>&nbsp;&nbsp;&nbsp;&nbsp;person-&gt;print();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Tom<br><br>&nbsp;&nbsp;&nbsp;&nbsp;Employee&nbsp;bob&nbsp;{&quot;Bob&quot;,&nbsp;&quot;Microsoft&quot;};<br>&nbsp;&nbsp;&nbsp;&nbsp;person&nbsp;=&nbsp;&amp;bob;<br>&nbsp;&nbsp;&nbsp;&nbsp;person-&gt;print();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Name:&nbsp;Bob<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Works&nbsp;in&nbsp;Microsoft<br>}</code></pre>
+                </div>
+                <p class="paragraph">Aici, linia:</p>
+                <div class="code-inline">
+                    <pre><code>void&nbsp;print()&nbsp;const&nbsp;override</code></pre>
+                </div>
+                <p class="paragraph">indică în mod explicit că vrem să suprascriem funcția print(). Poate părea inutil,
+                    deoarece și fără override suprascrierea funcționează, dar:</p>
+                <ul class="enumeration">
+                    <li>override îl informează pe compilator despre intenția noastră</li>
+                    <li>dacă semnătura nu corespunde funcției virtuale din clasa de bază, compilatorul va genera o
+                        eroare</li>
+                    <li>fără override, eroarea poate trece neobservată, iar funcția va fi tratată ca o funcție nouă
+                        (ascunsă), nu suprascrisă</li>
+                </ul>
+                <p class="paragraph">De aceea, este recomandat să folosim override atunci când suprascriem funcții
+                    virtuale. O funcție virtuală poate fi suprascrisă de-a lungul întregii ierarhii, nu doar în clasele
+                    derivate directe.</p>
+                <h2 class="subtitle">Mecanismul de execuție al funcțiilor virtuale</h2>
+                <p class="paragraph">Funcțiile virtuale au un cost: obiectele claselor cu funcții virtuale ocupă puțin
+                    mai multă memorie și sunt ușor mai lente la apel. Acest lucru se întâmplă deoarece:</p>
+                <ul class="enumeration">
+                    <li>la instanțierea unui obiect al unei clase polimorfe, se creează un pointer special în obiect
+                    </li>
+                    <li>acest pointer indică spre o tabelă virtuală (vtable) – o structură de date care conține adresele
+                        funcțiilor virtuale pentru acea clasă</li>
+                    <li>la apelul unei funcții virtuale, programul folosește pointerul către vtable, caută adresa
+                        funcției dorite în vtable, și o apelează</li>
+                </ul>
+                <p class="paragraph">Această căutare face ca apelul unei funcții virtuale să fie puțin mai lent decât
+                    apelul unei funcții obișnuite, dar oferă flexibilitatea polimorfismului.</p>
+                <div class="image-container">
+                    <img th:src="@{/images/Cpp/6.Programarea%20orientata%20pe%20obiecte/17.Functii%20virtuale%20si%20suprascrierea%20acestora/images/structura_unei_functii_virtuale_in_cpp.png}"
+                        alt="" class="responsive-image">
+
+                </div>
+                <h2 class="subtitle">Interzicerea suprascrierii</h2>
+                <p class="paragraph">Cu ajutorul specificatorului final, putem interzice ca funcțiile din clasele
+                    derivate să fie redefinite, dacă acestea au același nume, tip de retur și listă de parametri ca o
+                    funcție virtuală din clasa de bază. De exemplu:</p>
+                <div class="code-inline">
+                    <pre><code>class&nbsp;Person<br>{<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;virtual&nbsp;void&nbsp;print()&nbsp;const&nbsp;final<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>};<br><br>class&nbsp;Employee&nbsp;:&nbsp;public&nbsp;Person<br>{<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;print()&nbsp;const&nbsp;override&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Eroare!!!<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>};</code></pre>
+                </div>
+                <p class="paragraph">De asemenea, putem suprascrie o funcție din clasa de bază, dar interzice ca aceasta
+                    să fie suprascrisă mai departe în clasele derivate:</p>
+                <div class="code-inline">
+                    <pre><code>class&nbsp;Person<br>{<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;virtual&nbsp;void&nbsp;print()&nbsp;const&nbsp;//&nbsp;suprascrierea&nbsp;este&nbsp;permisă<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>};<br><br>class&nbsp;Employee&nbsp;:&nbsp;public&nbsp;Person<br>{<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;print()&nbsp;const&nbsp;override&nbsp;final&nbsp;&nbsp;&nbsp;//&nbsp;în&nbsp;clasele&nbsp;derivate&nbsp;din&nbsp;Employee&nbsp;suprascrierea&nbsp;este&nbsp;interzisă<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>};</code></pre>
+                </div>
+            </div>
+        </main>
+        <aside class="ad-section">
+            <div class="ad-box">
+                <p>Google Ad Here</p>
+            </div>
+            <div class="ad-box">
+                <p>Promo: SQL Beginner Guide</p>
+            </div>
+        </aside>
+    </div>
+    <div class="lesson-navigation">
+        <th:block th:if="${previousLesson != null}">
+            <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția
+                anterioară</a>
+        </th:block>
+        <th:block th:if="${nextLesson != null}">
+            <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția
+                următoare →</a>
+        </th:block>
+    </div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <script th:src="@{/js/script.js}" defer></script>
+</body>
+
+</html>
