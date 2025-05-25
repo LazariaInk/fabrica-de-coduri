@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4253419731329045"
+        crossorigin="anonymous"></script>
+
+    <link rel="canonical" th:href="${canonicalUrl}" />
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function () { dataLayer.push(arguments); };
+        gtag('consent', 'default', {
+            'wait_for_update': 500,
+            'region': ['RO'],
+            'ad_storage': 'denied',
+            'analytics_storage': 'denied',
+            'ad_user_data': 'denied',
+            'ad_personalization': 'denied'
+        });
+        gtag('js', new Date());
+        gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+</head>
+
+<body th:with="activeTopic='C-sharp', activeChapter='10.Colectii', activeLesson='1.Lista List_T_'">
+    <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <div class="top-nav">
+        <th:block th:each="topic : ${topics}">
+            <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}"
+                th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+        </th:block>
+    </div>
+    <div class="layout">
+        <div class="mobile-sidebar" id="mobileSidebar">
+            <button class="close-btn" onclick="toggleSidebar()">✖</button>
+            <ul class="chapter-list">
+                <th:block th:each="chapter : ${chapters}">
+                    <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+                        <div class="chapter-title" onclick="toggleChapter(this)">
+                            <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+                        </div>
+                        <ul class="lesson-list">
+                            <th:block th:each="lesson : ${chapter.lessons}">
+                                <li><a th:href="@{'/lectii/' +
+${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}"
+                                        th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+                            </th:block>
+                        </ul>
+                    </li>
+                </th:block>
+            </ul>
+        </div>
+        <aside class="sidebar">
+            <ul class="sidebar-list">
+                <th:block th:each="chapter : ${chapters}">
+                    <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+                        <div class="chapter-toggle" onclick="toggleLessons(this)">
+                            <span th:text="${chapter.title}">Chapter</span>
+                        </div>
+                        <ul class="lesson-list hidden">
+                            <th:block th:each="lesson : ${chapter.lessons}">
+                                <li><a th:href="@{'/lectii/' +
+${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}"
+                                        th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+                            </th:block>
+                        </ul>
+                    </li>
+                </th:block>
+            </ul>
+        </aside>
+        <main class="content">
+            <div class="document-container">
+
+<h1 class="main-title">Pointere și funcții</h1>
+<h2 class="subtitle">Pointere ca parametri ai funcției</h2>
+<p class="paragraph">Implicit, toate parameterele sunt transmise funcției prin valoare. De exemplu:</p>
+<div class="code-inline"><pre><code>package&nbsp;main<br>import&nbsp;&quot;fmt&quot;<br>&nbsp;<br>func&nbsp;changeValue(x&nbsp;int){<br>&nbsp;&nbsp;&nbsp;&nbsp;x&nbsp;=&nbsp;x&nbsp;*&nbsp;x<br>}<br>func&nbsp;main()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;d&nbsp;:=&nbsp;5<br>&nbsp;&nbsp;&nbsp;&nbsp;fmt.Println(&quot;d&nbsp;before:&quot;,&nbsp;d)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;5<br>&nbsp;&nbsp;&nbsp;&nbsp;changeValue(d)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;modificăm&nbsp;valoarea<br>&nbsp;&nbsp;&nbsp;&nbsp;fmt.Println(&quot;d&nbsp;after:&quot;,&nbsp;d)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;5&nbsp;-&nbsp;valoarea&nbsp;nu&nbsp;s-a&nbsp;schimbat<br>}</code></pre></div>
+<p class="paragraph">Funcția changeValue modifică valoarea parametrului, ridicându-l la pătrat. Dar după apelarea acestei funcții vedem că valoarea variabilei d, care este transmisă la changeValue, nu s-a schimbat. Aceasta deoarece funcția primește o copie a variabilei respective și lucrează cu aceasta independent de variabila originală d. Prin urmare, d nu se schimbă.</p>
+<p class="paragraph">Totuși, ce se întâmplă dacă trebuie să modificăm valoarea variabilei transmise? În acest caz, putem folosi pointere:</p>
+<div class="code-inline"><pre><code>package&nbsp;main<br>&nbsp;<br>import&nbsp;&quot;fmt&quot;<br>&nbsp;<br>func&nbsp;changeValue(x&nbsp;*int){<br>&nbsp;&nbsp;&nbsp;&nbsp;*x&nbsp;=&nbsp;(*x)&nbsp;*&nbsp;(*x)<br>}<br>func&nbsp;main()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;d&nbsp;:=&nbsp;5<br>&nbsp;&nbsp;&nbsp;&nbsp;fmt.Println(&quot;d&nbsp;before:&quot;,&nbsp;d)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;5<br>&nbsp;&nbsp;&nbsp;&nbsp;changeValue(&amp;d)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;modificăm&nbsp;valoarea<br>&nbsp;&nbsp;&nbsp;&nbsp;fmt.Println(&quot;d&nbsp;after:&quot;,&nbsp;d)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;25&nbsp;-&nbsp;valoarea&nbsp;s-a&nbsp;schimbat!<br>}</code></pre></div>
+<p class="paragraph">Acum, funcția changeValue primește un pointer către un obiect de tip int. La apelarea funcției changeValue, i se transmite adresa variabilei d (changeValue(&amp;d)). După executarea acesteia, vedem că valoarea variabilei d s-a schimbat.</p>
+<h2 class="subtitle">Pointer ca rezultat al funcției</h2>
+<p class="paragraph">O funcție poate returna un pointer:</p>
+<div class="code-inline"><pre><code>package&nbsp;main<br>import&nbsp;&quot;fmt&quot;<br>&nbsp;<br>func&nbsp;createPointer(x&nbsp;int)&nbsp;*int{<br>&nbsp;&nbsp;&nbsp;&nbsp;p&nbsp;:=&nbsp;new(int)<br>&nbsp;&nbsp;&nbsp;&nbsp;*p&nbsp;=&nbsp;x<br>&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;p<br>}<br>&nbsp;<br>func&nbsp;main()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;p1&nbsp;:=&nbsp;createPointer(7)<br>&nbsp;&nbsp;&nbsp;&nbsp;fmt.Println(&quot;p1:&quot;,&nbsp;*p1)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;p1:&nbsp;7<br>&nbsp;&nbsp;&nbsp;&nbsp;p2&nbsp;:=&nbsp;createPointer(10)<br>&nbsp;&nbsp;&nbsp;&nbsp;fmt.Println(&quot;p2:&quot;,&nbsp;*p2)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;p2:&nbsp;10<br>&nbsp;&nbsp;&nbsp;&nbsp;p3&nbsp;:=&nbsp;createPointer(28)<br>&nbsp;&nbsp;&nbsp;&nbsp;fmt.Println(&quot;p3:&quot;,&nbsp;*p3)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;p3:&nbsp;28<br>}</code></pre></div>
+<p class="paragraph">În acest caz, funcția createPointer returnează un pointer către un obiect de tip int.</p>
+            </div>
+        </main>
+        <aside class="ad-section">
+            <div class="ad-box">
+                <p>Google Ad Here</p>
+            </div>
+            <div class="ad-box">
+                <p>Promo: SQL Beginner Guide</p>
+            </div>
+        </aside>
+    </div>
+    <div class="lesson-navigation">
+        <th:block th:if="${previousLesson != null}">
+            <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția
+                anterioară</a>
+        </th:block>
+        <th:block th:if="${nextLesson != null}">
+            <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția
+                următoare →</a>
+        </th:block>
+    </div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <script th:src="@{/js/script.js}" defer></script>
+</body>
+</html>

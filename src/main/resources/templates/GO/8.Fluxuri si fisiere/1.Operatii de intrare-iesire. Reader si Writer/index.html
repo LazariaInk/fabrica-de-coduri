@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4253419731329045"
+        crossorigin="anonymous"></script>
+
+    <link rel="canonical" th:href="${canonicalUrl}" />
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function () { dataLayer.push(arguments); };
+        gtag('consent', 'default', {
+            'wait_for_update': 500,
+            'region': ['RO'],
+            'ad_storage': 'denied',
+            'analytics_storage': 'denied',
+            'ad_user_data': 'denied',
+            'ad_personalization': 'denied'
+        });
+        gtag('js', new Date());
+        gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+</head>
+
+<body th:with="activeTopic='C-sharp', activeChapter='10.Colectii', activeLesson='1.Lista List_T_'">
+    <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <div class="top-nav">
+        <th:block th:each="topic : ${topics}">
+            <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}"
+                th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+        </th:block>
+    </div>
+    <div class="layout">
+        <div class="mobile-sidebar" id="mobileSidebar">
+            <button class="close-btn" onclick="toggleSidebar()">✖</button>
+            <ul class="chapter-list">
+                <th:block th:each="chapter : ${chapters}">
+                    <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+                        <div class="chapter-title" onclick="toggleChapter(this)">
+                            <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+                        </div>
+                        <ul class="lesson-list">
+                            <th:block th:each="lesson : ${chapter.lessons}">
+                                <li><a th:href="@{'/lectii/' +
+${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}"
+                                        th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+                            </th:block>
+                        </ul>
+                    </li>
+                </th:block>
+            </ul>
+        </div>
+        <aside class="sidebar">
+            <ul class="sidebar-list">
+                <th:block th:each="chapter : ${chapters}">
+                    <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+                        <div class="chapter-toggle" onclick="toggleLessons(this)">
+                            <span th:text="${chapter.title}">Chapter</span>
+                        </div>
+                        <ul class="lesson-list hidden">
+                            <th:block th:each="lesson : ${chapter.lessons}">
+                                <li><a th:href="@{'/lectii/' +
+${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}"
+                                        th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+                            </th:block>
+                        </ul>
+                    </li>
+                </th:block>
+            </ul>
+        </aside>
+        <main class="content">
+            <div class="document-container">
+
+<h1 class="main-title">Fluxuri de date și fișiere</h1>
+<h2 class="subtitle">Operații de intrare-ieșire / Reader și Writer</h2>
+<p class="paragraph">Limbajul Go are propriul său model de lucru cu fluxuri de intrare-ieșire, care permite obținerea de date din diverse surse - fișiere, interfețe de rețea, obiecte în memorie etc.</p>
+<p class="paragraph">Fluxul de date în Go este reprezentat de un slice de octeți ([]byte), din care se pot citi octeți sau în care se pot adăuga date. Tipurile cheie pentru lucrul cu fluxuri sunt interfețele Reader și Writer din pachetul io.</p>
+<h2 class="subtitle">io.Reader</h2>
+<p class="paragraph">Interfața io.Reader este destinată citirii datelor. Ea are următoarea definiție:</p>
+<div class="code-inline"><pre><code>type&nbsp;Reader&nbsp;interface&nbsp;{&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;Read(p&nbsp;[]byte)&nbsp;(n&nbsp;int,&nbsp;err&nbsp;error)&nbsp;<br>}</code></pre></div>
+<p class="paragraph">Metoda Read returnează numărul total de octeți citiți din slice-ul de octeți și informațiile despre eroare, dacă aceasta apare. Dacă nu mai sunt date în flux, metoda trebuie să returneze eroarea de tip io.EOF.</p>
+<p class="paragraph">Să luăm un exemplu simplu. De exemplu, trebuie să citim numere de telefon care pot avea formate diferite:</p>
+<div class="code-inline"><pre><code>package&nbsp;main<br>import&nbsp;(<br>&nbsp;&nbsp;&nbsp;&nbsp;&quot;fmt&quot;<br>&nbsp;&nbsp;&nbsp;&nbsp;&quot;io&quot;<br>)<br>&nbsp;<br>type&nbsp;phoneReader&nbsp;string<br>&nbsp;<br>func&nbsp;(ph&nbsp;phoneReader)&nbsp;Read(p&nbsp;[]byte)&nbsp;(int,&nbsp;error){<br>&nbsp;&nbsp;&nbsp;&nbsp;count&nbsp;:=&nbsp;0<br>&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;i&nbsp;:=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;len(ph);&nbsp;i++{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(ph[i]&nbsp;&gt;=&nbsp;&#x27;0&#x27;&nbsp;&amp;&amp;&nbsp;ph[i]&nbsp;&lt;=&nbsp;&#x27;9&#x27;){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p[count]&nbsp;=&nbsp;ph[i]<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;count++<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;count,&nbsp;io.EOF<br>}<br>&nbsp;<br>func&nbsp;main()&nbsp;{&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;phone1&nbsp;:=&nbsp;phoneReader(&quot;+1(234)567&nbsp;9010&quot;)<br>&nbsp;&nbsp;&nbsp;&nbsp;phone2&nbsp;:=&nbsp;phoneReader(&quot;+2-345-678-12-35&quot;)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;buffer&nbsp;:=&nbsp;make([]byte,&nbsp;len(phone1))<br>&nbsp;&nbsp;&nbsp;&nbsp;phone1.Read(buffer)<br>&nbsp;&nbsp;&nbsp;&nbsp;fmt.Println(string(buffer))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;12345679010<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;buffer&nbsp;=&nbsp;make([]byte,&nbsp;len(phone2))<br>&nbsp;&nbsp;&nbsp;&nbsp;phone2.Read(buffer)<br>&nbsp;&nbsp;&nbsp;&nbsp;fmt.Println(string(buffer))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;23456781235<br>}</code></pre></div>
+<p class="paragraph">Pentru citirea numerelor de telefon este definit tipul phoneReader, care de fapt reprezintă tipul string. Totuși, phoneReader implementează interfața Reader, adică definește metoda sa Read. În metoda Read, citim date din șirul reprezentat de obiectul phoneReader și, dacă caracterele din șir sunt date numerice, le transmitem într-un slice de octeți. La ieșire returnăm numărul de date citite și marker-ul de sfârșit al citirii io.EOF. Ca rezultat, la citirea din șir, metoda Read va returna numărul de telefon care conține doar cifre.</p>
+<p class="paragraph">La apelul metodei Read se creează un slice de octeți de dimensiunea necesară, care este transmis metodei Read:</p>
+<div class="code-inline"><pre><code>buffer&nbsp;:=&nbsp;make([]byte,&nbsp;len(phone1))<br>phone1.Read(buffer)</code></pre></div>
+<p class="paragraph">Apoi, folosind inițializatorul string, putem transforma slice-ul de octeți într-un șir de caractere:</p>
+<div class="code-inline"><pre><code>fmt.Println(string(buffer))&#x9;&#x9;//&nbsp;12345679010</code></pre></div>
+<h2 class="subtitle">io.Writer</h2>
+<p class="paragraph">Interfața io.Writer este destinată scrierii în flux. Ea definește metoda Write():</p>
+<div class="code-inline"><pre><code>type&nbsp;Writer&nbsp;interface&nbsp;{&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;Write(p&nbsp;[]byte)&nbsp;(n&nbsp;int,&nbsp;err&nbsp;error)&nbsp;<br>}</code></pre></div>
+<p class="paragraph">Metoda Write este destinată copierii datelor din slice-ul de octeți p într-o resursă specifică - fișier, interfață de rețea etc. Metoda returnează numărul de octeți scriși și obiectul de eroare.</p>
+<p class="paragraph">Să luăm un exemplu simplu:</p>
+<div class="code-inline"><pre><code>package&nbsp;main<br>import&nbsp;&quot;fmt&quot;<br>&nbsp;<br>type&nbsp;phoneWriter&nbsp;struct{&nbsp;}<br><br>func&nbsp;(p&nbsp;phoneWriter)&nbsp;Write(bs&nbsp;[]byte)&nbsp;(int,&nbsp;error){<br>&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;len(bs)&nbsp;==&nbsp;0&nbsp;{&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0,&nbsp;nil&nbsp;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;for&nbsp;i&nbsp;:=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;len(bs);&nbsp;i++{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(bs[i]&nbsp;&gt;=&nbsp;&#x27;0&#x27;&nbsp;&amp;&amp;&nbsp;bs[i]&nbsp;&lt;=&nbsp;&#x27;9&#x27;){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fmt.Print(string(bs[i]))<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;fmt.Println()<br>&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;len(bs),&nbsp;nil<br>}<br>&nbsp;<br>func&nbsp;main()&nbsp;{&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;bytes1&nbsp;:=&nbsp;[]byte(&quot;+1(234)567&nbsp;9010&quot;)<br>&nbsp;&nbsp;&nbsp;&nbsp;bytes2&nbsp;:=&nbsp;[]byte(&quot;+2-345-678-12-35&quot;)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;writer&nbsp;:=&nbsp;phoneWriter{}<br>&nbsp;&nbsp;&nbsp;&nbsp;writer.Write(bytes1)<br>&nbsp;&nbsp;&nbsp;&nbsp;writer.Write(bytes2)<br>}</code></pre></div>
+<p class="paragraph">Aici, structura phoneWriter implementează interfața Writer. În metoda Write, aceasta primește un slice de octeți. Se presupune că acest slice de octeți conține un număr de telefon. Informațiile sunt procesate corespunzător: se extrag cifrele și sunt afișate pe consolă. Așadar, tipul phoneWriter realizează scrierea fluxului de octeți pe consolă.</p>
+<p class="paragraph">Ca rezultat, metoda returnează lungimea slice-ului și valoarea nil.</p>
+<p class="paragraph">Pentru a simula fluxul de octeți, sunt definite două slice-uri de octeți pe baza șirurilor, care sunt transmise metodei Write.	</p>
+<p class="paragraph">Pe baza interfețelor Writer și Reader discutate mai sus, se bazează întregul sistem de intrare-ieșire în Go, iar ulterior vom examina mai detaliat utilizarea acestora în lucrul cu fișiere și fluxuri de rețea.</p>
+            </div>
+        </main>
+        <aside class="ad-section">
+            <div class="ad-box">
+                <p>Google Ad Here</p>
+            </div>
+            <div class="ad-box">
+                <p>Promo: SQL Beginner Guide</p>
+            </div>
+        </aside>
+    </div>
+    <div class="lesson-navigation">
+        <th:block th:if="${previousLesson != null}">
+            <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția
+                anterioară</a>
+        </th:block>
+        <th:block th:if="${nextLesson != null}">
+            <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția
+                următoare →</a>
+        </th:block>
+    </div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <script th:src="@{/js/script.js}" defer></script>
+</body>
+</html>

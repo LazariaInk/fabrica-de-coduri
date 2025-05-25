@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4253419731329045"
+        crossorigin="anonymous"></script>
+
+    <link rel="canonical" th:href="${canonicalUrl}" />
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function () { dataLayer.push(arguments); };
+        gtag('consent', 'default', {
+            'wait_for_update': 500,
+            'region': ['RO'],
+            'ad_storage': 'denied',
+            'analytics_storage': 'denied',
+            'ad_user_data': 'denied',
+            'ad_personalization': 'denied'
+        });
+        gtag('js', new Date());
+        gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+</head>
+
+<body th:with="activeTopic='C-sharp', activeChapter='10.Colectii', activeLesson='1.Lista List_T_'">
+    <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <div class="top-nav">
+        <th:block th:each="topic : ${topics}">
+            <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}"
+                th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+        </th:block>
+    </div>
+    <div class="layout">
+        <div class="mobile-sidebar" id="mobileSidebar">
+            <button class="close-btn" onclick="toggleSidebar()">✖</button>
+            <ul class="chapter-list">
+                <th:block th:each="chapter : ${chapters}">
+                    <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+                        <div class="chapter-title" onclick="toggleChapter(this)">
+                            <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+                        </div>
+                        <ul class="lesson-list">
+                            <th:block th:each="lesson : ${chapter.lessons}">
+                                <li><a th:href="@{'/lectii/' +
+${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}"
+                                        th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+                            </th:block>
+                        </ul>
+                    </li>
+                </th:block>
+            </ul>
+        </div>
+        <aside class="sidebar">
+            <ul class="sidebar-list">
+                <th:block th:each="chapter : ${chapters}">
+                    <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+                        <div class="chapter-toggle" onclick="toggleLessons(this)">
+                            <span th:text="${chapter.title}">Chapter</span>
+                        </div>
+                        <ul class="lesson-list hidden">
+                            <th:block th:each="lesson : ${chapter.lessons}">
+                                <li><a th:href="@{'/lectii/' +
+${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}"
+                                        th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+                            </th:block>
+                        </ul>
+                    </li>
+                </th:block>
+            </ul>
+        </aside>
+        <main class="content">
+            <div class="document-container">
+
+<h1 class="main-title">Metodele pointerelor</h1>
+<p class="paragraph">La apelarea unei metode, obiectul structurii pentru care este definită metoda este transmis în ea prin valoare. Ce înseamnă acest lucru? Să analizăm următorul exemplu:</p>
+<div class="code-inline"><pre><code>package&nbsp;main<br>import&nbsp;&quot;fmt&quot;<br>&nbsp;<br>type&nbsp;person&nbsp;struct{<br>&nbsp;&nbsp;&nbsp;&nbsp;name&nbsp;string<br>&nbsp;&nbsp;&nbsp;&nbsp;age&nbsp;int<br>}<br>func&nbsp;(p&nbsp;person)&nbsp;updateAge(newAge&nbsp;int){<br>&nbsp;&nbsp;&nbsp;&nbsp;p.age&nbsp;=&nbsp;newAge<br>}<br>&nbsp;<br>func&nbsp;main()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;tom&nbsp;=&nbsp;person&nbsp;{&nbsp;name:&nbsp;&quot;Tom&quot;,&nbsp;age:&nbsp;24&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;fmt.Println(&quot;before&quot;,&nbsp;tom.age)<br>&nbsp;&nbsp;&nbsp;&nbsp;tom.updateAge(33)<br>&nbsp;&nbsp;&nbsp;&nbsp;fmt.Println(&quot;after&quot;,&nbsp;tom.age)<br>}</code></pre></div>
+<p class="paragraph">Pentru structura person este definită metoda updateAge, care primește parametrul newAge și modifică valoarea câmpului age al structurii. Adică, la apelarea acestei metode, ne așteptăm ca vârsta persoanei să se schimbe. Totuși, ieșirea în consolă ne arată că valoarea câmpului age nu se schimbă:</p>
+<div class="code-inline"><pre><code>before&nbsp;24<br>after&nbsp;24</code></pre></div>
+<p class="paragraph">Acest lucru se întâmplă pentru că la apelul tom.updateAge(33), metoda updateAge primește o copie a structurii tom. Adică, structura tom este copiată într-o altă locație din memorie, iar mai departe metoda updateAge lucrează cu copia, fără a afecta structura originală tom.</p>
+<p class="paragraph">Totuși, acest comportament poate fi neintenționat. Ce facem dacă dorim totuși să schimbăm astfel starea structurii? În acest caz, este necesar să folosim pointere la structuri:</p>
+<div class="code-inline"><pre><code>package&nbsp;main<br>import&nbsp;&quot;fmt&quot;<br>&nbsp;<br>type&nbsp;person&nbsp;struct{<br>&nbsp;&nbsp;&nbsp;&nbsp;name&nbsp;string<br>&nbsp;&nbsp;&nbsp;&nbsp;age&nbsp;int<br>}<br>func&nbsp;(p&nbsp;*person)&nbsp;updateAge(newAge&nbsp;int){<br>&nbsp;&nbsp;&nbsp;&nbsp;(*p).age&nbsp;=&nbsp;newAge<br>}<br>&nbsp;<br>func&nbsp;main()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;tom&nbsp;=&nbsp;person&nbsp;{&nbsp;name:&nbsp;&quot;Tom&quot;,&nbsp;age:&nbsp;24&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;tomPointer&nbsp;*person&nbsp;=&nbsp;&amp;tom<br>&nbsp;&nbsp;&nbsp;&nbsp;fmt.Println(&quot;before&quot;,&nbsp;tom.age)<br>&nbsp;&nbsp;&nbsp;&nbsp;tomPointer.updateAge(33)<br>&nbsp;&nbsp;&nbsp;&nbsp;fmt.Println(&quot;after&quot;,&nbsp;tom.age)<br>}</code></pre></div>
+<p class="paragraph">Acum, metoda updateAge primește un pointer la structura person: p *person, adică de fapt adresa structurii în memorie. Cu ajutorul operației de dereferențiere obținem valoarea la această adresă din memorie și modificăm câmpul age:</p>
+<div class="code-inline"><pre><code>(*p).age&nbsp;=&nbsp;newAge</code></pre></div>
+<p class="paragraph">În funcția main definim un pointer la structura person și îi transmitem adresa structurii tom:</p>
+<div class="code-inline"><pre><code>var&nbsp;tomPointer&nbsp;*person&nbsp;=&nbsp;&amp;tom</code></pre></div>
+<p class="paragraph">Apoi apelăm metoda updateAge:</p>
+<div class="code-inline"><pre><code>tomPointer.updateAge(33)</code></pre></div>
+<p class="paragraph">Astfel, metoda updateAge va primi adresa stocată în tomPointer și va accesa structura tom la acea adresă, modificând valoarea proprietății age.</p>
+<div class="code-inline"><pre><code>before&nbsp;24<br>after&nbsp;33</code></pre></div>
+<p class="paragraph">Este important de menționat că, deși metoda updateAge este definită pentru un pointer la structura person, putem totuși apela această metodă și pentru un obiect person:</p>
+<div class="code-inline"><pre><code>var&nbsp;tom&nbsp;=&nbsp;person&nbsp;{&nbsp;name:&nbsp;&quot;Tom&quot;,&nbsp;age:&nbsp;24&nbsp;}<br>fmt.Println(&quot;before&quot;,&nbsp;tom.age)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;before&nbsp;24<br>tom.updateAge(33)<br>fmt.Println(&quot;after&quot;,&nbsp;tom.age)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;after&nbsp;33</code></pre></div>
+            </div>
+        </main>
+        <aside class="ad-section">
+            <div class="ad-box">
+                <p>Google Ad Here</p>
+            </div>
+            <div class="ad-box">
+                <p>Promo: SQL Beginner Guide</p>
+            </div>
+        </aside>
+    </div>
+    <div class="lesson-navigation">
+        <th:block th:if="${previousLesson != null}">
+            <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția
+                anterioară</a>
+        </th:block>
+        <th:block th:if="${nextLesson != null}">
+            <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția
+                următoare →</a>
+        </th:block>
+    </div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <script th:src="@{/js/script.js}" defer></script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4253419731329045"
+        crossorigin="anonymous"></script>
+
+    <link rel="canonical" th:href="${canonicalUrl}" />
+    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function () { dataLayer.push(arguments); };
+        gtag('consent', 'default', {
+            'wait_for_update': 500,
+            'region': ['RO'],
+            'ad_storage': 'denied',
+            'analytics_storage': 'denied',
+            'ad_user_data': 'denied',
+            'ad_personalization': 'denied'
+        });
+        gtag('js', new Date());
+        gtag('config', 'G-7Q2536ZKL2');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Lesson</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>
+        body {
+            background: #ffffff;
+        }
+    </style>
+</head>
+
+<body th:with="activeTopic='C-sharp', activeChapter='10.Colectii', activeLesson='1.Lista List_T_'">
+    <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <div class="top-nav">
+        <th:block th:each="topic : ${topics}">
+            <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}"
+                th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+        </th:block>
+    </div>
+    <div class="layout">
+        <div class="mobile-sidebar" id="mobileSidebar">
+            <button class="close-btn" onclick="toggleSidebar()">✖</button>
+            <ul class="chapter-list">
+                <th:block th:each="chapter : ${chapters}">
+                    <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+                        <div class="chapter-title" onclick="toggleChapter(this)">
+                            <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+                        </div>
+                        <ul class="lesson-list">
+                            <th:block th:each="lesson : ${chapter.lessons}">
+                                <li><a th:href="@{'/lectii/' +
+${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}"
+                                        th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+                            </th:block>
+                        </ul>
+                    </li>
+                </th:block>
+            </ul>
+        </div>
+        <aside class="sidebar">
+            <ul class="sidebar-list">
+                <th:block th:each="chapter : ${chapters}">
+                    <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+                        <div class="chapter-toggle" onclick="toggleLessons(this)">
+                            <span th:text="${chapter.title}">Chapter</span>
+                        </div>
+                        <ul class="lesson-list hidden">
+                            <th:block th:each="lesson : ${chapter.lessons}">
+                                <li><a th:href="@{'/lectii/' +
+${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}"
+                                        th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+                            </th:block>
+                        </ul>
+                    </li>
+                </th:block>
+            </ul>
+        </aside>
+        <main class="content">
+            <div class="document-container">
+
+<h1 class="main-title">Interacțiunea dintre client și server</h1>
+<p class="paragraph">În tema precedentă am analizat crearea unui server TCP simplu, la care se conectează un client și căruia i se trimite un mesaj. Acum vom vedea cum clientul poate trimite mesaje către server și primi răspunsuri înapoi.</p>
+<p class="paragraph">Pentru început, vom defini următorul server:</p>
+<div class="code-inline"><pre><code>package&nbsp;main<br>import&nbsp;(<br>&nbsp;&nbsp;&nbsp;&nbsp;&quot;fmt&quot;<br>&nbsp;&nbsp;&nbsp;&nbsp;&quot;net&quot;<br>)<br><br>var&nbsp;dict&nbsp;=&nbsp;map[string]string{&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&quot;red&quot;:&nbsp;&quot;roșu&quot;,<br>&nbsp;&nbsp;&nbsp;&nbsp;&quot;green&quot;:&nbsp;&quot;verde&quot;,<br>&nbsp;&nbsp;&nbsp;&nbsp;&quot;blue&quot;:&nbsp;&quot;albastru&quot;,<br>&nbsp;&nbsp;&nbsp;&nbsp;&quot;yellow&quot;:&nbsp;&quot;galben&quot;,<br>}<br><br>func&nbsp;main()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;listener,&nbsp;err&nbsp;:=&nbsp;net.Listen(&quot;tcp&quot;,&nbsp;&quot;:4545&quot;)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;err&nbsp;!=&nbsp;nil&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fmt.Println(err)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return<br>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;defer&nbsp;listener.Close()&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;fmt.Println(&quot;Server&nbsp;is&nbsp;listening...&quot;)<br>&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;{&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;conn,&nbsp;err&nbsp;:=&nbsp;listener.Accept()&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;err&nbsp;!=&nbsp;nil&nbsp;{&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fmt.Println(err)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;conn.Close()&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;continue<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;go&nbsp;handleConnection(conn)&nbsp;&nbsp;//&nbsp;pornim&nbsp;o&nbsp;gorutină&nbsp;pentru&nbsp;a&nbsp;procesa&nbsp;cererea<br>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<br>}<br><br>//&nbsp;procesarea&nbsp;conexiunii<br>func&nbsp;handleConnection(conn&nbsp;net.Conn)&nbsp;{&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;defer&nbsp;conn.Close()<br>&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;citim&nbsp;datele&nbsp;primite&nbsp;în&nbsp;cerere<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;input&nbsp;:=&nbsp;make([]byte,&nbsp;(1024&nbsp;*&nbsp;4))&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;n,&nbsp;err&nbsp;:=&nbsp;conn.Read(input)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;n&nbsp;==&nbsp;0&nbsp;||&nbsp;err&nbsp;!=&nbsp;nil&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fmt.Println(&quot;Read&nbsp;error:&quot;,&nbsp;err)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;source&nbsp;:=&nbsp;string(input[0:n])<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;pe&nbsp;baza&nbsp;datelor&nbsp;primite,&nbsp;obținem&nbsp;traducerea&nbsp;din&nbsp;dicționar&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;target,&nbsp;ok&nbsp;:=&nbsp;dict[source]<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;ok&nbsp;==&nbsp;false&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dacă&nbsp;datele&nbsp;nu&nbsp;se&nbsp;găsesc&nbsp;în&nbsp;dicționar<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;target&nbsp;=&nbsp;&quot;undefined&quot;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;afișăm&nbsp;în&nbsp;consola&nbsp;serverului&nbsp;informații&nbsp;de&nbsp;diagnostic<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fmt.Println(source,&nbsp;&quot;-&quot;,&nbsp;target)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;trimitem&nbsp;datele&nbsp;clientului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;conn.Write([]byte(target))<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>}<br></code></pre></div>
+<p class="paragraph">Serverul imită comportamentul unei aplicații de traducere a cuvintelor. Pentru aceasta este definit un dicționar dict, care conține cuvinte în limba engleză și traducerea lor.</p>
+<p class="paragraph">Într-o buclă infinită, serverul acceptă conexiuni. Însă, în loc să proceseze conexiunea direct, serverul lansează o gorutină prin funcția handleConnection, unde are loc procesarea conexiunii. Acest lucru permite ca noii clienți să nu fie nevoiți să aștepte până când primul este procesat. Astfel, toți clienții care se conectează sunt gestionați într-un anumit grad simultan.</p>
+<p class="paragraph">În funcția handleConnection, serverul primește cererea de la client. Pentru aceasta se alocă un buffer cu o lungime suficientă – 4096 de octeți.</p>
+<div class="code-inline"><pre><code>&#x9;<br>input&nbsp;:=&nbsp;make([]byte,&nbsp;(1024&nbsp;*&nbsp;4))&nbsp;<br>n,&nbsp;err&nbsp;:=&nbsp;conn.Read(input)&nbsp;</code></pre></div>
+<p class="paragraph">În acest caz, presupunem că cererea trimisă de client nu va depăși 4096 de octeți. Totuși, dimensiunea exactă a cererii și limita maximă nu sunt întotdeauna cunoscute. În astfel de situații, se pot folosi diverse tehnici — de exemplu, citirea datelor în buclă până la finalul transmisiei și abia apoi procesarea lor. Dar în acest exemplu analizăm un caz mai simplu.</p>
+<p class="paragraph">După ce primim cererea și o convertim într-un șir de caractere, extragem valoarea corespunzătoare din dicționar și o trimitem înapoi clientului.</p>
+<div class="code-inline"><pre><code>conn.Write([]byte(target))</code></pre></div>
+<p class="paragraph">Pentru a interacționa cu acest server, vom defini următorul client:</p>
+<div class="code-inline"><pre><code>package&nbsp;main<br>import&nbsp;(<br>&nbsp;&nbsp;&nbsp;&nbsp;&quot;fmt&quot;<br>&nbsp;&nbsp;&nbsp;&nbsp;&quot;net&quot;<br>)<br><br>func&nbsp;main()&nbsp;{<br><br>&nbsp;&nbsp;&nbsp;&nbsp;conn,&nbsp;err&nbsp;:=&nbsp;net.Dial(&quot;tcp&quot;,&nbsp;&quot;127.0.0.1:4545&quot;)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;err&nbsp;!=&nbsp;nil&nbsp;{&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fmt.Println(err)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;defer&nbsp;conn.Close()<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;source&nbsp;string<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fmt.Print(&quot;Introduceți&nbsp;un&nbsp;cuvânt:&nbsp;&quot;)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_,&nbsp;err&nbsp;:=&nbsp;fmt.Scanln(&amp;source)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;err&nbsp;!=&nbsp;nil&nbsp;{&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fmt.Println(&quot;Intrare&nbsp;incorectă:&quot;,&nbsp;err)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;continue<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;trimitem&nbsp;mesajul&nbsp;către&nbsp;server<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;n,&nbsp;err&nbsp;:=&nbsp;conn.Write([]byte(source));&nbsp;n&nbsp;==&nbsp;0&nbsp;||&nbsp;err&nbsp;!=&nbsp;nil&nbsp;{&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fmt.Println(err)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;primim&nbsp;răspunsul<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fmt.Print(&quot;Traducere:&nbsp;&quot;)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;buff&nbsp;:=&nbsp;make([]byte,&nbsp;1024)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;n,&nbsp;err&nbsp;:=&nbsp;conn.Read(buff)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;err&nbsp;!=&nbsp;nil&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fmt.Print(string(buff[0:n]))<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fmt.Println()<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>}</code></pre></div>
+<p class="paragraph">На клиенте в бесконечном цикле вводим слово для перевода и отправляем серверу сообщение:</p>
+<div class="code-inline"><pre><code>if&nbsp;n,&nbsp;err&nbsp;:=&nbsp;conn.Write([]byte(source));</code></pre></div>
+<p class="paragraph">Apoi primim răspunsul de la server și îl afișăm în consolă. Deoarece răspunsul de la server poate avea o lungime variabilă, pentru a-l citi folosim o buclă infinită în care citim datele cu ajutorul metodei Read:</p>
+<div class="code-inline"><pre><code>buff&nbsp;:=&nbsp;make([]byte,&nbsp;1024)<br>n,&nbsp;err&nbsp;:=&nbsp;conn.Read(buff)<br>if&nbsp;err&nbsp;!=nil{&nbsp;break}<br>fmt.Print(string(buff[0:n]))</code></pre></div>
+<p class="paragraph">Să pornim serverul.</p>
+<p class="paragraph">După care rulăm serverul și clientul și încercăm să interacționăm. Dacă nu reușiți, nu ezitați să întrebați pe canalul nostru de <a href="https://discord.gg/7pBB9QAA" target="_blank">Discord</a>!</p>
+            </div>
+        </main>
+        <aside class="ad-section">
+            <div class="ad-box">
+                <p>Google Ad Here</p>
+            </div>
+            <div class="ad-box">
+                <p>Promo: SQL Beginner Guide</p>
+            </div>
+        </aside>
+    </div>
+    <div class="lesson-navigation">
+        <th:block th:if="${previousLesson != null}">
+            <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția
+                anterioară</a>
+        </th:block>
+        <th:block th:if="${nextLesson != null}">
+            <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția
+                următoare →</a>
+        </th:block>
+    </div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <script th:src="@{/js/script.js}" defer></script>
+</body>
+</html>
