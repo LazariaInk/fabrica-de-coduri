@@ -96,6 +96,8 @@ ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${
 </ul>
 <p class="paragraph">Forma generală a idiomei move-and-swap arată astfel:</p>
 <div class="code-inline"><pre><code>MyClass&amp;&nbsp;MyClass::operator=(MyClass&amp;&amp;&nbsp;rhs)&nbsp;noexcept<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;MyClass&nbsp;moved(std::move(rhs));&nbsp;//&nbsp;obținem&nbsp;obiectul&nbsp;mutat<br>&nbsp;&nbsp;&nbsp;&nbsp;swap(moved);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;efectuăm&nbsp;schimbul&nbsp;de&nbsp;valori<br>&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;*this;&nbsp;//&nbsp;returnăm&nbsp;obiectul&nbsp;curent<br>}</code></pre></div>
+
+
 <p class="paragraph">Să analizăm o implementare simplă cu un exemplu:</p>
 <div class="code-inline"><pre><code>#include&nbsp;&lt;iostream&gt;&nbsp;<br><br>class&nbsp;Message&nbsp;{<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;Message(std::string&nbsp;data)&nbsp;:&nbsp;text{new&nbsp;std::string(data)}&nbsp;{&nbsp;//&nbsp;alocăm&nbsp;memorie<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id&nbsp;=&nbsp;++counter;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Create&nbsp;message&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;id&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;constructor&nbsp;de&nbsp;copiere<br>&nbsp;&nbsp;&nbsp;&nbsp;Message(const&nbsp;Message&amp;&nbsp;copy)&nbsp;:&nbsp;Message{copy.getText()}&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Copy&nbsp;message&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;copy.id&nbsp;&lt;&lt;&nbsp;&quot;&nbsp;to&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;id&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;constructor&nbsp;de&nbsp;mutare<br>&nbsp;&nbsp;&nbsp;&nbsp;Message(Message&amp;&amp;&nbsp;moved)&nbsp;noexcept&nbsp;:&nbsp;text{moved.text}&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id&nbsp;=&nbsp;++counter;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Move&nbsp;message&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;moved.id&nbsp;&lt;&lt;&nbsp;&quot;&nbsp;to&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;id&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;moved.text&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;~Message()&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Delete&nbsp;message&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;id&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete&nbsp;text;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;eliberăm&nbsp;memoria<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;atribuire&nbsp;prin&nbsp;copiere<br>&nbsp;&nbsp;&nbsp;&nbsp;Message&amp;&nbsp;operator=(const&nbsp;Message&amp;&nbsp;copy)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Copy&nbsp;assign&nbsp;message&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;copy.id&nbsp;&lt;&lt;&nbsp;&quot;&nbsp;to&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;id&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(&amp;copy&nbsp;!=&nbsp;this)&nbsp;{&nbsp;//&nbsp;evităm&nbsp;auto-atribuirea<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*text&nbsp;=&nbsp;copy.getText();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;*this;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;atribuire&nbsp;prin&nbsp;mutare<br>&nbsp;&nbsp;&nbsp;&nbsp;Message&amp;&nbsp;operator=(Message&amp;&amp;&nbsp;moved)&nbsp;noexcept&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Move&nbsp;assign&nbsp;message&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;moved.id&nbsp;&lt;&lt;&nbsp;&quot;&nbsp;to&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;id&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Message&nbsp;temp{std::move(moved)};&nbsp;//&nbsp;apelăm&nbsp;constructorul&nbsp;de&nbsp;mutare<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;swap(temp);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;schimbăm&nbsp;valorile<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;*this;&nbsp;//&nbsp;returnăm&nbsp;obiectul&nbsp;curent<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;funcția&nbsp;de&nbsp;schimb<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;swap(Message&amp;&nbsp;other)&nbsp;noexcept&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::swap(text,&nbsp;other.text);&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;schimbăm&nbsp;cele&nbsp;două&nbsp;pointere<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;std::string&amp;&nbsp;getText()&nbsp;const&nbsp;{&nbsp;return&nbsp;*text;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;getId()&nbsp;const&nbsp;{&nbsp;return&nbsp;id;&nbsp;}<br><br>private:<br>&nbsp;&nbsp;&nbsp;&nbsp;std::string*&nbsp;text;&nbsp;&nbsp;//&nbsp;textul&nbsp;mesajului<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;id{};&nbsp;&nbsp;//&nbsp;numărul&nbsp;mesajului<br>&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;inline&nbsp;unsigned&nbsp;counter{};&nbsp;&nbsp;&nbsp;//&nbsp;contor&nbsp;static&nbsp;pentru&nbsp;generarea&nbsp;numărului&nbsp;obiectului<br>};<br><br>int&nbsp;main()&nbsp;{&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;Message&nbsp;mes{&quot;&quot;};<br>&nbsp;&nbsp;&nbsp;&nbsp;mes&nbsp;=&nbsp;Message{&quot;hello&quot;};&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;atribuire&nbsp;prin&nbsp;mutare<br>&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Message&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;mes.getId()&nbsp;&lt;&lt;&nbsp;&quot;:&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;mes.getText()&nbsp;&lt;&lt;&nbsp;std::endl;<br>}</code></pre></div>
 <h2 class="subtitle">Explicația programului:</h2>
@@ -114,17 +116,8 @@ ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${
 <p class="paragraph">4) Apoi se face schimbul între obiectul curent și obiectul temporar. După schimb, obiectul temporar este distrus, iar memoria este eliberată.</p>
 <p class="paragraph">Astfel, idiomul move-and-swap ajută la crearea operatorilor de atribuire eficienți și siguri, minimizând riscurile de scurgeri de memorie și alte erori asociate cu gestionarea resurselor.</p>
             </div>
-        </main>
-        <aside class="ad-section">
-            <div class="ad-box">
-                <p>Google Ad Here</p>
-            </div>
-            <div class="ad-box">
-                <p>Promo: SQL Beginner Guide</p>
-            </div>
-        </aside>
-    </div>
-    <div class="lesson-navigation">
+        
+<div class="lesson-navigation">
         <th:block th:if="${previousLesson != null}">
             <a th:href="@{'/lectii/' +
             ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
@@ -140,6 +133,25 @@ ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${
                 următoare →</a>
         </th:block>
     </div>
+                <div class="discord-banner-section">
+                    <div class="discord-banner-container">
+                        <a href="https://discord.com/channels/1168639076098920578/1168646757551443979" target="_blank">
+                            <img th:src="@{/images/cpp_discord.png}" alt="Discord Banner" class="discord-banner-image">
+                        </a>
+                    </div>
+                </div>
+
+</main>
+        <aside class="ad-section">
+            <div class="ad-box">
+                <p>Google Ad Here</p>
+            </div>
+            <div class="ad-box">
+                <p>Promo: SQL Beginner Guide</p>
+            </div>
+        </aside>
+    </div>
+    
     <div th:replace="~{fragments/footer :: footer}"></div>
     <script th:src="@{/js/script.js}" defer></script>
 </body>

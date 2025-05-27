@@ -91,6 +91,8 @@ ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${
 <h1 class="main-title">Gestionarea resurselor - Idioma RAII</h1>
 <p class="paragraph">Obiectele claselor pot utiliza diverse resurse pe durata existenței lor, cum ar fi memoria dinamică alocată, fișierele, conexiunile la rețea etc. În C++, se folosește principiul/idioma RAII (resource acquisition is initialization). RAII presupune că achiziționarea unei resurse se face la inițializarea obiectului, iar eliberarea resursei se face în destructorul obiectului.</p>
 <div class="code-inline"><pre><code>#include&nbsp;&lt;iostream&gt;<br><br>class&nbsp;IntArray<br>{<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;IntArray(unsigned&nbsp;size)&nbsp;:&nbsp;data{&nbsp;new&nbsp;int[size]&nbsp;}&nbsp;{}&nbsp;&nbsp;//&nbsp;alocăm&nbsp;memorie<br>&nbsp;&nbsp;&nbsp;&nbsp;~IntArray()<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(data)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Freeing&nbsp;memory...&quot;&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete[]&nbsp;data;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;eliberăm&nbsp;memoria<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Eliminăm&nbsp;constructorul&nbsp;de&nbsp;copiere&nbsp;și&nbsp;operatorul&nbsp;de&nbsp;atribuire<br>&nbsp;&nbsp;&nbsp;&nbsp;IntArray(const&nbsp;IntArray&amp;)&nbsp;=&nbsp;delete;<br>&nbsp;&nbsp;&nbsp;&nbsp;IntArray&amp;&nbsp;operator=(const&nbsp;IntArray&amp;)&nbsp;=&nbsp;delete;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;operatorul&nbsp;de&nbsp;indexare&nbsp;pentru&nbsp;accesul&nbsp;la&nbsp;elemente<br>&nbsp;&nbsp;&nbsp;&nbsp;int&amp;&nbsp;operator[](unsigned&nbsp;index)&nbsp;{&nbsp;return&nbsp;data[index];&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;returnăm&nbsp;resursa&nbsp;încapsulată<br>&nbsp;&nbsp;&nbsp;&nbsp;int*&nbsp;get()&nbsp;const&nbsp;{&nbsp;return&nbsp;data;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;transferăm&nbsp;resursa&nbsp;altui&nbsp;obiect<br>&nbsp;&nbsp;&nbsp;&nbsp;int*&nbsp;release()<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int*&nbsp;result&nbsp;=&nbsp;data;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;data&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;result;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>private:<br>&nbsp;&nbsp;&nbsp;&nbsp;int*&nbsp;data;<br>};<br><br>int&nbsp;main()<br>{&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;unsigned&nbsp;count&nbsp;{5};&nbsp;&nbsp;&nbsp;//&nbsp;numărul&nbsp;de&nbsp;elemente<br>&nbsp;&nbsp;&nbsp;&nbsp;IntArray&nbsp;values{count};&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;creăm&nbsp;un&nbsp;obiect&nbsp;care&nbsp;gestionează&nbsp;resursa<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;modificăm&nbsp;elementele&nbsp;dinamicii&nbsp;array<br>&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(unsigned&nbsp;i&nbsp;{};&nbsp;i&nbsp;&lt;&nbsp;count;&nbsp;++i)<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;values[i]&nbsp;=&nbsp;i;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;afișăm&nbsp;elementele&nbsp;dinamicii&nbsp;array&nbsp;pe&nbsp;consolă<br>&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(unsigned&nbsp;i&nbsp;{};&nbsp;i&nbsp;&lt;&nbsp;count;&nbsp;++i)<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;values[i]&nbsp;&lt;&lt;&nbsp;&quot;\t&quot;;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;std::endl;<br>}</code></pre></div>
+
+
 <p class="paragraph">Aici, este definită clasa IntArray, care reprezintă un tablou de numere int și care gestionează o resursă. În acest caz, resursa reprezintă memoria dinamică alocată pentru a stoca tabloul de numere int. Obținerea memoriei dinamice se face în constructorul obiectului, iar eliberarea acesteia se face în destructor.</p>
 <div class="code-inline"><pre><code>IntArray(unsigned&nbsp;size)&nbsp;:&nbsp;data{&nbsp;new&nbsp;int[size]&nbsp;}&nbsp;{}&nbsp;&nbsp;//&nbsp;alocăm&nbsp;memorie<br>~IntArray()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Freeing&nbsp;memory...&quot;&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;delete[]&nbsp;data;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;eliberăm&nbsp;memoria<br>}<br></code></pre></div>
 <p class="paragraph">Este important de menționat că memoria dinamică reprezintă un caz special al resurselor (în realitate, aceste resurse pot fi fișiere, conexiuni la rețea etc.) și este utilizată aici în scop demonstrativ, deoarece în loc să alocăm și să eliberăm memoria, în astfel de situații putem utiliza pointeri inteligenți.</p>
@@ -107,17 +109,8 @@ ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${
 <div class="code-inline"><pre><code>int&nbsp;main()<br>{&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;unsigned&nbsp;count&nbsp;{5};&nbsp;&nbsp;&nbsp;//&nbsp;numărul&nbsp;de&nbsp;elemente<br>&nbsp;&nbsp;&nbsp;&nbsp;IntArray&nbsp;array{count};&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;creăm&nbsp;un&nbsp;obiect&nbsp;care&nbsp;gestionează&nbsp;resursa<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;modificăm&nbsp;elementele&nbsp;dinamicii&nbsp;array<br>&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(unsigned&nbsp;i&nbsp;{};&nbsp;i&nbsp;&lt;&nbsp;count;&nbsp;++i)<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array[i]&nbsp;=&nbsp;i;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;obținem&nbsp;pointerul<br>&nbsp;&nbsp;&nbsp;&nbsp;int*&nbsp;data&nbsp;=&nbsp;array.release();&nbsp;//&nbsp;acum&nbsp;funcția&nbsp;main&nbsp;trebuie&nbsp;să&nbsp;elibereze&nbsp;memoria<br><br>&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(unsigned&nbsp;i&nbsp;{};&nbsp;i&nbsp;&lt;&nbsp;count;&nbsp;++i)<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;data[i]&nbsp;&lt;&lt;&nbsp;&quot;\t&quot;;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;std::endl;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;eliberăm&nbsp;memoria<br>&nbsp;&nbsp;&nbsp;&nbsp;delete[]&nbsp;data;<br>}</code></pre></div>
 <p class="paragraph">Aici, pointerul către tabloul dinamic este transferat în variabila data prin funcția release. După aceea, funcția main` devine responsabilă pentru eliberarea memoriei, ceea ce se întâmplă la sfârșitul funcției.</p>
             </div>
-        </main>
-        <aside class="ad-section">
-            <div class="ad-box">
-                <p>Google Ad Here</p>
-            </div>
-            <div class="ad-box">
-                <p>Promo: SQL Beginner Guide</p>
-            </div>
-        </aside>
-    </div>
-    <div class="lesson-navigation">
+        
+<div class="lesson-navigation">
         <th:block th:if="${previousLesson != null}">
             <a th:href="@{'/lectii/' +
             ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
@@ -133,6 +126,25 @@ ${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${
                 următoare →</a>
         </th:block>
     </div>
+                <div class="discord-banner-section">
+                    <div class="discord-banner-container">
+                        <a href="https://discord.com/channels/1168639076098920578/1168646757551443979" target="_blank">
+                            <img th:src="@{/images/cpp_discord.png}" alt="Discord Banner" class="discord-banner-image">
+                        </a>
+                    </div>
+                </div>
+
+</main>
+        <aside class="ad-section">
+            <div class="ad-box">
+                <p>Google Ad Here</p>
+            </div>
+            <div class="ad-box">
+                <p>Promo: SQL Beginner Guide</p>
+            </div>
+        </aside>
+    </div>
+    
     <div th:replace="~{fragments/footer :: footer}"></div>
     <script th:src="@{/js/script.js}" defer></script>
 </body>
