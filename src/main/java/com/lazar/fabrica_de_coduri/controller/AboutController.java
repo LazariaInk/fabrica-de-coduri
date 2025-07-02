@@ -1,10 +1,18 @@
 package com.lazar.fabrica_de_coduri.controller;
 
+import com.lazar.fabrica_de_coduri.model.User;
+import com.lazar.fabrica_de_coduri.model.VerificationToken;
 import com.lazar.fabrica_de_coduri.repository.PlatformInfoRepository;
 import com.lazar.fabrica_de_coduri.repository.TopicRepository;
+import com.lazar.fabrica_de_coduri.repository.UserRepository;
+import com.lazar.fabrica_de_coduri.repository.VerificationTokenRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Controller
 public class AboutController {
@@ -24,4 +32,42 @@ public class AboutController {
         model.addAttribute("content", "error-content");
         return "about";
     }
+
+//    @Controller
+//    public static class ConfirmationController {
+//
+//        private final VerificationTokenRepository tokenRepository;
+//        private final UserRepository userRepository;
+//
+//        public ConfirmationController(VerificationTokenRepository tokenRepository,
+//                                      UserRepository userRepository) {
+//            this.tokenRepository = tokenRepository;
+//            this.userRepository = userRepository;
+//        }
+//
+//        @GetMapping("/confirm")
+//        public String confirmEmail(@RequestParam("token") String token, Model model) {
+//            Optional<VerificationToken> optional = tokenRepository.findByToken(token);
+//
+//            if (optional.isEmpty()) {
+//                model.addAttribute("message", "Invalid token!");
+//                return "confirm";
+//            }
+//
+//            VerificationToken verificationToken = optional.get();
+//
+//            if (verificationToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+//                model.addAttribute("message", "Token expired!");
+//                return "confirm";
+//            }
+//
+//            User user = verificationToken.getUser();
+//            user.setEnabled(true);
+//            userRepository.save(user);
+//            tokenRepository.delete(verificationToken);
+//
+//            model.addAttribute("message", "Account confirmed. You can now log in.");
+//            return "confirm";
+//        }
+//    }
 }
