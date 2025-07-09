@@ -1,6 +1,7 @@
 package com.lazar.fabrica_de_coduri.config;
 
 
+import com.lazar.fabrica_de_coduri.service.CustomOAuth2UserService;
 import com.lazar.fabrica_de_coduri.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,40 +19,46 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
+    private final CustomOAuth2UserService oAuth2UserService;
 
-    public SecurityConfig(CustomUserDetailsService userDetailsService) {
+    public SecurityConfig(CustomUserDetailsService userDetailsService,
+                          CustomOAuth2UserService oAuth2UserService) {
         this.userDetailsService = userDetailsService;
+        this.oAuth2UserService = oAuth2UserService;
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .anyRequest().permitAll()
+                        .anyRequest().permitAll()  // all other requests require login
                 )
-                .formLogin(login -> login
+                .formLogin(form -> form
                         .loginPage("/login")
                         .defaultSuccessUrl("/", true)
                         .permitAll()
                 )
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/login")
+                        .userInfoEndpoint(user -> user
+                                .userService(oAuth2UserService)
+                        )
+                        .defaultSuccessUrl("/", true)
+                )
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/")
-                );
+                        .logoutSuccessUrl("/login?logout")
+                        .permitAll()
+                )
+                .userDetailsService(userDetailsService);
 
         return http.build();
     }
 
-//    @Bean
-//    public PasswordEncoder passwordEncoder() {
-//        return new BCryptPasswordEncoder();
-//    }
-
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance(); // No hashing
+        return new BCryptPasswordEncoder();
     }
-
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {

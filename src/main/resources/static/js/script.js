@@ -20,19 +20,25 @@ document.addEventListener('DOMContentLoaded', function () {
         };
     }
 
-    // Parallax effect
-    const parallaxImages = document.querySelectorAll('.parallax-banner img');
-    if (parallaxImages.length > 0) {
-        document.addEventListener('mousemove', function (e) {
-            parallaxImages.forEach(layer => {
-                const speed = layer.getAttribute('data-speed');
-                const translateX = (window.innerWidth - e.clientX * 2) / 100 * speed;
-                const translateY = (window.innerHeight - e.clientY * 2) / 100 * speed;
-                const scale = 1 + (speed / 20);
-                layer.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
-            });
+// Parallax effect
+const parallaxImages = document.querySelectorAll('.floating-icon img');
+
+if (parallaxImages.length > 0) {
+    document.addEventListener('mousemove', function (e) {
+        const percentX = e.clientX / window.innerWidth;
+        const percentY = e.clientY / window.innerHeight;
+
+        parallaxImages.forEach(layer => {
+            const speed = parseFloat(layer.getAttribute('data-speed')) || 1;
+
+            const moveX = (0.5 - percentX) * speed * 20;
+            const moveY = (0.5 - percentY) * speed * 20;
+
+            layer.style.transform = `translate(${moveX}px, ${moveY}px)`;
         });
-    }
+    });
+}
+
 
     // Mobile sidebar close on link click
     const links = document.querySelectorAll('#mobileSidebar a');
@@ -42,6 +48,19 @@ document.addEventListener('DOMContentLoaded', function () {
             if (sidebar) sidebar.classList.remove('active');
         });
     });
+
+    // Fix scroll bubbling in fixed sidebar
+    const fixedSidebar = document.querySelector('.sidebar');
+        if (fixedSidebar) {
+            fixedSidebar.addEventListener('wheel', function (e) {
+                const atTop = fixedSidebar.scrollTop === 0;
+                const atBottom = fixedSidebar.scrollHeight - fixedSidebar.clientHeight === fixedSidebar.scrollTop;
+
+                if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) {
+                    e.preventDefault(); // Blocheaza propagarea spre body
+                }
+            }, { passive: false });
+        }
 });
 
 // Scrollable .top-nav drag support (only if exists)
