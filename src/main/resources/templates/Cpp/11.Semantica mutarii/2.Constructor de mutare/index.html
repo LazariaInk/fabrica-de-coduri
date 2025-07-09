@@ -1,14 +1,11 @@
 <!doctype html>
 <html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
-
-<head>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4253419731329045"
-        crossorigin="anonymous"></script>
-
-    <link rel="canonical" th:href="${canonicalUrl}" />
-    <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
-    <script>
+ <head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4253419731329045" crossorigin="anonymous"></script>
+  <link rel="canonical" th:href="${canonicalUrl}">
+  <link rel="icon" type="image/png" href="/nume-aplicatie/images/favicon.png">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Q2536ZKL2"></script>
+  <script>
         window.dataLayer = window.dataLayer || [];
         window.gtag = function () { dataLayer.push(arguments); };
         gtag('consent', 'default', {
@@ -22,173 +19,206 @@
         gtag('js', new Date());
         gtag('config', 'G-7Q2536ZKL2');
     </script>
-
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${lesson.title}">Lesson</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${lesson.title}">Lesson</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <style>
         body {
             background: #ffffff;
         }
     </style>
-</head>
-
-<body th:with="activeTopic='C-sharp', activeChapter='10.Colectii', activeLesson='1.Lista List_T_'">
-    <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
-    <div th:replace="~{fragments/nav :: nav}"></div>
-    <div class="top-nav">
-        <th:block th:each="topic : ${topics}">
-            <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}"
-                th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a>
+ </head>
+ <body th:with="activeTopic='C-sharp', activeChapter='10.Colectii', activeLesson='1.Lista List_T_'">
+  <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">☰</button>
+  <div th:replace="~{fragments/nav :: nav}"></div>
+  <div class="top-nav">
+   <th:block th:each="topic : ${topics}"> <a th:href="@{'/lectii/topic/' + ${topic.id}}" th:text="${topic.name}" th:classappend="${topic.id} == ${activeTopicId} ? 'active' : ''"> </a> </th:block>
+  </div>
+  <div class="layout">
+   <div class="mobile-sidebar" id="mobileSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">✖</button>
+    <ul class="chapter-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-title" onclick="toggleChapter(this)">
+        <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
+       </div>
+       <ul class="lesson-list">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
         </th:block>
+       </ul>
+      </li>
+     </th:block>
+    </ul>
+   </div>
+   <aside class="sidebar">
+    <ul class="sidebar-list">
+     <th:block th:each="chapter : ${chapters}">
+      <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
+       <div class="chapter-toggle" onclick="toggleLessons(this)">
+        <span th:text="${chapter.title}">Chapter</span>
+       </div>
+       <ul class="lesson-list hidden">
+        <th:block th:each="lesson : ${chapter.lessons}">
+         <li><a th:href="@{'/lectii/' +
+${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
+${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}" th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
+        </th:block>
+       </ul>
+      </li>
+     </th:block>
+    </ul>
+   </aside>
+   <main class="content">
+    <div class="document-container">
+     <h1 class="main-title">Constructorul de mutare</h1>
+     <p class="paragraph">Constructorul de mutare (move constructor) reprezintă o alternativă la constructorul de copiere în situațiile în care trebuie făcută o copie a unui obiect, dar copierea datelor nu este dorită — în loc să se copieze datele, acestea sunt pur și simplu mutate dintr-o copie în alta.</p>
+     <p class="paragraph">Să analizăm un exemplu.</p>
+     <div class="code-inline">
+      <pre><code>#include&nbsp;&lt;iostream&gt;<br>&nbsp;&nbsp;<br>//&nbsp;clasa&nbsp;mesaj<br>class&nbsp;Message<br>{<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;constructor&nbsp;normal<br>&nbsp;&nbsp;&nbsp;&nbsp;Message(const&nbsp;char*&nbsp;data,&nbsp;unsigned&nbsp;count)<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;size&nbsp;=&nbsp;count;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;=&nbsp;new&nbsp;char[size];&nbsp;&nbsp;//&nbsp;alocăm&nbsp;memorie<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(unsigned&nbsp;i{};&nbsp;i&nbsp;&lt;&nbsp;size;&nbsp;i++)&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;copiem&nbsp;datele<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text[i]&nbsp;=&nbsp;data[i];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id&nbsp;=&nbsp;++counter;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;"Create&nbsp;Message&nbsp;"&nbsp;&lt;&lt;&nbsp;id&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;constructor&nbsp;de&nbsp;copiere<br>&nbsp;&nbsp;&nbsp;&nbsp;Message(const&nbsp;Message&amp;&nbsp;copy)&nbsp;:&nbsp;Message{copy.getText(),&nbsp;copy.size&nbsp;}&nbsp;&nbsp;//&nbsp;apelăm&nbsp;constructorul&nbsp;standard<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;"Copy&nbsp;&nbsp;Message&nbsp;"&nbsp;&lt;&lt;&nbsp;copy.id&nbsp;&lt;&lt;&nbsp;"&nbsp;to&nbsp;"&nbsp;&lt;&lt;&nbsp;id&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;destructor<br>&nbsp;&nbsp;&nbsp;&nbsp;~Message()<br>&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;"Delete&nbsp;Message&nbsp;"&nbsp;&nbsp;&lt;&lt;&nbsp;id&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete[]&nbsp;text;&nbsp;&nbsp;//&nbsp;eliberăm&nbsp;memoria<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;char*&nbsp;getText()&nbsp;const&nbsp;{&nbsp;return&nbsp;text;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;getSize()&nbsp;const&nbsp;{&nbsp;return&nbsp;size;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;getId()&nbsp;const&nbsp;{return&nbsp;id;}<br>private:<br>&nbsp;&nbsp;&nbsp;&nbsp;char*&nbsp;text{};&nbsp;&nbsp;//&nbsp;textul&nbsp;mesajului<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;size{};&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dimensiunea&nbsp;mesajului<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;id{};&nbsp;&nbsp;//&nbsp;numărul&nbsp;mesajului<br>&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;inline&nbsp;unsigned&nbsp;counter{};&nbsp;&nbsp;&nbsp;//&nbsp;contor&nbsp;static&nbsp;pentru&nbsp;generarea&nbsp;id-ului&nbsp;obiectului<br>};<br>&nbsp;<br>//&nbsp;clasa&nbsp;messenger,&nbsp;care&nbsp;trimite&nbsp;mesajul<br>class&nbsp;Messenger<br>{<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;Messenger(Message&nbsp;mes):&nbsp;message{mes}<br>&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;sendMessage()&nbsp;const<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;"Send&nbsp;message&nbsp;"&nbsp;&lt;&lt;&nbsp;&nbsp;message.getId()&nbsp;&lt;&lt;&nbsp;":&nbsp;"&nbsp;&lt;&lt;&nbsp;message.getText()&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>private:<br>&nbsp;&nbsp;&nbsp;&nbsp;Message&nbsp;message;<br>};<br>int&nbsp;main()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;Messenger&nbsp;telegram{Message{"Hello&nbsp;Word",&nbsp;11}};<br>&nbsp;&nbsp;&nbsp;&nbsp;telegram.sendMessage();<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici este definită clasa Message. Textul mesajului este stocat într-un pointer de caractere text. Pentru a observa procesul complet de creare/copiere/ștergere a obiectelor Message, clasa conține o variabilă statică counter care crește la crearea fiecărui nou obiect și este atribuită variabilei id, reprezentând numărul mesajului:</p>
+     <div class="code-inline">
+      <pre><code>char*&nbsp;text{};&nbsp;&nbsp;//&nbsp;textul&nbsp;mesajului<br>unsigned&nbsp;size{};&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dimensiunea&nbsp;mesajului<br>unsigned&nbsp;id{};&nbsp;&nbsp;//&nbsp;numărul&nbsp;mesajului<br>static&nbsp;inline&nbsp;unsigned&nbsp;counter{};</code></pre>
+     </div>
+     <p class="paragraph">Constructorul Message alocă memorie pentru textul mesajului primit prin parametrul data, copiază datele în memorie și stabilește numărul mesajului. Pentru copierea datelor este definit constructorul de copiere.</p>
+     <p class="paragraph">De asemenea este definită clasa Messenger, care în constructor primește un mesaj și îl salvează în variabila message:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Messenger<br>{<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;Messenger(Message&nbsp;mes):&nbsp;message{mes}<br>&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;}</code></pre>
+     </div>
+     <p class="paragraph">Prin funcția sendMessage messengerul trimite efectiv mesajul.</p>
+     <p class="paragraph">În funcția main creăm un obiect Messenger, căruia îi transmitem un obiect mesaj, apoi apelăm funcția sendMessage:</p>
+     <div class="code-inline">
+      <pre><code>Messenger&nbsp;telegram{Message{"Hello&nbsp;Word",&nbsp;11}};<br>telegram.sendMessage();</code></pre>
+     </div>
+     <p class="paragraph">Observați că la constructorul obiectului Messenger este transmis un obiect Message care nu este legat de nicio variabilă. Să analizăm output-ul în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Create&nbsp;message&nbsp;1<br>Create&nbsp;message&nbsp;2<br>Copy&nbsp;&nbsp;message&nbsp;1&nbsp;to&nbsp;2<br>Delete&nbsp;message&nbsp;1<br>Send&nbsp;message&nbsp;2:&nbsp;Hello&nbsp;Word<br>Delete&nbsp;message&nbsp;2</code></pre>
+     </div>
+     <p class="paragraph">Vedem că în timpul execuției programului se creează două obiecte Message, fiind implicat constructorul de copiere. Să vedem pas cu pas.</p>
+     <p class="paragraph">Executarea liniei:</p>
+     <div class="code-inline">
+      <pre><code>Messenger&nbsp;telegram{Message{"Hello&nbsp;Word",&nbsp;11}};</code></pre>
+     </div>
+     <p class="paragraph">duce la execuția constructorului Message, în care șirul "Hello Word" este transmis variabilei text și se stabilește numărul mesajului. Acest obiect temporar Message primește numărul 1. Se afișează:</p>
+     <div class="code-inline">
+      <pre><code>Create&nbsp;message&nbsp;1</code></pre>
+     </div>
+     <p class="paragraph">Obiectul Message creat este transmis constructorului Messenger:</p>
+     <div class="code-inline">
+      <pre><code>Messenger(Message&nbsp;mes):&nbsp;message{mes}</code></pre>
+     </div>
+     <p class="paragraph">Observați expresia message{mes}. Aceasta ia obiectul temporar Message și prin constructorul de copiere creează o copie care este atribuită variabilei message. Constructorul de copiere apelează la rândul său constructorul standard:</p>
+     <div class="code-inline">
+      <pre><code>Message(const&nbsp;Message&amp;&nbsp;copy)&nbsp;:&nbsp;Message{copy.getText(),&nbsp;copy.size&nbsp;}</code></pre>
+     </div>
+     <p class="paragraph">Se creează obiectul Message cu numărul 2. Constructorul standard alocă memorie pentru șir. Avem două copii independente, fiecare cu pointeri la locații diferite în memorie. Astfel, în consolă se afișează:</p>
+     <div class="code-inline">
+      <pre><code>Create&nbsp;message&nbsp;2<br>Copy&nbsp;&nbsp;message&nbsp;1&nbsp;to&nbsp;2<br>Delete&nbsp;message&nbsp;1</code></pre>
+     </div>
+     <p class="paragraph">Obiectul Messenger deține acum al doilea mesaj, iar primul, temporar, este șters.</p>
+     <p class="paragraph">Apoi se apelează funcția sendMessage:</p>
+     <script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+     <div class="code-inline">
+      <pre><code>telegram.sendMessage();</code></pre>
+     </div>
+     <p class="paragraph">Mesajul stocat în messenger este afișat în consolă, iar la terminarea funcției main mesajul este șters:</p>
+     <div class="code-inline">
+      <pre><code>Send&nbsp;message&nbsp;2:&nbsp;Hello&nbsp;Word<br>Delete&nbsp;message&nbsp;2</code></pre>
+     </div>
+     <p class="paragraph">Din punct de vedere al copierii, al alocării/gestionării/eliberării memoriei, nu par să existe probleme. Dar observăm că memoria alocată pentru primul mesaj nu a fost folosită efectiv. Cu alte cuvinte, am folosit inutil acea memorie. Nu ar fi mai bine dacă, în loc să alocăm o nouă zonă de memorie pentru al doilea mesaj, am putea pur și simplu să îi transmitem memoria deja alocată pentru primul mesaj? Oricum, primul mesaj este șters. Iar pentru a rezolva această problemă se folosesc constructorii de mutare.</p>
+     <p class="paragraph">Constructorul de mutare primește un singur parametru, care trebuie să fie o referință rvalue la un obiect de tipul curent:</p>
+     <div class="code-inline">
+      <pre><code>MyClass(MyClass&amp;&amp;&nbsp;moved)&nbsp;//&nbsp;referință&nbsp;rvalue<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;codul&nbsp;constructorului&nbsp;de&nbsp;mutare<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici parametrul moved reprezintă obiectul ce urmează să fie mutat.</p>
+     <p class="paragraph">Să modificăm codul de mai sus aplicând constructorul de mutare în clasa Message:</p>
+     <div class="code-inline">
+      <pre><code>#include&nbsp;&lt;iostream&gt;<br>&nbsp;&nbsp;<br>//&nbsp;clasa&nbsp;mesaj<br>class&nbsp;Message<br>{<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;constructor&nbsp;normal<br>&nbsp;&nbsp;&nbsp;&nbsp;Message(const&nbsp;char*&nbsp;data,&nbsp;unsigned&nbsp;count)<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;size&nbsp;=&nbsp;count;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;=&nbsp;new&nbsp;char[size];&nbsp;&nbsp;//&nbsp;alocăm&nbsp;memorie<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(unsigned&nbsp;i{};&nbsp;i&nbsp;&lt;&nbsp;size;&nbsp;i++)&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;copiem&nbsp;datele<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text[i]&nbsp;=&nbsp;data[i];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id&nbsp;=&nbsp;++counter;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;"Create&nbsp;Message&nbsp;"&nbsp;&lt;&lt;&nbsp;id&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;constructor&nbsp;de&nbsp;copiere<br>&nbsp;&nbsp;&nbsp;&nbsp;Message(const&nbsp;Message&amp;&nbsp;copy)&nbsp;:&nbsp;Message{copy.getText(),&nbsp;copy.size&nbsp;}&nbsp;&nbsp;//&nbsp;apelăm&nbsp;constructorul&nbsp;standard<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;"Copy&nbsp;&nbsp;Message&nbsp;"&nbsp;&lt;&lt;&nbsp;copy.id&nbsp;&lt;&lt;&nbsp;"&nbsp;to&nbsp;"&nbsp;&lt;&lt;&nbsp;id&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;constructor&nbsp;de&nbsp;mutare<br>&nbsp;&nbsp;&nbsp;&nbsp;Message(Message&amp;&amp;&nbsp;moved)<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id&nbsp;=&nbsp;++counter;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;"Create&nbsp;Message&nbsp;"&nbsp;&lt;&lt;&nbsp;id&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;=&nbsp;moved.text;&nbsp;&nbsp;//&nbsp;mutăm&nbsp;textul&nbsp;mesajului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;size&nbsp;=&nbsp;moved.size;&nbsp;&nbsp;//&nbsp;mutăm&nbsp;dimensiunea&nbsp;mesajului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;moved.text&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;"Move&nbsp;Message&nbsp;"&nbsp;&lt;&lt;&nbsp;moved.id&nbsp;&lt;&lt;&nbsp;"&nbsp;to&nbsp;"&nbsp;&lt;&lt;&nbsp;id&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;destructor<br>&nbsp;&nbsp;&nbsp;&nbsp;~Message()<br>&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;"Delete&nbsp;Message&nbsp;"&nbsp;&nbsp;&lt;&lt;&nbsp;id&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete[]&nbsp;text;&nbsp;&nbsp;//&nbsp;eliberăm&nbsp;memoria<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;char*&nbsp;getText()&nbsp;const&nbsp;{&nbsp;return&nbsp;text;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;getSize()&nbsp;const&nbsp;{&nbsp;return&nbsp;size;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;getId()&nbsp;const&nbsp;{return&nbsp;id;}<br>private:<br>&nbsp;&nbsp;&nbsp;&nbsp;char*&nbsp;text{};&nbsp;&nbsp;//&nbsp;textul&nbsp;mesajului<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;size{};&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dimensiunea&nbsp;mesajului<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;id{};&nbsp;&nbsp;//&nbsp;numărul&nbsp;mesajului<br>&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;inline&nbsp;unsigned&nbsp;counter{};&nbsp;&nbsp;&nbsp;//&nbsp;contor&nbsp;static&nbsp;pentru&nbsp;generarea&nbsp;numărului&nbsp;obiectului<br>};<br>&nbsp;<br>//&nbsp;clasa&nbsp;messenger&nbsp;care&nbsp;trimite&nbsp;mesajul<br>class&nbsp;Messenger<br>{<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;Messenger(Message&nbsp;mes):&nbsp;message{std::move(mes)}<br>&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;sendMessage()&nbsp;const<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;"Send&nbsp;message&nbsp;"&nbsp;&lt;&lt;&nbsp;&nbsp;message.getId()&nbsp;&lt;&lt;&nbsp;":&nbsp;"&nbsp;&lt;&lt;&nbsp;message.getText()&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>private:<br>&nbsp;&nbsp;&nbsp;&nbsp;Message&nbsp;message;<br>};<br>int&nbsp;main()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;Messenger&nbsp;telegram{Message{"Hello&nbsp;Word",&nbsp;11}};<br>&nbsp;&nbsp;&nbsp;&nbsp;telegram.sendMessage();<br>}</code></pre>
+     </div>
+     <p class="paragraph">Comparativ cu codul anterior, aici sunt două modificări. În primul rând, în clasa Message a fost adăugat constructorul de mutare:</p>
+     <p class="paragraph">Parametrul moved reprezintă obiectul care se mută. Nu apelăm constructorul standard, ca la constructorul de copiere, deoarece nu trebuie să alocăm memorie. În schimb, pur și simplu atribuim variabilei text valoarea pointerului (adresa blocului de memorie alocat) din obiectul moved care se mută.</p>
+     <div class="code-inline">
+      <pre><code>text&nbsp;=&nbsp;moved.text</code></pre>
+     </div>
+     <p class="paragraph">Astfel evităm alocarea suplimentară inutilă de memorie. Și pentru ca pointerul text al obiectului mutat moved să nu mai indice către acea zonă de memorie, iar destructorul obiectului moved să nu elibereze acea memorie, îi atribuim pointerului valoarea nullptr.</p>
+     <p class="paragraph">Un alt aspect important — în constructorul clasei Messenger, la copierea obiectului folosim funcția încorporată std::move(), disponibilă în biblioteca standard C++:</p>
+     <div class="code-inline">
+      <pre><code>class&nbsp;Messenger<br>{<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;Messenger(Message&nbsp;mes):&nbsp;message{std::move(mes)}<br>&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;}</code></pre>
+     </div>
+     <p class="paragraph">Funcția std::move() transformă valoarea transmisă într-o referință rvalue. În ciuda numelui, această funcție nu mută nimic.</p>
+     <p class="paragraph">Expresia message{std::move(mes)} va duce practic la apelul constructorului de mutare, căruia i se transmite parametrul mes. Rezultatul constructorului de mutare este apoi atribuit variabilei message. Astfel, în consolă vom obține următorul output:</p>
+     <div class="code-inline">
+      <pre><code>Create&nbsp;message&nbsp;1<br>Create&nbsp;Message&nbsp;2<br>Move&nbsp;message&nbsp;1&nbsp;to&nbsp;2<br>Delete&nbsp;message&nbsp;1<br>Send&nbsp;message&nbsp;2:&nbsp;Hello&nbsp;Word<br>Delete&nbsp;message&nbsp;2</code></pre>
+     </div>
+     <p class="paragraph">Dacă constructorul de mutare nu ar fi fost definit, expresia message{std::move(mes)} ar fi apelat constructorul de copiere.</p>
+     <p class="paragraph">Așadar, se creează tot două obiecte, dar evităm alocarea inutilă de memorie și copierea datelor. În general, se mută obiectele care nu mai sunt necesare, ca în exemplul de mai sus.</p>
+     <p class="paragraph">Trebuie remarcat că compilatorul generează automat un constructor de mutare implicit, care mută toate variabilele nestatice. Dar dacă definim manual destructorul, constructorul de copiere sau operatorul de atribuire prin copiere ori mutare, compilatorul nu mai generează constructorul de mutare implicit.</p>
+     <h2 class="subtitle">Exemplu cu vectori</h2>
+     <p class="paragraph">Un alt exemplu relevant de folosire a constructorului de mutare este adăugarea unui obiect în vector. Tipul std::vector reprezintă o listă dinamică și pentru adăugarea unui obiect definește funcția push_back(), care are două versiuni:</p>
+     <div class="code-inline">
+      <pre><code>void&nbsp;push_back(const&nbsp;Message&nbsp;&amp;_Val)<br>void&nbsp;push_back(Message&nbsp;&amp;&amp;_Val)</code></pre>
+     </div>
+     <p class="paragraph">Prima versiune primește o referință constantă și este destinată în primul rând pentru a primi lvalue. A doua versiune primește un rvalue.</p>
+     <ins class="adsbygoogle" style="display:block; text-align:center;" data-ad-layout="in-article" data-ad-format="fluid" data-ad-client="ca-pub-4253419731329045" data-ad-slot="8453761934"></ins>
+     <script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+     <p class="paragraph">Să luăm clasa Message definită anterior și să adăugăm un obiect în vector:</p>
+     <div class="code-inline">
+      <pre><code>#include&nbsp;&lt;iostream&gt;&nbsp;<br>#include&nbsp;&lt;vector&gt;<br>&nbsp;<br>//&nbsp;clasa&nbsp;Message<br>class&nbsp;Message<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;conținutul&nbsp;clasei&nbsp;Message<br>};<br>int&nbsp;main()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;std::vector&lt;Message&gt;&nbsp;messages{};<br>&nbsp;&nbsp;&nbsp;&nbsp;messages.push_back(Message{"Hello&nbsp;world",&nbsp;12});<br>}</code></pre>
+     </div>
+     <p class="paragraph">Aici în vector este adăugat un obiect Message ca rvalue. În implementarea internă, obiectul adăugat va fi salvat, iar la salvare se va apela constructorul de mutare pentru a muta datele din rvalue. Output-ul în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Create&nbsp;Message&nbsp;1<br>Create&nbsp;Message&nbsp;2<br>Move&nbsp;Message&nbsp;1&nbsp;to&nbsp;2<br>Delete&nbsp;Message&nbsp;1<br>Delete&nbsp;Message&nbsp;2</code></pre>
+     </div>
+     <p class="paragraph">Astfel evităm din nou costurile suplimentare ale copieri inutile și mutăm datele în loc să le copiem.</p>
+     <p class="paragraph">Dacă însă transmitem în funcția push_back() un lvalue, va fi apelată versiunea cu referință constantă, iar în final constructorul de copiere va crea o copie:</p>
+     <div class="code-inline">
+      <pre><code>int&nbsp;main()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;Message&nbsp;mes{"Hello&nbsp;world",&nbsp;12};<br>&nbsp;&nbsp;&nbsp;&nbsp;std::vector&lt;Message&gt;&nbsp;messages{};<br>&nbsp;&nbsp;&nbsp;&nbsp;messages.push_back(mes);<br>}</code></pre>
+     </div>
+     <p class="paragraph">Output-ul în consolă:</p>
+     <div class="code-inline">
+      <pre><code>Create&nbsp;message&nbsp;1<br>Create&nbsp;message&nbsp;2<br>Copy&nbsp;&nbsp;message&nbsp;1&nbsp;to&nbsp;2<br>Delete&nbsp;message&nbsp;2<br>Delete&nbsp;message&nbsp;1<br></code></pre>
+     </div>
     </div>
-    <div class="layout">
-        <div class="mobile-sidebar" id="mobileSidebar">
-            <button class="close-btn" onclick="toggleSidebar()">✖</button>
-            <ul class="chapter-list">
-                <th:block th:each="chapter : ${chapters}">
-                    <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
-                        <div class="chapter-title" onclick="toggleChapter(this)">
-                            <strong th:text="${chapter.title}"></strong> <span class="arrow">▼</span>
-                        </div>
-                        <ul class="lesson-list">
-                            <th:block th:each="lesson : ${chapter.lessons}">
-                                <li><a th:href="@{'/lectii/' +
-${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}"
-                                        th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
-                            </th:block>
-                        </ul>
-                    </li>
-                </th:block>
-            </ul>
-        </div>
-        <aside class="sidebar">
-            <ul class="sidebar-list">
-                <th:block th:each="chapter : ${chapters}">
-                    <li class="chapter-item" th:classappend="${chapter.id} == ${activeChapterId} ? 'open' : ''">
-                        <div class="chapter-toggle" onclick="toggleLessons(this)">
-                            <span th:text="${chapter.title}">Chapter</span>
-                        </div>
-                        <ul class="lesson-list hidden">
-                            <th:block th:each="lesson : ${chapter.lessons}">
-                                <li><a th:href="@{'/lectii/' +
-${#strings.toLowerCase(#strings.replace(chapter.topic.name, ' ', '-'))} + '/' +
-${#strings.toLowerCase(#strings.replace(chapter.title, ' ', '-'))} + '/' +
-${#strings.toLowerCase(#strings.replace(lesson.title, ' ', '-'))} }" th:text="${lesson.title}"
-                                        th:classappend="${lesson.id} == ${activeLessonId} ? 'active' : ''"> </a></li>
-                            </th:block>
-                        </ul>
-                    </li>
-                </th:block>
-            </ul>
-        </aside>
-        <main class="content">
-            <div class="document-container">
-
-<h1 class="main-title">Constructorul de mutare</h1>
-<p class="paragraph">Constructorul de mutare (move constructor) reprezintă o alternativă la constructorul de copiere în situațiile în care trebuie făcută o copie a unui obiect, dar copierea datelor nu este dorită — în loc să se copieze datele, acestea sunt pur și simplu mutate dintr-o copie în alta.</p>
-<p class="paragraph">Să analizăm un exemplu.</p>
-<div class="code-inline"><pre><code>#include&nbsp;&lt;iostream&gt;<br>&nbsp;&nbsp;<br>//&nbsp;clasa&nbsp;mesaj<br>class&nbsp;Message<br>{<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;constructor&nbsp;normal<br>&nbsp;&nbsp;&nbsp;&nbsp;Message(const&nbsp;char*&nbsp;data,&nbsp;unsigned&nbsp;count)<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;size&nbsp;=&nbsp;count;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;=&nbsp;new&nbsp;char[size];&nbsp;&nbsp;//&nbsp;alocăm&nbsp;memorie<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(unsigned&nbsp;i{};&nbsp;i&nbsp;&lt;&nbsp;size;&nbsp;i++)&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;copiem&nbsp;datele<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text[i]&nbsp;=&nbsp;data[i];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id&nbsp;=&nbsp;++counter;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Create&nbsp;Message&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;id&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;constructor&nbsp;de&nbsp;copiere<br>&nbsp;&nbsp;&nbsp;&nbsp;Message(const&nbsp;Message&amp;&nbsp;copy)&nbsp;:&nbsp;Message{copy.getText(),&nbsp;copy.size&nbsp;}&nbsp;&nbsp;//&nbsp;apelăm&nbsp;constructorul&nbsp;standard<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Copy&nbsp;&nbsp;Message&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;copy.id&nbsp;&lt;&lt;&nbsp;&quot;&nbsp;to&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;id&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;destructor<br>&nbsp;&nbsp;&nbsp;&nbsp;~Message()<br>&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Delete&nbsp;Message&nbsp;&quot;&nbsp;&nbsp;&lt;&lt;&nbsp;id&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete[]&nbsp;text;&nbsp;&nbsp;//&nbsp;eliberăm&nbsp;memoria<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;char*&nbsp;getText()&nbsp;const&nbsp;{&nbsp;return&nbsp;text;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;getSize()&nbsp;const&nbsp;{&nbsp;return&nbsp;size;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;getId()&nbsp;const&nbsp;{return&nbsp;id;}<br>private:<br>&nbsp;&nbsp;&nbsp;&nbsp;char*&nbsp;text{};&nbsp;&nbsp;//&nbsp;textul&nbsp;mesajului<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;size{};&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dimensiunea&nbsp;mesajului<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;id{};&nbsp;&nbsp;//&nbsp;numărul&nbsp;mesajului<br>&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;inline&nbsp;unsigned&nbsp;counter{};&nbsp;&nbsp;&nbsp;//&nbsp;contor&nbsp;static&nbsp;pentru&nbsp;generarea&nbsp;id-ului&nbsp;obiectului<br>};<br>&nbsp;<br>//&nbsp;clasa&nbsp;messenger,&nbsp;care&nbsp;trimite&nbsp;mesajul<br>class&nbsp;Messenger<br>{<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;Messenger(Message&nbsp;mes):&nbsp;message{mes}<br>&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;sendMessage()&nbsp;const<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Send&nbsp;message&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;&nbsp;message.getId()&nbsp;&lt;&lt;&nbsp;&quot;:&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;message.getText()&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>private:<br>&nbsp;&nbsp;&nbsp;&nbsp;Message&nbsp;message;<br>};<br>int&nbsp;main()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;Messenger&nbsp;telegram{Message{&quot;Hello&nbsp;Word&quot;,&nbsp;11}};<br>&nbsp;&nbsp;&nbsp;&nbsp;telegram.sendMessage();<br>}</code></pre></div>
-
-
-<p class="paragraph">Aici este definită clasa Message. Textul mesajului este stocat într-un pointer de caractere text. Pentru a observa procesul complet de creare/copiere/ștergere a obiectelor Message, clasa conține o variabilă statică counter care crește la crearea fiecărui nou obiect și este atribuită variabilei id, reprezentând numărul mesajului:</p>
-<div class="code-inline"><pre><code>char*&nbsp;text{};&nbsp;&nbsp;//&nbsp;textul&nbsp;mesajului<br>unsigned&nbsp;size{};&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dimensiunea&nbsp;mesajului<br>unsigned&nbsp;id{};&nbsp;&nbsp;//&nbsp;numărul&nbsp;mesajului<br>static&nbsp;inline&nbsp;unsigned&nbsp;counter{};</code></pre></div>
-<p class="paragraph">Constructorul Message alocă memorie pentru textul mesajului primit prin parametrul data, copiază datele în memorie și stabilește numărul mesajului. Pentru copierea datelor este definit constructorul de copiere.</p>
-<p class="paragraph">De asemenea este definită clasa Messenger, care în constructor primește un mesaj și îl salvează în variabila message:</p>
-<div class="code-inline"><pre><code>class&nbsp;Messenger<br>{<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;Messenger(Message&nbsp;mes):&nbsp;message{mes}<br>&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;}</code></pre></div>
-<p class="paragraph">Prin funcția sendMessage messengerul trimite efectiv mesajul.</p>
-<p class="paragraph">În funcția main creăm un obiect Messenger, căruia îi transmitem un obiect mesaj, apoi apelăm funcția sendMessage:</p>
-<div class="code-inline"><pre><code>Messenger&nbsp;telegram{Message{&quot;Hello&nbsp;Word&quot;,&nbsp;11}};<br>telegram.sendMessage();</code></pre></div>
-<p class="paragraph">Observați că la constructorul obiectului Messenger este transmis un obiect Message care nu este legat de nicio variabilă. Să analizăm output-ul în consolă:</p>
-<div class="code-inline"><pre><code>Create&nbsp;message&nbsp;1<br>Create&nbsp;message&nbsp;2<br>Copy&nbsp;&nbsp;message&nbsp;1&nbsp;to&nbsp;2<br>Delete&nbsp;message&nbsp;1<br>Send&nbsp;message&nbsp;2:&nbsp;Hello&nbsp;Word<br>Delete&nbsp;message&nbsp;2</code></pre></div>
-<p class="paragraph">Vedem că în timpul execuției programului se creează două obiecte Message, fiind implicat constructorul de copiere. Să vedem pas cu pas.</p>
-<p class="paragraph">Executarea liniei:</p>
-<div class="code-inline"><pre><code>Messenger&nbsp;telegram{Message{&quot;Hello&nbsp;Word&quot;,&nbsp;11}};</code></pre></div>
-<p class="paragraph">duce la execuția constructorului Message, în care șirul &quot;Hello Word&quot; este transmis variabilei text și se stabilește numărul mesajului. Acest obiect temporar Message primește numărul 1. Se afișează:</p>
-<div class="code-inline"><pre><code>Create&nbsp;message&nbsp;1</code></pre></div>
-<p class="paragraph">Obiectul Message creat este transmis constructorului Messenger:</p>
-<div class="code-inline"><pre><code>Messenger(Message&nbsp;mes):&nbsp;message{mes}</code></pre></div>
-<p class="paragraph">Observați expresia message{mes}. Aceasta ia obiectul temporar Message și prin constructorul de copiere creează o copie care este atribuită variabilei message. Constructorul de copiere apelează la rândul său constructorul standard:</p>
-<div class="code-inline"><pre><code>Message(const&nbsp;Message&amp;&nbsp;copy)&nbsp;:&nbsp;Message{copy.getText(),&nbsp;copy.size&nbsp;}</code></pre></div>
-<p class="paragraph">Se creează obiectul Message cu numărul 2. Constructorul standard alocă memorie pentru șir. Avem două copii independente, fiecare cu pointeri la locații diferite în memorie. Astfel, în consolă se afișează:</p>
-<div class="code-inline"><pre><code>Create&nbsp;message&nbsp;2<br>Copy&nbsp;&nbsp;message&nbsp;1&nbsp;to&nbsp;2<br>Delete&nbsp;message&nbsp;1</code></pre></div>
-<p class="paragraph">Obiectul Messenger deține acum al doilea mesaj, iar primul, temporar, este șters.</p>
-<p class="paragraph">Apoi se apelează funcția sendMessage:</p>
-<div class="code-inline"><pre><code>telegram.sendMessage();</code></pre></div>
-<p class="paragraph">Mesajul stocat în messenger este afișat în consolă, iar la terminarea funcției main mesajul este șters:</p>
-<div class="code-inline"><pre><code>Send&nbsp;message&nbsp;2:&nbsp;Hello&nbsp;Word<br>Delete&nbsp;message&nbsp;2</code></pre></div>
-<p class="paragraph">Din punct de vedere al copierii, al alocării/gestionării/eliberării memoriei, nu par să existe probleme. Dar observăm că memoria alocată pentru primul mesaj nu a fost folosită efectiv. Cu alte cuvinte, am folosit inutil acea memorie. Nu ar fi mai bine dacă, în loc să alocăm o nouă zonă de memorie pentru al doilea mesaj, am putea pur și simplu să îi transmitem memoria deja alocată pentru primul mesaj? Oricum, primul mesaj este șters. Iar pentru a rezolva această problemă se folosesc constructorii de mutare.</p>
-<p class="paragraph">Constructorul de mutare primește un singur parametru, care trebuie să fie o referință rvalue la un obiect de tipul curent:</p>
-<div class="code-inline"><pre><code>MyClass(MyClass&amp;&amp;&nbsp;moved)&nbsp;//&nbsp;referință&nbsp;rvalue<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;codul&nbsp;constructorului&nbsp;de&nbsp;mutare<br>}</code></pre></div>
-<p class="paragraph">Aici parametrul moved reprezintă obiectul ce urmează să fie mutat.</p>
-<p class="paragraph">Să modificăm codul de mai sus aplicând constructorul de mutare în clasa Message:</p>
-<div class="code-inline"><pre><code>#include&nbsp;&lt;iostream&gt;<br>&nbsp;&nbsp;<br>//&nbsp;clasa&nbsp;mesaj<br>class&nbsp;Message<br>{<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;constructor&nbsp;normal<br>&nbsp;&nbsp;&nbsp;&nbsp;Message(const&nbsp;char*&nbsp;data,&nbsp;unsigned&nbsp;count)<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;size&nbsp;=&nbsp;count;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;=&nbsp;new&nbsp;char[size];&nbsp;&nbsp;//&nbsp;alocăm&nbsp;memorie<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(unsigned&nbsp;i{};&nbsp;i&nbsp;&lt;&nbsp;size;&nbsp;i++)&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;copiem&nbsp;datele<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text[i]&nbsp;=&nbsp;data[i];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id&nbsp;=&nbsp;++counter;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Create&nbsp;Message&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;id&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;constructor&nbsp;de&nbsp;copiere<br>&nbsp;&nbsp;&nbsp;&nbsp;Message(const&nbsp;Message&amp;&nbsp;copy)&nbsp;:&nbsp;Message{copy.getText(),&nbsp;copy.size&nbsp;}&nbsp;&nbsp;//&nbsp;apelăm&nbsp;constructorul&nbsp;standard<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Copy&nbsp;&nbsp;Message&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;copy.id&nbsp;&lt;&lt;&nbsp;&quot;&nbsp;to&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;id&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;constructor&nbsp;de&nbsp;mutare<br>&nbsp;&nbsp;&nbsp;&nbsp;Message(Message&amp;&amp;&nbsp;moved)<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id&nbsp;=&nbsp;++counter;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Create&nbsp;Message&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;id&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;=&nbsp;moved.text;&nbsp;&nbsp;//&nbsp;mutăm&nbsp;textul&nbsp;mesajului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;size&nbsp;=&nbsp;moved.size;&nbsp;&nbsp;//&nbsp;mutăm&nbsp;dimensiunea&nbsp;mesajului<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;moved.text&nbsp;=&nbsp;nullptr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Move&nbsp;Message&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;moved.id&nbsp;&lt;&lt;&nbsp;&quot;&nbsp;to&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;id&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;destructor<br>&nbsp;&nbsp;&nbsp;&nbsp;~Message()<br>&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Delete&nbsp;Message&nbsp;&quot;&nbsp;&nbsp;&lt;&lt;&nbsp;id&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete[]&nbsp;text;&nbsp;&nbsp;//&nbsp;eliberăm&nbsp;memoria<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;char*&nbsp;getText()&nbsp;const&nbsp;{&nbsp;return&nbsp;text;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;getSize()&nbsp;const&nbsp;{&nbsp;return&nbsp;size;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;getId()&nbsp;const&nbsp;{return&nbsp;id;}<br>private:<br>&nbsp;&nbsp;&nbsp;&nbsp;char*&nbsp;text{};&nbsp;&nbsp;//&nbsp;textul&nbsp;mesajului<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;size{};&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;dimensiunea&nbsp;mesajului<br>&nbsp;&nbsp;&nbsp;&nbsp;unsigned&nbsp;id{};&nbsp;&nbsp;//&nbsp;numărul&nbsp;mesajului<br>&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;inline&nbsp;unsigned&nbsp;counter{};&nbsp;&nbsp;&nbsp;//&nbsp;contor&nbsp;static&nbsp;pentru&nbsp;generarea&nbsp;numărului&nbsp;obiectului<br>};<br>&nbsp;<br>//&nbsp;clasa&nbsp;messenger&nbsp;care&nbsp;trimite&nbsp;mesajul<br>class&nbsp;Messenger<br>{<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;Messenger(Message&nbsp;mes):&nbsp;message{std::move(mes)}<br>&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;sendMessage()&nbsp;const<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::cout&nbsp;&lt;&lt;&nbsp;&quot;Send&nbsp;message&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;&nbsp;message.getId()&nbsp;&lt;&lt;&nbsp;&quot;:&nbsp;&quot;&nbsp;&lt;&lt;&nbsp;message.getText()&nbsp;&lt;&lt;&nbsp;std::endl;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>private:<br>&nbsp;&nbsp;&nbsp;&nbsp;Message&nbsp;message;<br>};<br>int&nbsp;main()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;Messenger&nbsp;telegram{Message{&quot;Hello&nbsp;Word&quot;,&nbsp;11}};<br>&nbsp;&nbsp;&nbsp;&nbsp;telegram.sendMessage();<br>}</code></pre></div>
-<p class="paragraph">Comparativ cu codul anterior, aici sunt două modificări. În primul rând, în clasa Message a fost adăugat constructorul de mutare:</p>
-<p class="paragraph">Parametrul moved reprezintă obiectul care se mută. Nu apelăm constructorul standard, ca la constructorul de copiere, deoarece nu trebuie să alocăm memorie. În schimb, pur și simplu atribuim variabilei text valoarea pointerului (adresa blocului de memorie alocat) din obiectul moved care se mută.</p>
-<div class="code-inline"><pre><code>text&nbsp;=&nbsp;moved.text</code></pre></div>
-<p class="paragraph">Astfel evităm alocarea suplimentară inutilă de memorie. Și pentru ca pointerul text al obiectului mutat moved să nu mai indice către acea zonă de memorie, iar destructorul obiectului moved să nu elibereze acea memorie, îi atribuim pointerului valoarea nullptr.</p>
-<p class="paragraph">Un alt aspect important — în constructorul clasei Messenger, la copierea obiectului folosim funcția încorporată std::move(), disponibilă în biblioteca standard C++:</p>
-<div class="code-inline"><pre><code>class&nbsp;Messenger<br>{<br>public:<br>&nbsp;&nbsp;&nbsp;&nbsp;Messenger(Message&nbsp;mes):&nbsp;message{std::move(mes)}<br>&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;}</code></pre></div>
-<p class="paragraph">Funcția std::move() transformă valoarea transmisă într-o referință rvalue. În ciuda numelui, această funcție nu mută nimic.</p>
-<p class="paragraph">Expresia message{std::move(mes)} va duce practic la apelul constructorului de mutare, căruia i se transmite parametrul mes. Rezultatul constructorului de mutare este apoi atribuit variabilei message. Astfel, în consolă vom obține următorul output:</p>
-<div class="code-inline"><pre><code>Create&nbsp;message&nbsp;1<br>Create&nbsp;Message&nbsp;2<br>Move&nbsp;message&nbsp;1&nbsp;to&nbsp;2<br>Delete&nbsp;message&nbsp;1<br>Send&nbsp;message&nbsp;2:&nbsp;Hello&nbsp;Word<br>Delete&nbsp;message&nbsp;2</code></pre></div>
-<p class="paragraph">Dacă constructorul de mutare nu ar fi fost definit, expresia message{std::move(mes)} ar fi apelat constructorul de copiere.</p>
-<p class="paragraph">Așadar, se creează tot două obiecte, dar evităm alocarea inutilă de memorie și copierea datelor. În general, se mută obiectele care nu mai sunt necesare, ca în exemplul de mai sus.</p>
-<p class="paragraph">Trebuie remarcat că compilatorul generează automat un constructor de mutare implicit, care mută toate variabilele nestatice. Dar dacă definim manual destructorul, constructorul de copiere sau operatorul de atribuire prin copiere ori mutare, compilatorul nu mai generează constructorul de mutare implicit.</p>
-<h2 class="subtitle">Exemplu cu vectori</h2>
-<p class="paragraph">Un alt exemplu relevant de folosire a constructorului de mutare este adăugarea unui obiect în vector. Tipul std::vector reprezintă o listă dinamică și pentru adăugarea unui obiect definește funcția push_back(), care are două versiuni:</p>
-<div class="code-inline"><pre><code>void&nbsp;push_back(const&nbsp;Message&nbsp;&amp;_Val)<br>void&nbsp;push_back(Message&nbsp;&amp;&amp;_Val)</code></pre></div>
-<p class="paragraph">Prima versiune primește o referință constantă și este destinată în primul rând pentru a primi lvalue. A doua versiune primește un rvalue.</p>
-<p class="paragraph">Să luăm clasa Message definită anterior și să adăugăm un obiect în vector:</p>
-<div class="code-inline"><pre><code>#include&nbsp;&lt;iostream&gt;&nbsp;<br>#include&nbsp;&lt;vector&gt;<br>&nbsp;<br>//&nbsp;clasa&nbsp;Message<br>class&nbsp;Message<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;conținutul&nbsp;clasei&nbsp;Message<br>};<br>int&nbsp;main()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;std::vector&lt;Message&gt;&nbsp;messages{};<br>&nbsp;&nbsp;&nbsp;&nbsp;messages.push_back(Message{&quot;Hello&nbsp;world&quot;,&nbsp;12});<br>}</code></pre></div>
-<p class="paragraph">Aici în vector este adăugat un obiect Message ca rvalue. În implementarea internă, obiectul adăugat va fi salvat, iar la salvare se va apela constructorul de mutare pentru a muta datele din rvalue. Output-ul în consolă:</p>
-<div class="code-inline"><pre><code>Create&nbsp;Message&nbsp;1<br>Create&nbsp;Message&nbsp;2<br>Move&nbsp;Message&nbsp;1&nbsp;to&nbsp;2<br>Delete&nbsp;Message&nbsp;1<br>Delete&nbsp;Message&nbsp;2</code></pre></div>
-<p class="paragraph">Astfel evităm din nou costurile suplimentare ale copieri inutile și mutăm datele în loc să le copiem.</p>
-<p class="paragraph">Dacă însă transmitem în funcția push_back() un lvalue, va fi apelată versiunea cu referință constantă, iar în final constructorul de copiere va crea o copie:</p>
-<div class="code-inline"><pre><code>int&nbsp;main()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;Message&nbsp;mes{&quot;Hello&nbsp;world&quot;,&nbsp;12};<br>&nbsp;&nbsp;&nbsp;&nbsp;std::vector&lt;Message&gt;&nbsp;messages{};<br>&nbsp;&nbsp;&nbsp;&nbsp;messages.push_back(mes);<br>}</code></pre></div>
-<p class="paragraph">Output-ul în consolă:</p>
-<div class="code-inline"><pre><code>Create&nbsp;message&nbsp;1<br>Create&nbsp;message&nbsp;2<br>Copy&nbsp;&nbsp;message&nbsp;1&nbsp;to&nbsp;2<br>Delete&nbsp;message&nbsp;2<br>Delete&nbsp;message&nbsp;1<br></code></pre></div>
-            </div>
-        
-<div class="lesson-navigation">
-        <th:block th:if="${previousLesson != null}">
-            <a th:href="@{'/lectii/' +
+    <div class="lesson-navigation">
+     <th:block th:if="${previousLesson != null}"> <a th:href="@{'/lectii/' +
             ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.topic.name, ' ', '-'))} + '/' +
             ${#strings.toLowerCase(#strings.replace(previousLesson.chapter.title, ' ', '-'))} + '/' +
-            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția
-                anterioară</a>
-        </th:block>
-        <th:block th:if="${nextLesson != null}">
-            <a th:href="@{'/lectii/' +
+            ${#strings.toLowerCase(#strings.replace(previousLesson.title, ' ', '-'))} }" class="nav-button">← Lecția anterioară</a> </th:block> <th:block th:if="${nextLesson != null}"> <a th:href="@{'/lectii/' +
             ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.topic.name, ' ', '-'))} + '/' +
             ${#strings.toLowerCase(#strings.replace(nextLesson.chapter.title, ' ', '-'))} + '/' +
-            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția
-                următoare →</a>
-        </th:block>
+            ${#strings.toLowerCase(#strings.replace(nextLesson.title, ' ', '-'))} }" class="nav-button">Lecția următoare →</a> </th:block>
     </div>
-                <div class="discord-banner-section">
-                    <div class="discord-banner-container">
-                        <a href="https://discord.com/channels/1168639076098920578/1168646757551443979" target="_blank">
-                            <img th:src="@{/images/cpp_discord.png}" alt="Discord Banner" class="discord-banner-image">
-                        </a>
-                    </div>
-                </div>
-
-</main>
-        <aside class="ad-section">
-            <div class="ad-box">
-                <p>Google Ad Here</p>
-            </div>
-            <div class="ad-box">
-                <p>Promo: SQL Beginner Guide</p>
-            </div>
-        </aside>
+    <div class="discord-banner-section">
+     <div class="discord-banner-container">
+      <a href="https://discord.com/channels/1168639076098920578/1168646757551443979" target="_blank"> <img th:src="@{/images/cpp_discord.png}" alt="Discord Banner" class="discord-banner-image"> </a>
+     </div>
     </div>
-    
-    <div th:replace="~{fragments/footer :: footer}"></div>
-    <script th:src="@{/js/script.js}" defer></script>
-</body>
+   </main>
+   <aside class="ad-section">
+    <div class="ad-box ad-desktop">
+     <ins class="adsbygoogle" style="display:inline-block;width:120px;height:728px" data-ad-client="ca-pub-4253419731329045" data-ad-slot="7123454389"></ins>
+    </div>
+    <div class="ad-box ad-mobile">
+     <ins class="adsbygoogle" style="display:inline-block;width:300px;height:250px" data-ad-client="ca-pub-4253419731329045" data-ad-slot="7123454389"></ins>
+    </div>
+    <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+   </aside>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script th:src="@{/js/script.js}" defer></script>
+ </body>
 </html>
