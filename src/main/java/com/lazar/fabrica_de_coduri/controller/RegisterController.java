@@ -3,6 +3,7 @@ package com.lazar.fabrica_de_coduri.controller;
 import com.lazar.fabrica_de_coduri.model.RegisterDTO;
 import com.lazar.fabrica_de_coduri.service.RegisterService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,7 +27,7 @@ public class RegisterController {
     }
 
     @PostMapping("/register")
-    public String processRegistration(@ModelAttribute("user") RegisterDTO userDTO,
+    public String processRegistration(@Valid @ModelAttribute("user") RegisterDTO userDTO,
                                       Model model,
                                       HttpServletRequest request) {
         String appUrl = request.getRequestURL().toString().replace(request.getRequestURI(), request.getContextPath());
