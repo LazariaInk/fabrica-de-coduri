@@ -11,8 +11,12 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import static com.lazar.fabrica_de_coduri.utils.MessageConstants.EMAIL_NOT_FOUND_MESSAGE;
+
 @Service
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
+
+    private static final String FACEBOOK_KEY = "FACEBOOK";
 
     private final UserRepository userRepository;
 
@@ -31,7 +35,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         String name = null;
 
         switch (registrationId) {
-            case "GOOGLE", "FACEBOOK" -> {
+            case FACEBOOK_KEY -> {
                 email = (String) attributes.get("email");
                 name = (String) attributes.get("name");
             }
@@ -74,10 +78,9 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             }
 
         }
-        System.out.println("[" + registrationId + "] OAuth2 attributes: " + attributes);
 
         if (email == null)
-            throw new OAuth2AuthenticationException(new OAuth2Error("invalid_user"), "Email not found from " + registrationId);
+            throw new OAuth2AuthenticationException(new OAuth2Error("invalid_user"), EMAIL_NOT_FOUND_MESSAGE + registrationId);
 
         attributes.put("email", email);
 
@@ -94,7 +97,6 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         user.setUsername(name);
         user.setProvider(registrationId);
         userRepository.save(user);
-        System.out.println("[" + registrationId + "] OAuth2 attributes: " + attributes);
 
         return new DefaultOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority(user.getRole())),

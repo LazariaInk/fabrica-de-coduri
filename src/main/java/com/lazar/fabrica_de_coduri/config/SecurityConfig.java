@@ -2,6 +2,7 @@ package com.lazar.fabrica_de_coduri.config;
 
 
 import com.lazar.fabrica_de_coduri.service.CustomOAuth2UserService;
+import com.lazar.fabrica_de_coduri.service.CustomOidcUserService;
 import com.lazar.fabrica_de_coduri.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,7 +11,6 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -20,11 +20,14 @@ public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
     private final CustomOAuth2UserService oAuth2UserService;
+    private final CustomOidcUserService oidcUserService;
 
     public SecurityConfig(CustomUserDetailsService userDetailsService,
-                          CustomOAuth2UserService oAuth2UserService) {
+                          CustomOAuth2UserService oAuth2UserService,
+                          CustomOidcUserService oidcUserService) {
         this.userDetailsService = userDetailsService;
         this.oAuth2UserService = oAuth2UserService;
+        this.oidcUserService = oidcUserService;
     }
 
     @Bean
@@ -43,6 +46,7 @@ public class SecurityConfig {
                         .loginPage("/login")
                         .userInfoEndpoint(user -> user
                                 .userService(oAuth2UserService)
+                                .oidcUserService(oidcUserService)
                         )
                         .defaultSuccessUrl("/", true)
                 )
