@@ -37,8 +37,12 @@ public class RegisterController {
             model.addAttribute("error", error);
             return "register";
         }
+        return "redirect:/confirm-email-sent";
+    }
 
-        return "redirect:/login";
+    @GetMapping("/confirm-email-sent")
+    public String confirmationSentPage() {
+        return "confirm-email-sent";
     }
 
     @GetMapping("/confirm")

@@ -4,6 +4,7 @@ package com.lazar.fabrica_de_coduri.config;
 import com.lazar.fabrica_de_coduri.service.CustomOAuth2UserService;
 import com.lazar.fabrica_de_coduri.service.CustomOidcUserService;
 import com.lazar.fabrica_de_coduri.service.CustomUserDetailsService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,6 +23,9 @@ public class SecurityConfig {
     private final CustomOAuth2UserService oAuth2UserService;
     private final CustomOidcUserService oidcUserService;
 
+    @Value("${security.rememberme.key}")
+    private String rememberMeKey;
+
     public SecurityConfig(CustomUserDetailsService userDetailsService,
                           CustomOAuth2UserService oAuth2UserService,
                           CustomOidcUserService oidcUserService) {
@@ -35,7 +39,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .anyRequest().permitAll()  // all other requests require login
+                        .anyRequest().permitAll()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
@@ -54,8 +58,12 @@ public class SecurityConfig {
                         .logoutSuccessUrl("/login?logout")
                         .permitAll()
                 )
+                .rememberMe(remember -> remember
+                        .key(rememberMeKey)
+                        .tokenValiditySeconds(7 * 24 * 60 * 60)
+                        .userDetailsService(userDetailsService)
+                )
                 .userDetailsService(userDetailsService);
-
         return http.build();
     }
 

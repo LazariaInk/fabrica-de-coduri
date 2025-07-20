@@ -39,6 +39,7 @@ public class RegisterService {
         user.setEmail(dto.getEmail());
         user.setPassword(encoder.encode(dto.getPassword()));
         user.setRole("ROLE_USER");
+        user.setProvider("FDC");
         user.setEnabled(false);
         userRepository.save(user);
 

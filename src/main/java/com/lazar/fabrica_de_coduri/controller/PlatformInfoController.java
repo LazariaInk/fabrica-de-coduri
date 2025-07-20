@@ -33,7 +33,6 @@ public class PlatformInfoController {
         model.addAttribute("newHashtag", new SEOHashTag());
         model.addAttribute("news", new News());
 
-        // 👇 Aici adăugăm:
         model.addAttribute("newSponsor", new Sponsor());
         model.addAttribute("sponsorList", platformInfo.getSponsors());
 
