@@ -38,21 +38,21 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/", "/favicon.ico", "/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
+                        .requestMatchers("/dashboard/**").authenticated()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().permitAll()
                 )
                 .formLogin(form -> form
-                        .loginPage("/login")
-                        .defaultSuccessUrl("/", true)
-                        .permitAll()
+                                .loginPage("/login")
+                                .permitAll()
                 )
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/login")
-                        .userInfoEndpoint(user -> user
-                                .userService(oAuth2UserService)
-                                .oidcUserService(oidcUserService)
-                        )
-                        .defaultSuccessUrl("/", true)
+                                .loginPage("/login")
+                                .userInfoEndpoint(user -> user
+                                        .userService(oAuth2UserService)
+                                        .oidcUserService(oidcUserService)
+                                )
                 )
                 .logout(logout -> logout
                         .logoutSuccessUrl("/login?logout")
@@ -64,6 +64,7 @@ public class SecurityConfig {
                         .userDetailsService(userDetailsService)
                 )
                 .userDetailsService(userDetailsService);
+
         return http.build();
     }
 

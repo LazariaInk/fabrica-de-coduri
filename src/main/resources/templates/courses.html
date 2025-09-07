@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Fabrica de Coduri – Dashboard</title>
+
+    <!-- Culori brand -->
+    <style>
+        /* Card image */
+        .card-img {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #0b0e14;
+            border-bottom: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .card-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            filter: saturate(1.05);
+        }
+
+        /* Paginare */
+        .pager {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            margin-top: 18px;
+        }
+
+        .pager .pbtn {
+            background: var(--bg-elev);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .pager .pbtn[disabled] {
+            opacity: .5;
+            cursor: not-allowed
+        }
+
+        .pager .pbtn.active {
+            background: rgba(34, 197, 94, .12);
+            border-color: rgba(34, 197, 94, .35);
+            font-weight: 600;
+        }
+
+        :root {
+            --bg: #0f1115;
+            /* gri închis */
+            --bg-elev: #151922;
+            /* panouri */
+            --muted: #9aa4b2;
+            /* text secundar */
+            --text: #e5e7eb;
+            /* text principal */
+            --accent: #22c55e;
+            /* verde */
+            --accent-strong: #16a34a;
+            --chip: #1e2430;
+            /* pentru taguri */
+            --border: #232a36;
+            /* linii subtile */
+            --danger: #ef4444;
+            --focus: 0 0 0 3px rgba(34, 197, 94, .35);
+            --shadow: 0 12px 30px rgba(0, 0, 0, .35);
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html,
+        body {
+            height: 100%
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font: 16px/1.5 system-ui, Segoe UI, Roboto, Inter, Arial, sans-serif
+        }
+
+        /* Layout principal */
+        .app {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            min-height: 100vh
+        }
+
+        /* Topbar (mobil) */
+        .topbar {
+            display: none;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            background: linear-gradient(180deg, var(--bg-elev), #0e131c);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 14px;
+            align-items: center;
+            gap: 10px
+        }
+
+        .topbar .brand {
+            margin: 0
+        }
+
+        /* Sidebar / drawer */
+        aside#sidebar {
+            position: sticky;
+            top: 0;
+            align-self: start;
+            height: 100vh;
+            overflow: auto;
+            background: linear-gradient(180deg, var(--bg-elev), #0e131c);
+            border-right: 1px solid var(--border);
+            padding: 18px 14px 24px;
+            z-index: 50
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 6px 8px 18px
+        }
+
+        .brand .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 12px var(--accent)
+        }
+
+        .brand h1 {
+            font-size: 15px;
+            margin: 0;
+            font-weight: 700;
+            letter-spacing: .3px
+        }
+
+        nav .section {
+            margin: 18px 6px
+        }
+
+        .section-title {
+            font-size: 12px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            margin: 10px 8px
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            color: var(--text);
+            text-decoration: none
+        }
+
+        .nav-item:hover {
+            background: var(--chip)
+        }
+
+        .nav-item.active {
+            background: rgba(34, 197, 94, .12);
+            outline: 1px solid rgba(34, 197, 94, .25)
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--chip);
+            border: 1px solid var(--border);
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            color: var(--text)
+        }
+
+        main {
+            padding: 26px 24px
+        }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 16px
+        }
+
+        .searchbar {
+            flex: 1 1 360px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-elev);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 10px 12px
+        }
+
+        .searchbar input {
+            flex: 1;
+            background: transparent;
+            border: 0;
+            outline: none;
+            color: var(--text)
+        }
+
+        .searchbar input::placeholder {
+            color: var(--muted)
+        }
+
+        select,
+        .btn {
+            background: var(--bg-elev);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 12px
+        }
+
+        select:focus,
+        .btn:focus,
+        .searchbar:focus-within {
+            box-shadow: var(--focus)
+        }
+
+        .btn {
+            cursor: pointer
+        }
+
+        .btn.primary {
+            background: linear-gradient(180deg, var(--accent), var(--accent-strong));
+            border: none;
+            color: #07130a
+        }
+
+        .btn.ghost {
+            background: transparent;
+            border: 1px solid var(--border)
+        }
+
+        .hamburger {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--bg-elev);
+            cursor: pointer
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 6px
+        }
+
+        /* Carduri curs */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 14px
+        }
+
+        .card {
+            grid-column: span 12;
+            background: var(--bg-elev);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+            cursor: pointer;
+            /* clickable */
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+            border-color: rgba(34, 197, 94, .25)
+        }
+
+        .card:focus-within {
+            box-shadow: var(--focus)
+        }
+
+        .card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 14px 8px 14px
+        }
+
+        .stack {
+            font-size: 12px;
+            color: var(--muted)
+        }
+
+        .fav {
+            border: 0;
+            background: transparent;
+            color: var(--accent);
+            cursor: pointer
+        }
+
+        .card-body {
+            padding: 0 14px 14px 14px
+        }
+
+        .card-body h3 {
+            margin: 6px 0 6px;
+            font-size: 18px
+        }
+
+        .card-body h3 a {
+            color: var(--accent);
+            text-decoration: none
+        }
+
+        .meta {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap
+        }
+
+        .meta .tag {
+            border-radius: 8px
+        }
+
+        .card-foot {
+            margin-top: auto;
+            padding: 12px 14px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end
+        }
+
+        .card .btn {
+            pointer-events: auto
+        }
+
+        /* ca sănu blocheze clickul pe butoane */
+
+        .empty {
+            padding: 30px;
+            border: 1px dashed var(--border);
+            border-radius: 16px;
+            text-align: center;
+            color: var(--muted)
+        }
+
+        /* Overlay pentru drawer sau modal */
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .45);
+            backdrop-filter: saturate(120%) blur(2px);
+            z-index: 60
+        }
+
+        .overlay.show {
+            display: block
+        }
+
+        /* MODAL cours */
+        .modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            place-items: center;
+            z-index: 70;
+        }
+
+        .modal.open {
+            display: grid
+        }
+
+        .modal-panel {
+            width: min(860px, 92vw);
+            max-height: 86vh;
+            overflow: auto;
+            background: linear-gradient(180deg, var(--bg-elev), #0e131c);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            animation: pop .16s ease;
+        }
+
+        @keyframes pop {
+            from {
+                transform: scale(.98);
+                opacity: .7
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1
+            }
+        }
+
+        .modal-head {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            justify-content: space-between;
+            padding: 18px 18px 10px
+        }
+
+        .modal-title {
+            margin: 0;
+            font-size: 20px;
+            line-height: 1.2
+        }
+
+        .modal-sub {
+            margin: 0;
+            color: var(--muted);
+            font-size: 13px
+        }
+
+        .modal-body {
+            padding: 0 18px 18px;
+            display: grid;
+            gap: 10px
+        }
+
+        .pill {
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text);
+            background: var(--chip);
+            border: 1px solid var(--border);
+            padding: 6px 10px;
+            border-radius: 999px
+        }
+
+        .list {
+            margin: 0;
+            padding-left: 18px
+        }
+
+        .modal-foot {
+            padding: 12px 18px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            position: sticky;
+            bottom: 0;
+            background: linear-gradient(180deg, var(--bg-elev), #0e131c)
+        }
+
+        .icon-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--bg-elev);
+            cursor: pointer
+        }
+
+        .icon-btn:hover {
+            border-color: rgba(34, 197, 94, .35)
+        }
+
+        .visually-hidden {
+            position: absolute !important;
+            height: 1px;
+            width: 1px;
+            overflow: hidden;
+            clip: rect(1px, 1px, 1px, 1px);
+            white-space: nowrap
+        }
+
+        /* Responsive */
+        @media (min-width:720px) {
+            .card {
+                grid-column: span 6
+            }
+        }
+
+        @media (min-width:1100px) {
+            .card {
+                grid-column: span 4
+            }
+        }
+
+        /* Breakpoint pentru meniul hamburger */
+        @media (max-width: 980px) {
+            .app {
+                grid-template-columns: 1fr
+            }
+
+            .topbar {
+                display: flex
+            }
+
+            aside#sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 300px;
+                height: 100dvh;
+                transform: translateX(-100%);
+                transition: transform .25s ease;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+                z-index: 80
+            }
+
+            aside#sidebar.open {
+                transform: translateX(0)
+            }
+
+            main {
+                padding: 16px
+            }
+        }
+
+        aside#sidebar {
+            display: flex;
+            flex-direction: column;
+        }
+
+        aside#sidebar nav {
+            flex: 1 1 auto;
+        }
+
+        .sidebar-footer {
+            padding: 12px;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+
+        /* Layout principal: sidebar stânga + conținut + right-rail dreapta (în interiorul <main>) */
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 18px;
+        }
+
+        .right-rail {
+            position: sticky;
+            top: 18px;
+            align-self: start;
+            display: grid;
+            gap: 14px;
+        }
+
+        .rr-card {
+            background: var(--bg-elev);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 14px;
+        }
+
+        .rr-card h4 {
+            margin: 0 0 8px;
+            font-size: 14px;
+            color: var(--muted)
+        }
+
+        .rr-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .rr-item {
+            display: grid;
+            grid-template-columns: 64px 1fr;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .rr-item img {
+            width: 64px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .rr-item .t {
+            font-size: 13px;
+            line-height: 1.25
+        }
+
+        .rr-item .m {
+            font-size: 12px;
+            color: var(--muted)
+        }
+
+        .rr-cta {
+            display: flex;
+            gap: 8px;
+        }
+
+        .rr-cta .btn {
+            flex: 1
+        }
+
+        /* Carduri mai compacte */
+        .card {
+            border-radius: 14px
+        }
+
+        .card-head {
+            padding: 10px 12px 6px 12px
+        }
+
+        .card-body {
+            padding: 0 12px 12px 12px
+        }
+
+        .card-body h3 {
+            margin: 4px 0 4px;
+            font-size: 16px;
+            line-height: 1.25
+        }
+
+        .card-foot {
+            padding: 10px 12px
+        }
+
+        .meta {
+            gap: 8px
+        }
+
+        .meta .tag,
+        .pill,
+        .tag {
+            font-size: 11px;
+            padding: 5px 8px
+        }
+
+        /* Grilă: mai multe carduri pe rând */
+        .grid {
+            gap: 12px
+        }
+
+        /* 3 pe rând de la 720px în sus */
+        @media (min-width:720px) {
+            .card {
+                grid-column: span 4
+            }
+        }
+
+        /* păstrează 3 pe rând și la ≥1100px/≥1500px */
+        @media (min-width:1100px) {
+            .card {
+                grid-column: span 4
+            }
+        }
+
+        @media (min-width:1500px) {
+            .card {
+                grid-column: span 4
+            }
+        }
+
+        /* sau șterge complet această regulă */
+
+
+        /* Imagine card: mai mică vizual */
+        .card-img {
+            aspect-ratio: 16/9;
+        }
+
+        .card-img img {
+            filter: saturate(1.02)
+        }
+
+        /* Right-rail sub conținut pe mobil */
+        @media (max-width: 1100px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+
+            .right-rail {
+                position: static
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="topbar" role="banner">
+    <button id="menuBtn" class="hamburger" aria-label="Deschide meniul" aria-controls="sidebar"
+            aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+    </button>
+    <div class="brand">
+        <span class="dot"></span>
+        <h1>Fabrica de Coduri</h1>
+    </div>
+</div>
+
+<div class="app">
+    <aside id="sidebar" role="navigation" aria-label="Meniu lateral">
+        <div class="brand" aria-hidden="true">
+            <span class="dot"></span>
+            <h1>Fabrica de Coduri</h1>
+        </div>
+
+        <nav>
+            <div class="section">
+                <div class="section-title">Meniu</div>
+                <a class="nav-item active" href="#" aria-current="page">📚 Biblioteca</a>
+                <a class="nav-item" href="#meu">⭐ Cursurile mele</a>
+                <a class="nav-item" href="#cont">👤 Contul meu</a>
+                <a class="nav-item" href="#logout">🚪 Deconectare</a>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Filtre rapide</div>
+                <div class="chips" id="quick-chips"></div>
+            </div>
+        </nav>
+        <div class="sidebar-footer">
+            <small>Powered by <strong>Fabrica de Coduri</strong></small>
+        </div>
+    </aside>
+
+    <main>
+        <header class="toolbar">
+            <div class="searchbar" role="search">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M21 21l-4.2-4.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
+                </svg>
+                <input id="q" type="search"
+                       placeholder="Caută cursuri, limbaje, topicuri… (ex: Spring, Python OOP)" />
+            </div>
+
+            <select id="stack-select" aria-label="Filtru stack">
+                <option value="">Toate stack-urile</option>
+                <option value="Frontend">Frontend</option>
+                <option value="Backend">Backend</option>
+                <option value="AI">AI</option>
+                <option value="Gaming">Gaming</option>
+                <option value="Mobile">Mobile</option>
+                <option value="DevOps">DevOps</option>
+            </select>
+
+            <select id="lang-select" aria-label="Filtru limbaj">
+                <option value="">Toate limbajele</option>
+                <option>Java</option>
+                <option>Python</option>
+                <option>JavaScript</option>
+                <option>TypeScript</option>
+                <option>PHP</option>
+                <option>C#</option>
+                <option>C++</option>
+                <option>Go</option>
+                <option>Rust</option>
+                <option>Swift</option>
+                <option>Kotlin</option>
+            </select>
+
+            <button class="btn" id="reset-btn" title="Resetează filtrele">Reset</button>
+            <button class="btn primary" id="apply-btn">Aplică</button>
+        </header>
+
+        <div class="content">
+            <div>
+                <section class="chips" id="active-filters"></section>
+
+                <section id="results" class="grid" aria-live="polite"></section>
+                <nav id="pager" class="pager" aria-label="Paginare"></nav>
+            </div>
+            <aside class="right-rail" aria-label="Recomandări și promoții">
+                <div class="rr-card" id="rr-promo">
+                    <h4>🎉 Promo septembrie</h4>
+                    <p style="margin:6px 0 10px">-25% la pachetele <strong>Backend</strong> & <strong>AI</strong>
+                        până la <strong>30 sept</strong>.</p>
+                    <div class="rr-cta">
+                        <a class="btn primary" href="/oferta">Prinde oferta</a>
+                        <a class="btn" href="/pachete">Vezi pachete</a>
+                    </div>
+                    <p class="m" style="margin-top:8px;color:var(--muted);font-size:12px">Garanție 14 zile
+                        money-back.</p>
+                </div>
+
+                <div class="rr-card">
+                    <h4>⭐ Top cursuri</h4>
+                    <div class="rr-list" id="rr-top"></div>
+                </div>
+
+                <div class="rr-card">
+                    <h4>🕒 Văzute recent</h4>
+                    <div class="rr-list" id="rr-recent"></div>
+                </div>
+            </aside>
+        </div>
+    </main>
+</div>
+
+<!-- Overlay (reutilizat pentru modal & drawer) -->
+<div class="overlay" id="overlay" hidden></div>
+
+<!-- Modal curs -->
+<div id="courseModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="courseTitle"
+     aria-describedby="courseDesc" hidden>
+    <div class="modal-panel">
+        <header class="modal-head">
+            <div>
+                <h2 id="courseTitle" class="modal-title"></h2>
+                <p class="modal-sub" id="courseSub"></p>
+            </div>
+            <button id="modalClose" class="icon-btn" aria-label="Închide detaliile cursului">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+            </button>
+        </header>
+        <div class="modal-body">
+            <div id="courseBadges" class="chips"></div>
+            <p id="courseDesc"></p>
+
+            <div>
+                <strong>Ce vei învăța</strong>
+                <ul id="courseLearn" class="list"></ul>
+            </div>
+
+            <div>
+                <strong>Cerințe</strong>
+                <ul id="courseReq" class="list"></ul>
+            </div>
+        </div>
+        <footer class="modal-foot">
+            <a id="courseLink" class="btn">Mergi la curs</a>
+            <button id="modalFav" class="btn">Adaugă la cursurile mele</button>
+        </footer>
+    </div>
+</div>
+
+<script>
+    /**
+     * ====== CONFIG UȘOR DE SCHIMBAT ======
+     */
+    const REMOTE_JSON_URL = '/data/courses.json'; // când backend-ul e gata, lasă-l așa
+    const DEFAULT_PAGE_SIZE = 9;                   // câte carduri pe pagină
+    const MAX_AUTOGEN = 60;                        // câte cursuri să genereze pentru mock lung
+
+    /**
+     * imaginile: folosim un seed determinist pentru poze 16:9 ca placeholder,
+     * ușor de swap-uit ulterior cu CDN-ul tău; dacă backend-ul trimite `image`,
+     * folosim exact ce vine din JSON.
+     */
+    const imageFor = (course) =>
+        course.image ||
+        `https://picsum.photos/seed/fdc-${encodeURIComponent(course.language || 'code')}-${course.id}/640/360`;
+
+    /**
+     * mock de bază (din ce ai avut) — îl extindem mai jos în generator
+     * (am adăugat doar câmpul "image")
+     */
+    const baseCourses = [
+        {
+            id: 1, title: "Java – Introducere în Spring Boot", stack: "Backend", language: "Java", level: "Începător", duration: "5h",
+            tags: ["Spring", "REST", "Thymeleaf"], url: "/lectii/java/spring-boot-intro",
+            subtitle: "Construiește API-uri REST & aplicații MVC rapid cu Spring.",
+            description: "În acest curs vei înțelege ecosistemul Spring și vei crea o aplicație completă cu controller-e, servicii și persistenta datelor.",
+            learn: ["Crearea proiectelor cu Spring Initializr", "REST controllers & validare", "Persistență cu Spring Data JPA", "Thymeleaf pentru pagini simple"],
+            requirements: ["Java de bază (tipuri, OOP)", "Maven/Gradle instalat"],
+            author: "Ana Ionescu", rating: 4.7, lastUpdated: "2025-05-10", image: ""
+        },
+        {
+            id: 2, title: "Python – Bazele limbajului", stack: "Backend", language: "Python", level: "Începător", duration: "4h",
+            tags: ["Sintaxă", "OOP", "Colecții"], url: "/lectii/python/baze",
+            subtitle: "De la zero la scripturi utile în câteva ore.",
+            description: "Acoperim sintaxa, structurile de date, funcții, clase și interacțiunea cu fișiere pentru a-ți construi fundația Python.",
+            learn: ["List/dict/tuple & comprehensions", "Funcții, module, pachete", "OOP pe scurt", "Citire/scriere fișiere"],
+            requirements: ["Zero experiență sau bază minimală", "Python 3 instalat"],
+            author: "Mihai Pop", rating: 4.8, lastUpdated: "2025-03-02", image: ""
+        },
+        {
+            id: 3, title: "JavaScript – DOM & evenimente", stack: "Frontend", language: "JavaScript", level: "Începător", duration: "3h",
+            tags: ["DOM", "Events", "Browser"], url: "/lectii/js/dom",
+            subtitle: "Manipulează DOM-ul ca un pro și răspunde la interacțiunile utilizatorilor.",
+            description: "Înveți selecții, modificări de noduri, delegare de evenimente și tipare mici pentru UI reactiv.",
+            learn: ["querySelector & traversare", "Creare/ștergere elemente", "Delegare de evenimente", "Debounce & throttle"],
+            requirements: ["Bazele JS", "Browser modern"],
+            author: "Ioana Radu", rating: 4.6, lastUpdated: "2025-04-14", image: ""
+        },
+        {
+            id: 4, title: "TypeScript – Tipuri și generice", stack: "Frontend", language: "TypeScript", level: "Intermediar", duration: "3h",
+            tags: ["Types", "Generics"], url: "/lectii/ts/tipuri",
+            subtitle: "Scrie JS mai sigur cu tipuri solide.",
+            description: "Tipuri avansate, generice și utility types pentru proiecte reale.",
+            learn: ["Union/intersection", "Generic functions", "Mapped & conditional types", "Definirea tipurilor pentru API-uri"],
+            requirements: ["JS/TS de bază", "Editor cu suport TS"],
+            author: "Andrei Luca", rating: 4.7, lastUpdated: "2025-02-20", image: ""
+        },
+        {
+            id: 5, title: "PHP – Construiește un API simplu", stack: "Backend", language: "PHP", level: "Intermediar", duration: "4h",
+            tags: ["API", "Routing", "PDO"], url: "/lectii/php/api",
+            subtitle: "Un micro-API REST cu routing, PDO și autentificare simplă.",
+            description: "Proiect practic ce acoperă routing, controller-e, acces la DB și erori.",
+            learn: ["Router custom", "PDO & prepared statements", "Structură de proiect", "Middleware simplu"],
+            requirements: ["PHP 8.x", "MySQL/MariaDB"],
+            author: "Raluca S.", rating: 4.5, lastUpdated: "2025-01-11", image: ""
+        },
+        {
+            id: 6, title: "C# – Programare orientată pe obiecte", stack: "Backend", language: "C#", level: "Începător", duration: "4h",
+            tags: ["OOP", ".NET"], url: "/lectii/csharp/oop",
+            subtitle: "Clase, moștenire, interfețe în .NET.",
+            description: "Conceptual și practic despre OOP în C# cu exemple ușor de urmat.",
+            learn: ["Clase & obiecte", "Moștenire/polimorfism", "Interfețe & abstract", "Colecții generice"],
+            requirements: ["C# de bază", "SDK .NET instalat"],
+            author: "Vlad Marin", rating: 4.6, lastUpdated: "2025-06-01", image: ""
+        },
+        {
+            id: 7, title: "Rust – Ownership & Borrowing", stack: "Backend", language: "Rust", level: "Avansat", duration: "2h",
+            tags: ["Memory", "Borrow Checker"], url: "/lectii/rust/ownership",
+            subtitle: "Înțelege siguranța memoriei cu ownership/borrowing.",
+            description: "Explorăm regulile de ownership, lifetimes și cum te ajută borrow checker-ul.",
+            learn: ["Ownership & moves", "References & borrowing", "Lifetimes pe scurt", "Erori comune & fixuri"],
+            requirements: ["Rust de bază", "Cargo instalat"],
+            author: "Teo M.", rating: 4.9, lastUpdated: "2025-07-18", image: ""
+        },
+        {
+            id: 8, title: "Go – Concurență cu goroutines", stack: "Backend", language: "Go", level: "Intermediar", duration: "2.5h",
+            tags: ["Goroutines", "Channels"], url: "/lectii/go/concurrency",
+            subtitle: "Canale, goroutines și pattern-uri concurente.",
+            description: "Construim componente concurente și discutăm sincronizarea & erorile.",
+            learn: ["Spawn & sync", "Channels & select", "Worker pools", "Context & timeout"],
+            requirements: ["Go de bază", "Go toolchain instalat"],
+            author: "Alex P.", rating: 4.7, lastUpdated: "2025-05-28", image: ""
+        },
+        {
+            id: 9, title: "AI – Introducere în Machine Learning", stack: "AI", language: "Python", level: "Începător", duration: "6h",
+            tags: ["ML", "Scikit-learn"], url: "/lectii/ai/ml-intro",
+            subtitle: "Conceptele fundamentale ML cu scikit-learn.",
+            description: "De la preprocesare la evaluare modele, hands-on pe dataset-uri reale.",
+            learn: ["Split train/test", "Pipelines & GridSearch", "Regresie/clasificare", "Metrici & bias/variance"],
+            requirements: ["Python bază", "Noțiuni de matematică"],
+            author: "Ana Ionescu", rating: 4.8, lastUpdated: "2025-08-09", image: ""
+        },
+        {
+            id: 10, title: "Gaming – Unity pentru începători", stack: "Gaming", language: "C#", level: "Începător", duration: "5h",
+            tags: ["Unity", "Scenes", "Physics"], url: "/lectii/gaming/unity",
+            subtitle: "Primul tău joc 2D/3D cu Unity.",
+            description: "Scene, prefabs, physics & scripting – tot ce-ți trebuie pentru start.",
+            learn: ["Scene & prefabs", "Rigidbodies & coliziuni", "UI & input", "Build & deploy"],
+            requirements: ["PC/Mac cu Unity", "C# bază"],
+            author: "Mara D.", rating: 4.6, lastUpdated: "2025-04-30", image: ""
+        },
+        {
+            id: 11, title: "Frontend – Layout modern cu CSS Grid", stack: "Frontend", language: "JavaScript", level: "Intermediar", duration: "2h",
+            tags: ["CSS", "Grid", "Responsive"], url: "/lectii/frontend/css-grid",
+            subtitle: "Layout-uri fluide și curate cu CSS Grid.",
+            description: "Înveți track-uri, areas, auto-fit, minmax și pattern-uri responsive.",
+            learn: ["Grid areas", "Auto-fit/auto-fill", "Minmax & fr units", "Fallback & accesibilitate"],
+            requirements: ["HTML/CSS bază"], author: "Ioana Radu", rating: 4.7, lastUpdated: "2025-02-01", image: ""
+        },
+        {
+            id: 12, title: "Mobile – Kotlin & Jetpack Compose", stack: "Mobile", language: "Kotlin", level: "Intermediar", duration: "4h",
+            tags: ["Android", "Compose"], url: "/lectii/mobile/compose",
+            subtitle: "UI declarativ modern pe Android.",
+            description: "State, recomposition, theming și navigație cu Compose.",
+            learn: ["Composables & state", "Lists & lazy", "Theming", "Navigation"],
+            requirements: ["Kotlin bază", "Android Studio"],
+            author: "Andrei Luca", rating: 4.6, lastUpdated: "2025-03-18", image: ""
+        },
+        {
+            id: 13, title: "DevOps – CI/CD de bază", stack: "DevOps", language: "JavaScript", level: "Începător", duration: "2h",
+            tags: ["CI", "CD", "GitHub Actions"], url: "/lectii/devops/ci-cd",
+            subtitle: "Automatizează build/test/deploy cu GitHub Actions.",
+            description: "Pipeline minimal de la push la producție, cu secrete și matrice.",
+            learn: ["Workflows & jobs", "Cache & matrice", "Environments & secrets", "Artefacte & deploy"],
+            requirements: ["Git & repo pe GitHub"], author: "Vlad Marin", rating: 4.5, lastUpdated: "2025-05-05", image: ""
+        }
+    ];
+
+    /**
+     * generator de multe cursuri pe baza „baseCourses”
+     */
+    function expandMock(base, countWanted = MAX_AUTOGEN) {
+        const stacks = ["Frontend", "Backend", "AI", "Gaming", "Mobile", "DevOps"];
+        const langs = ["Java", "Python", "JavaScript", "TypeScript", "PHP", "C#", "C++", "Go", "Rust", "Swift", "Kotlin"];
+        const levels = ["Începător", "Intermediar", "Avansat"];
+        const extraTags = ["API", "Testing", "Security", "Performance", "Cloud", "K8s", "Docker", "React", "Vue", "SQL", "NoSQL", "Design Patterns"];
+
+        const out = [];
+        const startId = Math.max(...base.map(c => c.id)) + 1;
+        let id = startId;
+
+        // păstrăm ce ai deja
+        out.push(...base.map(c => ({ ...c, image: imageFor(c) })));
+
+        while (out.length < countWanted) {
+            const sample = base[(id - 1) % base.length];
+            const stack = stacks[id % stacks.length];
+            const language = langs[id % langs.length];
+            const level = levels[id % levels.length];
+
+            const title = `${language} – ${sample.title.split("–")[1]?.trim() || "Workshop practic"} #${id}`;
+            const duration = (2 + (id % 5)) + "h";
+            const rating = (4 + ((id % 10) / 10)).toFixed(1);
+            const tags = Array.from(new Set([...(sample.tags || []), extraTags[id % extraTags.length]])).slice(0, 4);
+
+            out.push({
+                ...sample,
+                id,
+                title,
+                stack,
+                language,
+                level,
+                duration,
+                tags,
+                rating: Number(rating),
+                lastUpdated: `2025-${String((id % 12) + 1).padStart(2, '0')}-${String((id % 27) + 1).padStart(2, '0')}`,
+                url: `/lectii/${language.toLowerCase().replace(/[#+]/g, 'sharp')}/${title.toLowerCase().replace(/[^a-z0-9]+/gi, '-')}`,
+                image: imageFor({ id, language })
+            });
+            id++;
+        }
+        return out;
+    }
+
+    /**
+     * storage „Cursurile mele” + „Văzute recent”
+     */
+    const FAV_KEY = 'fdc:favorites';
+    const VIEWED_KEY = 'fdc:viewed';
+    const getFavs = () => new Set(JSON.parse(localStorage.getItem(FAV_KEY) || '[]'));
+    const setFavs = set => localStorage.setItem(FAV_KEY, JSON.stringify([...set]));
+    function getViewed() { return JSON.parse(localStorage.getItem(VIEWED_KEY) || '[]'); }
+    function pushViewed(id) {
+        const arr = getViewed().filter(x => String(x) !== String(id));
+        arr.unshift(id);
+        localStorage.setItem(VIEWED_KEY, JSON.stringify(arr.slice(0, 3)));
+    }
+
+    const els = {
+        q: document.getElementById('q'),
+        stack: document.getElementById('stack-select'),
+        lang: document.getElementById('lang-select'),
+        chips: document.getElementById('active-filters'),
+        quick: document.getElementById('quick-chips'),
+        res: document.getElementById('results'),
+        reset: document.getElementById('reset-btn'),
+        apply: document.getElementById('apply-btn'),
+        menuBtn: document.getElementById('menuBtn'),
+        sidebar: document.getElementById('sidebar'),
+        overlay: document.getElementById('overlay'),
+        modal: document.getElementById('courseModal'),
+        modalClose: document.getElementById('modalClose'),
+        modalTitle: document.getElementById('courseTitle'),
+        modalSub: document.getElementById('courseSub'),
+        modalDesc: document.getElementById('courseDesc'),
+        modalBadges: document.getElementById('courseBadges'),
+        modalLearn: document.getElementById('courseLearn'),
+        modalReq: document.getElementById('courseReq'),
+        modalLink: document.getElementById('courseLink'),
+        modalFav: document.getElementById('modalFav'),
+        pager: document.getElementById('pager'),
+        rrTop: document.getElementById('rr-top'),
+        rrRecent: document.getElementById('rr-recent'),
+    };
+
+    const quickFilters = [
+        { k: 'stack', v: 'Frontend', label: 'Frontend' },
+        { k: 'stack', v: 'Backend', label: 'Backend' },
+        { k: 'stack', v: 'AI', label: 'AI' },
+        { k: 'stack', v: 'Gaming', label: 'Gaming' },
+        { k: 'language', v: 'Java', label: 'Java' },
+        { k: 'language', v: 'Python', label: 'Python' },
+        { k: 'language', v: 'C#', label: 'C#' },
+    ];
+
+    function renderQuickChips() {
+        els.quick.innerHTML = '';
+        quickFilters.forEach(qf => {
+            const b = document.createElement('button');
+            b.className = 'tag'; b.type = 'button'; b.textContent = qf.label;
+            b.onclick = () => {
+                if (qf.k === 'stack') els.stack.value = qf.v; else els.lang.value = qf.v;
+                state.page = 1; // reset pagină la schimbare
+                applyFilters();
+            };
+            els.quick.appendChild(b);
+        });
+    }
+
+    /**
+     * ====== STATE cu paginare ======
+     */
+    const state = {
+        q: '',
+        stack: '',
+        lang: '',
+        page: 1,
+        pageSize: DEFAULT_PAGE_SIZE,
+    };
+
+    function readState() {
+        state.q = els.q.value.trim().toLowerCase();
+        state.stack = els.stack.value;
+        state.lang = els.lang.value;
+        return { ...state };
+    }
+
+    function courseMatch(course, st) {
+        const t = (course.title + ' ' + (course.tags || []).join(' ') + ' ' + course.level + ' ' + course.stack + ' ' + course.language + ' ' + (course.subtitle || '') + ' ' + (course.description || '')).toLowerCase();
+        const matchesQ = st.q ? t.includes(st.q) : true;
+        const matchesStack = st.stack ? course.stack === st.stack : true;
+        const matchesLang = st.lang ? course.language === st.lang : true;
+        return matchesQ && matchesStack && matchesLang;
+    }
+
+    function renderChips(st) {
+        els.chips.innerHTML = '';
+        const add = (label, onRemove) => {
+            const s = document.createElement('span'); s.className = 'tag'; s.textContent = label;
+            const x = document.createElement('button'); x.className = 'btn ghost'; x.textContent = '×'; x.style.marginLeft = '6px'; x.onclick = onRemove; x.ariaLabel = 'Elimină filtru';
+            s.appendChild(x); els.chips.appendChild(s);
+        };
+        if (st.q) add(`Căutare: "${st.q}"`, () => { els.q.value = ''; state.page = 1; applyFilters(); });
+        if (st.stack) add(`Stack: ${st.stack}`, () => { els.stack.value = ''; state.page = 1; applyFilters(); });
+        if (st.lang) add(`Limbaj: ${st.lang}`, () => { els.lang.value = ''; state.page = 1; applyFilters(); });
+    }
+
+    function renderCourses(list) {
+        els.res.innerHTML = '';
+        if (!list.length) {
+            const d = document.createElement('div'); d.className = 'empty';
+            d.textContent = 'N-am găsit nimic pe baza filtrelor. Încearcă să lărgești căutarea.';
+            els.res.appendChild(d);
+            return;
+        }
+        const favs = getFavs();
+        list.forEach(c => {
+            const card = document.createElement('article'); card.className = 'card'; card.tabIndex = 0; card.dataset.id = c.id;
+            card.innerHTML = `
+      <div class="card-img">
+        <img src="${imageFor(c)}" alt="Miniatură curs: ${c.title}">
+      </div>
+      <div class="card-head">
+        <span class="stack">${c.stack} · ${c.level} · ${c.duration}</span>
+        <button class="fav" aria-label="Adaugă la cursurile mele" data-id="${c.id}">★</button>
+      </div>
+      <div class="card-body">
+        <h3><a href="${c.url}" class="title-link">${c.title}</a></h3>
+        <div class="meta">
+          <span class="tag">Limbaj: ${c.language}</span>
+          ${(c.tags || []).map(t => `<span class='tag'>${t}</span>`).join('')}
+          <span class="tag">⭐ ${c.rating ?? '—'}</span>
+        </div>
+      </div>
+      <div class="card-foot">
+        <a class="btn view" href="${c.url}">Cumpară</a>
+        <button class="btn add" data-id="${c.id}">${favs.has(String(c.id)) ? 'Scoate din wishlist' : 'Adaugă în wishlist'}</button>
+      </div>`;
+            els.res.appendChild(card);
+        });
+    }
+
+    function renderPager(total, st) {
+        const totalPages = Math.max(1, Math.ceil(total / st.pageSize));
+        st.page = Math.min(st.page, totalPages);
+        els.pager.innerHTML = '';
+
+        const mkBtn = (label, page, disabled = false, active = false) => {
+            const b = document.createElement('button');
+            b.className = 'pbtn' + (active ? ' active' : '');
+            b.textContent = label;
+            b.disabled = disabled;
+            b.onclick = () => { state.page = page; applyFilters(); };
+            return b;
+        };
+
+        els.pager.appendChild(mkBtn('«', 1, st.page === 1));
+        els.pager.appendChild(mkBtn('‹', Math.max(1, st.page - 1), st.page === 1));
+
+        const windowSize = 7;
+        let start = Math.max(1, st.page - Math.floor(windowSize / 2));
+        let end = Math.min(totalPages, start + windowSize - 1);
+        start = Math.max(1, Math.min(start, end - windowSize + 1));
+
+        for (let p = start; p <= end; p++) {
+            els.pager.appendChild(mkBtn(String(p), p, false, p === st.page));
+        }
+
+        els.pager.appendChild(mkBtn('›', Math.min(totalPages, st.page + 1), st.page === totalPages));
+        els.pager.appendChild(mkBtn('»', totalPages, st.page === totalPages));
+    }
+
+    function paginate(list, st) {
+        const total = list.length;
+        const start = (st.page - 1) * st.pageSize;
+        const end = start + st.pageSize;
+        return { total, pageItems: list.slice(start, end) };
+    }
+
+    function toggleFav(id) {
+        const favs = getFavs();
+        if (favs.has(String(id))) favs.delete(String(id)); else favs.add(String(id));
+        setFavs(favs);
+        applyFilters(); // re-render pentru a actualiza eticheta
+    }
+
+    /**
+     * Right rail: Top cursuri (din filtrul curent) + Văzute recent
+     */
+    function renderRightRailTop(filteredList) {
+        const src = (filteredList.length >= 5 ? filteredList : allCourses).slice();
+        src.sort((a, b) => (b.rating || 0) - (a.rating || 0) || String(b.lastUpdated).localeCompare(String(a.lastUpdated)));
+        const top = src.slice(0, 5);
+        els.rrTop.innerHTML = top.map(c => `
+    <a class="rr-item" href="${c.url}" data-id="${c.id}">
+      <img src="${imageFor(c)}" alt="">
+      <div>
+        <div class="t">${c.title}</div>
+        <div class="m">⭐ ${c.rating ?? '—'} · ${c.language}</div>
+      </div>
+    </a>
+  `).join('');
+    }
+
+    function renderRightRailRecent() {
+        const ids = getViewed();
+        if (!ids.length) { els.rrRecent.innerHTML = `<div class="m">—</div>`; return; }
+        const items = ids.map(id => allCourses.find(c => String(c.id) === String(id))).filter(Boolean);
+        els.rrRecent.innerHTML = items.map(c => `
+    <a class="rr-item" href="${c.url}" data-id="${c.id}">
+      <img src="${imageFor(c)}" alt="">
+      <div>
+        <div class="t">${c.title}</div>
+        <div class="m">${c.stack} · ${c.level}</div>
+      </div>
+    </a>
+  `).join('');
+    }
+
+    /**
+     * ===== Drawer logic (mobil) + overlay (reutilizat) =====
+     */
+    function openDrawer() {
+        els.sidebar.classList.add('open');
+        showOverlay(true);
+        els.menuBtn.setAttribute('aria-expanded', 'true');
+        const firstLink = els.sidebar.querySelector('.nav-item');
+        firstLink && firstLink.focus();
+        document.addEventListener('keydown', onEscClose);
+    }
+    function closeDrawer() {
+        els.sidebar.classList.remove('open');
+        hideOverlay();
+        els.menuBtn.setAttribute('aria-expanded', 'false');
+        document.removeEventListener('keydown', onEscClose);
+        els.menuBtn.focus();
+    }
+    function onEscClose(e) { if (e.key === 'Escape') { if (isModalOpen()) closeModal(); else closeDrawer(); } }
+
+    els.menuBtn?.addEventListener('click', () => {
+        const isOpen = els.sidebar.classList.contains('open');
+        isOpen ? closeDrawer() : openDrawer();
+    });
+
+    function showOverlay(lockScroll = false) {
+        els.overlay.classList.add('show');
+        els.overlay.hidden = false;
+        if (lockScroll) document.body.style.overflow = 'hidden';
+    }
+    function hideOverlay() {
+        if (!isModalOpen() && !els.sidebar.classList.contains('open')) {
+            els.overlay.classList.remove('show');
+            els.overlay.hidden = true;
+            document.body.style.overflow = '';
+        }
+    }
+    els.overlay?.addEventListener('click', () => {
+        if (isModalOpen()) closeModal();
+        if (els.sidebar.classList.contains('open')) closeDrawer();
+    });
+
+    /**
+     * ===== Modal =====
+     */
+    let lastFocusEl = null;
+    function isModalOpen() { return els.modal.classList.contains('open'); }
+
+    function openModal(course) {
+        if (els.sidebar.classList.contains('open')) closeDrawer();
+
+        lastFocusEl = document.activeElement;
+
+        els.modalTitle.textContent = course.title;
+        els.modalSub.textContent = `${course.stack} · ${course.level} · ${course.duration} — ${course.author} · actualizat la ${course.lastUpdated}`;
+        els.modalDesc.textContent = course.description || '—';
+        els.modalBadges.innerHTML = `
+    <span class="pill">Limbaj: ${course.language}</span>
+    ${(course.tags || []).map(t => `<span class="pill">${t}</span>`).join('')}
+    <span class="pill">⭐ ${course.rating ?? '—'}</span>
+  `;
+        els.modalLearn.innerHTML = (course.learn || []).map(i => `<li>${i}</li>`).join('');
+        els.modalReq.innerHTML = (course.requirements || []).map(i => `<li>${i}</li>`).join('');
+        els.modalLink.href = course.url;
+        els.modalFav.dataset.id = course.id;
+        els.modalFav.textContent = getFavs().has(String(course.id)) ? 'În cursurile mele' : 'Adaugă la cursurile mele';
+
+        // imagine în header-ul modalului
+        if (!els.modalTitle.nextElementSibling?.classList?.contains('modal-img')) {
+            const img = document.createElement('img');
+            img.src = imageFor(course);
+            img.alt = `Imagine curs: ${course.title}`;
+            img.className = 'modal-img';
+            img.style.cssText = 'width:100%;max-height:260px;object-fit:cover;border-radius:10px;margin-top:8px;border:1px solid var(--border)';
+            els.modalHeadAfterHook?.remove?.();
+            els.modalTitle.parentElement.appendChild(img);
+            els.modalHeadAfterHook = img;
+        } else {
+            els.modalHeadAfterHook.src = imageFor(course);
+            els.modalHeadAfterHook.alt = `Imagine curs: ${course.title}`;
+        }
+
+        // mark as viewed + update right rail
+        pushViewed(course.id);
+        renderRightRailRecent();
+
+        els.modal.hidden = false;
+        els.modal.classList.add('open');
+        showOverlay(true);
+        els.modalClose.focus();
+
+        document.addEventListener('keydown', trapTab);
+        document.addEventListener('keydown', onEscClose);
+    }
+
+    function closeModal() {
+        els.modal.classList.remove('open');
+        els.modal.hidden = true;
+        hideOverlay();
+        document.removeEventListener('keydown', trapTab);
+        document.removeEventListener('keydown', onEscClose);
+        if (lastFocusEl) lastFocusEl.focus();
+    }
+
+    function trapTab(e) {
+        if (e.key !== 'Tab') return;
+        const focusables = els.modal.querySelectorAll('a,button,textarea,input,select,[tabindex]:not([tabindex="-1"])');
+        if (!focusables.length) return;
+        const first = focusables[0], last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) { last.focus(); e.preventDefault(); }
+        else if (!e.shiftKey && document.activeElement === last) { first.focus(); e.preventDefault(); }
+    }
+
+    els.modalClose.addEventListener('click', closeModal);
+    els.modalFav.addEventListener('click', () => {
+        const id = els.modalFav.dataset.id;
+        toggleFav(id);
+        els.modalFav.textContent = getFavs().has(String(id)) ? 'În cursurile mele' : 'Adaugă la cursurile mele';
+    });
+
+    /**
+     * ===== Evenimente UI listă =====
+     */
+    els.apply.addEventListener('click', () => { state.page = 1; applyFilters(); });
+    els.reset.addEventListener('click', () => { els.q.value = ''; els.stack.value = ''; els.lang.value = ''; state.page = 1; applyFilters(); });
+    els.q.addEventListener('keydown', e => { if (e.key === 'Enter') { state.page = 1; applyFilters(); } });
+
+    // Delegare click pe lista de rezultate
+    els.res.addEventListener('click', (e) => {
+        const target = e.target;
+
+        const addBtn = target.closest('button.add');
+        if (addBtn) { toggleFav(addBtn.dataset.id); e.stopPropagation(); return; }
+
+        const favBtn = target.closest('button.fav');
+        if (favBtn) { toggleFav(favBtn.dataset.id); e.stopPropagation(); return; }
+
+        if (target.closest('a.view')) { e.stopPropagation(); return; }
+
+        if (target.closest('a.title-link')) {
+            e.preventDefault();
+            const card = target.closest('.card');
+            const id = card?.dataset.id;
+            const course = allCourses.find(c => String(c.id) === String(id));
+            if (course) openModal(course);
+            return;
+        }
+
+        const card = target.closest('.card');
+        if (card) {
+            const id = card.dataset.id;
+            const course = allCourses.find(c => String(c.id) === String(id));
+            if (course) openModal(course);
+        }
+    });
+
+    // accesibilitate: Enter pe card
+    els.res.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            const card = e.target.closest('.card');
+            if (card) {
+                const id = card.dataset.id;
+                const course = allCourses.find(c => String(c.id) === String(id));
+                if (course) openModal(course);
+            }
+        }
+    });
+
+    /**
+     * ===== ÎNCĂRCARE DATE: JSON remote -> fallback la mock extins =====
+     * format backend propus:
+     * { items: Course[], page: 1, pageSize: 9, total: 123, totalPages: 14 }
+     */
+    let allCourses = [];
+
+    async function loadCourses() {
+        try {
+            const res = await fetch(REMOTE_JSON_URL, { cache: 'no-store' });
+            if (!res.ok) throw new Error('Nu am găsit JSON-ul remote');
+            const data = await res.json();
+
+            // dacă backend-ul îți dă deja items/page/pageSize/total, normalizez
+            if (Array.isArray(data)) {
+                allCourses = data.map(c => ({ ...c, image: imageFor(c) }));
+            } else if (Array.isArray(data.items)) {
+                allCourses = data.items.map(c => ({ ...c, image: imageFor(c) }));
+                // poți seta și state.pageSize = data.pageSize || state.pageSize;
+            } else {
+                throw new Error('Structură JSON neașteptată');
+            }
+        } catch (e) {
+            // fallback: generăm multe cursuri pentru test
+            allCourses = expandMock(baseCourses, MAX_AUTOGEN);
+        }
+    }
+
+    function applyFilters() {
+        const st = readState();
+        renderChips(st);
+
+        const filtered = allCourses.filter(c => courseMatch(c, st));
+
+        const { total, pageItems } = paginate(filtered, st);
+        renderCourses(pageItems);
+        renderPager(total, st);
+
+        // right rail
+        renderRightRailTop(filtered);
+        renderRightRailRecent();
+    }
+
+    /**
+     * Inițializare
+     */
+    renderQuickChips();
+    loadCourses().then(applyFilters);
+</script>
+
+
+
+<!-- Hint: în Thymeleaf poți înlocui mockCourses cu JSON generat din model:
+<script th:inline="javascript">
+/*<![CDATA[*/
+const mockCourses = /*[[${coursesJson}]]*/ [];
+/*]]>*/
+</script>
+-->
+
+</body>
+
+</html>
