@@ -15,4 +15,14 @@ public class SlugUtils {
                 .replaceAll("^-|-$", "")
                 .toLowerCase();
     }
+
+
+    public static String slugify(String input) {
+        String nowhitespace = input.trim().replaceAll("[\\s_]+", "-");
+        String normalized = Normalizer.normalize(nowhitespace, Normalizer.Form.NFD)
+                .replaceAll("[^\\p{ASCII}]", "");
+        String slug = normalized.replaceAll("[^a-zA-Z0-9-]", "").toLowerCase();
+        slug = slug.replaceAll("-+", "-");
+        return slug;
+    }
 }
