@@ -41,12 +41,20 @@ public class CourseService {
         course.setDescription(form.getDescription());
         course.setProgrammingLanguage(form.getProgrammingLanguage());
         course.setStackType(form.getStackType());
+        course.setPrice(form.getPrice());             // dacă lipsea
+        course.setCoverImageAlt(form.getCoverImageAlt());
+
+        // COPERTĂ
+        if (form.getCoverImage() != null && !form.getCoverImage().isEmpty()) {
+            String coverPath = storageService.storeCourseCover(form.getCoverImage(), courseSlug);
+            course.setCoverImagePath(coverPath);
+        }
 
         // TAGS
         Set<CourseTag> tags = parseAndPersistTags(form.getTagsCsv());
         course.setTags(tags);
 
-        // CHAPTERS + LESSONS
+        // CHAPTERS + LESSONS (ca la tine)
         int chapIndex = 1;
         for (CourseChapterFormDTO chapDto : form.getChapters()) {
             CourseChapter chapter = new CourseChapter();
@@ -64,15 +72,17 @@ public class CourseService {
                 int lpos = lessonDto.getPosition() != null ? lessonDto.getPosition() : lessonIndex;
                 lesson.setPosition(lpos);
 
-                String relPath = storageService.storeLessonVideo(lessonDto.getVideoFile(), courseSlug, pos, lpos, lesson.getSlug());
+                String relPath = storageService.storeLessonVideo(
+                        lessonDto.getVideoFile(), courseSlug, pos, lpos, lesson.getSlug());
                 lesson.setVideoPath(relPath);
+
                 chapter.addLesson(lesson);
                 lessonIndex++;
             }
-
             course.addChapter(chapter);
             chapIndex++;
         }
+
         return courseRepository.save(course);
     }
 

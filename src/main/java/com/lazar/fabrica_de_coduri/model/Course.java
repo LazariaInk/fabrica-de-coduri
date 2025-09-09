@@ -32,6 +32,10 @@ public class Course {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("position ASC")
     private List<CourseChapter> chapters = new ArrayList<>();
+    @Column(length = 500)
+    private String coverImagePath;
+    @Column(length = 150)
+    private String coverImageAlt;
     @Column(nullable=false, precision=19, scale=2)
     private BigDecimal price = BigDecimal.ZERO;
     private Instant createdAt = Instant.now();
@@ -52,6 +56,10 @@ public class Course {
     public Long getId() { return id; }
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
+    public String getCoverImagePath() { return coverImagePath; }
+    public void setCoverImagePath(String coverImagePath) { this.coverImagePath = coverImagePath; }
+    public String getCoverImageAlt() { return coverImageAlt; }
+    public void setCoverImageAlt(String coverImageAlt) { this.coverImageAlt = coverImageAlt; }
     public String getSlug() { return slug; }
     public void setSlug(String slug) { this.slug = slug; }
     public String getDescription() { return description; }

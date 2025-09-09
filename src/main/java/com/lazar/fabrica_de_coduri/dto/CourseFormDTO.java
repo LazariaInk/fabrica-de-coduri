@@ -3,6 +3,7 @@ package com.lazar.fabrica_de_coduri.dto;
 import com.lazar.fabrica_de_coduri.model.ProgrammingLanguage;
 import com.lazar.fabrica_de_coduri.model.StackType;
 import jakarta.validation.constraints.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -21,6 +22,8 @@ public class CourseFormDTO {
     @DecimalMin(value = "0.00")
     @Digits(integer = 10, fraction = 2)
     private BigDecimal price;
+    private MultipartFile coverImage;  // <input type="file">
+    private String coverImageAlt;
 
     @Size(min = 1)
     private List<CourseChapterFormDTO> chapters = new ArrayList<>();
@@ -33,6 +36,23 @@ public class CourseFormDTO {
     public void setProgrammingLanguage(ProgrammingLanguage programmingLanguage) { this.programmingLanguage = programmingLanguage; }
     public StackType getStackType() { return stackType; }
     public void setStackType(StackType stackType) { this.stackType = stackType; }
+
+    public MultipartFile getCoverImage() {
+        return coverImage;
+    }
+
+    public void setCoverImage(MultipartFile coverImage) {
+        this.coverImage = coverImage;
+    }
+
+    public String getCoverImageAlt() {
+        return coverImageAlt;
+    }
+
+    public void setCoverImageAlt(String coverImageAlt) {
+        this.coverImageAlt = coverImageAlt;
+    }
+
     public BigDecimal getPrice() { return price; }
     public void setPrice(BigDecimal price) { this.price = price; }
     public String getTagsCsv() { return tagsCsv; }
