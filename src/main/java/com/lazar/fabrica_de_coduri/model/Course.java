@@ -76,4 +76,20 @@ public class Course {
     public void setPublished(boolean published) { this.published = published; }
     public BigDecimal getPrice(){ return price; }
     public void setPrice(BigDecimal price){ this.price = price; }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }
