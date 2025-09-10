@@ -14,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -37,22 +38,27 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers(new AntPathRequestMatcher("/api/cart/**"))
+                )
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/favicon.ico", "/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
+                        .requestMatchers("/api/cart/**").permitAll()
                         .requestMatchers("/dashboard/**").authenticated()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().permitAll()
                 )
                 .formLogin(form -> form
-                                .loginPage("/login")
-                                .permitAll()
+                        .loginPage("/login")
+                        .permitAll()
                 )
                 .oauth2Login(oauth2 -> oauth2
-                                .loginPage("/login")
-                                .userInfoEndpoint(user -> user
-                                        .userService(oAuth2UserService)
-                                        .oidcUserService(oidcUserService)
-                                )
+                        .loginPage("/login")
+                        .userInfoEndpoint(user -> user
+                                .userService(oAuth2UserService)
+                                .oidcUserService(oidcUserService)
+                        )
                 )
                 .logout(logout -> logout
                         .logoutSuccessUrl("/login?logout")
@@ -68,6 +74,7 @@ public class SecurityConfig {
         return http.build();
     }
 
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -77,4 +84,6 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
+
+
 }

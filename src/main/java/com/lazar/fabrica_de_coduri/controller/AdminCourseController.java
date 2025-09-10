@@ -33,7 +33,6 @@ public class AdminCourseController {
         ch.getLessons().add(ls);
         form.getChapters().add(ch);
 
-
         model.addAttribute("form", form);
         model.addAttribute("languages", ProgrammingLanguage.values());
         model.addAttribute("stacks", StackType.values());

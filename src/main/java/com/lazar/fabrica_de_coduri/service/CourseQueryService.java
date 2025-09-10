@@ -12,8 +12,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -70,11 +68,15 @@ public class CourseQueryService {
                 c.getCoverImagePath() != null ? c.getCoverImagePath()
                         : "https://picsum.photos/seed/fdc-" + c.getSlug() + "/640/360",
                 c.getTags().stream().map(t -> t.getName()).limit(10).toList(),
-                "/courses/" + c.getSlug(), // sau URL-ul tău real
+                "/courses/" + c.getSlug(),
                 c.getUpdatedAt() != null ? c.getUpdatedAt().toString().substring(0, 10) : null
         );
 
-        // 👇 NOU: capitole + lecții
+        // ✅ PREȚ (RON)
+        dto.price = c.getPrice();     // BigDecimal scale=2, exact ce ai în DB
+        dto.currency = "RON";
+
+        // ✅ CAPITOLE + LECȚII (cum aveai)
         dto.chapters = c.getChapters().stream()
                 .sorted(Comparator.comparingInt(ch -> ch.getPosition()))
                 .map(ch -> {
@@ -95,4 +97,5 @@ public class CourseQueryService {
 
         return dto;
     }
+
 }

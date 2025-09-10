@@ -15,6 +15,10 @@
         .toc .ls div { padding: 4px 0; border-radius: 6px; }
         .toc .ls div:hover { background: rgba(0,0,0,.04); }
         .modal-img { width:100%; max-height:260px; object-fit:cover; border-radius:10px; margin-top:8px; border:1px solid var(--border) }
+
+        /* Opțional: stil pentru butonul "Scoate din coș" */
+        .btn.danger { background:#ef4444; color:#fff; }
+        .btn.danger:hover { filter:brightness(.95) }
     </style>
 </head>
 <body>
@@ -125,29 +129,20 @@
         </header>
         <div class="modal-body">
             <div class="detail-split">
-                <!-- STÂNGA: imagine cover, pe toată înălțimea -->
                 <img id="detailCover" class="detail-cover" src="" alt="">
-
-                <!-- DREAPTA: capitole cu scroll -->
                 <section class="detail-toc-pane">
-                    <h4 style="margin:0 0 6px 0">Cuprins</h4>
                     <div id="courseToc" class="toc"></div>
                 </section>
             </div>
-
-            <!-- Sub split: descrierea completă -->
             <div style="margin-top:14px">
                 <strong>Descriere</strong>
                 <p id="courseDesc" style="margin-top:6px"></p>
             </div>
-
-            <!-- badguri pot rămâne sus sau le poți muta aici dacă vrei -->
             <div id="courseBadges" class="chips" style="margin-top:10px"></div>
         </div>
-
         <footer class="modal-foot">
-            <a id="courseLink" class="btn">Mergi la curs</a>
-            <button id="modalFav" class="btn">Adaugă la cursurile mele</button>
+            <button id="addToCart" class="btn">Adaugă în coș</button>
+            <button id="buy" class="btn">Cumpără</button>
         </footer>
     </div>
 </div>
@@ -159,8 +154,13 @@
     const REMOTE_JSON_URL = '/dashboard/courses/data';
     const DEFAULT_PAGE_SIZE = 9;
 
+    // Coș
+    const CART_URL = '/api/cart';            // GET: sumar coș
+    const CART_ADD_URL = '/api/cart/items';  // POST: { courseId }
+    const CHECKOUT_URL = '/checkout';        // redirect după "Cumpără"
+
     /**
-     * Mapări UI <-> Enum (ajustează dacă enumurile tale au alte nume)
+     * Mapări UI <-> Enum
      */
     const STACK_TO_ENUM = {
       'Frontend': 'FRONTEND',
@@ -170,7 +170,7 @@
       'Mobile': 'MOBILE',
       'DevOps': 'DEVOPS'
     };
-    const ENUM_TO_STACK_LABEL = Object.fromEntries(Object.entries(STACK_TO_ENUM).map(([k,v]) => [v,k]));
+    const ENUM_TO_STACK_LABEL = Object.fromEntries(Object.entries(STACK_TO_ENUM).map(([k, v]) => [v, k]));
 
     const LANG_TO_ENUM = {
       'Java': 'JAVA',
@@ -185,7 +185,7 @@
       'Swift': 'SWIFT',
       'Kotlin': 'KOTLIN'
     };
-    const ENUM_TO_LANG_LABEL = Object.fromEntries(Object.entries(LANG_TO_ENUM).map(([k,v]) => [v,k]));
+    const ENUM_TO_LANG_LABEL = Object.fromEntries(Object.entries(LANG_TO_ENUM).map(([k, v]) => [v, k]));
 
     /**
      * Helpers imagine
@@ -194,7 +194,7 @@
       course.image || `https://picsum.photos/seed/fdc-${encodeURIComponent(course.slug || course.id)}/640/360`;
 
     /**
-     * „Cursurile mele” + „Văzute recent”
+     * Favorites + „Văzute recent”
      */
     const FAV_KEY = 'fdc:favorites';
     const VIEWED_KEY = 'fdc:viewed';
@@ -228,11 +228,12 @@
       modalSub: document.getElementById('courseSub'),
       modalDesc: document.getElementById('courseDesc'),
       modalBadges: document.getElementById('courseBadges'),
-      modalLink: document.getElementById('courseLink'),
-      modalFav: document.getElementById('modalFav'),
-      pager: document.getElementById('pager'),
       rrTop: document.getElementById('rr-top'),
       rrRecent: document.getElementById('rr-recent'),
+      pager: document.getElementById('pager'),
+      // Popup buttons:
+      addToCartBtn: document.getElementById('addToCart'),
+      buyBtn: document.getElementById('buy'),
     };
 
     /**
@@ -265,13 +266,12 @@
     /**
      * State cu paginare pe server
      */
-    const state = { q:'', stack:'', lang:'', page:1, pageSize: DEFAULT_PAGE_SIZE };
+    const state = { q: '', stack: '', lang: '', page: 1, pageSize: DEFAULT_PAGE_SIZE };
 
     function readState() {
       state.q = els.q.value.trim();
-      // mapăm la enum pentru backend
       state.stack = STACK_TO_ENUM[els.stack.value] || '';
-      state.lang  = LANG_TO_ENUM[els.lang.value] || '';
+      state.lang = LANG_TO_ENUM[els.lang.value] || '';
       return { ...state };
     }
 
@@ -304,32 +304,107 @@
       if (st.lang) add(`Limbaj: ${humanLang(st.lang)}`, () => { els.lang.value = ''; state.page = 1; applyFilters(); });
     }
 
+    /**
+     * ===== Preț (RON) =====
+     */
+    function normalizePrice(course) {
+      if (!course || course.price == null || course.price === '') return null;
+      const currency = course.currency || 'RON';
+      const toNum = v => (typeof v === 'number') ? v : Number(String(v).replace(',', '.'));
+      const p = toNum(course.price);
+      if (Number.isNaN(p)) return null;
+      const fmt = v => new Intl.NumberFormat('ro-RO', { style: 'currency', currency }).format(v);
+      const label = p === 0 ? 'Gratuit' : fmt(p);
+      return { value: p, label, compare: null, compareLabel: null, discountPct: 0 };
+    }
+
+    function priceHtml(course) {
+      const pr = normalizePrice(course);
+      if (!pr) return `<div class="price"><strong class="now">—</strong></div>`;
+      return `<div class="price"><strong class="now">${pr.label}</strong></div>`;
+    }
+
+    /**
+     * ===== API coș =====
+     */
+    async function getCartSummary() {
+      const res = await fetch(CART_URL, { cache: 'no-store' });
+      if (!res.ok) throw new Error('Nu pot încărca coșul.');
+      return res.json(); // { count, total, items: [{courseId,title,price}] }
+    }
+
+    async function addToCart(courseId) {
+      const res = await fetch(CART_ADD_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ courseId })
+      });
+      if (!res.ok) throw new Error('Nu am putut adăuga în coș.');
+      return res.json();
+    }
+
+    async function removeFromCart(courseId) {
+      const res = await fetch(`${CART_ADD_URL}/${courseId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Nu am putut scoate din coș.');
+      return res.json();
+    }
+
+    function renderAddBtn(inCart) {
+      const btn = els.addToCartBtn;
+      if (!btn) return;
+      btn.textContent = inCart ? 'Scoate din coș' : 'Adaugă în coș';
+      btn.dataset.inCart = inCart ? '1' : '0';
+      btn.classList.toggle('danger', inCart);
+    }
+
+    async function syncAddBtnState(courseId) {
+      const btn = els.addToCartBtn;
+      if (!btn) return;
+      btn.disabled = true;
+      try {
+        const cart = await getCartSummary();
+        const inCart = Array.isArray(cart.items) && cart.items.some(i => String(i.courseId) === String(courseId));
+        renderAddBtn(inCart);
+      } catch {
+        renderAddBtn(false);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function buyNow(courseId) {
+      await addToCart(courseId);
+      window.location.href = CHECKOUT_URL;
+    }
+
+    /**
+     * Card + listă
+     */
     function toCardHtml(c) {
       const stackLabel = humanStack(c.stack);
       const langLabel = humanLang(c.language);
       const tags = (c.tags || []).slice(0, 6);
       const lastUpd = c.lastUpdated ? ` · ${c.lastUpdated}` : '';
       return `
-  <article class="card" tabindex="0" data-id="${c.id}">
-    <div class="card-img">
-      <img src="${imageFor(c)}" alt="Miniatură curs: ${c.title}">
-    </div>
-    <div class="card-head">
-      <span class="stack">${stackLabel} · ${langLabel}${lastUpd}</span>
-      <button class="fav" aria-label="Adaugă la cursurile mele" data-id="${c.id}">★</button>
-    </div>
-    <div class="card-body">
-      <h3><a href="${c.url}" class="title-link">${c.title}</a></h3>
-      <div class="meta">
-        ${tags.map(t => `<span class='tag'>${t}</span>`).join('')}
-      </div>
-      ${c.description ? `<p class="m">${c.description}</p>` : ``}
-    </div>
-    <div class="card-foot">
-      <a class="btn view" href="${c.url}">Vezi cursul</a>
-      <button class="btn add" data-id="${c.id}">Adaugă în wishlist</button>
-    </div>
-  </article>`;
+      <article class="card" tabindex="0" data-id="${c.id}">
+        <div class="card-img">
+          <img src="${imageFor(c)}" alt="Miniatură curs: ${c.title}">
+        </div>
+        <div class="card-head">
+          <span class="stack">${stackLabel} · ${langLabel}${lastUpd}</span>
+          <button class="fav" aria-label="Adaugă la cursurile mele" data-id="${c.id}">★</button>
+        </div>
+        <div class="card-body">
+          <h3><a href="${c.url}" class="title-link">${c.title}</a></h3>
+          <div class="meta">
+            ${tags.map(t => `<span class='tag'>${t}</span>`).join('')}
+          </div>
+          ${c.description ? `<p class="m">${c.description}</p>` : ``}
+        </div>
+        <div class="card-foot">
+          <button class="btn primary buy" data-id="${c.id}">${priceHtml(c)}</button>
+        </div>
+      </article>`;
     }
 
     function renderPagerFromDto(dto) {
@@ -363,18 +438,17 @@
     let allCourses = []; // pentru right-rail & modal
 
     function renderRightRailTop(list) {
-      // sortare după actualizare (desc)
       const src = (list && list.length ? list : allCourses).slice();
       src.sort((a, b) => String(b.lastUpdated || '').localeCompare(String(a.lastUpdated || '')));
       const top = src.slice(0, 5);
       els.rrTop.innerHTML = top.map(c => `
-    <a class="rr-item" href="${c.url}" data-id="${c.id}" style="text-decoration:none; color: var(--text);">
-      <img src="${imageFor(c)}" alt="">
-      <div>
-        <div class="t">${c.title}</div>
-        <div class="m">${humanStack(c.stack)} · ${humanLang(c.language)}</div>
-      </div>
-    </a>`).join('');
+        <a class="rr-item" href="${c.url}" data-id="${c.id}" style="text-decoration:none; color: var(--text);">
+          <img src="${imageFor(c)}" alt="">
+          <div>
+            <div class="t">${c.title}</div>
+            <div class="m">${humanStack(c.stack)} · ${humanLang(c.language)}</div>
+          </div>
+        </a>`).join('');
     }
 
     function renderRightRailRecent() {
@@ -382,96 +456,130 @@
       if (!ids.length) { els.rrRecent.innerHTML = `<div class="m">—</div>`; return; }
       const items = ids.map(id => allCourses.find(c => String(c.id) === String(id))).filter(Boolean);
       els.rrRecent.innerHTML = items.map(c => `
-    <a class="rr-item" href="${c.url}" data-id="${c.id}" style="text-decoration:none; color: var(--text);">
-      <img src="${imageFor(c)}" alt="">
-      <div>
-        <div class="t">${c.title}</div>
-        <div class="m">${humanStack(c.stack)}</div>
-      </div>
-    </a>`).join('');
+        <a class="rr-item" href="${c.url}" data-id="${c.id}" style="text-decoration:none; color: var(--text);">
+          <img src="${imageFor(c)}" alt="">
+          <div>
+            <div class="t">${c.title}</div>
+            <div class="m">${humanStack(c.stack)}</div>
+          </div>
+        </a>`).join('');
     }
 
     /**
      * Drawer + Overlay + Modal
      */
     function openDrawer() {
-      els.sidebar.classList.add('open'); showOverlay(true);
-      els.menuBtn.setAttribute('aria-expanded', 'true');
+      els.sidebar?.classList.add('open'); showOverlay(true);
+      els.menuBtn?.setAttribute('aria-expanded', 'true');
       document.addEventListener('keydown', onEscClose);
     }
     function closeDrawer() {
-      els.sidebar.classList.remove('open'); hideOverlay();
-      els.menuBtn.setAttribute('aria-expanded', 'false');
+      els.sidebar?.classList.remove('open'); hideOverlay();
+      els.menuBtn?.setAttribute('aria-expanded', 'false');
       document.removeEventListener('keydown', onEscClose);
-      els.menuBtn.focus();
+      els.menuBtn?.focus();
     }
     function onEscClose(e){ if(e.key==='Escape'){ if(isModalOpen()) closeModal(); else closeDrawer(); } }
     els.menuBtn?.addEventListener('click', () => {
-      const isOpen = els.sidebar.classList.contains('open');
+      const isOpen = els.sidebar?.classList.contains('open');
       isOpen ? closeDrawer() : openDrawer();
     });
 
     // Închide modalul când se dă click în afara panoului
-els.modal.addEventListener('mousedown', (e) => {
-  if (!e.target.closest('.modal-panel')) {
-    e.preventDefault(); // împiedică selectări/texte aiurea
-    closeModal();
-  }
-});
+    els.modal.addEventListener('mousedown', (e) => {
+      if (!e.target.closest('.modal-panel')) {
+        e.preventDefault();
+        closeModal();
+      }
+    });
 
-
-    function showOverlay(lockScroll=false){ els.overlay.classList.add('show'); els.overlay.hidden=false; if(lockScroll) document.body.style.overflow='hidden'; }
-    function hideOverlay(){ if(!isModalOpen() && !els.sidebar.classList.contains('open')){ els.overlay.classList.remove('show'); els.overlay.hidden=true; document.body.style.overflow=''; } }
-    els.overlay?.addEventListener('click', () => { if (isModalOpen()) closeModal(); if (els.sidebar.classList.contains('open')) closeDrawer(); });
+    function showOverlay(lockScroll=false){ els.overlay?.classList.add('show'); if (els.overlay) els.overlay.hidden=false; if(lockScroll) document.body.style.overflow='hidden'; }
+    function hideOverlay(){ if(!isModalOpen() && !els.sidebar?.classList.contains('open')){ els.overlay?.classList.remove('show'); if (els.overlay) els.overlay.hidden=true; document.body.style.overflow=''; } }
+    els.overlay?.addEventListener('click', () => { if (isModalOpen()) closeModal(); if (els.sidebar?.classList.contains('open')) closeDrawer(); });
 
     let lastFocusEl=null;
     function isModalOpen(){ return els.modal.classList.contains('open'); }
 
-function openModal(course){
-  if (els.sidebar.classList.contains('open')) closeDrawer();
-  lastFocusEl = document.activeElement;
+    function openModal(course){
+      if (els.sidebar?.classList.contains('open')) closeDrawer();
+      lastFocusEl = document.activeElement;
 
-  els.modalTitle.textContent = course.title;
-  els.modalSub.textContent = `${humanStack(course.stack)} · ${humanLang(course.language)}${course.lastUpdated ? ' · actualizat la ' + course.lastUpdated : ''}`;
-  els.modalDesc.textContent = course.description || '—';
-  els.modalBadges.innerHTML = (course.tags || []).map(t => `<span class="pill">${t}</span>`).join('');
-  els.modalLink.href = course.url;
-  els.modalFav.dataset.id = course.id;
-  els.modalFav.textContent = getFavs().has(String(course.id)) ? 'În cursurile mele' : 'Adaugă la cursurile mele';
+      els.modalTitle.textContent = course.title;
+      els.modalSub.textContent = `${humanStack(course.stack)} · ${humanLang(course.language)}${course.lastUpdated ? ' · actualizat la ' + course.lastUpdated : ''}`;
+      els.modalDesc.textContent = course.description || '—';
+      els.modalBadges.innerHTML = (course.tags || []).map(t => `<span class="pill">${t}</span>`).join('');
 
-  // ✅ setăm cover-ul din stânga, nu mai injectăm imagine sub titlu
-  const cover = document.getElementById('detailCover');
-  cover.src = imageFor(course);
-  cover.alt = `Imagine curs: ${course.title}`;
+      // Cover
+      const cover = document.getElementById('detailCover');
+      if (cover) { cover.src = imageFor(course); cover.alt = `Imagine curs: ${course.title}`; }
 
-  // ✅ Cuprins capitole + lecții (scroll în dreapta)
-  const toc = document.getElementById('courseToc');
-  if (course.chapters && course.chapters.length) {
-    toc.innerHTML = course.chapters.map(ch => `
-      <div class="ch">
-        <div class="ch-title"><span>${ch.position ?? ''}.</span> <span>${ch.title}</span></div>
-<!--        ${ch.description ? `<div class="ch-desc">${ch.description}</div>` : ''}-->
-        <div class="ls">
-          ${(ch.lessons || []).map(ls => `<div>${ls.position ?? ''}. ${ls.title}</div>`).join('')}
-        </div>
-      </div>
-    `).join('');
-  } else {
-    toc.innerHTML = `<div class="m">Nu există capitole definite încă.</div>`;
-  }
+      // Cuprins
+      const toc = document.getElementById('courseToc');
+      if (toc) {
+        if (course.chapters && course.chapters.length) {
+          toc.innerHTML = course.chapters.map(ch => `
+            <div class="ch">
+              <div class="ch-title"><span>${ch.position ?? ''}.</span> <span>${ch.title}</span></div>
+              <div class="ls">
+                ${(ch.lessons || []).map(ls => `<div>${ls.position ?? ''}. ${ls.title}</div>`).join('')}
+              </div>
+            </div>
+          `).join('');
+        } else {
+          toc.innerHTML = `<div class="m">Nu există capitole definite încă.</div>`;
+        }
+      }
 
-  pushViewed(course.id);
-  renderRightRailRecent();
+      pushViewed(course.id);
+      renderRightRailRecent();
 
-  els.modal.hidden = false;
-  els.modal.classList.add('open');
-  showOverlay(true);
-  els.modalClose.focus();
+      // === Toggle "Adaugă în coș" ↔ "Scoate din coș" ===
+      if (els.addToCartBtn) {
+        els.addToCartBtn.dataset.id = course.id;
+        syncAddBtnState(course.id); // setează textul inițial
+        els.addToCartBtn.onclick = async () => {
+          const btn = els.addToCartBtn;
+          const id = Number(btn.dataset.id);
+          const inCart = btn.dataset.inCart === '1';
+          btn.disabled = true;
+          try {
+            if (inCart) {
+              await removeFromCart(id);
+              renderAddBtn(false);
+            } else {
+              await addToCart(id);
+              renderAddBtn(true);
+            }
+          } catch (err) {
+            alert(err.message || 'Eroare la actualizarea coșului.');
+          } finally {
+            btn.disabled = false;
+          }
+        };
+      }
 
-  document.addEventListener('keydown', trapTab);
-  document.addEventListener('keydown', onEscClose);
-}
+      // === Cumpără (add + redirect la checkout) ===
+      if (els.buyBtn) {
+        els.buyBtn.dataset.id = course.id;
+        els.buyBtn.onclick = async () => {
+          try {
+            await addToCart(course.id);
+            window.location.href = CHECKOUT_URL;
+          } catch (err) {
+            alert(err.message || 'Eroare la cumpărare.');
+          }
+        };
+      }
 
+      // Afișare modal
+      els.modal.hidden = false;
+      els.modal.classList.add('open');
+      showOverlay(true);
+      els.modalClose?.focus();
+
+      document.addEventListener('keydown', trapTab);
+      document.addEventListener('keydown', onEscClose);
+    }
 
     function closeModal(){
       els.modal.classList.remove('open'); els.modal.hidden = true; hideOverlay();
@@ -488,14 +596,7 @@ function openModal(course){
       if(e.shiftKey && document.activeElement===first){ last.focus(); e.preventDefault(); }
       else if(!e.shiftKey && document.activeElement===last){ first.focus(); e.preventDefault(); }
     }
-    els.modalClose.addEventListener('click', closeModal);
-    els.modalFav.addEventListener('click', () => {
-      const id = els.modalFav.dataset.id;
-      const favs = getFavs();
-      if (favs.has(String(id))) favs.delete(String(id)); else favs.add(String(id));
-      setFavs(favs);
-      els.modalFav.textContent = favs.has(String(id)) ? 'În cursurile mele' : 'Adaugă la cursurile mele';
-    });
+    els.modalClose?.addEventListener('click', closeModal);
 
     /**
      * Evenimente listă
@@ -507,19 +608,10 @@ function openModal(course){
     });
     els.q.addEventListener('keydown', e => { if (e.key === 'Enter') { state.page = 1; applyFilters(); } });
 
-    els.res.addEventListener('click', (e) => {
+    els.res.addEventListener('click', async (e) => {
       const target = e.target;
 
-      const addBtn = target.closest('button.add');
-      if (addBtn) {
-        const id = addBtn.dataset.id;
-        const favs = getFavs();
-        if (favs.has(String(id))) favs.delete(String(id)); else favs.add(String(id));
-        setFavs(favs);
-        applyFilters();
-        e.stopPropagation(); return;
-      }
-
+      // Toggle stea "cursurile mele"
       const favBtn = target.closest('button.fav');
       if (favBtn) {
         const id = favBtn.dataset.id;
@@ -530,8 +622,15 @@ function openModal(course){
         e.stopPropagation(); return;
       }
 
-      if (target.closest('a.view')) { e.stopPropagation(); return; }
+      // Cumpără direct din card (butonul cu preț)
+      const buyBtn = target.closest('button.buy');
+      if (buyBtn) {
+        const id = buyBtn.dataset.id;
+        buyNow(Number(id)).catch(err => alert(err.message || 'Eroare la cumpărare'));
+        e.stopPropagation(); return;
+      }
 
+      // Click pe titlu => modal
       if (target.closest('a.title-link')) {
         e.preventDefault();
         const card = target.closest('.card');
@@ -541,6 +640,7 @@ function openModal(course){
         return;
       }
 
+      // Click pe card => modal
       const card = target.closest('.card');
       if (card) {
         const id = card.dataset.id;
@@ -551,7 +651,7 @@ function openModal(course){
 
     els.res.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
-        const card = e.target.closest('.card');
+        const card = e.target.closest('card');
         if (card) {
           const id = card.dataset.id;
           const course = allCourses.find(c => String(c.id) === String(id));
@@ -585,13 +685,5 @@ function openModal(course){
     renderQuickChips();
     applyFilters();
 </script>
-
-<!-- Hint: Dacă vrei să generezi dinamically opțiunile din enum:
-<select id="stack-select">
-  <option value="">Toate stack-urile</option>
-  <option th:each="st : ${stacks}" th:text="${st.label}" th:value="${st.label}"></option>
-</select>
--->
-
 </body>
 </html>
