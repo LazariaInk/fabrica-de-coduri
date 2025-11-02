@@ -219,6 +219,47 @@
             top: 82px
           }
         }
+
+        .fc-pager {
+          display: flex;
+          gap: 8px;
+          justify-content: center;
+          align-items: center;
+          margin: 24px 0 0;
+          flex-wrap: wrap;
+        }
+
+        .fc-page {
+          border: 1px solid var(--fc-border);
+          background: var(--fc-panel);
+          color: #fff;
+          text-decoration: none;
+          padding: 8px 12px;
+          border-radius: 8px;
+          font-weight: 700;
+        }
+
+        .fc-page:hover {
+          border-color: var(--fc-accent);
+          color: var(--fc-accent);
+        }
+
+        .fc-page.is-active {
+          background: var(--fc-accent);
+          border-color: var(--fc-accent);
+          color: #111;
+          cursor: default;
+        }
+
+        .fc-ellipsis {
+          opacity: .7;
+          padding: 0 4px;
+        }
+
+        .fc-disabled {
+          opacity: .5;
+          pointer-events: none;
+        }
     </style>
 </head>
 
@@ -237,6 +278,7 @@
     <form class="fc-toolbar" method="get" th:action="@{/cursuri}">
         <div class="fc-field">
             <label for="q">Caută</label>
+            <input type="hidden" name="size" th:value="${params.size}">
             <input id="q" name="q" class="fc-input" type="text" placeholder="Titlu, autor, hashtag..."
                    th:value="${params.q}">
         </div>
@@ -300,14 +342,74 @@
         </article>
     </div>
     <div class="fc-pager" th:if="${page != null and page.totalPages > 1}">
-        <a th:if="${!page.first}"
-           th:href="@{|/cursuri?page=${page.number-1}&size=${page.size}&q=${params.q}&tech=${params.tech}&difficulty=${params.difficulty}&priceMin=${params.priceMin}&priceMax=${params.priceMax}&sort=${params.sort}|}">«
-            Înapoi</a>
-        <span th:text="${page.number + 1} + ' / ' + ${page.totalPages}">1 / 3</span>
-        <a th:if="${!page.last}"
-           th:href="@{|/cursuri?page=${page.number+1}&size=${page.size}&q=${params.q}&tech=${params.tech}&difficulty=${params.difficulty}&priceMin=${params.priceMin}&priceMax=${params.priceMax}&sort=${params.sort}|}">Înainte
-            »</a>
+        <!-- Prima + Înapoi -->
+        <a class="fc-page" th:classappend="${page.first} ? ' fc-disabled'"
+           th:href="@{/cursuri(
+        page=${0},
+        size=${params.size},
+        q=${#strings.isEmpty(params.q) ? null : params.q},
+        difficulty=${#strings.isEmpty(params.difficulty) ? null : params.difficulty},
+        priceMin=${params.priceMin},
+        priceMax=${params.priceMax},
+        sort=${#strings.isEmpty(params.sort) ? null : params.sort}
+     )}">« Prima</a>
+
+        <a class="fc-page" th:classappend="${page.first} ? ' fc-disabled'"
+           th:href="@{/cursuri(
+        page=${page.number-1},
+        size=${params.size},
+        q=${#strings.isEmpty(params.q) ? null : params.q},
+        difficulty=${#strings.isEmpty(params.difficulty) ? null : params.difficulty},
+        priceMin=${params.priceMin},
+        priceMax=${params.priceMax},
+        sort=${#strings.isEmpty(params.sort) ? null : params.sort}
+     )}">‹ Înapoi</a>
+
+        <!-- Ellipsis la început dacă fereastra nu începe de la 0 -->
+        <span class="fc-ellipsis" th:if="${start > 0}">…</span>
+
+        <!-- Numerele din fereastră -->
+        <a class="fc-page"
+           th:each="p : ${pageNumbers}"
+           th:classappend="${p} == ${currentPage} ? ' is-active' : ''"
+           th:text="${p + 1}"
+           th:href="@{/cursuri(
+        page=${p},
+        size=${params.size},
+        q=${#strings.isEmpty(params.q) ? null : params.q},
+        difficulty=${#strings.isEmpty(params.difficulty) ? null : params.difficulty},
+        priceMin=${params.priceMin},
+        priceMax=${params.priceMax},
+        sort=${#strings.isEmpty(params.sort) ? null : params.sort}
+     )}"></a>
+
+        <!-- Ellipsis la final dacă fereastra nu se termină la ultima pagină -->
+        <span class="fc-ellipsis" th:if="${end < totalPages - 1}">…</span>
+
+        <!-- Înainte + Ultima -->
+        <a class="fc-page" th:classappend="${page.last} ? ' fc-disabled'"
+           th:href="@{/cursuri(
+        page=${page.number+1},
+        size=${params.size},
+        q=${#strings.isEmpty(params.q) ? null : params.q},
+        difficulty=${#strings.isEmpty(params.difficulty) ? null : params.difficulty},
+        priceMin=${params.priceMin},
+        priceMax=${params.priceMax},
+        sort=${#strings.isEmpty(params.sort) ? null : params.sort}
+     )}">Înainte ›</a>
+
+        <a class="fc-page" th:classappend="${page.last} ? ' fc-disabled'"
+           th:href="@{/cursuri(
+        page=${page.totalPages-1},
+        size=${params.size},
+        q=${#strings.isEmpty(params.q) ? null : params.q},
+        difficulty=${#strings.isEmpty(params.difficulty) ? null : params.difficulty},
+        priceMin=${params.priceMin},
+        priceMax=${params.priceMax},
+        sort=${#strings.isEmpty(params.sort) ? null : params.sort}
+     )}">Ultima »</a>
     </div>
+
 </main>
 
 <div th:replace="~{fragments/footer :: footer}"></div>

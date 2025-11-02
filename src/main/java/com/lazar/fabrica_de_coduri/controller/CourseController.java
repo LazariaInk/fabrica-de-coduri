@@ -3,26 +3,27 @@ package com.lazar.fabrica_de_coduri.controller;
 import com.lazar.fabrica_de_coduri.model.Course;
 import com.lazar.fabrica_de_coduri.model.PlatformInfo;
 import com.lazar.fabrica_de_coduri.repository.CourseRepository;
+import com.lazar.fabrica_de_coduri.repository.CourseSpecifications;
 import com.lazar.fabrica_de_coduri.repository.PlatformInfoRepository;
 import com.lazar.fabrica_de_coduri.repository.TopicRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/cursuri")
 public class CourseController {
-    @Autowired
-    private TopicRepository topicRepo;
-    @Autowired
-    private PlatformInfoRepository platformInfoRepository;
-    @Autowired
-    private CourseRepository courseRepository;
+
+    @Autowired private TopicRepository topicRepo;
+    @Autowired private PlatformInfoRepository platformInfoRepository;
+    @Autowired private CourseRepository courseRepository;
 
     @GetMapping
     public String list(
@@ -31,57 +32,71 @@ public class CourseController {
             @RequestParam(required = false) BigDecimal priceMin,
             @RequestParam(required = false) BigDecimal priceMax,
             @RequestParam(required = false) String sort,
-            @RequestParam(required = false, defaultValue = "list") String view,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "2") int size,
             Model model) {
-
 
         model.addAttribute("topics", topicRepo.findAll());
         PlatformInfo platformInfo = platformInfoRepository.findById(1L).orElse(null);
         model.addAttribute("platformInfo", platformInfo);
-        var all = courseRepository.findAllByOrderByIdDesc();
 
-        var filtered = all.stream()
-                .filter(c -> q == null || q.isBlank() ||
-                        containsIgnoreCase(c.getTitle(), q) ||
-                        containsIgnoreCase(c.getShortDescription(), q) ||
-                        containsIgnoreCase(c.getAuthor(), q) ||
-                        containsIgnoreCase(c.getTechnology(), q) ||
-                        containsIgnoreCase(c.getHashtags(), q))
-                .filter(c -> difficulty == null || difficulty.isBlank() ||
-                        c.getLevel().name().equalsIgnoreCase(difficulty))
-                .filter(c -> priceMin == null || c.getPrice().compareTo(priceMin) >= 0)
-                .filter(c -> priceMax == null || c.getPrice().compareTo(priceMax) <= 0)
-                .collect(Collectors.toList());
+        // sort mapping
+        Sort springSort = switch (sort == null ? "" : sort) {
+            case "priceAsc"  -> Sort.by(Sort.Direction.ASC,  "price");
+            case "priceDesc" -> Sort.by(Sort.Direction.DESC, "price");
+            case "new"       -> Sort.by(Sort.Direction.DESC, "id");
+            default          -> Sort.by(Sort.Direction.DESC, "id"); // implicit: cele mai noi
+        };
 
-        Comparator<Course> cmp = Comparator.comparing(Course::getId).reversed(); // implicit
-        if ("priceAsc".equalsIgnoreCase(sort)) cmp = Comparator.comparing(Course::getPrice);
-        else if ("priceDesc".equalsIgnoreCase(sort)) cmp = Comparator.comparing(Course::getPrice).reversed();
-        else if ("new".equalsIgnoreCase(sort)) cmp = Comparator.comparing(Course::getId).reversed();
-        filtered.sort(cmp);
+        Pageable pageable = PageRequest.of(Math.max(page, 0), Math.max(size, 1), springSort);
 
-        model.addAttribute("courses", filtered);
+        var spec = CourseSpecifications.build(q, difficulty, priceMin, priceMax);
+        Page<Course> pageObj = courseRepository.findAll(spec, pageable);
+
+
+        int current = pageObj.getNumber();
+        int total   = pageObj.getTotalPages();
+
+        int window = 2;
+        int start = Math.max(0, current - window);
+        int end   = Math.min(total - 1, current + window);
+
+        if (current - start < window) {
+            end = Math.min(total - 1, start + window*2);
+        }
+        if (end - current < window) {
+            start = Math.max(0, end - window*2);
+        }
+
+        List<Integer> pageNumbers = new java.util.ArrayList<>();
+        for (int i = start; i <= end; i++) pageNumbers.add(i);
+
+        model.addAttribute("pageNumbers", pageNumbers);
+        model.addAttribute("start", start);
+        model.addAttribute("end", end);
+        model.addAttribute("totalPages", total);
+        model.addAttribute("currentPage", current);
+
+        model.addAttribute("courses", pageObj.getContent());
+        model.addAttribute("page", pageObj);
 
         Map<String, Object> params = new HashMap<>();
-        params.put("q", q); params.put("difficulty", difficulty);
-        params.put("priceMin", priceMin); params.put("priceMax", priceMax);
-        params.put("sort", sort); params.put("view", view);
+        params.put("q", q);
+        params.put("difficulty", difficulty);
+        params.put("priceMin", priceMin);
+        params.put("priceMax", priceMax);
+        params.put("sort", sort);
+        params.put("size", size);
         model.addAttribute("params", params);
 
-
         return "all-courses";
-    }
-
-    private boolean containsIgnoreCase(String hay, String needle) {
-        return hay != null && needle != null && hay.toLowerCase().contains(needle.toLowerCase());
-    }
-    private boolean equalsIgnoreCase(String a, String b) {
-        return a != null && b != null && a.equalsIgnoreCase(b);
     }
 
     @GetMapping("/{slug}")
     public String details(@PathVariable String slug, Model model) {
         var course = courseRepository.findBySlug(slug)
-                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
+                        org.springframework.http.HttpStatus.NOT_FOUND));
         model.addAttribute("course", course);
         return "course-details";
     }
