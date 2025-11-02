@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Toate cursurile – Fabrica de Coduri</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+    <style>
+        :root {
+          --fc-accent: #04aa6d;
+          --fc-border: rgba(255, 255, 255, 0.15);
+          --fc-panel: rgba(255, 255, 255, 0.06);
+          --fc-text: #fff;
+          --fc-muted: rgba(255, 255, 255, 0.75);
+        }
+
+        .fc-wrap {
+          max-width: 1150px;
+          margin: 140px auto 32px;
+          padding: 0 16px;
+          color: var(--fc-text)
+        }
+
+        .fc-head {
+          display: flex;
+          align-items: end;
+          justify-content: space-between;
+          gap: 12px;
+          margin-bottom: 12px
+        }
+
+        .fc-title {
+          margin: 0
+        }
+
+        .fc-sub {
+          margin: 0;
+          opacity: .8;
+          font-size: .95rem
+        }
+
+        .fc-toolbar {
+          position: sticky;
+          top: 90px;
+          z-index: 10;
+          display: flex;
+          gap: 12px;
+          flex-wrap: wrap;
+          align-items: end;
+          background: #1a1a1a;
+          padding: 12px;
+          border: 1px solid var(--fc-border);
+          border-radius: 10px
+        }
+
+        .fc-field {
+          display: flex;
+          flex-direction: column;
+          gap: 6px
+        }
+
+        .fc-input,
+        .fc-select {
+          background: var(--fc-panel);
+          border: 1px solid var(--fc-border);
+          color: var(--fc-text);
+          border-radius: 8px;
+          padding: 10px 12px;
+          min-width: 200px
+        }
+
+        .fc-select {
+          appearance: none;
+          background-color: #1a1a1a;
+          color: var(--fc-text);
+          border: 1px solid var(--fc-border);
+          border-radius: 8px;
+          padding: 10px 12px;
+        }
+
+        .fc-select option {
+          background-color: #1a1a1a;
+          color: var(--fc-text);
+        }
+
+        .fc-inline {
+          display: flex;
+          gap: 8px;
+          align-items: center
+        }
+
+        .fc-btn {
+          background: var(--fc-accent);
+          color: #fff;
+          border: 0;
+          border-radius: 10px;
+          padding: 10px 14px;
+          cursor: pointer;
+          font-weight: 700;
+          text-decoration: none;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px
+        }
+
+        /* LIST view only */
+        .fc-list {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          margin-top: 12px
+        }
+
+        .fc-row {
+          display: grid;
+          grid-template-columns: 260px 1fr 180px;
+          gap: 16px;
+          border: 1px solid var(--fc-border);
+          border-radius: 12px;
+          overflow: hidden;
+          background: var(--fc-panel)
+        }
+
+        .fc-cover {
+          height: 160px;
+          width: 100%;
+          object-fit: cover;
+          display: block
+        }
+
+        .fc-main {
+          padding: 12px 0;
+          display: flex;
+          flex-direction: column;
+          gap: 8px
+        }
+
+        .fc-meta {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap
+        }
+
+        .fc-pill {
+          font-size: 12px;
+          padding: 4px 8px;
+          border-radius: 999px;
+          border: 1px solid var(--fc-border);
+          background: rgba(255, 255, 255, .05)
+        }
+
+        .fc-row a.fc-title {
+          color: #fff;
+          text-decoration: none;
+          font-size: 1.1rem
+        }
+
+        .fc-desc {
+          color: var(--fc-muted);
+          margin: 0
+        }
+
+        .fc-right {
+          border-left: 1px solid var(--fc-border);
+          padding: 12px;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          align-items: flex-end
+        }
+
+        .fc-price {
+          font-weight: 800;
+          font-size: 1.1rem
+        }
+
+        .fc-cta {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          align-items: flex-end
+        }
+
+        .fc-lock {
+          font-size: .85rem;
+          opacity: .85
+        }
+
+        .fc-pager {
+          display: flex;
+          gap: 12px;
+          justify-content: center;
+          align-items: center;
+          margin: 18px 0 0
+        }
+
+        .fc-pager a {
+          color: var(--fc-accent);
+          text-decoration: none
+        }
+
+        @media (max-width:900px) {
+          .fc-row {
+            grid-template-columns: 1fr
+          }
+
+          .fc-right {
+            border-left: 0;
+            border-top: 1px solid var(--fc-border);
+            align-items: flex-start
+          }
+
+          .fc-cover {
+            height: 200px
+          }
+
+          .fc-toolbar {
+            top: 82px
+          }
+        }
+    </style>
+</head>
+
+<body>
+
+<div th:replace="~{fragments/nav :: nav}"></div>
+
+<main class="fc-wrap">
+    <div class="fc-head">
+        <div>
+            <h1 class="fc-title">Toate cursurile</h1>
+            <p class="fc-sub">Alege după tehnologie, dificultate sau preț.</p>
+        </div>
+    </div>
+
+    <form class="fc-toolbar" method="get" th:action="@{/cursuri}">
+        <div class="fc-field">
+            <label for="q">Caută</label>
+            <input id="q" name="q" class="fc-input" type="text" placeholder="Titlu, autor, hashtag..."
+                   th:value="${params.q}">
+        </div>
+
+        <div class="fc-field">
+            <label for="difficulty">Dificultate</label>
+            <select id="difficulty" name="difficulty" class="fc-select">
+                <option th:value="''" th:selected="${params.difficulty} == null or params.difficulty == ''">Toate</option>
+                <option th:value="'BEGINNER'" th:selected="${params.difficulty} == 'BEGINNER'">Începător</option>
+                <option th:value="'INTERMEDIATE'" th:selected="${params.difficulty} == 'INTERMEDIATE'">Intermediar</option>
+                <option th:value="'ADVANCED'" th:selected="${params.difficulty} == 'ADVANCED'">Avansat</option>
+            </select>
+        </div>
+
+        <div class="fc-field">
+            <label>Preț (RON)</label>
+            <div class="fc-inline">
+                <input class="fc-input" style="min-width:120px" type="number" name="priceMin" min="0" step="1"
+                       placeholder="Min" th:value="${params.priceMin}">
+                <span>–</span>
+                <input class="fc-input" style="min-width:120px" type="number" name="priceMax" min="0" step="1"
+                       placeholder="Max" th:value="${params.priceMax}">
+            </div>
+        </div>
+
+        <div class="fc-field">
+            <label for="sort">Sortează</label>
+            <select id="sort" name="sort" class="fc-select">
+                <option th:value="''" th:selected="${params.sort} == null or params.sort == ''">Implicite</option>
+                <option th:value="'priceAsc'" th:selected="${params.sort} == 'priceAsc'">Preț ↑</option>
+                <option th:value="'priceDesc'" th:selected="${params.sort} == 'priceDesc'">Preț ↓</option>
+                <option th:value="'new'" th:selected="${params.sort} == 'new'">Cele mai noi</option>
+            </select>
+        </div>
+
+        <button class="fc-btn" type="submit">Aplică filtre</button>
+    </form>
+
+    <div class="fc-list">
+        <article class="fc-row" th:each="course : ${courses}">
+            <a th:href="@{|/cursuri/${course.slug}|}">
+                <img class="fc-cover" th:src="${course.coverPath}" th:alt="${course.title}">
+            </a>
+            <div class="fc-main">
+                <div class="fc-meta">
+                    <span class="fc-pill" th:text="${course.technology}">Tech</span>
+                    <span class="fc-pill" th:if="${course.level}" th:text="${course.level}">Nivel</span>
+                    <span class="fc-pill" th:if="${course.durationMinutes}" th:text="${course.durationLabel}">Durată</span>
+                </div>
+                <a class="fc-title" th:text="${course.title}" th:href="@{|/cursuri/${course.slug}|}">Titlu curs</a>
+                <p class="fc-desc" th:text="${course.shortDescription}">Descriere scurtă…</p>
+            </div>
+            <div class="fc-right">
+                <div class="fc-price" th:text="${#numbers.formatDecimal(course.price, 1, 'COMMA', 2, 'POINT')} + ' RON'">0.00
+                    RON</div>
+                <div class="fc-cta">
+                    <span class="fc-lock">Premium • <span th:text="${course.level}">Nivel</span></span>
+                    <a class="fc-btn" th:href="@{|/cursuri/${course.slug}|}">Vezi detalii</a>
+                </div>
+            </div>
+        </article>
+    </div>
+    <div class="fc-pager" th:if="${page != null and page.totalPages > 1}">
+        <a th:if="${!page.first}"
+           th:href="@{|/cursuri?page=${page.number-1}&size=${page.size}&q=${params.q}&tech=${params.tech}&difficulty=${params.difficulty}&priceMin=${params.priceMin}&priceMax=${params.priceMax}&sort=${params.sort}|}">«
+            Înapoi</a>
+        <span th:text="${page.number + 1} + ' / ' + ${page.totalPages}">1 / 3</span>
+        <a th:if="${!page.last}"
+           th:href="@{|/cursuri?page=${page.number+1}&size=${page.size}&q=${params.q}&tech=${params.tech}&difficulty=${params.difficulty}&priceMin=${params.priceMin}&priceMax=${params.priceMax}&sort=${params.sort}|}">Înainte
+            »</a>
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+
+</html>
