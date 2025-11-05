@@ -3,6 +3,8 @@ package com.lazar.fabrica_de_coduri.model;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.ArrayList;
 
 
 @Entity
@@ -45,11 +47,31 @@ public class Course {
     @Column(name="is_featured")
     private Boolean isFeatured = false;
 
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("position ASC")
+    private List<CourseChapter> chapters = new ArrayList<>();
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("createdAt DESC")
+    private List<CourseComment> comments = new ArrayList<>();
+
+    @Transient
+    public String getDurationLabel() {
+        if (durationMinutes == null) return null;
+        int h = durationMinutes / 60, m = durationMinutes % 60;
+        return (h > 0 ? h + "h " : "") + (m > 0 ? m + "m" : (h == 0 ? "0m" : ""));
+    }
+
     public Course() {
     }
 
-    public Course(Long id, String title, String slug, String coverPath, String author, BigDecimal price, Integer durationMinutes, String technology, String hashtags, Level level, String shortDescription, Boolean isFeatured) {
+    public Course(Long id, String title, String slug, String coverPath
+            , String author, BigDecimal price, Integer durationMinutes
+            , String technology, String hashtags, Level level
+            , String shortDescription, Boolean isFeatured, List<CourseChapter> chapters, List<CourseComment> comments) {
         this.id = id;
+        this.chapters = chapters;
+        this.comments = comments;
         this.title = title;
         this.slug = slug;
         this.coverPath = coverPath;
@@ -61,16 +83,6 @@ public class Course {
         this.level = level;
         this.shortDescription = shortDescription;
         this.isFeatured = isFeatured;
-    }
-
-    @Transient
-    public String getDurationLabel() {
-        if (durationMinutes == null) return null;
-        int h = durationMinutes / 60;
-        int m = durationMinutes % 60;
-        String hh = h > 0 ? (h + "h") : "";
-        String mm = m > 0 ? (m + "m") : (h == 0 ? "0m" : "");
-        return (hh + (hh.isEmpty() || mm.isEmpty() ? "" : " ") + mm).trim();
     }
 
     public Long getId() {
@@ -91,6 +103,22 @@ public class Course {
 
     public String getSlug() {
         return slug;
+    }
+
+    public List<CourseChapter> getChapters() {
+        return chapters;
+    }
+
+    public void setChapters(List<CourseChapter> chapters) {
+        this.chapters = chapters;
+    }
+
+    public List<CourseComment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<CourseComment> comments) {
+        this.comments = comments;
     }
 
     public void setSlug(String slug) {

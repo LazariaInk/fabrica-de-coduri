@@ -94,9 +94,14 @@ public class CourseController {
 
     @GetMapping("/{slug}")
     public String details(@PathVariable String slug, Model model) {
+        model.addAttribute("topics", topicRepo.findAll());
+        PlatformInfo platformInfo = platformInfoRepository.findById(1L).orElse(null);
+        model.addAttribute("platformInfo", platformInfo);
+
         var course = courseRepository.findBySlug(slug)
                 .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
                         org.springframework.http.HttpStatus.NOT_FOUND));
+
         model.addAttribute("course", course);
         return "course-details";
     }

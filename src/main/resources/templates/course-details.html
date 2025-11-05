@@ -1,18 +1,148 @@
 <!DOCTYPE html>
-<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<html lang="ro" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title th:text="${course.title}">Detalii curs</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link th:href="@{/css/styles.css}" rel="stylesheet">
+    <style>
+        :root{ --fc-accent:#04aa6d; --fc-border:rgba(255,255,255,.15); --fc-panel:rgba(255,255,255,.06); --fc-text:#fff; --fc-muted:rgba(255,255,255,.75); }
+        .fc-course { max-width: 1100px; margin: 140px auto 32px; padding: 0 16px; color: var(--fc-text); }
+        .fc-back { display:inline-block; margin-bottom: 12px; color: var(--fc-accent); text-decoration:none; border:1px solid var(--fc-border); padding:6px 10px; border-radius:8px; }
+        .fc-hero { display:grid; grid-template-columns: 1.2fr 1fr; gap:18px; }
+        .fc-cover { width:100%; height:280px; object-fit:cover; border-radius:12px; border:1px solid var(--fc-border); }
+        .fc-card { background:#1a1a1a; border:1px solid var(--fc-border); border-radius:12px; padding:14px; }
+        .fc-title { margin:0 0 8px; }
+        .fc-meta { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+        .fc-pill { font-size:12px; padding:4px 8px; border-radius:999px; border:1px solid var(--fc-border); background:rgba(255,255,255,.05); }
+        .fc-price { font-weight:800; font-size:1.15rem; }
+        .fc-btn { display:inline-flex; align-items:center; gap:6px; padding:10px 14px; border-radius:10px; border:0; background:var(--fc-accent); color:#111; font-weight:800; text-decoration:none; }
+        .fc-section { margin-top:18px; }
+        .fc-section h2 { margin:0 0 10px; }
+        /* chapters */
+        .fc-accordion { display:flex; flex-direction:column; gap:10px; }
+        .fc-chapter { border:1px solid var(--fc-border); border-radius:10px; overflow:hidden; background: var(--fc-panel); }
+        .fc-ch-header { padding:12px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
+        .fc-ch-title { margin:0; font-weight:700; }
+        .fc-ch-body { display:none; border-top:1px solid var(--fc-border); }
+        .fc-chapter.open .fc-ch-body { display:block; }
+        .fc-lesson { display:flex; justify-content:space-between; gap:10px; padding:10px 12px; }
+        .fc-lesson + .fc-lesson { border-top:1px solid var(--fc-border); }
+        .fc-badge { font-size:11px; border:1px solid var(--fc-border); border-radius:999px; padding:2px 6px; }
+        /* author + comments */
+        .fc-author { display:flex; gap:14px; align-items:flex-start; }
+        .fc-author img { width:64px; height:64px; border-radius:50%; object-fit:cover; border:1px solid var(--fc-border); }
+        .fc-comments .fc-comment { border:1px solid var(--fc-border); border-radius:10px; padding:12px; background:#151515; }
+        .fc-comments .fc-comment + .fc-comment { margin-top:10px; }
+        .fc-muted { color: var(--fc-muted); }
+        @media (max-width: 900px){ .fc-hero { grid-template-columns: 1fr; } .fc-cover { height:220px; } }
+    </style>
 </head>
 <body>
-<main class="container" style="max-width:960px;margin:24px auto;">
-    <a th:href="@{/cursuri}">← Înapoi la cursuri</a>
-    <h1 th:text="${course.title}">Titlu curs</h1>
-    <img th:if="${course.coverPath}" th:src="${course.coverPath}" alt="" style="width:100%;max-height:360px;object-fit:cover;border-radius:12px;">
-    <p style="color:#555;" th:text="${course.shortDescription}">Descriere…</p>
-    <p><strong>Preț: </strong><span th:text="${#numbers.formatDecimal(course.price, 1, 'COMMA', 2, 'POINT')}">0.00</span> RON</p>
+
+<!-- NAVBAR -->
+<div th:replace="~{fragments/nav :: nav}"></div>
+
+<main class="fc-course">
+    <a class="fc-back" th:href="@{/cursuri}">← Înapoi la cursuri</a>
+
+    <div class="fc-hero">
+        <img class="fc-cover" th:src="${course.coverPath}" th:alt="${course.title}">
+        <div class="fc-card">
+            <h1 class="fc-title" th:text="${course.title}">Titlu curs</h1>
+            <div class="fc-meta">
+                <span class="fc-pill" th:text="${course.level}">LEVEL</span>
+                <span class="fc-pill" th:text="${course.durationLabel}">1h 30m</span>
+                <span class="fc-pill" th:text="${course.technology}">Tech</span>
+                <span class="fc-pill" th:text="${course.hashtags}">#java #spring</span>
+            </div>
+            <p class="fc-muted" th:text="${course.shortDescription}">Descriere…</p>
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-top:10px;">
+                <div class="fc-price" th:text="${#numbers.formatDecimal(course.price, 1, 'COMMA', 2, 'POINT')} + ' RON'">0.00 RON</div>
+                <div>
+                    <!-- viitor: dacă userul deține cursul, arată “Continuă cursul” -->
+                    <a class="fc-btn" th:href="@{|/checkout/${course.slug}|}" sec:authorize="isAuthenticated()">Cumpără cursul</a>
+                    <a class="fc-btn" th:href="@{/login}" sec:authorize="!isAuthenticated()">Autentifică-te pentru a cumpăra</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Capitole & Lecții -->
+    <section class="fc-section">
+        <h2>Conținutul cursului</h2>
+        <div class="fc-accordion" th:if="${course.chapters != null and !course.chapters.isEmpty()}">
+            <div class="fc-chapter" th:each="ch, iStat : ${course.chapters}" th:classappend="${iStat.index == 0} ? ' open'">
+                <div class="fc-ch-header" onclick="this.parentElement.classList.toggle('open')">
+                    <h3 class="fc-ch-title" th:text="${ch.title}">Capitol</h3>
+                    <span class="fc-muted" th:text="${#lists.size(ch.lessons)} + ' lecții'">0 lecții</span>
+                </div>
+                <div class="fc-ch-body">
+                    <div class="fc-lesson" th:each="ls : ${ch.lessons}">
+                        <div>
+                            <div th:text="${ls.title}">Titlu lecție</div>
+                            <div class="fc-muted" th:if="${ls.freePreview}"><span class="fc-badge">Preview gratuit</span></div>
+                        </div>
+                        <div class="fc-muted" th:text="${ls.durationMinutes != null ? (ls.durationMinutes/60) + 'h ' + (ls.durationMinutes%60) + 'm' : ''}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p th:if="${course.chapters == null or #lists.isEmpty(course.chapters)}" class="fc-muted">Structura cursului va fi publicată în curând.</p>
+    </section>
+
+    <!-- Despre autor -->
+    <section class="fc-section">
+        <h2>Despre autor</h2>
+        <div class="fc-card fc-author">
+            <img th:src="@{/images/author-placeholder.png}" alt="Autor">
+            <div>
+                <div><strong th:text="${course.author}">Nume autor</strong></div>
+                <div class="fc-muted">Inginer software & trainer. (poți pune aici o scurtă bio din DB când vei avea model separat).</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comentarii -->
+    <section id="comments" class="fc-section fc-comments">
+        <h2>Comentarii</h2>
+
+        <div th:if="${course.comments != null and !course.comments.isEmpty()}">
+            <div class="fc-comment" th:each="cm : ${course.comments}">
+                <div style="display:flex; justify-content:space-between; gap:10px;">
+                    <strong th:text="${cm.authorName}">User</strong>
+                    <span class="fc-muted" th:text="${#temporals.format(cm.createdAt, 'dd MMM yyyy HH:mm')}">Data</span>
+                </div>
+                <div class="fc-muted" th:if="${cm.rating != null}">Rating: <span th:text="${cm.rating}">5</span>/5</div>
+                <p th:text="${cm.content}" style="margin:8px 0 0;"></p>
+            </div>
+        </div>
+        <p th:if="${course.comments == null or #lists.isEmpty(course.comments)}" class="fc-muted">Încă nu sunt comentarii.</p>
+
+        <!-- Formular comentariu (simplu) -->
+        <div class="fc-card" style="margin-top:10px;" sec:authorize="isAuthenticated()">
+            <form th:action="@{|/cursuri/${course.slug}/comments|}" method="post">
+                <div style="display:grid; grid-template-columns: 1fr 120px; gap:10px; align-items:end;">
+                    <div>
+                        <label>Numele tău</label>
+                        <input name="authorName" class="fc-input" type="text" placeholder="Ex: Ion Popescu" required>
+                        <label style="margin-top:8px; display:block;">Comentariu</label>
+                        <textarea name="content" class="fc-input" rows="3" placeholder="Scrie-ți feedback-ul..." required></textarea>
+                    </div>
+                    <div>
+                        <label>Rating (1–5)</label>
+                        <input name="rating" class="fc-input" type="number" min="1" max="5">
+                        <button class="fc-btn" type="submit" style="width:100%; margin-top:8px;">Trimite</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <p class="fc-muted" sec:authorize="!isAuthenticated()">Autentifică-te pentru a lăsa un comentariu.</p>
+    </section>
 </main>
+
+<!-- FOOTER -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
 </body>
 </html>
