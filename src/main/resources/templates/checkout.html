@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <title th:text="'Cumperi: ' + ${course.title}">Checkout</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+
+    <style>
+        :root{ --fc-accent:#04aa6d; --fc-border:rgba(255,255,255,.15); --fc-panel:rgba(255,255,255,.06); --fc-text:#fff; --fc-muted:rgba(255,255,255,.75); }
+        body{ color:var(--fc-text); }
+        .fc-wrap{ max-width: 1000px; margin: 140px auto 32px; padding: 0 16px; }
+        .fc-grid{ display:grid; grid-template-columns: 1.3fr 1fr; gap:18px; }
+        .fc-card{ background:#1a1a1a; border:1px solid var(--fc-border); border-radius:14px; padding:16px; }
+        .fc-title{ margin:0 0 6px; font-size:1.35rem; }
+        .fc-muted{ color:var(--fc-muted); }
+        .fc-tag{ display:inline-block; font-size:12px; border:1px solid var(--fc-border); border-radius:999px; padding:2px 8px; margin-right:6px; }
+        .fc-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+        .fc-total{ font-size:1.2rem; font-weight:800; }
+        .fc-price{ font-weight:800; }
+        .fc-small{ font-size:12px; color:var(--fc-muted); }
+        .fc-divider{ height:1px; background:var(--fc-border); margin:10px 0; }
+        .fc-paybox{ background:#151515; border:1px dashed var(--fc-border); border-radius:14px; padding:14px; }
+        .fc-badge{ font-size:11px; border:1px solid var(--fc-border); border-radius:999px; padding:2px 8px; }
+        .fc-loader{ height:44px; border-radius:10px; background:linear-gradient(90deg,#202020, #2a2a2a, #202020); background-size:200% 100%; animation:sh 1.1s infinite linear; }
+        @keyframes sh{ 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+        .fc-status{ margin-top:10px; display:none; }
+        .fc-status.ok{ color:#9cffc5; }
+        .fc-status.err{ color:#ff9c9c; }
+        .fc-back{ display:inline-block; margin-bottom:12px; color:var(--fc-accent); text-decoration:none; border:1px solid var(--fc-border); padding:6px 10px; border-radius:8px; }
+        @media (max-width: 900px){ .fc-grid{ grid-template-columns:1fr; } }
+    </style>
+</head>
+<body>
+<div class="fc-wrap">
+    <a class="fc-back" th:href="@{|/cursuri/${course.slug}|}">← Înapoi la curs</a>
+
+    <div class="fc-grid">
+        <!-- Stânga: rezumat curs -->
+        <section class="fc-card">
+            <h1 class="fc-title" th:text="${course.title}">Titlu curs</h1>
+            <div style="margin-bottom:6px;">
+                <span class="fc-tag" th:text="${course.technology}">Tech</span>
+                <span class="fc-tag" th:text="${course.level}">LEVEL</span>
+                <span class="fc-tag" th:text="${course.durationLabel}">1h 30m</span>
+            </div>
+            <p class="fc-muted" th:text="${course.shortDescription}">Descriere…</p>
+
+            <div class="fc-divider"></div>
+
+            <div class="fc-row">
+                <span>Preț</span>
+                <span class="fc-price" th:text="${#numbers.formatDecimal(course.price,1,'COMMA',2,'POINT')} + ' RON'">0.00 RON</span>
+            </div>
+            <div class="fc-row fc-small">
+                <span>TVA inclus, dacă e cazul</span>
+                <span th:text="'Monedă: ' + ${paypalCurrency}">Monedă: EUR</span>
+            </div>
+        </section>
+
+        <!-- Dreapta: plată -->
+        <section class="fc-card">
+            <div class="fc-row" style="margin-bottom:8px;">
+                <strong>Total</strong>
+                <span class="fc-total" th:text="${#numbers.formatDecimal(course.price,1,'COMMA',2,'POINT')} + ' RON'">0.00 RON</span>
+            </div>
+
+            <div class="fc-paybox">
+                <div id="paypal-button-container">
+                    <!-- loader până vine SDK-ul -->
+                    <div id="paypal-loader" class="fc-loader"></div>
+                </div>
+                <div class="fc-status fc-small" id="paypal-status"></div>
+            </div>
+
+            <div style="margin-top:10px" class="fc-small">
+                <span class="fc-badge">Secure</span>
+                <span class="fc-badge">PayPal</span>
+                <span class="fc-badge">Refund support</span>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- ====== JS PayPal (dinamic, cu fallback & status) ====== -->
+<script th:inline="javascript">
+    const slug = /*[[${course.slug}]]*/ 'slug';
+    const PAYPAL_SDK_URL = /*[['https://www.paypal.com/sdk/js?client-id=' + ${paypalClientId} + '&currency=' + ${paypalCurrency}]]*/ '';
+    const $status = document.getElementById('paypal-status');
+    const $loader = document.getElementById('paypal-loader');
+
+    function showStatus(msg, ok=false){
+      if(!$status) return;
+      $status.style.display = 'block';
+      $status.className = 'fc-status fc-small ' + (ok ? 'ok' : 'err');
+      $status.textContent = msg;
+    }
+
+    function initPayPalButtons() {
+      if ($loader) $loader.style.display = 'none';
+      if (!window.paypal) {
+        showStatus('Nu s-a putut inițializa PayPal. Verifică blocatoarele sau client-id.', false);
+        return;
+      }
+
+      window.paypal.Buttons({
+        style: { layout: 'vertical', color: 'gold', shape: 'pill', label: 'paypal' },
+
+        createOrder() {
+          return fetch(`/api/paypal/orders/${slug}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          })
+          .then(r => r.ok ? r.json() : Promise.reject(new Error('Create order failed')))
+          .then(data => {
+            if (!data || !data.id) throw new Error('Order missing id');
+            showStatus('Comanda a fost creată. Redirecționare către PayPal…', true);
+            return data.id;
+          })
+          .catch(err => { showStatus(err.message || 'Eroare la creare comandă', false); throw err; });
+        },
+
+        onApprove(data) {
+          showStatus('Plata aprobată. Confirmăm capturarea…', true);
+          return fetch(`/api/paypal/capture/${data.orderID}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          })
+          .then(r => r.ok ? r.json() : Promise.reject(new Error('Capturare eșuată')))
+          .then(() => { window.location.href = `/cursuri/${slug}#comments`; })
+          .catch(err => showStatus(err.message || 'Eroare la captură.', false));
+        },
+
+        onError(err) {
+          console.error(err);
+          showStatus('A apărut o eroare cu PayPal. Încearcă din nou.', false);
+        }
+      }).render('#paypal-button-container');
+    }
+
+    (function ensurePayPalSDK() {
+      if (window.paypal) { initPayPalButtons(); return; }
+      if (!PAYPAL_SDK_URL || PAYPAL_SDK_URL.indexOf('client-id=') === -1) {
+        showStatus('Config PayPal lipsă (client-id/currency).', false);
+        return;
+      }
+      const s = document.createElement('script');
+      s.src = PAYPAL_SDK_URL;
+      s.async = true;
+      s.onload = initPayPalButtons;
+      s.onerror = function () {
+        if ($loader) $loader.style.display = 'none';
+        showStatus('Nu pot încărca PayPal (posibil blocat de extensii sau CSP).', false);
+      };
+      document.head.appendChild(s);
+    })();
+</script>
+</body>
+</html>

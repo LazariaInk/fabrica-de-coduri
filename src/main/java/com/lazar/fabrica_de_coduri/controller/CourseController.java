@@ -1,10 +1,13 @@
 package com.lazar.fabrica_de_coduri.controller;
 
 import com.lazar.fabrica_de_coduri.model.Course;
+import com.lazar.fabrica_de_coduri.model.CourseComment;
+import com.lazar.fabrica_de_coduri.model.CourseOwnership;
 import com.lazar.fabrica_de_coduri.model.PlatformInfo;
 import com.lazar.fabrica_de_coduri.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -98,44 +101,32 @@ public class CourseController {
     }
 
     @GetMapping("/{slug}")
-    public String details(@PathVariable String slug, Model model) {
-        // Top bar info
+    public String details(@PathVariable String slug,
+                          Model model,
+                          @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal) {
+
         model.addAttribute("topics", topicRepo.findAll());
-        PlatformInfo platformInfo = platformInfoRepository.findById(1L).orElse(null);
+        var platformInfo = platformInfoRepository.findById(1L).orElse(null);
         model.addAttribute("platformInfo", platformInfo);
 
-        // Cursul
         Course course = courseRepository.findBySlug(slug)
                 .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
                         org.springframework.http.HttpStatus.NOT_FOUND));
 
-        // Comentarii ordonate (updatedAt/createdAt desc)
-        model.addAttribute("commentsOrdered",
-                commentRepository.findAllForCourseOrdered(course.getId()));
-
-        // Determină utilizatorul autentificat (dacă există)
-        var auth = org.springframework.security.core.context.SecurityContextHolder
-                .getContext().getAuthentication();
+        model.addAttribute("commentsOrdered", commentRepository.findAllForCourseOrdered(course.getId()));
 
         boolean hasCourse = false;
-        com.lazar.fabrica_de_coduri.model.CourseComment myComment = null;
+        CourseComment myComment = null;
 
-        if (auth != null
-                && auth.isAuthenticated()
-                && !(auth instanceof org.springframework.security.authentication.AnonymousAuthenticationToken)) {
-
-            // Caută userul după email sau username (în funcție de cum ai configurat autentificarea)
-            var userOpt = userRepo.findByEmail(auth.getName());
-            var user = userOpt.orElseGet(() -> userRepo.findByUsername(auth.getName()).orElse(null));
+        if (principal != null) {
+            var user = userRepo.findByEmail(principal.getUsername())
+                    .orElseGet(() -> userRepo.findByUsername(principal.getUsername())
+                            .orElse(null));
 
             if (user != null) {
-                // Deține cursul?
                 hasCourse = ownershipRepo.existsByUserIdAndCourseIdAndStatus(
-                        user.getId(), course.getId(),
-                        com.lazar.fabrica_de_coduri.model.CourseOwnership.Status.PAID
-                );
+                        user.getId(), course.getId(), CourseOwnership.Status.PAID);
 
-                // Comentariul meu (pentru precompletare formular)
                 myComment = commentRepository
                         .findFirstByCourseIdAndUserIdOrderByCreatedAtDesc(course.getId(), user.getId())
                         .orElse(null);
@@ -145,7 +136,7 @@ public class CourseController {
         model.addAttribute("hasCourse", hasCourse);
         model.addAttribute("myComment", myComment);
         model.addAttribute("course", course);
-
         return "course-details";
     }
+
 }
