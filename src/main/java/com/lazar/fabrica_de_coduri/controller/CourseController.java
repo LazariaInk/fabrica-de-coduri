@@ -2,10 +2,7 @@ package com.lazar.fabrica_de_coduri.controller;
 
 import com.lazar.fabrica_de_coduri.model.Course;
 import com.lazar.fabrica_de_coduri.model.PlatformInfo;
-import com.lazar.fabrica_de_coduri.repository.CourseRepository;
-import com.lazar.fabrica_de_coduri.repository.CourseSpecifications;
-import com.lazar.fabrica_de_coduri.repository.PlatformInfoRepository;
-import com.lazar.fabrica_de_coduri.repository.TopicRepository;
+import com.lazar.fabrica_de_coduri.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Controller;
@@ -21,9 +18,18 @@ import java.util.Map;
 @RequestMapping("/cursuri")
 public class CourseController {
 
-    @Autowired private TopicRepository topicRepo;
-    @Autowired private PlatformInfoRepository platformInfoRepository;
-    @Autowired private CourseRepository courseRepository;
+    @Autowired
+    private TopicRepository topicRepo;
+    @Autowired
+    private PlatformInfoRepository platformInfoRepository;
+    @Autowired
+    private CourseRepository courseRepository;
+    @Autowired
+    private CourseCommentRepository commentRepository;
+    @Autowired
+    private UserRepository userRepo;
+    @Autowired
+    private CourseOwnershipRepository ownershipRepo;
 
     @GetMapping
     public String list(
@@ -79,7 +85,6 @@ public class CourseController {
 
         model.addAttribute("courses", pageObj.getContent());
         model.addAttribute("page", pageObj);
-
         Map<String, Object> params = new HashMap<>();
         params.put("q", q);
         params.put("difficulty", difficulty);
@@ -94,15 +99,53 @@ public class CourseController {
 
     @GetMapping("/{slug}")
     public String details(@PathVariable String slug, Model model) {
+        // Top bar info
         model.addAttribute("topics", topicRepo.findAll());
         PlatformInfo platformInfo = platformInfoRepository.findById(1L).orElse(null);
         model.addAttribute("platformInfo", platformInfo);
 
-        var course = courseRepository.findBySlug(slug)
+        // Cursul
+        Course course = courseRepository.findBySlug(slug)
                 .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
                         org.springframework.http.HttpStatus.NOT_FOUND));
 
+        // Comentarii ordonate (updatedAt/createdAt desc)
+        model.addAttribute("commentsOrdered",
+                commentRepository.findAllForCourseOrdered(course.getId()));
+
+        // Determină utilizatorul autentificat (dacă există)
+        var auth = org.springframework.security.core.context.SecurityContextHolder
+                .getContext().getAuthentication();
+
+        boolean hasCourse = false;
+        com.lazar.fabrica_de_coduri.model.CourseComment myComment = null;
+
+        if (auth != null
+                && auth.isAuthenticated()
+                && !(auth instanceof org.springframework.security.authentication.AnonymousAuthenticationToken)) {
+
+            // Caută userul după email sau username (în funcție de cum ai configurat autentificarea)
+            var userOpt = userRepo.findByEmail(auth.getName());
+            var user = userOpt.orElseGet(() -> userRepo.findByUsername(auth.getName()).orElse(null));
+
+            if (user != null) {
+                // Deține cursul?
+                hasCourse = ownershipRepo.existsByUserIdAndCourseIdAndStatus(
+                        user.getId(), course.getId(),
+                        com.lazar.fabrica_de_coduri.model.CourseOwnership.Status.PAID
+                );
+
+                // Comentariul meu (pentru precompletare formular)
+                myComment = commentRepository
+                        .findFirstByCourseIdAndUserIdOrderByCreatedAtDesc(course.getId(), user.getId())
+                        .orElse(null);
+            }
+        }
+
+        model.addAttribute("hasCourse", hasCourse);
+        model.addAttribute("myComment", myComment);
         model.addAttribute("course", course);
+
         return "course-details";
     }
 }

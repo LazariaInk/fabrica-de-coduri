@@ -12,8 +12,7 @@ public class CourseComment {
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
-    @Column(nullable = false, length = 120)
-    private String authorName;
+
 
     @Column(nullable = false, length = 2000)
     private String content;
@@ -25,9 +24,15 @@ public class CourseComment {
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
+    @org.hibernate.annotations.UpdateTimestamp
+    @Column(name = "updated_at")
+    private Instant updatedAt;
     public Long getId() {
         return id;
     }
+
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     public void setId(Long id) {
         this.id = id;
@@ -39,14 +44,6 @@ public class CourseComment {
 
     public void setCourse(Course course) {
         this.course = course;
-    }
-
-    public String getAuthorName() {
-        return authorName;
-    }
-
-    public void setAuthorName(String authorName) {
-        this.authorName = authorName;
     }
 
     public String getContent() {
@@ -69,7 +66,23 @@ public class CourseComment {
         return createdAt;
     }
 
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }
