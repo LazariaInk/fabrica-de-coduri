@@ -2,7 +2,8 @@ package com.lazar.fabrica_de_coduri.model;
 
 import jakarta.persistence.*;
 
-@Entity @Table(name = "course_lessons")
+@Entity
+@Table(name = "course_lessons")
 public class CourseLesson {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

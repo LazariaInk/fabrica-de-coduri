@@ -43,25 +43,24 @@ public class CourseController {
             @RequestParam(required = false) String sort,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "2") int size,
-            Model model) {
+            Model model,
+            @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal) {
 
         model.addAttribute("topics", topicRepo.findAll());
         PlatformInfo platformInfo = platformInfoRepository.findById(1L).orElse(null);
         model.addAttribute("platformInfo", platformInfo);
 
-        // sort mapping
         Sort springSort = switch (sort == null ? "" : sort) {
             case "priceAsc"  -> Sort.by(Sort.Direction.ASC,  "price");
             case "priceDesc" -> Sort.by(Sort.Direction.DESC, "price");
             case "new"       -> Sort.by(Sort.Direction.DESC, "id");
-            default          -> Sort.by(Sort.Direction.DESC, "id"); // implicit: cele mai noi
+            default          -> Sort.by(Sort.Direction.DESC, "id");
         };
 
         Pageable pageable = PageRequest.of(Math.max(page, 0), Math.max(size, 1), springSort);
 
         var spec = CourseSpecifications.build(q, difficulty, priceMin, priceMax);
         Page<Course> pageObj = courseRepository.findAll(spec, pageable);
-
 
         int current = pageObj.getNumber();
         int total   = pageObj.getTotalPages();
@@ -70,12 +69,8 @@ public class CourseController {
         int start = Math.max(0, current - window);
         int end   = Math.min(total - 1, current + window);
 
-        if (current - start < window) {
-            end = Math.min(total - 1, start + window*2);
-        }
-        if (end - current < window) {
-            start = Math.max(0, end - window*2);
-        }
+        if (current - start < window) end = Math.min(total - 1, start + window*2);
+        if (end - current < window)   start = Math.max(0, end - window*2);
 
         List<Integer> pageNumbers = new java.util.ArrayList<>();
         for (int i = start; i <= end; i++) pageNumbers.add(i);
@@ -88,6 +83,7 @@ public class CourseController {
 
         model.addAttribute("courses", pageObj.getContent());
         model.addAttribute("page", pageObj);
+
         Map<String, Object> params = new HashMap<>();
         params.put("q", q);
         params.put("difficulty", difficulty);
@@ -96,6 +92,27 @@ public class CourseController {
         params.put("sort", sort);
         params.put("size", size);
         model.addAttribute("params", params);
+
+        // 👇 nou: cursuri deținute de userul logat
+        java.util.Set<Long> ownedCourseIds = new java.util.HashSet<>();
+
+        if (principal != null) {
+            var user = userRepo.findByEmail(principal.getUsername())
+                    .orElseGet(() -> userRepo.findByUsername(principal.getUsername()).orElse(null));
+
+            if (user != null) {
+                var ownerships = ownershipRepo.findByUserIdAndStatus(
+                        user.getId(), CourseOwnership.Status.PAID);
+
+                for (var own : ownerships) {
+                    if (own.getCourse() != null && own.getCourse().getId() != null) {
+                        ownedCourseIds.add(own.getCourse().getId());
+                    }
+                }
+            }
+        }
+
+        model.addAttribute("ownedCourseIds", ownedCourseIds);
 
         return "all-courses";
     }
