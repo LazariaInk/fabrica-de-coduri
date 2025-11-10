@@ -78,6 +78,7 @@ public class DashboardController {
         model.addAttribute("myCourses", myCourses);
         model.addAttribute("query", q == null ? "" : q);
         model.addAttribute("topics", topicRepo.findAll());
+        model.addAttribute("myCourses", owns);
         PlatformInfo platformInfo = platformInfoRepository.findById(1L).orElse(null);
         model.addAttribute("platformInfo", platformInfo);
 
