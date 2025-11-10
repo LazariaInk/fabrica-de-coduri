@@ -34,6 +34,9 @@ public class CourseOwnership {
     @Column(precision = 10, scale = 2)
     private BigDecimal pricePaid;
 
+    @Column(name = "progress")
+    private Integer progress = 0;
+
     public enum Status {PENDING, PAID, REFUNDED, CANCELED}
 
     public Long getId() {
@@ -82,5 +85,13 @@ public class CourseOwnership {
 
     public void setPricePaid(BigDecimal pricePaid) {
         this.pricePaid = pricePaid;
+    }
+
+    public Integer getProgress() {
+        return progress;
+    }
+
+    public void setProgress(Integer progress) {
+        this.progress = progress;
     }
 }

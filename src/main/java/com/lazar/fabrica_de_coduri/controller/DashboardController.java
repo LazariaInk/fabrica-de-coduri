@@ -2,9 +2,13 @@ package com.lazar.fabrica_de_coduri.controller;
 
 import com.lazar.fabrica_de_coduri.model.Course;
 import com.lazar.fabrica_de_coduri.model.CourseOwnership;
+import com.lazar.fabrica_de_coduri.model.PlatformInfo;
 import com.lazar.fabrica_de_coduri.model.User;
 import com.lazar.fabrica_de_coduri.repository.CourseOwnershipRepository;
+import com.lazar.fabrica_de_coduri.repository.PlatformInfoRepository;
+import com.lazar.fabrica_de_coduri.repository.TopicRepository;
 import com.lazar.fabrica_de_coduri.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -23,9 +27,15 @@ public class DashboardController {
 
     private final UserRepository userRepo;
     private final CourseOwnershipRepository ownershipRepo;
+    private final TopicRepository topicRepo;
+    private final PlatformInfoRepository platformInfoRepository;
 
     public DashboardController(UserRepository userRepo,
-                               CourseOwnershipRepository ownershipRepo) {
+                               CourseOwnershipRepository ownershipRepo,
+                               TopicRepository topicRepo,
+                               PlatformInfoRepository platformInfoRepository) {
+        this.topicRepo =topicRepo;
+        this.platformInfoRepository = platformInfoRepository;
         this.userRepo = userRepo;
         this.ownershipRepo = ownershipRepo;
     }
@@ -67,6 +77,9 @@ public class DashboardController {
         model.addAttribute("user", user);
         model.addAttribute("myCourses", myCourses);
         model.addAttribute("query", q == null ? "" : q);
+        model.addAttribute("topics", topicRepo.findAll());
+        PlatformInfo platformInfo = platformInfoRepository.findById(1L).orElse(null);
+        model.addAttribute("platformInfo", platformInfo);
 
         return "dashboard";
     }
