@@ -16,4 +16,6 @@ public interface CourseOwnershipRepository extends JpaRepository<CourseOwnership
             CourseOwnership.Status status
     );
 
+    List<CourseOwnership> findByStatus(CourseOwnership.Status status);
+
 }
