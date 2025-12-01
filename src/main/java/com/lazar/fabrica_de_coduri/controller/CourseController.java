@@ -1,9 +1,6 @@
 package com.lazar.fabrica_de_coduri.controller;
 
-import com.lazar.fabrica_de_coduri.model.Course;
-import com.lazar.fabrica_de_coduri.model.CourseComment;
-import com.lazar.fabrica_de_coduri.model.CourseOwnership;
-import com.lazar.fabrica_de_coduri.model.PlatformInfo;
+import com.lazar.fabrica_de_coduri.model.*;
 import com.lazar.fabrica_de_coduri.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
@@ -154,6 +151,91 @@ public class CourseController {
         model.addAttribute("myComment", myComment);
         model.addAttribute("course", course);
         return "course-details";
+    }
+
+    @GetMapping("/{slug}/continua")
+    public String watchCourse(@PathVariable String slug,
+                              @RequestParam(required = false) Long lessonId,
+                              Model model,
+                              @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal) {
+
+        if (principal == null) {
+            // dacă cineva intră direct pe URL fără login
+            return "redirect:/login";
+        }
+
+        var user = userRepo.findByEmail(principal.getUsername())
+                .orElseGet(() -> userRepo.findByUsername(principal.getUsername())
+                        .orElse(null));
+
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        Course course = courseRepository.findBySlug(slug)
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
+                        org.springframework.http.HttpStatus.NOT_FOUND));
+
+        boolean hasCourse = ownershipRepo.existsByUserIdAndCourseIdAndStatus(
+                user.getId(), course.getId(), CourseOwnership.Status.PAID);
+
+        if (!hasCourse) {
+            return "redirect:/cursuri/" + slug;
+        }
+
+        java.util.List<CourseLesson> allLessons = new java.util.ArrayList<>();
+        course.getChapters().stream()
+                .sorted(java.util.Comparator.comparing(CourseChapter::getPosition))
+                .forEach(ch -> ch.getLessons().stream()
+                        .sorted(java.util.Comparator.comparing(CourseLesson::getPosition))
+                        .forEach(allLessons::add));
+
+        if (allLessons.isEmpty()) {
+            model.addAttribute("user", user);
+            model.addAttribute("course", course);
+            model.addAttribute("currentLesson", null);
+            model.addAttribute("hasCourse", hasCourse);
+            model.addAttribute("topics", topicRepo.findAll());
+            var platformInfo = platformInfoRepository.findById(1L).orElse(null);
+            model.addAttribute("platformInfo", platformInfo);
+            return "course-watch";
+        }
+
+        CourseLesson currentLesson = null;
+        if (lessonId != null) {
+            for (CourseLesson ls : allLessons) {
+                if (lessonId.equals(ls.getId())) {
+                    currentLesson = ls;
+                    break;
+                }
+            }
+        }
+        if (currentLesson == null) {
+            currentLesson = allLessons.get(0);
+        }
+
+        CourseLesson prevLesson = null;
+        CourseLesson nextLesson = null;
+        for (int i = 0; i < allLessons.size(); i++) {
+            if (allLessons.get(i).getId().equals(currentLesson.getId())) {
+                if (i > 0) prevLesson = allLessons.get(i - 1);
+                if (i < allLessons.size() - 1) nextLesson = allLessons.get(i + 1);
+                break;
+            }
+        }
+
+        model.addAttribute("user", user);
+        model.addAttribute("course", course);
+        model.addAttribute("currentLesson", currentLesson);
+        model.addAttribute("prevLesson", prevLesson);
+        model.addAttribute("nextLesson", nextLesson);
+        model.addAttribute("hasCourse", hasCourse);
+        model.addAttribute("allLessons", allLessons);
+        model.addAttribute("topics", topicRepo.findAll());
+        var platformInfo = platformInfoRepository.findById(1L).orElse(null);
+        model.addAttribute("platformInfo", platformInfo);
+
+        return "course-watch";
     }
 
 }

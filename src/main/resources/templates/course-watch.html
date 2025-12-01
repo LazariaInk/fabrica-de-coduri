@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${course.title} + ' – Lecții'">Curs</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+    <style>
+        :root {
+          --fc-accent: #04aa6d;
+          --fc-border: rgba(255,255,255,.15);
+          --fc-panel: #151515;
+          --fc-bg: #050505;
+          --fc-text: #fff;
+          --fc-muted: rgba(255,255,255,.7);
+        }
+
+        body {
+          background:#000;
+          color:var(--fc-text);
+        }
+
+        .cw-wrap {
+          margin-top:80px;
+          /* sub navbar */
+          min-height:calc(100vh - 80px);
+          display:grid;
+          grid-template-columns: 1.4fr 1fr;
+        }
+
+        .cw-main {
+          padding:12px 16px 24px;
+          border-right:1px solid var(--fc-border);
+        }
+
+        .cw-side {
+          padding:12px 16px 24px;
+          background:#060606;
+          max-height:calc(100vh - 80px);
+          overflow-y:auto;
+        }
+
+        .cw-course-title {
+          margin:0 0 4px;
+          font-size:1.1rem;
+        }
+
+        .cw-lesson-title {
+          margin:4px 0 8px;
+          font-size:1rem;
+        }
+
+        .cw-meta {
+          display:flex;
+          gap:8px;
+          flex-wrap:wrap;
+          font-size:.8rem;
+          color:var(--fc-muted);
+          margin-bottom:8px;
+        }
+
+        .cw-pill {
+          border-radius:999px;
+          border:1px solid var(--fc-border);
+          padding:2px 8px;
+          font-size:.75rem;
+        }
+
+        .cw-video-wrap {
+          background:#000;
+          border-radius:12px;
+          overflow:hidden;
+          border:1px solid var(--fc-border);
+          margin-bottom:10px;
+          position:relative;
+          aspect-ratio:16/9;
+        }
+
+        .cw-video-wrap iframe {
+          width:100%;
+          height:100%;
+          border:0;
+        }
+
+        .cw-video-placeholder {
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          height:100%;
+          color:var(--fc-muted);
+        }
+
+        .cw-locked-overlay {
+          position:absolute;
+          inset:0;
+          background:linear-gradient(to bottom, rgba(0,0,0,.1), rgba(0,0,0,.9));
+          display:flex;
+          flex-direction:column;
+          align-items:center;
+          justify-content:center;
+          text-align:center;
+          padding:20px;
+          gap:10px;
+        }
+
+        .cw-locked-overlay p {
+          margin:0;
+        }
+
+        .cw-btn {
+          padding:8px 14px;
+          border-radius:999px;
+          border:0;
+          background:var(--fc-accent);
+          color:#011;
+          font-weight:700;
+          text-decoration:none;
+          display:inline-flex;
+          align-items:center;
+          gap:6px;
+          cursor:pointer;
+        }
+
+        .cw-desc {
+          margin-top:10px;
+          font-size:.9rem;
+          color:var(--fc-muted);
+        }
+
+        /* sidebar – curriculum */
+        .cw-curriculum-title {
+          margin:0 0 8px;
+          font-size:.95rem;
+        }
+
+        .cw-total {
+          font-size:.8rem;
+          color:var(--fc-muted);
+          margin-bottom:12px;
+        }
+
+        .cw-chapter {
+          border-radius:10px;
+          border:1px solid var(--fc-border);
+          margin-bottom:10px;
+          overflow:hidden;
+          background:var(--fc-panel);
+        }
+
+        .cw-ch-header {
+          padding:8px 10px;
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          cursor:pointer;
+        }
+
+        .cw-ch-header h3 {
+          margin:0;
+          font-size:.9rem;
+        }
+
+        .cw-ch-body {
+          border-top:1px solid var(--fc-border);
+        }
+
+        .cw-lesson-row {
+          display:flex;
+          justify-content:space-between;
+          gap:8px;
+          padding:8px 10px;
+          font-size:.85rem;
+          align-items:center;
+        }
+
+        .cw-lesson-row + .cw-lesson-row {
+          border-top:1px solid rgba(255,255,255,.05);
+        }
+
+        .cw-lesson-info {
+          display:flex;
+          flex-direction:column;
+          gap:2px;
+        }
+
+        .cw-lesson-name {
+          margin:0;
+        }
+
+        .cw-lesson-tags {
+          display:flex;
+          gap:6px;
+          font-size:.75rem;
+          color:var(--fc-muted);
+          flex-wrap:wrap;
+        }
+
+        .cw-lesson-link {
+          color:inherit;
+          text-decoration:none;
+        }
+
+        .cw-lesson-link.active .cw-lesson-name {
+          color:var(--fc-accent);
+          font-weight:600;
+        }
+
+        .cw-lesson-lock {
+          font-size:.9rem;
+          opacity:.7;
+        }
+
+        .cw-duration {
+          font-size:.75rem;
+          color:var(--fc-muted);
+          white-space:nowrap;
+        }
+
+        @media (max-width:1000px) {
+          .cw-wrap {
+            grid-template-columns:1fr;
+          }
+
+          .cw-main {
+            border-right:0;
+          }
+
+          .cw-side {
+            max-height:none;
+            border-top:1px solid var(--fc-border);
+          }
+        }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/nav :: nav}"></div>
+
+<div class="cw-wrap" th:if="${currentLesson != null}">
+    <!-- PARTEA DREAPTĂ: VIDEO + INFO -->
+    <section class="cw-main">
+        <p style="margin:0 0 6px;">
+            <a th:href="@{/dashboard}" style="color:var(--fc-accent);text-decoration:none;">← Înapoi la dashboard</a>
+        </p>
+
+        <h1 class="cw-course-title" th:text="${course.title}">Titlu curs</h1>
+        <h2 class="cw-lesson-title" th:text="${currentLesson.title}">Titlu lecție</h2>
+
+        <div class="cw-meta">
+            <span class="cw-pill" th:text="${course.level}">LEVEL</span>
+            <span class="cw-pill"
+                  th:text="${currentLesson.durationMinutes != null ? (currentLesson.durationMinutes/60) + 'h ' + (currentLesson.durationMinutes%60) + 'm' : ''}">
+                0m
+            </span>
+            <span class="cw-pill" th:text="${course.technology}">Tech</span>
+        </div>
+
+        <div class="cw-video-wrap" th:if="${currentLesson != null}">
+            <video controls preload="metadata"
+                   style="width:100%;height:100%;border-radius:12px;display:block;background:#000;">
+                <source th:src="@{|/secure-video/${currentLesson.id}|}" type="video/mp4">
+                Browser-ul tău nu suportă video HTML5.
+            </video>
+        </div>
+
+        <div class="cw-video-placeholder" th:if="${currentLesson == null}">
+            Această lecție nu are încă video atașat.
+        </div>
+
+
+
+
+        <!-- butoane next/prev -->
+        <div style="display:flex;justify-content:space-between;gap:8px;margin-top:6px;">
+            <a th:if="${prevLesson != null}"
+               class="cw-btn"
+               th:href="@{|/cursuri/${course.slug}/continua?lessonId=${prevLesson.id}|}">
+                ‹ Lecția anterioară
+            </a>
+            <span th:if="${prevLesson == null}"></span>
+
+            <a th:if="${nextLesson != null}"
+               class="cw-btn"
+               th:href="@{|/cursuri/${course.slug}/continua?lessonId=${nextLesson.id}|}">
+                Lecția următoare ›
+            </a>
+        </div>
+
+        <div class="cw-desc">
+            <p>
+                Nu ai încă descrieri pe lecții, dar aici poți afișa pe viitor
+                o descriere detaliată / resurse adiționale pentru fiecare lecție.
+            </p>
+        </div>
+    </section>
+
+    <!-- PARTEA STÂNGĂ: CURRICULUM (chapters + lessons) -->
+    <aside class="cw-side">
+        <h2 class="cw-curriculum-title">Conținut curs</h2>
+        <div class="cw-total">
+            <span th:text="${#lists.size(course.chapters)} + ' capitole'">0 capitole</span>
+            •
+            <span th:text="${#lists.size(allLessons)} + ' lecții'">0 lecții</span>
+        </div>
+
+        <div th:each="ch, chStat : ${course.chapters}" class="cw-chapter">
+            <div class="cw-ch-header" onclick="this.parentElement.classList.toggle('open')">
+                <h3 th:text="${ch.title}">Capitol</h3>
+                <span th:text="${#lists.size(ch.lessons)} + ' lecții'">0 lecții</span>
+            </div>
+            <div class="cw-ch-body"
+                 th:style="${chStat.index == 0} ? 'display:block;' : 'display:none;'">
+                <div class="cw-lesson-row"
+                     th:each="ls : ${ch.lessons}">
+                    <a class="cw-lesson-link"
+                       th:classappend="${ls.id == currentLesson.id} ? ' active'"
+                       th:href="@{|/cursuri/${course.slug}/continua?lessonId=${ls.id}|}">
+                        <div class="cw-lesson-info">
+                            <p class="cw-lesson-name" th:text="${ls.title}">Titlu lecție</p>
+                            <div class="cw-lesson-tags">
+                                <span th:if="${ls.freePreview}" class="cw-pill">Preview gratuit</span>
+                            </div>
+                        </div>
+                    </a>
+                    <div class="cw-duration"
+                         th:text="${ls.durationMinutes != null ? (ls.durationMinutes/60) + 'h ' + (ls.durationMinutes%60) + 'm' : ''}">
+                        0m
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+</div>
+
+<!-- fallback dacă nu există lecții -->
+<div class="cw-wrap" th:if="${currentLesson == null}">
+    <section class="cw-main">
+        <p>
+            <a th:href="@{/dashboard}" style="color:var(--fc-accent);text-decoration:none;">← Înapoi la dashboard</a>
+        </p>
+        <h1 th:text="${course.title}">Titlu curs</h1>
+        <p>Acest curs încă nu are lecții definite.</p>
+    </section>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
