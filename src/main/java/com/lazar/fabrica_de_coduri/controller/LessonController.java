@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Controller
@@ -38,8 +39,8 @@ public class LessonController {
             @PathVariable String topicSlug,
             @PathVariable String chapterSlug,
             @PathVariable String lessonSlug,
-            Model model) {
-
+            Model model
+    ) {
         String topicSlugNorm = SlugUtils.toSlug(topicSlug);
         String chapterSlugNorm = SlugUtils.toSlug(chapterSlug);
         String lessonSlugNorm = SlugUtils.toSlug(lessonSlug);
@@ -47,57 +48,47 @@ public class LessonController {
         if (!topicSlug.equals(topicSlugNorm)
                 || !chapterSlug.equals(chapterSlugNorm)
                 || !lessonSlug.equals(lessonSlugNorm)) {
-            String cleanUrl = "/lectii/" + topicSlugNorm + "/" + chapterSlugNorm + "/" + lessonSlugNorm;
-            return "redirect:" + cleanUrl;
+            return "redirect:/lectii/" + topicSlugNorm + "/" + chapterSlugNorm + "/" + lessonSlugNorm;
         }
 
-        List<Lesson> allLessons = lessonRepository.findAll();
-        for (Lesson lesson : allLessons) {
-            String lessonSlugGenerated = SlugUtils.toSlug(lesson.getTitle());
-            String chapterSlugGenerated = SlugUtils.toSlug(lesson.getChapter().getTitle());
-            String topicSlugGenerated = SlugUtils.toSlug(lesson.getChapter().getTopic().getName());
+        Lesson lesson = lessonRepository
+                .findBySlugAndChapter_SlugAndChapter_Topic_Slug(lessonSlugNorm, chapterSlugNorm, topicSlugNorm)
+                .orElseThrow(() -> new RuntimeException("Lesson not found"));
 
-            if (lessonSlugGenerated.equals(lessonSlugNorm)
-                    && chapterSlugGenerated.equals(chapterSlugNorm)
-                    && topicSlugGenerated.equals(topicSlugNorm)) {
+        Topic topic = lesson.getChapter().getTopic();
 
-                Topic topic = lesson.getChapter().getTopic();
+        // IMPORTANT: topic.getChapters() poate fi LAZY => ideal fetch join (pasul următor).
+        List<Lesson> topicLessons = topic.getChapters()
+                .stream()
+                .sorted(Comparator.comparingInt(Chapter::getOrderNumber))
+                .flatMap(ch -> ch.getLessons().stream()
+                        .sorted(Comparator.comparingInt(Lesson::getOrderNumber)))
+                .toList();
 
-                List<Lesson> topicLessons = topic.getChapters()
-                        .stream()
-                        .sorted((c1, c2) -> Integer.compare(c1.getOrderNumber(), c2.getOrderNumber()))
-                        .flatMap(chapter -> chapter.getLessons()
-                                .stream()
-                                .sorted((l1, l2) -> Integer.compare(l1.getOrderNumber(), l2.getOrderNumber())))
-                        .toList();
-
-                int currentIndex = -1;
-                for (int i = 0; i < topicLessons.size(); i++) {
-                    if (topicLessons.get(i).getId().equals(lesson.getId())) {
-                        currentIndex = i;
-                        break;
-                    }
-                }
-
-                Lesson previousLesson = (currentIndex > 0) ? topicLessons.get(currentIndex - 1) : null;
-                Lesson nextLesson = (currentIndex < topicLessons.size() - 1) ? topicLessons.get(currentIndex + 1) : null;
-
-                model.addAttribute("platformInfo", platformInfoRepository.findById(1L).orElse(null));
-                model.addAttribute("lesson", lesson);
-                model.addAttribute("chapters", topic.getChapters());
-                model.addAttribute("topics", topicRepository.findAll());
-                model.addAttribute("previousLesson", previousLesson);
-                model.addAttribute("nextLesson", nextLesson);
-                model.addAttribute("activeTopicId", topic.getId());
-                model.addAttribute("activeLessonId", lesson.getId());
-                model.addAttribute("activeChapterId", lesson.getChapter().getId());
-
-                return lesson.getHtmlPath();
+        int currentIndex = -1;
+        for (int i = 0; i < topicLessons.size(); i++) {
+            if (topicLessons.get(i).getId().equals(lesson.getId())) {
+                currentIndex = i;
+                break;
             }
         }
 
-        throw new RuntimeException("Lesson not found");
+        Lesson previousLesson = (currentIndex > 0) ? topicLessons.get(currentIndex - 1) : null;
+        Lesson nextLesson = (currentIndex < topicLessons.size() - 1) ? topicLessons.get(currentIndex + 1) : null;
+
+        model.addAttribute("lesson", lesson);
+        model.addAttribute("chapters", topic.getChapters());
+        model.addAttribute("previousLesson", previousLesson);
+        model.addAttribute("nextLesson", nextLesson);
+        model.addAttribute("activeTopicId", topic.getId());
+        model.addAttribute("activeLessonId", lesson.getId());
+        model.addAttribute("activeChapterId", lesson.getChapter().getId());
+
+        model.addAttribute("topics", topicRepository.findAll());
+
+        return lesson.getHtmlPath();
     }
+
 
 
     @GetMapping("/topic/{topicId}")

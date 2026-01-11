@@ -1,5 +1,6 @@
 package com.lazar.fabrica_de_coduri.model;
 
+import com.lazar.fabrica_de_coduri.utils.SlugUtils;
 import jakarta.persistence.*;
 
 @Entity
@@ -13,6 +14,9 @@ public class Lesson {
 
     @ManyToOne
     private Chapter chapter;
+
+    @Column(nullable = false)
+    private String slug;
 
     public Lesson() {
     }
@@ -53,6 +57,14 @@ public class Lesson {
         return htmlPath;
     }
 
+    public String getSlug() {
+        return slug;
+    }
+
+    public void setSlug(String slug) {
+        this.slug = slug;
+    }
+
     public void setHtmlPath(String htmlPath) {
         this.htmlPath = htmlPath;
     }
@@ -64,4 +76,12 @@ public class Lesson {
     public void setChapter(Chapter chapter) {
         this.chapter = chapter;
     }
+    @PrePersist
+    @PreUpdate
+    private void ensureSlug() {
+        if (this.title != null) {
+            this.slug = SlugUtils.toSlug(this.title);
+        }
+    }
+
 }
