@@ -12,6 +12,10 @@ public class User {
 
     private String username;
 
+    private String email;
+
+    private String provider;
+
     private String password;
 
     private String role;
@@ -21,11 +25,29 @@ public class User {
     public User() {
     }
 
-    public User(String username, String password, String role, boolean enabled) {
+    public User(String username, String email, String password, String role, boolean enabled) {
         this.username = username;
+        this.email = email;
         this.password = password;
         this.role = role;
         this.enabled = enabled;
+    }
+
+    public User(String username, String email, String provider, String password, String role, boolean enabled) {
+        this.username = username;
+        this.email = email;
+        this.provider = provider;
+        this.password = password;
+        this.role = role;
+        this.enabled = enabled;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
     }
 
     public Long getId() {
@@ -42,6 +64,14 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getPassword() {

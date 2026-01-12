@@ -1,7 +1,10 @@
 package com.lazar.fabrica_de_coduri.config;
 
 
+import com.lazar.fabrica_de_coduri.service.CustomOAuth2UserService;
+import com.lazar.fabrica_de_coduri.service.CustomOidcUserService;
 import com.lazar.fabrica_de_coduri.service.CustomUserDetailsService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -9,7 +12,6 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -18,40 +20,57 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
+    private final CustomOAuth2UserService oAuth2UserService;
+    private final CustomOidcUserService oidcUserService;
 
-    public SecurityConfig(CustomUserDetailsService userDetailsService) {
+    @Value("${security.rememberme.key}")
+    private String rememberMeKey;
+
+    public SecurityConfig(CustomUserDetailsService userDetailsService,
+                          CustomOAuth2UserService oAuth2UserService,
+                          CustomOidcUserService oidcUserService) {
         this.userDetailsService = userDetailsService;
+        this.oAuth2UserService = oAuth2UserService;
+        this.oidcUserService = oidcUserService;
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().permitAll()
                 )
-                .formLogin(login -> login
+                .formLogin(form -> form
                         .loginPage("/login")
                         .defaultSuccessUrl("/", true)
                         .permitAll()
                 )
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/login")
+                        .userInfoEndpoint(user -> user
+                                .userService(oAuth2UserService)
+                                .oidcUserService(oidcUserService)
+                        )
+                        .defaultSuccessUrl("/", true)
+                )
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/")
-                );
-
+                        .logoutSuccessUrl("/login?logout")
+                        .permitAll()
+                )
+                .rememberMe(remember -> remember
+                        .key(rememberMeKey)
+                        .tokenValiditySeconds(7 * 24 * 60 * 60)
+                        .userDetailsService(userDetailsService)
+                )
+                .userDetailsService(userDetailsService);
         return http.build();
     }
 
-//    @Bean
-//    public PasswordEncoder passwordEncoder() {
-//        return new BCryptPasswordEncoder();
-//    }
-
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance(); // No hashing
+        return new BCryptPasswordEncoder();
     }
-
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {

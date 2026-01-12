@@ -26,7 +26,6 @@ public class PlatformInfo {
     @OneToMany(mappedBy = "platformInfo", cascade = CascadeType.ALL)
     private List<Sponsor> sponsors;
 
-
     public PlatformInfo() {
     }
 
