@@ -1,6 +1,8 @@
 package com.lazar.fabrica_de_coduri.model;
 
 import jakarta.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -17,6 +19,15 @@ public class User {
     private String role;
 
     private boolean enabled = false;
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_premium_courses",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "premium_course_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "premium_course_id"})
+    )
+    private Set<PremiumCourse> purchasedCourses = new HashSet<>();
 
     public User() {
     }
@@ -66,6 +77,14 @@ public class User {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public Set<PremiumCourse> getPurchasedCourses() {
+        return purchasedCourses;
+    }
+
+    public void setPurchasedCourses(Set<PremiumCourse> purchasedCourses) {
+        this.purchasedCourses = purchasedCourses;
     }
 }
 

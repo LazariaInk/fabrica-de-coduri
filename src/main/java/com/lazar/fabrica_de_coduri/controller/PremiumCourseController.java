@@ -4,7 +4,6 @@ import com.lazar.fabrica_de_coduri.model.PremiumCourse;
 import com.lazar.fabrica_de_coduri.repository.PlatformInfoRepository;
 import com.lazar.fabrica_de_coduri.repository.TopicRepository;
 import com.lazar.fabrica_de_coduri.service.PremiumCourseService;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -15,13 +14,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @Controller
 public class PremiumCourseController {
-    private static final String PURCHASED_COURSES_KEY = "purchasedCourses";
-
     private final PremiumCourseService premiumCourseService;
     private final TopicRepository topicRepository;
     private final PlatformInfoRepository platformInfoRepository;
@@ -37,38 +33,34 @@ public class PremiumCourseController {
     @GetMapping("/courses")
     public String courses(@RequestParam(value = "q", required = false) String query,
                           Model model,
-                          HttpSession session) {
+                          Authentication authentication) {
         addSharedAttributes(model);
         model.addAttribute("courses", premiumCourseService.findAll(query));
         model.addAttribute("query", query == null ? "" : query);
-        model.addAttribute("purchasedCourses", purchasedCourses(session));
+        model.addAttribute("purchasedCourses", purchasedCourseSlugs(authentication));
         return "courses";
     }
 
     @GetMapping("/courses/{slug}")
     public String courseDetails(@PathVariable String slug,
                                 Model model,
-                                HttpSession session,
                                 Authentication authentication) {
         PremiumCourse course = premiumCourseService.findBySlug(slug)
                 .orElseThrow(() -> new IllegalArgumentException("Course not found"));
 
         addSharedAttributes(model);
         model.addAttribute("course", course);
-        model.addAttribute("purchased", purchasedCourses(session).contains(slug));
-        model.addAttribute("loggedIn", authentication != null
-                && authentication.isAuthenticated()
-                && !(authentication instanceof AnonymousAuthenticationToken));
+        model.addAttribute("purchased", isLoggedIn(authentication)
+                && premiumCourseService.hasPurchasedCourse(authentication.getName(), slug));
+        model.addAttribute("loggedIn", isLoggedIn(authentication));
         return "course-details";
     }
 
     @PostMapping("/courses/{slug}/buy")
     public String buyCourse(@PathVariable String slug,
-                            HttpSession session,
+                            Authentication authentication,
                             RedirectAttributes redirectAttributes) {
-        PremiumCourse course = premiumCourseService.findBySlug(slug)
-                .orElseThrow(() -> new IllegalArgumentException("Course not found"));
-        purchasedCourses(session).add(slug);
+        PremiumCourse course = premiumCourseService.purchaseCourse(authentication.getName(), slug);
         redirectAttributes.addFlashAttribute("successMessage",
                 "Cursul \"" + course.getTitle() + "\" este acum in biblioteca ta.");
         return "redirect:/courses/" + slug + "/watch";
@@ -77,11 +69,11 @@ public class PremiumCourseController {
     @GetMapping("/courses/{slug}/watch")
     public String watchCourse(@PathVariable String slug,
                               Model model,
-                              HttpSession session) {
+                              Authentication authentication) {
         PremiumCourse course = premiumCourseService.findBySlug(slug)
                 .orElseThrow(() -> new IllegalArgumentException("Course not found"));
 
-        if (!purchasedCourses(session).contains(slug)) {
+        if (!premiumCourseService.hasPurchasedCourse(authentication.getName(), slug)) {
             return "redirect:/courses/" + slug;
         }
 
@@ -95,13 +87,17 @@ public class PremiumCourseController {
         model.addAttribute("platformInfo", platformInfoRepository.findById(1L).orElse(null));
     }
 
-    @SuppressWarnings("unchecked")
-    private Set<String> purchasedCourses(HttpSession session) {
-        Set<String> purchasedCourses = (Set<String>) session.getAttribute(PURCHASED_COURSES_KEY);
-        if (purchasedCourses == null) {
-            purchasedCourses = new HashSet<>();
-            session.setAttribute(PURCHASED_COURSES_KEY, purchasedCourses);
+    private Set<String> purchasedCourseSlugs(Authentication authentication) {
+        if (!isLoggedIn(authentication)) {
+            return Set.of();
         }
-        return purchasedCourses;
+
+        return premiumCourseService.findPurchasedCourseSlugs(authentication.getName());
+    }
+
+    private boolean isLoggedIn(Authentication authentication) {
+        return authentication != null
+                && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken);
     }
 }

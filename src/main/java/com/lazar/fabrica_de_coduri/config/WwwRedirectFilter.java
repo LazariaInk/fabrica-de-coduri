@@ -18,7 +18,7 @@ public class WwwRedirectFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) res;
 
         String host = request.getHeader("Host");
-        if (host != null && !host.startsWith("www.")) {
+        if (host != null && shouldRedirectToWww(host)) {
             String redirectUrl = "https://www." + host + request.getRequestURI();
             if (request.getQueryString() != null) {
                 redirectUrl += "?" + request.getQueryString();
@@ -28,5 +28,13 @@ public class WwwRedirectFilter implements Filter {
         } else {
             chain.doFilter(req, res);
         }
+    }
+
+    private boolean shouldRedirectToWww(String host) {
+        String normalizedHost = host.toLowerCase();
+        return !normalizedHost.startsWith("www.")
+                && !normalizedHost.startsWith("localhost")
+                && !normalizedHost.startsWith("127.0.0.1")
+                && !normalizedHost.startsWith("[::1]");
     }
 }
