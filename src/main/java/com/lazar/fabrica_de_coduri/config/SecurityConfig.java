@@ -28,11 +28,12 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/courses/*/buy", "/courses/*/watch").authenticated()
                         .anyRequest().permitAll()
                 )
                 .formLogin(login -> login
                         .loginPage("/login")
-                        .defaultSuccessUrl("/", true)
+                        .defaultSuccessUrl("/courses", false)
                         .permitAll()
                 )
                 .logout(logout -> logout
