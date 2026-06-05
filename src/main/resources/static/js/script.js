@@ -20,6 +20,43 @@ document.addEventListener('DOMContentLoaded', function () {
         };
     }
 
+    document.addEventListener('click', function (event) {
+        const accountMenu = document.querySelector('.account-menu');
+        if (accountMenu && !accountMenu.contains(event.target)) {
+            accountMenu.classList.remove('open');
+        }
+    });
+
+    const avatarDropzone = document.querySelector('.avatar-dropzone');
+    const avatarInput = document.getElementById('avatarUpload');
+    const avatarPreview = document.getElementById('avatarPreview');
+    if (avatarDropzone && avatarInput && avatarPreview) {
+        avatarInput.addEventListener('change', function () {
+            previewAvatarFile(avatarInput.files[0], avatarPreview, avatarDropzone);
+        });
+
+        avatarDropzone.addEventListener('dragover', function (event) {
+            event.preventDefault();
+            avatarDropzone.classList.add('dragging');
+        });
+
+        avatarDropzone.addEventListener('dragleave', function () {
+            avatarDropzone.classList.remove('dragging');
+        });
+
+        avatarDropzone.addEventListener('drop', function (event) {
+            event.preventDefault();
+            avatarDropzone.classList.remove('dragging');
+            const file = event.dataTransfer.files[0];
+            if (!file) return;
+
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            avatarInput.files = dataTransfer.files;
+            previewAvatarFile(file, avatarPreview, avatarDropzone);
+        });
+    }
+
     // Parallax effect
     const parallaxImages = document.querySelectorAll('.parallax-banner img');
     if (parallaxImages.length > 0) {
@@ -106,6 +143,24 @@ function toggleSidebar() {
 function toggleMobileSidebar() {
     const sidebar = document.getElementById("mobileSidebar");
     if (sidebar) sidebar.classList.toggle('active');
+}
+
+function toggleAccountMenu(event) {
+    event.stopPropagation();
+    const accountMenu = event.currentTarget.closest('.account-menu');
+    if (accountMenu) accountMenu.classList.toggle('open');
+}
+
+function previewAvatarFile(file, preview, dropzone) {
+    if (!file || !file.type.startsWith('image/')) return;
+
+    const reader = new FileReader();
+    reader.onload = function (event) {
+        preview.src = event.target.result;
+        preview.style.display = 'block';
+        dropzone.classList.add('has-preview');
+    };
+    reader.readAsDataURL(file);
 }
 
 function toggleChapter(el) {

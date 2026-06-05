@@ -32,6 +32,8 @@ public class PremiumCourse {
 
     private String level;
 
+    private String language;
+
     private String duration;
 
     private String instructor;
@@ -59,10 +61,17 @@ public class PremiumCourse {
 
     public PremiumCourse(String slug, String title, String subtitle, String level, String duration, String instructor,
                          int lessons, int price, String accentColor, List<String> outcomes, List<String> modules) {
+        this(slug, title, subtitle, level, null, duration, instructor, lessons, price, accentColor, outcomes, modules);
+    }
+
+    public PremiumCourse(String slug, String title, String subtitle, String level, String language, String duration,
+                         String instructor, int lessons, int price, String accentColor, List<String> outcomes,
+                         List<String> modules) {
         this.slug = slug;
         this.title = title;
         this.subtitle = subtitle;
         this.level = level;
+        this.language = language;
         this.duration = duration;
         this.instructor = instructor;
         this.lessons = lessons;
@@ -90,6 +99,10 @@ public class PremiumCourse {
 
     public String getLevel() {
         return level;
+    }
+
+    public String getLanguage() {
+        return language;
     }
 
     public String getDuration() {
@@ -138,6 +151,10 @@ public class PremiumCourse {
 
     public void setLevel(String level) {
         this.level = level;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
     public void setDuration(String duration) {

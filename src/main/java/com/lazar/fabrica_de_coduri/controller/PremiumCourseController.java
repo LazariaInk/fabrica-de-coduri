@@ -32,12 +32,25 @@ public class PremiumCourseController {
 
     @GetMapping("/courses")
     public String courses(@RequestParam(value = "q", required = false) String query,
+                          @RequestParam(value = "language", required = false) String language,
+                          @RequestParam(value = "view", required = false, defaultValue = "all") String view,
                           Model model,
                           Authentication authentication) {
+        if (!isLoggedIn(authentication) && ("owned".equals(view) || "wishlist".equals(view))) {
+            return "redirect:/login";
+        }
+
         addSharedAttributes(model);
-        model.addAttribute("courses", premiumCourseService.findAll(query));
+        model.addAttribute("courses", premiumCourseService.findAll(query, language, view, username(authentication)));
+        model.addAttribute("languages", premiumCourseService.findLanguages());
         model.addAttribute("query", query == null ? "" : query);
+        model.addAttribute("selectedLanguage", language == null ? "" : language);
+        model.addAttribute("selectedView", view == null ? "all" : view);
         model.addAttribute("purchasedCourses", purchasedCourseSlugs(authentication));
+        model.addAttribute("wishlistCourses", wishlistCourseSlugs(authentication));
+        model.addAttribute("courseProgress", isLoggedIn(authentication)
+                ? premiumCourseService.findProgressPercentByCourseSlug(authentication.getName())
+                : java.util.Map.of());
         return "courses";
     }
 
@@ -50,8 +63,18 @@ public class PremiumCourseController {
 
         addSharedAttributes(model);
         model.addAttribute("course", course);
-        model.addAttribute("purchased", isLoggedIn(authentication)
-                && premiumCourseService.hasPurchasedCourse(authentication.getName(), slug));
+        boolean purchased = isLoggedIn(authentication)
+                && premiumCourseService.hasPurchasedCourse(authentication.getName(), slug);
+        model.addAttribute("purchased", purchased);
+        model.addAttribute("wishlisted", isLoggedIn(authentication)
+                && premiumCourseService.findWishlistCourseSlugs(authentication.getName()).contains(slug));
+        model.addAttribute("progressPercent", isLoggedIn(authentication)
+                ? premiumCourseService.findProgressPercent(authentication.getName(), slug)
+                : 0);
+        model.addAttribute("courseComments", premiumCourseService.findComments(slug));
+        model.addAttribute("myCourseComment", purchased
+                ? premiumCourseService.findCommentForUser(authentication.getName(), slug).orElse(null)
+                : null);
         model.addAttribute("loggedIn", isLoggedIn(authentication));
         return "course-details";
     }
@@ -64,6 +87,16 @@ public class PremiumCourseController {
         redirectAttributes.addFlashAttribute("successMessage",
                 "Cursul \"" + course.getTitle() + "\" este acum in biblioteca ta.");
         return "redirect:/courses/" + slug + "/watch";
+    }
+
+    @PostMapping("/courses/{slug}/wishlist")
+    public String toggleWishlist(@PathVariable String slug,
+                                 Authentication authentication,
+                                 RedirectAttributes redirectAttributes) {
+        boolean added = premiumCourseService.toggleWishlistCourse(authentication.getName(), slug);
+        redirectAttributes.addFlashAttribute("successMessage",
+                added ? "Cursul a fost adaugat in wishlist." : "Cursul a fost scos din wishlist.");
+        return "redirect:/courses/" + slug;
     }
 
     @GetMapping("/courses/{slug}/watch")
@@ -79,7 +112,41 @@ public class PremiumCourseController {
 
         addSharedAttributes(model);
         model.addAttribute("course", course);
+        model.addAttribute("completedLessons", premiumCourseService.findCompletedLessons(authentication.getName(), slug));
+        model.addAttribute("progressPercent", premiumCourseService.findProgressPercent(authentication.getName(), slug));
+        model.addAttribute("courseComments", premiumCourseService.findComments(slug));
+        model.addAttribute("myCourseComment", premiumCourseService.findCommentForUser(authentication.getName(), slug).orElse(null));
         return "course-watch";
+    }
+
+    @PostMapping("/courses/{slug}/progress")
+    public String completeNextLesson(@PathVariable String slug,
+                                     Authentication authentication,
+                                     RedirectAttributes redirectAttributes) {
+        premiumCourseService.completeNextLesson(authentication.getName(), slug);
+        redirectAttributes.addFlashAttribute("successMessage", "Progresul a fost actualizat.");
+        return "redirect:/courses/" + slug + "/watch";
+    }
+
+    @PostMapping("/courses/{slug}/comments")
+    public String saveComment(@PathVariable String slug,
+                              @RequestParam("content") String content,
+                              @RequestParam(value = "returnTo", required = false, defaultValue = "details") String returnTo,
+                              Authentication authentication,
+                              RedirectAttributes redirectAttributes) {
+        try {
+            premiumCourseService.saveComment(authentication.getName(), slug, content);
+            redirectAttributes.addFlashAttribute("successMessage", "Comentariul tau a fost salvat.");
+        } catch (IllegalArgumentException exception) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Comentariul nu a putut fi salvat. Verifica daca ai cumparat cursul si daca textul nu este gol.");
+        }
+
+        if ("watch".equals(returnTo)) {
+            return "redirect:/courses/" + slug + "/watch";
+        }
+
+        return "redirect:/courses/" + slug;
     }
 
     private void addSharedAttributes(Model model) {
@@ -93,6 +160,22 @@ public class PremiumCourseController {
         }
 
         return premiumCourseService.findPurchasedCourseSlugs(authentication.getName());
+    }
+
+    private Set<String> wishlistCourseSlugs(Authentication authentication) {
+        if (!isLoggedIn(authentication)) {
+            return Set.of();
+        }
+
+        return premiumCourseService.findWishlistCourseSlugs(authentication.getName());
+    }
+
+    private String username(Authentication authentication) {
+        if (!isLoggedIn(authentication)) {
+            return null;
+        }
+
+        return authentication.getName();
     }
 
     private boolean isLoggedIn(Authentication authentication) {

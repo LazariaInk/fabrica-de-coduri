@@ -11,9 +11,15 @@
 <div th:replace="~{fragments/nav :: nav}"></div>
 
 <main class="watch-page" th:style="'--accent:' + ${course.accentColor}">
+    <nav class="course-toolbar" aria-label="Navigare curs">
+        <a th:href="@{'/courses/' + ${course.slug}}">Detalii curs</a>
+        <a th:href="@{/courses}">Toate cursurile</a>
+        <a th:href="@{/courses(language=${course.language})}" th:text="${'Cursuri ' + course.language}">Cursuri Java</a>
+    </nav>
+
     <section class="watch-layout">
         <aside class="lesson-playlist">
-            <a class="back-link" th:href="@{'/courses/' + ${course.slug}}">Detalii curs</a>
+            <a class="back-link" th:href="@{'/courses/' + ${course.slug}}">Inapoi la detalii</a>
             <h1 th:text="${course.title}">Curs</h1>
             <button class="playlist-item active" th:each="module, stat : ${course.modules}" type="button">
                 <span th:text="${stat.count}">1</span>
@@ -23,6 +29,15 @@
 
         <section class="video-area">
             <p class="auth-success" th:if="${successMessage}" th:text="${successMessage}"></p>
+            <div class="watch-progress">
+                <div class="course-progress-label">
+                    <span th:text="${completedLessons + ' din ' + course.lessons + ' lectii finalizate'}">0 din 64 lectii finalizate</span>
+                    <strong th:text="${progressPercent + '%'}">0%</strong>
+                </div>
+                <div class="course-progress-track">
+                    <span th:style="'width:' + ${progressPercent} + '%'"></span>
+                </div>
+            </div>
             <div class="video-placeholder">
                 <div class="play-circle">▶</div>
                 <p>Lectie demo premium</p>
@@ -30,7 +45,55 @@
             <div class="watch-notes">
                 <h2>Lectia curenta</h2>
                 <p>Aici vei conecta playerul video real pentru fiecare lectie. Fluxul de acces este deja pregatit: doar utilizatorii logati si cu acest curs cumparat ajung pe pagina.</p>
+                <form th:action="@{'/courses/' + ${course.slug} + '/progress'}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button class="primary-action" type="submit" th:disabled="${completedLessons >= course.lessons}">Marcheaza lectia finalizata</button>
+                </form>
             </div>
+
+            <section class="course-comments watch-comments">
+                <div class="comments-header">
+                    <div>
+                        <p class="eyebrow">Feedback cursanti</p>
+                        <h2>Comentarii</h2>
+                    </div>
+                    <span th:text="${courseComments.size() + ' comentarii'}">0 comentarii</span>
+                </div>
+
+                <p class="auth-error" th:if="${errorMessage}" th:text="${errorMessage}"></p>
+
+                <form class="comment-form" th:action="@{'/courses/' + ${course.slug} + '/comments'}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <input type="hidden" name="returnTo" value="watch">
+                    <label for="watch-course-comment">Comentariul tau</label>
+                    <textarea id="watch-course-comment" name="content" rows="4" maxlength="1200"
+                              placeholder="Lasa o parere pentru alti cursanti..."
+                              th:text="${myCourseComment != null ? myCourseComment.content : ''}"></textarea>
+                    <div class="comment-form-actions">
+                        <small>Un comentariu per curs. Retrimiterea il rescrie.</small>
+                        <button class="primary-action" type="submit" th:text="${myCourseComment != null ? 'Actualizeaza comentariul' : 'Publica comentariul'}">Publica comentariul</button>
+                    </div>
+                </form>
+
+                <div class="comment-list" th:if="${!courseComments.isEmpty()}">
+                    <article class="comment-card" th:each="comment : ${courseComments}">
+                        <div class="comment-avatar">
+                            <img th:if="${comment.user.profileImageUrl != null and !comment.user.profileImageUrl.isBlank()}"
+                                 th:src="${comment.user.profileImageUrl}" th:alt="${comment.authorName}">
+                            <span th:if="${comment.user.profileImageUrl == null or comment.user.profileImageUrl.isBlank()}"
+                                  th:text="${comment.authorInitial}">C</span>
+                        </div>
+                        <div class="comment-body">
+                            <div class="comment-meta">
+                                <strong th:text="${comment.authorName}">Cursant</strong>
+                                <span th:text="${comment.updatedAt != comment.createdAt ? 'Actualizat' : 'Publicat'}">Publicat</span>
+                            </div>
+                            <p th:text="${comment.content}">Comentariu</p>
+                        </div>
+                    </article>
+                </div>
+                <p class="empty-state" th:if="${courseComments.isEmpty()}">Fii primul cursant care lasa o parere.</p>
+            </section>
         </section>
     </section>
 </main>

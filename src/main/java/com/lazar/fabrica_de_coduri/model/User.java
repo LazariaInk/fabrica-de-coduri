@@ -18,6 +18,8 @@ public class User {
 
     private String role;
 
+    private String profileImageUrl;
+
     private boolean enabled = false;
 
     @ManyToMany
@@ -28,6 +30,15 @@ public class User {
             uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "premium_course_id"})
     )
     private Set<PremiumCourse> purchasedCourses = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_wishlist_courses",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "premium_course_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "premium_course_id"})
+    )
+    private Set<PremiumCourse> wishlistCourses = new HashSet<>();
 
     public User() {
     }
@@ -67,8 +78,16 @@ public class User {
         return role;
     }
 
+    public String getProfileImageUrl() {
+        return profileImageUrl;
+    }
+
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
     }
 
     public boolean isEnabled() {
@@ -85,6 +104,14 @@ public class User {
 
     public void setPurchasedCourses(Set<PremiumCourse> purchasedCourses) {
         this.purchasedCourses = purchasedCourses;
+    }
+
+    public Set<PremiumCourse> getWishlistCourses() {
+        return wishlistCourses;
+    }
+
+    public void setWishlistCourses(Set<PremiumCourse> wishlistCourses) {
+        this.wishlistCourses = wishlistCourses;
     }
 }
 

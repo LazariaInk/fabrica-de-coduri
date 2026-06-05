@@ -18,9 +18,29 @@
             <p>Cauta cursul potrivit, vezi programa gratuit si autentifica-te cand vrei sa cumperi sau sa vizionezi.</p>
         </div>
         <form class="course-search" th:action="@{/courses}" method="get">
+            <input type="hidden" name="language" th:if="${selectedLanguage != ''}" th:value="${selectedLanguage}">
+            <input type="hidden" name="view" th:if="${selectedView != 'all'}" th:value="${selectedView}">
             <input type="search" name="q" th:value="${query}" placeholder="Cauta Java, Python, React...">
             <button type="submit">Cauta</button>
         </form>
+    </section>
+
+    <section class="course-library-menu" th:if="${authLoggedIn == true}" aria-label="Biblioteca mea">
+        <a th:href="@{/courses(language=${selectedLanguage}, q=${query})}"
+           th:classappend="${selectedView == 'all'} ? ' active' : ''">Toate cursurile</a>
+        <a th:href="@{/courses(view='owned', language=${selectedLanguage}, q=${query})}"
+           th:classappend="${selectedView == 'owned'} ? ' active' : ''">Cursurile mele</a>
+        <a th:href="@{/courses(view='wishlist', language=${selectedLanguage}, q=${query})}"
+           th:classappend="${selectedView == 'wishlist'} ? ' active' : ''">Wishlist</a>
+    </section>
+
+    <section class="course-filters" aria-label="Filtre cursuri">
+        <a th:href="@{/courses(view=${selectedView}, q=${query})}"
+           th:classappend="${selectedLanguage == ''} ? ' active' : ''">Toate</a>
+        <a th:each="language : ${languages}"
+           th:href="@{/courses(language=${language}, view=${selectedView}, q=${query})}"
+           th:text="${language}"
+           th:classappend="${selectedLanguage == language} ? ' active' : ''">Java</a>
     </section>
 
     <section class="course-grid">
@@ -31,6 +51,7 @@
                 </div>
                 <div class="course-card-body">
                     <div class="course-meta">
+                        <span th:text="${course.language}">Java</span>
                         <span th:text="${course.level}">Nivel</span>
                         <span th:text="${course.duration}">Durata</span>
                     </div>
@@ -40,7 +61,17 @@
                         <span th:text="${course.lessons + ' lectii'}">64 lectii</span>
                         <strong th:text="${course.price + ' RON'}">199 RON</strong>
                     </div>
+                    <div class="course-progress" th:if="${purchasedCourses.contains(course.slug)}">
+                        <div class="course-progress-label">
+                            <span>Progres</span>
+                            <strong th:text="${courseProgress.getOrDefault(course.slug, 0) + '%'}">0%</strong>
+                        </div>
+                        <div class="course-progress-track">
+                            <span th:style="'width:' + ${courseProgress.getOrDefault(course.slug, 0)} + '%'"></span>
+                        </div>
+                    </div>
                     <span class="owned-badge" th:if="${purchasedCourses.contains(course.slug)}">In biblioteca</span>
+                    <span class="owned-badge wishlist-badge" th:if="${wishlistCourses.contains(course.slug)}">Wishlist</span>
                 </div>
             </a>
         </article>
