@@ -19,65 +19,165 @@
         </div>
         <form class="course-search" th:action="@{/courses}" method="get">
             <input type="hidden" name="language" th:if="${selectedLanguage != ''}" th:value="${selectedLanguage}">
+            <input type="hidden" name="level" th:if="${selectedLevel != ''}" th:value="${selectedLevel}">
             <input type="hidden" name="view" th:if="${selectedView != 'all'}" th:value="${selectedView}">
+            <input type="hidden" name="minPrice" th:if="${minPrice != null}" th:value="${minPrice}">
+            <input type="hidden" name="maxPrice" th:if="${maxPrice != null}" th:value="${maxPrice}">
+            <input type="hidden" name="maxDuration" th:if="${maxDuration != null}" th:value="${maxDuration}">
+            <input type="hidden" name="sort" th:value="${selectedSort}">
             <input type="search" name="q" th:value="${query}" placeholder="Cauta Java, Python, React...">
             <button type="submit">Cauta</button>
         </form>
     </section>
 
     <section class="course-library-menu" th:if="${authLoggedIn == true}" aria-label="Biblioteca mea">
-        <a th:href="@{/courses(language=${selectedLanguage}, q=${query})}"
+        <a th:href="@{/courses(language=${selectedLanguage}, level=${selectedLevel}, minPrice=${minPrice}, maxPrice=${maxPrice}, maxDuration=${maxDuration}, sort=${selectedSort}, q=${query})}"
            th:classappend="${selectedView == 'all'} ? ' active' : ''">Toate cursurile</a>
-        <a th:href="@{/courses(view='owned', language=${selectedLanguage}, q=${query})}"
+        <a th:href="@{/courses(view='owned', language=${selectedLanguage}, level=${selectedLevel}, minPrice=${minPrice}, maxPrice=${maxPrice}, maxDuration=${maxDuration}, sort=${selectedSort}, q=${query})}"
            th:classappend="${selectedView == 'owned'} ? ' active' : ''">Cursurile mele</a>
-        <a th:href="@{/courses(view='wishlist', language=${selectedLanguage}, q=${query})}"
+        <a th:href="@{/courses(view='wishlist', language=${selectedLanguage}, level=${selectedLevel}, minPrice=${minPrice}, maxPrice=${maxPrice}, maxDuration=${maxDuration}, sort=${selectedSort}, q=${query})}"
            th:classappend="${selectedView == 'wishlist'} ? ' active' : ''">Wishlist</a>
     </section>
 
-    <section class="course-filters" aria-label="Filtre cursuri">
-        <a th:href="@{/courses(view=${selectedView}, q=${query})}"
-           th:classappend="${selectedLanguage == ''} ? ' active' : ''">Toate</a>
-        <a th:each="language : ${languages}"
-           th:href="@{/courses(language=${language}, view=${selectedView}, q=${query})}"
-           th:text="${language}"
-           th:classappend="${selectedLanguage == language} ? ' active' : ''">Java</a>
+    <section class="course-browser">
+        <aside class="course-filter-panel">
+            <div class="filter-heading">
+                <h2>Filtre</h2>
+                <a th:href="@{/courses(view=${selectedView}, q=${query})}">Reseteaza</a>
+            </div>
+            <form th:action="@{/courses}" method="get">
+                <input type="hidden" name="q" th:if="${query != ''}" th:value="${query}">
+                <input type="hidden" name="view" th:if="${selectedView != 'all'}" th:value="${selectedView}">
+
+                <label>
+                    Tehnologie
+                    <select name="language">
+                        <option value="">Toate tehnologiile</option>
+                        <option th:each="language : ${languages}"
+                                th:value="${language}"
+                                th:text="${language}"
+                                th:selected="${selectedLanguage == language}">Java</option>
+                    </select>
+                </label>
+
+                <label>
+                    Nivel
+                    <select name="level">
+                        <option value="">Toate nivelurile</option>
+                        <option th:each="level : ${levels}"
+                                th:value="${level}"
+                                th:text="${level}"
+                                th:selected="${selectedLevel == level}">Incepator</option>
+                    </select>
+                </label>
+
+                <div class="filter-row">
+                    <label>
+                        Pret minim
+                        <input class="price-input" type="number" name="minPrice" inputmode="numeric" min="0" step="10" th:value="${minPrice}" placeholder="0 RON">
+                    </label>
+                    <label>
+                        Pret maxim
+                        <input class="price-input" type="number" name="maxPrice" inputmode="numeric" min="0" step="10" th:value="${maxPrice}" placeholder="250 RON">
+                    </label>
+                </div>
+
+                <label>
+                    Durata maxima
+                    <select name="maxDuration">
+                        <option value="">Orice durata</option>
+                        <option value="8" th:selected="${maxDuration == 8}">Pana la 8 ore</option>
+                        <option value="10" th:selected="${maxDuration == 10}">Pana la 10 ore</option>
+                        <option value="12" th:selected="${maxDuration == 12}">Pana la 12 ore</option>
+                        <option value="15" th:selected="${maxDuration == 15}">Pana la 15 ore</option>
+                    </select>
+                </label>
+
+                <label>
+                    Sortare
+                    <select name="sort">
+                        <option value="title" th:selected="${selectedSort == 'title'}">Titlu A-Z</option>
+                        <option value="price-asc" th:selected="${selectedSort == 'price-asc'}">Pret crescator</option>
+                        <option value="price-desc" th:selected="${selectedSort == 'price-desc'}">Pret descrescator</option>
+                        <option value="duration-asc" th:selected="${selectedSort == 'duration-asc'}">Durata crescatoare</option>
+                        <option value="duration-desc" th:selected="${selectedSort == 'duration-desc'}">Durata descrescatoare</option>
+                    </select>
+                </label>
+
+                <button class="primary-action" type="submit">Aplica filtre</button>
+            </form>
+        </aside>
+
+        <section class="course-results">
+            <div class="course-results-bar">
+                <span th:text="${coursePage.totalElements + ' cursuri gasite'}">0 cursuri gasite</span>
+            </div>
+
+            <section class="course-grid">
+                <article class="course-card" th:each="course : ${courses}">
+                    <a class="course-card-link course-thumb-link" th:href="@{'/courses/' + ${course.slug}}">
+                        <div class="course-thumb">
+                            <span th:text="${#strings.substring(course.title, 0, 1)}">C</span>
+                        </div>
+                    </a>
+                    <div class="course-card-body">
+                        <div class="course-meta">
+                            <span th:text="${course.language}">Java</span>
+                            <span th:text="${course.level}">Nivel</span>
+                            <span th:text="${course.duration}">Durata</span>
+                        </div>
+                        <a class="course-title-link" th:href="@{'/courses/' + ${course.slug}}">
+                            <h2 th:text="${course.title}">Titlu curs</h2>
+                        </a>
+                        <a class="course-author-link" th:if="${course.author != null}"
+                           th:href="@{'/authors/' + ${course.author.slug}}">
+                            <span class="author-mini-avatar">
+                                <img th:if="${course.author.avatarUrl != null and !course.author.avatarUrl.isBlank()}"
+                                     th:src="${course.author.avatarUrl}" th:alt="${course.author.name}">
+                                <span th:if="${course.author.avatarUrl == null or course.author.avatarUrl.isBlank()}"
+                                      th:text="${course.author.initials}">FC</span>
+                            </span>
+                            <span class="author-mini-copy">
+                                <small>Autor curs</small>
+                                <strong th:text="${course.author.name}">Autor curs</strong>
+                            </span>
+                        </a>
+                        <p th:text="${course.subtitle}">Descriere curs</p>
+                        <div class="course-stats">
+                            <span th:text="${course.lessons + ' lectii'}">64 lectii</span>
+                            <strong th:text="${course.price + ' RON'}">199 RON</strong>
+                        </div>
+                        <div class="course-progress" th:if="${purchasedCourses.contains(course.slug)}">
+                            <div class="course-progress-label">
+                                <span>Progres</span>
+                                <strong th:text="${courseProgress.getOrDefault(course.slug, 0) + '%'}">0%</strong>
+                            </div>
+                            <div class="course-progress-track">
+                                <span th:style="'width:' + ${courseProgress.getOrDefault(course.slug, 0)} + '%'"></span>
+                            </div>
+                        </div>
+                        <span class="owned-badge" th:if="${purchasedCourses.contains(course.slug)}">In biblioteca</span>
+                        <span class="owned-badge wishlist-badge" th:if="${wishlistCourses.contains(course.slug)}">Wishlist</span>
+                    </div>
+                </article>
+            </section>
+
+            <p class="empty-state" th:if="${courses.isEmpty()}">Nu am gasit cursuri pentru cautarea ta.</p>
+        </section>
     </section>
 
-    <section class="course-grid">
-        <article class="course-card" th:each="course : ${courses}" th:style="'--accent:' + ${course.accentColor}">
-            <a class="course-card-link" th:href="@{'/courses/' + ${course.slug}}">
-                <div class="course-thumb">
-                    <span th:text="${#strings.substring(course.title, 0, 1)}">C</span>
-                </div>
-                <div class="course-card-body">
-                    <div class="course-meta">
-                        <span th:text="${course.language}">Java</span>
-                        <span th:text="${course.level}">Nivel</span>
-                        <span th:text="${course.duration}">Durata</span>
-                    </div>
-                    <h2 th:text="${course.title}">Titlu curs</h2>
-                    <p th:text="${course.subtitle}">Descriere curs</p>
-                    <div class="course-stats">
-                        <span th:text="${course.lessons + ' lectii'}">64 lectii</span>
-                        <strong th:text="${course.price + ' RON'}">199 RON</strong>
-                    </div>
-                    <div class="course-progress" th:if="${purchasedCourses.contains(course.slug)}">
-                        <div class="course-progress-label">
-                            <span>Progres</span>
-                            <strong th:text="${courseProgress.getOrDefault(course.slug, 0) + '%'}">0%</strong>
-                        </div>
-                        <div class="course-progress-track">
-                            <span th:style="'width:' + ${courseProgress.getOrDefault(course.slug, 0)} + '%'"></span>
-                        </div>
-                    </div>
-                    <span class="owned-badge" th:if="${purchasedCourses.contains(course.slug)}">In biblioteca</span>
-                    <span class="owned-badge wishlist-badge" th:if="${wishlistCourses.contains(course.slug)}">Wishlist</span>
-                </div>
-            </a>
-        </article>
-    </section>
-
-    <p class="empty-state" th:if="${courses.isEmpty()}">Nu am gasit cursuri pentru cautarea ta.</p>
+    <nav class="pagination courses-bottom-pagination" th:if="${coursePage.totalPages > 1}" aria-label="Paginare cursuri">
+        <span class="pagination-status"
+              th:text="${'Pagina ' + (coursePage.number + 1) + ' din ' + coursePage.totalPages}">Pagina 1 din 3</span>
+        <a th:classappend="${coursePage.first} ? ' disabled' : ''"
+           th:href="@{/courses(page=${coursePage.number - 1}, size=${pageSize}, q=${query}, language=${selectedLanguage}, level=${selectedLevel}, minPrice=${minPrice}, maxPrice=${maxPrice}, maxDuration=${maxDuration}, sort=${selectedSort}, view=${selectedView})}">Pagina anterioara</a>
+        <a th:each="pageNumber : ${#numbers.sequence(0, coursePage.totalPages - 1)}"
+           th:href="@{/courses(page=${pageNumber}, size=${pageSize}, q=${query}, language=${selectedLanguage}, level=${selectedLevel}, minPrice=${minPrice}, maxPrice=${maxPrice}, maxDuration=${maxDuration}, sort=${selectedSort}, view=${selectedView})}"
+           th:text="${pageNumber + 1}"
+           th:classappend="${pageNumber == coursePage.number} ? ' active' : ''">1</a>
+        <a th:classappend="${coursePage.last} ? ' disabled' : ''"
+           th:href="@{/courses(page=${coursePage.number + 1}, size=${pageSize}, q=${query}, language=${selectedLanguage}, level=${selectedLevel}, minPrice=${minPrice}, maxPrice=${maxPrice}, maxDuration=${maxDuration}, sort=${selectedSort}, view=${selectedView})}">Pagina urmatoare</a>
+    </nav>
 </main>
 
 <div th:replace="~{fragments/footer :: footer}"></div>

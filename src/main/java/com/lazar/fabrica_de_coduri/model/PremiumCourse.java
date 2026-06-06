@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OrderColumn;
 import jakarta.persistence.Table;
 
@@ -37,6 +38,10 @@ public class PremiumCourse {
     private String duration;
 
     private String instructor;
+
+    @ManyToOne
+    @JoinColumn(name = "author_id")
+    private CourseAuthor author;
 
     private int lessons;
 
@@ -113,6 +118,18 @@ public class PremiumCourse {
         return instructor;
     }
 
+    public CourseAuthor getAuthor() {
+        return author;
+    }
+
+    public String getInstructorName() {
+        if (author != null && author.getName() != null && !author.getName().isBlank()) {
+            return author.getName();
+        }
+
+        return instructor;
+    }
+
     public int getLessons() {
         return lessons;
     }
@@ -163,6 +180,10 @@ public class PremiumCourse {
 
     public void setInstructor(String instructor) {
         this.instructor = instructor;
+    }
+
+    public void setAuthor(CourseAuthor author) {
+        this.author = author;
     }
 
     public void setLessons(int lessons) {

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${author.name + ' - Autor Fabrica de Coduri'}">Autor</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <script th:src="@{/js/script.js}" defer></script>
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+
+<main class="author-page">
+    <nav class="course-toolbar" aria-label="Navigare autor">
+        <a th:href="@{/courses}">Toate cursurile</a>
+        <a th:href="@{/}">Acasa</a>
+    </nav>
+
+    <section class="author-hero">
+        <div class="author-photo-frame">
+            <img th:if="${author.avatarUrl != null and !author.avatarUrl.isBlank()}"
+                 th:src="${author.avatarUrl}" th:alt="${author.name}">
+            <span th:if="${author.avatarUrl == null or author.avatarUrl.isBlank()}" th:text="${author.initials}">FC</span>
+        </div>
+        <div class="author-hero-copy">
+            <p class="eyebrow">Autor cursuri premium</p>
+            <h1 th:text="${author.name}">Nume autor</h1>
+            <p class="author-headline" th:text="${author.headline}">Headline autor</p>
+            <div class="author-actions">
+                <a class="primary-action" th:href="@{/courses(q=${author.name})}">Vezi cursurile</a>
+                <a class="secondary-action" th:if="${author.websiteUrl != null and !author.websiteUrl.isBlank()}"
+                   th:href="${author.websiteUrl}" target="_blank" rel="noopener">Website</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="author-stats">
+        <article>
+            <span>Experienta</span>
+            <strong th:text="${author.experience}">8 ani</strong>
+        </article>
+        <article>
+            <span>Rating</span>
+            <strong th:text="${author.rating + ' / 5'}">4.9 / 5</strong>
+        </article>
+        <article>
+            <span>Cursanti</span>
+            <strong th:text="${author.students}">12.000+</strong>
+        </article>
+        <article>
+            <span>Locatie</span>
+            <strong th:text="${author.location}">Romania</strong>
+        </article>
+    </section>
+
+    <section class="author-layout">
+        <aside class="author-bio-card">
+            <h2>Despre autor</h2>
+            <p th:text="${author.bio}">Descriere autor</p>
+
+            <h3>Specializari</h3>
+            <div class="author-specialties">
+                <span th:each="specialty : ${author.specialties}" th:text="${specialty}">Java</span>
+            </div>
+
+            <div class="author-socials">
+                <a th:if="${author.linkedinUrl != null and !author.linkedinUrl.isBlank()}"
+                   th:href="${author.linkedinUrl}" target="_blank" rel="noopener">LinkedIn</a>
+                <a th:if="${author.githubUrl != null and !author.githubUrl.isBlank()}"
+                   th:href="${author.githubUrl}" target="_blank" rel="noopener">GitHub</a>
+                <a th:if="${author.websiteUrl != null and !author.websiteUrl.isBlank()}"
+                   th:href="${author.websiteUrl}" target="_blank" rel="noopener">Website</a>
+            </div>
+        </aside>
+
+        <section class="author-courses">
+            <div class="section-heading">
+                <p class="eyebrow">Biblioteca autorului</p>
+                <h2 th:text="${coursePage.totalElements + ' cursuri publicate'}">Cursuri publicate</h2>
+            </div>
+
+            <div class="author-course-list">
+                <article class="author-course-card" th:each="course : ${courses}">
+                    <a th:href="@{'/courses/' + ${course.slug}}">
+                        <span th:text="${course.language + ' / ' + course.level}">Java / Intermediar</span>
+                        <h3 th:text="${course.title}">Titlu curs</h3>
+                        <p th:text="${course.subtitle}">Descriere curs</p>
+                        <div>
+                            <strong th:text="${course.price + ' RON'}">199 RON</strong>
+                            <small th:text="${course.lessons + ' lectii'}">64 lectii</small>
+                        </div>
+                    </a>
+                </article>
+            </div>
+
+            <nav class="pagination" th:if="${coursePage.totalPages > 1}" aria-label="Paginare cursuri autor">
+                <a th:classappend="${coursePage.first} ? ' disabled' : ''"
+                   th:href="@{'/authors/' + ${author.slug}(page=${coursePage.number - 1}, size=${pageSize})}">Pagina anterioara</a>
+                <a th:each="pageNumber : ${#numbers.sequence(0, coursePage.totalPages - 1)}"
+                   th:href="@{'/authors/' + ${author.slug}(page=${pageNumber}, size=${pageSize})}"
+                   th:text="${pageNumber + 1}"
+                   th:classappend="${pageNumber == coursePage.number} ? ' active' : ''">1</a>
+                <a th:classappend="${coursePage.last} ? ' disabled' : ''"
+                   th:href="@{'/authors/' + ${author.slug}(page=${coursePage.number + 1}, size=${pageSize})}">Pagina urmatoare</a>
+            </nav>
+        </section>
+    </section>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

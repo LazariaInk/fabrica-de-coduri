@@ -4,6 +4,7 @@ import com.lazar.fabrica_de_coduri.model.PremiumCourse;
 import com.lazar.fabrica_de_coduri.repository.PlatformInfoRepository;
 import com.lazar.fabrica_de_coduri.repository.TopicRepository;
 import com.lazar.fabrica_de_coduri.service.PremiumCourseService;
+import org.springframework.data.domain.Page;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -33,7 +34,14 @@ public class PremiumCourseController {
     @GetMapping("/courses")
     public String courses(@RequestParam(value = "q", required = false) String query,
                           @RequestParam(value = "language", required = false) String language,
+                          @RequestParam(value = "level", required = false) String level,
+                          @RequestParam(value = "minPrice", required = false) Integer minPrice,
+                          @RequestParam(value = "maxPrice", required = false) Integer maxPrice,
+                          @RequestParam(value = "maxDuration", required = false) Integer maxDuration,
+                          @RequestParam(value = "sort", required = false, defaultValue = "title") String sort,
                           @RequestParam(value = "view", required = false, defaultValue = "all") String view,
+                          @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+                          @RequestParam(value = "size", required = false, defaultValue = "6") int size,
                           Model model,
                           Authentication authentication) {
         if (!isLoggedIn(authentication) && ("owned".equals(view) || "wishlist".equals(view))) {
@@ -41,11 +49,21 @@ public class PremiumCourseController {
         }
 
         addSharedAttributes(model);
-        model.addAttribute("courses", premiumCourseService.findAll(query, language, view, username(authentication)));
+        Page<PremiumCourse> coursePage = premiumCourseService.findPage(query, language, view, username(authentication),
+                minPrice, maxPrice, maxDuration, level, sort, page, size);
+        model.addAttribute("coursePage", coursePage);
+        model.addAttribute("courses", coursePage.getContent());
         model.addAttribute("languages", premiumCourseService.findLanguages());
+        model.addAttribute("levels", premiumCourseService.findLevels());
         model.addAttribute("query", query == null ? "" : query);
         model.addAttribute("selectedLanguage", language == null ? "" : language);
+        model.addAttribute("selectedLevel", level == null ? "" : level);
+        model.addAttribute("minPrice", minPrice);
+        model.addAttribute("maxPrice", maxPrice);
+        model.addAttribute("maxDuration", maxDuration);
+        model.addAttribute("selectedSort", sort == null ? "title" : sort);
         model.addAttribute("selectedView", view == null ? "all" : view);
+        model.addAttribute("pageSize", size);
         model.addAttribute("purchasedCourses", purchasedCourseSlugs(authentication));
         model.addAttribute("wishlistCourses", wishlistCourseSlugs(authentication));
         model.addAttribute("courseProgress", isLoggedIn(authentication)
