@@ -85,6 +85,7 @@ public class LessonController {
         model.addAttribute("activeChapterId", lesson.getChapter().getId());
 
         model.addAttribute("topics", topicRepository.findAll());
+        model.addAttribute("platformInfo", platformInfoRepository.findTopByOrderByIdAsc());
 
         return lesson.getHtmlPath();
     }
