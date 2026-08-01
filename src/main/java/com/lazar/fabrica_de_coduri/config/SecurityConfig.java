@@ -18,6 +18,8 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    // Temporar dezactivat pentru deploy: blocheaza accesul direct la auth si cursuri video.
+    private static final boolean AUTH_AND_VIDEO_FEATURES_ENABLED = false;
 
     private final CustomUserDetailsService userDetailsService;
 
@@ -30,13 +32,16 @@ public class SecurityConfig {
                                            ObjectProvider<ClientRegistrationRepository> clientRegistrationRepository,
                                            CustomOAuth2UserService customOAuth2UserService) throws Exception {
         http
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/courses/*/buy", "/courses/*/watch", "/courses/*/wishlist", "/courses/*/progress", "/courses/*/comments", "/courses/*/videos/*/stream", "/courses/*/videos/*/progress").authenticated()
-                        .requestMatchers("/account/**").authenticated()
-                        .requestMatchers("/forgot-password", "/reset-password").permitAll()
-                        .anyRequest().permitAll()
-                )
+                .authorizeHttpRequests(auth -> {
+                    if (!AUTH_AND_VIDEO_FEATURES_ENABLED) {
+                        auth.requestMatchers(disabledFeatureRoutes()).denyAll();
+                    }
+                    auth.requestMatchers("/admin/**").hasRole("ADMIN")
+                            .requestMatchers("/courses/*/buy", "/courses/*/watch", "/courses/*/wishlist", "/courses/*/progress", "/courses/*/comments", "/courses/*/videos/*/stream", "/courses/*/videos/*/progress").authenticated()
+                            .requestMatchers("/account/**").authenticated()
+                            .requestMatchers("/forgot-password", "/reset-password").permitAll()
+                            .anyRequest().permitAll();
+                })
                 .formLogin(login -> login
                         .loginPage("/login")
                         .defaultSuccessUrl("/courses", false)
@@ -55,6 +60,19 @@ public class SecurityConfig {
         }
 
         return http.build();
+    }
+
+    private String[] disabledFeatureRoutes() {
+        return new String[]{
+                "/login",
+                "/register",
+                "/confirm",
+                "/forgot-password",
+                "/reset-password",
+                "/oauth2/**",
+                "/login/oauth2/**",
+                "/courses/**"
+        };
     }
 
     @Bean

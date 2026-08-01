@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class RegisterController {
+    // Temporar dezactivat pentru deploy: nu permitem crearea/confirmarea conturilor.
+    private static final boolean AUTH_FEATURES_ENABLED = false;
 
     private final RegisterService registrationService;
 
@@ -21,6 +23,10 @@ public class RegisterController {
 
     @GetMapping("/register")
     public String showRegistrationForm(Model model) {
+        if (!AUTH_FEATURES_ENABLED) {
+            return "redirect:/";
+        }
+
         model.addAttribute("user", new RegisterDTO());
         return "register";
     }
@@ -29,6 +35,10 @@ public class RegisterController {
     public String processRegistration(@ModelAttribute("user") RegisterDTO userDTO,
                                       Model model,
                                       HttpServletRequest request) {
+        if (!AUTH_FEATURES_ENABLED) {
+            return "redirect:/";
+        }
+
         String appUrl = request.getRequestURL().toString().replace(request.getRequestURI(), request.getContextPath());
 
         String error = registrationService.registerUser(userDTO, appUrl);
@@ -42,6 +52,10 @@ public class RegisterController {
 
     @GetMapping("/confirm")
     public String confirmRegistration(@RequestParam("token") String token, Model model) {
+        if (!AUTH_FEATURES_ENABLED) {
+            return "redirect:/";
+        }
+
         String error = registrationService.confirmUser(token);
         if (error != null) {
             model.addAttribute("message", error);

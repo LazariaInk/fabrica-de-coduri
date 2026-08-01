@@ -34,6 +34,9 @@ import java.util.Set;
 
 @Controller
 public class PremiumCourseController {
+    // Temporar dezactivat pentru deploy: cursurile video premium nu sunt disponibile public.
+    private static final boolean VIDEO_COURSES_ENABLED = false;
+
     private final PremiumCourseService premiumCourseService;
     private final VideoStorageService videoStorageService;
     private final TopicRepository topicRepository;
@@ -62,6 +65,10 @@ public class PremiumCourseController {
                           @RequestParam(value = "size", required = false, defaultValue = "6") int size,
                           Model model,
                           Authentication authentication) {
+        if (!VIDEO_COURSES_ENABLED) {
+            return "redirect:/";
+        }
+
         if (!isLoggedIn(authentication) && ("owned".equals(view) || "wishlist".equals(view))) {
             return "redirect:/login";
         }
@@ -94,6 +101,10 @@ public class PremiumCourseController {
     public String courseDetails(@PathVariable String slug,
                                 Model model,
                                 Authentication authentication) {
+        if (!VIDEO_COURSES_ENABLED) {
+            return "redirect:/";
+        }
+
         PremiumCourse course = premiumCourseService.findBySlug(slug)
                 .orElseThrow(() -> new IllegalArgumentException("Course not found"));
 
@@ -119,6 +130,10 @@ public class PremiumCourseController {
     public String buyCourse(@PathVariable String slug,
                             Authentication authentication,
                             RedirectAttributes redirectAttributes) {
+        if (!VIDEO_COURSES_ENABLED) {
+            return "redirect:/";
+        }
+
         PremiumCourse course = premiumCourseService.purchaseCourse(authentication.getName(), slug);
         redirectAttributes.addFlashAttribute("successMessage",
                 "Cursul \"" + course.getTitle() + "\" este acum in biblioteca ta.");
@@ -129,6 +144,10 @@ public class PremiumCourseController {
     public String toggleWishlist(@PathVariable String slug,
                                  Authentication authentication,
                                  RedirectAttributes redirectAttributes) {
+        if (!VIDEO_COURSES_ENABLED) {
+            return "redirect:/";
+        }
+
         boolean added = premiumCourseService.toggleWishlistCourse(authentication.getName(), slug);
         redirectAttributes.addFlashAttribute("successMessage",
                 added ? "Cursul a fost adaugat in wishlist." : "Cursul a fost scos din wishlist.");
@@ -139,6 +158,10 @@ public class PremiumCourseController {
     public String watchCourse(@PathVariable String slug,
                               Model model,
                               Authentication authentication) {
+        if (!VIDEO_COURSES_ENABLED) {
+            return "redirect:/";
+        }
+
         PremiumCourse course = premiumCourseService.findBySlug(slug)
                 .orElseThrow(() -> new IllegalArgumentException("Course not found"));
 
@@ -165,6 +188,10 @@ public class PremiumCourseController {
                                                       @PathVariable Long videoId,
                                                       @RequestHeader HttpHeaders headers,
                                                       Authentication authentication) throws IOException {
+        if (!VIDEO_COURSES_ENABLED) {
+            return ResponseEntity.notFound().build();
+        }
+
         CourseVideo video = premiumCourseService.findPurchasedVideo(authentication.getName(), slug, videoId).orElse(null);
         if (video == null) {
             return ResponseEntity.notFound().build();
@@ -192,6 +219,10 @@ public class PremiumCourseController {
                                                   @RequestParam("watchedSeconds") int watchedSeconds,
                                                   @RequestParam(value = "durationSeconds", required = false) Integer durationSeconds,
                                                   Authentication authentication) {
+        if (!VIDEO_COURSES_ENABLED) {
+            return Map.of("progressPercent", 0, "completedLessons", 0);
+        }
+
         PremiumCourseService.VideoProgressResult progress = premiumCourseService.saveVideoProgress(authentication.getName(), slug, videoId,
                 watchedSeconds, durationSeconds);
         return Map.of(
@@ -204,6 +235,10 @@ public class PremiumCourseController {
     public String completeNextLesson(@PathVariable String slug,
                                      Authentication authentication,
                                      RedirectAttributes redirectAttributes) {
+        if (!VIDEO_COURSES_ENABLED) {
+            return "redirect:/";
+        }
+
         premiumCourseService.completeNextLesson(authentication.getName(), slug);
         redirectAttributes.addFlashAttribute("successMessage", "Progresul a fost actualizat.");
         return "redirect:/courses/" + slug + "/watch";
@@ -215,6 +250,10 @@ public class PremiumCourseController {
                               @RequestParam(value = "returnTo", required = false, defaultValue = "details") String returnTo,
                               Authentication authentication,
                               RedirectAttributes redirectAttributes) {
+        if (!VIDEO_COURSES_ENABLED) {
+            return "redirect:/";
+        }
+
         try {
             premiumCourseService.saveComment(authentication.getName(), slug, content);
             redirectAttributes.addFlashAttribute("successMessage", "Comentariul tau a fost salvat.");

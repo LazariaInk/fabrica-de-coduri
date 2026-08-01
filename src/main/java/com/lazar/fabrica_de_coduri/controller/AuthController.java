@@ -21,6 +21,9 @@ import java.util.UUID;
 
 @Controller
 public class AuthController {
+    // Temporar dezactivat pentru deploy: login/reset conturi nu sunt disponibile public.
+    private static final boolean AUTH_FEATURES_ENABLED = false;
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final PasswordResetService passwordResetService;
@@ -35,6 +38,10 @@ public class AuthController {
 
     @GetMapping("/login")
     public String loginPage() {
+        if (!AUTH_FEATURES_ENABLED) {
+            return "redirect:/";
+        }
+
         return "login";
     }
 
@@ -114,6 +121,10 @@ public class AuthController {
 
     @GetMapping("/forgot-password")
     public String forgotPasswordPage() {
+        if (!AUTH_FEATURES_ENABLED) {
+            return "redirect:/";
+        }
+
         return "forgot-password";
     }
 
@@ -121,6 +132,10 @@ public class AuthController {
     public String requestPasswordReset(@RequestParam String email,
                                        HttpServletRequest request,
                                        Model model) {
+        if (!AUTH_FEATURES_ENABLED) {
+            return "redirect:/";
+        }
+
         String appUrl = request.getRequestURL().toString().replace(request.getRequestURI(), request.getContextPath());
         passwordResetService.requestReset(email, appUrl);
         model.addAttribute("success", "Daca exista un cont cu acest email, ti-am trimis un link de resetare.");
@@ -129,6 +144,10 @@ public class AuthController {
 
     @GetMapping("/reset-password")
     public String resetPasswordPage(@RequestParam String token, Model model) {
+        if (!AUTH_FEATURES_ENABLED) {
+            return "redirect:/";
+        }
+
         String error = passwordResetService.validateToken(token);
         model.addAttribute("token", token);
         if (error != null) {
@@ -142,6 +161,10 @@ public class AuthController {
                                 @RequestParam String newPassword,
                                 @RequestParam String confirmPassword,
                                 Model model) {
+        if (!AUTH_FEATURES_ENABLED) {
+            return "redirect:/";
+        }
+
         String error = passwordResetService.resetPassword(token, newPassword, confirmPassword);
         if (error != null) {
             model.addAttribute("token", token);
