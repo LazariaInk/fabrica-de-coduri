@@ -6,7 +6,9 @@ public class SlugUtils {
     public static String toSlug(String input) {
         if (input == null) return "";
 
-        String noNumberPrefix = input.replaceFirst("^\\d+\\.*\\s*", "");
+        String noNumberPrefix = input.replaceFirst("^\\d+\\.*\\s*", "")
+                .replace("C++", "Cpp")
+                .replace("c++", "cpp");
 
         return Normalizer.normalize(noNumberPrefix, Normalizer.Form.NFD)
                 .replaceAll("[\\p{InCombiningDiacriticalMarks}]", "")

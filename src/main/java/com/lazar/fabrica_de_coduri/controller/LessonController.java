@@ -90,6 +90,14 @@ public class LessonController {
         return lesson.getHtmlPath();
     }
 
+    @GetMapping("/c/{chapterSlug}/{lessonSlug}")
+    public String redirectCppLegacy(
+            @PathVariable String chapterSlug,
+            @PathVariable String lessonSlug
+    ) {
+        return "redirect:/lectii/cpp/" + SlugUtils.toSlug(chapterSlug) + "/" + SlugUtils.toSlug(lessonSlug);
+    }
+
 
 
     @GetMapping("/topic/{topicId}")
