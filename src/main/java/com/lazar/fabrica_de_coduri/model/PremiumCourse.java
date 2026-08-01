@@ -49,6 +49,8 @@ public class PremiumCourse {
 
     private String accentColor;
 
+    private String discordUrl;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "premium_course_outcomes", joinColumns = @JoinColumn(name = "course_id"))
     @OrderColumn(name = "position")
@@ -142,6 +144,31 @@ public class PremiumCourse {
         return accentColor;
     }
 
+    public String getDiscordUrl() {
+        return discordUrl;
+    }
+
+    public boolean hasDiscordUrl() {
+        return discordUrl != null && !discordUrl.isBlank();
+    }
+
+    public String getDiscordImagePath() {
+        if (language == null) {
+            return "/images/discord.png";
+        }
+
+        return switch (language.toLowerCase()) {
+            case "java" -> "/images/java-discord.png";
+            case "javascript", "typescript" -> "/images/js-discord.png";
+            case "python" -> "/images/python-discord.png";
+            case "sql", "mysql" -> "/images/mysql-discord.png";
+            case "html", "css" -> "/images/html-discord.png";
+            case "php" -> "/images/php-discord.png";
+            case "go" -> "/images/go-discord.png";
+            default -> "/images/discord.png";
+        };
+    }
+
     public List<String> getOutcomes() {
         return outcomes;
     }
@@ -196,6 +223,10 @@ public class PremiumCourse {
 
     public void setAccentColor(String accentColor) {
         this.accentColor = accentColor;
+    }
+
+    public void setDiscordUrl(String discordUrl) {
+        this.discordUrl = discordUrl;
     }
 
     public void setOutcomes(List<String> outcomes) {

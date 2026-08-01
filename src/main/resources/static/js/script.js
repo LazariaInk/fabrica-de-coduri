@@ -79,6 +79,8 @@ document.addEventListener('DOMContentLoaded', function () {
             if (sidebar) sidebar.classList.remove('active');
         });
     });
+
+    initCourseVideoPlayer();
 });
 
 // Scrollable .top-nav drag support (only if exists)
@@ -190,59 +192,104 @@ function closePopup() {
     if (overlay) overlay.style.display = "none";
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-  const bannerHTML = `
-    <div id="cookieConsentBanner">
-      <div class="cookie-box">
-        <h3>Respectăm intimitatea ta</h3>
-        <p class="cookie-text">
-          Folosim cookie-uri pentru a personaliza conținutul și reclamele, pentru a oferi funcționalități media sociale și pentru a analiza traficul nostru.
-          <br><br>
-          <a href="/politica-confidentialitate" target="_blank">Află mai multe</a>
-        </p>
-        <div class="cookie-actions">
-          <button id="acceptCookies">Accept</button>
-          <button id="rejectCookies">Refuz</button>
-        </div>
-      </div>
-    </div>
-  `;
-  document.body.insertAdjacentHTML('beforeend', bannerHTML);
+function initCourseVideoPlayer() {
+    const player = document.querySelector('.secure-video-player');
+    const playlistButtons = document.querySelectorAll('.playlist-item[data-src]');
+    if (!player || playlistButtons.length === 0) return;
 
-  const saved = localStorage.getItem('cookieConsent');
-  if (saved === 'granted') {
-    acceptConsent();
-  } else if (saved === 'denied') {
-    rejectConsent();
-  } else {
-    document.getElementById('cookieConsentBanner').style.display = 'block';
-  }
+    const source = player.querySelector('source');
+    const title = document.querySelector('.current-video-title');
+    const completedLessonsLabel = document.querySelector('.completed-lessons-label');
+    const percentLabels = document.querySelectorAll('.course-progress-label strong');
+    const percentBars = document.querySelectorAll('.course-progress-track span');
+    const csrfInput = document.querySelector('.course-video-csrf');
+    let progressUrl = player.dataset.progressUrl;
+    let lastSavedSecond = Number(player.dataset.watched || 0);
+    let saveTimeout = null;
+    let activeButton = null;
 
-  document.getElementById('acceptCookies').addEventListener('click', acceptConsent);
-  document.getElementById('rejectCookies').addEventListener('click', rejectConsent);
-});
+    function activateVideo(button) {
+        playlistButtons.forEach(item => item.classList.remove('active'));
+        button.classList.add('active');
+        activeButton = button;
+        progressUrl = button.dataset.progressUrl;
+        lastSavedSecond = Number(button.dataset.watched || 0);
+        if (title) title.textContent = button.dataset.title || 'Lectia curenta';
+        if (source && source.src !== button.dataset.src) {
+            source.src = button.dataset.src;
+            player.load();
+        }
+    }
 
-function acceptConsent() {
-  gtag('consent', 'update', {
-    'ad_storage': 'granted',
-    'analytics_storage': 'granted',
-    'ad_user_data': 'granted',
-    'ad_personalization': 'granted'
-  });
-  localStorage.setItem('cookieConsent', 'granted');
-  const banner = document.getElementById('cookieConsentBanner');
-  if (banner) banner.style.display = 'none';
-}
+    function updateCourseProgress(percent) {
+        percentLabels.forEach(label => {
+            label.textContent = percent + '%';
+        });
+        percentBars.forEach(bar => {
+            bar.style.width = percent + '%';
+        });
+    }
 
-function rejectConsent() {
-  gtag('consent', 'update', {
-    'ad_storage': 'denied',
-    'analytics_storage': 'denied',
-    'ad_user_data': 'denied',
-    'ad_personalization': 'denied'
-  });
-  localStorage.setItem('cookieConsent', 'denied');
-  const banner = document.getElementById('cookieConsentBanner');
-  if (banner) banner.style.display = 'none';
+    function updateCompletedLessons(completedLessons) {
+        if (!completedLessonsLabel) return;
+
+        const totalLessons = completedLessonsLabel.dataset.totalLessons || playlistButtons.length;
+        completedLessonsLabel.textContent = completedLessons + ' din ' + totalLessons + ' lectii finalizate';
+    }
+
+    function saveProgress(force) {
+        if (!progressUrl || !Number.isFinite(player.currentTime)) return;
+
+        const videoDuration = Number.isFinite(player.duration) && player.duration > 0
+            ? Math.max(1, Math.round(player.duration))
+            : 0;
+        const watchedSeconds = player.ended && videoDuration > 0
+            ? videoDuration
+            : Math.floor(player.currentTime);
+        if (!force && watchedSeconds - lastSavedSecond < 10) return;
+        lastSavedSecond = Math.max(lastSavedSecond, watchedSeconds);
+        if (activeButton) activeButton.dataset.watched = String(lastSavedSecond);
+
+        const body = new URLSearchParams();
+        body.set('watchedSeconds', String(lastSavedSecond));
+        if (videoDuration > 0) {
+            body.set('durationSeconds', String(videoDuration));
+        }
+        if (csrfInput) body.set(csrfInput.name, csrfInput.value);
+
+        fetch(progressUrl, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body
+        })
+            .then(response => response.ok ? response.json() : null)
+            .then(data => {
+                if (data && typeof data.progressPercent === 'number') {
+                    updateCourseProgress(data.progressPercent);
+                }
+                if (data && typeof data.completedLessons === 'number') {
+                    updateCompletedLessons(data.completedLessons);
+                }
+            })
+            .catch(() => {});
+    }
+
+    playlistButtons.forEach(button => {
+        button.addEventListener('click', () => activateVideo(button));
+    });
+
+    player.addEventListener('loadedmetadata', () => {
+        if (lastSavedSecond > 0 && player.duration && lastSavedSecond < player.duration - 2) {
+            player.currentTime = lastSavedSecond;
+        }
+    });
+    player.addEventListener('timeupdate', () => {
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(() => saveProgress(false), 300);
+    });
+    player.addEventListener('pause', () => saveProgress(true));
+    player.addEventListener('ended', () => saveProgress(true));
+
+    activateVideo(playlistButtons[0]);
 }
 

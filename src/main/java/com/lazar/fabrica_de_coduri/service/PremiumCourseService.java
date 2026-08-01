@@ -2,14 +2,18 @@ package com.lazar.fabrica_de_coduri.service;
 
 import com.lazar.fabrica_de_coduri.model.CourseComment;
 import com.lazar.fabrica_de_coduri.model.CourseAuthor;
+import com.lazar.fabrica_de_coduri.model.CourseVideo;
 import com.lazar.fabrica_de_coduri.model.PremiumCourse;
 import com.lazar.fabrica_de_coduri.model.User;
 import com.lazar.fabrica_de_coduri.model.UserCourseProgress;
+import com.lazar.fabrica_de_coduri.model.UserVideoProgress;
 import com.lazar.fabrica_de_coduri.repository.CourseCommentRepository;
 import com.lazar.fabrica_de_coduri.repository.CourseAuthorRepository;
+import com.lazar.fabrica_de_coduri.repository.CourseVideoRepository;
 import com.lazar.fabrica_de_coduri.repository.PremiumCourseRepository;
 import com.lazar.fabrica_de_coduri.repository.UserRepository;
 import com.lazar.fabrica_de_coduri.repository.UserCourseProgressRepository;
+import com.lazar.fabrica_de_coduri.repository.UserVideoProgressRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -28,20 +32,28 @@ import java.util.stream.Collectors;
 
 @Service
 public class PremiumCourseService {
+    private static final String DEFAULT_DISCORD_URL = "https://discord.gg/J5mK6cyTQC";
+
     private final PremiumCourseRepository premiumCourseRepository;
     private final UserRepository userRepository;
     private final UserCourseProgressRepository userCourseProgressRepository;
+    private final CourseVideoRepository courseVideoRepository;
+    private final UserVideoProgressRepository userVideoProgressRepository;
     private final CourseCommentRepository courseCommentRepository;
     private final CourseAuthorRepository courseAuthorRepository;
 
     public PremiumCourseService(PremiumCourseRepository premiumCourseRepository,
                                 UserRepository userRepository,
                                 UserCourseProgressRepository userCourseProgressRepository,
+                                CourseVideoRepository courseVideoRepository,
+                                UserVideoProgressRepository userVideoProgressRepository,
                                 CourseCommentRepository courseCommentRepository,
                                 CourseAuthorRepository courseAuthorRepository) {
         this.premiumCourseRepository = premiumCourseRepository;
         this.userRepository = userRepository;
         this.userCourseProgressRepository = userCourseProgressRepository;
+        this.courseVideoRepository = courseVideoRepository;
+        this.userVideoProgressRepository = userVideoProgressRepository;
         this.courseCommentRepository = courseCommentRepository;
         this.courseAuthorRepository = courseAuthorRepository;
     }
@@ -227,8 +239,8 @@ public class PremiumCourseService {
 
         for (PremiumCourse seedCourse : seedCourses) {
             premiumCourseRepository.findBySlug(seedCourse.getSlug())
-                    .ifPresentOrElse(existingCourse -> backfillSeedMetadata(existingCourse, seedCourse),
-                            () -> premiumCourseRepository.save(seedCourse));
+                    .ifPresentOrElse(existingCourse -> seedCourseVideos(backfillSeedMetadata(existingCourse, seedCourse)),
+                            () -> seedCourseVideos(premiumCourseRepository.save(seedCourse)));
         }
     }
 
@@ -318,7 +330,7 @@ public class PremiumCourseService {
         return page(premiumCourseRepository.findByAuthorOrderByTitleAsc(author), page, size);
     }
 
-    private void backfillSeedMetadata(PremiumCourse existingCourse, PremiumCourse seedCourse) {
+    private PremiumCourse backfillSeedMetadata(PremiumCourse existingCourse, PremiumCourse seedCourse) {
         if (existingCourse.getLanguage() == null || existingCourse.getLanguage().isBlank()) {
             existingCourse.setLanguage(seedCourse.getLanguage());
         }
@@ -328,8 +340,51 @@ public class PremiumCourseService {
         if (existingCourse.getInstructor() == null || existingCourse.getInstructor().isBlank()) {
             existingCourse.setInstructor(seedCourse.getInstructor());
         }
+        if (existingCourse.getDiscordUrl() == null || existingCourse.getDiscordUrl().isBlank()) {
+            existingCourse.setDiscordUrl(seedCourse.getDiscordUrl());
+        }
 
-        premiumCourseRepository.save(existingCourse);
+        return premiumCourseRepository.save(existingCourse);
+    }
+
+    private void seedCourseVideos(PremiumCourse course) {
+        List<String> videoTitles = seedVideoTitles(course);
+        int baseDuration = Math.max(300, durationHours(course.getDuration()) * 3600 / Math.max(1, videoTitles.size()));
+
+        for (int index = 0; index < videoTitles.size(); index++) {
+            int position = index + 1;
+            CourseVideo video = courseVideoRepository.findByCourseAndPosition(course, position)
+                    .orElseGet(CourseVideo::new);
+            video.setCourse(course);
+            video.setTitle(videoTitles.get(index));
+            video.setPosition(position);
+            if (video.getDurationSeconds() <= 0 || video.getDurationSeconds() >= 300) {
+                video.setDurationSeconds(baseDuration);
+            }
+            video.setStorageKey(course.getSlug() + "/video-" + position + ".mp4");
+            courseVideoRepository.save(video);
+        }
+    }
+
+    private List<String> seedVideoTitles(PremiumCourse course) {
+        if ("frontend-react-pro".equals(course.getSlug())) {
+            return List.of(
+                    "Setup proiect React",
+                    "Structura componentelor",
+                    "Props si compozitie",
+                    "State si evenimente",
+                    "Hooks esentiale",
+                    "Formulare controlate",
+                    "Consum API cu fetch",
+                    "Rutare intre pagini",
+                    "Optimizare UI",
+                    "Mini-proiect final"
+            );
+        }
+
+        return course.getModules() == null || course.getModules().isEmpty()
+                ? List.of("Introducere")
+                : course.getModules();
     }
 
     private CourseAuthor saveAuthor(CourseAuthor author) {
@@ -360,6 +415,7 @@ public class PremiumCourseService {
         PremiumCourse course = new PremiumCourse(slug, title, subtitle, level, language, duration, author.getName(),
                 lessons, price, accentColor, outcomes, modules);
         course.setAuthor(author);
+        course.setDiscordUrl(DEFAULT_DISCORD_URL);
         return course;
     }
 
@@ -448,10 +504,10 @@ public class PremiumCourseService {
         }
 
         return userRepository.findByUsername(username)
-                .map(user -> userCourseProgressRepository.findByUser(user).stream()
+                .map(user -> premiumCourseRepository.findAll().stream()
                         .collect(Collectors.toMap(
-                                progress -> progress.getCourse().getSlug(),
-                                progress -> calculateProgressPercent(progress.getCompletedLessons(), progress.getCourse().getLessons())
+                                PremiumCourse::getSlug,
+                                course -> calculateProgressPercent(user, course)
                         )))
                 .orElse(Map.of());
     }
@@ -469,9 +525,96 @@ public class PremiumCourseService {
 
         return userRepository.findByUsername(username)
                 .flatMap(user -> premiumCourseRepository.findBySlug(slug)
-                        .flatMap(course -> userCourseProgressRepository.findByUserAndCourse(user, course)))
-                .map(UserCourseProgress::getCompletedLessons)
+                        .map(course -> completedVideos(user, course)
+                                .orElseGet(() -> userCourseProgressRepository.findByUserAndCourse(user, course)
+                                        .map(UserCourseProgress::getCompletedLessons)
+                                        .orElse(0))))
                 .orElse(0);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CourseVideo> findVideos(String slug) {
+        PremiumCourse course = premiumCourseRepository.findBySlug(slug)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found"));
+        return courseVideoRepository.findByCourseOrderByPositionAsc(course);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<CourseVideo> findPurchasedVideo(String username, String courseSlug, Long videoId) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        PremiumCourse course = premiumCourseRepository.findBySlug(courseSlug)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found"));
+
+        if (!user.getPurchasedCourses().contains(course)) {
+            return Optional.empty();
+        }
+
+        return courseVideoRepository.findByIdAndCourse(videoId, course);
+    }
+
+    @Transactional(readOnly = true)
+    public Map<Long, UserVideoProgress> findVideoProgress(String username, String slug) {
+        if (username == null) {
+            return Map.of();
+        }
+
+        return userRepository.findByUsername(username)
+                .flatMap(user -> premiumCourseRepository.findBySlug(slug)
+                        .map(course -> userVideoProgressRepository.findByUserAndVideoCourse(user, course).stream()
+                                .collect(Collectors.toMap(progress -> progress.getVideo().getId(), progress -> progress))))
+                .orElse(Map.of());
+    }
+
+    @Transactional
+    public VideoProgressResult saveVideoProgress(String username, String slug, Long videoId, int watchedSeconds, Integer durationSeconds) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        PremiumCourse course = premiumCourseRepository.findBySlug(slug)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found"));
+
+        if (!user.getPurchasedCourses().contains(course)) {
+            throw new IllegalArgumentException("Course not purchased");
+        }
+
+        CourseVideo video = courseVideoRepository.findByIdAndCourse(videoId, course)
+                .orElseThrow(() -> new IllegalArgumentException("Video not found"));
+        syncBrowserVideoDuration(video, durationSeconds);
+        int normalizedSeconds = Math.max(0, Math.min(watchedSeconds, video.getDurationSeconds()));
+        UserVideoProgress progress = userVideoProgressRepository.findByUserAndVideo(user, video)
+                .orElseGet(() -> {
+                    UserVideoProgress newProgress = new UserVideoProgress();
+                    newProgress.setUser(user);
+                    newProgress.setVideo(video);
+                    return newProgress;
+                });
+
+        progress.setWatchedSeconds(Math.max(progress.getWatchedSeconds(), normalizedSeconds));
+        progress.setCompleted(progress.getWatchedSeconds() >= Math.ceil(video.getDurationSeconds() * 0.9));
+        userVideoProgressRepository.save(progress);
+
+        UserCourseProgress courseProgress = ensureProgress(user, course);
+        int completedLessons = completedVideos(user, course).orElse(0);
+        courseProgress.setCompletedLessons(completedLessons);
+        userCourseProgressRepository.save(courseProgress);
+
+        return new VideoProgressResult(calculateProgressPercent(user, course), completedLessons);
+    }
+
+    public record VideoProgressResult(int progressPercent, int completedLessons) {
+    }
+
+    private void syncBrowserVideoDuration(CourseVideo video, Integer durationSeconds) {
+        if (durationSeconds == null || durationSeconds <= 0 || durationSeconds > 43200) {
+            return;
+        }
+
+        if (Math.abs(video.getDurationSeconds() - durationSeconds) <= 1) {
+            return;
+        }
+
+        video.setDurationSeconds(durationSeconds);
+        courseVideoRepository.save(video);
     }
 
     @Transactional(readOnly = true)
@@ -600,5 +743,45 @@ public class PremiumCourseService {
         }
 
         return Math.min(100, (int) Math.round((completedLessons * 100.0) / totalLessons));
+    }
+
+    private int calculateProgressPercent(User user, PremiumCourse course) {
+        List<CourseVideo> videos = courseVideoRepository.findByCourseOrderByPositionAsc(course);
+        if (videos.isEmpty()) {
+            return userCourseProgressRepository.findByUserAndCourse(user, course)
+                    .map(progress -> calculateProgressPercent(progress.getCompletedLessons(), course.getLessons()))
+                    .orElse(0);
+        }
+
+        int totalSeconds = videos.stream().mapToInt(CourseVideo::getDurationSeconds).sum();
+        if (totalSeconds <= 0) {
+            return 0;
+        }
+
+        Map<Long, Integer> watchedByVideoId = userVideoProgressRepository.findByUserAndVideoCourse(user, course).stream()
+                .collect(Collectors.toMap(progress -> progress.getVideo().getId(), UserVideoProgress::getWatchedSeconds));
+        int watchedSeconds = videos.stream()
+                .mapToInt(video -> Math.min(video.getDurationSeconds(), watchedByVideoId.getOrDefault(video.getId(), 0)))
+                .sum();
+        int durationPercent = Math.min(100, (int) Math.round((watchedSeconds * 100.0) / totalSeconds));
+        int completedPercent = completedVideos(user, course)
+                .map(completed -> calculateProgressPercent(completed, videos.size()))
+                .orElse(0);
+        return Math.max(durationPercent, completedPercent);
+    }
+
+    private Optional<Integer> completedVideos(User user, PremiumCourse course) {
+        List<CourseVideo> videos = courseVideoRepository.findByCourseOrderByPositionAsc(course);
+        if (videos.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Set<Long> completedVideoIds = userVideoProgressRepository.findByUserAndVideoCourse(user, course).stream()
+                .filter(UserVideoProgress::isCompleted)
+                .map(progress -> progress.getVideo().getId())
+                .collect(Collectors.toSet());
+        return Optional.of((int) videos.stream()
+                .filter(video -> completedVideoIds.contains(video.getId()))
+                .count());
     }
 }

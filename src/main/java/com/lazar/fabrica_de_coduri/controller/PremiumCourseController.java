@@ -1,32 +1,50 @@
 package com.lazar.fabrica_de_coduri.controller;
 
 import com.lazar.fabrica_de_coduri.model.PremiumCourse;
+import com.lazar.fabrica_de_coduri.model.CourseVideo;
 import com.lazar.fabrica_de_coduri.repository.PlatformInfoRepository;
 import com.lazar.fabrica_de_coduri.repository.TopicRepository;
 import com.lazar.fabrica_de_coduri.service.PremiumCourseService;
+import com.lazar.fabrica_de_coduri.service.VideoStorageService;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.data.domain.Page;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpRange;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.MediaTypeFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Controller
 public class PremiumCourseController {
     private final PremiumCourseService premiumCourseService;
+    private final VideoStorageService videoStorageService;
     private final TopicRepository topicRepository;
     private final PlatformInfoRepository platformInfoRepository;
 
     public PremiumCourseController(PremiumCourseService premiumCourseService,
+                                   VideoStorageService videoStorageService,
                                    TopicRepository topicRepository,
                                    PlatformInfoRepository platformInfoRepository) {
         this.premiumCourseService = premiumCourseService;
+        this.videoStorageService = videoStorageService;
         this.topicRepository = topicRepository;
         this.platformInfoRepository = platformInfoRepository;
     }
@@ -129,12 +147,57 @@ public class PremiumCourseController {
         }
 
         addSharedAttributes(model);
+        List<CourseVideo> videos = premiumCourseService.findVideos(slug);
         model.addAttribute("course", course);
+        model.addAttribute("videos", videos);
+        model.addAttribute("currentVideo", videos.isEmpty() ? null : videos.get(0));
+        model.addAttribute("videoProgress", premiumCourseService.findVideoProgress(authentication.getName(), slug));
         model.addAttribute("completedLessons", premiumCourseService.findCompletedLessons(authentication.getName(), slug));
         model.addAttribute("progressPercent", premiumCourseService.findProgressPercent(authentication.getName(), slug));
         model.addAttribute("courseComments", premiumCourseService.findComments(slug));
         model.addAttribute("myCourseComment", premiumCourseService.findCommentForUser(authentication.getName(), slug).orElse(null));
         return "course-watch";
+    }
+
+    @GetMapping("/courses/{slug}/videos/{videoId}/stream")
+    @ResponseBody
+    public ResponseEntity<ResourceRegion> streamVideo(@PathVariable String slug,
+                                                      @PathVariable Long videoId,
+                                                      @RequestHeader HttpHeaders headers,
+                                                      Authentication authentication) throws IOException {
+        CourseVideo video = premiumCourseService.findPurchasedVideo(authentication.getName(), slug, videoId).orElse(null);
+        if (video == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Resource resource;
+        try {
+            resource = videoStorageService.load(video.getStorageKey());
+        } catch (IllegalArgumentException exception) {
+            return ResponseEntity.notFound().build();
+        }
+
+        long contentLength = resource.contentLength();
+        ResourceRegion region = resourceRegion(resource, headers.getRange(), contentLength);
+
+        return ResponseEntity.status(headers.getRange().isEmpty() ? HttpStatus.OK : HttpStatus.PARTIAL_CONTENT)
+                .contentType(MediaTypeFactory.getMediaType(resource).orElse(MediaType.APPLICATION_OCTET_STREAM))
+                .body(region);
+    }
+
+    @PostMapping("/courses/{slug}/videos/{videoId}/progress")
+    @ResponseBody
+    public Map<String, Integer> saveVideoProgress(@PathVariable String slug,
+                                                  @PathVariable Long videoId,
+                                                  @RequestParam("watchedSeconds") int watchedSeconds,
+                                                  @RequestParam(value = "durationSeconds", required = false) Integer durationSeconds,
+                                                  Authentication authentication) {
+        PremiumCourseService.VideoProgressResult progress = premiumCourseService.saveVideoProgress(authentication.getName(), slug, videoId,
+                watchedSeconds, durationSeconds);
+        return Map.of(
+                "progressPercent", progress.progressPercent(),
+                "completedLessons", progress.completedLessons()
+        );
     }
 
     @PostMapping("/courses/{slug}/progress")
@@ -200,5 +263,17 @@ public class PremiumCourseController {
         return authentication != null
                 && authentication.isAuthenticated()
                 && !(authentication instanceof AnonymousAuthenticationToken);
+    }
+
+    private ResourceRegion resourceRegion(Resource video, List<HttpRange> ranges, long contentLength) {
+        if (ranges == null || ranges.isEmpty()) {
+            return new ResourceRegion(video, 0, contentLength);
+        }
+
+        HttpRange range = ranges.get(0);
+        long start = range.getRangeStart(contentLength);
+        long end = range.getRangeEnd(contentLength);
+        long rangeLength = Math.min(1024 * 1024, end - start + 1);
+        return new ResourceRegion(video, start, rangeLength);
     }
 }

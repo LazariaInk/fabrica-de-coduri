@@ -32,7 +32,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/courses/*/buy", "/courses/*/watch", "/courses/*/wishlist", "/courses/*/progress", "/courses/*/comments").authenticated()
+                        .requestMatchers("/courses/*/buy", "/courses/*/watch", "/courses/*/wishlist", "/courses/*/progress", "/courses/*/comments", "/courses/*/videos/*/stream", "/courses/*/videos/*/progress").authenticated()
                         .requestMatchers("/account/**").authenticated()
                         .requestMatchers("/forgot-password", "/reset-password").permitAll()
                         .anyRequest().permitAll()

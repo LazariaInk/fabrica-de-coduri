@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import jakarta.servlet.http.HttpServletResponse;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -31,7 +32,11 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public String handleAnyException(Exception ex, Model model) {
+    public String handleAnyException(Exception ex, Model model, HttpServletResponse response) {
+        if (response.isCommitted()) {
+            return null;
+        }
+
         model.addAttribute("topics", topicRepo.findAll());
 
         PlatformInfo platformInfo = platformInfoRepository.findById(1L).orElse(null);

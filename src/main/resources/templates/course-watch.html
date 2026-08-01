@@ -24,9 +24,17 @@
             <a class="watch-author-link" th:if="${course.author != null}"
                th:href="@{'/authors/' + ${course.author.slug}}"
                th:text="${course.author.name}">Autor</a>
-            <button class="playlist-item active" th:each="module, stat : ${course.modules}" type="button">
-                <span th:text="${stat.count}">1</span>
-                <strong th:text="${module}">Modul</strong>
+            <button class="playlist-item"
+                    th:each="video, stat : ${videos}"
+                    th:classappend="${stat.first} ? ' active' : ''"
+                    type="button"
+                    th:data-src="@{'/courses/' + ${course.slug} + '/videos/' + ${video.id} + '/stream'}"
+                    th:data-progress-url="@{'/courses/' + ${course.slug} + '/videos/' + ${video.id} + '/progress'}"
+                    th:data-title="${video.title}"
+                    th:data-watched="${videoProgress.get(video.id) != null ? videoProgress.get(video.id).watchedSeconds : 0}">
+                <span th:text="${video.position}">1</span>
+                <strong th:text="${video.title}">Modul</strong>
+                <small th:text="${video.durationSeconds < 60 ? '<1 min' : (video.durationSeconds / 60) + ' min'}">30 min</small>
             </button>
         </aside>
 
@@ -34,21 +42,47 @@
             <p class="auth-success" th:if="${successMessage}" th:text="${successMessage}"></p>
             <div class="watch-progress">
                 <div class="course-progress-label">
-                    <span th:text="${completedLessons + ' din ' + course.lessons + ' lectii finalizate'}">0 din 64 lectii finalizate</span>
+                    <span class="completed-lessons-label"
+                          th:data-total-lessons="${videos.size()}"
+                          th:text="${completedLessons + ' din ' + videos.size() + ' lectii finalizate'}">0 din 4 lectii finalizate</span>
                     <strong th:text="${progressPercent + '%'}">0%</strong>
                 </div>
                 <div class="course-progress-track">
                     <span th:style="'width:' + ${progressPercent} + '%'"></span>
                 </div>
             </div>
-            <div class="video-placeholder">
-                <div class="play-circle">▶</div>
-                <p>Lectie demo premium</p>
+            <input type="hidden" class="course-video-csrf" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <div class="secure-video-shell" th:if="${currentVideo != null}">
+                <video class="secure-video-player"
+                       controls
+                       preload="metadata"
+                       controlsList="nodownload"
+                       th:data-progress-url="@{'/courses/' + ${course.slug} + '/videos/' + ${currentVideo.id} + '/progress'}"
+                       th:data-watched="${videoProgress.get(currentVideo.id) != null ? videoProgress.get(currentVideo.id).watchedSeconds : 0}">
+                    <source th:src="@{'/courses/' + ${course.slug} + '/videos/' + ${currentVideo.id} + '/stream'}" type="video/mp4">
+                </video>
+            </div>
+            <div class="video-placeholder" th:if="${currentVideo == null}">
+                <div class="play-circle">&#9658;</div>
+                <p>Nu exista inca video-uri pentru acest curs.</p>
             </div>
             <div class="watch-notes">
-                <h2>Lectia curenta</h2>
-                <p>Aici vei conecta playerul video real pentru fiecare lectie. Fluxul de acces este deja pregatit: doar utilizatorii logati si cu acest curs cumparat ajung pe pagina.</p>
-                <form th:action="@{'/courses/' + ${course.slug} + '/progress'}" method="post">
+                <h2 class="current-video-title" th:text="${currentVideo != null ? currentVideo.title : 'Lectia curenta'}">Lectia curenta</h2>
+                <p>Progresul se salveaza automat in timp ce vizionezi. O lectie este considerata finalizata dupa ce ai ajuns la cel putin 90% din durata ei.</p>
+                <a class="course-discord-cta watch-discord-cta"
+                   th:if="${course.hasDiscordUrl()}"
+                   th:href="${course.discordUrl}"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                    <span class="discord-image-wrap">
+                        <img th:src="${course.discordImagePath}" alt="" aria-hidden="true">
+                    </span>
+                    <span>
+                        <small>Canalul cursului</small>
+                        <strong>Deschide discutia pe Discord</strong>
+                    </span>
+                </a>
+                <form th:action="@{'/courses/' + ${course.slug} + '/progress'}" method="post" th:if="${currentVideo == null}">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                     <button class="primary-action" type="submit" th:disabled="${completedLessons >= course.lessons}">Marcheaza lectia finalizata</button>
                 </form>
