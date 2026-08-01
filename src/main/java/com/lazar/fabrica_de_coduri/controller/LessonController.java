@@ -117,12 +117,15 @@ public class LessonController {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("No lessons found"));
 
-        String topicSlug = SlugUtils.toSlug(topic.getName());
-        String chapterSlug = SlugUtils.toSlug(firstChapter.getTitle());
-        String lessonSlug = SlugUtils.toSlug(firstLesson.getTitle());
+        String topicSlug = firstNonBlank(firstNonBlank(topic.getSlug(), SlugUtils.toSlug(topic.getName())), "");
+        String chapterSlug = firstNonBlank(firstChapter.getSlug(), SlugUtils.toSlug(firstChapter.getTitle()));
+        String lessonSlug = firstNonBlank(firstLesson.getSlug(), SlugUtils.toSlug(firstLesson.getTitle()));
 
         return "redirect:/lectii/" + topicSlug + "/" + chapterSlug + "/" + lessonSlug;
     }
 
+    private String firstNonBlank(String value, String fallback) {
+        return value != null && !value.isBlank() ? value : fallback;
+    }
 
 }
