@@ -8,7 +8,9 @@ public class SlugUtils {
 
         String noNumberPrefix = input.replaceFirst("^\\d+\\.*\\s*", "")
                 .replace("C++", "Cpp")
-                .replace("c++", "cpp");
+                .replace("c++", "cpp")
+                .replace("C#", "C sharp")
+                .replace("c#", "c sharp");
 
         return Normalizer.normalize(noNumberPrefix, Normalizer.Form.NFD)
                 .replaceAll("[\\p{InCombiningDiacriticalMarks}]", "")

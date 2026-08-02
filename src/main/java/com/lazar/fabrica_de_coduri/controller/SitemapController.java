@@ -33,9 +33,12 @@ public class SitemapController {
         xml.append(createUrl(BASE_URL + "/about", "yearly", "0.7"));
 
         for (Lesson lesson : lessons) {
-            String topicSlug = SlugUtils.toSlug(lesson.getChapter().getTopic().getName());
-            String chapterSlug = SlugUtils.toSlug(lesson.getChapter().getTitle());
-            String lessonSlug = SlugUtils.toSlug(lesson.getTitle());
+            String topicSlug = publicSlug(
+                    lesson.getChapter().getTopic().getSlug(),
+                    lesson.getChapter().getTopic().getName()
+            );
+            String chapterSlug = publicSlug(lesson.getChapter().getSlug(), lesson.getChapter().getTitle());
+            String lessonSlug = publicSlug(lesson.getSlug(), lesson.getTitle());
 
             String fullUrl = BASE_URL + "/lectii/" + topicSlug + "/" + chapterSlug + "/" + lessonSlug;
             xml.append(createUrl(fullUrl, "weekly", "0.8"));
@@ -48,10 +51,26 @@ public class SitemapController {
     private String createUrl(String loc, String changefreq, String priority) {
         return new StringBuilder()
                 .append("<url>")
-                .append("<loc>").append(loc).append("</loc>")
+                .append("<loc>").append(escapeXml(loc)).append("</loc>")
                 .append("<changefreq>").append(changefreq).append("</changefreq>")
                 .append("<priority>").append(priority).append("</priority>")
                 .append("</url>")
                 .toString();
+    }
+
+    private String publicSlug(String storedSlug, String fallbackText) {
+        if (storedSlug != null && storedSlug.matches("[a-z0-9]+(?:-[a-z0-9]+)*")) {
+            return storedSlug;
+        }
+
+        return SlugUtils.toSlug(fallbackText);
+    }
+
+    private String escapeXml(String value) {
+        return value.replace("&", "&amp;")
+                .replace("\"", "&quot;")
+                .replace("'", "&apos;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;");
     }
 }
